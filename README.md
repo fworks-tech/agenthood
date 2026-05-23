@@ -39,6 +39,8 @@ Each member of the Agenthood is a specialized AI agent skill — a Markdown file
 | [The Herald](members/the-herald/README.md) | Releases, Versioning | Announces with ceremony, ships with precision |
 | [The Librarian](members/the-librarian/README.md) | Docs, ADRs, Knowledge | Every decision, recorded for posterity |
 | [The Doorman](members/the-doorman/README.md) | Commitlint, PR Lint, Health | Nothing gets in without proper credentials |
+| [The Oracle](members/the-oracle/README.md) | Institutional Knowledge | Ask me anything about the Society. I have read every scroll. |
+| [The Envoy](members/the-envoy/README.md) | Cross-Provider Translation | One Society. Every runtime. No exceptions. |
 
 ---
 
@@ -82,6 +84,8 @@ The Agenthood is agent-agnostic. Members work with:
 - [Gemini CLI](https://github.com/google-gemini/gemini-cli) — via `GEMINI.md` + skills
 - [OpenAI Codex CLI](https://github.com/openai/codex) — via `AGENTS.md` + skills
 - [CodeBuddy](https://github.com/olasunkanmi-SE/codebuddy) — via `.codebuddy/skills/`
+
+Use `the-envoy` to automate provider onboarding and keep skill files in sync across runtimes.
 
 ---
 
@@ -130,7 +134,9 @@ agenthood/
 │   ├── the-auditor/
 │   ├── the-herald/
 │   ├── the-librarian/
-│   └── the-doorman/
+│   ├── the-doorman/
+│   ├── the-oracle/
+│   └── the-envoy/
 │
 ├── rituals/                         ← Layer 3: Automations
 │   ├── morning-briefing.md

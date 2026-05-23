@@ -51,3 +51,5 @@ Load skills from `members/` to activate specialized agents:
 - `the-herald` — semantic versioning, release notes
 - `the-librarian` — documentation, knowledge management
 - `the-doorman` — validation, health checks, enforcement
+- `the-oracle` — institutional knowledge, member authoring templates, naming guidance
+- `the-envoy` — cross-provider translation, bootstrap generation, convention validation

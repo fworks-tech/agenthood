@@ -18,21 +18,28 @@ jobs:
         shell: bash
         run: |
           FAILED=0
-          REQUIRED_SECTIONS="## Overview ## When to Use ## Process ## Red Flags ## Rationalizations ## Verification"
+
+          check_section() {
+            local skill_file="$1"
+            local name="$2"
+            local section="$3"
+            if ! grep -qF "^$section" "$skill_file" && ! grep -qF "$section" "$skill_file"; then
+              echo "FAIL [$name]: missing section '$section' in skill file"
+              return 1
+            fi
+            return 0
+          }
 
           for MEMBER_DIR in members/*/; do
             NAME=$(basename "$MEMBER_DIR")
 
-            # Skip the README.md directory entry itself
             [ "$NAME" = "README.md" ] && continue
 
-            # Check README.md exists
             if [ ! -f "${MEMBER_DIR}README.md" ]; then
               echo "FAIL [$NAME]: missing README.md"
               FAILED=1
             fi
 
-            # Check skill file exists: the-<name>.md
             SKILL_FILE="${MEMBER_DIR}${NAME}.md"
             if [ ! -f "$SKILL_FILE" ]; then
               echo "FAIL [$NAME]: missing skill file $SKILL_FILE"
@@ -40,24 +47,20 @@ jobs:
               continue
             fi
 
-            # Extract frontmatter
             FM=$(awk '/^---/{count++; if(count==2) exit} count==1' "$SKILL_FILE")
 
-            # Check frontmatter has name:
             if ! echo "$FM" | grep -q "^name:"; then
               echo "FAIL [$NAME]: skill file missing 'name:' in frontmatter"
               FAILED=1
             fi
 
-            # Check frontmatter has description:
             if ! echo "$FM" | grep -q "^description:"; then
               echo "FAIL [$NAME]: skill file missing 'description:' in frontmatter"
               FAILED=1
             fi
 
-            # Check required sections
-            for SECTION in $REQUIRED_SECTIONS; do
-              if ! grep -q "^$SECTION" "$SKILL_FILE"; then
+            for SECTION in "## Overview" "## When to Use" "## Process" "## Red Flags" "## Rationalizations" "## Verification"; do
+              if ! grep -qF "$SECTION" "$SKILL_FILE"; then
                 echo "FAIL [$NAME]: missing section '$SECTION' in skill file"
                 FAILED=1
               fi

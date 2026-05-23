@@ -1,0 +1,26 @@
+#!/bin/sh
+# The Doorman — pre-push hook
+# Enforces the Oath: "I never push to main."
+
+protected_branch="main"
+
+while read local_ref local_sha remote_ref remote_sha; do
+  if echo "$remote_ref" | grep -q "refs/heads/$protected_branch$"; then
+    echo ""
+    echo "╔══════════════════════════════════════════════════════════╗"
+    echo "║              The Doorman — Access Denied                 ║"
+    echo "╠══════════════════════════════════════════════════════════╣"
+    echo "║                                                          ║"
+    echo "║  Direct push to 'main' is forbidden by the Oath.        ║"
+    echo "║                                                          ║"
+    echo "║  > I never push to main.                                 ║"
+    echo "║                                                          ║"
+    echo "║  Open a pull request. The Society is watching.           ║"
+    echo "║                                                          ║"
+    echo "╚══════════════════════════════════════════════════════════╝"
+    echo ""
+    exit 1
+  fi
+done
+
+exit 0

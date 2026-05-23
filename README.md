@@ -96,20 +96,26 @@ Use `the-envoy` to automate provider onboarding and keep skill files in sync acr
 ```bash
 # 1. Clone the Society
 git clone https://github.com/fworks-tech/agenthood.git
+cd agenthood
 
-# 2. Copy conventions into your project
-cp agenthood/conventions/.gitmessage yourproject/
-cp agenthood/conventions/commitlint.config.js yourproject/
+# 2. Activate The Doorman — enforce the Oath locally
+git config core.hooksPath .githooks
+chmod +x .githooks/pre-push
+
+# 3. Copy conventions into your project
+cp conventions/.gitmessage yourproject/
+cp conventions/commitlint.config.js yourproject/
 git config commit.template .gitmessage
 
-# 3. Load the members into your agent runtime
+# 4. Load the members into your agent runtime
 # For Claude Code:
-cp -r agenthood/members/ yourproject/.claude/skills/
+cp -r members/ yourproject/.claude/skills/
 
-# 4. Read the oath. Mean it.
+# 5. Read the oath. Mean it.
 cat agenthood/oath.md
 
-# 5. Never push to main again.
+# 6. Never push to main again.
+#    (The Doorman will enforce this. You just activated it.)
 ```
 
 ---
@@ -121,6 +127,9 @@ agenthood/
 ├── README.md                        ← You are here
 ├── AGENTS.md                        ← Member registry (agent-agnostic)
 ├── oath.md                          ← The Oath
+│
+├── .githooks/                       ← The Doorman's enforcement hooks
+│   └── pre-push                     ← Blocks direct push to main
 │
 ├── conventions/                     ← Layer 1: The Rules
 │   ├── .gitmessage

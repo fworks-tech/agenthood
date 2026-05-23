@@ -1,0 +1,45 @@
+name: Warden — File Size Enforcement
+
+on:
+  pull_request:
+    branches: [main]
+
+jobs:
+  warden:
+    name: Check File Sizes
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: The Warden — enforce file size limits
+        shell: bash
+        run: |
+          FAILED=0
+          BASE_SHA=${{ github.event.pull_request.base.sha }}
+          HEAD_SHA=${{ github.event.pull_request.head.sha }}
+
+          CHANGED=$(git diff --name-only --diff-filter=ACM "$BASE_SHA" "$HEAD_SHA" 2>/dev/null)
+
+          for FILE in $CHANGED; do
+            [ -f "$FILE" ] || continue
+            LINES=$(wc -l < "$FILE" | tr -d ' ')
+
+            if [ "$LINES" -gt 500 ]; then
+              echo "FAIL: $FILE — $LINES lines (limit: 500)"
+              FAILED=1
+            elif [ "$LINES" -gt 300 ]; then
+              echo "WARN: $FILE — $LINES lines (approaching limit of 500)"
+            fi
+          done
+
+          if [ "$FAILED" -eq 1 ]; then
+            echo ""
+            echo "The Warden: one or more files exceed the 500-line limit."
+            echo "Split the file or justify the exception in the PR description."
+            exit 1
+          fi
+
+          echo "The Warden: all changed files within size limits."

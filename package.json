@@ -1,0 +1,60 @@
+{
+  "name": "agenthood",
+  "version": "0.1.0",
+  "description": "A society of AI agents with impeccable standards and zero tolerance for 'fix stuff' commits.",
+  "keywords": [
+    "ai-agents",
+    "developer-experience",
+    "conventional-commits",
+    "commitlint",
+    "husky",
+    "semantic-release",
+    "claude-code",
+    "agent-skills",
+    "dx",
+    "git-workflow"
+  ],
+  "homepage": "https://github.com/fworks-tech/agenthood#readme",
+  "bugs": {
+    "url": "https://github.com/fworks-tech/agenthood/issues"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/fworks-tech/agenthood.git"
+  },
+  "license": "MIT",
+  "author": "Fabio Ritzel Borges <fritzelborges@gmail.com>",
+  "type": "module",
+  "main": "./dist/index.js",
+  "bin": {
+    "agenthood": "./dist/cli.js"
+  },
+  "files": [
+    "dist",
+    "members",
+    "conventions",
+    "portals",
+    "rituals",
+    "agentic-workflows",
+    "workflows",
+    "architecture",
+    "INITIATION.md",
+    "oath.md",
+    "AGENTS.md"
+  ],
+  "scripts": {
+    "build": "tsc",
+    "dev": "tsc --watch",
+    "test": "node --experimental-vm-modules node_modules/jest/bin/jest.js",
+    "lint": "eslint src/",
+    "typecheck": "tsc --noEmit",
+    "prepublishOnly": "npm run lint && npm run typecheck && npm run build && npm test"
+  },
+  "devDependencies": {
+    "@types/node": "^22.0.0",
+    "typescript": "^5.5.0"
+  },
+  "engines": {
+    "node": ">=20.0.0"
+  }
+}

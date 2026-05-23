@@ -1,0 +1,6 @@
+node_modules/
+dist/
+.agenthood/audit.log
+.agenthood/memory.json
+.env
+*.local

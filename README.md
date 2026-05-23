@@ -50,7 +50,7 @@ The Agenthood is organized in six layers, each building on the last:
 Layer 1 — Conventions       The rules every member follows
 Layer 2 — Members           The agent skills
 Layer 3 — Rituals           Scheduled automations
-Layer 4 — Intelligence      Connectors to external systems
+Layer 4 — Portals           Connectors to external systems
 Layer 5 — Agentic Workflows GitHub Agentic Workflows (gh aw)
 Layer 6 — CI Workflows      Reusable GitHub Actions
 ```
@@ -138,7 +138,7 @@ agenthood/
 │   ├── the-watchman.md
 │   └── evening-report.md
 │
-├── intelligence/                    ← Layer 4: Connectors
+├── portals/                         ← Layer 4: Portals to external systems
 │   ├── github.md
 │   ├── linear.md
 │   ├── jira.md

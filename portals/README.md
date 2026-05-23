@@ -1,10 +1,11 @@
-# Intelligence
+# Portals
 
-> *The Society does not operate in isolation. It has sources.*
+> *The Society does not operate in isolation. It maintains portals.*
 
-The Agenthood connects to external systems through MCP (Model Context Protocol) connectors.
-Each connector gives members access to a specific intelligence source —
-issue trackers, monitoring tools, communication platforms, and data stores.
+The Agenthood connects to external systems through Portals — MCP (Model Context Protocol)
+servers that give members a window into outside worlds.
+Issue trackers, monitoring systems, communication platforms, data stores.
+The Society steps through. The Society steps back. Nothing leaks.
 
 ---
 
@@ -31,7 +32,7 @@ The credential proxy handles authentication — members never see raw API keys.
 
 ## Adding a Connector
 
-1. Create a new `intelligence/[service].md` file using the template below
+1. Create a new `portals/[service].md` file using the template below
 2. Configure the MCP server in your agent runtime's settings
 3. Add the connector to `AGENTS.md` so all members know it exists
 4. Update the table above

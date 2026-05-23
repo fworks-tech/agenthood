@@ -56,6 +56,29 @@ Validates that the PR title follows Conventional Commits format:
 - Subject does not start with an uppercase character
 - Returns pass/fail with specific failure reason
 
+### PR Scope Validation
+
+After title validation, check whether the PR represents a single concern:
+
+**Check 1 — The "no and" test**
+- Read the PR title and description
+- If summarizing the PR requires "and" to connect two independent concerns, block:
+  *"This PR mixes two concerns. Split it or explain why they are inseparable."*
+
+**Check 2 — Commit intent diversity**
+- Run `git log origin/main..HEAD --oneline`
+- If commits span unrelated scopes (e.g., `feat(api)` + `feat(ui)` + `chore(deps)`),
+  flag unless the PR description explicitly justifies the grouping
+
+**Check 3 — Independent revertability**
+- Ask: could half of these changes be reverted while leaving the rest valid?
+- If yes, the PR should have been split — flag as WARNING
+
+**On scope failure**, provide:
+1. Which check failed
+2. A suggested split: "PR A: [concern 1] — PR B: [concern 2]"
+3. Reference to The Architect for branch strategy guidance
+
 ### Repository Health Check
 
 On demand or scheduled, scan for:
@@ -144,6 +167,7 @@ When PR title is non-conforming:
 ## Red Flags
 
 - Any bypass of the `commit-msg` hook (`--no-verify`)
+- A PR that requires "and" to describe — two concerns dressed as one
 - Force pushes to shared branches
 - Merges to main without a passing CI check
 - Branch protection disabled on main
@@ -163,6 +187,8 @@ When PR title is non-conforming:
 The Doorman's job is done when:
 
 - [ ] All commits in the branch pass commitlint validation
+- [ ] PR scope passes the "no and" test
+- [ ] PR commits do not span unrelated concerns without justification
 - [ ] PR title passes Conventional Commits format check
 - [ ] No wildcard dependencies in `package.json`
 - [ ] No secrets in staged or committed files

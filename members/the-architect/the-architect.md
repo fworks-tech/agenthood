@@ -62,6 +62,36 @@ Unit / Integration / E2E — what level, what coverage target, what tools.
 Decisions deferred, with reasoning for deferral.
 ```
 
+### Branch Scope
+
+One branch per concern. Determine branch scope before any code is written.
+
+**A branch covers one concern when:**
+- It maps to a single GitHub issue
+- It can be described in one sentence without "and"
+- Reverting it leaves the codebase in a valid state
+
+**Split into multiple branches when:**
+- The feature has independent layers (e.g., API + UI) that can be reviewed separately
+- One part could ship before the other without breaking anything
+- Different reviewers own different parts of the change
+
+**The stacked branch pattern** (for dependent work):
+```
+main
+ └── feat/42-user-preferences-api      ← reviewed and merged first
+      └── feat/42-user-preferences-ui  ← branches off the API branch, merged after
+```
+Each branch targets its parent, not main directly. The Scribe writes one PR per branch.
+When the parent merges, rebase the child onto main before its own review.
+
+**The N+1 branch pattern** (for independent parallel units):
+```
+feat/43-add-the-sentinel   ← independent, can merge in any order
+feat/43-add-the-warden     ← independent, can merge in any order
+feat/43-register-members   ← depends on both above; merges last
+```
+
 ### Task Decomposition (`tasks.md`)
 
 Break the spec into tasks where each task:
@@ -113,6 +143,8 @@ What becomes easier? What becomes harder? What new risks are introduced?
 
 ## Red Flags
 
+- A branch whose description requires "and" — it should be two branches
+- Starting implementation without deciding branch scope first
 - Implementation starting before a spec exists for non-trivial changes
 - "We'll figure out the design as we go" on anything touching the data model
 - A task list where individual tasks take more than a day
@@ -128,6 +160,7 @@ What becomes easier? What becomes harder? What new risks are introduced?
 | "The spec will slow us down" | The spec prevents the rebuild. Which is slower? |
 | "We don't need an ADR for this" | You will. Six months from now someone will ask why. |
 | "I'll break it into tasks later" | You won't. The feature will grow. The tasks will never be written. |
+| "One branch for the whole feature is simpler" | Simpler to start. Harder to review, harder to revert, harder to ship incrementally. One concern per branch is the spec — not a suggestion. |
 
 ## Verification
 
@@ -139,3 +172,5 @@ Before implementation begins:
 - [ ] Task list exists with one-commit-per-task granularity
 - [ ] Dependencies between tasks are clear
 - [ ] Significant decisions have ADRs
+- [ ] Branch scope is defined — one concern, describable without "and"
+- [ ] Stacked or parallel branch strategy chosen if feature spans multiple concerns

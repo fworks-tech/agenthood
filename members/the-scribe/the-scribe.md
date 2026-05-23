@@ -23,6 +23,17 @@ The Scribe is responsible for all written communication between the codebase and
 1. Run `git diff --staged` to read all staged changes
 2. Identify the single logical intent behind the changes
 3. If multiple intents are present, flag them — the commit should be split
+
+**Splitting multi-part additions (the N+1 pattern):**
+When adding N independent units of the same type (members, components, modules),
+produce N+1 commits — one per unit, plus one for all shared registration changes:
+```
+feat(members): add the-sentinel        ← unit 1 files only
+feat(members): add the-warden          ← unit 2 files only
+feat(members): register sentinel and warden in indexes  ← AGENTS.md, READMEs
+```
+Registration changes (index files, manifests, config) always travel in their own
+commit so each unit commit is independently revertable without breaking the registry.
 4. Determine the correct `type` from the nature of the change:
    - `feat` — new behavior for the user
    - `fix` — corrects broken behavior
@@ -52,15 +63,34 @@ Co-Authored-By: Claude Sonnet 4.6 <noreply@anthropic.com>
 ### Writing a PR Description
 
 1. Run `git log origin/main..HEAD --oneline` to list all commits in the branch
-2. Run `git diff origin/main...HEAD` to read the full diff
-3. Identify the originating issue number from branch name or commit footers
-4. Write the description in three sections:
+2. Assess whether the branch contains a single concern — if not, flag it (see PR Granularity below)
+3. Run `git diff origin/main...HEAD` to read the full diff
+4. Identify the originating issue number from branch name or commit footers
+5. Write the description in three sections:
    - **What** — one paragraph summarizing what changed
    - **Why** — one paragraph explaining the motivation or problem solved
    - **How to test** — numbered steps a reviewer can follow to verify the change
-5. Add screenshots section if the diff touches UI files
-6. Add `Closes #N` footer
-7. Add `Co-Authored-By` footer
+6. Add screenshots section if the diff touches UI files
+7. Add `Closes #N` footer
+8. Add `Co-Authored-By` footer
+
+### PR Granularity
+
+A PR should represent one concern — the same principle as a commit, at a higher level.
+
+**Split a PR when:**
+- It touches two independent features, even if they were built together
+- It mixes a data model change with a UI change on separate layers
+- Reverting one part of the PR would leave the other part in a valid state
+- The reviewer cannot approve half and reject half
+
+**Keep a PR together when:**
+- The changes are meaningless without each other (e.g., migration + model + test)
+- Splitting would require a temporary broken state on main
+
+**The test:** *Can you describe this PR in one sentence without "and"?*
+If not, consider splitting it. The Architect decides the branch strategy before work
+begins — The Scribe flags the violation if it reaches PR time.
 
 ### Generating Changelog Entries
 
@@ -103,6 +133,8 @@ Co-Authored-By: Claude Sonnet 4.6 <noreply@anthropic.com>
 - Missing type prefix
 - Body that explains what the code does instead of why it was changed
 - PR description that is blank or says "see commits"
+- A PR whose description requires "and" to summarize — it should be two PRs
+- A single commit bundling N independent units instead of using the N+1 pattern
 
 ## Verification
 
@@ -115,3 +147,5 @@ Before confirming a commit message:
 - [ ] Issue reference present if applicable
 - [ ] Co-Authored-By footer present
 - [ ] Staged changes represent a single logical unit
+- [ ] If adding N independent units, N+1 commits are planned
+- [ ] PR (if open) describes a single concern — passes the "no and" test

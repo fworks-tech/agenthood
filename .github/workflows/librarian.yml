@@ -1,0 +1,96 @@
+name: Librarian — Documentation Sync
+
+on:
+  pull_request:
+    branches: [main]
+
+jobs:
+  librarian:
+    name: Check Documentation Consistency
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: The Librarian — verify docs reflect changed files
+        shell: bash
+        run: |
+          FAILED=0
+          BASE_SHA=${{ github.event.pull_request.base.sha }}
+          HEAD_SHA=${{ github.event.pull_request.head.sha }}
+
+          CHANGED=$(git diff --name-only --diff-filter=ACM "$BASE_SHA" "$HEAD_SHA" 2>/dev/null)
+
+          # ── Rule 1: any new members/ directory must appear in all three indexes ──
+          for FILE in $CHANGED; do
+            if echo "$FILE" | grep -qE "^members/the-[a-z-]+/"; then
+              NAME=$(echo "$FILE" | sed 's|members/\(the-[a-z-]*\)/.*|\1|')
+
+              if ! grep -q "$NAME" AGENTS.md; then
+                echo "FAIL: $NAME added but not registered in AGENTS.md"
+                FAILED=1
+              fi
+
+              if ! grep -q "$NAME" members/README.md; then
+                echo "FAIL: $NAME added but not registered in members/README.md"
+                FAILED=1
+              fi
+
+              if ! grep -q "$NAME" README.md; then
+                echo "FAIL: $NAME added but not registered in README.md"
+                FAILED=1
+              fi
+            fi
+          done
+
+          # ── Rule 2: any change to conventions/ must update AGENTS.md or docs ──
+          CONVENTIONS_CHANGED=$(echo "$CHANGED" | grep "^conventions/" || true)
+          if [ -n "$CONVENTIONS_CHANGED" ]; then
+            DOCS_CHANGED=$(echo "$CHANGED" | grep -E "^(AGENTS\.md|README\.md|INITIATION\.md|members/)" || true)
+            if [ -z "$DOCS_CHANGED" ]; then
+              echo "WARN: conventions/ changed but no doc files updated — verify AGENTS.md and README.md are current"
+            fi
+          fi
+
+          # ── Rule 3: any change to .github/workflows/ must appear in README.md tree ──
+          for FILE in $CHANGED; do
+            if echo "$FILE" | grep -qE "^\.github/workflows/[a-z-]+\.yml"; then
+              WORKFLOW=$(basename "$FILE" .yml)
+              if ! grep -qF "$WORKFLOW.yml" README.md; then
+                echo "FAIL: $WORKFLOW.yml added but not listed in README.md repository structure"
+                FAILED=1
+              fi
+            fi
+          done
+
+          # ── Rule 4: any change to .githooks/ must appear in README.md tree ──
+          for FILE in $CHANGED; do
+            if echo "$FILE" | grep -qE "^\.githooks/"; then
+              HOOK=$(basename "$FILE")
+              if ! grep -qF "$HOOK" README.md; then
+                echo "FAIL: $HOOK added to .githooks/ but not listed in README.md repository structure"
+                FAILED=1
+              fi
+            fi
+          done
+
+          # ── Rule 5: AGENTS.md must mention every member in members/ ──
+          for MEMBER_DIR in members/*/; do
+            NAME=$(basename "$MEMBER_DIR")
+            [ "$NAME" = "README.md" ] && continue
+            if ! grep -q "$NAME" AGENTS.md; then
+              echo "FAIL: $NAME exists in members/ but is not registered in AGENTS.md"
+              FAILED=1
+            fi
+          done
+
+          if [ "$FAILED" -eq 1 ]; then
+            echo ""
+            echo "The Librarian: documentation is out of sync with the code."
+            echo "Update the relevant docs before merging."
+            exit 1
+          fi
+
+          echo "The Librarian: documentation is consistent with the changes."

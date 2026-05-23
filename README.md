@@ -95,18 +95,18 @@ The Agenthood is agent-agnostic. Members work with:
 ```bash
 # 1. Clone the Society
 git clone https://github.com/fworks-tech/agenthood.git
+cd agenthood
 
-# 2. Copy conventions into your project
-cp agenthood/conventions/.gitmessage yourproject/
-cp agenthood/conventions/commitlint.config.js yourproject/
-git config commit.template .gitmessage
+# 2. Activate enforcement (hooks + commit template)
+./setup.sh
+# or: make setup
 
 # 3. Load the members into your agent runtime
 # For Claude Code:
-cp -r agenthood/members/ yourproject/.claude/skills/
+cp -r members/ yourproject/.claude/skills/
 
 # 4. Read the oath. Mean it.
-cat agenthood/oath.md
+cat oath.md
 
 # 5. Never push to main again.
 ```
@@ -126,6 +126,26 @@ agenthood/
 │   ├── commitlint.config.js
 │   └── COMMIT_CONVENTION.md
 │
+├── .devcontainer/                   ← VS Code / Codespaces auto-setup
+│   └── devcontainer.json
+│
+├── .github/workflows/               ← Active CI enforcement
+│   ├── commitlint.yml
+│   ├── pr-title.yml
+│   ├── sentinel.yml
+│   ├── warden.yml
+│   ├── auditor.yml
+│   └── tester.yml
+│
+├── .githooks/                       ← Local git hook enforcement
+│   ├── commit-msg
+│   ├── pre-commit
+│   ├── prepare-commit-msg
+│   └── pre-push
+│
+├── Makefile                         ← make setup
+├── setup.sh                         ← one-command activation
+│
 ├── members/                         ← Layer 2: The Skills
 │   ├── the-scribe/
 │   ├── the-architect/
@@ -139,8 +159,8 @@ agenthood/
 │   ├── the-oracle/
 │   ├── the-envoy/
 │   ├── the-sentinel/
-│   └── the-warden/
-│   └── the-doorman/
+│   ├── the-warden/
+│   └── the-steward/
 │
 ├── rituals/                         ← Layer 3: Automations
 │   ├── morning-briefing.md

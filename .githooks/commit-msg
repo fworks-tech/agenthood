@@ -1,0 +1,110 @@
+#!/bin/sh
+# The Doorman — commit message validation
+# Enforces Conventional Commits: type(scope): subject
+
+MSG_FILE="$1"
+
+# Strip comment lines, grab first line
+MSG=$(grep -v '^#' "$MSG_FILE" | head -1)
+
+# Allow empty messages (other hooks or tools may handle)
+if [ -z "$MSG" ]; then
+  exit 0
+fi
+
+# ── Check 1: Type ────────────────────────────────────────────────────────────
+TYPE=$(echo "$MSG" | grep -oE "^(feat|fix|docs|test|refactor|ci|chore)(\([^)]+\))?:")
+if [ -z "$TYPE" ]; then
+  RAW_TYPE=$(echo "$MSG" | grep -oE "^[a-zA-Z]+")
+  echo ""
+  echo "┌─────────────────────────────────────────────────────────────┐"
+  echo "│  THE DOORMAN — Commit Blocked                               │"
+  echo "├─────────────────────────────────────────────────────────────┤"
+  echo "│  Rule: Invalid or missing type                              │"
+  echo "│  Your type: '$RAW_TYPE'"
+  echo "│  Allowed: feat | fix | docs | test | refactor | ci | chore │"
+  echo "│                                                             │"
+  echo "│  See conventions/COMMIT_CONVENTION.md                      │"
+  echo "└─────────────────────────────────────────────────────────────┘"
+  exit 1
+fi
+
+# ── Extract subject ───────────────────────────────────────────────────────────
+# Handle both scoped (feat(scope): subject) and plain (feat: subject)
+SUBJECT=$(echo "$MSG" | sed 's/^[a-z]*([^)]*): //' | sed 's/^[a-z]*: //')
+
+# ── Check 2: Subject not empty ───────────────────────────────────────────────
+if [ -z "$SUBJECT" ]; then
+  echo ""
+  echo "┌─────────────────────────────────────────────────────────────┐"
+  echo "│  THE DOORMAN — Commit Blocked                               │"
+  echo "├─────────────────────────────────────────────────────────────┤"
+  echo "│  Rule: Subject is empty                                     │"
+  echo "│  Format: type(scope): subject                               │"
+  echo "└─────────────────────────────────────────────────────────────┘"
+  exit 1
+fi
+
+# ── Check 3: Subject starts lowercase ────────────────────────────────────────
+FIRST=$(echo "$SUBJECT" | cut -c1)
+if echo "$FIRST" | grep -qE '[[:upper:]]'; then
+  LOWER_SUBJECT=$(echo "$SUBJECT" | sed 's/./\L&/')
+  # Fallback for systems without \L — use tr
+  LOWER_SUBJECT=$(echo "$SUBJECT" | tr '[:upper:]' '[:lower:]')
+  SUGGESTED=$(echo "$MSG" | sed "s/$SUBJECT/$LOWER_SUBJECT/")
+  echo ""
+  echo "┌─────────────────────────────────────────────────────────────┐"
+  echo "│  THE DOORMAN — Commit Blocked                               │"
+  echo "├─────────────────────────────────────────────────────────────┤"
+  echo "│  Rule: Subject must start lowercase                         │"
+  echo "│  Your message: $MSG"
+  echo "│  Suggested:    $SUGGESTED"
+  echo "└─────────────────────────────────────────────────────────────┘"
+  exit 1
+fi
+
+# ── Check 4: Subject length ≤50 chars ────────────────────────────────────────
+SUBJ_LEN=$(echo "$SUBJECT" | wc -c | tr -d ' ')
+# wc -c includes newline, subtract 1
+SUBJ_LEN=$((SUBJ_LEN - 1))
+if [ "$SUBJ_LEN" -gt 50 ]; then
+  echo ""
+  echo "┌─────────────────────────────────────────────────────────────┐"
+  echo "│  THE DOORMAN — Commit Blocked                               │"
+  echo "├─────────────────────────────────────────────────────────────┤"
+  echo "│  Rule: Subject must be ≤50 characters (yours: $SUBJ_LEN)      │"
+  echo "│  Shorten: $SUBJECT"
+  echo "└─────────────────────────────────────────────────────────────┘"
+  exit 1
+fi
+
+# ── Check 5: No trailing period ───────────────────────────────────────────────
+LAST=$(echo "$SUBJECT" | rev | cut -c1)
+if [ "$LAST" = "." ]; then
+  SUGGESTED=$(echo "$MSG" | sed 's/\.$//')
+  echo ""
+  echo "┌─────────────────────────────────────────────────────────────┐"
+  echo "│  THE DOORMAN — Commit Blocked                               │"
+  echo "├─────────────────────────────────────────────────────────────┤"
+  echo "│  Rule: Subject must not end with a period                   │"
+  echo "│  Suggested: $SUGGESTED"
+  echo "└─────────────────────────────────────────────────────────────┘"
+  exit 1
+fi
+
+# ── Check 6: No vague subjects ────────────────────────────────────────────────
+SUBJECT_LOWER=$(echo "$SUBJECT" | tr '[:upper:]' '[:lower:]')
+for VAGUE in "wip" "fix stuff" "update" "changes" "misc" "asdf" "temp" "cleanup" "test123"; do
+  if [ "$SUBJECT_LOWER" = "$VAGUE" ]; then
+    echo ""
+    echo "┌─────────────────────────────────────────────────────────────┐"
+    echo "│  THE DOORMAN — Commit Blocked                               │"
+    echo "├─────────────────────────────────────────────────────────────┤"
+    echo "│  '$SUBJECT' is not a commit message. It is a confession.   │"
+    echo "│  Try again with intent.                                     │"
+    echo "└─────────────────────────────────────────────────────────────┘"
+    exit 1
+  fi
+done
+
+exit 0

@@ -67,6 +67,27 @@ jobs:
             done
           done
 
+          # Cross-check: every member directory must be registered in all three indexes
+          for MEMBER_DIR in members/*/; do
+            NAME=$(basename "$MEMBER_DIR")
+            [ "$NAME" = "README.md" ] && continue
+
+            if ! grep -q "$NAME" AGENTS.md; then
+              echo "FAIL [$NAME]: not registered in AGENTS.md"
+              FAILED=1
+            fi
+
+            if ! grep -q "$NAME" members/README.md; then
+              echo "FAIL [$NAME]: not registered in members/README.md"
+              FAILED=1
+            fi
+
+            if ! grep -q "$NAME" README.md; then
+              echo "FAIL [$NAME]: not registered in README.md"
+              FAILED=1
+            fi
+          done
+
           if [ "$FAILED" -eq 1 ]; then
             echo ""
             echo "The Sentinel found structural violations. All members must conform."

@@ -1,7 +1,6 @@
 # The Members
 
-The Agenthood has thirteen members. Each is a specialist.
-The Agenthood has ten members. Each is a specialist.
+The Agenthood has fourteen members. Each is a specialist.
 Each has a README describing their identity, responsibilities, and usage.
 Each has a skill file that your agent runtime loads to activate them.
 

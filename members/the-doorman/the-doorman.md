@@ -116,6 +116,19 @@ On demand or scheduled, scan for:
 ❌ Blocking (0)
 ```
 
+### Implementation Notes (Pure Shell Hooks)
+
+When writing `.githooks/commit-msg` without npm/node:
+- Strip comment lines before parsing: `grep -v '^#' "$MSG_FILE" | head -1`
+- Extract type handling both scoped and plain form: `grep -oE "^(feat|fix|docs|test|refactor|ci|chore)(\([^)]+\))?:"`
+- Subject extraction: two `sed` passes — scoped form first `s/^[a-z]*([^)]*): //`, then plain `s/^[a-z]*: //`
+- Use POSIX character classes `[[:upper:]]` not `\s` or `\w` — macOS BSD grep portability
+- Vague subject check: exact-match `=` in a shell loop, not substring — prevents "update endpoint" false positive
+- `git show ":$FILE"` reads staged (index) content, not working tree — correct for pre-commit secret scanning
+- NUL-delimited file iteration for filenames with spaces: `git diff --cached --name-only -z | while IFS= read -r -d '' FILE`
+
+For the Agenthood repo itself (no npm): run `./setup.sh` — activates all hooks in one command.
+
 ### Setup Mode
 
 When configuring a new project, install:

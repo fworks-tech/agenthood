@@ -140,3 +140,14 @@ Audit is complete when:
 - [ ] All `[blocking]` findings are resolved
 - [ ] Auth checks verified on all new or modified endpoints
 - [ ] Logging reviewed for sensitive data leakage
+
+## Implementation Notes (CI Secret Scanning)
+
+**Canonical action:** `gitleaks/gitleaks-action@v2` (migrated from `zricethezav/gitleaks-action`)
+
+**License requirements:**
+- Personal GitHub accounts: no license needed — `GITLEAKS_LICENSE` can be omitted or empty
+- Organization accounts: free Starter license required (one repo) from gitleaks.io
+- Use `GITLEAKS_LICENSE: ${{ secrets.GITLEAKS_LICENSE || '' }}` — works on personal accounts today, ready for org transfer without workflow changes
+
+**Repo visibility detection:** Use `github.event.repository.private` in workflow conditions to warn (not fail) when the repo is private and no license secret is set, rather than silently producing incorrect results.

@@ -1,0 +1,73 @@
+name: Sentinel — Member File Structure
+
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - 'members/**'
+
+jobs:
+  sentinel:
+    name: Validate Member File Structure
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: The Sentinel — audit member structure
+        shell: bash
+        run: |
+          FAILED=0
+          REQUIRED_SECTIONS="## Overview ## When to Use ## Process ## Red Flags ## Rationalizations ## Verification"
+
+          for MEMBER_DIR in members/*/; do
+            NAME=$(basename "$MEMBER_DIR")
+
+            # Skip the README.md directory entry itself
+            [ "$NAME" = "README.md" ] && continue
+
+            # Check README.md exists
+            if [ ! -f "${MEMBER_DIR}README.md" ]; then
+              echo "FAIL [$NAME]: missing README.md"
+              FAILED=1
+            fi
+
+            # Check skill file exists: the-<name>.md
+            SKILL_FILE="${MEMBER_DIR}${NAME}.md"
+            if [ ! -f "$SKILL_FILE" ]; then
+              echo "FAIL [$NAME]: missing skill file $SKILL_FILE"
+              FAILED=1
+              continue
+            fi
+
+            # Extract frontmatter
+            FM=$(awk '/^---/{count++; if(count==2) exit} count==1' "$SKILL_FILE")
+
+            # Check frontmatter has name:
+            if ! echo "$FM" | grep -q "^name:"; then
+              echo "FAIL [$NAME]: skill file missing 'name:' in frontmatter"
+              FAILED=1
+            fi
+
+            # Check frontmatter has description:
+            if ! echo "$FM" | grep -q "^description:"; then
+              echo "FAIL [$NAME]: skill file missing 'description:' in frontmatter"
+              FAILED=1
+            fi
+
+            # Check required sections
+            for SECTION in $REQUIRED_SECTIONS; do
+              if ! grep -q "^$SECTION" "$SKILL_FILE"; then
+                echo "FAIL [$NAME]: missing section '$SECTION' in skill file"
+                FAILED=1
+              fi
+            done
+          done
+
+          if [ "$FAILED" -eq 1 ]; then
+            echo ""
+            echo "The Sentinel found structural violations. All members must conform."
+            exit 1
+          fi
+
+          echo "The Sentinel: all members structurally sound."

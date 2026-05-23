@@ -57,6 +57,22 @@ Layer 6 — CI Workflows      Reusable GitHub Actions
 
 ---
 
+## Architecture
+
+The Society runs on five core principles adapted from production AI agent systems.
+Read the [architecture docs](architecture/README.md) to understand how members coordinate,
+prioritize, fail over, and stay safe.
+
+| Principle | Document |
+|-----------|---------|
+| Multi-agent orchestration & member roles | [agent-system.md](architecture/agent-system.md) |
+| Priority queues & concurrency slots | [concurrency-and-queues.md](architecture/concurrency-and-queues.md) |
+| Agent mode vs Ask mode | [operating-modes.md](architecture/operating-modes.md) |
+| Multi-LLM support & automatic failover | [provider-failover.md](architecture/provider-failover.md) |
+| Tool registry, scoping & safety caps | [built-in-tools.md](architecture/built-in-tools.md) |
+
+---
+
 ## Compatibility
 
 The Agenthood is agent-agnostic. Members work with:

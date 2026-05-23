@@ -123,7 +123,7 @@ agenthood/
 │
 ├── conventions/                     ← Layer 1: The Rules
 │   ├── .gitmessage
-│   ├── commitlint.config.js
+│   ├── commitlint.config.cjs
 │   └── COMMIT_CONVENTION.md
 │
 ├── .devcontainer/                   ← VS Code / Codespaces auto-setup
@@ -135,7 +135,8 @@ agenthood/
 │   ├── sentinel.yml
 │   ├── warden.yml
 │   ├── auditor.yml
-│   └── tester.yml
+│   ├── tester.yml
+│   └── librarian.yml
 │
 ├── .githooks/                       ← Local git hook enforcement
 │   ├── commit-msg

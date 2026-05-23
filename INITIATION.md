@@ -29,7 +29,7 @@ npx agenthood init
 
 This single command will:
 
-- Copy `.gitmessage` and `commitlint.config.js` into your project root
+- Copy `.gitmessage` and `commitlint.config.cjs` into your project root
 - Install and configure Husky with `commit-msg` and `pre-push` hooks
 - Install `@commitlint/cli` and `@commitlint/config-conventional`
 - Copy `.github/` templates (PR template, issue templates, commit convention doc)
@@ -163,7 +163,7 @@ Expected output:
 🏛️ Agenthood Initiation Check
 
 ✅ .gitmessage configured
-✅ commitlint.config.js present
+✅ commitlint.config.cjs present
 ✅ Husky commit-msg hook active
 ✅ Husky pre-push hook active
 ✅ .github/pull_request_template.md present

@@ -38,7 +38,7 @@ On every PR open/edit/push:
 
 ### 3. Branch Commit Validation (CI — commitlint.yml)
 On every push to a feature branch:
-- Validates all commits in the PR range against `commitlint.config.js`
+- Validates all commits in the PR range against `commitlint.config.cjs`
 - Catches commits that slipped past the local hook
 - Reports specific commit hashes that are non-conforming
 
@@ -75,11 +75,11 @@ Validates repository settings include:
 
 ## Configuration
 
-The Doorman reads from `commitlint.config.js` — the single source of truth
+The Doorman reads from `commitlint.config.cjs` — the single source of truth
 for allowed types and scopes, shared with The Scribe and CI workflows.
 
 ```js
-// commitlint.config.js
+// commitlint.config.cjs
 module.exports = {
   extends: ['@commitlint/config-conventional'],
   rules: {

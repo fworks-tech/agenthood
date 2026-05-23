@@ -53,3 +53,5 @@ Load skills from `members/` to activate specialized agents:
 - `the-doorman` — validation, health checks, enforcement
 - `the-oracle` — institutional knowledge, member authoring templates, naming guidance
 - `the-envoy` — cross-provider translation, bootstrap generation, convention validation
+- `the-sentinel` — Society document integrity, cross-member contradiction detection, structural drift
+- `the-warden` — code smell detection, complexity enforcement, architectural boundary violations

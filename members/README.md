@@ -1,6 +1,6 @@
 # The Members
 
-The Agenthood has eleven members. Each is a specialist.
+The Agenthood has thirteen members. Each is a specialist.
 Each has a README describing their identity, responsibilities, and usage.
 Each has a skill file that your agent runtime loads to activate them.
 
@@ -19,6 +19,8 @@ Each has a skill file that your agent runtime loads to activate them.
 | [The Doorman](the-doorman/README.md) | *Nothing gets in without proper credentials.* | `the-doorman.md` |
 | [The Oracle](the-oracle/README.md) | *Ask me anything about the Society. I have read every scroll.* | `the-oracle.md` |
 | [The Envoy](the-envoy/README.md) | *One Society. Every runtime. No exceptions.* | `the-envoy.md` |
+| [The Sentinel](the-sentinel/README.md) | *The Society cannot enforce standards it no longer understands.* | `the-sentinel.md` |
+| [The Warden](the-warden/README.md) | *The chaos does not arrive all at once. I am here for the accumulation.* | `the-warden.md` |
 
 ---
 

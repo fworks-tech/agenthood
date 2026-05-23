@@ -41,6 +41,8 @@ Each member of the Agenthood is a specialized AI agent skill — a Markdown file
 | [The Doorman](members/the-doorman/README.md) | Commitlint, PR Lint, Health | Nothing gets in without proper credentials |
 | [The Oracle](members/the-oracle/README.md) | Institutional Knowledge | Ask me anything about the Society. I have read every scroll. |
 | [The Envoy](members/the-envoy/README.md) | Cross-Provider Translation | One Society. Every runtime. No exceptions. |
+| [The Sentinel](members/the-sentinel/README.md) | Society Integrity | The Society cannot enforce standards it no longer understands. |
+| [The Warden](members/the-warden/README.md) | Code Health | The chaos does not arrive all at once. I am here for the accumulation. |
 
 ---
 
@@ -136,7 +138,9 @@ agenthood/
 │   ├── the-librarian/
 │   ├── the-doorman/
 │   ├── the-oracle/
-│   └── the-envoy/
+│   ├── the-envoy/
+│   ├── the-sentinel/
+│   └── the-warden/
 │
 ├── rituals/                         ← Layer 3: Automations
 │   ├── morning-briefing.md

@@ -1,0 +1,26 @@
+name: Tester — Test Suite
+
+on:
+  pull_request:
+    branches: [main]
+  push:
+    branches: [main]
+
+jobs:
+  tester:
+    name: Run Tests
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: The Tester — enforce test existence
+        shell: bash
+        run: |
+          echo "No tests defined. The Tester will not be silenced."
+          echo ""
+          echo "The Tester is a proud and rigorous quality enforcer."
+          echo "A pass on empty is not a pass."
+          echo ""
+          echo "To resolve: add a test suite and replace this step with your test runner."
+          exit 1

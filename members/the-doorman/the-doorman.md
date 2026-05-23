@@ -131,7 +131,16 @@ For the Agenthood repo itself (no npm): run `./setup.sh` — activates all hooks
 
 ### Setup Mode
 
-When configuring a new project, install:
+**For the Agenthood repo itself (no npm):** Run `./setup.sh` — activates all hooks in one command.
+
+```bash
+./setup.sh
+# or: make setup
+```
+
+This activates `.githooks/` (commit-msg, pre-commit, prepare-commit-msg, pre-push) and sets the commit template. All hooks are pure POSIX shell — no npm or node required.
+
+**For other projects using Agenthood conventions** (npm-based stack):
 
 1. **Husky** — git hook management
    ```bash

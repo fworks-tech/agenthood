@@ -123,7 +123,7 @@ agenthood/
 │
 ├── conventions/                     ← Layer 1: The Rules
 │   ├── .gitmessage
-│   ├── commitlint.config.js
+│   ├── commitlint.config.cjs
 │   └── COMMIT_CONVENTION.md
 │
 ├── .devcontainer/                   ← VS Code / Codespaces auto-setup

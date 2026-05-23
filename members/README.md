@@ -1,6 +1,7 @@
 # The Members
 
 The Agenthood has thirteen members. Each is a specialist.
+The Agenthood has ten members. Each is a specialist.
 Each has a README describing their identity, responsibilities, and usage.
 Each has a skill file that your agent runtime loads to activate them.
 
@@ -21,6 +22,7 @@ Each has a skill file that your agent runtime loads to activate them.
 | [The Envoy](the-envoy/README.md) | *One Society. Every runtime. No exceptions.* | `the-envoy.md` |
 | [The Sentinel](the-sentinel/README.md) | *The Society cannot enforce standards it no longer understands.* | `the-sentinel.md` |
 | [The Warden](the-warden/README.md) | *The chaos does not arrive all at once. I am here for the accumulation.* | `the-warden.md` |
+| [The Steward](the-steward/README.md) | *I was born from the situation I exist to prevent.* | `the-steward.md` |
 
 ---
 
@@ -38,9 +40,6 @@ cp -r agenthood/members/ yourproject/.codebuddy/skills/
 
 **Agent-agnostic (AGENTS.md):**
 Reference `members/` in your project's `AGENTS.md` to make all runtimes aware.
-
-**Automated (The Envoy):**
-Use `/envoy bootstrap` to detect your provider and translate all members automatically.
 
 ---
 

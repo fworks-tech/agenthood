@@ -43,6 +43,7 @@ Each member of the Agenthood is a specialized AI agent skill — a Markdown file
 | [The Envoy](members/the-envoy/README.md) | Cross-Provider Translation | One Society. Every runtime. No exceptions. |
 | [The Sentinel](members/the-sentinel/README.md) | Society Integrity | The Society cannot enforce standards it no longer understands. |
 | [The Warden](members/the-warden/README.md) | Code Health | The chaos does not arrive all at once. I am here for the accumulation. |
+| [The Steward](members/the-steward/README.md) | Context Economy, Routing | Born from the situation it exists to prevent |
 
 ---
 
@@ -87,8 +88,6 @@ The Agenthood is agent-agnostic. Members work with:
 - [OpenAI Codex CLI](https://github.com/openai/codex) — via `AGENTS.md` + skills
 - [CodeBuddy](https://github.com/olasunkanmi-SE/codebuddy) — via `.codebuddy/skills/`
 
-Use `the-envoy` to automate provider onboarding and keep skill files in sync across runtimes.
-
 ---
 
 ## Getting Started
@@ -96,26 +95,20 @@ Use `the-envoy` to automate provider onboarding and keep skill files in sync acr
 ```bash
 # 1. Clone the Society
 git clone https://github.com/fworks-tech/agenthood.git
-cd agenthood
 
-# 2. Activate The Doorman — enforce the Oath locally
-git config core.hooksPath .githooks
-chmod +x .githooks/pre-push
-
-# 3. Copy conventions into your project
-cp conventions/.gitmessage yourproject/
-cp conventions/commitlint.config.js yourproject/
+# 2. Copy conventions into your project
+cp agenthood/conventions/.gitmessage yourproject/
+cp agenthood/conventions/commitlint.config.js yourproject/
 git config commit.template .gitmessage
 
-# 4. Load the members into your agent runtime
+# 3. Load the members into your agent runtime
 # For Claude Code:
-cp -r members/ yourproject/.claude/skills/
+cp -r agenthood/members/ yourproject/.claude/skills/
 
-# 5. Read the oath. Mean it.
+# 4. Read the oath. Mean it.
 cat agenthood/oath.md
 
-# 6. Never push to main again.
-#    (The Doorman will enforce this. You just activated it.)
+# 5. Never push to main again.
 ```
 
 ---
@@ -127,9 +120,6 @@ agenthood/
 ├── README.md                        ← You are here
 ├── AGENTS.md                        ← Member registry (agent-agnostic)
 ├── oath.md                          ← The Oath
-│
-├── .githooks/                       ← The Doorman's enforcement hooks
-│   └── pre-push                     ← Blocks direct push to main
 │
 ├── conventions/                     ← Layer 1: The Rules
 │   ├── .gitmessage
@@ -150,6 +140,7 @@ agenthood/
 │   ├── the-envoy/
 │   ├── the-sentinel/
 │   └── the-warden/
+│   └── the-doorman/
 │
 ├── rituals/                         ← Layer 3: Automations
 │   ├── morning-briefing.md

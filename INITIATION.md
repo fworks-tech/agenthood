@@ -27,20 +27,25 @@ git clone https://github.com/fworks-tech/agenthood.git
 npx agenthood init
 ```
 
-This single command will:
+This single command will prompt you for two choices:
+
+1. **Which AI runtime are you using?** — Claude Code, Copilot, Gemini CLI, or other.
+   Skills are installed into the matching directory (`.claude/skills/`, `.github/skills/`, `.gemini/skills/`, or `.agenthood/skills/`).
+
+2. **Which members do you want to activate?** — enter numbers separated by commas, or `all`.
+
+Then it will:
 
 - Copy `.gitmessage` and `commitlint.config.cjs` into your project root
 - Install and configure Husky with `commit-msg` and `pre-push` hooks
 - Install `@commitlint/cli` and `@commitlint/config-conventional`
 - Copy `.github/` templates (PR template, issue templates, commit convention doc)
 - Add `commitlint.yml` and `pr-title.yml` to `.github/workflows/`
-- Copy the member skills into `.claude/skills/` (or `.codebuddy/skills/` if detected)
-- Activate `git config commit.template .gitmessage`
+- Copy the selected member skills into the runtime's skill directory
+- Set `git config commit.template .gitmessage`
+- Scaffold `.agenthood/config.json` with your selections
 
-At the end, it will ask:
-> *"Which members do you want to activate? [all / select]"*
-
-You may activate all nine or choose specific members.
+Running `init` a second time is safe — existing files are never overwritten.
 
 ---
 
@@ -96,57 +101,32 @@ After initiation, you can activate or deactivate individual members:
 ```bash
 npx agenthood activate the-scribe
 npx agenthood activate the-reviewer
-npx agenthood deactivate the-watchman   # if you prefer quiet
-npx agenthood list                      # see which members are active
+npx agenthood deactivate the-steward   # if you prefer manual routing
+npx agenthood list                     # see which members are active
 ```
 
 ---
 
 ## Configuring the Society
 
-The Society reads its configuration from `.agenthood/config.json`:
+The Society reads its configuration from `.agenthood/config.json`, scaffolded
+automatically by `npx agenthood init`:
 
 ```json
 {
-  "members": {
-    "active": ["all"],
-    "disabled": []
-  },
-  "rituals": {
-    "morning-briefing": { "enabled": true, "time": "08:00" },
-    "the-inspection": { "enabled": true, "time": "09:00" },
-    "the-watchman": { "enabled": true, "interval": "2h" },
-    "evening-report": { "enabled": true, "time": "18:00" }
-  },
-  "portals": {
-    "github": { "enabled": true },
-    "slack": { "enabled": false },
-    "sentry": { "enabled": false }
-  },
-  "thresholds": {
-    "idleCommitMinutes": 120,
-    "maxFileLines": 500,
-    "branchDriftCommits": 20,
-    "staleBranchDays": 7
+  "version": "1",
+  "runtime": "claude-code",
+  "members": ["the-scribe", "the-architect", "the-reviewer", "..."],
+  "hooks": { "hooksPath": ".husky" },
+  "conventions": {
+    "commitTemplate": ".gitmessage",
+    "commitlintConfig": "commitlint.config.cjs"
   }
 }
 ```
 
----
-
-## VS Code Extension
-
-Install the **Agenthood** VS Code extension for:
-- Status bar showing active members and queue state
-- Inline commit message validation as you type
-- One-click member activation
-- Ritual notifications in the editor
-
-```
-ext install agenthood.agenthood-vscode
-```
-
-Or search **"Agenthood"** in the VS Code Extensions panel.
+Edit this file to add or remove members, then run `npx agenthood activate <member>`
+or `npx agenthood deactivate <member>` to sync the skill files.
 
 ---
 
@@ -160,19 +140,24 @@ npx agenthood check
 
 Expected output:
 ```
-🏛️ Agenthood Initiation Check
+🏛️  Agenthood Health Check
 
-✅ .gitmessage configured
-✅ commitlint.config.cjs present
-✅ Husky commit-msg hook active
-✅ Husky pre-push hook active
-✅ .github/pull_request_template.md present
-✅ .github/workflows/commitlint.yml present
-✅ .github/workflows/pr-title.yml present
-✅ Member skills installed (9/9)
-✅ git commit.template configured
+  ✅ .gitmessage configured
+  ✅ commitlint.config.cjs present
+  ✅ Husky commit-msg hook active
+  ✅ Husky pre-push hook active
+  ✅ .github/pull_request_template.md present
+  ✅ .github/ISSUE_TEMPLATE/bug_report.md present
+  ✅ .github/ISSUE_TEMPLATE/feature_request.md present
+  ✅ .github/workflows/commitlint.yml present
+  ✅ .github/workflows/pr-title.yml present
+  ✅ Member skills installed (9/9)
+  ✅ git commit.template configured
+  ✅ AGENTS.md present
 
-The Society is ready. You may proceed.
+  12 passing · 0 failing
+
+  The Society is ready. You may proceed.
 ```
 
 ---

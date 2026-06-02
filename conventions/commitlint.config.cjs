@@ -1,9 +1,25 @@
 // commitlint.config.js — The Doorman's rulebook
 // Single source of truth for commit conventions.
 // Used by: Husky commit-msg hook, CI commitlint workflow, agent skills.
+const VAGUE_SUBJECTS = ['wip', 'fix stuff', 'update', 'changes', 'misc', 'asdf', 'temp', 'cleanup', 'test123'];
+
 module.exports = {
   extends: ['@commitlint/config-conventional'],
+  plugins: [
+    {
+      rules: {
+        'no-vague-subject': ({ subject }) => {
+          const s = (subject || '').trim().toLowerCase();
+          return [
+            !VAGUE_SUBJECTS.includes(s),
+            `subject '${s}' is vague — use a descriptive imperative phrase`,
+          ];
+        },
+      },
+    },
+  ],
   rules: {
+    'no-vague-subject': [2, 'always'],
     'type-enum': [2, 'always', [
       'feat',
       'fix',

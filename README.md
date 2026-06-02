@@ -76,6 +76,16 @@ prioritize, fail over, and stay safe.
 | Multi-LLM support & automatic failover | [provider-failover.md](architecture/provider-failover.md) |
 | Tool registry, scoping & safety caps | [built-in-tools.md](architecture/built-in-tools.md) |
 
+The Society's own architectural decisions are documented as ADRs in [`docs/adr/`](docs/adr/):
+
+| ADR | Decision |
+|-----|---------|
+| [ADR-001](docs/adr/ADR-001-markdown-skills-over-code-agents.md) | Markdown-based skills over code-based agents |
+| [ADR-002](docs/adr/ADR-002-conventional-commits-standard.md) | Conventional Commits as the commit standard |
+| [ADR-003](docs/adr/ADR-003-dual-enforcement-hooks-and-commitlint.md) | Dual enforcement via bash hooks and commitlint |
+| [ADR-004](docs/adr/ADR-004-specialized-members-over-general-agent.md) | 14 specialized members over a general-purpose agent |
+| [ADR-005](docs/adr/ADR-005-orchestrator-pattern.md) | Orchestrator pattern over peer-to-peer member communication |
+
 ---
 
 ## Compatibility

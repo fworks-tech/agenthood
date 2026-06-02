@@ -3,159 +3,238 @@
  *
  * The Initiation ceremony. Installs conventions, hooks, templates,
  * and member skills into the target project.
+ *
+ * Idempotent — existing files are never overwritten.
+ * Interactive — prompts for runtime and member selection.
  */
 
-import { copyFile, mkdir, readFile, writeFile } from 'node:fs/promises';
-import { existsSync } from 'node:fs';
-import { join, dirname } from 'node:path';
-import { fileURLToPath } from 'node:url';
-import { execSync } from 'node:child_process';
+import { copyFile, mkdir, readFile, writeFile } from 'node:fs/promises'
+import { existsSync } from 'node:fs'
+import { join, dirname } from 'node:path'
+import { fileURLToPath } from 'node:url'
+import { execSync } from 'node:child_process'
+import { createInterface } from 'node:readline'
 
-const __dirname = dirname(fileURLToPath(import.meta.url));
-const SOCIETY_ROOT = join(__dirname, '..', '..');
+const __dirname = dirname(fileURLToPath(import.meta.url))
+const SOCIETY_ROOT = join(__dirname, '..', '..')
+
+const ALL_MEMBERS = [
+  { name: 'the-scribe',    tagline: 'Commits, PRs, changelogs' },
+  { name: 'the-architect', tagline: 'Specs, planning, ADRs' },
+  { name: 'the-reviewer',  tagline: 'Five-axis code review' },
+  { name: 'the-tester',    tagline: 'TDD and test generation' },
+  { name: 'the-debugger',  tagline: 'Root cause analysis' },
+  { name: 'the-auditor',   tagline: 'Security and dependencies' },
+  { name: 'the-herald',    tagline: 'Releases and versioning' },
+  { name: 'the-librarian', tagline: 'Documentation and ADRs' },
+  { name: 'the-doorman',   tagline: 'Validation and enforcement' },
+  { name: 'the-oracle',    tagline: 'Research and knowledge' },
+  { name: 'the-envoy',     tagline: 'Communication and handoffs' },
+  { name: 'the-sentinel',  tagline: 'Member file validation' },
+  { name: 'the-warden',    tagline: 'File size enforcement' },
+  { name: 'the-steward',   tagline: 'Context and routing' },
+] as const
+
+const RUNTIMES = ['claude-code', 'copilot', 'gemini-cli', 'other'] as const
+type Runtime = (typeof RUNTIMES)[number]
 
 export async function init(): Promise<void> {
-  const cwd = process.cwd();
+  const cwd = process.cwd()
 
-  console.log('\n🏛️  Welcome to the Agenthood.\n');
-  console.log('The Initiation is beginning.\n');
+  console.log('\n🏛️  Welcome to the Agenthood.\n')
+  console.log('The Initiation is beginning.\n')
 
-  const steps = [
+  const runtime = await promptRuntime()
+  const members = await promptMembers()
+
+  const steps: Array<[string, () => Promise<void>]> = [
     ['Conventions', () => installConventions(cwd)],
     ['Git hooks (Husky)', () => installHooks(cwd)],
     ['GitHub templates', () => installGitHubTemplates(cwd)],
     ['CI workflows', () => installWorkflows(cwd)],
-    ['Member skills', () => installSkills(cwd)],
+    ['Member skills', () => installSkills(cwd, runtime, members)],
     ['Git commit template', () => configureGitTemplate(cwd)],
-  ] as const;
+    ['Agenthood config', () => scaffoldConfig(cwd, runtime, members)],
+  ]
 
   for (const [label, step] of steps) {
-    process.stdout.write(`  Installing ${label}...`);
+    process.stdout.write(`  Installing ${label}...`)
     try {
-      await step();
-      console.log(' ✅');
+      await step()
+      console.log(' ✅')
     } catch (err) {
-      console.log(' ❌');
-      console.error(`    Failed: ${err}`);
+      console.log(' ❌')
+      console.error(`    Failed: ${err}`)
     }
   }
 
-  console.log('\n🏛️  The Society is ready.\n');
-  console.log('  Run `npx agenthood check` to verify the initiation.');
-  console.log('  Run `npx agenthood oath` to read the oath.\n');
-  console.log('  Your next commit will be reviewed by The Doorman.\n');
+  console.log('\n🏛️  The Society is ready.\n')
+  console.log('  Run `npx agenthood check` to verify the initiation.')
+  console.log('  Run `npx agenthood oath` to read the oath.\n')
+  console.log('  Your next commit will be reviewed by The Doorman.\n')
+}
+
+async function promptRuntime(): Promise<Runtime> {
+  console.log('Which AI runtime are you using?\n')
+  RUNTIMES.forEach((r, i) => console.log(`  ${i + 1}. ${r}`))
+  console.log()
+
+  const answer = await prompt('Select (1-4) [1]: ')
+  const index = parseInt(answer || '1', 10) - 1
+  const runtime = RUNTIMES[index] ?? 'claude-code'
+  console.log(`  → ${runtime}\n`)
+  return runtime
+}
+
+async function promptMembers(): Promise<string[]> {
+  console.log('Which members do you want to activate?\n')
+  ALL_MEMBERS.forEach(({ name, tagline }, i) =>
+    console.log(`  ${String(i + 1).padStart(2)}. ${name.padEnd(16)} ${tagline}`)
+  )
+  console.log()
+  console.log('  Enter numbers separated by commas, or "all" for all members.')
+
+  const answer = await prompt('Members [all]: ')
+  const trimmed = answer.trim().toLowerCase()
+
+  if (!trimmed || trimmed === 'all') {
+    console.log('  → all members\n')
+    return ALL_MEMBERS.map((m) => m.name)
+  }
+
+  const indices = trimmed.split(',').map((s) => parseInt(s.trim(), 10) - 1)
+  const selected = indices
+    .filter((i) => i >= 0 && i < ALL_MEMBERS.length)
+    .map((i) => ALL_MEMBERS[i].name)
+
+  if (selected.length === 0) {
+    console.log('  → no valid selection, activating all members\n')
+    return ALL_MEMBERS.map((m) => m.name)
+  }
+
+  console.log(`  → ${selected.join(', ')}\n`)
+  return selected
+}
+
+function prompt(question: string): Promise<string> {
+  const rl = createInterface({ input: process.stdin, output: process.stdout })
+  return new Promise((resolve) => {
+    rl.question(question, (answer) => {
+      rl.close()
+      resolve(answer)
+    })
+  })
 }
 
 async function installConventions(cwd: string): Promise<void> {
-  await copyFile(
+  await safeCopy(
     join(SOCIETY_ROOT, 'conventions', '.gitmessage'),
     join(cwd, '.gitmessage'),
-  );
-  await copyFile(
-    join(SOCIETY_ROOT, 'conventions', 'commitlint.config.js'),
-    join(cwd, 'commitlint.config.js'),
-  );
+  )
+  await safeCopy(
+    join(SOCIETY_ROOT, 'conventions', 'commitlint.config.cjs'),
+    join(cwd, 'commitlint.config.cjs'),
+  )
 }
 
 async function installHooks(cwd: string): Promise<void> {
   execSync('npm install --save-dev husky @commitlint/cli @commitlint/config-conventional', {
     cwd,
     stdio: 'pipe',
-  });
-  execSync('npx husky init', { cwd, stdio: 'pipe' });
+  })
+  execSync('npx husky init', { cwd, stdio: 'pipe' })
 
-  const huskyDir = join(cwd, '.husky');
-  await writeFile(
+  const huskyDir = join(cwd, '.husky')
+  await safeWrite(
     join(huskyDir, 'commit-msg'),
     'npx --no -- commitlint --edit $1\n',
-    'utf8',
-  );
-  await writeFile(
+  )
+  await safeWrite(
     join(huskyDir, 'pre-push'),
-    '# Run tests and lint before push\nnpm test && npm run lint\n',
-    'utf8',
-  );
+    '# Run tests before push\nnpm test\n',
+  )
 }
 
 async function installGitHubTemplates(cwd: string): Promise<void> {
-  const githubDir = join(cwd, '.github');
-  const issueTemplateDir = join(githubDir, 'ISSUE_TEMPLATE');
+  const githubDir = join(cwd, '.github')
+  const issueTemplateDir = join(githubDir, 'ISSUE_TEMPLATE')
 
-  await mkdir(issueTemplateDir, { recursive: true });
-  await mkdir(join(githubDir, 'workflows'), { recursive: true });
+  await mkdir(issueTemplateDir, { recursive: true })
+  await mkdir(join(githubDir, 'workflows'), { recursive: true })
 
-  // PR template
-  await writeFile(
-    join(githubDir, 'pull_request_template.md'),
-    PR_TEMPLATE,
-    'utf8',
-  );
-
-  // Issue templates
-  await writeFile(
-    join(issueTemplateDir, 'bug_report.md'),
-    BUG_TEMPLATE,
-    'utf8',
-  );
-  await writeFile(
-    join(issueTemplateDir, 'feature_request.md'),
-    FEATURE_TEMPLATE,
-    'utf8',
-  );
-
-  // Commit convention reference
-  await copyFile(
+  await safeWrite(join(githubDir, 'pull_request_template.md'), PR_TEMPLATE)
+  await safeWrite(join(issueTemplateDir, 'bug_report.md'), BUG_TEMPLATE)
+  await safeWrite(join(issueTemplateDir, 'feature_request.md'), FEATURE_TEMPLATE)
+  await safeCopy(
     join(SOCIETY_ROOT, 'conventions', 'COMMIT_CONVENTION.md'),
     join(githubDir, 'COMMIT_CONVENTION.md'),
-  );
+  )
 }
 
 async function installWorkflows(cwd: string): Promise<void> {
-  const workflowsDir = join(cwd, '.github', 'workflows');
-  await mkdir(workflowsDir, { recursive: true });
+  const workflowsDir = join(cwd, '.github', 'workflows')
+  await mkdir(workflowsDir, { recursive: true })
 
   for (const workflow of ['commitlint.yml', 'pr-title.yml']) {
-    const src = join(SOCIETY_ROOT, 'workflows', workflow);
-    const dest = join(workflowsDir, workflow);
-    if (!existsSync(dest)) {
-      await copyFile(src, dest);
-    }
+    await safeCopy(
+      join(SOCIETY_ROOT, 'workflows', workflow),
+      join(workflowsDir, workflow),
+    )
   }
 }
 
-async function installSkills(cwd: string): Promise<void> {
-  // Detect runtime: Claude Code takes priority, then CodeBuddy, then generic
-  const isClaudeCode = existsSync(join(cwd, '.claude'));
-  const isCodeBuddy = existsSync(join(cwd, '.codebuddy'));
+async function installSkills(cwd: string, runtime: Runtime, members: string[]): Promise<void> {
+  const skillsDest =
+    runtime === 'claude-code'
+      ? join(cwd, '.claude', 'skills')
+      : runtime === 'copilot'
+      ? join(cwd, '.github', 'skills')
+      : runtime === 'gemini-cli'
+      ? join(cwd, '.gemini', 'skills')
+      : join(cwd, '.agenthood', 'skills')
 
-  const skillsDest = isClaudeCode
-    ? join(cwd, '.claude', 'skills')
-    : isCodeBuddy
-    ? join(cwd, '.codebuddy', 'skills')
-    : join(cwd, '.agenthood', 'skills');
-
-  await mkdir(skillsDest, { recursive: true });
-
-  const members = [
-    'the-scribe', 'the-architect', 'the-reviewer', 'the-tester',
-    'the-debugger', 'the-auditor', 'the-herald', 'the-librarian', 'the-doorman',
-  ];
+  await mkdir(skillsDest, { recursive: true })
 
   for (const member of members) {
-    const src = join(SOCIETY_ROOT, 'members', member, `${member}.md`);
-    const destDir = join(skillsDest, member);
-    await mkdir(destDir, { recursive: true });
-    await copyFile(src, join(destDir, `${member}.md`));
+    const src = join(SOCIETY_ROOT, 'members', member, `${member}.md`)
+    if (!existsSync(src)) continue
+    const destDir = join(skillsDest, member)
+    await mkdir(destDir, { recursive: true })
+    await safeCopy(src, join(destDir, `${member}.md`))
   }
 
-  // Copy AGENTS.md to project root
-  if (!existsSync(join(cwd, 'AGENTS.md'))) {
-    await copyFile(join(SOCIETY_ROOT, 'AGENTS.md'), join(cwd, 'AGENTS.md'));
-  }
+  await safeCopy(join(SOCIETY_ROOT, 'AGENTS.md'), join(cwd, 'AGENTS.md'))
 }
 
 async function configureGitTemplate(cwd: string): Promise<void> {
-  execSync('git config commit.template .gitmessage', { cwd, stdio: 'pipe' });
+  execSync('git config commit.template .gitmessage', { cwd, stdio: 'pipe' })
+}
+
+async function scaffoldConfig(cwd: string, runtime: Runtime, members: string[]): Promise<void> {
+  const configDir = join(cwd, '.agenthood')
+  await mkdir(configDir, { recursive: true })
+
+  const configPath = join(configDir, 'config.json')
+  if (existsSync(configPath)) return
+
+  const config = {
+    version: '1',
+    runtime,
+    members,
+    hooks: { hooksPath: '.husky' },
+    conventions: { commitTemplate: '.gitmessage', commitlintConfig: 'commitlint.config.cjs' },
+  }
+  await writeFile(configPath, JSON.stringify(config, null, 2) + '\n', 'utf8')
+}
+
+async function safeCopy(src: string, dest: string): Promise<void> {
+  if (!existsSync(src) || existsSync(dest)) return
+  await copyFile(src, dest)
+}
+
+async function safeWrite(dest: string, content: string): Promise<void> {
+  if (existsSync(dest)) return
+  await writeFile(dest, content, 'utf8')
 }
 
 const PR_TEMPLATE = `## What changed
@@ -170,7 +249,7 @@ const PR_TEMPLATE = `## What changed
 ## Screenshots (if UI change)
 
 Closes #
-`;
+`
 
 const BUG_TEMPLATE = `---
 name: Bug report
@@ -201,7 +280,7 @@ What went wrong?
 ## Related
 
 -
-`;
+`
 
 const FEATURE_TEMPLATE = `---
 name: Feature request
@@ -227,4 +306,4 @@ What should be built?
 ## Related
 
 -
-`;
+`

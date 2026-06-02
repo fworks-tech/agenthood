@@ -23,7 +23,7 @@ It cares about *why* the code changed, what problem it solves, and what a future
 Reads staged changes and produces a Conventional Commits message:
 - Detects the correct `type` from the nature of the change
 - Infers `scope` from the files and modules touched
-- Writes a subject in imperative mood, lowercase, ≤50 chars
+- Writes a subject in imperative mood, lowercase, ≤150 chars
 - Adds a body when the *why* is non-obvious
 - Appends `Closes #N` when an issue is referenced
 - Always adds `Co-Authored-By` footer
@@ -64,7 +64,7 @@ The Scribe enforces the following and will refuse to produce output that violate
 | Type is valid | `feat`, `fix`, `docs`... | `feature`, `update`, `change` |
 | Subject case | `add dark mode toggle` | `Add Dark Mode Toggle` |
 | Subject mood | `fix null pointer` | `fixed null pointer` |
-| Subject length | ≤ 50 chars | exceeds limit |
+| Subject length | ≤ 150 chars | exceeds limit |
 | No vague subjects | `fix login redirect loop` | `fix stuff`, `wip`, `misc` |
 | Footer present | `Closes #42` | missing or `Closes issue #42` |
 

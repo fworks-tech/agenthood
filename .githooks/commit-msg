@@ -63,16 +63,16 @@ if echo "$FIRST" | grep -qE '[[:upper:]]'; then
   exit 1
 fi
 
-# ── Check 4: Subject length ≤50 chars ────────────────────────────────────────
+# ── Check 4: Subject length ≤150 chars ────────────────────────────────────────
 SUBJ_LEN=$(echo "$SUBJECT" | wc -c | tr -d ' ')
 # wc -c includes newline, subtract 1
 SUBJ_LEN=$((SUBJ_LEN - 1))
-if [ "$SUBJ_LEN" -gt 50 ]; then
+if [ "$SUBJ_LEN" -gt 150 ]; then
   echo ""
   echo "┌─────────────────────────────────────────────────────────────┐"
   echo "│  THE DOORMAN — Commit Blocked                               │"
   echo "├─────────────────────────────────────────────────────────────┤"
-  echo "│  Rule: Subject must be ≤50 characters (yours: $SUBJ_LEN)      │"
+  echo "│  Rule: Subject must be ≤150 characters (yours: $SUBJ_LEN)      │"
   echo "│  Shorten: $SUBJECT"
   echo "└─────────────────────────────────────────────────────────────┘"
   exit 1

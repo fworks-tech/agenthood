@@ -32,7 +32,7 @@ Read the commit message and validate against `commitlint.config.cjs`:
 - If uppercase: block and provide corrected version
 
 **Check 3 — Subject length**
-- Must be ≤50 characters
+- Must be ≤150 characters
 - If over: block and suggest a shortened version
 
 **Check 4 — Subject mood**

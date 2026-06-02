@@ -173,10 +173,12 @@ When asked why a rule exists:
 
 **Example responses:**
 
-*Why ≤50 chars for commit subjects?*
-Git log displays 72 characters. Many terminals and UIs truncate at 50–72. The 50-char limit
-ensures the subject is readable in every context without truncation — and forces the author
-to state only the single most important thing about the change.
+*Why ≤150 chars for commit subjects?*
+Git log displays ~72 characters and many UIs truncate around 50–72. We set a 150-character
+maximum to allow more descriptive subjects when genuinely needed (for example, complex
+fixes or multi-part features) while still encouraging concise subjects. Prefer subjects
+around 50–72 characters so they remain readable in truncated views; the 150-char cap
+prevents arbitrarily long subjects when additional context is required.
 
 *Why does every member have a Rationalizations table?*
 The hardest part of enforcing standards is the moment a developer says "but just this once."

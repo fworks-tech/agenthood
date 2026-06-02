@@ -23,9 +23,7 @@ jobs:
 
       - name: Copy commitlint config
         run: |
-          if [ ! -f commitlint.config.cjs ]; then
-            cp conventions/commitlint.config.cjs ./commitlint.config.cjs
-          fi
+          cp conventions/commitlint.config.cjs ./commitlint.config.cjs
 
       - name: Validate commits in PR range
         run: |

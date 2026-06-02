@@ -11,7 +11,7 @@ to understand the Society's standards before taking any action in a repository.
 - Follow [Conventional Commits](https://www.conventionalcommits.org/) strictly
 - Format: `type(scope): subject`
 - Types: `feat`, `fix`, `docs`, `test`, `refactor`, `ci`, `chore`
-- Subject: imperative, lowercase, ≤50 chars, no trailing period
+- Subject: imperative, lowercase, ≤150 chars, no trailing period
 - One logical change per commit — if in doubt, split it
 - Never write: `fix stuff`, `wip`, `update`, `changes`, `misc`, `asdf`
 
@@ -67,7 +67,7 @@ This is optional and additive — the prompt-driven workflow above continues to 
 pip install "agenthood-runtime @ git+https://github.com/fworks-tech/agenthood.git#subdirectory=runtime"
 
 # Required environment variables
-export ANTHROPIC_API_KEY=sk-ant-...
+# Set the Anthropic API key in your environment or CI (do NOT commit it)
 export AGENTHOOD_ROOT=/path/to/agenthood
 
 # Invoke any member

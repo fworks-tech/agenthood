@@ -137,8 +137,10 @@ Install the Python runtime to execute members as real LLM agents that reason, ac
 pip install "agenthood-runtime @ git+https://github.com/fworks-tech/agenthood.git#subdirectory=runtime"
 
 # 2. Set required environment variables
-export ANTHROPIC_API_KEY=sk-ant-...
+# Set the Anthropic API key in your environment or CI (do NOT commit it)
 export AGENTHOOD_ROOT=/path/to/agenthood   # absolute path to this repo
+
+Note: Do NOT store API keys in the repository. Use CI secrets or environment variables.
 
 # 3. List available members
 agenthood-run list

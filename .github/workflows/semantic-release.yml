@@ -29,11 +29,13 @@ jobs:
             semantic-release \
             @semantic-release/changelog \
             @semantic-release/git \
-            @semantic-release/github
+            @semantic-release/github \
+            @semantic-release/npm
 
       - name: Release
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
         run: npx semantic-release
 
 # Required: add .releaserc.json to your project root:

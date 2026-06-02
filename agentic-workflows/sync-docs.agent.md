@@ -1,5 +1,7 @@
 ---
 description: After every merge to main, checks whether the merged changes affect documented APIs, workflows, or READMEs, and opens a follow-up PR if documentation is stale.
+type: manual-template
+usage: Copy the steps below into a Claude Code (or compatible) session after a merge to main. Paste the merged PR URL or diff as context, then ask The Librarian to check documentation consistency.
 on:
   push:
     branches: [main]

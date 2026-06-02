@@ -1,5 +1,7 @@
 ---
 description: Automatically triages new GitHub issues — applies labels, assigns to milestone, asks clarifying questions if needed, and links related issues.
+type: manual-template
+usage: Copy the steps below into a Claude Code (or compatible) session when a new issue needs triage. Paste the issue URL or body as context before running the prompt.
 on:
   issues:
     types: [opened]

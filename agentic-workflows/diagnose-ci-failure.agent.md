@@ -1,5 +1,7 @@
 ---
 description: Reads CI failure logs, identifies root cause, and posts a structured diagnosis comment on the PR. Distinguishes between code failures, environment issues, and flaky tests.
+type: manual-template
+usage: Copy the steps below into a Claude Code (or compatible) session when a CI run fails. Paste the failing workflow run URL or log output as context, then ask The Debugger to diagnose.
 on:
   workflow_run:
     workflows: ["*"]

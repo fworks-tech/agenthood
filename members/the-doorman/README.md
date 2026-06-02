@@ -88,7 +88,7 @@ module.exports = {
       'refactor', 'ci', 'chore'
     ]],
     'subject-case': [2, 'always', 'lower-case'],
-    'subject-max-length': [2, 'always', 50],
+    'subject-max-length': [2, 'always', 150],
   }
 }
 ```

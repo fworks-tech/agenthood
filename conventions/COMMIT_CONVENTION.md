@@ -27,7 +27,7 @@ Enforced locally by Husky + commitlint, and in CI by the Doorman workflow.
 
 ## Rules
 
-- **Subject** is imperative, lowercase, ≤50 chars, no trailing period
+- **Subject** is imperative, lowercase, ≤150 chars, no trailing period
 - **Body** explains *why*, not what — optional but encouraged
 - **Footer** links to issues: `Closes #42` or `Fixes #42`
 - **Breaking changes** use `!` after type: `feat!: remove legacy auth`

@@ -33,7 +33,7 @@ Doorman) to evaluate proposed names and suggest alternatives that fit the regist
 
 ### 3. Convention Explanation
 Explains why each rule exists — not just what it says. Answers:
-- "Why is the subject ≤50 characters?"
+- "Why is the subject ≤150 characters?"
 - "Why do we always split commits by logical intent?"
 - "Why does every member have a Rationalizations table?"
 

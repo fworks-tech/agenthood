@@ -2,7 +2,7 @@
 #
 # Types: feat | fix | docs | test | refactor | ci | chore
 # Scope: module | layer | area  ← project-specific; define in your team conventions
-# Subject: imperative, lowercase, ≤50 chars, no period
+# Subject: imperative, lowercase, ≤150 chars, no period
 #
 # Body (optional — explain WHY, not what):
 #

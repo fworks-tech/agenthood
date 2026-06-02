@@ -27,8 +27,7 @@
   "activationEvents": [
     "workspaceContains:.gitmessage",
     "workspaceContains:commitlint.config.cjs",
-    "onCommand:agenthood.init",
-    "onCommand:agenthood.check"
+    "onCommand:agenthood.init"
   ],
   "main": "./dist/extension.js",
   "contributes": {

@@ -7,3 +7,5 @@
 - If a secret is accidentally committed, rotate/revoke it immediately and coordinate a history purge if needed.
 
 Following these practices helps protect users and prevents automated Auditor hooks from blocking legitimate commits.
+
+Note: This repository enforces LF line endings via `.gitattributes`. Please keep your editor configured for LF to avoid noisy diffs.

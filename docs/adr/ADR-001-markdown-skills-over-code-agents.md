@@ -40,7 +40,19 @@ maintained alongside the skill files.
 Claude Code may be interpreted differently by Copilot. The Envoy member
 exists to address this cross-provider translation problem.
 
+## Update — Phase 1 (2026-06-02)
+
+The Markdown-first decision is preserved and extended by the Python runtime layer.
+`SkillsMiddleware` in DeepAgents reads the `.md` files at agent construction time —
+they are passed as file paths, never parsed or modified. The Markdown files remain
+the single source of truth for each member's identity and instructions.
+
+See [ADR-006](ADR-006-python-runtime-as-additive-layer.md) and
+[ADR-007](ADR-007-deepagents-as-execution-engine.md) for how the runtime uses them.
+
 ## References
 
 - [members/the-envoy/the-envoy.md](../../members/the-envoy/the-envoy.md) — cross-provider translation layer
-- [architecture/agent-system.md](../architecture/agent-system.md) — agent system design
+- [architecture/agent-system.md](../../architecture/agent-system.md) — agent system design
+- [ADR-006](ADR-006-python-runtime-as-additive-layer.md) — Python runtime as additive layer
+- [ADR-007](ADR-007-deepagents-as-execution-engine.md) — DeepAgents as execution engine

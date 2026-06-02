@@ -40,6 +40,39 @@ cp -r agenthood/members/ yourproject/.codebuddy/skills/
 **Agent-agnostic (AGENTS.md):**
 Reference `members/` in your project's `AGENTS.md` to make all runtimes aware.
 
+**Via `npx agenthood init`:**
+The initiation ceremony copies selected member skills into the correct directory
+for your chosen AI runtime automatically.
+
+---
+
+## Invoking Members via the Autonomous Runtime
+
+With `agenthood-runtime` installed, any member can be invoked directly as a real
+LLM agent — no manual copy-paste into an AI assistant required.
+
+```bash
+# Install once
+pip install "agenthood-runtime @ git+https://github.com/fworks-tech/agenthood.git#subdirectory=runtime"
+export ANTHROPIC_API_KEY=sk-ant-...
+export AGENTHOOD_ROOT=/path/to/agenthood
+
+# Invoke any member by name
+agenthood-run invoke the-scribe "write a commit message for the current diff"
+agenthood-run invoke the-reviewer "review the changes against the spec in issue #12"
+agenthood-run invoke the-architect "plan the OAuth2 integration"
+agenthood-run invoke the-auditor "run a security audit on the authentication module"
+
+# List all 14 available members
+agenthood-run list
+
+# Resume a session (LangGraph checkpoint)
+agenthood-run invoke the-debugger "continue the investigation" --thread-id <uuid>
+```
+
+The runtime loads each member's `.md` file from this directory at execution time via
+`SkillsPathResolver`. The files are read-only — the runtime never modifies them.
+
 ---
 
 ## The Member Lifecycle

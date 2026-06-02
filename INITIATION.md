@@ -169,6 +169,35 @@ Expected output:
 
 ---
 
+## Step 6 — Autonomous Runtime (Optional)
+
+For teams who want members to execute autonomously — reasoning, acting, and remembering
+across sessions without a human in the loop — install the Python runtime layer.
+
+**Requirements:** Python 3.12+, `ANTHROPIC_API_KEY`
+
+```bash
+# Install the runtime (reads from this same repo's runtime/ directory)
+pip install "agenthood-runtime @ git+https://github.com/fworks-tech/agenthood.git#subdirectory=runtime"
+
+# Point it at the agenthood repo so it can load skill files
+export AGENTHOOD_ROOT=/path/to/agenthood
+
+# Verify all 14 members are found
+agenthood-run list
+
+# Invoke a member against a real task
+agenthood-run invoke the-scribe "write a commit message for the current diff"
+```
+
+The runtime reads the same `.agenthood/config.json` the Node.js CLI created — no
+additional configuration required. Sessions are resumable via `--thread-id <uuid>`.
+
+This step is entirely optional. The prompt-driven workflow from Steps 1–5 continues
+to work unchanged whether or not the runtime is installed.
+
+---
+
 ## Leaving the Society
 
 ```bash

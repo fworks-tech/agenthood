@@ -110,7 +110,14 @@ npx agenthood list                     # see which members are active
 ## Configuring the Society
 
 The Society reads its configuration from `.agenthood/config.json`, scaffolded
-automatically by `npx agenthood init`:
+automatically by `npx agenthood init`.
+
+A fully annotated reference showing all supported fields is available at
+[`.agenthood/config.example.json`](.agenthood/config.example.json) in the
+Agenthood repository. It documents every option including `provider`,
+`permissions`, and `toolScoping`.
+
+The minimal config created by `init` looks like:
 
 ```json
 {

@@ -48,8 +48,7 @@
     "postinstall": "node -e \"const{existsSync}=require('fs');if(existsSync('dist/cli.js')){require('child_process').execSync('node dist/cli.js setup',{stdio:'inherit'})}\"",
     "test": "vitest run",
     "lint": "eslint src/",
-    "typecheck": "tsc --noEmit",
-    "prepublishOnly": "npm run lint && npm run typecheck && npm run build && npm test"
+    "typecheck": "tsc --noEmit"
   },
   "devDependencies": {
     "@semantic-release/changelog": "^6.0.3",

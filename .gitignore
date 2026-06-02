@@ -1,4 +1,13 @@
+# Local environment files
+.env
+
+# Python
+__pycache__/
+*.py[cod]
+
+# Node
 node_modules/
+dist/node_modules/
 dist/
 .agenthood/audit.log
 .agenthood/memory.json

@@ -14,6 +14,7 @@ import { deactivate } from './commands/deactivate.js';
 import { list } from './commands/list.js';
 import { oath } from './commands/oath.js';
 import { eject } from './commands/eject.js';
+import { setup } from './commands/setup.js';
 
 const COMMANDS: Record<string, () => Promise<void>> = {
   init,
@@ -21,6 +22,7 @@ const COMMANDS: Record<string, () => Promise<void>> = {
   list,
   oath,
   eject,
+  setup,
 };
 
 async function main(): Promise<void> {
@@ -65,6 +67,7 @@ Usage:
 
 Commands:
   init                    Initiate the Society in your project
+  setup                   Activate hooks and commit template (Agenthood repo)
   check                   Run the Doorman's health check
   activate <member>       Activate a specific member skill
   deactivate <member>     Deactivate a member skill

@@ -35,9 +35,17 @@ export async function check(): Promise<void> {
   file('.gitmessage configured', '.gitmessage');
   file('commitlint.config.js present', 'commitlint.config.js');
 
-  // Hooks
-  file('Husky commit-msg hook active', '.husky/commit-msg');
-  file('Husky pre-push hook active', '.husky/pre-push');
+  // Hooks — .githooks/ (Agenthood repo) or .husky/ (target project)
+  const usesGithooks = existsSync(join(cwd, '.githooks'));
+  if (usesGithooks) {
+    file('.githooks/commit-msg present', '.githooks/commit-msg');
+    file('.githooks/pre-commit present', '.githooks/pre-commit');
+    file('.githooks/pre-push present', '.githooks/pre-push');
+    cmd('core.hooksPath set to .githooks', 'git config --get core.hooksPath');
+  } else {
+    file('Husky commit-msg hook active', '.husky/commit-msg');
+    file('Husky pre-push hook active', '.husky/pre-push');
+  }
 
   // GitHub templates
   file('.github/pull_request_template.md present', '.github/pull_request_template.md');

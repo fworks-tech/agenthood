@@ -86,7 +86,7 @@ Read all member files and identify conflicting rules:
 Sentinel — Cross-Member Contradiction Report
 Date: YYYY-MM-DD
 
-✅ Commits: no conflicts across 13 members
+✅ Commits: no conflicts across 14 members
 ⚠️  PRs: 1 conflict
     - the-scribe allows "grouping rationale" exception for N+1 pattern
     - the-doorman flags any PR requiring "and" without checking for N+1 exception

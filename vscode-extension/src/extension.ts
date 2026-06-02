@@ -11,13 +11,23 @@ import * as vscode from 'vscode';
 import { existsSync } from 'node:fs';
 import { join } from 'node:path';
 import { AGENTHOOD_MEMBERS } from './members';
+import { ObserverService } from './observer';
 
 let statusBarItem: vscode.StatusBarItem;
 let outputChannel: vscode.OutputChannel;
+export let observerService: ObserverService;
 
 export function activate(context: vscode.ExtensionContext): void {
   // Create output channel for diagnostics
   outputChannel = vscode.window.createOutputChannel('Agenthood');
+
+  // Initialize the Society Event Bus
+  observerService = new ObserverService(context);
+  
+  // Example observer: The Oracle watches lore edits
+  observerService.onDidSave(/members\/.*\.md$/, (doc) => {
+    observerService.logObservation('The Oracle', `I see you are adjusting the lore of ${doc.fileName.split(/[/\\]/).pop()}. Choose your words carefully.`);
+  });
 
   // Status bar — shows active member count
   statusBarItem = vscode.window.createStatusBarItem(
@@ -221,4 +231,3 @@ export function deactivate(): void {
   statusBarItem?.dispose();
   outputChannel?.dispose();
 }
-

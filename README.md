@@ -251,9 +251,13 @@ agenthood/
 │   └── cli.ts
 │
 ├── .github/workflows/               ← Layer 6: CI Enforcement
+│   ├── auditor.yml
 │   ├── commitlint.yml
+│   ├── librarian.yml
 │   ├── semantic-release.yml
-│   └── ...
+│   ├── sentinel.yml
+│   ├── tester.yml
+│   └── warden.yml
 │
 ├── .githooks/                       ← Local git hook enforcement
 │   ├── commit-msg

@@ -3,14 +3,14 @@ name: Auditor — Secret Scanning
 on:
   pull_request:
     branches: [main]
-  push:
-    branches:
-      - 'feat/**'
-      - 'fix/**'
-      - 'docs/**'
-      - 'refactor/**'
-      - 'ci/**'
-      - 'chore/**'
+  # push:
+  #   branches:
+  #     - 'feat/**'
+  #     - 'fix/**'
+  #     - 'docs/**'
+  #     - 'refactor/**'
+  #     - 'ci/**'
+  #     - 'chore/**'
 
 jobs:
   auditor:

@@ -1,0 +1,45 @@
+name: VS Code Extension — Build and Test
+
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - 'vscode-extension/**'
+      - '.github/workflows/vscode-extension.yml'
+  push:
+    branches: [main]
+    paths:
+      - 'vscode-extension/**'
+      - '.github/workflows/vscode-extension.yml'
+
+jobs:
+  build:
+    name: Build and Test VS Code Extension
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Install dependencies
+        run: cd vscode-extension && npm install
+
+      - name: Build extension
+        run: cd vscode-extension && npm run build
+
+      - name: Run tests
+        run: cd vscode-extension && npm test
+
+      - name: Package extension
+        run: cd vscode-extension && npm run package
+
+      - name: Upload VSIX artifact
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: agenthood-vscode-vsix
+          path: vscode-extension/agenthood-vscode-*.vsix
+          retention-days: 30

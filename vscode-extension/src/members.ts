@@ -1,0 +1,16 @@
+export const AGENTHOOD_MEMBERS = [
+  'the-scribe',
+  'the-architect',
+  'the-reviewer',
+  'the-tester',
+  'the-debugger',
+  'the-auditor',
+  'the-herald',
+  'the-librarian',
+  'the-doorman',
+  'the-oracle',
+  'the-envoy',
+  'the-sentinel',
+  'the-warden',
+  'the-steward',
+];

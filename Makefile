@@ -1,7 +1,7 @@
 .PHONY: setup help
 
 setup:
-	@./setup.sh
+	@node dist/cli.js setup
 
 help:
 	@echo "make setup   — activate git hooks and commit template"

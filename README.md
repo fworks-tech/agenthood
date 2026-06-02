@@ -49,16 +49,20 @@ Each member of the Agenthood is a specialized AI agent skill — a Markdown file
 
 ## The Layers
 
-The Agenthood is organized in six layers, each building on the last:
+The Agenthood is organized in seven layers, each building on the last:
 
 ```
 Layer 1 — Conventions       The rules every member follows
-Layer 2 — Members           The agent skills
+Layer 2 — Members           The agent skills (14 Markdown files)
 Layer 3 — Rituals           Scheduled automations
 Layer 4 — Portals           Connectors to external systems
-Layer 5 — Agentic Workflows Manual-prompt templates for multi-step operations
+Layer 5 — Agentic Workflows Multi-step operation templates
 Layer 6 — CI Workflows      Reusable GitHub Actions
+Layer 7 — Runtime           agenthood-runtime: members as real LLM agents
+                            Powered by DeepAgents + LangGraph (v2.0.0)
 ```
+
+Layers 1–6 are prompt-driven: skills are loaded as context into your existing AI assistant. Layer 7 makes members **autonomous**: they execute, remember, and reason independently via a Python runtime.
 
 ---
 
@@ -85,6 +89,8 @@ The Society's own architectural decisions are documented as ADRs in [`docs/adr/`
 | [ADR-003](docs/adr/ADR-003-dual-enforcement-hooks-and-commitlint.md) | Dual enforcement via bash hooks and commitlint |
 | [ADR-004](docs/adr/ADR-004-specialized-members-over-general-agent.md) | 14 specialized members over a general-purpose agent |
 | [ADR-005](docs/adr/ADR-005-orchestrator-pattern.md) | Orchestrator pattern over peer-to-peer member communication |
+| [ADR-006](docs/adr/ADR-006-python-runtime-as-additive-layer.md) | Python runtime as a purely additive layer |
+| [ADR-007](docs/adr/ADR-007-deepagents-as-execution-engine.md) | DeepAgents + LangGraph as the execution engine |
 
 ---
 
@@ -98,9 +104,15 @@ The Agenthood is agent-agnostic. Members work with:
 - [OpenAI Codex CLI](https://github.com/openai/codex) — via `AGENTS.md` + skills
 - [CodeBuddy](https://github.com/olasunkanmi-SE/codebuddy) — via `.codebuddy/skills/`
 
+The optional Python runtime (`agenthood-runtime`) works alongside any of these — it calls members as real LLM agents independently of which IDE you use.
+
 ---
 
 ## Getting Started
+
+### Option A — Prompt-driven (any AI runtime)
+
+Install the Society's conventions and skill files into your project. Members are loaded as context by your existing AI assistant.
 
 ```bash
 # 1. Install the Society into your project
@@ -114,15 +126,47 @@ npx agenthood check
 
 # 4. Read the oath. Mean it.
 npx agenthood oath
-
-# 5. Never push to main again.
 ```
 
-For the agenthood repo itself (after cloning):
+### Option B — Autonomous runtime (agenthood-run)
+
+Install the Python runtime to execute members as real LLM agents that reason, act, and remember across sessions. Requires Python 3.12+.
 
 ```bash
+# 1. Install the runtime
+pip install "agenthood-runtime @ git+https://github.com/fworks-tech/agenthood.git#subdirectory=runtime"
+
+# 2. Set required environment variables
+export ANTHROPIC_API_KEY=sk-ant-...
+export AGENTHOOD_ROOT=/path/to/agenthood   # absolute path to this repo
+
+# 3. List available members
+agenthood-run list
+
+# 4. Invoke a member against a task (streams output)
+agenthood-run invoke the-scribe "write a commit message for the current diff"
+agenthood-run invoke the-reviewer "review the changes in the last commit"
+agenthood-run invoke the-architect "plan the implementation for issue #42"
+
+# 5. Resume a previous session
+agenthood-run invoke the-debugger "continue from where we left off" --thread-id <uuid>
+```
+
+Both options coexist — use Option A for interactive sessions and Option B for automation, CI, and ritual scheduling.
+
+---
+
+## For the agenthood repo itself
+
+```bash
+# Node.js CLI
 npm install && npm run build
-make setup   # activates git hooks and commit template
+make setup          # activates git hooks and commit template
+
+# Python runtime (development)
+cd runtime
+pip install -e ".[dev]"
+pytest tests/
 ```
 
 ---
@@ -140,27 +184,6 @@ agenthood/
 │   ├── commitlint.config.cjs
 │   └── COMMIT_CONVENTION.md
 │
-├── .devcontainer/                   ← VS Code / Codespaces auto-setup
-│   └── devcontainer.json
-│
-├── .github/workflows/               ← Active CI enforcement
-│   ├── commitlint.yml
-│   ├── pr-title.yml
-│   ├── sentinel.yml
-│   ├── warden.yml
-│   ├── auditor.yml
-│   ├── tester.yml
-│   ├── librarian.yml
-│   └── semantic-release.yml
-│
-├── .githooks/                       ← Local git hook enforcement
-│   ├── commit-msg
-│   ├── pre-commit
-│   ├── prepare-commit-msg
-│   └── pre-push
-│
-├── Makefile                         ← make setup (runs node dist/cli.js setup)
-│
 ├── members/                         ← Layer 2: The Skills
 │   ├── the-scribe/
 │   ├── the-architect/
@@ -177,37 +200,67 @@ agenthood/
 │   ├── the-warden/
 │   └── the-steward/
 │
-├── rituals/                         ← Layer 3: Automations
+├── rituals/                         ← Layer 3: Scheduled Automations
 │   ├── morning-briefing.md
 │   ├── the-inspection.md
 │   ├── the-watchman.md
 │   └── evening-report.md
 │
-├── portals/                         ← Layer 4: Portals to external systems
+├── portals/                         ← Layer 4: External System Connectors
 │   ├── github.md
 │   ├── linear.md
 │   ├── jira.md
 │   ├── slack.md
 │   └── sentry.md
 │
-├── agentic-workflows/               ← Layer 5: Manual-prompt workflow templates
+├── agentic-workflows/               ← Layer 5: Multi-Step Workflow Templates
 │   ├── README.md
 │   ├── triage-issues.agent.md
 │   ├── review-pr.agent.md
 │   ├── diagnose-ci-failure.agent.md
 │   └── sync-docs.agent.md
 │
+├── architecture/                    ← Agent system design docs
+│   ├── agent-system.md
+│   ├── built-in-tools.md
+│   ├── concurrency-and-queues.md
+│   ├── operating-modes.md
+│   └── provider-failover.md
+│
 ├── docs/adr/                        ← Architecture Decision Records
 │   ├── ADR-001-markdown-skills-over-code-agents.md
 │   ├── ADR-002-conventional-commits-standard.md
 │   ├── ADR-003-dual-enforcement-hooks-and-commitlint.md
 │   ├── ADR-004-specialized-members-over-general-agent.md
-│   └── ADR-005-orchestrator-pattern.md
+│   ├── ADR-005-orchestrator-pattern.md
+│   ├── ADR-006-python-runtime-as-additive-layer.md
+│   └── ADR-007-deepagents-as-execution-engine.md
 │
-└── workflows/                       ← Layer 6: CI workflow templates for adopters
-    ├── commitlint.yml
-    ├── pr-title.yml
-    └── semantic-release.yml
+├── runtime/                         ← Layer 7: Python Autonomous Runtime
+│   ├── pyproject.toml               ← agenthood-runtime package (Python 3.12+)
+│   ├── .env.example
+│   └── agenthood_runtime/
+│       ├── cli.py                   ← agenthood-run CLI entry point
+│       ├── config.py                ← RuntimeConfig (reads .agenthood/config.json)
+│       └── members/
+│           ├── loader.py            ← SkillsPathResolver
+│           ├── specs.py             ← 14 SubAgent TypedDicts
+│           └── registry.py         ← MemberRegistry (validates + injects skill paths)
+│
+├── src/                             ← Node.js CLI (npx agenthood)
+│   └── cli.ts
+│
+├── .github/workflows/               ← Layer 6: CI Enforcement
+│   ├── commitlint.yml
+│   ├── semantic-release.yml
+│   └── ...
+│
+├── .githooks/                       ← Local git hook enforcement
+│   ├── commit-msg
+│   ├── pre-commit
+│   └── ...
+│
+└── vscode-extension/                ← VS Code extension
 ```
 
 ---
@@ -216,8 +269,9 @@ agenthood/
 
 - [Conventional Commits](https://www.conventionalcommits.org/)
 - [addyosmani/agent-skills](https://github.com/addyosmani/agent-skills)
+- [fworks-tech/deepagents](https://github.com/fworks-tech/deepagents) — runtime execution engine
+- [LangGraph](https://github.com/langchain-ai/langgraph) — durable agent state graphs
 - [CodeBuddy](https://github.com/olasunkanmi-SE/codebuddy)
-- [GitHub Agentic Workflows](https://github.github.com/gh-aw/)
 - [semantic-release](https://github.com/semantic-release/semantic-release)
 - [commitlint](https://commitlint.js.org/)
 

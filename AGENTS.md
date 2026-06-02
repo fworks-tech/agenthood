@@ -56,3 +56,28 @@ Load skills from `members/` to activate specialized agents:
 - `the-sentinel` — Society document integrity, cross-member contradiction detection, structural drift
 - `the-warden` — code smell detection, complexity enforcement, architectural boundary violations
 - `the-steward` — context economy, member routing, provider cache strategy, session triage
+
+## Autonomous Runtime (agenthood-run)
+
+Members can also be executed as real LLM agents via the Python runtime layer.
+This is optional and additive — the prompt-driven workflow above continues to work unchanged.
+
+```bash
+# Install
+pip install "agenthood-runtime @ git+https://github.com/fworks-tech/agenthood.git#subdirectory=runtime"
+
+# Required environment variables
+export ANTHROPIC_API_KEY=sk-ant-...
+export AGENTHOOD_ROOT=/path/to/agenthood
+
+# Invoke any member
+agenthood-run invoke the-scribe "write a commit message for the current diff"
+agenthood-run invoke the-reviewer "review the open PR"
+agenthood-run list    # show all 14 members
+```
+
+The runtime reads `.agenthood/config.json` (written by `npx agenthood init`) and respects
+the same `members`, `permissions`, and `toolScoping` configuration. Members execute via
+DeepAgents + LangGraph with full session resumability via `--thread-id`.
+
+See [runtime/](runtime/) and [ADR-006](docs/adr/ADR-006-python-runtime-as-additive-layer.md) for details.

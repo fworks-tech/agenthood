@@ -75,6 +75,21 @@ code --install-extension agenthood-vscode-*.vsix
 
 ---
 
+## Runtime Integration (v2.0.0 — planned)
+
+When `agenthood-runtime` is installed and `ANTHROPIC_API_KEY` is set, a future
+version of this extension will surface `agenthood-run` commands directly in the
+Command Palette:
+
+| Command | What it does |
+|---------|-------------|
+| `Agenthood: Invoke Member` | Pick a member and enter a task — streams output in a panel |
+| `Agenthood: Review Current File` | Runs `the-reviewer` against the active editor file |
+| `Agenthood: Write Commit Message` | Runs `the-scribe` against the current staged diff |
+| `Agenthood: Start Ritual Scheduler` | Starts the APScheduler daemon for ritual automations |
+
+Until then, the runtime is accessible via the integrated terminal with `agenthood-run`.
+
 ## The Society
 
 This extension is part of [Agenthood](https://github.com/fworks-tech/agenthood) —

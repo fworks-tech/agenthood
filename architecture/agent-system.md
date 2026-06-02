@@ -1,13 +1,13 @@
 # Agent System
 
-> *The Society is not one agent. It is nine specialists who know when to call each other.*
+> *The Society is not one agent. It is fourteen specialists who know when to call each other.*
 
 ---
 
 ## Overview
 
 The Agenthood uses a **multi-agent architecture** where a central Orchestrator
-coordinates nine specialized members. No member tries to do everything.
+coordinates fourteen specialized members. No member tries to do everything.
 Each receives only the tools and context relevant to their specialty.
 
 This design avoids the failure mode of monolithic agents: an agent given every
@@ -53,17 +53,25 @@ Each member is a subagent with:
 
 ### Member → Tool Scope
 
-| Member | Tools Available |
-|--------|----------------|
-| The Scribe | git diff, git log, file read |
-| The Architect | file read, file write (specs only), web search |
-| The Reviewer | file read, git diff, diagnostics |
-| The Tester | file read, file write (tests only), terminal (test runner) |
-| The Debugger | file read, terminal, stack trace, debug tools |
-| The Auditor | file read, dependency scanner, web search |
-| The Herald | git log, git tag, file write (CHANGELOG only), GitHub API |
-| The Librarian | file read, file write (docs only), web search |
-| The Doorman | git hooks, CI config, file read, terminal (lint only) |
+Full tool-scope definitions live in [`built-in-tools.md`](built-in-tools.md) and are
+implemented as `SubAgent` TypedDicts in [`runtime/agenthood_runtime/members/specs.py`](../runtime/agenthood_runtime/members/specs.py).
+
+| Member | Key Tools | Permission Profile |
+|--------|-----------|--------------------|
+| The Scribe | git.diff, git.log, git.commit, file.write | standard |
+| The Architect | file.write, file.delete, code.analysis, search.web | standard |
+| The Reviewer | file.read, code.symbols, code.diagnostics | restricted |
+| The Tester | file.write, terminal.run, code.grep | standard |
+| The Debugger | terminal.run, terminal.deep, debug.* | standard |
+| The Auditor | file.read, code.diagnostics, search.web | restricted |
+| The Herald | git.push, git.tag, file.write, search.web | standard |
+| The Librarian | file.write, search.web, search.hybrid | standard |
+| The Doorman | git.diff, git.log, code.diagnostics | restricted |
+| The Oracle | git.log, search.vector, search.hybrid | restricted |
+| The Sentinel | file.read, code.diagnostics | restricted |
+| The Warden | code.grep, code.diagnostics | restricted |
+| The Envoy | file.read, search.web, search.vector | restricted |
+| The Steward | memory.read, memory.write, tasks.* | restricted |
 
 ---
 
@@ -130,3 +138,26 @@ The Society remembers across sessions:
 
 Memory is stored in `.agenthood/memory.json` and loaded at session start.
 Members read from memory before acting and write to it after significant decisions.
+
+In the Python runtime (Phase 2), memory is backed by a LangGraph Memory Store with
+three namespaces — `project`, `session`, `user` — and synced to `.agenthood/memory.json`
+via `MemoryBridge` so it remains human-readable outside the runtime.
+
+---
+
+## Runtime Implementation
+
+The architecture described in this document is being progressively implemented in
+[`runtime/`](../runtime/) as `agenthood-runtime` (Python 3.12+, DeepAgents + LangGraph).
+
+| This doc | Implemented as |
+|----------|---------------|
+| Orchestrator | `runtime/agenthood_runtime/orchestrator/graph.py` (Phase 3) |
+| Member subagents | `runtime/agenthood_runtime/members/specs.py` ✅ Phase 1 |
+| Tool scoping | `SubAgent.tools` in specs.py ✅ Phase 1 |
+| Permission profiles | `SubAgent.permissions` in specs.py ✅ Phase 1 |
+| Persistent memory | `runtime/agenthood_runtime/memory/` (Phase 2) |
+| Concurrency queue | `runtime/agenthood_runtime/orchestrator/` (Phase 3) |
+
+The Markdown skill files in `members/` are never modified — they are loaded as-is
+into each agent's system prompt via `SkillsMiddleware`.

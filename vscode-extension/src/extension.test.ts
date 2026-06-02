@@ -5,12 +5,13 @@
  * These are basic unit tests for helper functions.
  */
 
-import { describe, it, expect } from 'vitest';
+import { describe, it } from 'node:test';
+import assert from 'node:assert/strict';
 import { AGENTHOOD_MEMBERS } from './members.js';
 
 describe('AGENTHOOD_MEMBERS', () => {
   it('has correct length', () => {
-    expect(AGENTHOOD_MEMBERS).toHaveLength(14);
+    assert.equal(AGENTHOOD_MEMBERS.length, 14);
   });
 
   it('contains expected members', () => {
@@ -22,13 +23,13 @@ describe('AGENTHOOD_MEMBERS', () => {
       'the-steward',
     ];
     expectedMembers.forEach(member => {
-      expect(AGENTHOOD_MEMBERS).toContain(member);
+      assert.ok(AGENTHOOD_MEMBERS.includes(member), `missing member: ${member}`);
     });
   });
 
   it('member names follow naming convention', () => {
     AGENTHOOD_MEMBERS.forEach(member => {
-      expect(member).toMatch(/^the-[a-z]+$/);
+      assert.match(member, /^the-[a-z]+$/);
     });
   });
 });

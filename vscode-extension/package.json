@@ -26,8 +26,7 @@
   },
   "activationEvents": [
     "workspaceContains:.gitmessage",
-    "workspaceContains:commitlint.config.cjs",
-    "onCommand:agenthood.init"
+    "workspaceContains:commitlint.config.cjs"
   ],
   "main": "./dist/extension.js",
   "contributes": {
@@ -96,13 +95,13 @@
     "watch": "tsc --watch",
     "package": "vsce package",
     "publish": "vsce publish",
-    "pretest": "npm run build",
+    "pretest": "tsc -p tsconfig.test.json",
     "test": "node --test dist/extension.test.js"
   },
   "devDependencies": {
-    "@types/vscode": "^1.90.0",
     "@types/node": "^22.0.0",
-    "typescript": "^5.5.0",
-    "@vscode/vsce": "^3.0.0"
+    "@types/vscode": "^1.90.0",
+    "@vscode/vsce": "^3.0.0",
+    "typescript": "^6.0.3"
   }
 }

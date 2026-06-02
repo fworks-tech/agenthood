@@ -54,8 +54,10 @@ LLM agent — no manual copy-paste into an AI assistant required.
 ```bash
 # Install once
 pip install "agenthood-runtime @ git+https://github.com/fworks-tech/agenthood.git#subdirectory=runtime"
-export ANTHROPIC_API_KEY=sk-ant-...
+# Set the Anthropic API key in your environment or CI (do NOT commit it)
 export AGENTHOOD_ROOT=/path/to/agenthood
+
+Note: Do NOT store API keys in the repository. Use CI secrets or environment variables.
 
 # Invoke any member by name
 agenthood-run invoke the-scribe "write a commit message for the current diff"

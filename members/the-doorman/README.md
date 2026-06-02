@@ -26,7 +26,7 @@ The Doorman is polite, but unmovable.
 Runs `commitlint` on every `commit-msg` hook:
 - Validates type is one of the allowed values
 - Validates subject is lowercase and imperative
-- Validates subject length ≤ 50 characters
+- Validates subject length ≤ 150 characters
 - Blocks the commit if any rule fails
 - Suggests a corrected message when possible
 

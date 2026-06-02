@@ -56,7 +56,7 @@ Layer 1 — Conventions       The rules every member follows
 Layer 2 — Members           The agent skills
 Layer 3 — Rituals           Scheduled automations
 Layer 4 — Portals           Connectors to external systems
-Layer 5 — Agentic Workflows GitHub Agentic Workflows (gh aw)
+Layer 5 — Agentic Workflows Manual-prompt templates for multi-step operations
 Layer 6 — CI Workflows      Reusable GitHub Actions
 ```
 
@@ -103,22 +103,26 @@ The Agenthood is agent-agnostic. Members work with:
 ## Getting Started
 
 ```bash
-# 1. Clone the Society
-git clone https://github.com/fworks-tech/agenthood.git
-cd agenthood
+# 1. Install the Society into your project
+npm install --save-dev agenthood
 
-# 2. Activate enforcement (hooks + commit template)
-./setup.sh
-# or: make setup
+# 2. Run the initiation ceremony (interactive — ~5 minutes)
+npx agenthood init
 
-# 3. Load the members into your agent runtime
-# For Claude Code:
-cp -r members/ yourproject/.claude/skills/
+# 3. Verify everything is in place
+npx agenthood check
 
 # 4. Read the oath. Mean it.
-cat oath.md
+npx agenthood oath
 
 # 5. Never push to main again.
+```
+
+For the agenthood repo itself (after cloning):
+
+```bash
+npm install && npm run build
+make setup   # activates git hooks and commit template
 ```
 
 ---
@@ -146,7 +150,8 @@ agenthood/
 │   ├── warden.yml
 │   ├── auditor.yml
 │   ├── tester.yml
-│   └── librarian.yml
+│   ├── librarian.yml
+│   └── semantic-release.yml
 │
 ├── .githooks/                       ← Local git hook enforcement
 │   ├── commit-msg
@@ -154,8 +159,7 @@ agenthood/
 │   ├── prepare-commit-msg
 │   └── pre-push
 │
-├── Makefile                         ← make setup
-├── setup.sh                         ← one-command activation
+├── Makefile                         ← make setup (runs node dist/cli.js setup)
 │
 ├── members/                         ← Layer 2: The Skills
 │   ├── the-scribe/
@@ -186,13 +190,21 @@ agenthood/
 │   ├── slack.md
 │   └── sentry.md
 │
-├── agentic-workflows/               ← Layer 5: gh aw Markdown workflows
+├── agentic-workflows/               ← Layer 5: Manual-prompt workflow templates
+│   ├── README.md
 │   ├── triage-issues.agent.md
 │   ├── review-pr.agent.md
 │   ├── diagnose-ci-failure.agent.md
 │   └── sync-docs.agent.md
 │
-└── workflows/                       ← Layer 6: Reusable GitHub Actions
+├── docs/adr/                        ← Architecture Decision Records
+│   ├── ADR-001-markdown-skills-over-code-agents.md
+│   ├── ADR-002-conventional-commits-standard.md
+│   ├── ADR-003-dual-enforcement-hooks-and-commitlint.md
+│   ├── ADR-004-specialized-members-over-general-agent.md
+│   └── ADR-005-orchestrator-pattern.md
+│
+└── workflows/                       ← Layer 6: CI workflow templates for adopters
     ├── commitlint.yml
     ├── pr-title.yml
     └── semantic-release.yml

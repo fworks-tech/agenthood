@@ -1,5 +1,7 @@
 ---
 description: Reviews pull requests using The Reviewer's five-axis framework — correctness, readability, architecture, security, and performance. Posts findings as structured review comments.
+type: manual-template
+usage: Copy the steps below into a Claude Code (or compatible) session when reviewing a PR. Paste the PR URL or diff as context, then ask The Reviewer to apply its five-axis framework.
 on:
   pull_request:
     types: [opened, ready_for_review]

@@ -176,7 +176,7 @@ When asked why a rule exists:
 *Why ≤150 chars for commit subjects?*
 Git log displays 72 characters. Many terminals and UIs truncate at 50–72. The 150-char limit
 ensures the subject is readable in every context without truncation — and forces the author
-to state only the single most important thing about the change.
+to state the single most important thing about the change.
 
 *Why does every member have a Rationalizations table?*
 The hardest part of enforcing standards is the moment a developer says "but just this once."

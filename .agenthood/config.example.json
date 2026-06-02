@@ -1,0 +1,60 @@
+{
+  "_comment": "Copy this file to .agenthood/config.json and remove all _comment fields.",
+
+  "version": "1",
+
+  "_comment_runtime": "Your AI coding assistant. One of: claude-code | copilot | gemini-cli | other",
+  "runtime": "claude-code",
+
+  "_comment_members": "Which Society members to activate. Skills are installed into the runtime's skills directory.",
+  "members": [
+    "the-scribe",
+    "the-architect",
+    "the-reviewer",
+    "the-tester",
+    "the-debugger",
+    "the-auditor",
+    "the-herald",
+    "the-librarian",
+    "the-doorman",
+    "the-oracle",
+    "the-envoy",
+    "the-sentinel",
+    "the-warden",
+    "the-steward"
+  ],
+
+  "_comment_hooks": "Path where git hooks are installed. Use .husky for Husky-managed projects, .githooks for bare git hook directories.",
+  "hooks": {
+    "hooksPath": ".husky"
+  },
+
+  "_comment_conventions": "Paths to the commit template and commitlint config files in your project root.",
+  "conventions": {
+    "commitTemplate": ".gitmessage",
+    "commitlintConfig": "commitlint.config.cjs"
+  },
+
+  "_comment_provider": "Optional: preferred LLM provider and model. Members use this when they can select their own model.",
+  "provider": {
+    "name": "anthropic",
+    "model": "claude-sonnet-4-6"
+  },
+
+  "_comment_permissions": "Optional: permission profile for automated member actions. conservative = read-only; standard = read + safe writes; elevated = full write access.",
+  "permissions": {
+    "profile": "standard",
+    "_comment_overrides": "Per-member overrides. Key is member name, value is one of: conservative | standard | elevated",
+    "overrides": {
+      "the-auditor": "conservative",
+      "the-herald": "elevated"
+    }
+  },
+
+  "_comment_toolScoping": "Optional: restrict which MCP tools each member can call. Omit to allow all available tools.",
+  "toolScoping": {
+    "_comment_example": "Each key is a member name. Value is a list of allowed tool name patterns (supports * wildcard).",
+    "the-herald": ["github.*", "slack.post", "slack.thread"],
+    "the-debugger": ["sentry.*", "github.issues.*", "github.pr.comment"]
+  }
+}

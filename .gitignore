@@ -1,0 +1,18 @@
+node_modules/
+dist/
+.agenthood/audit.log
+.agenthood/memory.json
+.env
+*.local
+
+# Python
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.venv/
+venv/
+*.egg-info/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/

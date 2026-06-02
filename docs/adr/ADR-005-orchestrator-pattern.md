@@ -1,0 +1,62 @@
+# ADR-005: Orchestrator Pattern Over Peer-to-Peer Member Communication
+
+**Date:** 2026-06-02
+**Status:** Accepted
+
+## Context
+
+With 14 specialized members, a coordination pattern was needed. Two main
+options were available: peer-to-peer (members invoke each other directly)
+or orchestrator-driven (a central controller routes tasks to members, which
+operate independently and return results).
+
+The choice affects how members are composed, how context is managed, and
+what happens when a member hands off to another.
+
+## Decision
+
+The Society uses the **Orchestrator pattern**: the developer (or a Steward-
+assisted routing prompt) acts as the orchestrator, invoking individual members
+as needed. Members do not invoke each other directly.
+
+## Alternatives Considered
+
+| Option | Pros | Cons | Why Rejected |
+|--------|------|------|-------------|
+| Peer-to-peer | Members can autonomously compose workflows | Creates hidden invocation chains; context leaks between members; hard to debug | Unpredictable and difficult to audit |
+| Orchestrator (chosen) | Explicit invocation; clear context boundaries; each member receives only what it needs | Requires the orchestrator (developer or Steward) to know the routing | — |
+| Event-driven (pub/sub) | Decoupled; members react to events | Requires a runtime event bus not available in most AI coding assistants today | No infrastructure support in current runtimes |
+
+## Consequences
+
+**Easier:** Each member's context is controlled — The Tester receives test
+context, not release context. Invocations are auditable in conversation history.
+
+**Harder:** Multi-step workflows (e.g., Architect → Tester → Reviewer → Scribe)
+require the developer to chain invocations manually or use The Steward for
+routing guidance.
+
+**New risk:** Without an automated orchestrator, long workflows rely on the
+developer remembering the correct sequence. The Steward's routing table and
+the `agentic-workflows/` templates mitigate this.
+
+## Update — Phase 3 (planned, v2.0.0)
+
+The orchestrator described here will be implemented as a LangGraph `StateGraph` in
+`runtime/agenthood_runtime/orchestrator/graph.py`. Key components:
+
+- `OrchestratorState` — TypedDict holding task, active members, member outputs, approval state
+- `StewardRouter` — deterministic routing table derived from `the-steward.md`; LLM-assisted for ambiguous tasks
+- `build_orchestrator_graph()` — nodes: `classify_task → route_members → execute_member → check_approval → advance_member`
+
+`MemorySaver` checkpointing enables resumable multi-step workflows via `--thread-id`.
+`interrupt_on` gates enforce the approval model documented in this ADR.
+
+## References
+
+- [members/the-steward/the-steward.md](../../members/the-steward/the-steward.md) — routing guidance
+- [agentic-workflows/](../../agentic-workflows/) — multi-step workflow templates
+- [architecture/agent-system.md](../../architecture/agent-system.md) — system design
+- [architecture/concurrency-and-queues.md](../../architecture/concurrency-and-queues.md) — queue design
+- [ADR-006](ADR-006-python-runtime-as-additive-layer.md) — Python runtime context
+- [ADR-007](ADR-007-deepagents-as-execution-engine.md) — DeepAgents execution engine

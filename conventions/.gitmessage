@@ -1,0 +1,26 @@
+# <type>(<scope>): <subject>
+#
+# Types: feat | fix | docs | test | refactor | ci | chore
+# Scope: module | layer | area  ← project-specific; define in your team conventions
+# Subject: imperative, lowercase, ≤50 chars, no period
+#
+# Body (optional — explain WHY, not what):
+#
+#
+# Footer:
+# Closes #ISSUE   ← links issue and auto-closes on merge
+#
+# Co-Authored-By: Claude Sonnet 4.6 <noreply@anthropic.com>
+#
+# ---------------------------------------------------------------------------
+# Conventional Commits: https://www.conventionalcommits.org/
+# Enforced by: The Doorman
+# ---------------------------------------------------------------------------
+# feat:     new feature for the user
+# fix:      bug fix for the user
+# docs:     documentation only changes
+# test:     adding or correcting tests
+# refactor: code change that is neither a fix nor a feature
+# ci:       CI/CD pipeline changes
+# chore:    build process, dependency updates, config changes
+# ---------------------------------------------------------------------------

@@ -1,0 +1,98 @@
+name: Sentinel — Member File Structure
+
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - 'members/**'
+      - 'AGENTS.md'
+
+jobs:
+  sentinel:
+    name: Validate Member File Structure
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: The Sentinel — audit member structure
+        shell: bash
+        run: |
+          FAILED=0
+
+          check_section() {
+            local skill_file="$1"
+            local name="$2"
+            local section="$3"
+            if ! grep -qF "^$section" "$skill_file" && ! grep -qF "$section" "$skill_file"; then
+              echo "FAIL [$name]: missing section '$section' in skill file"
+              return 1
+            fi
+            return 0
+          }
+
+          for MEMBER_DIR in members/*/; do
+            NAME=$(basename "$MEMBER_DIR")
+
+            [ "$NAME" = "README.md" ] && continue
+
+            if [ ! -f "${MEMBER_DIR}README.md" ]; then
+              echo "FAIL [$NAME]: missing README.md"
+              FAILED=1
+            fi
+
+            SKILL_FILE="${MEMBER_DIR}${NAME}.md"
+            if [ ! -f "$SKILL_FILE" ]; then
+              echo "FAIL [$NAME]: missing skill file $SKILL_FILE"
+              FAILED=1
+              continue
+            fi
+
+            FM=$(awk '/^---/{count++; if(count==2) exit} count==1' "$SKILL_FILE")
+
+            if ! echo "$FM" | grep -q "^name:"; then
+              echo "FAIL [$NAME]: skill file missing 'name:' in frontmatter"
+              FAILED=1
+            fi
+
+            if ! echo "$FM" | grep -q "^description:"; then
+              echo "FAIL [$NAME]: skill file missing 'description:' in frontmatter"
+              FAILED=1
+            fi
+
+            for SECTION in "## Overview" "## When to Use" "## Process" "## Red Flags" "## Rationalizations" "## Verification"; do
+              if ! grep -qF "$SECTION" "$SKILL_FILE"; then
+                echo "FAIL [$NAME]: missing section '$SECTION' in skill file"
+                FAILED=1
+              fi
+            done
+          done
+
+          # Cross-check: every member directory must be registered in all three indexes
+          for MEMBER_DIR in members/*/; do
+            NAME=$(basename "$MEMBER_DIR")
+            [ "$NAME" = "README.md" ] && continue
+
+            if ! grep -q "$NAME" AGENTS.md; then
+              echo "FAIL [$NAME]: not registered in AGENTS.md"
+              FAILED=1
+            fi
+
+            if ! grep -q "$NAME" members/README.md; then
+              echo "FAIL [$NAME]: not registered in members/README.md"
+              FAILED=1
+            fi
+
+            if ! grep -q "$NAME" README.md; then
+              echo "FAIL [$NAME]: not registered in README.md"
+              FAILED=1
+            fi
+          done
+
+          if [ "$FAILED" -eq 1 ]; then
+            echo ""
+            echo "The Sentinel found structural violations. All members must conform."
+            exit 1
+          fi
+
+          echo "The Sentinel: all members structurally sound."

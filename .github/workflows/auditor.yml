@@ -1,0 +1,38 @@
+name: Auditor — Secret Scanning
+
+on:
+  pull_request:
+    branches: [main]
+  # push:
+  #   branches:
+  #     - 'feat/**'
+  #     - 'fix/**'
+  #     - 'docs/**'
+  #     - 'refactor/**'
+  #     - 'ci/**'
+  #     - 'chore/**'
+
+jobs:
+  auditor:
+    name: Scan for Secrets (Gitleaks)
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Warn if private repo without license
+        if: github.event.repository.private == true
+        run: |
+          if [ -z "$GITLEAKS_LICENSE" ]; then
+            echo "::warning::The Auditor: this is a private repo and GITLEAKS_LICENSE is not set."
+            echo "::warning::Gitleaks may not scan correctly. Add a free Starter license from gitleaks.io."
+          fi
+        env:
+          GITLEAKS_LICENSE: ${{ secrets.GITLEAKS_LICENSE || '' }}
+
+      - uses: gitleaks/gitleaks-action@v2
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITLEAKS_LICENSE: ${{ secrets.GITLEAKS_LICENSE || '' }}

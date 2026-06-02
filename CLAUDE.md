@@ -1,0 +1,104 @@
+# CLAUDE.md
+
+This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
+
+## Commands
+
+```bash
+npm run build        # Compile TypeScript to dist/
+npm run dev          # Watch mode
+npm test             # Run all tests (vitest)
+npm run lint         # ESLint on src/
+npm run typecheck    # Type-check without emitting
+```
+
+Run a single test file:
+```bash
+npm test -- tests/commitlint.test.ts
+npm test -- --reporter=verbose
+```
+
+Self-setup for the repo (installs git hooks and commit template):
+```bash
+make setup           # Runs: node dist/cli.js setup
+```
+
+The published CLI commands (for adopter projects, not for developing this repo):
+```bash
+npx agenthood init           # Interactive initiation ceremony
+npx agenthood check          # Run Doorman health check
+npx agenthood list           # Show active members
+npx agenthood activate <member>
+npx agenthood deactivate <member>
+npx agenthood eject          # Remove Society from a project
+```
+
+## Architecture
+
+Agenthood is a **multi-agent AI framework** distributed as an npm package + VS Code extension. It installs AI agent "skills" and software quality conventions into adopting projects.
+
+### The 6-layer model
+
+| Layer | Directory | Purpose |
+|---|---|---|
+| 1 — Conventions | `conventions/` | Commit templates, commitlint rules |
+| 2 — Members | `members/` | 14 Markdown-based AI agent skills |
+| 3 — Rituals | `rituals/` | Scheduled automations (morning-briefing, watchman, etc.) |
+| 4 — Portals | `portals/` | External connectors (GitHub, Linear, Jira, Slack, Sentry) |
+| 5 — Agentic Workflows | `agentic-workflows/` | Manual prompt templates (triage, review PR, diagnose CI) |
+| 6 — CI | `.github/workflows/` | GitHub Actions enforcing every layer |
+
+### CLI source (`src/`)
+
+Entry point is `src/cli.ts` — it parses args and dispatches to `src/commands/<command>.ts`. Commands are:
+- `init.ts` — Interactive ceremony: prompts, copies conventions + hooks + skills, writes `.agenthood/config.json`
+- `setup.ts` — Self-setup for this repo (sets git hooks path, chmod, installs commit template)
+- `check.ts` — Health check validating all installed components
+- `activate.ts` / `deactivate.ts` — Copy or remove a member skill file into a project
+- `list.ts`, `oath.ts`, `eject.ts` — Utility commands
+
+There are no production dependencies. The CLI uses only Node.js built-ins (`fs`, `path`, `child_process`, `readline`, `node:util` `parseArgs`).
+
+### Members (`members/`)
+
+14 specialized agent skills, each a Markdown file (`members/<name>/<name>.md`). They are **agent-agnostic** — designed to work with Claude Code, GitHub Copilot, Gemini CLI, and others. Key members:
+- **the-scribe** — Commits, PRs, changelogs
+- **the-architect** — Specs, planning, ADRs
+- **the-reviewer** — 5-axis code review
+- **the-doorman** — Commitlint enforcement gatekeeper
+- **the-steward** — Context routing and cache economy
+- **the-envoy** — Cross-runtime translation
+
+### Orchestrator pattern (ADR-005)
+
+Agent coordination flows through an orchestrator rather than peer-to-peer:
+```
+User Request → InputValidator → ConcurrencyQueue → Orchestrator →
+Member Execution → SafetyGuard → ProviderFailover → DiffReview → Response
+```
+
+### Conventions enforcement
+
+Commit quality is enforced at three points simultaneously (ADR-003):
+1. **`.githooks/commit-msg`** — Local Doorman validation
+2. **`.githooks/pre-commit`** — Blocks commits to main, audits secrets, checks file sizes
+3. **`.github/workflows/commitlint.yml`** — CI re-validates on PRs
+
+Banned commit subjects include: `wip`, `fix stuff`, `update`, `changes`, `stuff`, `misc`, `temp`, `test`, `asdf`. The custom rule lives in `conventions/commitlint.config.cjs` and is tested in `tests/commitlint.test.ts`.
+
+### VS Code extension (`vscode-extension/`)
+
+Separate package (`agenthood-vscode`) wrapping the same commands. Activates when `.gitmessage` or `commitlint.config.cjs` is found in the workspace. Has its own `package.json` and `dist/` build.
+
+### Releases
+
+Managed by `semantic-release` (config in `.releaserc.json`). Releases cut from `main` automatically via `.github/workflows/semantic-release.yml`. Changelog is auto-generated; do not edit `CHANGELOG.md` manually.
+
+## Key conventions
+
+- **ESM throughout** — `"type": "module"` in package.json; use `import`/`export`, not `require`
+- **Strict TypeScript** — `tsconfig.json` has strict mode; run `npm run typecheck` before committing
+- **Member directories** follow the pattern `members/the-<name>/the-<name>.md`
+- **Tests mirror source** — `tests/commands/` mirrors `src/commands/`
+- **All install operations are idempotent** — safe to run `init`, `setup`, `activate` multiple times
+- **ADRs live in `docs/adr/`** — add one for significant architectural decisions

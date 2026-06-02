@@ -1,0 +1,19 @@
+#!/bin/sh
+# Inject commit message template as comments when editor opens
+# Skips: -m flag, merges, amends, squashes
+
+MSG_FILE="$1"
+MSG_SOURCE="$2"
+
+# Only inject for bare `git commit` (no -m, no merge, no amend, no squash)
+if [ -n "$MSG_SOURCE" ]; then
+  exit 0
+fi
+
+TEMPLATE="conventions/.gitmessage"
+if [ -f "$TEMPLATE" ]; then
+  printf '\n' >> "$MSG_FILE"
+  cat "$TEMPLATE" >> "$MSG_FILE"
+fi
+
+exit 0

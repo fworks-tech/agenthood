@@ -46,7 +46,7 @@
     "build": "tsc",
     "dev": "tsc --watch",
     "postinstall": "node -e \"const{existsSync}=require('fs');if(existsSync('dist/cli.js')){require('child_process').execSync('node dist/cli.js setup',{stdio:'inherit'})}\"",
-    "test": "vitest run",
+    "test": "vitest run --exclude 'vscode-extension/**'",
     "lint": "eslint src/",
     "typecheck": "tsc --noEmit"
   },

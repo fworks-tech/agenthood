@@ -257,6 +257,7 @@ agenthood/
 │   ├── semantic-release.yml
 │   ├── sentinel.yml
 │   ├── tester.yml
+│   ├── vscode-extension.yml
 │   └── warden.yml
 │
 ├── .githooks/                       ← Local git hook enforcement

@@ -1,0 +1,8 @@
+node_modules/
+dist/
+*.vsix
+package-lock.json
+.DS_Store
+*.log
+coverage/
+.nyc_output/

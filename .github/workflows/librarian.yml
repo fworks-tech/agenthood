@@ -86,6 +86,16 @@ jobs:
             fi
           done
 
+          # ── Rule 6: any change to docs/ must have at least one ADR in docs/adr/ ──
+          DOCS_DIR_CHANGED=$(echo "$CHANGED" | grep "^docs/" || true)
+          if [ -n "$DOCS_DIR_CHANGED" ]; then
+            ADR_COUNT=$(find docs/adr -name "*.md" 2>/dev/null | wc -l)
+            if [ "$ADR_COUNT" -eq 0 ]; then
+              echo "FAIL: docs/ changed but docs/adr/ has no ADRs — document architectural decisions"
+              FAILED=1
+            fi
+          fi
+
           if [ "$FAILED" -eq 1 ]; then
             echo ""
             echo "The Librarian: documentation is out of sync with the code."

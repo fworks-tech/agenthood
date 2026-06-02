@@ -217,14 +217,27 @@ async function scaffoldConfig(cwd: string, runtime: Runtime, members: string[]):
   const configPath = join(configDir, 'config.json')
   if (existsSync(configPath)) return
 
-  const config = {
-    version: '1',
-    runtime,
-    members,
-    hooks: { hooksPath: '.husky' },
-    conventions: { commitTemplate: '.gitmessage', commitlintConfig: 'commitlint.config.cjs' },
+  const examplePath = join(dirname(fileURLToPath(import.meta.url)), '../../.agenthood/config.example.json')
+  if (existsSync(examplePath)) {
+    const raw = JSON.parse(await readFile(examplePath, 'utf8'))
+    const strip = (obj: Record<string, unknown>): Record<string, unknown> =>
+      Object.fromEntries(
+        Object.entries(obj)
+          .filter(([k]) => !k.startsWith('_comment'))
+          .map(([k, v]) => [k, v && typeof v === 'object' && !Array.isArray(v) ? strip(v as Record<string, unknown>) : v]),
+      )
+    const config = { ...strip(raw), runtime, members }
+    await writeFile(configPath, JSON.stringify(config, null, 2) + '\n', 'utf8')
+  } else {
+    const config = {
+      version: '1',
+      runtime,
+      members,
+      hooks: { hooksPath: '.husky' },
+      conventions: { commitTemplate: '.gitmessage', commitlintConfig: 'commitlint.config.cjs' },
+    }
+    await writeFile(configPath, JSON.stringify(config, null, 2) + '\n', 'utf8')
   }
-  await writeFile(configPath, JSON.stringify(config, null, 2) + '\n', 'utf8')
 }
 
 async function safeCopy(src: string, dest: string): Promise<void> {

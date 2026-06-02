@@ -15,7 +15,7 @@ import { ObserverService } from './observer';
 
 let statusBarItem: vscode.StatusBarItem;
 let outputChannel: vscode.OutputChannel;
-export let observerService: ObserverService;
+export let observerService!: ObserverService;
 
 export function activate(context: vscode.ExtensionContext): void {
   // Create output channel for diagnostics

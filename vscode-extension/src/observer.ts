@@ -67,13 +67,13 @@ export class ObserverService {
 
   private handleCreate(event: vscode.FileCreateEvent): void {
     for (const sub of this.createSubscriptions) {
-      sub.callback(event);
+      sub(event);
     }
   }
 
   private handleEditorChange(editor: vscode.TextEditor | undefined): void {
     for (const sub of this.editorChangeSubscriptions) {
-      sub.callback(editor);
+      sub(editor);
     }
   }
 }

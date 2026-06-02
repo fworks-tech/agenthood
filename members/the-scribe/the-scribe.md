@@ -43,7 +43,7 @@ commit so each unit commit is independently revertable without breaking the regi
    - `ci` — pipeline/workflow changes
    - `chore` — tooling, deps, config
 5. Determine `scope` from the files touched (component, module, layer)
-6. Write the subject: imperative, lowercase, ≤50 chars, no trailing period
+6. Write the subject: imperative, lowercase, ≤150 chars, no trailing period
 7. Write the body if the *why* is not obvious from the subject alone
 8. Add `Closes #N` footer if an issue is being resolved
 9. Add `Co-Authored-By` footer
@@ -112,7 +112,7 @@ begins — The Scribe flags the violation if it reaches PR time.
 | Valid type | `feat`, `fix`, `docs`... | `feature`, `update`, `change` |
 | Subject case | `add dark mode toggle` | `Add Dark Mode Toggle` |
 | Subject mood | `fix null pointer` | `fixed null pointer` |
-| Subject length | ≤50 chars | longer than 50 |
+| Subject length | ≤150 chars | longer than 150 |
 | No vague subjects | `fix login redirect loop` | `fix stuff`, `wip`, `misc` |
 | Issue footer | `Closes #42` | `Closes issue #42`, missing |
 
@@ -142,7 +142,7 @@ Before confirming a commit message:
 
 - [ ] Type is one of the allowed values
 - [ ] Subject is lowercase and imperative
-- [ ] Subject is ≤50 characters
+- [ ] Subject is ≤150 characters
 - [ ] Body (if present) explains *why*, not *what*
 - [ ] Issue reference present if applicable
 - [ ] Co-Authored-By footer present

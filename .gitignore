@@ -14,6 +14,10 @@ dist/
 .env
 *.local
 
+# VS Code Extension Testing
+vscode-extension/.vscode-test/
+vscode-extension/.vscode-test.js
+
 # Python
 __pycache__/
 *.pyc

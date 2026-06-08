@@ -31,7 +31,7 @@ jobs:
         run: cd vscode-extension && npm run build
 
       - name: Install Linux dependencies for headless VS Code
-        run: sudo apt-get update && sudo apt-get install -y xvfb libasound2 libgbm1 libgtk-3-0 libnss3
+        run: sudo apt-get update && sudo apt-get install -y xvfb libasound2t64 libgbm1 libgtk-3-0 libnss3
 
       - name: Run tests
         run: cd vscode-extension && xvfb-run -a npm test

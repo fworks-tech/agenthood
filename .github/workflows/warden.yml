@@ -25,6 +25,10 @@ jobs:
 
           for FILE in $CHANGED; do
             [ -f "$FILE" ] || continue
+            # Skip generated lock files — line count is not meaningful
+            case "$FILE" in
+              package-lock.json|yarn.lock|pnpm-lock.yaml) continue ;;
+            esac
             LINES=$(wc -l < "$FILE" | tr -d ' ')
 
             if [ "$LINES" -gt 500 ]; then

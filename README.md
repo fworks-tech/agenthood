@@ -265,7 +265,8 @@ agenthood/
 ├── .githooks/                       ← Local git hook enforcement
 │   ├── commit-msg
 │   ├── pre-commit
-│   └── ...
+│   ├── pre-push
+│   └── prepare-commit-msg
 │
 └── vscode-extension/                ← VS Code extension
 ```

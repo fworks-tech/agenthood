@@ -11,6 +11,13 @@
       "@semantic-release/npm",
       { "npmPublish": true }
     ],
+    [
+      "@semantic-release/git",
+      {
+        "assets": ["CHANGELOG.md", "package.json"],
+        "message": "chore(release): ${nextRelease.version}\n\n${nextRelease.notes}\n\nCo-Authored-By: Claude Sonnet 4.6 <noreply@anthropic.com>"
+      }
+    ],
     "@semantic-release/github"
   ]
 }

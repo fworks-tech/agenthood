@@ -17,7 +17,7 @@ let statusBarItem: vscode.StatusBarItem;
 let outputChannel: vscode.OutputChannel;
 export let observerService!: ObserverService;
 
-export function activate(context: vscode.ExtensionContext): void {
+export function activate(context: vscode.ExtensionContext) {
   // Create output channel for diagnostics
   outputChannel = vscode.window.createOutputChannel('Agenthood');
 
@@ -52,6 +52,11 @@ export function activate(context: vscode.ExtensionContext): void {
   const watcher = vscode.workspace.createFileSystemWatcher('**/.agenthood/config.json');
   watcher.onDidChange(updateStatusBar);
   context.subscriptions.push(watcher);
+
+  // Expose internal services for testing
+  return {
+    observerService
+  };
 }
 
 function updateStatusBar(): void {

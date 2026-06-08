@@ -5,7 +5,6 @@
  * These are basic unit tests for helper functions.
  */
 
-import { describe, it } from 'node:test';
 import assert from 'node:assert/strict';
 import { AGENTHOOD_MEMBERS } from './members.js';
 

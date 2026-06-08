@@ -49,20 +49,39 @@ Each member of the Agenthood is a specialized AI agent skill — a Markdown file
 
 ## The Layers
 
-The Agenthood is organized in seven layers, each building on the last:
+The Agenthood is organized in ten layers, each building on the last:
 
 ```
-Layer 1 — Conventions       The rules every member follows
-Layer 2 — Members           The agent skills (14 Markdown files)
-Layer 3 — Rituals           Scheduled automations
-Layer 4 — Portals           Connectors to external systems
-Layer 5 — Agentic Workflows Multi-step operation templates
-Layer 6 — CI Workflows      Reusable GitHub Actions
-Layer 7 — Runtime           agenthood-runtime: members as real LLM agents
-                            Powered by DeepAgents + LangGraph (v2.0.0)
+Layer 1  — Conventions       The rules every member follows
+Layer 2  — Members           The agent skills (14 Markdown files)
+Layer 3  — Rituals           Scheduled automations
+Layer 4  — Portals           Connectors to external systems
+Layer 5  — Agentic Workflows Multi-step operation templates
+Layer 6  — CI Workflows      Reusable GitHub Actions
+Layer 7  — Runtime           TypeScript agent framework — Members as real LLM agents
+Layer 8  — Memory & RAG      Persistent context, semantic retrieval, project indexing
+Layer 9  — Workflows         Multi-member orchestration (AgentStep, ParallelStep, HumanInLoop)
+Layer 10 — Evals             Automated quality measurement after every execution
 ```
 
-Layers 1–6 are prompt-driven: skills are loaded as context into your existing AI assistant. Layer 7 makes members **autonomous**: they execute, remember, and reason independently via a Python runtime.
+Layers 1–6 are prompt-driven: skills are loaded as context into your existing AI assistant. Layers 7–10 make members **autonomous**: they execute, remember, and reason independently via a TypeScript runtime with Groq as the default free LLM provider.
+
+---
+
+## What's Shipped
+
+| Version | Milestone | Status |
+|---------|-----------|--------|
+| **v1.4.0** | [The Living Editor](https://github.com/fworks-tech/agenthood/milestone/4) — VS Code: Doorman SCM validation, Auditor on-save scanning, Reviewer Diagnostics, Librarian nudge, Members Watch Panel | ✅ **Shipped** |
+| v1.5.0 | [Open Standard](https://github.com/fworks-tech/agenthood/milestone/6) — SKILL.md migration for all 14 members | 🔄 In progress |
+| v1.6.0 | [The Academy](https://github.com/fworks-tech/agenthood/milestone/12) — 25 educational articles, GitHub Pages, LinkedIn/blog content | 📋 Planned |
+| v2.0.0 | [Foundation](https://github.com/fworks-tech/agenthood/milestone/3) — TypeScript runtime: ILLMProvider, ReActLoop, BaseAgent, GroqProvider, SkillRegistry | 📋 Planned |
+| v2.1.0 | [Memory & RAG](https://github.com/fworks-tech/agenthood/milestone/7) — Tiered memory, LanceDB vector store, Tree-sitter indexing, AgenticRAG, SocietyIndexer | 📋 Planned |
+| v2.2.0 | [Full Team](https://github.com/fworks-tech/agenthood/milestone/8) — QAAgent, ReviewerAgent, ArchitectAgent, OracleAgent, DiffImpactAnalyzer | 📋 Planned |
+| v2.3.0 | [Workflows](https://github.com/fworks-tech/agenthood/milestone/9) — WorkflowEngine, IProtocol, GoalChain, WorkflowCheckpoint | 📋 Planned |
+| v2.4.0 | [Evals & Observability](https://github.com/fworks-tech/agenthood/milestone/10) — EvalRunner, EpisodeLearner, Tracer, TokenCounter | 📋 Planned |
+| v3.0.0 | [API & Multi-tenancy](https://github.com/fworks-tech/agenthood/milestone/11) — Express API, auth, rate limiting, per-project namespacing | 📋 Planned |
+| v4.0.0 | [Multimodal & Generation](https://github.com/fworks-tech/agenthood/milestone/13) — Image, audio, video, TTS/ASR | 🔭 Future scope |
 
 ---
 
@@ -89,8 +108,11 @@ The Society's own architectural decisions are documented as ADRs in [`docs/adr/`
 | [ADR-003](docs/adr/ADR-003-dual-enforcement-hooks-and-commitlint.md) | Dual enforcement via bash hooks and commitlint |
 | [ADR-004](docs/adr/ADR-004-specialized-members-over-general-agent.md) | 14 specialized members over a general-purpose agent |
 | [ADR-005](docs/adr/ADR-005-orchestrator-pattern.md) | Orchestrator pattern over peer-to-peer member communication |
-| [ADR-006](docs/adr/ADR-006-python-runtime-as-additive-layer.md) | Python runtime as a purely additive layer |
-| [ADR-007](docs/adr/ADR-007-deepagents-as-execution-engine.md) | DeepAgents + LangGraph as the execution engine |
+| [ADR-006](docs/adr/ADR-006-python-runtime-as-additive-layer.md) | Python runtime as a purely additive layer *(superseded by ADR-008)* |
+| [ADR-007](docs/adr/ADR-007-deepagents-as-execution-engine.md) | DeepAgents + LangGraph as the execution engine *(superseded by ADR-008)* |
+| [ADR-008](docs/adr/ADR-008-typescript-runtime-over-python.md) | TypeScript-native runtime over Python + DeepAgents |
+| [ADR-009](docs/adr/ADR-009-groq-as-default-llm-provider.md) | Groq as the default free LLM provider |
+| [ADR-010](docs/adr/ADR-010-lancedb-for-vector-storage.md) | LanceDB for vector storage |
 
 ---
 
@@ -104,7 +126,7 @@ The Agenthood is agent-agnostic. Members work with:
 - [OpenAI Codex CLI](https://github.com/openai/codex) — via `AGENTS.md` + skills
 - [CodeBuddy](https://github.com/olasunkanmi-SE/codebuddy) — via `.codebuddy/skills/`
 
-The optional Python runtime (`agenthood-runtime`) works alongside any of these — it calls members as real LLM agents independently of which IDE you use.
+The TypeScript runtime (`agenthood run`) works alongside any of these — it calls members as real LLM agents independently of which IDE you use.
 
 ---
 
@@ -128,30 +150,25 @@ npx agenthood check
 npx agenthood oath
 ```
 
-### Option B — Autonomous runtime (agenthood-run)
+### Option B — Autonomous runtime (agenthood run)
 
-Install the Python runtime to execute members as real LLM agents that reason, act, and remember across sessions. Requires Python 3.12+.
+Execute members as real LLM agents that reason, act, and remember across sessions. Powered by the TypeScript runtime with Groq as the default free LLM provider — no Python required.
 
 ```bash
-# 1. Install the runtime
-pip install "agenthood-runtime @ git+https://github.com/fworks-tech/agenthood.git#subdirectory=runtime"
+# 1. Build the runtime (once, after install)
+npm run build
 
-# 2. Set required environment variables
-# Set the Anthropic API key in your environment or CI (do NOT commit it)
-export AGENTHOOD_ROOT=/path/to/agenthood   # absolute path to this repo
-
-Note: Do NOT store API keys in the repository. Use CI secrets or environment variables.
+# 2. Set the LLM provider key in your environment (do NOT commit it)
+# Set GROQ_API_KEY in your shell profile or CI secrets (free at console.groq.com)
+# or use Ollama for fully offline execution — no key required
 
 # 3. List available members
-agenthood-run list
+agenthood list
 
 # 4. Invoke a member against a task (streams output)
-agenthood-run invoke the-scribe "write a commit message for the current diff"
-agenthood-run invoke the-reviewer "review the changes in the last commit"
-agenthood-run invoke the-architect "plan the implementation for issue #42"
-
-# 5. Resume a previous session
-agenthood-run invoke the-debugger "continue from where we left off" --thread-id <uuid>
+agenthood run the-scribe "write a commit message for the current diff"
+agenthood run the-reviewer "review the changes in the last commit"
+agenthood run the-architect "plan the implementation for issue #42"
 ```
 
 Both options coexist — use Option A for interactive sessions and Option B for automation, CI, and ritual scheduling.
@@ -161,14 +178,11 @@ Both options coexist — use Option A for interactive sessions and Option B for 
 ## For the agenthood repo itself
 
 ```bash
-# Node.js CLI
 npm install && npm run build
 make setup          # activates git hooks and commit template
-
-# Python runtime (development)
-cd runtime
-pip install -e ".[dev]"
-pytest tests/
+npm test            # run all tests
+npm run typecheck   # strict TypeScript check
+npm run lint        # ESLint
 ```
 
 ---
@@ -229,46 +243,36 @@ agenthood/
 │   ├── operating-modes.md
 │   └── provider-failover.md
 │
-├── docs/adr/                        ← Architecture Decision Records
-│   ├── ADR-001-markdown-skills-over-code-agents.md
-│   ├── ADR-002-conventional-commits-standard.md
-│   ├── ADR-003-dual-enforcement-hooks-and-commitlint.md
-│   ├── ADR-004-specialized-members-over-general-agent.md
-│   ├── ADR-005-orchestrator-pattern.md
-│   ├── ADR-006-python-runtime-as-additive-layer.md
-│   └── ADR-007-deepagents-as-execution-engine.md
+├── docs/adr/                        ← Architecture Decision Records (ADR-001–ADR-010)
 │
-├── runtime/                         ← Layer 7: Python Autonomous Runtime
-│   ├── pyproject.toml               ← agenthood-runtime package (Python 3.12+)
-│   ├── .env.example
-│   └── agenthood_runtime/
-│       ├── cli.py                   ← agenthood-run CLI entry point
-│       ├── config.py                ← RuntimeConfig (reads .agenthood/config.json)
-│       └── members/
-│           ├── loader.py            ← SkillsPathResolver
-│           ├── specs.py             ← 14 SubAgent TypedDicts
-│           └── registry.py         ← MemberRegistry (validates + injects skill paths)
+├── runtime/                         ← Layer 7 (archived): Python runtime — superseded by TypeScript
 │
-├── src/                             ← Node.js CLI (npx agenthood)
-│   └── cli.ts
+├── src/                             ← Node.js CLI + TypeScript runtime (npx agenthood)
+│   ├── cli.ts                       ← Entry point
+│   ├── commands/                    ← CLI commands (init, check, run, list, …)
+│   ├── agents/                      ← BaseAgent + 4 specialized Members
+│   ├── llm/                         ← ILLMProvider, LLMRouter, 4 providers
+│   ├── skills/                      ← ISkill, SkillRegistry, skill implementations
+│   ├── memory/                      ← ShortTerm, LongTerm, Episodic, Project, Residual
+│   ├── rag/                         ← Embedder, Retriever, Indexer, ChunkStrategy, AgenticRAG
+│   ├── reasoning/                   ← ReActLoop, ThinkingBudget, ChainOfThought
+│   ├── prompts/                     ← PromptBuilder, templates/
+│   ├── workflows/                   ← WorkflowEngine, step types, GoalChain
+│   ├── evals/                       ← EvalRunner, 4 quality metrics, EpisodeLearner
+│   └── observability/               ← Tracer, TokenCounter, CostEstimator, EventBus
 │
 ├── .github/workflows/               ← Layer 6: CI Enforcement
-│   ├── auditor.yml
-│   ├── commitlint.yml
-│   ├── librarian.yml
-│   ├── semantic-release.yml
-│   ├── sentinel.yml
-│   ├── tester.yml
-│   ├── vscode-extension.yml
-│   └── warden.yml
 │
 ├── .githooks/                       ← Local git hook enforcement
-│   ├── commit-msg
-│   ├── pre-commit
-│   ├── pre-push
-│   └── prepare-commit-msg
 │
-└── vscode-extension/                ← VS Code extension
+└── vscode-extension/                ← VS Code extension (v1.4.0 — The Living Editor)
+    ├── src/
+    │   ├── doormanService.ts        ← Real-time SCM input validation
+    │   ├── auditorService.ts        ← On-save secret and dep scanning
+    │   ├── reviewerService.ts       ← [blocking]/[suggestion] Diagnostics
+    │   ├── librarianService.ts      ← Stale documentation nudge
+    │   └── memberWatchProvider.ts   ← 14-member live sidebar TreeView
+    └── package.json
 ```
 
 ---
@@ -277,8 +281,8 @@ agenthood/
 
 - [Conventional Commits](https://www.conventionalcommits.org/)
 - [addyosmani/agent-skills](https://github.com/addyosmani/agent-skills)
-- [fworks-tech/deepagents](https://github.com/fworks-tech/deepagents) — runtime execution engine
-- [LangGraph](https://github.com/langchain-ai/langgraph) — durable agent state graphs
+- [groq-sdk](https://github.com/groq/groq-typescript) — default free LLM provider
+- [LanceDB](https://lancedb.github.io/lancedb/) — TypeScript-native vector storage
 - [CodeBuddy](https://github.com/olasunkanmi-SE/codebuddy)
 - [semantic-release](https://github.com/semantic-release/semantic-release)
 - [commitlint](https://commitlint.js.org/)

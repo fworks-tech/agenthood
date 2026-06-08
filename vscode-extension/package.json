@@ -31,6 +31,25 @@
   "main": "./dist/extension.js",
 
   "contributes": {
+    "viewsContainers": {
+      "activitybar": [
+        {
+          "id": "agenthood",
+          "title": "Agenthood",
+          "icon": "$(shield)"
+        }
+      ]
+    },
+    "views": {
+      "agenthood": [
+        {
+          "id": "agenthood.membersWatch",
+          "name": "Members",
+          "icon": "$(shield)",
+          "contextualTitle": "Agenthood Society"
+        }
+      ]
+    },
     "commands": [
       {
         "command": "agenthood.init",
@@ -55,6 +74,20 @@
       {
         "command": "agenthood.list",
         "title": "Agenthood: List Members"
+      },
+      {
+        "command": "agenthood.askReviewer",
+        "title": "Agenthood: Ask The Reviewer"
+      },
+      {
+        "command": "agenthood.refreshMembers",
+        "title": "Refresh Members",
+        "icon": "$(refresh)"
+      },
+      {
+        "command": "agenthood.invokeMember",
+        "title": "Invoke Member",
+        "icon": "$(play)"
       }
     ],
     "configuration": {
@@ -87,6 +120,20 @@
         {
           "command": "agenthood.check",
           "group": "agenthood"
+        }
+      ],
+      "view/title": [
+        {
+          "command": "agenthood.refreshMembers",
+          "when": "view == agenthood.membersWatch",
+          "group": "navigation"
+        }
+      ],
+      "view/item/context": [
+        {
+          "command": "agenthood.invokeMember",
+          "when": "view == agenthood.membersWatch && viewItem =~ /^member-(watching|triggered)$/",
+          "group": "inline"
         }
       ]
     }

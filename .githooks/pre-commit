@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 # The Doorman + The Auditor + The Warden — pre-commit checks
 # Blocks: direct commit to main, secrets in staged files
 # Warns:  files exceeding 500 lines
@@ -27,6 +27,11 @@ AUDITOR_BLOCKED=0
 while IFS= read -r -d '' FILE; do
   # Skip deleted files
   if [ ! -f "$FILE" ] && ! git show ":$FILE" > /dev/null 2>&1; then
+    continue
+  fi
+
+  # Skip hook scripts themselves (they contain secret patterns in their regexes)
+  if echo "$FILE" | grep -q '^\.githooks/'; then
     continue
   fi
 

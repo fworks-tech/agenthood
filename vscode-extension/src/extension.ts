@@ -1,39 +1,44 @@
-/**
- * Agenthood VS Code Extension
- *
- * Brings the Society into the editor:
- * - Status bar showing active member count
- * - Command palette integration
- * - Ritual notifications
- */
-
 import * as vscode from 'vscode';
 import { existsSync } from 'node:fs';
 import { join } from 'node:path';
-import { AGENTHOOD_MEMBERS } from './members';
-import { ObserverService } from './observer';
+import { AGENTHOOD_MEMBERS } from './members.js';
+import { ObserverService } from './observer.js';
+import { AuditorService } from './auditorService.js';
+import { DoormanService } from './doormanService.js';
+import { LibrarianService } from './librarianService.js';
+import { MemberWatchProvider } from './memberWatchProvider.js';
+import { ReviewerService } from './reviewerService.js';
+import { disposeDiagnostics } from './diagnostics.js';
 
 let statusBarItem: vscode.StatusBarItem;
 let outputChannel: vscode.OutputChannel;
 export let observerService!: ObserverService;
 
-export function activate(context: vscode.ExtensionContext) {
-  // Create output channel for diagnostics
-  outputChannel = vscode.window.createOutputChannel('Agenthood');
+let doormanService: DoormanService;
+let memberWatchProvider: MemberWatchProvider;
 
-  // Initialize the Society Event Bus
+export function activate(context: vscode.ExtensionContext) {
+  outputChannel = vscode.window.createOutputChannel('Agenthood');
   observerService = new ObserverService(context);
-  
-  // Example observer: The Oracle watches lore edits
-  observerService.onDidSave(/members\/.*\.md$/, (doc) => {
-    observerService.logObservation('The Oracle', `I see you are adjusting the lore of ${doc.fileName.split(/[/\\]/).pop()}. Choose your words carefully.`);
-  });
+
+  // v1.4.0 — The Living Editor services
+  doormanService = new DoormanService();
+  doormanService.activate();
+
+  const auditorService = new AuditorService(observerService);
+  auditorService.activate();
+
+  const librarianService = new LibrarianService(observerService);
+  librarianService.activate();
+
+  const reviewerService = new ReviewerService();
+  reviewerService.activate(context);
+
+  memberWatchProvider = new MemberWatchProvider(observerService);
+  vscode.window.registerTreeDataProvider('agenthood.membersWatch', memberWatchProvider);
 
   // Status bar — shows active member count
-  statusBarItem = vscode.window.createStatusBarItem(
-    vscode.StatusBarAlignment.Left,
-    100,
-  );
+  statusBarItem = vscode.window.createStatusBarItem(vscode.StatusBarAlignment.Left, 100);
   statusBarItem.command = 'agenthood.list';
   context.subscriptions.push(statusBarItem);
   updateStatusBar();
@@ -46,6 +51,10 @@ export function activate(context: vscode.ExtensionContext) {
     vscode.commands.registerCommand('agenthood.activate', runActivate),
     vscode.commands.registerCommand('agenthood.deactivate', runDeactivate),
     vscode.commands.registerCommand('agenthood.list', showMemberList),
+    vscode.commands.registerCommand('agenthood.refreshMembers', () => memberWatchProvider.refresh()),
+    vscode.commands.registerCommand('agenthood.invokeMember', () => {
+      vscode.window.showInformationMessage('Member invocation via autonomous runtime — coming in v2.0.0.');
+    }),
   );
 
   // Watch for .agenthood config changes
@@ -53,10 +62,7 @@ export function activate(context: vscode.ExtensionContext) {
   watcher.onDidChange(updateStatusBar);
   context.subscriptions.push(watcher);
 
-  // Expose internal services for testing
-  return {
-    observerService
-  };
+  return { observerService };
 }
 
 function updateStatusBar(): void {
@@ -233,6 +239,9 @@ async function showMemberList(): Promise<void> {
 }
 
 export function deactivate(): void {
+  doormanService?.dispose();
+  memberWatchProvider?.dispose();
+  disposeDiagnostics();
   statusBarItem?.dispose();
   outputChannel?.dispose();
 }

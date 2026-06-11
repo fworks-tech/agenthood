@@ -13,20 +13,20 @@ async function waitFor(predicate: () => boolean, timeout = 5000): Promise<void> 
   }
 }
 
-describe('ObserverService Integration Tests', () => {
+suite('ObserverService Integration Tests', () => {
   let api: { observerService: import('./observer').ObserverService };
 
-  before(async () => {
+  suiteSetup(async () => {
     const ext = vscode.extensions.getExtension(EXT_ID);
     assert.ok(ext, 'Extension should be registered');
     api = await ext.activate();
   });
 
-  it('activates and exposes ObserverService', () => {
+  test('activates and exposes ObserverService', () => {
     assert.ok(api.observerService, 'ObserverService should be initialized');
   });
 
-  it('registers all 6 commands', async () => {
+  test('registers all 6 commands', async () => {
     const cmds = await vscode.commands.getCommands(true);
     const expected = [
       'agenthood.init', 'agenthood.check', 'agenthood.oath',
@@ -37,7 +37,7 @@ describe('ObserverService Integration Tests', () => {
     }
   });
 
-  it('fires onDidSave callback for matching file', async () => {
+  test('fires onDidSave callback for matching file', async () => {
     const wsPath = vscode.workspace.workspaceFolders![0].uri.fsPath;
     const testFile = path.join(wsPath, 'dist', '__test_save_match__.md');
 
@@ -79,7 +79,7 @@ describe('ObserverService Integration Tests', () => {
     }
   });
 
-  it('does NOT fire onDidSave for non-matching file', async () => {
+  test('does NOT fire onDidSave for non-matching file', async () => {
     const wsPath = vscode.workspace.workspaceFolders![0].uri.fsPath;
     const testFile = path.join(wsPath, 'dist', '__test_save_nomatch__.txt');
 
@@ -118,7 +118,7 @@ describe('ObserverService Integration Tests', () => {
     }
   });
 
-  it('registers onDidCreate subscription without error', () => {
+  test('registers onDidCreate subscription without error', () => {
     api.observerService.onDidCreate(() => {
       // callback that should be registered
     });

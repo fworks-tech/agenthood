@@ -10,6 +10,6 @@ export default [
     label: 'unit-tests',
     version: 'insiders',
     srcDir: testDir,
-    files: '**/*.test.js',
+    files: 'dist/**/*.test.js',
   },
 ];

@@ -59,4 +59,13 @@ export class LibrarianService {
     this.mdOpenedThisSession = false;
     this.nudgeSentThisSession = false;
   }
+
+  // Test-only accessors
+  getNonMdSaveCount(): number {
+    return this.nonMdSaveCount;
+  }
+
+  getNudgeSentThisSession(): boolean {
+    return this.nudgeSentThisSession;
+  }
 }

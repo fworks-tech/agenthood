@@ -13,7 +13,7 @@ suite('AuditorService', () => {
   let observerService: ObserverService;
 
   setup(() => {
-    observerService = new ObserverService({} as unknown as vscode.ExtensionContext);
+    observerService = new ObserverService({ subscriptions: [] } as unknown as vscode.ExtensionContext);
     auditorService = new AuditorService(observerService);
     auditorService.activate();
   });

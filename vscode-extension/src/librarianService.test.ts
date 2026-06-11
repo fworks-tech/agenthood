@@ -8,7 +8,7 @@ suite('LibrarianService', () => {
   let observerService: ObserverService;
 
   setup(() => {
-    observerService = new ObserverService({} as unknown as vscode.ExtensionContext);
+    observerService = new ObserverService({ subscriptions: [] } as unknown as vscode.ExtensionContext);
     librarianService = new LibrarianService(observerService);
     librarianService.activate();
   });

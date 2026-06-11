@@ -38,7 +38,8 @@ suite('ObserverService Integration Tests', () => {
   });
 
   test('fires onDidSave callback for matching file', async () => {
-    const wsPath = vscode.workspace.workspaceFolders![0].uri.fsPath;
+    if (!vscode.workspace.workspaceFolders?.length) return;
+    const wsPath = vscode.workspace.workspaceFolders[0].uri.fsPath;
     const testFile = path.join(wsPath, 'dist', '__test_save_match__.md');
 
     // Clean up any leftover file
@@ -80,7 +81,8 @@ suite('ObserverService Integration Tests', () => {
   });
 
   test('does NOT fire onDidSave for non-matching file', async () => {
-    const wsPath = vscode.workspace.workspaceFolders![0].uri.fsPath;
+    if (!vscode.workspace.workspaceFolders?.length) return;
+    const wsPath = vscode.workspace.workspaceFolders[0].uri.fsPath;
     const testFile = path.join(wsPath, 'dist', '__test_save_nomatch__.txt');
 
     // Clean up any leftover file

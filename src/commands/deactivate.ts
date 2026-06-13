@@ -7,6 +7,7 @@
 import { rm } from 'node:fs/promises';
 import { existsSync } from 'node:fs';
 import { join } from 'node:path';
+import { MEMBER_NAMES, resolveSkillsDir } from '../members.js';
 
 export async function deactivate(member?: string): Promise<void> {
   if (!member) {
@@ -14,21 +15,23 @@ export async function deactivate(member?: string): Promise<void> {
     process.exit(1);
   }
 
+  if (!MEMBER_NAMES.includes(member)) {
+    console.error(`\nUnknown member: "${member}"`);
+    console.error('Available members:', MEMBER_NAMES.join(', '));
+    process.exit(1);
+  }
+
   const cwd = process.cwd();
-  const skillsBase = existsSync(join(cwd, '.claude'))
-    ? join(cwd, '.claude', 'skills')
-    : existsSync(join(cwd, '.codebuddy'))
-    ? join(cwd, '.codebuddy', 'skills')
-    : join(cwd, '.agenthood', 'skills');
+  const skillsBase = resolveSkillsDir(cwd);
 
   const skillFile = join(skillsBase, member, `${member}.md`);
 
   if (!existsSync(skillFile)) {
-    console.log(`\n⚠️  ${member} is not currently active.\n`);
+    console.log(`\n\u26a0\ufe0f  ${member} is not currently active.\n`);
     return;
   }
 
   await rm(skillFile);
-  console.log(`\n✅ ${member} has been deactivated.\n`);
+  console.log(`\n\u2705 ${member} has been deactivated.\n`);
   console.log('  The Society notes your preference.\n');
 }

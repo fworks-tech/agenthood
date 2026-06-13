@@ -1,11 +1,12 @@
 #!/bin/sh
 # The Doorman — pre-push hook
-# Enforces the Oath: "I never push to main."
+# Check 1: Oath — "I never push to main."
+# Check 2: Branch naming — type/issue-NUMBER-description
 
-protected_branch="main"
-
+# ── Check 1: Oath ─────────────────────────────────────────────────────────────
+# No exceptions. Not even automation branches. Main is sacred.
 while read local_ref local_sha remote_ref remote_sha; do
-  if echo "$remote_ref" | grep -q "refs/heads/$protected_branch$"; then
+  if echo "$remote_ref" | grep -q "refs/heads/main$"; then
     echo ""
     echo "╔══════════════════════════════════════════════════════════╗"
     echo "║              The Doorman — Access Denied                 ║"
@@ -22,5 +23,50 @@ while read local_ref local_sha remote_ref remote_sha; do
     exit 1
   fi
 done
+
+# ── Check 2: Issue number in branch name ──────────────────────────────────────
+# Expected: type/issue-NUMBER-description (e.g., fix/issue-135-members-registry)
+# Exception: claude/* automation branches are exempt from this check only.
+BRANCH=$(git rev-parse --abbrev-ref HEAD)
+
+if echo "$BRANCH" | grep -q '^claude/'; then
+  exit 0
+fi
+
+ISSUE_NUMBER=$(echo "$BRANCH" | grep -oE 'issue-[0-9]+' | grep -oE '[0-9]+')
+
+if [ -z "$ISSUE_NUMBER" ]; then
+  echo ""
+  echo "┌────────────────────────────────────────────────────────────────┐"
+  echo "│ The Society requires a ticket before pushing.                 │"
+  echo "├────────────────────────────────────────────────────────────────┤"
+  echo "│ Branch name must match: type/issue-NUMBER-description          │"
+  echo "│                                                                │"
+  echo "│ Examples:                                                      │"
+  echo "│   fix/issue-135-members-registry                              │"
+  echo "│   feat/issue-136-skill-md-migration                           │"
+  echo "│                                                                │"
+  echo "│ Create an issue first:                                        │"
+  echo "│   gh issue create --title \"...\"                              │"
+  echo "│                                                                │"
+  echo "│ Then rename your branch:                                      │"
+  echo "│   git branch -m type/issue-NUMBER-description                │"
+  echo "└────────────────────────────────────────────────────────────────┘"
+  echo ""
+  exit 1
+fi
+
+# ── Check: Issue exists ───────────────────────────────────────────────────────
+if ! gh issue view "$ISSUE_NUMBER" --json state > /dev/null 2>&1; then
+  echo ""
+  echo "┌────────────────────────────────────────────────────────────────┐"
+  echo "│ Issue #$ISSUE_NUMBER does not exist.                              │"
+  echo "├────────────────────────────────────────────────────────────────┤"
+  echo "│ Create it:                                                     │"
+  echo "│   gh issue create --title \"...\"                              │"
+  echo "└────────────────────────────────────────────────────────────────┘"
+  echo ""
+  exit 1
+fi
 
 exit 0

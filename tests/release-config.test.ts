@@ -7,9 +7,10 @@ describe('semantic release configuration', () => {
       plugins: Array<string | [string, Record<string, unknown>]>
     }
 
-    const npmPlugin = releaserc.plugins.find((plugin) =>
-      Array.isArray(plugin) ? plugin[0] === '@semantic-release/npm' : plugin === '@semantic-release/npm',
-    )
+    const npmPlugin = releaserc.plugins.find((plugin) => {
+      const pluginName = Array.isArray(plugin) ? plugin[0] : plugin
+      return pluginName === '@semantic-release/npm'
+    })
 
     expect(npmPlugin).toBeDefined()
   })

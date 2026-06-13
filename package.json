@@ -27,7 +27,7 @@
   "type": "module",
   "main": "./dist/cli.js",
   "bin": {
-    "agenthood": "./dist/cli.js"
+    "agenthood": "dist/cli.js"
   },
   "files": [
     "dist",
@@ -45,6 +45,7 @@
   "scripts": {
     "build": "tsc",
     "dev": "tsc --watch",
+    "prepublishOnly": "npm run build",
     "postinstall": "node -e \"const{existsSync}=require('fs');if(existsSync('dist/cli.js')){require('child_process').execSync('node dist/cli.js setup',{stdio:'inherit'})}\"",
     "test": "vitest run --exclude 'vscode-extension/**'",
     "lint": "eslint src/",

@@ -265,6 +265,10 @@ agenthood/
 │   └── semantic-release.yml         ← Automated release workflow
 │
 ├── .githooks/                       ← Local git hook enforcement
+│   ├── commit-msg                   ← Doorman: validates commit message format
+│   ├── pre-commit                   ← Auditor: blocks main commits, scans secrets
+│   ├── pre-push                     ← Doorman: enforces ticket-first branch naming
+│   └── prepare-commit-msg           ← Scribe: injects commit message template
 │
 └── vscode-extension/                ← VS Code extension (v1.4.0 — The Living Editor)
     ├── src/

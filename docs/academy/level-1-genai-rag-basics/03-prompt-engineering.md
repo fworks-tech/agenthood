@@ -10,7 +10,7 @@
 
 _This article is coming in v1.6.0. See [issue #121](https://github.com/fworks-tech/agenthood/issues/121)._
 
-**Covers:** Writing prompts that produce consistent, structured outputs — and how Agenthood's `PromptBuilder` and the 14 member `.md` files codify this into reusable templates.
+**Covers:** Writing prompts that produce consistent, structured outputs — and how Agenthood's `PromptBuilder` and the 14 member `SKILL.md` files (Anthropic open standard) codify this into reusable templates.
 
 ---
 
@@ -24,7 +24,7 @@ _This article is coming in v1.6.0. See [issue #121](https://github.com/fworks-te
 
 <!-- TODO: Issue #121 -->
 
-**Maps to:** `src/prompts/PromptBuilder.ts`, `members/the-*/the-*.md` — each member file is a structured prompt template
+**Maps to:** `src/prompts/PromptBuilder.ts`, `members/the-*/SKILL.md` — each member's portable, agent-agnostic skill file (Anthropic open standard)
 
 ---
 
@@ -37,7 +37,7 @@ _This article is coming in v1.6.0. See [issue #121](https://github.com/fworks-te
 ## Further reading
 
 - [ADR-001 — Markdown skills over code agents](../../docs/adr/ADR-001-markdown-skills-over-code-agents.md)
-- `members/the-scribe/the-scribe.md` — example of a structured member prompt
+- `members/the-scribe/SKILL.md` — example of a SKILL.md file (Anthropic open standard)
 - [Prompt Engineering Guide](https://www.promptingguide.ai/) — comprehensive reference
 
 ---

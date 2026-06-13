@@ -12,7 +12,7 @@ Nine articles. The foundation. Start here.
 |---|---------|---------------------|
 | 1 | [Generative AI Introduction](01-generative-ai-introduction.md) | The Society's position in the GenAI ecosystem |
 | 2 | [Basics of LLMs](02-basics-of-llms.md) | `ILLMProvider`, 4 providers |
-| 3 | [Prompt Engineering](03-prompt-engineering.md) | `PromptBuilder`, member `.md` templates |
+| 3 | [Prompt Engineering](03-prompt-engineering.md) | `PromptBuilder`, member `SKILL.md` files |
 | 4 | [LLM Parameters](04-llm-parameters.md) | `LLMRequest` type |
 | 5 | [Chunking Strategies](05-chunking-strategies.md) | `ChunkStrategy`, `HierarchicalChunkStrategy` |
 | 6 | [RAG Fundamentals](06-rag-fundamentals.md) | `Retriever`, `Indexer`, `Embedder` |

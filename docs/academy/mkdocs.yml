@@ -1,0 +1,74 @@
+site_name: Agenthood Academy
+site_description: The Society's structured path from GenAI basics to production-grade agentic systems.
+site_url: https://fworks-tech.github.io/agenthood/
+repo_url: https://github.com/fworks-tech/agenthood
+repo_name: fworks-tech/agenthood
+docs_dir: ../..
+site_dir: ../../site
+
+theme:
+  name: material
+  palette:
+    - scheme: default
+      primary: black
+      accent: indigo
+      toggle:
+        icon: material/brightness-7
+        name: Switch to dark mode
+    - scheme: slate
+      primary: black
+      accent: indigo
+      toggle:
+        icon: material/brightness-4
+        name: Switch to light mode
+  features:
+    - navigation.tabs
+    - navigation.sections
+    - navigation.top
+    - search.suggest
+    - search.highlight
+    - content.code.copy
+
+nav:
+  - Academy Home: docs/academy/README.md
+  - "Level 1: GenAI & RAG Basics":
+    - Overview: docs/academy/level-1-genai-rag-basics/README.md
+    - Generative AI Introduction: docs/academy/level-1-genai-rag-basics/01-generative-ai-introduction.md
+    - Basics of LLMs: docs/academy/level-1-genai-rag-basics/02-basics-of-llms.md
+    - Prompt Engineering: docs/academy/level-1-genai-rag-basics/03-prompt-engineering.md
+    - LLM Parameters: docs/academy/level-1-genai-rag-basics/04-llm-parameters.md
+    - Chunking Strategies: docs/academy/level-1-genai-rag-basics/05-chunking-strategies.md
+    - RAG Fundamentals: docs/academy/level-1-genai-rag-basics/06-rag-fundamentals.md
+    - Vector Databases: docs/academy/level-1-genai-rag-basics/07-vector-databases.md
+    - API Wrappers: docs/academy/level-1-genai-rag-basics/08-api-wrappers.md
+    - Tool Integration: docs/academy/level-1-genai-rag-basics/09-tool-integration.md
+  - "Level 2: AI Agent Essentials":
+    - Overview: docs/academy/level-2-agent-essentials/README.md
+    - What Are AI Agents: docs/academy/level-2-agent-essentials/01-what-are-ai-agents.md
+    - Agentic Frameworks: docs/academy/level-2-agent-essentials/02-agentic-frameworks.md
+    - Build Your First Agent: docs/academy/level-2-agent-essentials/03-build-your-first-agent.md
+    - Agent Workflows: docs/academy/level-2-agent-essentials/04-agent-workflows.md
+    - Agent Memory: docs/academy/level-2-agent-essentials/05-agent-memory.md
+    - Agent Evaluation: docs/academy/level-2-agent-essentials/06-agent-evaluation.md
+    - Multi-Step Reasoning: docs/academy/level-2-agent-essentials/07-multi-step-reasoning.md
+    - Multi-Agent Systems: docs/academy/level-2-agent-essentials/08-multi-agent-systems.md
+    - Agentic RAG: docs/academy/level-2-agent-essentials/09-agentic-rag.md
+    - Action Planning: docs/academy/level-2-agent-essentials/10-action-planning.md
+    - Safety and Guardrails: docs/academy/level-2-agent-essentials/11-safety-and-guardrails.md
+  - "Level 3: Advanced Agent Skills":
+    - Overview: docs/academy/level-3-advanced-skills/README.md
+    - Real-World Integration: docs/academy/level-3-advanced-skills/01-real-world-integration.md
+    - Autonomous Loops: docs/academy/level-3-advanced-skills/02-autonomous-loops.md
+    - Custom Toolkits: docs/academy/level-3-advanced-skills/03-custom-toolkits.md
+    - Optimize Performance: docs/academy/level-3-advanced-skills/04-optimize-performance.md
+    - Deploy to Production: docs/academy/level-3-advanced-skills/05-deploy-to-production.md
+
+markdown_extensions:
+  - admonition
+  - pymdownx.highlight:
+      anchor_linenums: true
+  - pymdownx.superfences
+  - pymdownx.tabbed:
+      alternate_style: true
+  - toc:
+      permalink: true

@@ -268,6 +268,7 @@ agenthood/
 │   ├── docs.yml                     ← Deploys Academy to GitHub Pages on push to main
 │   ├── labeler.yml                  ← Labels PRs by changed file paths
 │   ├── librarian.yml                ← Checks docs stay in sync with code
+│   ├── npm-publish.yml              ← Publishes package to npm on release creation
 │   ├── semantic-release.yml         ← Automated release workflow
 │   ├── sentinel.yml                 ← Society integrity checks
 │   ├── tester.yml                   ← Runs the full test suite

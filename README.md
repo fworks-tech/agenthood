@@ -262,7 +262,16 @@ agenthood/
 │   └── observability/               ← Tracer, TokenCounter, CostEstimator, EventBus
 │
 ├── .github/workflows/               ← Layer 6: CI Enforcement
-│   └── semantic-release.yml         ← Automated release workflow
+│   ├── auto-assign.yml              ← Assigns fworks-tech to all new issues and PRs
+│   ├── auditor.yml                  ← Secret scanning on push
+│   ├── commitlint.yml               ← Validates commit messages on PRs
+│   ├── labeler.yml                  ← Labels PRs by changed file paths
+│   ├── librarian.yml                ← Checks docs stay in sync with code
+│   ├── semantic-release.yml         ← Automated release workflow
+│   ├── sentinel.yml                 ← Society integrity checks
+│   ├── tester.yml                   ← Runs the full test suite
+│   ├── vscode-extension.yml         ← Builds the VS Code extension
+│   └── warden.yml                   ← File size and code health checks
 │
 ├── .githooks/                       ← Local git hook enforcement
 │   ├── commit-msg                   ← Doorman: validates commit message format

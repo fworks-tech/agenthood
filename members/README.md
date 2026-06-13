@@ -25,6 +25,19 @@ Each has a skill file that your agent runtime loads to activate them.
 
 ---
 
+## Two Files Per Member: SKILL.md vs `<member-name>.md`
+
+Each member directory contains two skill files that serve different audiences:
+
+| File | Audience | Contents |
+|------|----------|----------|
+| `SKILL.md` | **Adopter projects** — installed via `npx agenthood activate <member>` | Generic and org-neutral. Uses placeholders like "repository owner" and `{owner}/{repo}`. Includes `license: MIT` in frontmatter. This is what ships to the world. |
+| `<member-name>.md` | **The Society itself** (`fworks-tech/agenthood`) | Hardcoded to this repo: `fworks-tech`, specific label names, milestone format, and project board. No `license` field — it's internal. |
+
+When a member's behaviour changes, **both files must be updated in parallel** — same structure, different specifics. `SKILL.md` is the source of truth for adopters; `<member-name>.md` is the Society's own live instance.
+
+---
+
 ## Loading Members into Your Agent Runtime
 
 **Claude Code:**

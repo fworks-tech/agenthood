@@ -8,6 +8,7 @@
 import { existsSync } from 'node:fs';
 import { join } from 'node:path';
 import { execSync } from 'node:child_process';
+import { MEMBER_NAMES, resolveSkillsDir } from '../members.js';
 
 interface CheckResult {
   label: string;
@@ -57,24 +58,15 @@ export async function check(): Promise<void> {
   file('.github/workflows/pr-title.yml present', '.github/workflows/pr-title.yml');
 
   // Skills
-  const members = [
-    'the-scribe', 'the-architect', 'the-reviewer', 'the-tester',
-    'the-debugger', 'the-auditor', 'the-herald', 'the-librarian', 'the-doorman',
-    'the-oracle', 'the-envoy', 'the-sentinel', 'the-warden', 'the-steward',
-  ];
-  const skillsBase = existsSync(join(cwd, '.claude'))
-    ? '.claude/skills'
-    : existsSync(join(cwd, '.codebuddy'))
-    ? '.codebuddy/skills'
-    : '.agenthood/skills';
+  const skillsBase = resolveSkillsDir(cwd);
 
-  const installedCount = members.filter((m) =>
-    existsSync(join(cwd, skillsBase, m, `${m}.md`)),
+  const installedCount = MEMBER_NAMES.filter((m) =>
+    existsSync(join(skillsBase, m, `${m}.md`)),
   ).length;
 
   results.push({
-    label: `Member skills installed (${installedCount}/${members.length})`,
-    pass: installedCount === members.length,
+    label: `Member skills installed (${installedCount}/${MEMBER_NAMES.length})`,
+    pass: installedCount === MEMBER_NAMES.length,
   });
 
   // Git template

@@ -14,26 +14,10 @@ import { join, dirname } from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { execSync } from 'node:child_process'
 import { createInterface } from 'node:readline'
+import { ALL_MEMBERS } from '../members.js'
 
 const __dirname = dirname(fileURLToPath(import.meta.url))
 const SOCIETY_ROOT = join(__dirname, '..', '..')
-
-const ALL_MEMBERS = [
-  { name: 'the-scribe',    tagline: 'Commits, PRs, changelogs' },
-  { name: 'the-architect', tagline: 'Specs, planning, ADRs' },
-  { name: 'the-reviewer',  tagline: 'Five-axis code review' },
-  { name: 'the-tester',    tagline: 'TDD and test generation' },
-  { name: 'the-debugger',  tagline: 'Root cause analysis' },
-  { name: 'the-auditor',   tagline: 'Security and dependencies' },
-  { name: 'the-herald',    tagline: 'Releases and versioning' },
-  { name: 'the-librarian', tagline: 'Documentation and ADRs' },
-  { name: 'the-doorman',   tagline: 'Validation and enforcement' },
-  { name: 'the-oracle',    tagline: 'Research and knowledge' },
-  { name: 'the-envoy',     tagline: 'Communication and handoffs' },
-  { name: 'the-sentinel',  tagline: 'Member file validation' },
-  { name: 'the-warden',    tagline: 'File size enforcement' },
-  { name: 'the-steward',   tagline: 'Context and routing' },
-] as const
 
 const RUNTIMES = ['claude-code', 'copilot', 'gemini-cli', 'other'] as const
 type Runtime = (typeof RUNTIMES)[number]

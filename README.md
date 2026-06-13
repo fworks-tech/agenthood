@@ -262,6 +262,7 @@ agenthood/
 │   └── observability/               ← Tracer, TokenCounter, CostEstimator, EventBus
 │
 ├── .github/workflows/               ← Layer 6: CI Enforcement
+│   └── semantic-release.yml         ← Automated release workflow
 │
 ├── .githooks/                       ← Local git hook enforcement
 │

@@ -74,6 +74,28 @@ Co-Authored-By: Claude Sonnet 4.6 <noreply@anthropic.com>
 7. Add `Closes #N` footer
 8. Add `Co-Authored-By` footer
 
+### Setting PR Metadata
+
+After writing the description, set the following fields before opening the PR:
+
+**Assignee:**
+- Always assign `fworks-tech` — every PR and issue needs an owner
+- The `auto-assign` workflow catches omissions, but set it explicitly
+
+**Labels:**
+- The `labeler` workflow auto-labels by file path — verify accuracy after open
+- Add a priority label manually: `p1-high` (blocks release), `p2-medium` (planned), `p3-low` (backlog)
+- Area labels are set automatically: `docs`, `ci`, `llm`, `skill`, `dx`
+
+**Milestone:**
+- Run `gh api repos/fworks-tech/agenthood/milestones` to list active milestones
+- Assign the milestone matching the target release version (e.g., v1.6.0 for Academy work)
+- If no milestone applies, assign the next planned minor release
+
+**Project:**
+- Add the PR to the active Society project board via the PR sidebar
+- Every in-flight PR belongs to the project — nothing operates off-board
+
 ### PR Granularity
 
 A PR should represent one concern — the same principle as a commit, at a higher level.
@@ -149,3 +171,7 @@ Before confirming a commit message:
 - [ ] Staged changes represent a single logical unit
 - [ ] If adding N independent units, N+1 commits are planned
 - [ ] PR (if open) describes a single concern — passes the "no and" test
+- [ ] PR has assignee set (`fworks-tech`)
+- [ ] PR has at least one area label and one priority label
+- [ ] PR is assigned to the correct milestone
+- [ ] PR is added to the active project board

@@ -1,0 +1,33 @@
+# Path-to-label mapping for actions/labeler@v5
+# Used by .github/workflows/labeler.yml
+
+docs:
+  - changed-files:
+    - any-glob-to-any-file:
+      - 'docs/**'
+      - '*.md'
+      - 'members/**/*.md'
+
+ci:
+  - changed-files:
+    - any-glob-to-any-file:
+      - '.github/**'
+      - '.githooks/**'
+
+llm:
+  - changed-files:
+    - any-glob-to-any-file:
+      - 'src/llm/**'
+
+skill:
+  - changed-files:
+    - any-glob-to-any-file:
+      - 'src/skills/**'
+      - 'members/**'
+
+dx:
+  - changed-files:
+    - any-glob-to-any-file:
+      - 'vscode-extension/**'
+      - 'src/commands/**'
+      - 'src/cli.ts'

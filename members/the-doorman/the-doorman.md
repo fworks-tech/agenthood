@@ -56,6 +56,25 @@ Validates that the PR title follows Conventional Commits format:
 - Subject does not start with an uppercase character
 - Returns pass/fail with specific failure reason
 
+### Branch Naming Validation
+
+Every branch must follow the convention: `type/issue-NUMBER-description`
+
+The issue number ties the branch to a GitHub issue, establishing traceability and preventing orphan branches.
+
+**Check — Valid Branch Name**
+- Extract the issue number: regex `issue-[0-9]+`
+- If no match: block with error, suggesting examples:
+  - `fix/issue-135-members-registry`
+  - `feat/issue-136-skill-md-migration`
+  - `docs/issue-120-api-docs`
+- If match found: verify the issue exists with `gh issue view N --json state`
+- If issue does not exist: block with message, directing to create one first
+
+**Exceptions**
+- `main` branch: skip check
+- `claude/*` automation branches: skip check
+
 ### PR Scope Validation
 
 After title validation, check whether the PR represents a single concern:

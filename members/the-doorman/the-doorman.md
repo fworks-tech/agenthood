@@ -72,8 +72,9 @@ The issue number ties the branch to a GitHub issue, establishing traceability an
 - If issue does not exist: block with message, directing to create one first
 
 **Exceptions**
-- `main` branch: skip check
-- `claude/*` automation branches: skip check
+- `claude/*` automation branches: skip this check only
+
+**Note:** The Oath check ("I never push to main") runs before branch naming and has no exceptions. Even automation branches cannot push directly to main.
 
 ### PR Scope Validation
 

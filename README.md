@@ -265,6 +265,7 @@ agenthood/
 │   ├── auto-assign.yml              ← Assigns fworks-tech to all new issues and PRs
 │   ├── auditor.yml                  ← Secret scanning on push
 │   ├── commitlint.yml               ← Validates commit messages on PRs
+│   ├── docs.yml                     ← Deploys Academy to GitHub Pages on push to main
 │   ├── labeler.yml                  ← Labels PRs by changed file paths
 │   ├── librarian.yml                ← Checks docs stay in sync with code
 │   ├── semantic-release.yml         ← Automated release workflow

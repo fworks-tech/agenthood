@@ -1,20 +1,29 @@
-name: Deploy Academy Docs
+name: Society — Deploy Academy Docs
 
 on:
   push:
     branches: [main]
     paths:
       - "docs/academy/**"
+      - "docs/requirements.txt"
+      - ".github/workflows/docs.yml"
+  workflow_dispatch:
 
 jobs:
   deploy:
+    name: Build and deploy Academy with MkDocs Material
     runs-on: ubuntu-latest
     permissions:
       contents: write
     steps:
       - uses: actions/checkout@v4
+
       - uses: actions/setup-python@v5
         with:
-          python-version: "3.11"
-      - run: pip install mkdocs-material
-      - run: python -m mkdocs gh-deploy --config-file docs/academy/mkdocs.yml --force
+          python-version: "3.x"
+
+      - name: Install MkDocs Material
+        run: pip install -r docs/requirements.txt
+
+      - name: Deploy Academy to GitHub Pages
+        run: python -m mkdocs gh-deploy --config-file docs/academy/mkdocs.yml --force

@@ -7,6 +7,7 @@ __pycache__/
 
 # Node
 node_modules/
+site/
 dist/node_modules/
 dist/
 .agenthood/audit.log

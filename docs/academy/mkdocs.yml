@@ -1,6 +1,6 @@
 site_name: Agenthood Academy
 site_description: The Society's structured path from GenAI basics to production-grade agentic systems.
-site_url: https://fworks-tech.github.io/agenthood/
+site_url: https://agenthood.flabs.tech/academy/
 repo_url: https://github.com/fworks-tech/agenthood
 repo_name: fworks-tech/agenthood
 docs_dir: .

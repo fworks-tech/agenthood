@@ -96,6 +96,30 @@ jobs:
             fi
           fi
 
+          # ── Rule 7: src/commands/ changes must touch CONTRIBUTING.md or CLAUDE.md ──
+          COMMANDS_CHANGED=$(echo "$CHANGED" | grep "^src/commands/" || true)
+          if [ -n "$COMMANDS_CHANGED" ]; then
+            SPEC_UPDATED=$(echo "$CHANGED" | grep -E "^(CONTRIBUTING\.md|CLAUDE\.md)" || true)
+            if [ -z "$SPEC_UPDATED" ]; then
+              echo "WARN: src/commands/ changed but neither CONTRIBUTING.md nor CLAUDE.md was updated — verify they are still accurate"
+            fi
+          fi
+
+          # ── Rule 8: conventions/ or .githooks/ changes must touch CONTRIBUTING.md ──
+          CONVENTIONS_OR_HOOKS=$(echo "$CHANGED" | grep -E "^(conventions/|\.githooks/)" || true)
+          if [ -n "$CONVENTIONS_OR_HOOKS" ]; then
+            CONTRIBUTING_UPDATED=$(echo "$CHANGED" | grep "^CONTRIBUTING\.md" || true)
+            if [ -z "$CONTRIBUTING_UPDATED" ]; then
+              echo "WARN: conventions/ or .githooks/ changed but CONTRIBUTING.md was not updated — verify it is still accurate"
+            fi
+          fi
+
+          # ── Rule 9: CHANGELOG.md must not be manually edited ──
+          CHANGELOG_CHANGED=$(echo "$CHANGED" | grep "^CHANGELOG\.md" || true)
+          if [ -n "$CHANGELOG_CHANGED" ]; then
+            echo "WARN: CHANGELOG.md was modified manually — it is managed exclusively by semantic-release. Revert unless this is a release commit."
+          fi
+
           if [ "$FAILED" -eq 1 ]; then
             echo ""
             echo "The Librarian: documentation is out of sync with the code."

@@ -7,6 +7,7 @@
  */
 
 import { parseArgs } from 'node:util';
+import { ALL_MEMBERS } from './members.js';
 import { init } from './commands/init.js';
 import { check } from './commands/check.js';
 import { activate } from './commands/activate.js';
@@ -75,16 +76,7 @@ Commands:
   oath                    Print the Society's oath
   eject                   Remove the Society from your project
 
-Members:
-  the-scribe              Commits, PRs, changelogs
-  the-architect           Specs, planning, ADRs
-  the-reviewer            Five-axis code review
-  the-tester              TDD and test generation
-  the-debugger            Root cause analysis
-  the-auditor             Security and dependencies
-  the-herald              Releases and versioning
-  the-librarian           Documentation and ADRs
-  the-doorman             Validation and enforcement
+Members:\n${ALL_MEMBERS.map(({ name, tagline }) => `  ${name.padEnd(20)} ${tagline}`).join('\n')}
 
 Examples:
   npx agenthood init

@@ -56,7 +56,7 @@ Though the formal pipeline is under development, you can test semantic chunking 
 
 ```bash
 # A future command to test chunking
-agenthood run rag:chunk README.md --strategy semantic
+npx agenthood rag:chunk README.md --strategy semantic
 ```
 
 Or conceptually in TypeScript:

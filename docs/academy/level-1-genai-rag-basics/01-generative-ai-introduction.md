@@ -44,7 +44,7 @@ While the formal `ILLMProvider` is under construction, you can invoke the Societ
 
 ```bash
 # Ask The Scribe to write a commit message
-npx agenthood run the-scribe "Write a commit message for the staged changes"
+agenthood-run invoke the-scribe "Write a commit message for the staged changes"
 ```
 
 The agent will strictly follow the Conventional Commits standard, proving that Generative AI can be constrained to produce reliable output.

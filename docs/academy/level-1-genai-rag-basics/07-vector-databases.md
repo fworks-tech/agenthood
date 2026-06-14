@@ -48,7 +48,7 @@ When the RAG tools are introduced, you will interact with the local vector store
 
 ```bash
 # Initialize local vector storage
-agenthood run rag:init-db
+npx agenthood rag:init-db
 
 # The database lives in .agenthood/vectors/
 ls -la .agenthood/vectors/

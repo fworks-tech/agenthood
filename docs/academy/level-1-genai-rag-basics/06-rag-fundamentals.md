@@ -60,10 +60,10 @@ Once the RAG module is fully implemented in a future milestone, you will be able
 
 ```bash
 # Index the current repository
-agenthood run rag:index .
+npx agenthood rag:index .
 
 # Query the codebase
-agenthood run rag:query "Where is the orchestrator defined?"
+npx agenthood rag:query "Where is the orchestrator defined?"
 ```
 
 Or in TypeScript (future milestone):

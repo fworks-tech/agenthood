@@ -1,54 +1,89 @@
 # Basics of LLMs
 
-> *You cannot debug what you do not understand. Know the model before you build on it.*
+> An LLM is not a brain; it is an incredibly powerful token calculator. Treat it accordingly.
 
 ---
 
 ## What it is
 
-<!-- TODO: Issue #121 — Level 1 article content -->
+A Large Language Model (LLM) is a neural network trained on vast amounts of text data to predict the next word (or "token") in a sequence. When you give it a prompt, it calculates the highest-probability continuation based on the patterns it learned during training.
 
-_This article is coming in v1.6.0. See [issue #121](https://github.com/fworks-tech/agenthood/issues/121)._
+It does not "think" or "know" facts in a human sense. It maps statistical relationships between concepts. Understanding this probabilistic nature is essential for building robust agents, as it explains why models can hallucinate, get confused by poor formatting, or require specific phrasing to perform well.
 
-**Covers:** How LLMs work (tokens, context windows, inference), and how Agenthood abstracts the 4 providers behind one interface so your agents are not locked to any single model.
+```mermaid
+graph LR
+    A[Input Prompt] --> B[Tokenization]
+    B --> C[Transformer Layers]
+    C --> D[Probability Distribution]
+    D --> E[Next Token Selection]
+    E --> F[Output Text]
+```
 
 ---
 
 ## Why it matters in production
 
-<!-- TODO: Issue #121 -->
+If you assume an LLM is a reasoning engine with perfect recall, you will design fragile systems. Because they are probabilistic, LLMs will confidently invent APIs, hallucinate facts, or drift away from instructions if the context window gets too noisy.
+
+In production, you cannot rely on an LLM to self-correct without explicit instruction. You must design fallback mechanisms, retry loops, and validation steps. A raw LLM is a vulnerability; an LLM governed by a strict state machine is a tool.
 
 ---
 
 ## How Agenthood implements it
 
-<!-- TODO: Issue #121 -->
+Agenthood abstracts the complexities of LLMs behind the `ILLMProvider` interface, allowing you to swap between the 4 major providers (Anthropic, OpenAI, Google, and local models) without rewriting your agent logic.
 
-**Maps to:** `src/llm/ILLMProvider.ts` — 4 providers: Groq (default), Anthropic, OpenAI, Ollama
+This is planned for a future milestone and will live in `src/llm/ILLMProvider.ts`:
+
+```typescript
+// Planned for a future milestone
+export interface ILLMProvider {
+  /**
+   * Generates a completion using the specified provider.
+   */
+  complete(request: LLMRequest): Promise<LLMResponse>;
+}
+```
+
+By forcing all LLMs through a unified interface, Agenthood ensures that provider-specific quirks do not pollute the core logic of the Society's members.
 
 ---
 
 ## Hands-on example
 
-<!-- TODO: Issue #121 -->
+To see how the Society interacts with LLMs under the hood, you can inspect the configuration of an existing member:
+
+```bash
+# Check the active members and their current configuration
+npx agenthood check
+```
+
+Or in TypeScript (future milestone):
+
+```typescript
+import { AnthropicProvider } from '@agenthood/llm';
+
+const provider = new AnthropicProvider({ apiKey: process.env.ANTHROPIC_API_KEY });
+const response = await provider.complete({ prompt: 'Explain the Society.' });
+```
 
 ---
 
 ## Further reading
 
-- [ADR-009 — Groq as default free LLM provider](../../docs/adr/) _(coming in v2.0.0)_
-- `src/llm/ILLMProvider.ts` — provider abstraction interface
-- [How Large Language Models work](https://www.youtube.com/watch?v=5sLYAQS9sWQ) — Sebastian Raschka
+- [ADR-005 — Orchestrator pattern](../../docs/adr/ADR-005-orchestrator-pattern.md)
+- [`src/llm/ILLMProvider.ts`](../../src/llm/ILLMProvider.ts) — source implementation (planned)
+- [Anthropic: Introduction to Prompting](https://docs.anthropic.com/en/docs/intro-to-prompting) — excellent foundational knowledge
 
 ---
 
 ## LinkedIn version
 
-**Hook:** Most LLM tutorials skip the part where you learn what a context window actually is. Then you hit the limit in production.
+**Hook:** An LLM is not a brain; it is an incredibly powerful token calculator. Treat it accordingly.
 
 **Why it matters:**
-- Context windows are hard limits, not soft suggestions
-- Token costs compound across thousands of requests
-- Provider lock-in is a debt you pay when the API changes
+- LLMs are probabilistic token predictors, not logic engines
+- Without guardrails, they will confidently hallucinate APIs and facts
+- Provider abstraction lets you swap models when one inevitably degrades
 
-**→** [Read the full article →](https://fworks-tech.github.io/agenthood/academy/level-1-genai-rag-basics/02-basics-of-llms/)
+**→** [Read the full article + implementation walkthrough →](https://fworks-tech.github.io/agenthood/academy/level-1-genai-rag-basics/02-basics-of-llms/)

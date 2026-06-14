@@ -1,38 +1,53 @@
 # Generative AI Introduction
 
-> *Agenthood is not another LLM wrapper. It is a Society with standards. Understanding the difference starts here.*
+> Generative AI without standards is just automated chaos. The Society enforces the standards.
 
 ---
 
 ## What it is
 
-<!-- TODO: Issue #121 — Level 1 article content -->
+Generative AI refers to algorithms (such as LLMs, image generators, and audio synthesis models) that can create new content based on training data. In the context of the Agenthood, it specifically means Large Language Models (LLMs) that process text to perform reasoning, code generation, and task execution.
 
-_This article is coming in v1.6.0. See [issue #121](https://github.com/fworks-tech/agenthood/issues/121)._
-
-**Covers:** What GenAI is, where LLMs fit, where Agenthood fits in the ecosystem — and why frameworks that treat LLMs as magic boxes produce agents that fail in predictable, avoidable ways.
+Unlike deterministic software, Generative AI is probabilistic. You do not write a sequence of `if/else` statements to get a result; you provide a prompt, and the model predicts the most likely next tokens. It is an engine of probability, and it requires a new mental model for development.
 
 ---
 
 ## Why it matters in production
 
-<!-- TODO: Issue #121 -->
+If you treat a Generative AI model like a deterministic function, your system will fail. You will encounter hallucinations, non-deterministic output, and silent failures where the model returns confident but incorrect results.
+
+In production, Generative AI cannot be deployed naked. It must be wrapped in guardrails, verification loops, and strict contracts. Without these, your agent will confidently corrupt data, break builds, or leak context. The Society prevents this by replacing magic boxes with strict agentic contracts.
 
 ---
 
 ## How Agenthood implements it
 
-<!-- TODO: Issue #121 -->
+Agenthood is not another LLM wrapper; it is a framework of conventions. It places Generative AI within the `ILLMProvider` abstraction, ensuring that the model is only a cog in a larger, deterministic machine.
 
-**Maps to:** The Society's architecture overview — `AGENTS.md`, `INITIATION.md`, `docs/adr/`
+This architecture is currently being finalized for a future milestone. It will reside in `src/llm/ILLMProvider.ts`:
+
+```typescript
+// Planned for a future milestone
+export interface ILLMProvider {
+  generate(prompt: string, options: LLMRequest): Promise<string>;
+  verify(response: string, contract: Contract): boolean;
+}
+```
+
+The Society restricts the chaos of Generative AI behind these firm boundaries.
 
 ---
 
 ## Hands-on example
 
+While the formal `ILLMProvider` is under construction, you can invoke the Society's existing agents to see disciplined Generative AI in action:
+
 ```bash
-npx agenthood init
+# Ask The Scribe to write a commit message
+npx agenthood run the-scribe "Write a commit message for the staged changes"
 ```
+
+The agent will strictly follow the Conventional Commits standard, proving that Generative AI can be constrained to produce reliable output.
 
 ---
 
@@ -46,11 +61,11 @@ npx agenthood init
 
 ## LinkedIn version
 
-**Hook:** Most developers treat LLMs as magic boxes. The Society treats them as components with contracts.
+**Hook:** Generative AI without standards is just automated chaos. The Society enforces the standards.
 
 **Why it matters:**
 - Magic boxes fail in ways you cannot debug
-- Components with contracts fail in ways you can fix
-- Agenthood enforces the contracts so your agents stay fixable
+- Generative AI is probabilistic and prone to hallucination
+- Wrapping models in strict contracts keeps your agents fixable
 
-**→** [Read the full article →](https://fworks-tech.github.io/agenthood/academy/level-1-genai-rag-basics/01-generative-ai-introduction/)
+**→** [Read the full article + implementation walkthrough →](https://fworks-tech.github.io/agenthood/academy/level-1-genai-rag-basics/01-generative-ai-introduction/)

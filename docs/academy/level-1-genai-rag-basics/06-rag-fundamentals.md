@@ -70,9 +70,7 @@ Or in TypeScript (future milestone):
 
 ```typescript
 const context = await retriever.retrieveContext("Explain the orchestrator");
-const prompt = `Use this context: ${context}
-
-Explain the orchestrator.`;
+const prompt = `Use this context: ${context}\n\nExplain the orchestrator.`;
 ```
 
 ---

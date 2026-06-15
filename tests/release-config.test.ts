@@ -15,8 +15,14 @@ describe('semantic release configuration', () => {
     expect(npmPlugin).toBeDefined()
   })
 
-  it('does not inject NPM_TOKEN into release workflow', () => {
+  it('does not inject NPM_TOKEN as a top-level env var in release workflow', () => {
     const workflow = readFileSync('.github/workflows/semantic-release.yml', 'utf8')
-    expect(workflow).not.toContain('NPM_TOKEN')
+    expect(workflow).not.toMatch(/^\s*NPM_TOKEN:/m)
+  })
+
+  it('uses setup-node registry auth for npm publish', () => {
+    const workflow = readFileSync('.github/workflows/semantic-release.yml', 'utf8')
+    expect(workflow).toContain('registry-url: https://registry.npmjs.org/')
+    expect(workflow).toContain('NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}')
   })
 })

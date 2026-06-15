@@ -1,3 +1,11 @@
+## [1.6.6](https://github.com/fworks-tech/agenthood/compare/v1.6.5...v1.6.6) (2026-06-15)
+
+
+### Bug Fixes
+
+* **ci:** restore npm auth wiring for semantic-release ([#164](https://github.com/fworks-tech/agenthood/issues/164)) ([c8ddeea](https://github.com/fworks-tech/agenthood/commit/c8ddeeaefe7d3e6f53eeff609cdd8b05c27aec40))
+* **release:** enable npm publishing in semantic-release ([#146](https://github.com/fworks-tech/agenthood/issues/146)) ([8c3660e](https://github.com/fworks-tech/agenthood/commit/8c3660e3754ea57b8d6c398f13b3d85a0bbe40bd))
+
 ## [1.6.5](https://github.com/fworks-tech/agenthood/compare/v1.6.4...v1.6.5) (2026-06-13)
 
 

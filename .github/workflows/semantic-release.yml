@@ -7,7 +7,7 @@ on:
     inputs:
       otp:
         description: 'NPM OTP (One-Time Password)'
-        required: true
+        required: false
         type: string
 
 permissions:
@@ -37,6 +37,6 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
-          NPM_CONFIG_OTP: ${{ github.event.inputs.otp }}
+          NPM_CONFIG_OTP: ${{ github.event.inputs.otp || '' }}
         run: npx semantic-release
 

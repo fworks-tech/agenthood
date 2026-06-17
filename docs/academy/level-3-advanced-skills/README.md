@@ -24,6 +24,16 @@ The five capabilities that separate agents you demo from agents you depend on. R
 
 ---
 
+## You have finished the Academy
+
+You started at Level 1 with "what is a prompt?" You end at Level 3 with "how do I ship this to users and keep it running?" Twenty-five articles. Three levels. Zero filler.
+
+The Academy does not hand you a certificate. It hands you a standard. The standard is this: an agent you cannot evaluate is an agent you cannot ship. An agent you cannot observe is an agent you cannot trust. An agent without guardrails is a liability. The Society enforces these because the industry does not.
+
+What you build next is the proof.
+
+---
+
 *The ones who ship go through all three levels.*
 
 ← Back to [Academy Home](../README.md)

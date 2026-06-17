@@ -1,0 +1,44 @@
+{
+  "$schema": "https://skills.sh/schemas/skills.sh.schema.json",
+  "notGrouped": "bottom",
+  "groupings": [
+    {
+      "title": "Planning & Runtime",
+      "description": "Agents that shape work before code is written and keep the Society running efficiently.",
+      "skills": [
+        "the-architect",
+        "the-oracle",
+        "the-envoy",
+        "the-steward"
+      ]
+    },
+    {
+      "title": "Quality & Review",
+      "description": "Agents that verify correctness, maintainability, and codebase health.",
+      "skills": [
+        "the-reviewer",
+        "the-tester",
+        "the-debugger",
+        "the-warden"
+      ]
+    },
+    {
+      "title": "Security & Integrity",
+      "description": "Agents that enforce standards, detect risks, and protect the Society from drift.",
+      "skills": [
+        "the-auditor",
+        "the-sentinel",
+        "the-doorman"
+      ]
+    },
+    {
+      "title": "Release & Documentation",
+      "description": "Agents that turn code changes into clear communication and shipped releases.",
+      "skills": [
+        "the-scribe",
+        "the-herald",
+        "the-librarian"
+      ]
+    }
+  ]
+}

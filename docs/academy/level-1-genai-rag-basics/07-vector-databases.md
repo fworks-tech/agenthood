@@ -66,7 +66,7 @@ await db.insert(chunks);
 
 ## Further reading
 
-- [ADR-010 — RAG Architecture (Planned)](../../docs/adr/ADR-010-rag-architecture.md)
+- [ADR-010 — LanceDB for Vector Storage](../../docs/adr/ADR-010-lancedb-for-vector-storage.md)
 - [`src/rag/VectorStore.ts`](../../src/rag/VectorStore.ts) — source implementation (planned)
 - [LanceDB Documentation](https://lancedb.github.io/lancedb/) — why embedded vector DBs are the future
 
@@ -81,4 +81,4 @@ await db.insert(chunks);
 - Vector DBs allow agents to find related concepts instantly
 - Embedded vector DBs like LanceDB keep your architecture lightweight and local
 
-**→** [Read the full article + implementation walkthrough →](https://fworks-tech.github.io/agenthood/academy/level-1-genai-rag-basics/07-vector-databases/)
+**→** [Read the full article + implementation walkthrough →](https://agenthood.flabs.tech/academy/level-1-genai-rag-basics/07-vector-databases/)

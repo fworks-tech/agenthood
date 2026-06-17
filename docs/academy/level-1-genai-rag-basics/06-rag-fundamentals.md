@@ -77,7 +77,7 @@ const prompt = `Use this context: ${context}\n\nExplain the orchestrator.`;
 
 ## Further reading
 
-- [ADR-010 — RAG Architecture (Planned)](../../docs/adr/ADR-010-rag-architecture.md)
+- [ADR-010 — LanceDB for Vector Storage](../../docs/adr/ADR-010-lancedb-for-vector-storage.md)
 - [`src/rag/Retriever.ts`](../../src/rag/Retriever.ts) — source implementation (planned)
 - [IBM: What is RAG?](https://research.ibm.com/blog/retrieval-augmented-generation-RAG) — foundational overview of the RAG pattern
 
@@ -92,4 +92,4 @@ const prompt = `Use this context: ${context}\n\nExplain the orchestrator.`;
 - Fine-tuning is expensive and slow; RAG is fast and factual
 - RAG grounds the LLM in reality and forces it to cite its sources
 
-**→** [Read the full article + implementation walkthrough →](https://fworks-tech.github.io/agenthood/academy/level-1-genai-rag-basics/06-rag-fundamentals/)
+**→** [Read the full article + implementation walkthrough →](https://agenthood.flabs.tech/academy/level-1-genai-rag-basics/06-rag-fundamentals/)

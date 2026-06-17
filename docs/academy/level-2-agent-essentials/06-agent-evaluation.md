@@ -50,4 +50,4 @@ _This article is coming in v1.6.0. See [issue #122](https://github.com/fworks-te
 - The four metrics (faithfulness, relevance, context recall, answer correctness) catch different failure modes
 - Agenthood's `EvalRunner` closes the loop: eval scores feed `EpisodeLearner` which feeds future behavior
 
-**→** [Read the full article →](https://fworks-tech.github.io/agenthood/academy/level-2-agent-essentials/06-agent-evaluation/)
+**→** [Read the full article →](https://agenthood.flabs.tech/academy/level-2-agent-essentials/06-agent-evaluation/)

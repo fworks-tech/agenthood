@@ -93,4 +93,4 @@ await loop.run("Read the package.json and summarize dependencies.");
 - Function calling lets agents read files, hit APIs, and trigger CI pipelines
 - Tool registries provide a secure boundary between LLM reasoning and system execution
 
-**→** [Read the full article + implementation walkthrough →](https://fworks-tech.github.io/agenthood/academy/level-1-genai-rag-basics/09-tool-integration/)
+**→** [Read the full article + implementation walkthrough →](https://agenthood.flabs.tech/academy/level-1-genai-rag-basics/09-tool-integration/)

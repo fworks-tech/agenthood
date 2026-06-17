@@ -61,4 +61,4 @@ class DeveloperAgent extends BaseAgent {
 - A working first agent teaches you every integration point at once
 - Agenthood's 14 members are proof the pattern works at scale
 
-**→** [Read the full article →](https://fworks-tech.github.io/agenthood/academy/level-2-agent-essentials/03-build-your-first-agent/)
+**→** [Read the full article →](https://agenthood.flabs.tech/academy/level-2-agent-essentials/03-build-your-first-agent/)

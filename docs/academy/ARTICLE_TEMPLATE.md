@@ -91,4 +91,4 @@ Or in TypeScript:
 - [Point 2]
 - [Point 3]
 
-**→** [Read the full article + implementation walkthrough →](https://fworks-tech.github.io/agenthood/academy/[path-to-this-article]/)
+**→** [Read the full article + implementation walkthrough →](https://agenthood.flabs.tech/academy/[path-to-this-article]/)

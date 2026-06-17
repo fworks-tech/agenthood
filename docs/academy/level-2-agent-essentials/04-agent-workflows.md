@@ -51,4 +51,4 @@ _This article is coming in v1.6.0. See [issue #122](https://github.com/fworks-te
 - Human-in-the-loop checkpoints prevent autonomous agents from going off-rails silently
 - Agenthood's `WorkflowEngine` orchestrates both without peer-to-peer coordination chaos
 
-**→** [Read the full article →](https://fworks-tech.github.io/agenthood/academy/level-2-agent-essentials/04-agent-workflows/)
+**→** [Read the full article →](https://agenthood.flabs.tech/academy/level-2-agent-essentials/04-agent-workflows/)

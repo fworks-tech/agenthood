@@ -51,4 +51,4 @@ _This article is coming in v1.6.0. See [issue #122](https://github.com/fworks-te
 - Long-term memory without governance becomes stale data poisoning fresh queries
 - Agenthood's five-tier model gives each memory type its own lifecycle and retrieval path
 
-**→** [Read the full article →](https://fworks-tech.github.io/agenthood/academy/level-2-agent-essentials/05-agent-memory/)
+**→** [Read the full article →](https://agenthood.flabs.tech/academy/level-2-agent-essentials/05-agent-memory/)

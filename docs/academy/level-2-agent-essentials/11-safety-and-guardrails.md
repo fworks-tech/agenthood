@@ -50,4 +50,4 @@ _This article is coming in v1.6.0. See [issue #122](https://github.com/fworks-te
 - Thinking budgets prevent runaway reasoning loops that consume tokens and time
 - Agenthood's `SafetyGuard` is the last gate before any agent output reaches the world
 
-**→** [Read the full article →](https://fworks-tech.github.io/agenthood/academy/level-2-agent-essentials/11-safety-and-guardrails/)
+**→** [Read the full article →](https://agenthood.flabs.tech/academy/level-2-agent-essentials/11-safety-and-guardrails/)

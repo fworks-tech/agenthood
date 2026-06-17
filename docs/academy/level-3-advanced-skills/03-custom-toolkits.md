@@ -65,4 +65,4 @@ class MyCustomSkill implements ISkill {
 - `SkillRegistry.discover()` finds skills at startup — no registration boilerplate
 - Your custom skill becomes a Society-standard tool the moment it implements `ISkill`
 
-**→** [Read the full article →](https://fworks-tech.github.io/agenthood/academy/level-3-advanced-skills/03-custom-toolkits/)
+**→** [Read the full article →](https://agenthood.flabs.tech/academy/level-3-advanced-skills/03-custom-toolkits/)

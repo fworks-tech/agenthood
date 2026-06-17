@@ -86,4 +86,4 @@ const response = await provider.complete({ prompt: 'Explain the Society.' });
 - Without guardrails, they will confidently hallucinate APIs and facts
 - Provider abstraction lets you swap models when one inevitably degrades
 
-**→** [Read the full article + implementation walkthrough →](https://fworks-tech.github.io/agenthood/academy/level-1-genai-rag-basics/02-basics-of-llms/)
+**→** [Read the full article + implementation walkthrough →](https://agenthood.flabs.tech/academy/level-1-genai-rag-basics/02-basics-of-llms/)

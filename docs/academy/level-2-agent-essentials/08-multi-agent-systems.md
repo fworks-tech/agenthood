@@ -51,4 +51,4 @@ _This article is coming in v1.6.0. See [issue #122](https://github.com/fworks-te
 - Parallel execution without coordination produces race conditions in shared state
 - Agenthood's orchestrator pattern (ADR-005) is the reason the Society's 14 members do not step on each other
 
-**→** [Read the full article →](https://fworks-tech.github.io/agenthood/academy/level-2-agent-essentials/08-multi-agent-systems/)
+**→** [Read the full article →](https://agenthood.flabs.tech/academy/level-2-agent-essentials/08-multi-agent-systems/)

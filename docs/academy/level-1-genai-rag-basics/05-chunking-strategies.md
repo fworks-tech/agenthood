@@ -72,7 +72,7 @@ const text = "export class Agent { ... }";
 
 ## Further reading
 
-- [ADR-010 — RAG Architecture (Planned)](../../docs/adr/ADR-010-rag-architecture.md)
+- [ADR-010 — LanceDB for Vector Storage](../../docs/adr/ADR-010-lancedb-for-vector-storage.md)
 - [`src/rag/ChunkStrategy.ts`](../../src/rag/ChunkStrategy.ts) — source implementation (planned)
 - [Pinecone: Chunking Strategies](https://www.pinecone.io/learn/chunking-strategies/) — an excellent breakdown of chunking methods
 
@@ -87,4 +87,4 @@ const text = "export class Agent { ... }";
 - Splitting a code block in half makes it unreadable for the LLM
 - Semantic chunking preserves meaning and rescues RAG pipelines
 
-**→** [Read the full article + implementation walkthrough →](https://fworks-tech.github.io/agenthood/academy/level-1-genai-rag-basics/05-chunking-strategies/)
+**→** [Read the full article + implementation walkthrough →](https://agenthood.flabs.tech/academy/level-1-genai-rag-basics/05-chunking-strategies/)

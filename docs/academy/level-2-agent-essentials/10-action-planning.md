@@ -51,4 +51,4 @@ _This article is coming in v1.6.0. See [issue #122](https://github.com/fworks-te
 - Human-in-the-loop checkpoints are only useful if there is a plan to checkpoint
 - Agenthood's `ArchitectAgent` produces plans the Society can read, reject, and revise
 
-**→** [Read the full article →](https://fworks-tech.github.io/agenthood/academy/level-2-agent-essentials/10-action-planning/)
+**→** [Read the full article →](https://agenthood.flabs.tech/academy/level-2-agent-essentials/10-action-planning/)

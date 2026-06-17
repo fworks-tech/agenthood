@@ -1,3 +1,10 @@
+# [1.8.0](https://github.com/fworks-tech/agenthood/compare/v1.7.2...v1.8.0) (2026-06-17)
+
+
+### Features
+
+* **registry:** submit Agenthood to SkillsMP and Skills.sh ([#184](https://github.com/fworks-tech/agenthood/issues/184)) ([84b102e](https://github.com/fworks-tech/agenthood/commit/84b102e2a6f0877bfc48a9bf049183ad7e43a537))
+
 ## [1.7.2](https://github.com/fworks-tech/agenthood/compare/v1.7.1...v1.7.2) (2026-06-17)
 
 

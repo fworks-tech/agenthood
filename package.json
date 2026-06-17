@@ -1,18 +1,28 @@
 {
   "name": "agenthood",
   "version": "1.6.7",
-  "description": "A society of AI agents with impeccable standards and zero tolerance for 'fix stuff' commits.",
+  "description": "14 specialized AI agents for code quality, commit standards, and PR review automation. TypeScript framework, VS Code extension, Groq/Anthropic providers, autonomous runtime.",
   "keywords": [
     "ai-agents",
+    "ai-agent-framework",
+    "multi-agent",
+    "agentic-ai",
     "developer-experience",
+    "developer-tools",
+    "code-quality",
+    "code-review",
     "conventional-commits",
     "commitlint",
-    "husky",
     "semantic-release",
     "claude-code",
     "agent-skills",
-    "dx",
-    "git-workflow"
+    "typescript",
+    "vscode-extension",
+    "llm",
+    "groq",
+    "ci-cd",
+    "git-hooks",
+    "automation"
   ],
   "homepage": "https://github.com/fworks-tech/agenthood#readme",
   "bugs": {

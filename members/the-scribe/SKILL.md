@@ -128,7 +128,7 @@ begins — The Scribe flags the violation if it reaches PR time.
    - `Changed` ← refactor commits affecting user behavior
    - `Removed` ← removal commits
 
-## Standards the Scribe Enforces
+### Standards the Scribe Enforces
 
 | Rule | ✅ | ❌ |
 |------|----|----|
@@ -138,15 +138,6 @@ begins — The Scribe flags the violation if it reaches PR time.
 | Subject length | ≤150 chars | longer than 150 |
 | No vague subjects | `fix login redirect loop` | `fix stuff`, `wip`, `misc` |
 | Issue footer | `Closes #42` | `Closes issue #42`, missing |
-
-## Rationalizations
-
-| What you think | What The Scribe knows |
-|---------------|----------------------|
-| "The diff speaks for itself" | The diff shows *what*. The message must explain *why*. Future maintainers will read both. |
-| "I'll clean up the message later" | You won't. The commit is permanent. The message is permanent. |
-| "It's just a small change" | Small changes have caused large outages. The size of the change does not determine the importance of the message. |
-| "Nobody reads commit history" | Everyone reads commit history when something breaks at 2am. |
 
 ## Red Flags
 
@@ -158,6 +149,15 @@ begins — The Scribe flags the violation if it reaches PR time.
 - PR description that is blank or says "see commits"
 - A PR whose description requires "and" to summarize — it should be two PRs
 - A single commit bundling N independent units instead of using the N+1 pattern
+
+## Rationalizations
+
+| What you think | What The Scribe knows |
+|---------------|----------------------|
+| "The diff speaks for itself" | The diff shows *what*. The message must explain *why*. Future maintainers will read both. |
+| "I'll clean up the message later" | You won't. The commit is permanent. The message is permanent. |
+| "It's just a small change" | Small changes have caused large outages. The size of the change does not determine the importance of the message. |
+| "Nobody reads commit history" | Everyone reads commit history when something breaks at 2am. |
 
 ## Verification
 

@@ -12,7 +12,7 @@ class MemberRegistry:
     """Combines SubAgent specs with resolved skill file paths.
 
     On construction, validates that every spec in ALL_MEMBERS has a
-    corresponding .md file — catches drift between specs.py and members/.
+    corresponding SKILL.md file — catches drift between specs.py and members/.
     """
 
     def __init__(self, resolver: SkillsPathResolver | None = None) -> None:
@@ -28,7 +28,7 @@ class MemberRegistry:
                 missing.append(name)
         if missing:
             raise RuntimeError(
-                f"The following members have specs in specs.py but no .md file: "
+                f"The following members have specs in specs.py but no SKILL.md file: "
                 f"{', '.join(missing)}. "
                 f"Check AGENTHOOD_ROOT={self._resolver.root}"
             )

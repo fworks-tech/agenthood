@@ -1,3 +1,10 @@
+## [1.7.1](https://github.com/fworks-tech/agenthood/compare/v1.7.0...v1.7.1) (2026-06-17)
+
+
+### Bug Fixes
+
+* **docs:** correct broken ADR-010 references and Academy CTA URLs ([#180](https://github.com/fworks-tech/agenthood/issues/180)) ([670f03d](https://github.com/fworks-tech/agenthood/commit/670f03da24669455abae027e233962502119ac0f))
+
 # [1.7.0](https://github.com/fworks-tech/agenthood/compare/v1.6.7...v1.7.0) (2026-06-17)
 
 

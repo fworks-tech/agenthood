@@ -4,11 +4,6 @@ on:
   push:
     branches: [main]
   workflow_dispatch:
-    inputs:
-      otp:
-        description: 'NPM OTP (One-Time Password)'
-        required: false
-        type: string
 
 permissions:
   contents: write

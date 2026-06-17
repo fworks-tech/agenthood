@@ -1,6 +1,6 @@
 # Agenthood
 
-[![npm version](https://img.shields.io/npm/v/agenthood?style=flat-square&logo=npm)](https://www.npmjs.com/package/agenthood) [![npm downloads](https://img.shields.io/npm/dm/agenthood?style=flat-square&logo=npm)](https://www.npmjs.com/package/agenthood) [![License: MIT](https://img.shields.io/badge/License-MIT-blue?style=flat-square)](LICENSE) [![Node.js](https://img.shields.io/badge/node-%3E%3D20-brightgreen?style=flat-square&logo=node.js)](https://nodejs.org)
+[![npm version](https://img.shields.io/npm/v/agenthood?style=flat-square&logo=npm)](https://www.npmjs.com/package/agenthood) [![npm downloads](https://img.shields.io/npm/dm/agenthood?style=flat-square&logo=npm)](https://www.npmjs.com/package/agenthood) [![License: MIT](https://img.shields.io/badge/License-MIT-blue?style=flat-square)](LICENSE) [![Node.js](https://img.shields.io/badge/node-%3E%3D20-brightgreen?style=flat-square&logo=node.js)](https://nodejs.org) [![skills.sh](https://skills.sh/b/fworks-tech/agenthood)](https://skills.sh/fworks-tech/agenthood)
 
 > A full AI engineering team as plain Markdown files.
 
@@ -78,6 +78,16 @@ agenthood run the-architect "plan the implementation for issue #42"
 ```
 
 Set `GROQ_API_KEY` in your environment (free at [console.groq.com](https://console.groq.com)), or use Ollama for fully offline execution.
+
+### Option C — Install from skill registries
+
+Agenthood is published as open Agent Skills that any compatible runtime can discover and load.
+
+```bash
+npx skills add fworks-tech/agenthood
+```
+
+This installs all 14 members from the [Skills.sh](https://skills.sh/fworks-tech/agenthood) registry. You can also browse the indexed collection on [SkillsMP](https://skillsmp.com/creators/fworks-tech).
 
 ---
 

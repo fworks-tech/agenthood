@@ -1,3 +1,10 @@
+## [1.7.2](https://github.com/fworks-tech/agenthood/compare/v1.7.1...v1.7.2) (2026-06-17)
+
+
+### Bug Fixes
+
+* **skill:** normalize SKILL.md structure for milestone M1 ([#183](https://github.com/fworks-tech/agenthood/issues/183)) ([dd80aa4](https://github.com/fworks-tech/agenthood/commit/dd80aa495bbd3ff37d7eafd623fe20b05045c967)), closes [#66](https://github.com/fworks-tech/agenthood/issues/66)
+
 ## [1.7.1](https://github.com/fworks-tech/agenthood/compare/v1.7.0...v1.7.1) (2026-06-17)
 
 

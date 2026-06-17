@@ -2,119 +2,110 @@
 
 [![npm version](https://img.shields.io/npm/v/agenthood?style=flat-square&logo=npm)](https://www.npmjs.com/package/agenthood) [![npm downloads](https://img.shields.io/npm/dm/agenthood?style=flat-square&logo=npm)](https://www.npmjs.com/package/agenthood) [![License: MIT](https://img.shields.io/badge/License-MIT-blue?style=flat-square)](LICENSE) [![Node.js](https://img.shields.io/badge/node-%3E%3D20-brightgreen?style=flat-square&logo=node.js)](https://nodejs.org)
 
-> *A society of AI agents with impeccable standards and zero tolerance for `fix stuff` commits.*
+> A full AI engineering team as plain Markdown files.
+
+14 specialized AI agents — architect, reviewer, security expert, DevOps engineer, and more — each a single Markdown skill file any agent runtime can load into any project. No lock-in. No configuration. Just drop them in.
 
 ---
 
-## The Charter
+## How it works
 
-The **Agenthood** is not for everyone.
+Each agent is a single `.md` file that describes a role, its responsibilities, standards, and how it communicates. Load one or all of them into Claude Code, Cursor, or any runtime that supports skill files.
 
-It is for developers who believe that a commit message is a letter to the future — and the future deserves better. That a pull request is a proposal, not a dump. That a changelog is a story, not a log. That shipping is a craft, not an accident.
-
-The Society operates in the shadows of your CI pipeline. Its members never sleep. They have *opinions* about your PR descriptions. They will not merge your branch if your commit says `wip`.
-
----
-
-## The Oath
-
-> *I commit with intention.*
-> *I branch with purpose.*
-> *I review with honesty.*
-> *I ship with confidence.*
-> *I never push to main.*
+1. **Clone the repo** — get all 14 agent skill files in one command
+2. **Load into your runtime** — point Claude Code, Cursor, or your agent framework at the skills directory
+3. **Invoke any agent** — ask the Reviewer to check your PR, ask Security to audit your auth flow. They know their role.
 
 ---
 
-## The Members
+## The agents
 
-Each member of the Agenthood is a specialized AI agent skill — a Markdown file that any agent runtime can load and execute. They work alone or together, depending on what the codebase demands.
+Every role a real software team needs — available as a skill file with impeccable standards.
 
-| Member | Specialty | Role |
-|--------|-----------|------|
-| [The Scribe](members/the-scribe/SKILL.md) | Commits, PRs, Changelogs | N+1 commit pattern, PR "no and" test, changelog generation, Conventional Commits enforcement |
-| [The Architect](members/the-architect/SKILL.md) | Specs, Planning, ADRs | Interview mode to 95% confidence, spec-first development, task decomposition, stacked branch planning |
-| [The Reviewer](members/the-reviewer/SKILL.md) | Code Review, Quality | Five-axis review (Correctness, Readability, Architecture, Security, Performance), test-first review, change sizing |
-| [The Tester](members/the-tester/SKILL.md) | TDD, Coverage | Red-Green-Refactor cycle, test pyramid balancing, regression-first, coverage quality review |
-| [The Debugger](members/the-debugger/SKILL.md) | Error Recovery, Triage | Five-step protocol (Read → Reproduce → Hypothesize → Test → Fix), CI diagnosis, minimal reproduction |
-| [The Auditor](members/the-auditor/SKILL.md) | Security, Dependencies | OWASP Top 10 review, 6-point dependency audit, secret scanning, permanent blocking list |
-| [The Herald](members/the-herald/SKILL.md) | Releases, Versioning | Semantic versioning from commit types, changelog translation, GitHub Releases, daily standup/EOD reports |
-| [The Librarian](members/the-librarian/SKILL.md) | Docs, ADRs, Knowledge | README framework (What/Why/How/Contribute), ADR lifecycle, API docs from code, stale doc detection |
-| [The Doorman](members/the-doorman/SKILL.md) | Validation, Health Checks | Commit/PR validation, health checks, branch protection, hook setup (POSIX + Husky) |
-| [The Oracle](members/the-oracle/SKILL.md) | Institutional Knowledge | Member authoring templates, naming validation, convention rationale, 4-file registration map |
-| [The Envoy](members/the-envoy/SKILL.md) | Cross-Provider Translation | Provider detection (7 runtimes), skill translation, convention validation, bootstrap mode |
-| [The Sentinel](members/the-sentinel/SKILL.md) | Society Integrity | Internal consistency audit, cross-member contradiction detection, lane map generation, structural drift |
-| [The Warden](members/the-warden/SKILL.md) | Code Health | Code smell thresholds (WARNING/BLOCKING), cyclomatic complexity enforcement, boundary detection, dead code audit |
-| [The Steward](members/the-steward/SKILL.md) | Context Economy, Routing | Context gauge, minimal member routing, provider cache strategies, session triage at capacity thresholds |
+| Agent | Role | What it does |
+|-------|------|-------------|
+| [The Scribe](members/the-scribe/SKILL.md) | Commits, PRs, Changelogs | Conventional Commits enforcement, PR quality checks, changelog generation |
+| [The Architect](members/the-architect/SKILL.md) | System Design, ADRs | Spec-first development, task decomposition, architecture decision records |
+| [The Reviewer](members/the-reviewer/SKILL.md) | Code Review | Five-axis review (Correctness, Readability, Architecture, Security, Performance) |
+| [The Tester](members/the-tester/SKILL.md) | TDD, Coverage | Red-Green-Refactor cycle, test pyramid balancing, regression-first testing |
+| [The Debugger](members/the-debugger/SKILL.md) | Error Triage | Read → Reproduce → Hypothesize → Test → Fix protocol, CI diagnosis |
+| [The Auditor](members/the-auditor/SKILL.md) | Security | OWASP Top 10 review, dependency audit, secret scanning |
+| [The Herald](members/the-herald/SKILL.md) | Releases | Semantic versioning, changelog translation, GitHub Releases |
+| [The Librarian](members/the-librarian/SKILL.md) | Documentation | README framework, ADR lifecycle, stale doc detection |
+| [The Doorman](members/the-doorman/SKILL.md) | Validation | Commit/PR validation, health checks, branch protection |
+| [The Oracle](members/the-oracle/SKILL.md) | Institutional Knowledge | Member authoring templates, naming validation, convention rationale |
+| [The Envoy](members/the-envoy/SKILL.md) | Cross-Provider Translation | Provider detection (7 runtimes), skill translation, convention validation |
+| [The Sentinel](members/the-sentinel/SKILL.md) | Integrity | Cross-member contradiction detection, structural drift detection |
+| [The Warden](members/the-warden/SKILL.md) | Code Health | Code smell detection, cyclomatic complexity enforcement, dead code audit |
+| [The Steward](members/the-steward/SKILL.md) | Context Economy | Context budget management, member routing, provider cache strategies |
 
 ---
 
-## The Layers
+## Getting started
 
-The Agenthood is organized in ten layers, each building on the last:
+### Option A — Drop into any AI runtime
 
-```
-Layer 1  — Conventions       The rules every member follows
-Layer 2  — Members           The agent skills (14 Markdown files)
-Layer 3  — Rituals           Scheduled automations
-Layer 4  — Portals           Connectors to external systems
-Layer 5  — Agentic Workflows Multi-step operation templates
-Layer 6  — CI Workflows      Reusable GitHub Actions
-Layer 7  — Runtime           TypeScript agent framework — Members as real LLM agents
-Layer 8  — Memory & RAG      Persistent context, semantic retrieval, project indexing
-Layer 9  — Workflows         Multi-member orchestration (AgentStep, ParallelStep, HumanInLoop)
-Layer 10 — Evals             Automated quality measurement after every execution
+```bash
+npm install --save-dev agenthood
+npx agenthood init       # interactive setup (~5 minutes)
+npx agenthood check      # verify everything is in place
 ```
 
-Layers 1–6 are prompt-driven: skills are loaded as context into your existing AI assistant. Layers 7–10 make members **autonomous**: they execute, remember, and reason independently via a TypeScript runtime with Groq as the default free LLM provider.
+Members are loaded as context by your existing AI assistant. Works with Claude Code, GitHub Copilot, Gemini CLI, OpenAI Codex CLI, and CodeBuddy.
+
+### Option B — Run agents autonomously
+
+Execute members as real LLM agents that reason, act, and remember across sessions. Powered by a TypeScript runtime with Groq as the default free LLM provider.
+
+```bash
+npm run build                              # build the runtime (once)
+agenthood list                              # see available agents
+agenthood run the-scribe "write a commit message for the current diff"
+agenthood run the-reviewer "review the changes in the last commit"
+agenthood run the-architect "plan the implementation for issue #42"
+```
+
+Set `GROQ_API_KEY` in your environment (free at [console.groq.com](https://console.groq.com)), or use Ollama for fully offline execution.
 
 ---
 
-## What's Shipped
+## What's shipped
 
 | Version | Milestone | Status |
 |---------|-----------|--------|
-| v1.0.0 | [Operationally Ready](https://github.com/fworks-tech/agenthood/milestone/1) — Consistent APIs, test harness, health checks | ✅ **Shipped** |
-| v1.1.0 | VS Code modernization, Python runtime bootstrap | ✅ **Shipped** |
-| v1.2.0 | VS Code workspace observer event bus | ✅ **Shipped** |
-| **v1.4.0** | [The Living Editor](https://github.com/fworks-tech/agenthood/milestone/4) — Doorman SCM validation, Auditor on-save scanning, Reviewer Diagnostics, Librarian nudge, Members Watch Panel | ✅ **Shipped** |
-| **v1.5.0** | [Open Standard](https://github.com/fworks-tech/agenthood/milestone/6) — SKILL.md migration for all 14 members | ✅ **Shipped** |
-| **v1.6.x** | [The Academy](https://github.com/fworks-tech/agenthood/milestone/12) — Level 1 articles shipped, GitHub Pages, npm publishing via OIDC Trusted Publisher | ✅ **Shipped** |
-| v2.0.0 | [Foundation](https://github.com/fworks-tech/agenthood/milestone/3) — TypeScript runtime: ILLMProvider, LLMRouter, ReActLoop, BaseAgent, GroqProvider, SkillRegistry | 📋 Planned |
-| v2.1.0 | [Intelligence](https://github.com/fworks-tech/agenthood/milestone/7) — 5-tier memory, LanceDB vector store, Tree-sitter indexing, AgenticRAG, SocietyIndexer | 📋 Planned |
-| v2.2.0 | [The Full Society](https://github.com/fworks-tech/agenthood/milestone/8) — OracleAgent, DiffImpactAnalyzer, SkillRegistry.discover(), IProtocol | 📋 Planned |
-| v2.3.0 | [Workflows](https://github.com/fworks-tech/agenthood/milestone/9) — WorkflowEngine, IProtocol, GoalChain, WorkflowCheckpoint | 📋 Planned |
-| v2.4.0 | [Evals & Observability](https://github.com/fworks-tech/agenthood/milestone/10) — EvalRunner, EpisodeLearner, Tracer, TokenCounter | 📋 Planned |
-| v3.0.0 | [Platform](https://github.com/fworks-tech/agenthood/milestone/11) — Express API, auth, rate limiting, per-project namespacing | 📋 Planned |
-| v4.0.0 | [Multimodal](https://github.com/fworks-tech/agenthood/milestone/13) — Image, audio, video, TTS/ASR | 🔭 Future scope |
+| v1.0.0 | [Operationally Ready](https://github.com/fworks-tech/agenthood/milestone/1) — consistent APIs, test harness, health checks | ✅ Shipped |
+| v1.1.0 | VS Code modernization, Python runtime bootstrap | ✅ Shipped |
+| v1.2.0 | VS Code workspace observer event bus | ✅ Shipped |
+| v1.4.0 | [The Living Editor](https://github.com/fworks-tech/agenthood/milestone/4) — Doorman SCM validation, Auditor on-save scanning, Reviewer Diagnostics | ✅ Shipped |
+| v1.5.0 | [Open Standard](https://github.com/fworks-tech/agenthood/milestone/6) — SKILL.md migration for all 14 members | ✅ Shipped |
+| v1.6.x | [The Academy](https://github.com/fworks-tech/agenthood/milestone/12) — Level 1 articles, GitHub Pages, npm via OIDC | ✅ Shipped |
+| v2.0.0 | [Foundation](https://github.com/fworks-tech/agenthood/milestone/3) — TypeScript runtime: ILLMProvider, LLMRouter, ReActLoop, BaseAgent | 📋 Planned |
+| v2.1.0 | [Intelligence](https://github.com/fworks-tech/agenthood/milestone/7) — 5-tier memory, LanceDB, AgenticRAG, Tree-sitter | 📋 Planned |
+| v2.2.0 | [The Full Society](https://github.com/fworks-tech/agenthood/milestone/8) — OracleAgent, DiffImpactAnalyzer, IProtocol | 📋 Planned |
 
 ---
 
 ## Architecture
 
-The Society runs on five core principles adapted from production AI agent systems.
-Read the [architecture docs](architecture/README.md) to understand how members coordinate,
-prioritize, fail over, and stay safe.
+The framework runs on five core principles adapted from production AI agent systems. Read the [architecture docs](architecture/README.md) to understand how agents coordinate, prioritize, fail over, and stay safe.
 
 | Principle | Document |
 |-----------|---------|
-| Multi-agent orchestration & member roles | [agent-system.md](architecture/agent-system.md) |
+| Multi-agent orchestration & agent roles | [agent-system.md](architecture/agent-system.md) |
 | Priority queues & concurrency slots | [concurrency-and-queues.md](architecture/concurrency-and-queues.md) |
 | Agent mode vs Ask mode | [operating-modes.md](architecture/operating-modes.md) |
 | Multi-LLM support & automatic failover | [provider-failover.md](architecture/provider-failover.md) |
 | Tool registry, scoping & safety caps | [built-in-tools.md](architecture/built-in-tools.md) |
 
-The Society's own architectural decisions are documented as ADRs in [`docs/adr/`](docs/adr/):
+Architecture Decision Records in [`docs/adr/`](docs/adr/):
 
 | ADR | Decision |
 |-----|---------|
 | [ADR-001](docs/adr/ADR-001-markdown-skills-over-code-agents.md) | Markdown-based skills over code-based agents |
 | [ADR-002](docs/adr/ADR-002-conventional-commits-standard.md) | Conventional Commits as the commit standard |
 | [ADR-003](docs/adr/ADR-003-dual-enforcement-hooks-and-commitlint.md) | Dual enforcement via bash hooks and commitlint |
-| [ADR-004](docs/adr/ADR-004-specialized-members-over-general-agent.md) | 14 specialized members over a general-purpose agent |
-| [ADR-005](docs/adr/ADR-005-orchestrator-pattern.md) | Orchestrator pattern over peer-to-peer member communication |
-| [ADR-006](docs/adr/ADR-006-python-runtime-as-additive-layer.md) | Python runtime as a purely additive layer *(superseded by ADR-008)* |
-| [ADR-007](docs/adr/ADR-007-deepagents-as-execution-engine.md) | DeepAgents + LangGraph as the execution engine *(superseded by ADR-008)* |
+| [ADR-004](docs/adr/ADR-004-specialized-members-over-general-agent.md) | 14 specialized agents over a general-purpose agent |
+| [ADR-005](docs/adr/ADR-005-orchestrator-pattern.md) | Orchestrator pattern over peer-to-peer agent communication |
 | [ADR-008](docs/adr/ADR-008-typescript-runtime-over-python.md) | TypeScript-native runtime over Python + DeepAgents |
 | [ADR-009](docs/adr/ADR-009-groq-as-default-llm-provider.md) | Groq as the default free LLM provider |
 | [ADR-010](docs/adr/ADR-010-lancedb-for-vector-storage.md) | LanceDB for vector storage |
@@ -123,7 +114,7 @@ The Society's own architectural decisions are documented as ADRs in [`docs/adr/`
 
 ## Compatibility
 
-The Agenthood is agent-agnostic. Members work with:
+Agenthood is agent-agnostic. Agents work with:
 
 - [Claude Code](https://claude.ai/code) — via `.claude/skills/`
 - [GitHub Copilot](https://copilot.github.com) — via `.github/agents/`
@@ -131,56 +122,11 @@ The Agenthood is agent-agnostic. Members work with:
 - [OpenAI Codex CLI](https://github.com/openai/codex) — via `AGENTS.md` + skills
 - [CodeBuddy](https://github.com/olasunkanmi-SE/codebuddy) — via `.codebuddy/skills/`
 
-The TypeScript runtime (`agenthood run`) works alongside any of these — it calls members as real LLM agents independently of which IDE you use.
+The TypeScript runtime (`agenthood run`) works alongside any of these — it calls agents as real LLM agents independently of which IDE you use.
 
 ---
 
-## Getting Started
-
-### Option A — Prompt-driven (any AI runtime)
-
-Install the Society's conventions and skill files into your project. Members are loaded as context by your existing AI assistant.
-
-```bash
-# 1. Install the Society into your project
-npm install --save-dev agenthood
-
-# 2. Run the initiation ceremony (interactive — ~5 minutes)
-npx agenthood init
-
-# 3. Verify everything is in place
-npx agenthood check
-
-# 4. Read the oath. Mean it.
-npx agenthood oath
-```
-
-### Option B — Autonomous runtime (agenthood run)
-
-Execute members as real LLM agents that reason, act, and remember across sessions. Powered by the TypeScript runtime with Groq as the default free LLM provider — no Python required.
-
-```bash
-# 1. Build the runtime (once, after install)
-npm run build
-
-# 2. Set the LLM provider key in your environment (do NOT commit it)
-# Set GROQ_API_KEY in your shell profile or CI secrets (free at console.groq.com)
-# or use Ollama for fully offline execution — no key required
-
-# 3. List available members
-agenthood list
-
-# 4. Invoke a member against a task (streams output)
-agenthood run the-scribe "write a commit message for the current diff"
-agenthood run the-reviewer "review the changes in the last commit"
-agenthood run the-architect "plan the implementation for issue #42"
-```
-
-Both options coexist — use Option A for interactive sessions and Option B for automation, CI, and ritual scheduling.
-
----
-
-## For the agenthood repo itself
+## For this repo
 
 ```bash
 npm install && npm run build
@@ -192,20 +138,20 @@ npm run lint        # ESLint
 
 ---
 
-## Repository Structure
+## Repository structure
 
 ```
 agenthood/
 ├── README.md                        ← You are here
-├── AGENTS.md                        ← Member registry (agent-agnostic)
-├── oath.md                          ← The Oath
+├── AGENTS.md                        ← Agent registry (agent-agnostic)
+├── oath.md                          ← The oath
 │
-├── conventions/                     ← Layer 1: The Rules
+├── conventions/                     ← Rules every agent follows
 │   ├── .gitmessage
 │   ├── commitlint.config.cjs
 │   └── COMMIT_CONVENTION.md
 │
-├── members/                         ← Layer 2: The Skills
+├── members/                         ← 14 agent skill files
 │   ├── the-scribe/
 │   ├── the-architect/
 │   ├── the-reviewer/
@@ -221,20 +167,20 @@ agenthood/
 │   ├── the-warden/
 │   └── the-steward/
 │
-├── rituals/                         ← Layer 3: Scheduled Automations
+├── rituals/                         ← Scheduled automations
 │   ├── morning-briefing.md
 │   ├── the-inspection.md
 │   ├── the-watchman.md
 │   └── evening-report.md
 │
-├── portals/                         ← Layer 4: External System Connectors
+├── portals/                         ← External system connectors
 │   ├── github.md
 │   ├── linear.md
 │   ├── jira.md
 │   ├── slack.md
 │   └── sentry.md
 │
-├── agentic-workflows/               ← Layer 5: Multi-Step Workflow Templates
+├── agentic-workflows/               ← Multi-step workflow templates
 │   ├── README.md
 │   ├── triage-issues.agent.md
 │   ├── review-pr.agent.md
@@ -250,64 +196,60 @@ agenthood/
 │
 ├── docs/adr/                        ← Architecture Decision Records (ADR-001–ADR-010)
 │
-├── runtime/                         ← Layer 7 (archived): Python runtime — superseded by TypeScript
-│
-├── src/                             ← Node.js CLI + TypeScript runtime (npx agenthood)
+├── src/                             ← Node.js CLI + TypeScript runtime
 │   ├── cli.ts                       ← Entry point
 │   ├── commands/                    ← CLI commands (init, check, run, list, …)
-│   ├── agents/                      ← BaseAgent + 4 specialized Members
+│   ├── agents/                      ← BaseAgent + 4 specialized agents
 │   ├── llm/                         ← ILLMProvider, LLMRouter, 4 providers
-│   ├── skills/                      ← ISkill, SkillRegistry, skill implementations
+│   ├── skills/                      ← ISkill, SkillRegistry
 │   ├── memory/                      ← ShortTerm, LongTerm, Episodic, Project, Residual
-│   ├── rag/                         ← Embedder, Retriever, Indexer, ChunkStrategy, AgenticRAG
+│   ├── rag/                         ← Embedder, Retriever, Indexer, AgenticRAG
 │   ├── reasoning/                   ← ReActLoop, ThinkingBudget, ChainOfThought
-│   ├── prompts/                     ← PromptBuilder, templates/
-│   ├── workflows/                   ← WorkflowEngine, step types, GoalChain
-│   ├── evals/                       ← EvalRunner, 4 quality metrics, EpisodeLearner
-│   └── observability/               ← Tracer, TokenCounter, CostEstimator, EventBus
+│   ├── workflows/                   ← WorkflowEngine, GoalChain
+│   ├── evals/                       ← EvalRunner, EpisodeLearner
+│   └── observability/               ← Tracer, TokenCounter, EventBus
 │
-├── .github/workflows/               ← Layer 6: CI Enforcement
-│   ├── auto-assign.yml              ← Assigns fworks-tech to all new issues and PRs
+├── .github/workflows/               ← CI enforcement
+│   ├── auto-assign.yml              ← Assigns owner to all new issues and PRs
 │   ├── auditor.yml                  ← Secret scanning on push
 │   ├── commitlint.yml               ← Validates commit messages on PRs
-│   ├── docs.yml                     ← Deploys Academy to GitHub Pages on push to main
+│   ├── docs.yml                     ← Deploys Academy to GitHub Pages
 │   ├── labeler.yml                  ← Labels PRs by changed file paths
 │   ├── librarian.yml                ← Checks docs stay in sync with code
 │   ├── semantic-release.yml         ← Automated release + npm publish via OIDC
-│   ├── sentinel.yml                 ← Society integrity checks
+│   ├── sentinel.yml                 ← Agent integrity checks
 │   ├── tester.yml                   ← Runs the full test suite
 │   ├── vscode-extension.yml         ← Builds the VS Code extension
 │   └── warden.yml                   ← File size and code health checks
 │
 ├── .githooks/                       ← Local git hook enforcement
-│   ├── commit-msg                   ← Doorman: validates commit message format
-│   ├── pre-commit                   ← Auditor: blocks main commits, scans secrets
-│   ├── pre-push                     ← Doorman: enforces ticket-first branch naming
-│   └── prepare-commit-msg           ← Scribe: injects commit message template
+│   ├── commit-msg                   ← Validates commit message format
+│   ├── pre-commit                   ← Blocks main commits, scans secrets
+│   ├── pre-push                     ← Enforces ticket-first branch naming
+│   └── prepare-commit-msg           ← Injects commit message template
 │
-└── vscode-extension/                ← VS Code extension (v1.4.0 — The Living Editor)
+└── vscode-extension/                ← VS Code extension
     ├── src/
     │   ├── doormanService.ts        ← Real-time SCM input validation
     │   ├── auditorService.ts        ← On-save secret and dep scanning
-    │   ├── reviewerService.ts       ← [blocking]/[suggestion] Diagnostics
+    │   ├── reviewerService.ts       ← [blocking]/[suggestion] diagnostics
     │   ├── librarianService.ts      ← Stale documentation nudge
-    │   └── memberWatchProvider.ts   ← 14-member live sidebar TreeView
+    │   └── memberWatchProvider.ts   ← 14-agent live sidebar TreeView
     └── package.json
 ```
 
 ---
 
-## Inspiration & References
+## References
 
 - [Conventional Commits](https://www.conventionalcommits.org/)
 - [addyosmani/agent-skills](https://github.com/addyosmani/agent-skills)
 - [groq-sdk](https://github.com/groq/groq-typescript) — default free LLM provider
 - [LanceDB](https://lancedb.github.io/lancedb/) — TypeScript-native vector storage
-- [CodeBuddy](https://github.com/olasunkanmi-SE/codebuddy)
 - [semantic-release](https://github.com/semantic-release/semantic-release)
 - [commitlint](https://commitlint.js.org/)
 
 ---
 
-*The Society is open to all who take the oath seriously.*
-*Membership is free. Standards are not.*
+*Open source. No sign-up. Works with any agent runtime.*
+*Your project deserves a full team.*

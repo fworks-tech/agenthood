@@ -41,9 +41,34 @@ jobs:
               FAILED=1
             fi
 
-            SKILL_FILE="${MEMBER_DIR}${NAME}.md"
+            INTERNAL_FILE="${MEMBER_DIR}${NAME}.md"
+            if [ ! -f "$INTERNAL_FILE" ]; then
+              echo "FAIL [$NAME]: missing internal skill file $INTERNAL_FILE"
+              FAILED=1
+            else
+              FM=$(awk '/^---/{count++; if(count==2) exit} count==1' "$INTERNAL_FILE")
+
+              if ! echo "$FM" | grep -q "^name:"; then
+                echo "FAIL [$NAME]: internal skill file missing 'name:' in frontmatter"
+                FAILED=1
+              fi
+
+              if ! echo "$FM" | grep -q "^description:"; then
+                echo "FAIL [$NAME]: internal skill file missing 'description:' in frontmatter"
+                FAILED=1
+              fi
+
+              for SECTION in "## Overview" "## When to Use" "## Process" "## Red Flags" "## Rationalizations" "## Verification"; do
+                if ! grep -qF "$SECTION" "$INTERNAL_FILE"; then
+                  echo "FAIL [$NAME]: internal skill file missing section '$SECTION'"
+                  FAILED=1
+                fi
+              done
+            fi
+
+            SKILL_FILE="${MEMBER_DIR}SKILL.md"
             if [ ! -f "$SKILL_FILE" ]; then
-              echo "FAIL [$NAME]: missing skill file $SKILL_FILE"
+              echo "FAIL [$NAME]: missing adopter-facing skill file $SKILL_FILE"
               FAILED=1
               continue
             fi
@@ -51,18 +76,18 @@ jobs:
             FM=$(awk '/^---/{count++; if(count==2) exit} count==1' "$SKILL_FILE")
 
             if ! echo "$FM" | grep -q "^name:"; then
-              echo "FAIL [$NAME]: skill file missing 'name:' in frontmatter"
+              echo "FAIL [$NAME]: SKILL.md missing 'name:' in frontmatter"
               FAILED=1
             fi
 
             if ! echo "$FM" | grep -q "^description:"; then
-              echo "FAIL [$NAME]: skill file missing 'description:' in frontmatter"
+              echo "FAIL [$NAME]: SKILL.md missing 'description:' in frontmatter"
               FAILED=1
             fi
 
             for SECTION in "## Overview" "## When to Use" "## Process" "## Red Flags" "## Rationalizations" "## Verification"; do
               if ! grep -qF "$SECTION" "$SKILL_FILE"; then
-                echo "FAIL [$NAME]: missing section '$SECTION' in skill file"
+                echo "FAIL [$NAME]: SKILL.md missing section '$SECTION'"
                 FAILED=1
               fi
             done

@@ -1,3 +1,10 @@
+# [1.7.0](https://github.com/fworks-tech/agenthood/compare/v1.6.7...v1.7.0) (2026-06-17)
+
+
+### Features
+
+* **npm:** improve package visibility with better keywords and badges ([3db3493](https://github.com/fworks-tech/agenthood/commit/3db349373a901c0e3d4a0052200afde5a3c80137))
+
 ## [1.6.7](https://github.com/fworks-tech/agenthood/compare/v1.6.6...v1.6.7) (2026-06-17)
 
 

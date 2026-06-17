@@ -1,6 +1,6 @@
 {
   "name": "agenthood",
-  "version": "1.6.7",
+  "version": "1.7.0",
   "description": "14 specialized AI agents for code quality, commit standards, and PR review automation. TypeScript framework, VS Code extension, Groq/Anthropic providers, autonomous runtime.",
   "keywords": [
     "ai-agents",

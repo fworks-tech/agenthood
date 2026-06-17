@@ -84,4 +84,4 @@ const p = new PromptBuilder().setInstruction('Do not hallucinate.').build();
 - Well-engineered prompts ensure parseable, deterministic outputs
 - Building prompts programmatically prevents context degradation
 
-**→** [Read the full article + implementation walkthrough →](https://fworks-tech.github.io/agenthood/academy/level-1-genai-rag-basics/03-prompt-engineering/)
+**→** [Read the full article + implementation walkthrough →](https://agenthood.flabs.tech/academy/level-1-genai-rag-basics/03-prompt-engineering/)

@@ -50,4 +50,4 @@ _This article is coming in v1.6.0. See [issue #122](https://github.com/fworks-te
 - Smart retrieval routing (vector vs graph vs skip) matches the tool to the question
 - Agenthood's `AgenticRAG` attaches provenance to every answer — you know exactly what was used
 
-**→** [Read the full article →](https://fworks-tech.github.io/agenthood/academy/level-2-agent-essentials/09-agentic-rag/)
+**→** [Read the full article →](https://agenthood.flabs.tech/academy/level-2-agent-essentials/09-agentic-rag/)

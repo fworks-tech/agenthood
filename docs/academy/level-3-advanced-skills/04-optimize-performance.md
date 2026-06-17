@@ -51,4 +51,4 @@ _This article is coming in v1.6.0. See [issue #123](https://github.com/fworks-te
 - Provider failover means a provider outage becomes a blip, not an incident
 - `CostEstimator` makes costs visible before they surprise you on the invoice
 
-**→** [Read the full article →](https://fworks-tech.github.io/agenthood/academy/level-3-advanced-skills/04-optimize-performance/)
+**→** [Read the full article →](https://agenthood.flabs.tech/academy/level-3-advanced-skills/04-optimize-performance/)

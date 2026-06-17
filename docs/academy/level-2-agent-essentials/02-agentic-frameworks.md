@@ -51,4 +51,4 @@ _This article is coming in v1.6.0. See [issue #122](https://github.com/fworks-te
 - TypeScript-native means the type system catches agent contract violations at compile time
 - Agenthood builds the runtime it needs — no upstream dependency waiting to break you
 
-**→** [Read the full article →](https://fworks-tech.github.io/agenthood/academy/level-2-agent-essentials/02-agentic-frameworks/)
+**→** [Read the full article →](https://agenthood.flabs.tech/academy/level-2-agent-essentials/02-agentic-frameworks/)

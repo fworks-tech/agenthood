@@ -83,4 +83,4 @@ const strictRequest: LLMRequest = {
 - Low temperature creative agents sound like robots
 - Explicit parameter configuration prevents formatting errors in JSON outputs
 
-**→** [Read the full article + implementation walkthrough →](https://fworks-tech.github.io/agenthood/academy/level-1-genai-rag-basics/04-llm-parameters/)
+**→** [Read the full article + implementation walkthrough →](https://agenthood.flabs.tech/academy/level-1-genai-rag-basics/04-llm-parameters/)

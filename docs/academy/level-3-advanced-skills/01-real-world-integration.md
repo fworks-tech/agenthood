@@ -51,4 +51,4 @@ _This article is coming in v1.6.0. See [issue #123](https://github.com/fworks-te
 - Portals are auditable — every external action is logged before it executes
 - The Society ships work; the Portals layer is how it delivers it
 
-**→** [Read the full article →](https://fworks-tech.github.io/agenthood/academy/level-3-advanced-skills/01-real-world-integration/)
+**→** [Read the full article →](https://agenthood.flabs.tech/academy/level-3-advanced-skills/01-real-world-integration/)

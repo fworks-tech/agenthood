@@ -51,4 +51,4 @@ _This article is coming in v1.6.0. See [issue #122](https://github.com/fworks-te
 - Chain-of-thought doubles token cost; tree-of-thought multiplies it — you choose based on the task
 - Agenthood's `ReActLoop` makes the reasoning explicit and observable — you see exactly where it went wrong
 
-**→** [Read the full article →](https://fworks-tech.github.io/agenthood/academy/level-2-agent-essentials/07-multi-step-reasoning/)
+**→** [Read the full article →](https://agenthood.flabs.tech/academy/level-2-agent-essentials/07-multi-step-reasoning/)

@@ -53,4 +53,4 @@ Links to the [v3.0.0 milestone](https://github.com/fworks-tech/agenthood/milesto
 - Rate limiting protects your LLM budget and your users from runaway loops
 - Agenthood's v3.0.0 API layer is the production scaffold you do not have to build yourself
 
-**→** [Read the full article →](https://fworks-tech.github.io/agenthood/academy/level-3-advanced-skills/05-deploy-to-production/)
+**→** [Read the full article →](https://agenthood.flabs.tech/academy/level-3-advanced-skills/05-deploy-to-production/)

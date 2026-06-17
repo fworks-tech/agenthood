@@ -78,4 +78,4 @@ const agent = new Agent(provider);
 - Abstractions allow seamless fallback if an API goes down
 - You can route simple tasks to cheap models and complex tasks to expensive ones
 
-**→** [Read the full article + implementation walkthrough →](https://fworks-tech.github.io/agenthood/academy/level-1-genai-rag-basics/08-api-wrappers/)
+**→** [Read the full article + implementation walkthrough →](https://agenthood.flabs.tech/academy/level-1-genai-rag-basics/08-api-wrappers/)

@@ -43,5 +43,5 @@ to any specialist.
 ## References
 
 - [members/README.md](../../members/README.md) — full member registry
-- [members/the-steward/the-steward.md](../../members/the-steward/the-steward.md) — routing member
+- [members/the-steward/SKILL.md](../../members/the-steward/SKILL.md) — routing member
 - [architecture/agent-system.md](../../architecture/agent-system.md) — system design

@@ -23,7 +23,7 @@ The v2 agentic runtime is built entirely in TypeScript, living in `src/agents/`,
 `src/llm/`, and `src/memory/` within the existing Node.js package. No separate Python
 package is introduced or maintained.
 
-The 14 `members/the-*/SKILL.md` and `members/the-*/the-*.md` files remain unchanged —
+The 14 `members/the-*/SKILL.md` files remain unchanged —
 they are runtime-agnostic by design (ADR-001) and require no migration.
 
 ## Alternatives Considered

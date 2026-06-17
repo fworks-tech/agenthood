@@ -44,5 +44,5 @@ commit history. The Doorman enforces subject rules but does not require scopes.
 
 - [conventions/commitlint.config.cjs](../../conventions/commitlint.config.cjs) — enforcement rules
 - [conventions/COMMIT_CONVENTION.md](../../conventions/COMMIT_CONVENTION.md) — human-readable guide
-- [members/the-doorman/the-doorman.md](../../members/the-doorman/the-doorman.md) — enforcement member
-- [members/the-scribe/the-scribe.md](../../members/the-scribe/the-scribe.md) — commit message author
+- [members/the-doorman/SKILL.md](../../members/the-doorman/SKILL.md) — enforcement member
+- [members/the-scribe/SKILL.md](../../members/the-scribe/SKILL.md) — commit message author

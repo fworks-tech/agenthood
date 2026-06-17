@@ -79,4 +79,4 @@ Systematically checks for the ten most critical web security risks:
 
 ## Skill File
 
-→ [`the-auditor.md`](the-auditor.md) — load this into your agent runtime
+→ [`SKILL.md`](SKILL.md) — load this into your agent runtime

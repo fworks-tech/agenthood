@@ -46,7 +46,7 @@ The orchestrator described here will be implemented as a LangGraph `StateGraph` 
 `runtime/agenthood_runtime/orchestrator/graph.py`. Key components:
 
 - `OrchestratorState` — TypedDict holding task, active members, member outputs, approval state
-- `StewardRouter` — deterministic routing table derived from `the-steward.md`; LLM-assisted for ambiguous tasks
+- `StewardRouter` — deterministic routing table derived from `the-steward/SKILL.md`; LLM-assisted for ambiguous tasks
 - `build_orchestrator_graph()` — nodes: `classify_task → route_members → execute_member → check_approval → advance_member`
 
 `MemorySaver` checkpointing enables resumable multi-step workflows via `--thread-id`.
@@ -54,7 +54,7 @@ The orchestrator described here will be implemented as a LangGraph `StateGraph` 
 
 ## References
 
-- [members/the-steward/the-steward.md](../../members/the-steward/the-steward.md) — routing guidance
+- [members/the-steward/SKILL.md](../../members/the-steward/SKILL.md) — routing guidance
 - [agentic-workflows/](../../agentic-workflows/) — multi-step workflow templates
 - [architecture/agent-system.md](../../architecture/agent-system.md) — system design
 - [architecture/concurrency-and-queues.md](../../architecture/concurrency-and-queues.md) — queue design

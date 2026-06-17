@@ -72,4 +72,4 @@ The Scribe enforces the following and will refuse to produce output that violate
 
 ## Skill File
 
-→ [`the-scribe.md`](the-scribe.md) — load this into your agent runtime
+→ [`SKILL.md`](SKILL.md) — load this into your agent runtime

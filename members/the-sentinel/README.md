@@ -67,4 +67,4 @@ conventions.
 
 ## Skill File
 
-→ [`the-sentinel.md`](the-sentinel.md) — load this into your agent runtime
+→ [`SKILL.md`](SKILL.md) — load this into your agent runtime

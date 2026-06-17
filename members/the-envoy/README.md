@@ -93,4 +93,4 @@ formats, and which are pending or partially supported.
 
 ## Skill File
 
-→ [`the-envoy.md`](the-envoy.md) — load this into your agent runtime
+→ [`SKILL.md`](SKILL.md) — load this into your agent runtime

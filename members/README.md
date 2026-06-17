@@ -25,16 +25,15 @@ Each has a skill file that your agent runtime loads to activate them.
 
 ---
 
-## Two Files Per Member: SKILL.md vs `<member-name>.md`
+## One Canonical Skill File Per Member
 
-Each member directory contains two skill files that serve different audiences:
+Each member directory contains a single canonical skill file:
 
 | File | Audience | Contents |
 |------|----------|----------|
-| `SKILL.md` | **Adopter projects** — installed via `npx agenthood activate <member>` | Generic and org-neutral. Uses placeholders like "repository owner" and `{owner}/{repo}`. Includes `license: MIT` in frontmatter. This is what ships to the world. The canonical file linked from this README. |
-| `<member-name>.md` | **The Society itself** (`fworks-tech/agenthood`) | Hardcoded to this repo: `fworks-tech`, specific label names, milestone format, and project board. No `license` field — it's internal. |
+| `SKILL.md` | **Everyone** — the Society itself and adopter projects via `npx agenthood activate <member>` | Project-independent. Uses placeholders like "repository owner" and `{owner}/{repo}`. Includes `license: MIT` in frontmatter. The CLI copies this file into adopter projects (renamed to `<member>.md` at the destination, preserving the installed filename existing adopters already have). |
 
-When a member's behaviour changes, **both files must be updated in parallel** — same structure, different specifics. `SKILL.md` is the source of truth for adopters; `<member-name>.md` is the Society's own live instance.
+When a member's behaviour changes, **only `SKILL.md` needs to be updated** — there is no longer a parallel internal file to keep in sync. Project-specific configuration (GitHub org, label names, milestones) belongs in `.agenthood/config.json`, `AGENTS.md`, or `.github/labeler.yml` — not hardcoded in the skill.
 
 ---
 

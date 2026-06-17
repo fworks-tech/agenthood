@@ -52,7 +52,7 @@ See [ADR-006](ADR-006-python-runtime-as-additive-layer.md) and
 
 ## References
 
-- [members/the-envoy/the-envoy.md](../../members/the-envoy/the-envoy.md) — cross-provider translation layer
+- [members/the-envoy/SKILL.md](../../members/the-envoy/SKILL.md) — cross-provider translation layer
 - [architecture/agent-system.md](../../architecture/agent-system.md) — agent system design
 - [ADR-006](ADR-006-python-runtime-as-additive-layer.md) — Python runtime as additive layer
 - [ADR-007](ADR-007-deepagents-as-execution-engine.md) — DeepAgents as execution engine

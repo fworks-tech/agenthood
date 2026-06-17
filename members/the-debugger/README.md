@@ -78,4 +78,4 @@ After every bug fix:
 
 ## Skill File
 
-→ [`the-debugger.md`](the-debugger.md) — load this into your agent runtime
+→ [`SKILL.md`](SKILL.md) — load this into your agent runtime

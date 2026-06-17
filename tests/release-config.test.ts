@@ -24,8 +24,9 @@ describe('semantic release configuration', () => {
 
   it('uses OIDC trusted publisher for npm publish', () => {
     const workflow = readFileSync('.github/workflows/semantic-release.yml', 'utf8')
-    expect(workflow).toContain('registry-url: https://registry.npmjs.org/')
     expect(workflow).toContain('id-token: write')
+    expect(workflow).toContain('provenance=true')
     expect(workflow).not.toContain('NODE_AUTH_TOKEN')
+    expect(workflow).not.toContain('NPM_TOKEN')
   })
 })

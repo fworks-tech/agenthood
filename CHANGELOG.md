@@ -1,3 +1,11 @@
+## [1.6.7](https://github.com/fworks-tech/agenthood/compare/v1.6.6...v1.6.7) (2026-06-17)
+
+
+### Bug Fixes
+
+* **ci:** remove registry-url and upgrade to Node 22 for npm OIDC ([553473a](https://github.com/fworks-tech/agenthood/commit/553473a5b1a0910c99c21fdde47b8c09695bfdff))
+* **ci:** switch to OIDC trusted publisher for npm publishing ([2e9c9f0](https://github.com/fworks-tech/agenthood/commit/2e9c9f0936bdaeced41b150cc09b56a3dc75503b))
+
 ## [1.6.6](https://github.com/fworks-tech/agenthood/compare/v1.6.5...v1.6.6) (2026-06-15)
 
 

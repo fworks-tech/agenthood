@@ -77,7 +77,7 @@ Layers 1–6 are prompt-driven: skills are loaded as context into your existing 
 | v1.2.0 | VS Code workspace observer event bus | ✅ **Shipped** |
 | **v1.4.0** | [The Living Editor](https://github.com/fworks-tech/agenthood/milestone/4) — Doorman SCM validation, Auditor on-save scanning, Reviewer Diagnostics, Librarian nudge, Members Watch Panel | ✅ **Shipped** |
 | **v1.5.0** | [Open Standard](https://github.com/fworks-tech/agenthood/milestone/6) — SKILL.md migration for all 14 members | ✅ **Shipped** |
-| **v1.6.x** | [The Academy](https://github.com/fworks-tech/agenthood/milestone/12) — Level 1 articles shipped, GitHub Pages, npm publishing pipeline | 🔄 In progress |
+| **v1.6.x** | [The Academy](https://github.com/fworks-tech/agenthood/milestone/12) — Level 1 articles shipped, GitHub Pages, npm publishing via OIDC Trusted Publisher | ✅ **Shipped** |
 | v2.0.0 | [Foundation](https://github.com/fworks-tech/agenthood/milestone/3) — TypeScript runtime: ILLMProvider, LLMRouter, ReActLoop, BaseAgent, GroqProvider, SkillRegistry | 📋 Planned |
 | v2.1.0 | [Intelligence](https://github.com/fworks-tech/agenthood/milestone/7) — 5-tier memory, LanceDB vector store, Tree-sitter indexing, AgenticRAG, SocietyIndexer | 📋 Planned |
 | v2.2.0 | [The Full Society](https://github.com/fworks-tech/agenthood/milestone/8) — OracleAgent, DiffImpactAnalyzer, SkillRegistry.discover(), IProtocol | 📋 Planned |
@@ -271,8 +271,7 @@ agenthood/
 │   ├── docs.yml                     ← Deploys Academy to GitHub Pages on push to main
 │   ├── labeler.yml                  ← Labels PRs by changed file paths
 │   ├── librarian.yml                ← Checks docs stay in sync with code
-│   ├── npm-publish.yml              ← Publishes package to npm on release creation
-│   ├── semantic-release.yml         ← Automated release workflow
+│   ├── semantic-release.yml         ← Automated release + npm publish via OIDC
 │   ├── sentinel.yml                 ← Society integrity checks
 │   ├── tester.yml                   ← Runs the full test suite
 │   ├── vscode-extension.yml         ← Builds the VS Code extension

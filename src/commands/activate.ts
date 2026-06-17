@@ -31,7 +31,7 @@ export async function activate(member?: string): Promise<void> {
   const destDir = join(skillsDest, member);
   await mkdir(destDir, { recursive: true });
 
-  const src = join(SOCIETY_ROOT, 'members', member, `${member}.md`);
+  const src = join(SOCIETY_ROOT, 'members', member, 'SKILL.md');
   const dest = join(destDir, `${member}.md`);
 
   await copyFile(src, dest);

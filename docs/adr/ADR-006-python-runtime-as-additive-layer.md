@@ -9,7 +9,7 @@ Agenthood v1 is a prompt-driven framework: 14 Markdown skill files installed by 
 
 Making members autonomous requires an LLM execution engine, a state graph, persistent memory, and a scheduler. None of these fit naturally in a Node.js CLI whose sole purpose is file installation. A new runtime layer is needed.
 
-The core constraint: the existing `members/*.md` skill files and `src/` CLI must never be modified. Any adopter who has run `npx agenthood init` has these files. The runtime must be invisible to them unless they opt in.
+The core constraint: the existing `members/*/SKILL.md` skill files and `src/` CLI must never be modified. Any adopter who has run `npx agenthood init` has these files. The runtime must be invisible to them unless they opt in.
 
 ## Decision
 
@@ -43,7 +43,7 @@ Python is chosen over Node.js for the runtime because the AI/ML ecosystem (LangG
 - The `AGENTHOOD_ROOT` env var must be set in installed-package scenarios so `SkillsPathResolver` can locate `members/*.md`
 
 **New risks:**
-- `members/*.md` and `specs.py` can drift if a new member is added to one but not the other. Mitigation: `MemberRegistry.__init__` validates that every Markdown file has a corresponding spec at startup.
+- `members/*/SKILL.md` and `specs.py` can drift if a new member is added to one but not the other. Mitigation: `MemberRegistry.__init__` validates that every SKILL.md file has a corresponding spec at startup.
 
 ## References
 

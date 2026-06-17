@@ -86,4 +86,4 @@ When configured as a ritual:
 
 ## Skill File
 
-→ [`the-herald.md`](the-herald.md) — load this into your agent runtime
+→ [`SKILL.md`](SKILL.md) — load this into your agent runtime

@@ -33,7 +33,7 @@ def test_get_returns_spec_with_skills_path() -> None:
     spec = registry.get("the-scribe")
     assert spec["name"] == "the-scribe"
     assert len(spec.get("skills", [])) == 1
-    assert spec["skills"][0].endswith("the-scribe.md")
+    assert spec["skills"][0].endswith("SKILL.md")
 
 
 def test_get_unknown_member_raises() -> None:

@@ -44,7 +44,7 @@ Apply the naming convention:
 ```
 members/the-<name>/
 ├── README.md          ← Identity card (no frontmatter)
-└── the-<name>.md      ← Skill file (YAML frontmatter + body)
+└── SKILL.md           ← Adopter-facing skill file (YAML frontmatter + body)
 ```
 
 **Step 3 — Skill file template**
@@ -137,7 +137,7 @@ Before confirming the task is done:
 
 ## Skill File
 
-→ [\`the-<name>.md\`](the-<name>.md) — load this into your agent runtime
+→ [\`SKILL.md\`](SKILL.md) — load this into your agent runtime
 ```
 
 **Step 5 — Registration checklist**

@@ -47,27 +47,27 @@ The conventions travel. The provider is an implementation detail.
 For each member in `members/`, translate to the target provider's format:
 
 **Claude Code** (identity — no transformation):
-- Source: `members/the-<name>/the-<name>.md`
+- Source: `members/the-<name>/SKILL.md`
 - Target: `.claude/skills/the-<name>.md`
 - Format: Preserve YAML frontmatter and body exactly
 
 **CodeBuddy** (identity — same format):
-- Source: `members/the-<name>/the-<name>.md`
+- Source: `members/the-<name>/SKILL.md`
 - Target: `.codebuddy/skills/the-<name>.md`
 - Format: Preserve as-is
 
 **GitHub Copilot**:
-- Source: `members/the-<name>/the-<name>.md`
+- Source: `members/the-<name>/SKILL.md`
 - Target: `.github/agents/the-<name>.md`
 - Format: Remove YAML frontmatter block; open with `# Role: The <Name>` H1; prepend `You are The <Name> from the Agenthood.`
 
 **Cursor**:
-- Source: `members/the-<name>/the-<name>.md`
+- Source: `members/the-<name>/SKILL.md`
 - Target: `.cursor/rules/the-<name>.md`
 - Format: Remove frontmatter block; body is preserved as-is
 
 **Windsurf**:
-- Source: `members/the-<name>/the-<name>.md`
+- Source: `members/the-<name>/SKILL.md`
 - Target: `.windsurf/rules/the-<name>.md`
 - Format: Remove frontmatter block; body is preserved as-is
 

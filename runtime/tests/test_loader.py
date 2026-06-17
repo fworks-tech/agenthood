@@ -32,7 +32,7 @@ def agenthood_root() -> Path:
 def test_resolve_known_member(resolver: SkillsPathResolver) -> None:
     path = resolver.resolve("the-scribe")
     assert path.is_file()
-    assert path.name == "the-scribe.md"
+    assert path.name == "SKILL.md"
 
 
 def test_resolve_unknown_member_raises(resolver: SkillsPathResolver) -> None:

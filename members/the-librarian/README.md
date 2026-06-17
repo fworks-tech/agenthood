@@ -86,4 +86,4 @@ The Librarian follows these rules when writing:
 
 ## Skill File
 
-→ [`the-librarian.md`](the-librarian.md) — load this into your agent runtime
+→ [`SKILL.md`](SKILL.md) — load this into your agent runtime

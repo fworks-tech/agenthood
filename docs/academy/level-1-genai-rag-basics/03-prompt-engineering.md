@@ -54,7 +54,7 @@ You can view the Society's mastery of prompt engineering by reading any of the m
 
 ```bash
 # Read The Reviewer's strict prompt instructions
-cat members/the-reviewer/the-reviewer.md
+cat members/the-reviewer/SKILL.md
 ```
 
 Or programmatically (future milestone):

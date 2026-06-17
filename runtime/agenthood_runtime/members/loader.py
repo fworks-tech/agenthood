@@ -7,7 +7,7 @@ from pathlib import Path
 
 
 class SkillsPathResolver:
-    """Locates members/<name>/<name>.md relative to the Agenthood repo root.
+    """Locates members/<name>/SKILL.md relative to the Agenthood repo root.
 
     Resolution order:
     1. AGENTHOOD_ROOT env var (required in installed-package scenarios)
@@ -45,8 +45,8 @@ class SkillsPathResolver:
         return self._root
 
     def resolve(self, member_name: str) -> Path:
-        """Return the absolute path to <member_name>/<member_name>.md."""
-        path = self._root / "members" / member_name / f"{member_name}.md"
+        """Return the absolute path to <member_name>/SKILL.md."""
+        path = self._root / "members" / member_name / "SKILL.md"
         if not path.is_file():
             raise FileNotFoundError(
                 f"Skill file not found for member '{member_name}': {path}"

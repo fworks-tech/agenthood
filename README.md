@@ -6,6 +6,18 @@
 
 14 specialized AI agents — architect, reviewer, security expert, DevOps engineer, and more — each a single Markdown skill file any agent runtime can load into any project. No lock-in. No configuration. Just drop them in.
 
+They have opinions about your PR descriptions. They will not merge your branch if your commit says `fix stuff`. They are not polite about it.
+
+---
+
+## The Oath
+
+> *I commit with intention.*
+> *I branch with purpose.*
+> *I review with honesty.*
+> *I ship with confidence.*
+> *I never push to main.*
+
 ---
 
 ## How it works
@@ -14,7 +26,7 @@ Each agent is a single `.md` file that describes a role, its responsibilities, s
 
 1. **Clone the repo** — get all 14 agent skill files in one command
 2. **Load into your runtime** — point Claude Code, Cursor, or your agent framework at the skills directory
-3. **Invoke any agent** — ask the Reviewer to check your PR, ask Security to audit your auth flow. They know their role.
+3. **Invoke any agent** — ask the Reviewer to check your PR, ask Security to audit your auth flow. They know their role. They have *standards*.
 
 ---
 
@@ -252,4 +264,4 @@ agenthood/
 ---
 
 *Open source. No sign-up. Works with any agent runtime.*
-*Your project deserves a full team.*
+*Membership is free. Standards are not.*

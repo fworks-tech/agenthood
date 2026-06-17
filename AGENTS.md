@@ -57,27 +57,29 @@ Load skills from `members/` to activate specialized agents:
 - `the-warden` — code smell detection, complexity enforcement, architectural boundary violations
 - `the-steward` — context economy, member routing, provider cache strategy, session triage
 
-## Autonomous Runtime (agenthood-run)
+## Autonomous Runtime (agenthood run)
 
-Members can also be executed as real LLM agents via the Python runtime layer.
+Members can also be executed as real LLM agents via the TypeScript runtime.
 This is optional and additive — the prompt-driven workflow above continues to work unchanged.
 
 ```bash
-# Install
-pip install "agenthood-runtime @ git+https://github.com/fworks-tech/agenthood.git#subdirectory=runtime"
+# Build the runtime (once, after install)
+npm run build
 
-# Required environment variables
-# Set the Anthropic API key in your environment or CI (do NOT commit it)
-export AGENTHOOD_ROOT=/path/to/agenthood
+# Set the LLM provider key in your environment (do NOT commit it)
+# Set GROQ_API_KEY in your shell profile or CI secrets (free at console.groq.com)
+# or use Ollama for fully offline execution — no key required
 
-# Invoke any member
-agenthood-run invoke the-scribe "write a commit message for the current diff"
-agenthood-run invoke the-reviewer "review the open PR"
-agenthood-run list    # show all 14 members
+# List available members
+agenthood list
+
+# Invoke any member against a task
+agenthood run the-scribe "write a commit message for the current diff"
+agenthood run the-reviewer "review the open PR"
+agenthood run the-architect "plan the implementation for issue #42"
 ```
 
 The runtime reads `.agenthood/config.json` (written by `npx agenthood init`) and respects
-the same `members`, `permissions`, and `toolScoping` configuration. Members execute via
-DeepAgents + LangGraph with full session resumability via `--thread-id`.
-
-See [runtime/](runtime/) and [ADR-006](docs/adr/ADR-006-python-runtime-as-additive-layer.md) for details.
+the same `members`, `permissions`, and `toolScoping` configuration. The default LLM
+provider is Groq (free tier). See [ADR-008](docs/adr/ADR-008-typescript-runtime-over-python.md)
+and [ADR-009](docs/adr/ADR-009-groq-as-default-llm-provider.md) for design decisions.

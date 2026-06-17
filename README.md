@@ -30,20 +30,20 @@ Each member of the Agenthood is a specialized AI agent skill — a Markdown file
 
 | Member | Specialty | Role |
 |--------|-----------|------|
-| [The Scribe](members/the-scribe/README.md) | Commits, PRs, Changelogs | Turns your diff into prose worth reading |
-| [The Architect](members/the-architect/README.md) | Specs, Planning, ADRs | No code before the blueprint |
-| [The Reviewer](members/the-reviewer/README.md) | Code Review, Quality | Five-axis review, no mercy |
-| [The Tester](members/the-tester/README.md) | TDD, Coverage | Red. Green. Refactor. Repeat. |
-| [The Debugger](members/the-debugger/README.md) | Error Recovery, Triage | Five steps to every root cause |
-| [The Auditor](members/the-auditor/README.md) | Security, Dependencies | Reads everything. Trusts nothing. |
-| [The Herald](members/the-herald/README.md) | Releases, Versioning | Announces with ceremony, ships with precision |
-| [The Librarian](members/the-librarian/README.md) | Docs, ADRs, Knowledge | Every decision, recorded for posterity |
-| [The Doorman](members/the-doorman/README.md) | Commitlint, PR Lint, Health | Nothing gets in without proper credentials |
-| [The Oracle](members/the-oracle/README.md) | Institutional Knowledge | Ask me anything about the Society. I have read every scroll. |
-| [The Envoy](members/the-envoy/README.md) | Cross-Provider Translation | One Society. Every runtime. No exceptions. |
-| [The Sentinel](members/the-sentinel/README.md) | Society Integrity | The Society cannot enforce standards it no longer understands. |
-| [The Warden](members/the-warden/README.md) | Code Health | The chaos does not arrive all at once. I am here for the accumulation. |
-| [The Steward](members/the-steward/README.md) | Context Economy, Routing | Born from the situation it exists to prevent |
+| [The Scribe](members/the-scribe/SKILL.md) | Commits, PRs, Changelogs | N+1 commit pattern, PR "no and" test, changelog generation, Conventional Commits enforcement |
+| [The Architect](members/the-architect/SKILL.md) | Specs, Planning, ADRs | Interview mode to 95% confidence, spec-first development, task decomposition, stacked branch planning |
+| [The Reviewer](members/the-reviewer/SKILL.md) | Code Review, Quality | Five-axis review (Correctness, Readability, Architecture, Security, Performance), test-first review, change sizing |
+| [The Tester](members/the-tester/SKILL.md) | TDD, Coverage | Red-Green-Refactor cycle, test pyramid balancing, regression-first, coverage quality review |
+| [The Debugger](members/the-debugger/SKILL.md) | Error Recovery, Triage | Five-step protocol (Read → Reproduce → Hypothesize → Test → Fix), CI diagnosis, minimal reproduction |
+| [The Auditor](members/the-auditor/SKILL.md) | Security, Dependencies | OWASP Top 10 review, 6-point dependency audit, secret scanning, permanent blocking list |
+| [The Herald](members/the-herald/SKILL.md) | Releases, Versioning | Semantic versioning from commit types, changelog translation, GitHub Releases, daily standup/EOD reports |
+| [The Librarian](members/the-librarian/SKILL.md) | Docs, ADRs, Knowledge | README framework (What/Why/How/Contribute), ADR lifecycle, API docs from code, stale doc detection |
+| [The Doorman](members/the-doorman/SKILL.md) | Validation, Health Checks | Commit/PR validation, health checks, branch protection, hook setup (POSIX + Husky) |
+| [The Oracle](members/the-oracle/SKILL.md) | Institutional Knowledge | Member authoring templates, naming validation, convention rationale, 4-file registration map |
+| [The Envoy](members/the-envoy/SKILL.md) | Cross-Provider Translation | Provider detection (7 runtimes), skill translation, convention validation, bootstrap mode |
+| [The Sentinel](members/the-sentinel/SKILL.md) | Society Integrity | Internal consistency audit, cross-member contradiction detection, lane map generation, structural drift |
+| [The Warden](members/the-warden/SKILL.md) | Code Health | Code smell thresholds (WARNING/BLOCKING), cyclomatic complexity enforcement, boundary detection, dead code audit |
+| [The Steward](members/the-steward/SKILL.md) | Context Economy, Routing | Context gauge, minimal member routing, provider cache strategies, session triage at capacity thresholds |
 
 ---
 
@@ -72,16 +72,19 @@ Layers 1–6 are prompt-driven: skills are loaded as context into your existing 
 
 | Version | Milestone | Status |
 |---------|-----------|--------|
-| **v1.4.0** | [The Living Editor](https://github.com/fworks-tech/agenthood/milestone/4) — VS Code: Doorman SCM validation, Auditor on-save scanning, Reviewer Diagnostics, Librarian nudge, Members Watch Panel | ✅ **Shipped** |
-| v1.5.0 | [Open Standard](https://github.com/fworks-tech/agenthood/milestone/6) — SKILL.md migration for all 14 members | 🔄 In progress |
-| v1.6.0 | [The Academy](https://github.com/fworks-tech/agenthood/milestone/12) — 25 educational articles, GitHub Pages, LinkedIn/blog content | 📋 Planned |
-| v2.0.0 | [Foundation](https://github.com/fworks-tech/agenthood/milestone/3) — TypeScript runtime: ILLMProvider, ReActLoop, BaseAgent, GroqProvider, SkillRegistry | 📋 Planned |
-| v2.1.0 | [Memory & RAG](https://github.com/fworks-tech/agenthood/milestone/7) — Tiered memory, LanceDB vector store, Tree-sitter indexing, AgenticRAG, SocietyIndexer | 📋 Planned |
-| v2.2.0 | [Full Team](https://github.com/fworks-tech/agenthood/milestone/8) — QAAgent, ReviewerAgent, ArchitectAgent, OracleAgent, DiffImpactAnalyzer | 📋 Planned |
+| v1.0.0 | [Operationally Ready](https://github.com/fworks-tech/agenthood/milestone/1) — Consistent APIs, test harness, health checks | ✅ **Shipped** |
+| v1.1.0 | VS Code modernization, Python runtime bootstrap | ✅ **Shipped** |
+| v1.2.0 | VS Code workspace observer event bus | ✅ **Shipped** |
+| **v1.4.0** | [The Living Editor](https://github.com/fworks-tech/agenthood/milestone/4) — Doorman SCM validation, Auditor on-save scanning, Reviewer Diagnostics, Librarian nudge, Members Watch Panel | ✅ **Shipped** |
+| **v1.5.0** | [Open Standard](https://github.com/fworks-tech/agenthood/milestone/6) — SKILL.md migration for all 14 members | ✅ **Shipped** |
+| **v1.6.x** | [The Academy](https://github.com/fworks-tech/agenthood/milestone/12) — Level 1 articles shipped, GitHub Pages, npm publishing pipeline | 🔄 In progress |
+| v2.0.0 | [Foundation](https://github.com/fworks-tech/agenthood/milestone/3) — TypeScript runtime: ILLMProvider, LLMRouter, ReActLoop, BaseAgent, GroqProvider, SkillRegistry | 📋 Planned |
+| v2.1.0 | [Intelligence](https://github.com/fworks-tech/agenthood/milestone/7) — 5-tier memory, LanceDB vector store, Tree-sitter indexing, AgenticRAG, SocietyIndexer | 📋 Planned |
+| v2.2.0 | [The Full Society](https://github.com/fworks-tech/agenthood/milestone/8) — OracleAgent, DiffImpactAnalyzer, SkillRegistry.discover(), IProtocol | 📋 Planned |
 | v2.3.0 | [Workflows](https://github.com/fworks-tech/agenthood/milestone/9) — WorkflowEngine, IProtocol, GoalChain, WorkflowCheckpoint | 📋 Planned |
 | v2.4.0 | [Evals & Observability](https://github.com/fworks-tech/agenthood/milestone/10) — EvalRunner, EpisodeLearner, Tracer, TokenCounter | 📋 Planned |
-| v3.0.0 | [API & Multi-tenancy](https://github.com/fworks-tech/agenthood/milestone/11) — Express API, auth, rate limiting, per-project namespacing | 📋 Planned |
-| v4.0.0 | [Multimodal & Generation](https://github.com/fworks-tech/agenthood/milestone/13) — Image, audio, video, TTS/ASR | 🔭 Future scope |
+| v3.0.0 | [Platform](https://github.com/fworks-tech/agenthood/milestone/11) — Express API, auth, rate limiting, per-project namespacing | 📋 Planned |
+| v4.0.0 | [Multimodal](https://github.com/fworks-tech/agenthood/milestone/13) — Image, audio, video, TTS/ASR | 🔭 Future scope |
 
 ---
 

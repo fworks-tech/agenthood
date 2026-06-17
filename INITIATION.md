@@ -172,29 +172,28 @@ Expected output:
 ## Step 6 — Autonomous Runtime (Optional)
 
 For teams who want members to execute autonomously — reasoning, acting, and remembering
-across sessions without a human in the loop — install the Python runtime layer.
+across sessions without a human in the loop — use the TypeScript runtime.
 
-**Requirements:** Python 3.12+, `ANTHROPIC_API_KEY`
+**Requirements:** Node.js 18+, `GROQ_API_KEY` (free at console.groq.com) or Ollama (offline)
 
 ```bash
-# Install the runtime (reads from this same repo's runtime/ directory)
-pip install "agenthood-runtime @ git+https://github.com/fworks-tech/agenthood.git#subdirectory=runtime"
+# Build the runtime (once, after install)
+npm run build
 
-# Point it at the agenthood repo so it can load skill files
-export AGENTHOOD_ROOT=/path/to/agenthood
-
-# Verify all 14 members are found
-agenthood-run list
+# List all 14 members
+agenthood list
 
 # Invoke a member against a real task
-agenthood-run invoke the-scribe "write a commit message for the current diff"
+agenthood run the-scribe "write a commit message for the current diff"
+agenthood run the-architect "plan the implementation for issue #42"
+agenthood run the-reviewer "review the open PR"
 ```
 
-The runtime reads the same `.agenthood/config.json` the Node.js CLI created — no
-additional configuration required. Sessions are resumable via `--thread-id <uuid>`.
+The runtime reads the same `.agenthood/config.json` the CLI created — no
+additional configuration required.
 
 This step is entirely optional. The prompt-driven workflow from Steps 1–5 continues
-to work unchanged whether or not the runtime is installed.
+to work unchanged whether or not the runtime is built.
 
 ---
 

@@ -37,7 +37,7 @@ npx agenthood eject          # Remove Society from a project
 
 Agenthood is a **multi-agent AI framework** distributed as an npm package + VS Code extension. It installs AI agent "skills" and software quality conventions into adopting projects.
 
-### The 6-layer model
+### The 10-layer model
 
 | Layer | Directory | Purpose |
 |---|---|---|
@@ -47,6 +47,10 @@ Agenthood is a **multi-agent AI framework** distributed as an npm package + VS C
 | 4 — Portals | `portals/` | External connectors (GitHub, Linear, Jira, Slack, Sentry) |
 | 5 — Agentic Workflows | `agentic-workflows/` | Manual prompt templates (triage, review PR, diagnose CI) |
 | 6 — CI | `.github/workflows/` | GitHub Actions enforcing every layer |
+| 7 — Runtime | `src/` | TypeScript CLI + autonomous runtime (`agenthood run`) |
+| 8 — Memory & RAG | `src/memory/`, `src/rag/` | 5-tier memory, AgenticRAG, Tree-sitter, LanceDB |
+| 9 — Workflows | `src/workflows/` | Multi-member orchestration (AgentStep, ParallelStep, HumanInLoop) |
+| 10 — Evals | `src/evals/` | EvalRunner, 4 quality metrics, EpisodeLearner |
 
 ### CLI source (`src/`)
 
@@ -61,13 +65,13 @@ There are no production dependencies. The CLI uses only Node.js built-ins (`fs`,
 
 ### Members (`members/`)
 
-14 specialized agent skills, each a Markdown file (`members/<name>/<name>.md`). They are **agent-agnostic** — designed to work with Claude Code, GitHub Copilot, Gemini CLI, and others. Key members:
-- **the-scribe** — Commits, PRs, changelogs
-- **the-architect** — Specs, planning, ADRs
-- **the-reviewer** — 5-axis code review
-- **the-doorman** — Commitlint enforcement gatekeeper
-- **the-steward** — Context routing and cache economy
-- **the-envoy** — Cross-runtime translation
+14 specialized agent skills, each a Markdown file (`members/<name>/SKILL.md`). They are **agent-agnostic** — designed to work with Claude Code, GitHub Copilot, Gemini CLI, OpenAI Codex, CodeBuddy, and others. Key members:
+- **the-scribe** — N+1 commit pattern, PR "no and" test, changelog generation, Conventional Commits enforcement
+- **the-architect** — Interview mode to 95% confidence, spec-first development, task decomposition, stacked branch planning
+- **the-reviewer** — Five-axis review (Correctness, Readability, Architecture, Security, Performance), test-first review, change sizing
+- **the-doorman** — Commit/PR validation, health checks, branch protection, hook setup (POSIX + Husky)
+- **the-steward** — Context gauge, minimal member routing, provider cache strategies, session triage at capacity thresholds
+- **the-envoy** — Provider detection (7 runtimes), skill translation, convention validation, bootstrap mode
 
 ### Orchestrator pattern (ADR-005)
 
@@ -98,7 +102,7 @@ Managed by `semantic-release` (config in `.releaserc.json`). Releases cut from `
 
 - **ESM throughout** — `"type": "module"` in package.json; use `import`/`export`, not `require`
 - **Strict TypeScript** — `tsconfig.json` has strict mode; run `npm run typecheck` before committing
-- **Member directories** follow the pattern `members/the-<name>/the-<name>.md`
+- **Member directories** follow the pattern `members/the-<name>/SKILL.md`
 - **Tests mirror source** — `tests/commands/` mirrors `src/commands/`
 - **All install operations are idempotent** — safe to run `init`, `setup`, `activate` multiple times
 - **ADRs live in `docs/adr/`** — add one for significant architectural decisions

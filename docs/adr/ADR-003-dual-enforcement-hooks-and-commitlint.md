@@ -49,7 +49,7 @@ The Sentinel CI workflow guards against this.
 
 ## References
 
-- [.githooks/commit-msg](../../.githooks/commit-msg) — bash enforcement hook
-- [conventions/commitlint.config.cjs](../../conventions/commitlint.config.cjs) — Node.js enforcement config
-- [.github/workflows/sentinel.yml](../../.github/workflows/sentinel.yml) — drift detection
+- [.githooks/commit-msg](https://github.com/fworks-tech/agenthood/blob/main/.githooks/commit-msg) — bash enforcement hook
+- [conventions/commitlint.config.cjs](https://github.com/fworks-tech/agenthood/blob/main/conventions/commitlint.config.cjs) — Node.js enforcement config
+- [.github/workflows/sentinel.yml](https://github.com/fworks-tech/agenthood/blob/main/.github/workflows/sentinel.yml) — drift detection
 - [ADR-002](ADR-002-conventional-commits-standard.md) — why Conventional Commits

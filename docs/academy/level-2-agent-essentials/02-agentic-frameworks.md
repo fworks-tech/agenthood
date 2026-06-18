@@ -64,8 +64,8 @@ The Society member produces a Conventional Commit message with no hidden prompt 
 
 ## Further reading
 
-- [ADR-008 — TypeScript-native runtime over Python](../../docs/adr/ADR-008-typescript-runtime-over-python.md) — the decision and its alternatives
-- [ADR-007 — DeepAgents superseded](../../docs/adr/ADR-007-deepagents-as-execution-engine.md) — the execution engine that was eliminated
+- [ADR-008 — TypeScript-native runtime over Python](../../adr/ADR-008-typescript-runtime-over-python.md) — the decision and its alternatives
+- [ADR-007 — DeepAgents superseded](../../adr/ADR-007-deepagents-as-execution-engine.md) — the execution engine that was eliminated
 - [LangChain concepts](https://python.langchain.com/docs/concepts/) — what LangChain covers well and where it adds overhead
 
 ---

@@ -72,7 +72,7 @@ Or in TypeScript:
      2. The source file this article covers
      3. One high-quality external reference (paper, RFC, well-known blog post) -->
 
-- [ADR-XXX — Decision title](../../docs/adr/ADR-XXX-description.md)
+- [ADR-XXX — Decision title](../../adr/ADR-XXX-description.md)
 - [`src/path/to/File.ts`](../../src/path/to/File.ts) — source implementation
 - [External reference title](https://example.com) — brief note on why this source
 

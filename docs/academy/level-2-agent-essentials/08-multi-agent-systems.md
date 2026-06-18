@@ -79,7 +79,7 @@ done   → 5 members, 0 failures, 1 human approval gate
 
 ## Further reading
 
-- [ADR-005 — Orchestrator pattern over peer-to-peer](../../docs/adr/ADR-005-orchestrator-pattern.md) — the decision and its alternatives
+- [ADR-005 — Orchestrator pattern over peer-to-peer](../../adr/ADR-005-orchestrator-pattern.md) — the decision and its alternatives
 - [`src/workflows/WorkflowEngine.ts`](../../src/workflows/WorkflowEngine.ts) — the orchestrator (v2.3.0)
 - [AutoGen: Enabling Next-Gen LLM Applications via Multi-Agent Conversation](https://arxiv.org/abs/2308.08155) — the multi-agent paper whose peer-to-peer model ADR-005 rejected
 

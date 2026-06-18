@@ -53,8 +53,8 @@ The agent will strictly follow the Conventional Commits standard, proving that G
 
 ## Further reading
 
-- [ADR-001 — Markdown skills over code agents](../../docs/adr/ADR-001-markdown-skills-over-code-agents.md)
-- [`AGENTS.md`](../../AGENTS.md) — Society overview
+- [ADR-001 — Markdown skills over code agents](../../adr/ADR-001-markdown-skills-over-code-agents.md)
+- [`AGENTS.md`](https://github.com/fworks-tech/agenthood/blob/main/AGENTS.md) — Society overview
 - [Attention Is All You Need](https://arxiv.org/abs/1706.03762) — the transformer paper that started this
 
 ---

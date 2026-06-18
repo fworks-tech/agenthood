@@ -71,7 +71,7 @@ const response = await provider.complete({ prompt: 'Explain the Society.' });
 
 ## Further reading
 
-- [ADR-005 — Orchestrator pattern](../../docs/adr/ADR-005-orchestrator-pattern.md)
+- [ADR-005 — Orchestrator pattern](../../adr/ADR-005-orchestrator-pattern.md)
 - [`src/llm/ILLMProvider.ts`](../../src/llm/ILLMProvider.ts) — source implementation (planned)
 - [Anthropic: Introduction to Prompting](https://docs.anthropic.com/en/docs/intro-to-prompting) — excellent foundational knowledge
 

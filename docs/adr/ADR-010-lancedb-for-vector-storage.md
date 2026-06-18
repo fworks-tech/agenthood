@@ -52,4 +52,4 @@ allows adopters to swap to Pinecone, Weaviate, or any other provider via config.
 
 - [ADR-008](ADR-008-typescript-runtime-over-python.md) — TypeScript runtime this store ships with
 - [ADR-009](ADR-009-groq-as-default-llm-provider.md) — companion LLM provider decision
-- [Academy: Vector Databases](../../docs/academy/level-1-genai-rag-basics/07-vector-databases.md)
+- [Academy: Vector Databases](../academy/level-1-genai-rag-basics/07-vector-databases.md)

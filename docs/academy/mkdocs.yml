@@ -3,7 +3,7 @@ site_description: The Society's structured path from GenAI basics to production-
 site_url: https://agenthood.flabs.tech/academy/
 repo_url: https://github.com/fworks-tech/agenthood
 repo_name: fworks-tech/agenthood
-docs_dir: .
+docs_dir: ..
 site_dir: ../../site
 
 theme:
@@ -30,38 +30,40 @@ theme:
     - content.code.copy
 
 nav:
-  - Academy Home: README.md
+  - Academy Home: academy/README.md
   - "Level 1: GenAI & RAG Basics":
-    - Overview: level-1-genai-rag-basics/README.md
-    - Generative AI Introduction: level-1-genai-rag-basics/01-generative-ai-introduction.md
-    - Basics of LLMs: level-1-genai-rag-basics/02-basics-of-llms.md
-    - Prompt Engineering: level-1-genai-rag-basics/03-prompt-engineering.md
-    - LLM Parameters: level-1-genai-rag-basics/04-llm-parameters.md
-    - Chunking Strategies: level-1-genai-rag-basics/05-chunking-strategies.md
-    - RAG Fundamentals: level-1-genai-rag-basics/06-rag-fundamentals.md
-    - Vector Databases: level-1-genai-rag-basics/07-vector-databases.md
-    - API Wrappers: level-1-genai-rag-basics/08-api-wrappers.md
-    - Tool Integration: level-1-genai-rag-basics/09-tool-integration.md
+    - Overview: academy/level-1-genai-rag-basics/README.md
+    - Generative AI Introduction: academy/level-1-genai-rag-basics/01-generative-ai-introduction.md
+    - Basics of LLMs: academy/level-1-genai-rag-basics/02-basics-of-llms.md
+    - Prompt Engineering: academy/level-1-genai-rag-basics/03-prompt-engineering.md
+    - LLM Parameters: academy/level-1-genai-rag-basics/04-llm-parameters.md
+    - Chunking Strategies: academy/level-1-genai-rag-basics/05-chunking-strategies.md
+    - RAG Fundamentals: academy/level-1-genai-rag-basics/06-rag-fundamentals.md
+    - Vector Databases: academy/level-1-genai-rag-basics/07-vector-databases.md
+    - API Wrappers: academy/level-1-genai-rag-basics/08-api-wrappers.md
+    - Tool Integration: academy/level-1-genai-rag-basics/09-tool-integration.md
   - "Level 2: AI Agent Essentials":
-    - Overview: level-2-agent-essentials/README.md
-    - What Are AI Agents: level-2-agent-essentials/01-what-are-ai-agents.md
-    - Agentic Frameworks: level-2-agent-essentials/02-agentic-frameworks.md
-    - Build Your First Agent: level-2-agent-essentials/03-build-your-first-agent.md
-    - Agent Workflows: level-2-agent-essentials/04-agent-workflows.md
-    - Agent Memory: level-2-agent-essentials/05-agent-memory.md
-    - Agent Evaluation: level-2-agent-essentials/06-agent-evaluation.md
-    - Multi-Step Reasoning: level-2-agent-essentials/07-multi-step-reasoning.md
-    - Multi-Agent Systems: level-2-agent-essentials/08-multi-agent-systems.md
-    - Agentic RAG: level-2-agent-essentials/09-agentic-rag.md
-    - Action Planning: level-2-agent-essentials/10-action-planning.md
-    - Safety and Guardrails: level-2-agent-essentials/11-safety-and-guardrails.md
+    - Overview: academy/level-2-agent-essentials/README.md
+    - What Are AI Agents: academy/level-2-agent-essentials/01-what-are-ai-agents.md
+    - Agentic Frameworks: academy/level-2-agent-essentials/02-agentic-frameworks.md
+    - Build Your First Agent: academy/level-2-agent-essentials/03-build-your-first-agent.md
+    - Agent Workflows: academy/level-2-agent-essentials/04-agent-workflows.md
+    - Agent Memory: academy/level-2-agent-essentials/05-agent-memory.md
+    - Agent Evaluation: academy/level-2-agent-essentials/06-agent-evaluation.md
+    - Multi-Step Reasoning: academy/level-2-agent-essentials/07-multi-step-reasoning.md
+    - Multi-Agent Systems: academy/level-2-agent-essentials/08-multi-agent-systems.md
+    - Agentic RAG: academy/level-2-agent-essentials/09-agentic-rag.md
+    - Action Planning: academy/level-2-agent-essentials/10-action-planning.md
+    - Safety and Guardrails: academy/level-2-agent-essentials/11-safety-and-guardrails.md
   - "Level 3: Advanced Agent Skills":
-    - Overview: level-3-advanced-skills/README.md
-    - Real-World Integration: level-3-advanced-skills/01-real-world-integration.md
-    - Autonomous Loops: level-3-advanced-skills/02-autonomous-loops.md
-    - Custom Toolkits: level-3-advanced-skills/03-custom-toolkits.md
-    - Optimize Performance: level-3-advanced-skills/04-optimize-performance.md
-    - Deploy to Production: level-3-advanced-skills/05-deploy-to-production.md
+    - Overview: academy/level-3-advanced-skills/README.md
+    - Real-World Integration: academy/level-3-advanced-skills/01-real-world-integration.md
+    - Autonomous Loops: academy/level-3-advanced-skills/02-autonomous-loops.md
+    - Custom Toolkits: academy/level-3-advanced-skills/03-custom-toolkits.md
+    - Optimize Performance: academy/level-3-advanced-skills/04-optimize-performance.md
+    - Deploy to Production: academy/level-3-advanced-skills/05-deploy-to-production.md
+  - "Architecture Decision Records":
+    - ADR-001: Markdown Skills Over Code Agents: adr/ADR-001-markdown-skills-over-code-agents.md
 
 markdown_extensions:
   - admonition

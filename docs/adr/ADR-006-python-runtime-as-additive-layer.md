@@ -49,5 +49,5 @@ Python is chosen over Node.js for the runtime because the AI/ML ecosystem (LangG
 
 - [ADR-005: Orchestrator Pattern](ADR-005-orchestrator-pattern.md)
 - [ADR-007: DeepAgents as Execution Engine](ADR-007-deepagents-as-execution-engine.md)
-- [architecture/built-in-tools.md](../../architecture/built-in-tools.md)
+- [architecture/built-in-tools.md](https://github.com/fworks-tech/agenthood/blob/main/architecture/built-in-tools.md)
 - GitHub issue: [#45](https://github.com/fworks-tech/agenthood/issues/45)

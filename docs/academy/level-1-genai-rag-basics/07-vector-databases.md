@@ -66,7 +66,7 @@ await db.insert(chunks);
 
 ## Further reading
 
-- [ADR-010 — LanceDB for Vector Storage](../../docs/adr/ADR-010-lancedb-for-vector-storage.md)
+- [ADR-010 — LanceDB for Vector Storage](../../adr/ADR-010-lancedb-for-vector-storage.md)
 - [`src/rag/VectorStore.ts`](../../src/rag/VectorStore.ts) — source implementation (planned)
 - [LanceDB Documentation](https://lancedb.github.io/lancedb/) — why embedded vector DBs are the future
 

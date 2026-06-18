@@ -78,7 +78,7 @@ await loop.run("Read the package.json and summarize dependencies.");
 
 ## Further reading
 
-- [ADR-006 — Python runtime as additive layer](../../docs/adr/ADR-006-python-runtime-as-additive-layer.md)
+- [ADR-006 — Python runtime as additive layer](../../adr/ADR-006-python-runtime-as-additive-layer.md)
 - [`src/agent/ISkill.ts`](../../src/agent/ISkill.ts) — source implementation (planned)
 - [ReAct: Synergizing Reasoning and Acting in Language Models](https://arxiv.org/abs/2210.03629) — the foundational paper on tool use
 

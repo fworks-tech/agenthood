@@ -69,7 +69,7 @@ const p = new PromptBuilder().setInstruction('Do not hallucinate.').build();
 
 ## Further reading
 
-- [ADR-001 — Markdown skills over code agents](../../docs/adr/ADR-001-markdown-skills-over-code-agents.md)
+- [ADR-001 — Markdown skills over code agents](../../adr/ADR-001-markdown-skills-over-code-agents.md)
 - [`src/llm/PromptBuilder.ts`](../../src/llm/PromptBuilder.ts) — source implementation (planned)
 - [OpenAI: Prompt Engineering Guide](https://platform.openai.com/docs/guides/prompt-engineering) — best practices for structuring prompts
 

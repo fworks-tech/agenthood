@@ -74,7 +74,7 @@ const prior = await episodic.query({ topic: 'billing-service-bug', limit: 3 });
 
 ## Further reading
 
-- [ADR-010 — LanceDB for vector storage](../../docs/adr/ADR-010-lancedb-for-vector-storage.md) — the embedded store backing long-term and project memory
+- [ADR-010 — LanceDB for vector storage](../../adr/ADR-010-lancedb-for-vector-storage.md) — the embedded store backing long-term and project memory
 - [`src/memory/IMemoryStore.ts`](../../src/memory/IMemoryStore.ts) — memory store interface (v2.1.0)
 - [The Cognitive Architecture for Language Agents (CoALA)](https://arxiv.org/abs/2309.02427) — the memory taxonomy paper this model derives from
 

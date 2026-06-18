@@ -72,7 +72,7 @@ const text = "export class Agent { ... }";
 
 ## Further reading
 
-- [ADR-010 — LanceDB for Vector Storage](../../docs/adr/ADR-010-lancedb-for-vector-storage.md)
+- [ADR-010 — LanceDB for Vector Storage](../../adr/ADR-010-lancedb-for-vector-storage.md)
 - [`src/rag/ChunkStrategy.ts`](../../src/rag/ChunkStrategy.ts) — source implementation (planned)
 - [Pinecone: Chunking Strategies](https://www.pinecone.io/learn/chunking-strategies/) — an excellent breakdown of chunking methods
 

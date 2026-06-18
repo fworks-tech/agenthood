@@ -77,7 +77,7 @@ const prompt = `Use this context: ${context}\n\nExplain the orchestrator.`;
 
 ## Further reading
 
-- [ADR-010 — LanceDB for Vector Storage](../../docs/adr/ADR-010-lancedb-for-vector-storage.md)
+- [ADR-010 — LanceDB for Vector Storage](../../adr/ADR-010-lancedb-for-vector-storage.md)
 - [`src/rag/Retriever.ts`](../../src/rag/Retriever.ts) — source implementation (planned)
 - [IBM: What is RAG?](https://research.ibm.com/blog/retrieval-augmented-generation-RAG) — foundational overview of the RAG pattern
 

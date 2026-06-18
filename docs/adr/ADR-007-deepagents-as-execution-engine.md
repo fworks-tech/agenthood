@@ -54,5 +54,5 @@ The `SkillsMiddleware` in DeepAgents loads Markdown files via `skills: list[str]
 
 - [ADR-006: Python Runtime as Additive Layer](ADR-006-python-runtime-as-additive-layer.md)
 - [fworks-tech/deepagents](https://github.com/fworks-tech/deepagents)
-- [architecture/built-in-tools.md](../../architecture/built-in-tools.md) — Member → Tool Scope table drives `specs.py`
+- [architecture/built-in-tools.md](https://github.com/fworks-tech/agenthood/blob/main/architecture/built-in-tools.md) — Member → Tool Scope table drives `specs.py`
 - GitHub issue: [#45](https://github.com/fworks-tech/agenthood/issues/45)

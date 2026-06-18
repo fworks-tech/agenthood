@@ -86,7 +86,7 @@ The agent does not start editing until you approve. This is what "autonomous but
 
 ## Further reading
 
-- [ADR-005 — Orchestrator pattern](../../docs/adr/ADR-005-orchestrator-pattern.md) — how plans flow through the orchestrator with approval gates
+- [ADR-005 — Orchestrator pattern](../../adr/ADR-005-orchestrator-pattern.md) — how plans flow through the orchestrator with approval gates
 - [`src/skills/reasoning/PlanSkill.ts`](../../src/skills/reasoning/PlanSkill.ts) — the planning skill (v2.2.0)
 - [Tree of Thoughts: Deliberate Problem Solving with Large Language Models](https://arxiv.org/abs/2305.10601) — the planning paper this model draws from
 

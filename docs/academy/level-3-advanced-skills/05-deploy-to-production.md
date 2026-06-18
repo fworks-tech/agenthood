@@ -109,15 +109,4 @@ The production runbook for an Agenthood deployment covers the failure modes that
 - [M9 — Platform milestone](https://github.com/fworks-tech/agenthood/milestone/11) — the API and multi-tenancy milestone
 - [The Twelve-Factor App](https://12factor.net/) — production deployment principles that apply to agent services too
 
----
 
-## LinkedIn version
-
-**Hook:** Most agent demos never become products. The gap is not capability — it is auth, rate limits, and the runbook you did not write.
-
-**Why it matters:**
-- Multi-tenant agents need per-user context isolation — shared memory is a security boundary
-- Rate limiting protects your LLM budget and your users from runaway loops
-- Agenthood's v3.0.0 API layer is the production scaffold you do not have to build yourself
-
-**→** [Read the full article →](https://agenthood.flabs.tech/academy/level-3-advanced-skills/05-deploy-to-production/)

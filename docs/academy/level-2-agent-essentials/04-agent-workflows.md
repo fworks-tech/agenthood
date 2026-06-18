@@ -75,15 +75,4 @@ The Steward routes the task through the appropriate members: Architect plans, Te
 - [`src/workflows/WorkflowEngine.ts`](../../src/workflows/WorkflowEngine.ts) — workflow orchestration (v2.3.0)
 - [Patterns for Building LLM-based Systems & Products](https://eugeneyan.com/writing/llm-patterns/) — Eugene Yan's pattern catalog
 
----
 
-## LinkedIn version
-
-**Hook:** Single agents are good at one thing. Workflows are good at shipping.
-
-**Why it matters:**
-- Sequential steps accumulate context; parallel steps multiply throughput
-- Human-in-the-loop checkpoints prevent autonomous agents from going off-rails silently
-- Agenthood's `WorkflowEngine` orchestrates both without peer-to-peer coordination chaos
-
-**→** [Read the full article →](https://agenthood.flabs.tech/academy/level-2-agent-essentials/04-agent-workflows/)

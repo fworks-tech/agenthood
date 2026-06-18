@@ -88,15 +88,4 @@ The `run()` call enters the ReAct loop. The agent reads the file, reasons about 
 - [`src/agents/base/BaseAgent.ts`](../../src/agents/base/BaseAgent.ts) — the base agent class (v2.0.0)
 - [ReAct: Synergizing Reasoning and Acting in Language Models](https://arxiv.org/abs/2210.03629) — the foundational ReAct paper
 
----
 
-## LinkedIn version
-
-**Hook:** "AI agent" is not a marketing term. It is a specific architecture: observe, reason, act, repeat.
-
-**Why it matters:**
-- Without the observe-reason-act loop, you have a chatbot, not an agent
-- Without memory, each iteration starts from zero — no learning, no context
-- Agenthood's `BaseAgent` and `ReActLoop` give you the loop; you give it a role
-
-**→** [Read the full article →](https://agenthood.flabs.tech/academy/level-2-agent-essentials/01-what-are-ai-agents/)

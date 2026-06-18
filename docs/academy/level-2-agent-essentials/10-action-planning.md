@@ -90,15 +90,4 @@ The agent does not start editing until you approve. This is what "autonomous but
 - [`src/skills/reasoning/PlanSkill.ts`](../../src/skills/reasoning/PlanSkill.ts) — the planning skill (v2.2.0)
 - [Tree of Thoughts: Deliberate Problem Solving with Large Language Models](https://arxiv.org/abs/2305.10601) — the planning paper this model draws from
 
----
 
-## LinkedIn version
-
-**Hook:** Autonomous agents that skip planning are not efficient. They are unpredictable.
-
-**Why it matters:**
-- A plan is an audit trail before the fact — you can review it before anything irreversible happens
-- Human-in-the-loop checkpoints are only useful if there is a plan to checkpoint
-- Agenthood's `ArchitectAgent` produces plans the Society can read, reject, and revise
-
-**→** [Read the full article →](https://agenthood.flabs.tech/academy/level-2-agent-essentials/10-action-planning/)

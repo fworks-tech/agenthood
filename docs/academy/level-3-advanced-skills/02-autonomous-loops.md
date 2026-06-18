@@ -106,15 +106,4 @@ The briefing appeared in Slack at 8am without anyone typing a query. That is wha
 - [Rituals layer](../../rituals/) — scheduled automation manifests (v2.5.0)
 - [The Little Manual of API Design](https://web.archive.org/web/20240421073800/https://apisyouwonthate.com/books/the-little-manual-of-api-design) — design principles for durable integration surfaces
 
----
 
-## LinkedIn version
-
-**Hook:** The agents that deliver value in production are not the ones you prompt. They are the ones that run at 8am without you.
-
-**Why it matters:**
-- Goals that span multiple sessions need persistence — context windows do not persist
-- Rituals fire on schedule; `GoalChain` resumes where the last session ended
-- The Society's watchman ritual catches problems before your standup does
-
-**→** [Read the full article →](https://agenthood.flabs.tech/academy/level-3-advanced-skills/02-autonomous-loops/)

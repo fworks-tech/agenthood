@@ -68,15 +68,4 @@ The Society member produces a Conventional Commit message with no hidden prompt 
 - [ADR-007 — DeepAgents superseded](../../adr/ADR-007-deepagents-as-execution-engine.md) — the execution engine that was eliminated
 - [LangChain concepts](https://python.langchain.com/docs/concepts/) — what LangChain covers well and where it adds overhead
 
----
 
-## LinkedIn version
-
-**Hook:** Every "ship fast" framework eventually makes you ship slow. Agenthood is designed so the framework never becomes the bottleneck.
-
-**Why it matters:**
-- Wrappers add abstraction layers you did not choose and cannot remove
-- TypeScript-native means the type system catches agent contract violations at compile time
-- Agenthood builds the runtime it needs — no upstream dependency waiting to break you
-
-**→** [Read the full article →](https://agenthood.flabs.tech/academy/level-2-agent-essentials/02-agentic-frameworks/)

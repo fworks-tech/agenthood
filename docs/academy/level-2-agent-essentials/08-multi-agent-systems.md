@@ -83,15 +83,4 @@ done   → 5 members, 0 failures, 1 human approval gate
 - [`src/workflows/WorkflowEngine.ts`](../../src/workflows/WorkflowEngine.ts) — the orchestrator (v2.3.0)
 - [AutoGen: Enabling Next-Gen LLM Applications via Multi-Agent Conversation](https://arxiv.org/abs/2308.08155) — the multi-agent paper whose peer-to-peer model ADR-005 rejected
 
----
 
-## LinkedIn version
-
-**Hook:** Multi-agent peer-to-peer systems have a hidden property: every agent is also a point of failure for every other agent.
-
-**Why it matters:**
-- Without a central orchestrator, failure propagation is unpredictable
-- Parallel execution without coordination produces race conditions in shared state
-- Agenthood's orchestrator pattern (ADR-005) is the reason the Society's 14 members do not step on each other
-
-**→** [Read the full article →](https://agenthood.flabs.tech/academy/level-2-agent-essentials/08-multi-agent-systems/)

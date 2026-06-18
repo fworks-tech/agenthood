@@ -81,15 +81,4 @@ Each `[think]` line is a reasoning checkpoint. If the fix were wrong, you would 
 - [Chain-of-Thought Prompting Elicits Reasoning in Large Language Models](https://arxiv.org/abs/2201.11903) — the CoT paper
 - [`src/reasoning/ReActLoop.ts`](../../src/reasoning/ReActLoop.ts) — the reasoning loop (v2.0.0)
 
----
 
-## LinkedIn version
-
-**Hook:** LLMs fail on complex problems not because they are not smart enough, but because they are not given time to think.
-
-**Why it matters:**
-- Single-shot prompts collapse on multi-step problems — each step needs its own context
-- Chain-of-thought doubles token cost; tree-of-thought multiplies it — you choose based on the task
-- Agenthood's `ReActLoop` makes the reasoning explicit and observable — you see exactly where it went wrong
-
-**→** [Read the full article →](https://agenthood.flabs.tech/academy/level-2-agent-essentials/07-multi-step-reasoning/)

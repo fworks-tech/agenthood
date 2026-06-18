@@ -1,6 +1,6 @@
 site_name: Agenthood Academy
 site_description: The Society's structured path from GenAI basics to production-grade agentic systems.
-site_url: https://agenthood.flabs.tech/academy/
+site_url: https://agenthood.flabs.tech/
 repo_url: https://github.com/fworks-tech/agenthood
 repo_name: fworks-tech/agenthood
 docs_dir: ..
@@ -63,7 +63,7 @@ nav:
     - Optimize Performance: academy/level-3-advanced-skills/04-optimize-performance.md
     - Deploy to Production: academy/level-3-advanced-skills/05-deploy-to-production.md
   - "Architecture Decision Records":
-    - ADR-001: Markdown Skills Over Code Agents: adr/ADR-001-markdown-skills-over-code-agents.md
+    - "ADR-001: Markdown Skills Over Code Agents": adr/ADR-001-markdown-skills-over-code-agents.md
 
 markdown_extensions:
   - admonition

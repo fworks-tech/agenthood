@@ -1,3 +1,10 @@
+## [1.8.2](https://github.com/fworks-tech/agenthood/compare/v1.8.1...v1.8.2) (2026-06-18)
+
+
+### Bug Fixes
+
+* **academy:** quote ADR nav title to fix YAML syntax ([#187](https://github.com/fworks-tech/agenthood/issues/187)) ([1652a28](https://github.com/fworks-tech/agenthood/commit/1652a28ed062f796d2165a255671eb35d26d2268))
+
 ## [1.8.1](https://github.com/fworks-tech/agenthood/compare/v1.8.0...v1.8.1) (2026-06-18)
 
 

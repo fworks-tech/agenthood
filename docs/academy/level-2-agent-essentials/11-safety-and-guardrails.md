@@ -94,15 +94,4 @@ The `rm -rf` was blocked before it ran. The agent adapted. The output was scanne
 - [`src/core/SafetyGuard.ts`](../../src/core/SafetyGuard.ts) — output validation before delivery (v2.0.0)
 - [Constitutional AI: Harmlessness from AI Feedback](https://arxiv.org/abs/2212.08073) — Anthropic's safety framework paper
 
----
 
-## LinkedIn version
-
-**Hook:** Unguarded autonomous agents are not a feature. They are a liability.
-
-**Why it matters:**
-- Risk scoring gates destructive actions before they execute — not after
-- Thinking budgets prevent runaway reasoning loops that consume tokens and time
-- Agenthood's `SafetyGuard` is the last gate before any agent output reaches the world
-
-**→** [Read the full article →](https://agenthood.flabs.tech/academy/level-2-agent-essentials/11-safety-and-guardrails/)

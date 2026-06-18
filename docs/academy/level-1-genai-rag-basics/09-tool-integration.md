@@ -82,15 +82,4 @@ await loop.run("Read the package.json and summarize dependencies.");
 - [`src/agent/ISkill.ts`](../../src/agent/ISkill.ts) — source implementation (planned)
 - [ReAct: Synergizing Reasoning and Acting in Language Models](https://arxiv.org/abs/2210.03629) — the foundational paper on tool use
 
----
 
-## LinkedIn version
-
-**Hook:** Agents that cannot act are just chatbots. Planning and acting requires tools.
-
-**Why it matters:**
-- Without tools, LLMs are isolated in a sandbox
-- Function calling lets agents read files, hit APIs, and trigger CI pipelines
-- Tool registries provide a secure boundary between LLM reasoning and system execution
-
-**→** [Read the full article + implementation walkthrough →](https://agenthood.flabs.tech/academy/level-1-genai-rag-basics/09-tool-integration/)

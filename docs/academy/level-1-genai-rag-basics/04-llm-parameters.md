@@ -72,15 +72,4 @@ const strictRequest: LLMRequest = {
 - [`src/llm/types.ts`](../../src/llm/types.ts) — source implementation (planned)
 - [Cohere: Parameters Guide](https://docs.cohere.com/docs/temperature-top-p-and-top-k) — how sampling parameters mathematically work
 
----
 
-## LinkedIn version
-
-**Hook:** If you leave `temperature` at its default, you are surrendering control of your application's entropy.
-
-**Why it matters:**
-- High temperature coding agents invent fake syntax
-- Low temperature creative agents sound like robots
-- Explicit parameter configuration prevents formatting errors in JSON outputs
-
-**→** [Read the full article + implementation walkthrough →](https://agenthood.flabs.tech/academy/level-1-genai-rag-basics/04-llm-parameters/)

@@ -88,15 +88,4 @@ Each `portal:*` line is the audit entry, written before the action. If any call 
 - [GitHub REST API documentation](https://docs.github.com/en/rest) — the target the GitHub portal wraps
 - [Slack API](https://api.slack.com/) — the target the Slack portal wraps
 
----
 
-## LinkedIn version
-
-**Hook:** The moment your agent can post to Slack, comment on GitHub, and update Linear is the moment it stops being a demo.
-
-**Why it matters:**
-- Untyped API calls break silently when APIs change; Agenthood's portal skills are typed contracts
-- Portals are auditable — every external action is logged before it executes
-- The Society ships work; the Portals layer is how it delivers it
-
-**→** [Read the full article →](https://agenthood.flabs.tech/academy/level-3-advanced-skills/01-real-world-integration/)

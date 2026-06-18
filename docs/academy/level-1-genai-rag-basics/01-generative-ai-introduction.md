@@ -57,15 +57,4 @@ The agent will strictly follow the Conventional Commits standard, proving that G
 - [`AGENTS.md`](https://github.com/fworks-tech/agenthood/blob/main/AGENTS.md) — Society overview
 - [Attention Is All You Need](https://arxiv.org/abs/1706.03762) — the transformer paper that started this
 
----
 
-## LinkedIn version
-
-**Hook:** Generative AI without standards is just automated chaos. The Society enforces the standards.
-
-**Why it matters:**
-- Magic boxes fail in ways you cannot debug
-- Generative AI is probabilistic and prone to hallucination
-- Wrapping models in strict contracts keeps your agents fixable
-
-**→** [Read the full article + implementation walkthrough →](https://agenthood.flabs.tech/academy/level-1-genai-rag-basics/01-generative-ai-introduction/)

@@ -67,15 +67,4 @@ const agent = new Agent(provider);
 - [`src/llm/ILLMProvider.ts`](../../src/llm/ILLMProvider.ts) — source implementation (planned)
 - [Martin Fowler: Gateway Pattern](https://martinfowler.com/articles/gateway-pattern.html) — the architectural basis for API wrappers
 
----
 
-## LinkedIn version
-
-**Hook:** Hardcoding to the OpenAI API is a technical debt time bomb. The Society abstracts the provider.
-
-**Why it matters:**
-- The AI landscape changes weekly; vendor lock-in is dangerous
-- Abstractions allow seamless fallback if an API goes down
-- You can route simple tasks to cheap models and complex tasks to expensive ones
-
-**→** [Read the full article + implementation walkthrough →](https://agenthood.flabs.tech/academy/level-1-genai-rag-basics/08-api-wrappers/)

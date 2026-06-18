@@ -82,15 +82,4 @@ The regression flag is the point. A green test suite tells you nothing about ans
 - [RAGAS: Automated Evaluation of Retrieval Augmented Generation](https://arxiv.org/abs/2309.15217) — the framework the four metrics derive from
 - [Evaluating LLM Applications](https://eugeneyan.com/writing/evaluating-llm-applications/) — Eugene Yan on eval strategy
 
----
 
-## LinkedIn version
-
-**Hook:** You cannot improve what you do not measure. Most teams discover they needed evals after shipping something they cannot explain.
-
-**Why it matters:**
-- Answer quality degrades silently without measurement — you find out in production
-- The four metrics (faithfulness, relevance, context recall, answer correctness) catch different failure modes
-- Agenthood's `EvalRunner` closes the loop: eval scores feed `EpisodeLearner` which feeds future behavior
-
-**→** [Read the full article →](https://agenthood.flabs.tech/academy/level-2-agent-essentials/06-agent-evaluation/)

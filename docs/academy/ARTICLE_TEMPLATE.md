@@ -76,19 +76,4 @@ Or in TypeScript:
 - [`src/path/to/File.ts`](../../src/path/to/File.ts) — source implementation
 - [External reference title](https://example.com) — brief note on why this source
 
----
 
-## LinkedIn version
-
-<!-- One repurposing template per article.
-     Format: hook (= first sentence of "What it is") + 3 bullets (= "Why it matters" points) + CTA.
-     Keep the hook punchy. The CTA links to this article on GitHub Pages. -->
-
-**Hook:** [First sentence of "What it is" section, rewritten as a LinkedIn opener.]
-
-**Why it matters:**
-- [Point 1 from "Why it matters in production"]
-- [Point 2]
-- [Point 3]
-
-**→** [Read the full article + implementation walkthrough →](https://agenthood.flabs.tech/academy/[path-to-this-article]/)

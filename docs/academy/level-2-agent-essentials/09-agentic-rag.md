@@ -82,15 +82,4 @@ Contrast with passive RAG, which would have embedded the query, hit the vector s
 - [`src/skills/rag/RetrievalDecisionSkill.ts`](../../src/skills/rag/RetrievalDecisionSkill.ts) — the routing decision skill (v2.1.0)
 - [Self-RAG: Learning to Retrieve, Generate, and Critique through Self-Reflection](https://arxiv.org/abs/2310.11511) — the foundational Agentic RAG paper
 
----
 
-## LinkedIn version
-
-**Hook:** Passive RAG retrieves whether it needs to or not. At 1000 queries a day, that is a lot of unnecessary tokens.
-
-**Why it matters:**
-- Always-retrieve adds latency and cost even when the answer is already in context
-- Smart retrieval routing (vector vs graph vs skip) matches the tool to the question
-- Agenthood's `AgenticRAG` attaches provenance to every answer — you know exactly what was used
-
-**→** [Read the full article →](https://agenthood.flabs.tech/academy/level-2-agent-essentials/09-agentic-rag/)

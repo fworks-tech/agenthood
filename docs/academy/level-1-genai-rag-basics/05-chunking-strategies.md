@@ -76,15 +76,4 @@ const text = "export class Agent { ... }";
 - [`src/rag/ChunkStrategy.ts`](../../src/rag/ChunkStrategy.ts) — source implementation (planned)
 - [Pinecone: Chunking Strategies](https://www.pinecone.io/learn/chunking-strategies/) — an excellent breakdown of chunking methods
 
----
 
-## LinkedIn version
-
-**Hook:** Poor chunking quietly destroys retrieval quality. The Society does not tolerate quiet destruction.
-
-**Why it matters:**
-- Blindly chopping text destroys context
-- Splitting a code block in half makes it unreadable for the LLM
-- Semantic chunking preserves meaning and rescues RAG pipelines
-
-**→** [Read the full article + implementation walkthrough →](https://agenthood.flabs.tech/academy/level-1-genai-rag-basics/05-chunking-strategies/)

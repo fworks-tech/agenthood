@@ -70,15 +70,4 @@ await db.insert(chunks);
 - [`src/rag/VectorStore.ts`](../../src/rag/VectorStore.ts) — source implementation (planned)
 - [LanceDB Documentation](https://lancedb.github.io/lancedb/) — why embedded vector DBs are the future
 
----
 
-## LinkedIn version
-
-**Hook:** Keyword search finds the words you typed. Vector search finds the meaning you intended.
-
-**Why it matters:**
-- Users ask natural language questions, not exact keyword queries
-- Vector DBs allow agents to find related concepts instantly
-- Embedded vector DBs like LanceDB keep your architecture lightweight and local
-
-**→** [Read the full article + implementation walkthrough →](https://agenthood.flabs.tech/academy/level-1-genai-rag-basics/07-vector-databases/)

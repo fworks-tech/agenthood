@@ -122,15 +122,4 @@ The skill was not registered. It was discovered. The agent chose to call it base
 - [`src/skills/SkillRegistry.ts`](../../src/skills/SkillRegistry.ts) — dynamic discovery via `SkillRegistry.discover()` (v2.0.0)
 - [JSON Schema](https://json-schema.org/) — the input validation standard `inputSchema` uses
 
----
 
-## LinkedIn version
-
-**Hook:** Every domain has knowledge the Society has not encoded yet. `ISkill` is the interface that lets you encode it.
-
-**Why it matters:**
-- Custom skills integrate domain logic as first-class agent tools — not hardcoded side effects
-- `SkillRegistry.discover()` finds skills at startup — no registration boilerplate
-- Your custom skill becomes a Society-standard tool the moment it implements `ISkill`
-
-**→** [Read the full article →](https://agenthood.flabs.tech/academy/level-3-advanced-skills/03-custom-toolkits/)

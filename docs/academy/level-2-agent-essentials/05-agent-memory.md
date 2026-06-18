@@ -78,15 +78,4 @@ const prior = await episodic.query({ topic: 'billing-service-bug', limit: 3 });
 - [`src/memory/IMemoryStore.ts`](../../src/memory/IMemoryStore.ts) — memory store interface (v2.1.0)
 - [The Cognitive Architecture for Language Agents (CoALA)](https://arxiv.org/abs/2309.02427) — the memory taxonomy paper this model derives from
 
----
 
-## LinkedIn version
-
-**Hook:** Every agent is only as good as what it remembers. Most agents remember nothing past the context window.
-
-**Why it matters:**
-- Short-term memory fills up; without compression, agents start hallucinating from overflow
-- Long-term memory without governance becomes stale data poisoning fresh queries
-- Agenthood's five-tier model gives each memory type its own lifecycle and retrieval path
-
-**→** [Read the full article →](https://agenthood.flabs.tech/academy/level-2-agent-essentials/05-agent-memory/)

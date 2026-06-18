@@ -81,15 +81,4 @@ const prompt = `Use this context: ${context}\n\nExplain the orchestrator.`;
 - [`src/rag/Retriever.ts`](../../src/rag/Retriever.ts) — source implementation (planned)
 - [IBM: What is RAG?](https://research.ibm.com/blog/retrieval-augmented-generation-RAG) — foundational overview of the RAG pattern
 
----
 
-## LinkedIn version
-
-**Hook:** An agent without a retrieval pipeline is just a confidently loud amnesiac.
-
-**Why it matters:**
-- LLMs don't know your private codebase or company docs
-- Fine-tuning is expensive and slow; RAG is fast and factual
-- RAG grounds the LLM in reality and forces it to cite its sources
-
-**→** [Read the full article + implementation walkthrough →](https://agenthood.flabs.tech/academy/level-1-genai-rag-basics/06-rag-fundamentals/)

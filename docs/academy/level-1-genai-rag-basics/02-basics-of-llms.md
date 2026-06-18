@@ -75,15 +75,4 @@ const response = await provider.complete({ prompt: 'Explain the Society.' });
 - [`src/llm/ILLMProvider.ts`](../../src/llm/ILLMProvider.ts) — source implementation (planned)
 - [Anthropic: Introduction to Prompting](https://docs.anthropic.com/en/docs/intro-to-prompting) — excellent foundational knowledge
 
----
 
-## LinkedIn version
-
-**Hook:** An LLM is not a brain; it is an incredibly powerful token calculator. Treat it accordingly.
-
-**Why it matters:**
-- LLMs are probabilistic token predictors, not logic engines
-- Without guardrails, they will confidently hallucinate APIs and facts
-- Provider abstraction lets you swap models when one inevitably degrades
-
-**→** [Read the full article + implementation walkthrough →](https://agenthood.flabs.tech/academy/level-1-genai-rag-basics/02-basics-of-llms/)

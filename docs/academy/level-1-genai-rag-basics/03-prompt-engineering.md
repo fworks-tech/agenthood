@@ -73,15 +73,4 @@ const p = new PromptBuilder().setInstruction('Do not hallucinate.').build();
 - [`src/llm/PromptBuilder.ts`](../../src/llm/PromptBuilder.ts) — source implementation (planned)
 - [OpenAI: Prompt Engineering Guide](https://platform.openai.com/docs/guides/prompt-engineering) — best practices for structuring prompts
 
----
 
-## LinkedIn version
-
-**Hook:** A poor prompt is a failure of leadership. The Society demands clarity.
-
-**Why it matters:**
-- Vague prompts force LLMs to guess, and LLM guesses break production
-- Well-engineered prompts ensure parseable, deterministic outputs
-- Building prompts programmatically prevents context degradation
-
-**→** [Read the full article + implementation walkthrough →](https://agenthood.flabs.tech/academy/level-1-genai-rag-basics/03-prompt-engineering/)

@@ -99,15 +99,4 @@ Expected output: a step-by-step plan, the specific files to change, and the reas
 - [`src/agents/base/BaseAgent.ts`](../../src/agents/base/BaseAgent.ts) — the class to extend (v2.0.0)
 - [Building agents with LLMs](https://lilianweng.github.io/posts/2023-06-23-agent/) — Lilian Weng's comprehensive breakdown
 
----
 
-## LinkedIn version
-
-**Hook:** The difference between a developer who understands agents and one who builds them is exactly one working code example.
-
-**Why it matters:**
-- `BaseAgent.run()` handles the loop; you implement the role
-- A working first agent teaches you every integration point at once
-- Agenthood's 14 members are proof the pattern works at scale
-
-**→** [Read the full article →](https://agenthood.flabs.tech/academy/level-2-agent-essentials/03-build-your-first-agent/)

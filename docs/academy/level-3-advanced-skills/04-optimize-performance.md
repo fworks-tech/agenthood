@@ -115,15 +115,4 @@ The agent stayed running. The user saw a result, not an error.
 - [`src/llm/ProviderFailover.ts`](../../src/llm/ProviderFailover.ts) — provider failover chain (v2.0.0)
 - [Artificial Analysis](https://artificialanalysis.ai/) — live LLM pricing and performance benchmarks
 
----
 
-## LinkedIn version
-
-**Hook:** At scale, every unnecessary `gpt-4o` call is a line item. Routing simple queries to fast free models is not a compromise; it is engineering.
-
-**Why it matters:**
-- Dynamic routing cuts costs without degrading quality — simple queries do not need expensive models
-- Provider failover means a provider outage becomes a blip, not an incident
-- `CostEstimator` makes costs visible before they surprise you on the invoice
-
-**→** [Read the full article →](https://agenthood.flabs.tech/academy/level-3-advanced-skills/04-optimize-performance/)

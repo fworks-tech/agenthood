@@ -1,3 +1,10 @@
+## [1.8.3](https://github.com/fworks-tech/agenthood/compare/v1.8.2...v1.8.3) (2026-06-18)
+
+
+### Bug Fixes
+
+* **academy:** move CNAME to docs root for GitHub Pages ([#191](https://github.com/fworks-tech/agenthood/issues/191)) ([b662a75](https://github.com/fworks-tech/agenthood/commit/b662a75e138876677c636496e28d09db267b2b1f)), closes [#185](https://github.com/fworks-tech/agenthood/issues/185)
+
 ## [1.8.2](https://github.com/fworks-tech/agenthood/compare/v1.8.1...v1.8.2) (2026-06-18)
 
 

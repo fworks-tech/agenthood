@@ -1,3 +1,10 @@
+## [1.8.4](https://github.com/fworks-tech/agenthood/compare/v1.8.3...v1.8.4) (2026-06-19)
+
+
+### Bug Fixes
+
+* **academy:** revert GitHub Pages custom domain config ([#194](https://github.com/fworks-tech/agenthood/issues/194)) ([4dd1282](https://github.com/fworks-tech/agenthood/commit/4dd12825775cef36ce169a3dbee3245cbeb8c655))
+
 ## [1.8.3](https://github.com/fworks-tech/agenthood/compare/v1.8.2...v1.8.3) (2026-06-18)
 
 

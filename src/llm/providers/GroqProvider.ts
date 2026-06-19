@@ -9,7 +9,7 @@ export class GroqProvider implements ILLMProvider {
 
   constructor(config: LLMConfig) {
     this.client = new Groq({
-      apiKey: config.apiKey ?? process.env.GROQ_API_KEY,
+      apiKey: config.apiKey ?? process.env.GROQ_API_KEY ?? '',
     })
     this.model = config.model ?? process.env.GROQ_DEFAULT_MODEL ?? 'llama-3.1-70b-versatile'
   }

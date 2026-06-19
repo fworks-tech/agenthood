@@ -36,7 +36,7 @@ describe("SubagentTaskSkill", () => {
 
   describe("basic properties", () => {
     it("has correct name", () => {
-      expect(skill.name).toBe("task");
+      expect(skill.name).toBe("delegate_task");
     });
 
     it("has descriptive description", () => {

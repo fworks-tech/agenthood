@@ -86,7 +86,14 @@ describe("SubagentTaskSkill", () => {
         run: vi.fn().mockResolvedValue({
           role: "tester",
           output: "Tests written",
-          artifacts: [{ name: "test.spec.ts", content: "test code" }],
+          artifacts: [
+            {
+              type: "test" as const,
+              path: "test.spec.ts",
+              content: "test code",
+              createdBy: "tester",
+            },
+          ],
         }),
       } as unknown as BaseAgent;
 
@@ -99,7 +106,7 @@ describe("SubagentTaskSkill", () => {
 
       expect(result.success).toBe(true);
       expect(result.artifacts).toHaveLength(1);
-      expect(result.artifacts?.[0].name).toBe("test.spec.ts");
+      expect(result.artifacts?.[0].path).toBe("test.spec.ts");
     });
 
     it("works with different agent types", async () => {

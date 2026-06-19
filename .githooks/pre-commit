@@ -35,6 +35,11 @@ while IFS= read -r -d '' FILE; do
     continue
   fi
 
+  # Skip documentation and test files (contain legitimate API key examples/mocks)
+  if echo "$FILE" | grep -qE '(^|/)docs/.*\.md$|^tests/.*\.test\.(ts|js)$'; then
+    continue
+  fi
+
   # Flag staged .env files
   if echo "$FILE" | grep -qE '(^|\/)\.env$'; then
     echo ""

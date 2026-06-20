@@ -351,6 +351,10 @@ export class ProviderChain implements ILLMProvider {
   getBreakerState(name: string): CircuitBreakerState | undefined {
     return this.circuitBreakers.get(name)
   }
+
+  getContextWindow(): number {
+    return this.providers[0]?.getContextWindow() ?? 8192
+  }
 }
 
 /** AsyncGenerator that yields no values and completes immediately. */

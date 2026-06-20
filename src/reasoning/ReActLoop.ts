@@ -1,6 +1,7 @@
 import type { ILLMProvider } from "../llm/ILLMProvider.ts"
 import type { ExecutionContext } from "../core/ExecutionContext.ts"
 import type { Message, ToolCall } from "../llm/types.ts"
+import { ContextCompressor } from "../core/ContextCompressor.ts"
 import { SkillRegistry, SkillNotFoundError } from "../skills/SkillRegistry.ts"
 import { ThinkingBudget } from "./ThinkingBudget.ts"
 import { validateSchema, SchemaValidationError } from "./SchemaValidator.ts"
@@ -10,6 +11,7 @@ export class ReActLoop {
     private llm: ILLMProvider,
     private skillRegistry: SkillRegistry,
     private budget: ThinkingBudget = new ThinkingBudget(),
+    private compressor: ContextCompressor = new ContextCompressor(llm),
   ) {}
 
   async run(
@@ -30,6 +32,13 @@ export class ReActLoop {
         messages,
         tools: this.skillRegistry.getSchemas(),
       };
+
+      const modelContextWindow = this.resolveContextWindow(request)
+
+      request.messages = await this.compressor.compress(
+        messages,
+        modelContextWindow,
+      )
 
       const response = await this.llm.complete(request);
       messages.push({
@@ -87,5 +96,13 @@ export class ReActLoop {
       const msg = err instanceof Error ? err.message : String(err);
       return `Error: ${msg}`;
     }
+  }
+
+  private resolveContextWindow(request: { contextWindow?: number } & Record<string, unknown>): number {
+    return (
+      request.contextWindow ??
+      this.llm.getContextWindow() ??
+      8192
+    )
   }
 }

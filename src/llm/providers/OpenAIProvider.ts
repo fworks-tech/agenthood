@@ -99,6 +99,10 @@ export class OpenAIProvider implements ILLMProvider {
     return generate();
   }
 
+  getContextWindow(): number {
+    return 128000
+  }
+
   async embed(text: string): Promise<number[]> {
     try {
       const response = await this.client.embeddings.create({

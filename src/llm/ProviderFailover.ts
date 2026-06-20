@@ -139,7 +139,7 @@ export class ProviderChain implements ILLMProvider {
       }
 
       try {
-        const result = await this.executeWithStrategy(provider, request, i, active.length)
+        const result = await this.executeWithStrategy(provider, request, i)
         this.onSuccess(name)
         return result
       } catch (err) {
@@ -264,7 +264,6 @@ export class ProviderChain implements ILLMProvider {
     provider: ILLMProvider,
     request: LLMRequest,
     index: number,
-    total: number,
   ): Promise<LLMResponse> {
     // Strategy 1: immediate retry for transient errors
     const strategies = [
@@ -319,7 +318,7 @@ export class ProviderChain implements ILLMProvider {
 
   private activeProviders(): ILLMProvider[] {
     // Run probe recovery for any provider whose probe time has arrived
-    for (const [name, breaker] of this.circuitBreakers) {
+    for (const [, breaker] of this.circuitBreakers) {
       if (
         breaker.state === 'OPEN' &&
         breaker.probeScheduledAt > 0 &&
@@ -330,7 +329,7 @@ export class ProviderChain implements ILLMProvider {
       }
     }
 
-    return this.providers.filter((p, i) => {
+    return this.providers.filter((p) => {
       const breaker = this.circuitBreakers.get(this.providerName(p))
       if (!breaker) return true
       return breaker.state !== 'OPEN'

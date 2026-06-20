@@ -1,12 +1,12 @@
 import { randomUUID } from "node:crypto";
-import { PromptBuilder } from "../prompts/PromptBuilder.js";
-import { PromptRegistry } from "../prompts/PromptRegistry.js";
-import { LLMRouter } from "../llm/LLMRouter.js";
-import { SkillRegistry } from "../skills/SkillRegistry.js";
-import { ReActLoop } from "../reasoning/ReActLoop.js";
-import { AgentRegistry } from "../core/AgentRegistry.js";
-import { DeveloperAgent } from "../agents/DeveloperAgent.js";
-import type { ExecutionContext } from "../core/ExecutionContext.js";
+import { PromptBuilder } from "../prompts/PromptBuilder.ts"
+import { PromptRegistry } from "../prompts/PromptRegistry.ts"
+import { LLMRouter } from "../llm/LLMRouter.ts"
+import { SkillRegistry } from "../skills/SkillRegistry.ts"
+import { ReActLoop } from "../reasoning/ReActLoop.ts"
+import { AgentRegistry } from "../core/AgentRegistry.ts"
+import { DeveloperAgent } from "../agents/DeveloperAgent.ts"
+import type { ExecutionContext } from "../core/ExecutionContext.ts"
 
 const agentRegistry = new AgentRegistry();
 

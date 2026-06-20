@@ -1,4 +1,4 @@
-export type { ExecutionContext } from './ExecutionContext.js'
+export type { ExecutionContext } from "./ExecutionContext.ts"
 export type {
   Project,
   TechStack,
@@ -10,4 +10,4 @@ export type {
   LongTermMemory,
   EpisodicMemory,
   ProjectMemory,
-} from './types.js'
+} from "./types.ts"

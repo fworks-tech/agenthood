@@ -1,7 +1,7 @@
 {
   "name": "Agenthood",
   "image": "mcr.microsoft.com/devcontainers/base:ubuntu",
-  "postCreateCommand": "./setup.sh",
+  "postCreateCommand": "npm install",
   "customizations": {
     "vscode": {
       "extensions": [

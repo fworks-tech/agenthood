@@ -1,31 +1,32 @@
-# Local environment files
-.env
-
-# Python
-__pycache__/
-*.py[cod]
-
-# Node
+# Dependencies
 node_modules/
 site/
 dist/node_modules/
 dist/
-.agenthood/audit.log
-.agenthood/memory.json
+.venv/
+venv/
+
+# Local environment
 .env
 *.local
 
-# VS Code Extension Testing
-vscode-extension/.vscode-test/
+# Build output
+dist/
 
 # Python
 __pycache__/
-*.pyc
+*.py[cod]
 *.pyo
 *.pyd
-.venv/
-venv/
 *.egg-info/
 .pytest_cache/
 .mypy_cache/
 .ruff_cache/
+
+# VS Code Extension Testing
+vscode-extension/.vscode-test/
+
+# Agenthood runtime artifacts
+.agenthood/audit.log
+.agenthood/memory.json
+.claude/scheduled_tasks.lock

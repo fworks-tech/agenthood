@@ -26,12 +26,7 @@ done
 
 # ── Check 2: Issue number in branch name ──────────────────────────────────────
 # Expected: type/issue-NUMBER-description (e.g., fix/issue-135-members-registry)
-# Exception: claude/* automation branches are exempt from this check only.
 BRANCH=$(git rev-parse --abbrev-ref HEAD)
-
-if echo "$BRANCH" | grep -q '^claude/'; then
-  exit 0
-fi
 
 ISSUE_NUMBER=$(echo "$BRANCH" | grep -oE 'issue-[0-9]+' | grep -oE '[0-9]+')
 
@@ -56,17 +51,20 @@ if [ -z "$ISSUE_NUMBER" ]; then
   exit 1
 fi
 
-# ── Check: Issue exists ───────────────────────────────────────────────────────
-if ! gh issue view "$ISSUE_NUMBER" --json state > /dev/null 2>&1; then
-  echo ""
-  echo "┌────────────────────────────────────────────────────────────────┐"
-  echo "│ Issue #$ISSUE_NUMBER does not exist.                              │"
-  echo "├────────────────────────────────────────────────────────────────┤"
-  echo "│ Create it:                                                     │"
-  echo "│   gh issue create --title \"...\"                              │"
-  echo "└────────────────────────────────────────────────────────────────┘"
-  echo ""
-  exit 1
+# ── Check: Issue exists (non-blocking, requires gh CLI) ───────────────────────
+if command -v gh >/dev/null 2>&1; then
+  if ! gh issue view "$ISSUE_NUMBER" --json state > /dev/null 2>&1; then
+    echo ""
+    echo "┌────────────────────────────────────────────────────────────────┐"
+    echo "│ Issue #$ISSUE_NUMBER does not exist.                              │"
+    echo "├────────────────────────────────────────────────────────────────┤"
+    echo "│ Create it:                                                     │"
+    echo "│   gh issue create --title \"...\"                              │"
+    echo "└────────────────────────────────────────────────────────────────┘"
+    echo ""
+    echo "  To ignore, push with --no-verify."
+    exit 1
+  fi
 fi
 
 exit 0

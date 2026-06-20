@@ -20,81 +20,76 @@ if [ "$BRANCH" = "main" ]; then
   BLOCKED=1
 fi
 
-# ── The Auditor: secret scanning on staged files ──────────────────────────────
+# ── The Auditor + The Warden: combined staged-file loop ───────────────────────
+# Single git diff call avoids spawning the same subprocess twice
 AUDITOR_BLOCKED=0
 
-# Read staged files using NUL-delimited names (handles spaces in filenames)
 while IFS= read -r -d '' FILE; do
-  # Skip deleted files
-  if [ ! -f "$FILE" ] && ! git show ":$FILE" > /dev/null 2>&1; then
-    continue
+  # ── The Auditor: secret scanning ──────────────────────────────────────────
+  if [ -f "$FILE" ]; then
+    # Skip hook scripts (they contain secret patterns in their regexes)
+    if echo "$FILE" | grep -q '^\.githooks/'; then
+      :
+    # Skip docs and test files (contain legitimate API key examples/mocks)
+    elif echo "$FILE" | grep -qE '(^|/)docs/.*\.md$|^tests/.*\.test\.(ts|js)$'; then
+      :
+    # Flag staged .env files
+    elif echo "$FILE" | grep -qE '(^|\/)\.env$'; then
+      echo ""
+      echo "┌─────────────────────────────────────────────────────────────┐"
+      echo "│  THE AUDITOR — Commit Blocked                               │"
+      echo "├─────────────────────────────────────────────────────────────┤"
+      echo "│  Staged .env file detected: $FILE"
+      echo "│                                                             │"
+      echo "│  .env files must never be committed.                        │"
+      echo "│  Add to .gitignore and use environment variable templates.  │"
+      echo "└─────────────────────────────────────────────────────────────┘"
+      AUDITOR_BLOCKED=1
+    else
+      CONTENT=$(git show ":$FILE" 2>/dev/null)
+      if [ -n "$CONTENT" ]; then
+        MATCH=$(echo "$CONTENT" | grep -inE \
+          'password[[:space:]]*=[[:space:]]*["'"'"'][^"'"'"']{4,}|api_key[[:space:]]*=|api_secret[[:space:]]*=|secret[[:space:]]*=[[:space:]]*["'"'"'][^"'"'"']{4,}|token[[:space:]]*=[[:space:]]*["'"'"'][^"'"'"']{8,}|private_key[[:space:]]*=|BEGIN RSA PRIVATE KEY|BEGIN OPENSSH PRIVATE KEY|GITHUB_TOKEN[[:space:]]*=|AWS_SECRET_ACCESS_KEY|AKIA[0-9A-Z]{16}|sk_live_[0-9a-zA-Z]+|pk_live_[0-9a-zA-Z]+' \
+          2>/dev/null | head -3)
+
+        if [ -n "$MATCH" ]; then
+          echo ""
+          echo "┌─────────────────────────────────────────────────────────────┐"
+          echo "│  THE AUDITOR — Commit Blocked                               │"
+          echo "├─────────────────────────────────────────────────────────────┤"
+          echo "│  Potential secret detected in: $FILE"
+          echo "│  Match: $(echo "$MATCH" | head -1 | cut -c1-55)"
+          echo "│                                                             │"
+          echo "│  1. Remove the secret from the file                        │"
+          echo "│  2. Rotate the exposed credential immediately              │"
+          echo "│  3. Use environment variables instead                      │"
+          echo "│                                                             │"
+          echo "│  If this is a false positive, The Society records your     │"
+          echo "│  --no-verify as an evil act. You have been warned.         │"
+          echo "└─────────────────────────────────────────────────────────────┘"
+          AUDITOR_BLOCKED=1
+        fi
+      fi
+    fi
   fi
 
-  # Skip hook scripts themselves (they contain secret patterns in their regexes)
-  if echo "$FILE" | grep -q '^\.githooks/'; then
-    continue
-  fi
-
-  # Flag staged .env files
-  if echo "$FILE" | grep -qE '(^|\/)\.env$'; then
-    echo ""
-    echo "┌─────────────────────────────────────────────────────────────┐"
-    echo "│  THE AUDITOR — Commit Blocked                               │"
-    echo "├─────────────────────────────────────────────────────────────┤"
-    echo "│  Staged .env file detected: $FILE"
-    echo "│                                                             │"
-    echo "│  .env files must never be committed.                        │"
-    echo "│  Add to .gitignore and use environment variable templates.  │"
-    echo "└─────────────────────────────────────────────────────────────┘"
-    AUDITOR_BLOCKED=1
-    continue
-  fi
-
-  # Scan staged content for secret patterns
-  CONTENT=$(git show ":$FILE" 2>/dev/null) || continue
-
-  MATCH=$(echo "$CONTENT" | grep -inE \
-    'password[[:space:]]*=[[:space:]]*["'"'"'][^"'"'"']{4,}|api_key[[:space:]]*=|api_secret[[:space:]]*=|secret[[:space:]]*=[[:space:]]*["'"'"'][^"'"'"']{4,}|token[[:space:]]*=[[:space:]]*["'"'"'][^"'"'"']{8,}|private_key[[:space:]]*=|BEGIN RSA PRIVATE KEY|BEGIN OPENSSH PRIVATE KEY|GITHUB_TOKEN[[:space:]]*=|AWS_SECRET_ACCESS_KEY|AKIA[0-9A-Z]{16}|sk_live_[0-9a-zA-Z]+|pk_live_[0-9a-zA-Z]+' \
-    2>/dev/null | head -3)
-
-  if [ -n "$MATCH" ]; then
-    echo ""
-    echo "┌─────────────────────────────────────────────────────────────┐"
-    echo "│  THE AUDITOR — Commit Blocked                               │"
-    echo "├─────────────────────────────────────────────────────────────┤"
-    echo "│  Potential secret detected in: $FILE"
-    echo "│  Match: $(echo "$MATCH" | head -1 | cut -c1-55)"
-    echo "│                                                             │"
-    echo "│  1. Remove the secret from the file                        │"
-    echo "│  2. Rotate the exposed credential immediately              │"
-    echo "│  3. Use environment variables instead                      │"
-    echo "│                                                             │"
-    echo "│  If this is a false positive, The Society records your     │"
-    echo "│  --no-verify as an evil act. You have been warned.         │"
-    echo "└─────────────────────────────────────────────────────────────┘"
-    AUDITOR_BLOCKED=1
+  # ── The Warden: file size warning (non-blocking) ─────────────────────────
+  if [ -f "$FILE" ]; then
+    LINES=$(wc -l < "$FILE" 2>/dev/null | tr -d ' ')
+    if [ -n "$LINES" ] && [ "$LINES" -gt 500 ]; then
+      echo ""
+      echo "┌─────────────────────────────────────────────────────────────┐"
+      echo "│  THE WARDEN — Warning (non-blocking)                        │"
+      echo "├─────────────────────────────────────────────────────────────┤"
+      echo "│  $FILE: $LINES lines (limit: 500)"
+      echo "│  Consider splitting this file before it grows further.      │"
+      echo "└─────────────────────────────────────────────────────────────┘"
+    fi
   fi
 done < <(git diff --cached --name-only --diff-filter=ACM -z 2>/dev/null)
 
 if [ "$AUDITOR_BLOCKED" -eq 1 ]; then
   BLOCKED=1
 fi
-
-# ── The Warden: file size warning (non-blocking) ──────────────────────────────
-while IFS= read -r -d '' FILE; do
-  if [ ! -f "$FILE" ]; then
-    continue
-  fi
-  LINES=$(wc -l < "$FILE" 2>/dev/null | tr -d ' ')
-  if [ -n "$LINES" ] && [ "$LINES" -gt 500 ]; then
-    echo ""
-    echo "┌─────────────────────────────────────────────────────────────┐"
-    echo "│  THE WARDEN — Warning (non-blocking)                        │"
-    echo "├─────────────────────────────────────────────────────────────┤"
-    echo "│  $FILE: $LINES lines (limit: 500)"
-    echo "│  Consider splitting this file before it grows further.      │"
-    echo "└─────────────────────────────────────────────────────────────┘"
-  fi
-done < <(git diff --cached --name-only --diff-filter=ACM -z 2>/dev/null)
 
 exit $BLOCKED

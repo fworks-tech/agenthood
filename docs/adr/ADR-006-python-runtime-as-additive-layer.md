@@ -1,7 +1,9 @@
-# ADR-006: Python Runtime as Additive Layer
+# ADR-006: Python Runtime as Additive Layer (SUPERSEDED)
 
 **Date:** 2026-06-02
-**Status:** Accepted
+**Status:** **Superseded by ADR-008** — the TypeScript runtime in `src/` is the
+single supported runtime. The Python package in `runtime/` is retained as
+experimental reference only and is **not** on the supported install path.
 
 ## Context
 

@@ -1,7 +1,10 @@
-# ADR-007: DeepAgents as Execution Engine
+# ADR-007: DeepAgents as Execution Engine (SUPERSEDED)
 
 **Date:** 2026-06-02
-**Status:** Accepted
+**Status:** **Superseded by ADR-008** — the TypeScript runtime (`src/`) uses
+`BaseAgent` + `ReActLoop` via `src/agents/` and `src/reasoning/` instead of
+DeepAgents. The Python package in `runtime/` is retained as experimental
+reference only and is **not** on the supported install path.
 
 ## Context
 

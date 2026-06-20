@@ -1,11 +1,9 @@
 import type { ILLMProvider } from "../../llm/ILLMProvider.js";
 import type { ISkill } from "../../skills/ISkill.js";
 import type { ExecutionContext } from "../../core/ExecutionContext.js";
-import type { Message } from "../../llm/types.js";
 import type { AgentResult } from "./AgentResult.js";
 import { ReActLoop } from "../../reasoning/ReActLoop.js";
 import { SkillRegistry } from "../../skills/SkillRegistry.js";
-import { ContextCompressor } from "../../core/ContextCompressor.js";
 
 export abstract class BaseAgent {
   abstract role: string;
@@ -14,16 +12,11 @@ export abstract class BaseAgent {
     context: ExecutionContext,
   ): Promise<string>;
 
-  protected contextCompressor: ContextCompressor;
-
   constructor(
     readonly llm: ILLMProvider,
     protected reasoningLoop: ReActLoop,
     protected skillRegistry: SkillRegistry,
-  ) {
-    // Create context compressor with default threshold ratio of 0.8
-    this.contextCompressor = new ContextCompressor(llm);
-  }
+  ) {}
 
   async run(input: string, context: ExecutionContext): Promise<AgentResult> {
     for (const skill of this.skills) {

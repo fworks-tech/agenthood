@@ -1,4 +1,4 @@
-name: Society — Deploy Academy Docs
+name: The Librarian — Deploy Academy Docs
 
 on:
   push:
@@ -11,7 +11,7 @@ on:
 
 jobs:
   deploy:
-    name: Build and deploy Academy with MkDocs Material
+    name: The Librarian — deploy Academy docs with MkDocs Material
     runs-on: ubuntu-latest
     permissions:
       contents: write

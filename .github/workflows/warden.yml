@@ -8,6 +8,8 @@ jobs:
   warden:
     name: Check File Sizes
     runs-on: ubuntu-latest
+    permissions:
+      pull-requests: write
 
     steps:
       - uses: actions/checkout@v4
@@ -47,3 +49,15 @@ jobs:
           fi
 
           echo "The Warden: all changed files within size limits."
+
+      - name: The Warden — post file size summary to PR
+        if: failure() && github.event_name == 'pull_request'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh pr comment ${{ github.event.pull_request.number }} \
+            --body "## The Warden — File Size Check ⚠️
+
+One or more changed files exceed the 500-line limit. Review the [workflow run](${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}) for details.
+
+*— The Warden, Agenthood*"

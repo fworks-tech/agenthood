@@ -55,7 +55,6 @@ export async function check(): Promise<void> {
 
   // CI workflows
   file('.github/workflows/commitlint.yml present', '.github/workflows/commitlint.yml');
-  file('.github/workflows/pr-title.yml present', '.github/workflows/pr-title.yml');
 
   // Skills
   const skillsBase = resolveSkillsDir(cwd);

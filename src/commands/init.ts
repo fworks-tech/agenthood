@@ -1,6 +1,7 @@
 /**
  * agenthood init
  *
+ * The Envoy — initiates a new project into the Agenthood Society.
  * The Initiation ceremony. Installs conventions, hooks, templates,
  * and member skills into the target project.
  *
@@ -159,12 +160,10 @@ async function installWorkflows(cwd: string): Promise<void> {
   const workflowsDir = join(cwd, '.github', 'workflows')
   await mkdir(workflowsDir, { recursive: true })
 
-  for (const workflow of ['commitlint.yml', 'pr-title.yml']) {
-    await safeCopy(
-      join(SOCIETY_ROOT, 'workflows', workflow),
-      join(workflowsDir, workflow),
-    )
-  }
+  await safeCopy(
+    join(SOCIETY_ROOT, '.github', 'workflows', 'commitlint.yml'),
+    join(workflowsDir, 'commitlint.yml'),
+  )
 }
 
 async function installSkills(cwd: string, runtime: Runtime, members: string[]): Promise<void> {

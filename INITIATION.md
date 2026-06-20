@@ -40,7 +40,7 @@ Then it will:
 - Install and configure Husky with `commit-msg` and `pre-push` hooks
 - Install `@commitlint/cli` and `@commitlint/config-conventional`
 - Copy `.github/` templates (PR template, issue templates, commit convention doc)
-- Add `commitlint.yml` and `pr-title.yml` to `.github/workflows/`
+- Add `commitlint.yml` to `.github/workflows/`
 - Copy the selected member skills into the runtime's skill directory
 - Set `git config commit.template .gitmessage`
 - Scaffold `.agenthood/config.json` with your selections
@@ -157,7 +157,6 @@ Expected output:
   ✅ .github/ISSUE_TEMPLATE/bug_report.md present
   ✅ .github/ISSUE_TEMPLATE/feature_request.md present
   ✅ .github/workflows/commitlint.yml present
-  ✅ .github/workflows/pr-title.yml present
   ✅ Member skills installed (9/9)
   ✅ git commit.template configured
   ✅ AGENTS.md present

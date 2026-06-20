@@ -1,4 +1,4 @@
-name: Auditor — Secret Scanning
+name: The Auditor — Secret Scanning
 
 on:
   pull_request:
@@ -16,6 +16,8 @@ jobs:
   auditor:
     name: Scan for Secrets (Gitleaks)
     runs-on: ubuntu-latest
+    permissions:
+      pull-requests: write
 
     steps:
       - uses: actions/checkout@v4
@@ -36,3 +38,15 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           GITLEAKS_LICENSE: ${{ secrets.GITLEAKS_LICENSE || '' }}
+
+      - name: The Auditor — post findings to PR
+        if: failure() && github.event_name == 'pull_request'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh pr comment ${{ github.event.pull_request.number }} \
+            --body "## The Auditor — Secret Scan ⚠️
+
+Potential secrets or configuration issues were detected. Review the [workflow run](${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}) for details.
+
+*— The Auditor, Agenthood*"

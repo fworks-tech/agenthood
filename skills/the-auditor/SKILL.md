@@ -1,0 +1,1 @@
+../../members/the-auditor/SKILL.md

@@ -1,3 +1,10 @@
+# [1.10.0](https://github.com/fworks-tech/agenthood/compare/v1.9.1...v1.10.0) (2026-06-20)
+
+
+### Features
+
+* **skills:** add skills/ symlinks for all 14 members and Sentinel validation ([8aef656](https://github.com/fworks-tech/agenthood/commit/8aef6568c909e665b0d3f832e5c1859282a0599f)), closes [#234](https://github.com/fworks-tech/agenthood/issues/234)
+
 ## [1.9.1](https://github.com/fworks-tech/agenthood/compare/v1.9.0...v1.9.1) (2026-06-20)
 
 

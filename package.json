@@ -1,6 +1,6 @@
 {
   "name": "agenthood",
-  "version": "1.9.1",
+  "version": "1.10.0",
   "description": "A full AI engineering team as plain Markdown files. 14 specialized agents for code quality, commits, reviews, security, and more — works with any agent runtime.",
   "keywords": [
     "ai-agents",

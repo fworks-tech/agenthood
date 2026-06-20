@@ -46,6 +46,7 @@ export interface LLMRequest {
   frequency_penalty?: number
   presence_penalty?: number
   stop?: string[]
+  contextWindow?: number
 }
 
 export interface LLMResponse {

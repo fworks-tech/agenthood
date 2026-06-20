@@ -29,6 +29,7 @@ function mockProvider(options?: { toolCalls?: { name: string; args: unknown }[] 
     }),
     stream: vi.fn(),
     embed: vi.fn(),
+    getContextWindow: () => 8192,
   }
 }
 

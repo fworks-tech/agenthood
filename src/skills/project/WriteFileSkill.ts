@@ -1,4 +1,4 @@
-import { writeFile, mkdir } from 'node:fs/promises'
+import { writeFile, mkdir, lstat, realpath } from 'node:fs/promises'
 import { resolve, dirname } from 'node:path'
 import type { ISkill } from '../ISkill.js'
 import type { SkillResult } from '../ISkill.js'
@@ -22,6 +22,18 @@ export class WriteFileSkill implements ISkill {
 
     if (!resolvedPath.startsWith(context.project.localPath)) {
       return { success: false, output: '', error: `Path traversal denied: "${path}"` }
+    }
+
+    try {
+      const stats = await lstat(resolvedPath).catch(() => null)
+      if (stats?.isSymbolicLink()) {
+        const real = await realpath(resolvedPath)
+        if (!real.startsWith(context.project.localPath)) {
+          return { success: false, output: '', error: `Symlink traversal denied: "${path}" -> "${real}"` }
+        }
+      }
+    } catch {
+      // lstat/realpath failed — proceed, mkdir/writeFile will surface real errors
     }
 
     try {

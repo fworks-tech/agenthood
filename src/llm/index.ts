@@ -12,4 +12,14 @@ export type {
   LLMChunk,
   LLMConfig,
 } from "./types.ts"
-export { ProviderChain, AllProvidersFailedError } from "./ProviderFailover.ts"
+export { ProviderChain, AllProvidersFailedError, classifyError } from "./ProviderFailover.ts"
+export type { ClassifiedError } from "./ProviderFailover.ts"
+export {
+  AuthError,
+  PaymentRequiredError,
+  RateLimitedError,
+  TimeoutError,
+  ServiceUnavailableError,
+  ModelNotFoundError,
+  UnsupportedOperationError,
+} from "./errors.ts"

@@ -1,7 +1,7 @@
 /**
  * agenthood deactivate <member>
  *
- * Removes a member's skill file from the project's active skills directory.
+ * The Envoy — removes a member's skill file from the project's active skills directory.
  */
 
 import { rm } from 'node:fs/promises';

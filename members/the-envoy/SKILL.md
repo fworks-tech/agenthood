@@ -97,7 +97,7 @@ After translation, validate that AGENTS.md conventions are enforced in the targe
 - Not applicable for non-GitHub hosts.
 
 **Check 3 — CI convention checks**
-- Are `workflows/commitlint.yml` and `workflows/pr-title.yml` installed in `.github/workflows/`?
+- Is `.github/workflows/commitlint.yml` present in the target repository?
 - If not: ⚠️ with install instruction
 
 **Check 4 — Agent behavior rules visibility**

@@ -232,17 +232,17 @@ agenthood/
 │   └── observability/               ← Tracer, TokenCounter, EventBus
 │
 ├── .github/workflows/               ← CI enforcement
-│   ├── auto-assign.yml              ← Assigns owner to all new issues and PRs
-│   ├── auditor.yml                  ← Secret scanning on push
-│   ├── commitlint.yml               ← Validates commit messages on PRs
-│   ├── docs.yml                     ← Deploys Academy to GitHub Pages
-│   ├── labeler.yml                  ← Labels PRs by changed file paths
-│   ├── librarian.yml                ← Checks docs stay in sync with code
-│   ├── semantic-release.yml         ← Automated release + npm publish via OIDC
-│   ├── sentinel.yml                 ← Agent integrity checks
-│   ├── tester.yml                   ← Runs the full test suite
-│   ├── vscode-extension.yml         ← Builds the VS Code extension
-│   └── warden.yml                   ← File size and code health checks
+│   ├── auto-assign.yml              ← The Scribe — assigns owner to new issues and PRs
+│   ├── auditor.yml                  ← The Auditor — secret scanning
+│   ├── commitlint.yml               ← The Doorman — commit message validation
+│   ├── docs.yml                     ← The Librarian — deploy Academy docs
+│   ├── labeler.yml                  ← The Scribe — labels PRs by changed file paths
+│   ├── librarian.yml                ← The Librarian — checks docs stay in sync with code
+│   ├── semantic-release.yml         ← The Herald — automated release + npm publish
+│   ├── sentinel.yml                 ← The Sentinel — agent integrity checks
+│   ├── tester.yml                   ← The Tester — runs the full test suite
+│   ├── vscode-extension.yml         ← The Envoy — build VS Code extension
+│   └── warden.yml                   ← The Warden — file size and code health checks
 │
 ├── .githooks/                       ← Local git hook enforcement
 │   ├── commit-msg                   ← Validates commit message format

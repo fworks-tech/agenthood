@@ -78,8 +78,8 @@ Commands:
   check                   Run the Doorman's health check
   activate <member>       Activate a specific member skill
   deactivate <member>     Deactivate a member skill
-  run <agent> "<task>"    Run an agent against a task
-  list                    List all members and their status
+  run <member> "<task>"   Run a Society member (the-scribe, the-reviewer, …)
+  list                    List all 14 members, their status, permission & provider
   oath                    Print the Society's oath
   eject                   Remove the Society from your project
 

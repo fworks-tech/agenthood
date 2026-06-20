@@ -6,14 +6,18 @@ import { SkillRegistry } from "../skills/SkillRegistry.ts"
 import { ReActLoop } from "../reasoning/ReActLoop.ts"
 import { AgentRegistry } from "../core/AgentRegistry.ts"
 import { DeveloperAgent } from "../agents/DeveloperAgent.ts"
+import { MemberRegistry, MemberAgent } from "../members/index.ts"
 import type { ExecutionContext } from "../core/ExecutionContext.ts"
 
 const agentRegistry = new AgentRegistry();
+const memberRegistry = new MemberRegistry();
 
 function createContext(projectPath: string): ExecutionContext {
   const llm = LLMRouter.create({});
   const sReg = new SkillRegistry();
   const loop = new ReActLoop(llm, sReg);
+
+  // Register the generic DeveloperAgent for backward compat
   const dev = new DeveloperAgent(llm, loop, sReg, agentRegistry);
   agentRegistry.register(dev);
 
@@ -47,10 +51,32 @@ export async function run(args: string[]): Promise<void> {
   }
 
   const context = createContext(process.cwd());
-  const agent = agentRegistry.get(agentName);
+  const task = taskParts.join(" ");
 
+  // Try Society member first (14 named members)
+  if (memberRegistry.has(agentName)) {
+    const spec = memberRegistry.get(agentName);
+    // Use per-member preferred provider with failover fallback
+    const llm = LLMRouter.createForMember(spec.preferredProvider, {});
+    const sReg = new SkillRegistry();
+    const loop = new ReActLoop(llm, sReg);
+    const agent = new MemberAgent(spec, llm, loop, sReg);
+
+    try {
+      const result = await agent.run(task, context);
+      console.log(`\n\u2714 ${result.role} result:\n${result.output}\n`);
+      return;
+    } catch (err) {
+      const msg = err instanceof Error ? err.message : String(err);
+      console.error(`Error running member "${agentName}": ${msg}`);
+      process.exit(1);
+    }
+  }
+
+  // Fall back to generic template agents (developer, architect, reviewer, qa)
   try {
-    const result = await agent.run(taskParts.join(" "), context);
+    const agent = agentRegistry.get(agentName);
+    const result = await agent.run(task, context);
     console.log(`\n\u2714 ${result.role} result:\n${result.output}\n`);
   } catch (err) {
     const msg = err instanceof Error ? err.message : String(err);

@@ -1,11 +1,12 @@
 {
   "name": "agenthood",
   "owner": {
-    "name": "Agenthood Society"
+    "name": "Agenthood Society",
+    "email": "inbox@flabs.tech"
   },
   "metadata": {
     "description": "The Agenthood Society — 14 specialized agent skills for the full software engineering lifecycle: architecture, TDD, debugging, code review, security audit, commit messages, changelogs, documentation, institutional knowledge, cross-provider validation, drift detection, code smell enforcement, context stewardship, and release management.",
-    "version": "1.0.0"
+    "version": "1.8.4"
   },
   "plugins": [
     {

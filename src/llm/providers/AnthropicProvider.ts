@@ -149,6 +149,10 @@ export class AnthropicProvider implements ILLMProvider {
     return generate()
   }
 
+  getContextWindow(): number {
+    return 200000
+  }
+
   async embed(text: string): Promise<number[]> {
     void text
     throw new UnsupportedOperationError('embed', 'AnthropicProvider')

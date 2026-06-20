@@ -134,6 +134,10 @@ export class OllamaProvider implements ILLMProvider {
     return generate()
   }
 
+  getContextWindow(): number {
+    return 8192
+  }
+
   async embed(text: string): Promise<number[]> {
     try {
       const response = await fetch(`${this.baseUrl}/api/embeddings`, {

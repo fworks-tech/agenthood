@@ -87,6 +87,10 @@ export class GroqProvider implements ILLMProvider {
     return generate();
   }
 
+  getContextWindow(): number {
+    return 8192
+  }
+
   async embed(text: string): Promise<number[]> {
     void text; // embed not supported
     throw new UnsupportedOperationError("embed", "GroqProvider");

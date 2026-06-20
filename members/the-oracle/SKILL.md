@@ -196,7 +196,7 @@ When asked which layer a new addition belongs to:
 | A scheduled, recurring automation | `rituals/` — Layer 3 |
 | A connector to an external system (GitHub, Linear, Slack) | `portals/` — Layer 4 |
 | A multi-step GitHub Agentic Workflow | `agentic-workflows/` — Layer 5 |
-| A reusable GitHub Actions CI workflow | `workflows/` — Layer 6 |
+| A reusable GitHub Actions CI workflow | `.github/workflows/` — Layer 6 |
 | A formatting rule, commit standard, or lint config | `conventions/` — Layer 1 |
 
 ## Red Flags

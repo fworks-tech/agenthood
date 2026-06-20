@@ -1,4 +1,4 @@
-name: VS Code Extension — Build and Test
+name: The Envoy — VS Code Extension Build and Test
 
 on:
   pull_request:
@@ -14,7 +14,7 @@ on:
 
 jobs:
   build:
-    name: Build and Test VS Code Extension
+    name: The Envoy — build and test VS Code Extension
     runs-on: ubuntu-latest
 
     steps:

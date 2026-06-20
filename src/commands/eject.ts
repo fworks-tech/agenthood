@@ -1,7 +1,7 @@
 /**
  * agenthood eject
  *
- * Removes the Society from the current project cleanly.
+ * The Envoy — removes all Society artifacts from the project cleanly.
  * The Society will not hold it against you.
  */
 
@@ -34,7 +34,6 @@ export async function eject(): Promise<void> {
 
     // CI workflows
     '.github/workflows/commitlint.yml',
-    '.github/workflows/pr-title.yml',
 
     // Society config and skills
     '.agenthood',

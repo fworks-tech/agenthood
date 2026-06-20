@@ -1,7 +1,7 @@
 /**
  * agenthood activate <member>
  *
- * Copies a member's skill file into the project's active skills directory.
+ * The Envoy — bootstraps a member's skill file into the project's active skills directory.
  */
 
 import { copyFile, mkdir } from 'node:fs/promises';

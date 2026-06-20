@@ -1,4 +1,4 @@
-name: Commitlint
+name: The Doorman — Commit Message Validation
 
 on:
   pull_request:
@@ -27,7 +27,7 @@ jobs:
             cp conventions/commitlint.config.cjs ./commitlint.config.cjs
           fi
 
-      - name: Validate commits in PR range
+      - name: The Doorman — validate commits in PR range
         run: |
           npx commitlint \
             --from ${{ github.event.pull_request.base.sha }} \

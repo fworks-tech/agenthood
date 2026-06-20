@@ -191,7 +191,7 @@ This activates `.githooks/` (commit-msg, pre-commit, prepare-commit-msg, pre-pus
    git config commit.template .gitmessage
    ```
 
-6. **CI workflow** — add `workflows/commitlint.yml` to `.github/workflows/`
+6. **CI workflow** — copy `.github/workflows/commitlint.yml` to the target repository's `.github/workflows/`
 
 ### What The Doorman Says
 

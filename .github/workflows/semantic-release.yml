@@ -1,4 +1,4 @@
-name: Release
+name: The Herald — Semantic Release
 
 on:
   push:
@@ -13,7 +13,7 @@ permissions:
 
 jobs:
   release:
-    name: Semantic Release
+    name: The Herald — determine version and publish release
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -33,7 +33,7 @@ jobs:
           echo "registry=https://registry.npmjs.org/" > ~/.npmrc
           echo "provenance=true" >> ~/.npmrc
 
-      - name: Release
+      - name: The Herald — publish release
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: npx semantic-release

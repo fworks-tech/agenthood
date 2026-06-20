@@ -1,0 +1,1 @@
+../../members/the-scribe/SKILL.md

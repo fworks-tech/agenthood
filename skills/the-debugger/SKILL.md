@@ -1,0 +1,1 @@
+../../members/the-debugger/SKILL.md

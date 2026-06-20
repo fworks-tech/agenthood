@@ -5,6 +5,7 @@ on:
     branches: [main]
     paths:
       - 'members/**'
+      - 'skills/**'
       - 'AGENTS.md'
 
 jobs:
@@ -96,3 +97,45 @@ jobs:
           fi
 
           echo "The Sentinel: all members structurally sound."
+
+      - name: The Sentinel — verify skills/ symlinks
+        shell: bash
+        run: |
+          FAILED=0
+
+          # Check 1: every member has a corresponding symlink in skills/
+          for MEMBER_DIR in members/*/; do
+            NAME=$(basename "$MEMBER_DIR")
+            [ "$NAME" = "README.md" ] && continue
+
+            LINK="skills/$NAME/SKILL.md"
+            TARGET="../../members/$NAME/SKILL.md"
+
+            if [ ! -L "$LINK" ]; then
+              echo "FAIL [$NAME]: missing symlink at $LINK (expected -> $TARGET)"
+              FAILED=1
+            else
+              ACTUAL=$(readlink "$LINK")
+              if [ "$ACTUAL" != "$TARGET" ]; then
+                echo "FAIL [$NAME]: symlink $LINK points to '$ACTUAL' (expected '$TARGET')"
+                FAILED=1
+              fi
+            fi
+          done
+
+          # Check 2: no orphan symlinks in skills/ (member no longer exists)
+          for SKILL_DIR in skills/*/; do
+            NAME=$(basename "$SKILL_DIR")
+            if [ ! -d "members/$NAME" ]; then
+              echo "FAIL [skills/$NAME]: symlink exists but no matching member in members/"
+              FAILED=1
+            fi
+          done
+
+          if [ "$FAILED" -eq 1 ]; then
+            echo ""
+            echo "The Sentinel: skills/ symlinks are out of sync with members/. Create or fix symlinks before merging."
+            exit 1
+          fi
+
+          echo "The Sentinel: all skills/ symlinks match members/."

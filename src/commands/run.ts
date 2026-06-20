@@ -43,12 +43,33 @@ function createContext(projectPath: string): ExecutionContext {
   };
 }
 
+function validateApiKeys(): void {
+  const missing: string[] = [];
+  if (!process.env.GROQ_API_KEY) missing.push('GROQ_API_KEY');
+  if (!process.env.OPENAI_API_KEY) missing.push('OPENAI_API_KEY');
+  if (!process.env.ANTHROPIC_API_KEY) missing.push('ANTHROPIC_API_KEY');
+
+  if (missing.length === 3) {
+    console.error('');
+    console.error('No LLM provider API keys found. Set at least one:');
+    console.error('  $env:GROQ_API_KEY = "your-key"        (free tier available)');
+    console.error('  $env:OPENAI_API_KEY = "your-key"');
+    console.error('  $env:ANTHROPIC_API_KEY = "your-key"');
+    console.error('');
+    console.error('Or run Ollama locally for offline execution (no key needed).');
+    console.error('');
+    process.exit(1);
+  }
+}
+
 export async function run(args: string[]): Promise<void> {
   const [agentName, ...taskParts] = args;
   if (!agentName || taskParts.length === 0) {
     console.error('Usage: agenthood run <agent> "<task description>"');
     process.exit(1);
   }
+
+  validateApiKeys();
 
   const context = createContext(process.cwd());
   const task = taskParts.join(" ");

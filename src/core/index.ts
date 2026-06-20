@@ -11,3 +11,7 @@ export type {
   EpisodicMemory,
   ProjectMemory,
 } from "./types.ts"
+export { ConcurrencyQueue } from "./ConcurrencyQueue.ts"
+export type { QueuedTask, Priority, QueueStatus } from "./ConcurrencyQueue.ts"
+export { SafetyGuard, SafetyLimitError, LoopDetectedError, CatastrophicCommandError } from "./SafetyGuard.ts"
+export type { SafetyCaps } from "./SafetyGuard.ts"

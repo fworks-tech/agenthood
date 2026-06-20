@@ -42,17 +42,13 @@ exists to address this cross-provider translation problem.
 
 ## Update — Phase 1 (2026-06-02)
 
-The Markdown-first decision is preserved and extended by the Python runtime layer.
-`SkillsMiddleware` in DeepAgents reads the `.md` files at agent construction time —
-they are passed as file paths, never parsed or modified. The Markdown files remain
-the single source of truth for each member's identity and instructions.
-
-See [ADR-006](ADR-006-python-runtime-as-additive-layer.md) and
-[ADR-007](ADR-007-deepagents-as-execution-engine.md) for how the runtime uses them.
+The Markdown-first decision is preserved and extended by the TypeScript runtime layer,
+which reads `.md` files at agent construction time — they are passed as file paths,
+never parsed or modified. The Markdown files remain the single source of truth for
+each member's identity and instructions.
 
 ## References
 
 - [members/the-envoy/SKILL.md](https://github.com/fworks-tech/agenthood/blob/main/members/the-envoy/SKILL.md) — cross-provider translation layer
 - [architecture/agent-system.md](https://github.com/fworks-tech/agenthood/blob/main/architecture/agent-system.md) — agent system design
-- [ADR-006](ADR-006-python-runtime-as-additive-layer.md) — Python runtime as additive layer
-- [ADR-007](ADR-007-deepagents-as-execution-engine.md) — DeepAgents as execution engine
+- [ADR-008](ADR-008-typescript-runtime-over-python.md) — TypeScript runtime over Python

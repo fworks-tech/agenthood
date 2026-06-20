@@ -116,8 +116,8 @@ npm run package  # Creates .vsix file
 
 ## Runtime Integration (v2.0.0 — planned)
 
-When `agenthood-runtime` is installed and `ANTHROPIC_API_KEY` is set, a future
-version of this extension will surface `agenthood-run` commands directly in the
+When the TypeScript runtime is installed and `ANTHROPIC_API_KEY` is set, a future
+version of this extension will surface `agenthood` commands directly in the
 Command Palette:
 
 | Command | What it does |

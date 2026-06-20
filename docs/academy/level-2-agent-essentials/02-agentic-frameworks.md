@@ -41,7 +41,7 @@ const response = await llm.complete({
 });
 ```
 
-Every LLM call is a visible function call with explicit arguments. The prompt is a string you can log, diff, and unit-test. When ADR-008 superseded ADR-006 and ADR-007, the Python runtime and DeepAgents dependency were eliminated — one language, one package manager, one release pipeline.
+Every LLM call is a visible function call with explicit arguments. The prompt is a string you can log, diff, and unit-test. ADR-008 eliminated the separate Python runtime — one language, one package manager, one release pipeline.
 
 ---
 
@@ -64,8 +64,7 @@ The Society member produces a Conventional Commit message with no hidden prompt 
 
 ## Further reading
 
-- [ADR-008 — TypeScript-native runtime over Python](../../adr/ADR-008-typescript-runtime-over-python.md) — the decision and its alternatives
-- [ADR-007 — DeepAgents superseded](../../adr/ADR-007-deepagents-as-execution-engine.md) — the execution engine that was eliminated
-- [LangChain concepts](https://python.langchain.com/docs/concepts/) — what LangChain covers well and where it adds overhead
+- [ADR-008](../../adr/ADR-008-typescript-runtime-over-python.md) — the decision to go TypeScript-native
+- [architecture/agent-system.md](../../../architecture/agent-system.md) — system design
 
 

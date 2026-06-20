@@ -54,7 +54,7 @@ Each member is a subagent with:
 ### Member → Tool Scope
 
 Full tool-scope definitions live in [`built-in-tools.md`](built-in-tools.md) and are
-implemented as `SubAgent` TypedDicts in [`runtime/agenthood_runtime/members/specs.py`](../runtime/agenthood_runtime/members/specs.py).
+implemented in [`src/members/MemberRegistry.ts`](../src/members/MemberRegistry.ts).
 
 | Member | Key Tools | Permission Profile |
 |--------|-----------|--------------------|
@@ -139,9 +139,7 @@ The Society remembers across sessions:
 Memory is stored in `.agenthood/memory.json` and loaded at session start.
 Members read from memory before acting and write to it after significant decisions.
 
-In the Python runtime (Phase 2), memory is backed by a LangGraph Memory Store with
-three namespaces — `project`, `session`, `user` — and synced to `.agenthood/memory.json`
-via `MemoryBridge` so it remains human-readable outside the runtime.
+Memory is backed by a tiered store with three namespaces — `project`, `session`, `user` — and synced to `.agenthood/memory.json` so it remains human-readable outside the runtime.
 
 ---
 
@@ -149,9 +147,6 @@ via `MemoryBridge` so it remains human-readable outside the runtime.
 
 The architecture described in this document is implemented as a TypeScript CLI in
 this repo (`src/`), per [ADR-008](../docs/adr/ADR-008-typescript-runtime-over-python.md).
-Earlier prototypes lived in [`runtime/`](../runtime/) as a Python package (DeepAgents +
-LangGraph); ADRs 006 and 007 are **superseded** by ADR-008 and the Python package is
-now experimental reference only.
 
 | This doc | Implemented as | Status |
 |----------|----------------|--------|

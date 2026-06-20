@@ -63,8 +63,7 @@ Response
 
 The architecture documented here is implemented as a TypeScript CLI in this repo
 (`src/`), driven by [ADR-008](../docs/adr/ADR-008-typescript-runtime-over-python.md),
-which **supersedes** [ADR-006](../docs/adr/ADR-006-python-runtime-as-additive-layer.md)
-and [ADR-007](../docs/adr/ADR-007-deepagents-as-execution-engine.md).
+which superseded the earlier Python/DeepAgents runtime approach.
 
 | Component | Implemented in | Status |
 |-----------|----------------|--------|
@@ -78,6 +77,4 @@ and [ADR-007](../docs/adr/ADR-007-deepagents-as-execution-engine.md).
 | 5-tier memory | `src/memory/` | 📋 Planned — v2.1.0 |
 | RAG (LanceDB) | `src/rag/` | 📋 Planned — v2.1.0 |
 
-The Python package in [`runtime/`](../runtime/) is **experimental** — retained as a
-reference for the DeepAgents path, but **not on the supported install path**. The
-TS CLI is the single supported runtime for `agenthood run`.
+The TS CLI is the single supported runtime for `agenthood run`.

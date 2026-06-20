@@ -3,8 +3,6 @@ node_modules/
 site/
 dist/node_modules/
 dist/
-.venv/
-venv/
 
 # Local environment
 .env
@@ -12,16 +10,6 @@ venv/
 
 # Build output
 dist/
-
-# Python
-__pycache__/
-*.py[cod]
-*.pyo
-*.pyd
-*.egg-info/
-.pytest_cache/
-.mypy_cache/
-.ruff_cache/
 
 # VS Code Extension Testing
 vscode-extension/.vscode-test/

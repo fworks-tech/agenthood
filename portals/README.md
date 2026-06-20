@@ -32,14 +32,9 @@ The credential proxy handles authentication — members never see raw API keys.
 
 ## Runtime Integration (Phase 5)
 
-With `agenthood-runtime` installed, portal tools are available as LangChain `@tool`
-functions injected directly into member agents — no manual MCP server configuration
+With the TypeScript runtime, portal tools are available as injectable functions
+injected directly into member agents — no manual MCP server configuration
 required for supported portals.
-
-```
-portals/github.md  →  runtime/agenthood_runtime/portals/github/tools.py
-                       @tool functions: get_pr, list_issues, post_comment, ...
-```
 
 The `tools_for(member_name)` method on each portal class enforces the
 **Primary Members** scope column from the portal's Available Tools table,

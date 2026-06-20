@@ -58,5 +58,4 @@ The orchestrator described here will be implemented as a LangGraph `StateGraph` 
 - [agentic-workflows/](https://github.com/fworks-tech/agenthood/tree/main/agentic-workflows/) — multi-step workflow templates
 - [architecture/agent-system.md](https://github.com/fworks-tech/agenthood/blob/main/architecture/agent-system.md) — system design
 - [architecture/concurrency-and-queues.md](https://github.com/fworks-tech/agenthood/blob/main/architecture/concurrency-and-queues.md) — queue design
-- [ADR-006](ADR-006-python-runtime-as-additive-layer.md) — Python runtime context
-- [ADR-007](ADR-007-deepagents-as-execution-engine.md) — DeepAgents execution engine
+- [ADR-008](ADR-008-typescript-runtime-over-python.md) — TypeScript runtime over Python

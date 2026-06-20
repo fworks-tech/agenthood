@@ -30,3 +30,14 @@ vscode-extension/.vscode-test/
 .agenthood/audit.log
 .agenthood/memory.json
 .claude/scheduled_tasks.lock
+
+# Provider-specific skill install directories (skills CLI)
+skills-lock.json
+.agents/skills/
+.claude/skills/
+.codex/skills/
+.cursor/skills/
+.windsurf/skills/
+.gemini/skills/
+.github/copilot/
+.copilot/skills/

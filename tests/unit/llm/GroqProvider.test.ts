@@ -1,6 +1,6 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
-import { GroqProvider } from "../../../src/llm/providers/GroqProvider.js";
-import type { LLMRequest } from "../../../src/llm/types.js";
+import { GroqProvider } from "../../../src/llm/providers/GroqProvider.ts"
+import type { LLMRequest } from "../../../src/llm/types.ts"
 
 // Mock the Groq SDK
 const mockCreate = vi.fn();

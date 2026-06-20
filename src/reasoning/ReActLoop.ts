@@ -1,9 +1,9 @@
-import type { ILLMProvider } from "../llm/ILLMProvider.js";
-import type { ExecutionContext } from "../core/ExecutionContext.js";
-import type { Message, ToolCall } from "../llm/types.js";
-import { SkillRegistry, SkillNotFoundError } from "../skills/SkillRegistry.js";
-import { ThinkingBudget } from "./ThinkingBudget.js";
-import { validateSchema, SchemaValidationError } from "./SchemaValidator.js";
+import type { ILLMProvider } from "../llm/ILLMProvider.ts"
+import type { ExecutionContext } from "../core/ExecutionContext.ts"
+import type { Message, ToolCall } from "../llm/types.ts"
+import { SkillRegistry, SkillNotFoundError } from "../skills/SkillRegistry.ts"
+import { ThinkingBudget } from "./ThinkingBudget.ts"
+import { validateSchema, SchemaValidationError } from "./SchemaValidator.ts"
 
 export class ReActLoop {
   constructor(

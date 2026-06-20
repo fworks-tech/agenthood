@@ -1,13 +1,13 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
-import { SubagentTaskSkill } from "../../../src/skills/core/SubagentTaskSkill.js";
+import { SubagentTaskSkill } from "../../../src/skills/core/SubagentTaskSkill.ts"
 import {
   AgentRegistry,
   AgentNotFoundError,
-} from "../../../src/core/AgentRegistry.js";
-import type { BaseAgent } from "../../../src/agents/base/BaseAgent.js";
-import type { AgentResult } from "../../../src/agents/base/AgentResult.js";
-import type { ExecutionContext } from "../../../src/core/ExecutionContext.js";
-import { createTestContext } from "../../helpers/testContext.js";
+} from "../../../src/core/AgentRegistry.ts"
+import type { BaseAgent } from "../../../src/agents/base/BaseAgent.ts"
+import type { AgentResult } from "../../../src/agents/base/AgentResult.ts"
+import type { ExecutionContext } from "../../../src/core/ExecutionContext.ts"
+import { createTestContext } from "../../helpers/testContext.ts"
 
 function createMockAgent(
   role: string,

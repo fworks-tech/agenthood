@@ -1,9 +1,6 @@
-import { createRequire } from 'node:module'
 import { describe, it, expect } from 'vitest'
-
-const require = createRequire(import.meta.url)
-const config = require('../conventions/commitlint.config.cjs')
-const rule = config.plugins[0].rules['no-vague-subject'] as (ctx: { subject?: string }) => [boolean, string]
+import config from '../conventions/commitlint.config.ts'
+const rule = config.plugins![0].rules['no-vague-subject'] as (ctx: { subject?: string }) => [boolean, string]
 
 const BANNED = ['wip', 'fix stuff', 'update', 'changes', 'misc', 'asdf', 'temp', 'cleanup', 'test123']
 const VALID  = ['add user login', 'fix null pointer in auth middleware', 'refactor token refresh logic']

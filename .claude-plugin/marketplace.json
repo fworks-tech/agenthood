@@ -1,0 +1,80 @@
+{
+  "name": "agenthood",
+  "owner": {
+    "name": "Agenthood Society"
+  },
+  "metadata": {
+    "description": "The Agenthood Society — 14 specialized agent skills for the full software engineering lifecycle: architecture, TDD, debugging, code review, security audit, commit messages, changelogs, documentation, institutional knowledge, cross-provider validation, drift detection, code smell enforcement, context stewardship, and release management.",
+    "version": "1.0.0"
+  },
+  "plugins": [
+    {
+      "name": "agenthood-all",
+      "description": "All 14 Agenthood members — every skill for every stage of the engineering lifecycle. Architecture, TDD, debugging, code review, security audit, commit messages, PR descriptions, changelogs, documentation, institutional knowledge, cross-provider translation, structural drift detection, code smell enforcement, context management, and release management.",
+      "source": "./",
+      "strict": false,
+      "skills": [
+        "./members/the-scribe",
+        "./members/the-architect",
+        "./members/the-tester",
+        "./members/the-debugger",
+        "./members/the-reviewer",
+        "./members/the-auditor",
+        "./members/the-doorman",
+        "./members/the-sentinel",
+        "./members/the-warden",
+        "./members/the-librarian",
+        "./members/the-oracle",
+        "./members/the-herald",
+        "./members/the-envoy",
+        "./members/the-steward"
+      ]
+    },
+    {
+      "name": "agenthood-engineering",
+      "description": "Engineering workflow skills: commit messages & PR descriptions (the-scribe), spec-first architecture planning (the-architect), TDD test generation (the-tester), and systematic error diagnosis (the-debugger).",
+      "source": "./",
+      "strict": false,
+      "skills": [
+        "./members/the-scribe",
+        "./members/the-architect",
+        "./members/the-tester",
+        "./members/the-debugger"
+      ]
+    },
+    {
+      "name": "agenthood-validation",
+      "description": "Validation and quality skills: multi-axis code review (the-reviewer), security & dependency audit (the-auditor), commit/PR/branch convention enforcement (the-doorman), cross-member contradiction detection (the-sentinel), and code smell & complexity enforcement (the-warden).",
+      "source": "./",
+      "strict": false,
+      "skills": [
+        "./members/the-reviewer",
+        "./members/the-auditor",
+        "./members/the-doorman",
+        "./members/the-sentinel",
+        "./members/the-warden"
+      ]
+    },
+    {
+      "name": "agenthood-knowledge",
+      "description": "Knowledge and documentation skills: API references, ADRs, READMEs (the-librarian) and institutional knowledge about member format, naming conventions, and Society structure (the-oracle).",
+      "source": "./",
+      "strict": false,
+      "skills": [
+        "./members/the-librarian",
+        "./members/the-oracle"
+      ]
+    },
+    {
+      "name": "agenthood-lifecycle",
+      "description": "Release lifecycle skills: semantic versioning, changelogs, release notes (the-herald), cross-provider translation and bootstrap generation (the-envoy), and context window management and member routing (the-steward).",
+      "source": "./",
+      "strict": false,
+      "skills": [
+        "./members/the-herald",
+        "./members/the-envoy",
+        "./members/the-steward"
+      ]
+    }
+  ]
+}

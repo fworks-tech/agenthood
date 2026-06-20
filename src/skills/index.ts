@@ -1,4 +1,4 @@
-export type { ISkill } from "./ISkill.js";
-export type { SkillResult } from "./ISkill.js";
+export type { ISkill } from "./ISkill.ts"
+export type { SkillResult } from "./ISkill.ts"
 
-export { SubagentTaskSkill } from "./core/SubagentTaskSkill.js";
+export { SubagentTaskSkill } from "./core/SubagentTaskSkill.ts"

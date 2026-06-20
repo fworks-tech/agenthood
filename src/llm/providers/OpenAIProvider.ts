@@ -1,12 +1,12 @@
 import OpenAI from "openai";
-import type { ILLMProvider } from "../ILLMProvider.js";
+import type { ILLMProvider } from "../ILLMProvider.ts"
 import type {
   LLMRequest,
   LLMResponse,
   LLMChunk,
   LLMConfig,
   ToolCall,
-} from "../types.js";
+} from "../types.ts"
 
 function parseToolCall(
   tc: OpenAI.Chat.ChatCompletionMessageToolCall,

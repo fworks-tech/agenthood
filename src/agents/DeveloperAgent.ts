@@ -1,17 +1,17 @@
-import { BaseAgent } from "./base/BaseAgent.js";
-import { WriteCodeSkill } from "../skills/code/WriteCodeSkill.js";
-import { RefactorSkill } from "../skills/code/RefactorSkill.js";
-import { ExplainCodeSkill } from "../skills/code/ExplainCodeSkill.js";
-import { SearchCodebaseSkill } from "../skills/code/SearchCodebaseSkill.js";
-import { ReadFileSkill } from "../skills/project/ReadFileSkill.js";
-import { WriteFileSkill } from "../skills/project/WriteFileSkill.js";
-import { SubagentTaskSkill } from "../skills/core/SubagentTaskSkill.js";
-import type { ISkill } from "../skills/ISkill.js";
-import type { ExecutionContext } from "../core/ExecutionContext.js";
-import type { AgentRegistry } from "../core/AgentRegistry.js";
-import type { ILLMProvider } from "../llm/ILLMProvider.js";
-import type { ReActLoop } from "../reasoning/ReActLoop.js";
-import type { SkillRegistry } from "../skills/SkillRegistry.js";
+import { BaseAgent } from "./base/BaseAgent.ts"
+import { WriteCodeSkill } from "../skills/code/WriteCodeSkill.ts"
+import { RefactorSkill } from "../skills/code/RefactorSkill.ts"
+import { ExplainCodeSkill } from "../skills/code/ExplainCodeSkill.ts"
+import { SearchCodebaseSkill } from "../skills/code/SearchCodebaseSkill.ts"
+import { ReadFileSkill } from "../skills/project/ReadFileSkill.ts"
+import { WriteFileSkill } from "../skills/project/WriteFileSkill.ts"
+import { SubagentTaskSkill } from "../skills/core/SubagentTaskSkill.ts"
+import type { ISkill } from "../skills/ISkill.ts"
+import type { ExecutionContext } from "../core/ExecutionContext.ts"
+import type { AgentRegistry } from "../core/AgentRegistry.ts"
+import type { ILLMProvider } from "../llm/ILLMProvider.ts"
+import type { ReActLoop } from "../reasoning/ReActLoop.ts"
+import type { SkillRegistry } from "../skills/SkillRegistry.ts"
 
 export class DeveloperAgent extends BaseAgent {
   role = "developer";

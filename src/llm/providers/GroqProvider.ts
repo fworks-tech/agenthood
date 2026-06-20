@@ -1,7 +1,7 @@
 import Groq from "groq-sdk";
-import type { ILLMProvider } from "../ILLMProvider.js";
-import type { LLMRequest, LLMResponse, LLMChunk, LLMConfig } from "../types.js";
-import { UnsupportedOperationError } from "../errors.js";
+import type { ILLMProvider } from "../ILLMProvider.ts"
+import type { LLMRequest, LLMResponse, LLMChunk, LLMConfig } from "../types.ts"
+import { UnsupportedOperationError } from "../errors.ts"
 
 export class GroqProvider implements ILLMProvider {
   private client: Groq;

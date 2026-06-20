@@ -147,17 +147,27 @@ via `MemoryBridge` so it remains human-readable outside the runtime.
 
 ## Runtime Implementation
 
-The architecture described in this document is being progressively implemented in
-[`runtime/`](../runtime/) as `agenthood-runtime` (Python 3.12+, DeepAgents + LangGraph).
+The architecture described in this document is implemented as a TypeScript CLI in
+this repo (`src/`), per [ADR-008](../docs/adr/ADR-008-typescript-runtime-over-python.md).
+Earlier prototypes lived in [`runtime/`](../runtime/) as a Python package (DeepAgents +
+LangGraph); ADRs 006 and 007 are **superseded** by ADR-008 and the Python package is
+now experimental reference only.
 
-| This doc | Implemented as |
-|----------|---------------|
-| Orchestrator | `runtime/agenthood_runtime/orchestrator/graph.py` (Phase 3) |
-| Member subagents | `runtime/agenthood_runtime/members/specs.py` ✅ Phase 1 |
-| Tool scoping | `SubAgent.tools` in specs.py ✅ Phase 1 |
-| Permission profiles | `SubAgent.permissions` in specs.py ✅ Phase 1 |
-| Persistent memory | `runtime/agenthood_runtime/memory/` (Phase 2) |
-| Concurrency queue | `runtime/agenthood_runtime/orchestrator/` (Phase 3) |
+| This doc | Implemented as | Status |
+|----------|----------------|--------|
+| 14 members (skill files) | `members/<name>/SKILL.md` | ✅ Shipped |
+| Member subagent specs (tools, permissions) | `src/members/MemberRegistry.ts` | ✅ v2.0.0 |
+| Tool scoping per member | `MemberSpec.tools` in `MemberRegistry` | ✅ v2.0.0 |
+| Permission profiles | `MemberSpec.permissions` in `MemberRegistry` | ✅ v2.0.0 |
+| Per-member preferred LLM provider | `MemberSpec.preferredProvider` | ✅ v2.0.0 |
+| ReAct loop | `src/reasoning/ReActLoop.ts` | ✅ Shipped |
+| BaseAgent | `src/agents/base/BaseAgent.ts` | ✅ Shipped |
+| Concurrency queue | `src/core/ConcurrencyQueue.ts` | ✅ v2.0.0 |
+| Safety caps | `src/core/SafetyGuard.ts` | ✅ v2.0.0 |
+| Provider failover + circuit breaker | `src/llm/ProviderFailover.ts` | ✅ v2.0.0 |
+| Persistent memory (5 tiers) | `src/memory/` | 📋 Planned — v2.1.0 |
+| Orchestrator (event bus, multi-step handoff) | `src/orchestrator/` | 📋 Planned — Phase 3 |
+| Member → Member direct handoff (today) | `SubagentTaskSkill` | ✅ Shipped (no bus) |
 
-The Markdown skill files in `members/` are never modified — they are loaded as-is
-into each agent's system prompt via `SkillsMiddleware`.
+The Markdown skill files in `members/` are never modified — each is parsed at runtime
+by `MemberRegistry` and used as the system prompt for the corresponding `BaseAgent`.

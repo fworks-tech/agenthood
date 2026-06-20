@@ -83,3 +83,10 @@ The runtime reads `.agenthood/config.json` (written by `npx agenthood init`) and
 the same `members`, `permissions`, and `toolScoping` configuration. The default LLM
 provider is Groq (free tier). See [ADR-008](docs/adr/ADR-008-typescript-runtime-over-python.md)
 and [ADR-009](docs/adr/ADR-009-groq-as-default-llm-provider.md) for design decisions.
+
+> **Note on ADRs 006 & 007:** [ADR-006](docs/adr/ADR-006-python-runtime-as-additive-layer.md)
+> and [ADR-007](docs/adr/ADR-007-deepagents-as-execution-engine.md) introduced a
+> Python/DeepAgents runtime. [ADR-008](docs/adr/ADR-008-typescript-runtime-over-python.md)
+> **supersedes both** — the supported runtime is the TypeScript CLI in this repo.
+> The Python package in `runtime/` is retained as an experimental reference and is
+> **not** on the supported install path.

@@ -1,8 +1,8 @@
-import type { ISkill, SkillResult } from "../ISkill.js";
-import type { JSONSchema } from "../../llm/types.js";
-import type { ExecutionContext } from "../../core/ExecutionContext.js";
-import type { AgentRegistry } from "../../core/AgentRegistry.js";
-import { AgentNotFoundError } from "../../core/AgentRegistry.js";
+import type { ISkill, SkillResult } from "../ISkill.ts"
+import type { JSONSchema } from "../../llm/types.ts"
+import type { ExecutionContext } from "../../core/ExecutionContext.ts"
+import type { AgentRegistry } from "../../core/AgentRegistry.ts"
+import { AgentNotFoundError } from "../../core/AgentRegistry.ts"
 
 const inputSchema: JSONSchema = {
   type: "object",

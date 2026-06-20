@@ -1,3 +1,17 @@
+# [1.9.0](https://github.com/fworks-tech/agenthood/compare/v1.8.4...v1.9.0) (2026-06-20)
+
+
+### Bug Fixes
+
+* **distribution:** add owner email and align version with repo release v1.8.4 ([d6c97d7](https://github.com/fworks-tech/agenthood/commit/d6c97d79da0335722c6c73c37ee9436ac7887a8a))
+* **dot-folders:** audit and repair githooks, devcontainer, gitignore, and stale dirs ([49f43d1](https://github.com/fworks-tech/agenthood/commit/49f43d1378fb3b0117ba8804b0d44dc091fb82e2))
+
+
+### Features
+
+* **distribution:** add .claude-plugin marketplace.json for Claude Code plugin discovery ([1e5b8e6](https://github.com/fworks-tech/agenthood/commit/1e5b8e6ca2945742e7313f937ae7683333384a20)), closes [#224](https://github.com/fworks-tech/agenthood/issues/224)
+* **workflows:** add Herald CI summary workflow that posts PR verdict comment ([3d9da0e](https://github.com/fworks-tech/agenthood/commit/3d9da0efbfaa043983a899977c21117688a56573))
+
 ## [1.8.4](https://github.com/fworks-tech/agenthood/compare/v1.8.3...v1.8.4) (2026-06-19)
 
 

@@ -144,7 +144,7 @@
     "package": "vsce package",
     "publish": "vsce publish",
     "pretest": "tsc -p tsconfig.test.json",
-    "test": "vscode-test"
+    "test": "vscode-test --config ./dist/vscode-test-config.js"
   },
   "devDependencies": {
     "@types/mocha": "^10.0.6",

@@ -66,7 +66,7 @@ The Society ships 11 workflows that enforce standards on every push and PR:
 | `commitlint.yml` | The Doorman | Validates commit messages match conventional commits |
 | `auto-assign.yml` | The Scribe | Assigns an owner to new issues and PRs |
 | `labeler.yml` | The Scribe | Labels PRs by changed file paths |
-| `scribe-pr-body.yml` | The Scribe | Auto-syncs PR body with new commits (The Manuscript) |
+| `scribe-pr-body.yml` | The Reviewer | Reviews every pushed diff via LLM, posts findings as PR comment |
 | `herald.yml` | The Herald | Posts a CI summary comment on every PR |
 | `semantic-release.yml` | The Herald | Automated release and npm publish |
 | `auditor.yml` | The Auditor | Scans for secrets and credentials |

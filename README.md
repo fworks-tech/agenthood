@@ -212,7 +212,7 @@ agenthood/
 │   ├── auditor.yml                  ← The Auditor — secret scanning
 │   ├── commitlint.yml               ← The Doorman — commit message validation
 │   ├── herald.yml                   ← The Herald — CI summary comment on PRs
-│   ├── scribe-pr-body.yml           ← The Scribe — auto-updates PR body on push
+│   ├── scribe-pr-body.yml           ← The Reviewer — reviews every pushed diff
 │   ├── labeler.yml                  ← The Scribe — labels PRs by changed file paths
 │   ├── librarian.yml                ← The Librarian — checks docs stay in sync with code
 │   ├── semantic-release.yml         ← The Herald — automated release + npm publish

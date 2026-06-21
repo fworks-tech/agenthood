@@ -48,7 +48,7 @@ jobs:
       - run: npm run build
 
       - name: Sync PR body and comment
-        run: npx agenthood pr-sync
+        run: node dist/cli.js pr-sync
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           GH_PR_NUMBER: ${{ github.event.pull_request.number }}

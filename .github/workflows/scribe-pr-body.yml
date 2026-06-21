@@ -29,6 +29,8 @@ jobs:
 
       - run: npm ci --ignore-scripts
 
+      - run: npm run build
+
       - name: Sync PR body and comment
         run: npx agenthood pr-sync
         env:

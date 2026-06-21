@@ -257,7 +257,7 @@ fix description`
     expect(output).toContain('gh CLI not found')
   })
 
-  it('exits with error when PR not found', async () => {
+  it('exits cleanly when no PR is found', async () => {
     mockExecSync.mockImplementation((cmd: string, _opts?: any) => {
       if (cmd.includes('gh --version')) return 'gh version 2.47.0'
       if (cmd.includes('git rev-parse --abbrev-ref HEAD')) return 'feature-branch'
@@ -266,7 +266,7 @@ fix description`
     })
 
     const { prSync } = await import('../../src/commands/prSync.js')
-    await expect(prSync(['--dry-run'])).rejects.toThrow('process.exit')
-    expect(output).toContain('No PR detected')
+    await expect(prSync(['--dry-run'])).resolves.toBeUndefined()
+    expect(output).toContain('No open PR detected')
   })
 })

@@ -158,52 +158,58 @@ export async function prSync(args: string[]): Promise<void> {
   const prInfo = detectPR(options)
 
   if (!prInfo) {
-    console.error('No PR detected. Use --pr <number> or run from a branch with an open PR.')
-    process.exit(1)
-  }
-
-  // Fetch current PR body
-  const currentBody = run(`gh api repos/{owner}/{repo}/pulls/${prInfo.number} --jq '.body // ""'`)
-
-  // Find existing marker to determine since-sha
-  const { sha: lastSyncSha } = parseMarker(currentBody)
-  const commits = getCommitsSince(lastSyncSha || null, prInfo.baseBranch)
-
-  if (commits.length === 0) {
-    console.log('No new commits since last sync.')
+    console.log('No open PR detected for this branch. Skipping sync.')
     return
   }
 
-  const currentSha = run('git rev-parse HEAD')
+  try {
+    // Fetch current PR body
+    const currentBody = run(`gh api repos/{owner}/{repo}/pulls/${prInfo.number} --jq '.body // ""'`)
 
-  // Build new PR body
-  const newBody = buildSyncBody(currentBody, currentSha, commits)
+    // Find existing marker to determine since-sha
+    const { sha: lastSyncSha } = parseMarker(currentBody)
+    const commits = getCommitsSince(lastSyncSha || null, prInfo.baseBranch)
 
-  if (options.dryRun) {
-    console.log(`[DRY RUN] PR #${prInfo.number} — ${commits.length} new commit(s) since ${lastSyncSha || 'base'}`)
-    console.log('\n=== PROPOSED BODY ===')
-    console.log(newBody)
-  } else {
-    ghApiPatch(`repos/{owner}/{repo}/pulls/${prInfo.number}`, { body: newBody })
-  }
+    if (commits.length === 0) {
+      console.log('No new commits since last sync.')
+      return
+    }
 
-  // Generate and post comment
-  const hasApiKey = !!(process.env.GROQ_API_KEY || process.env.ANTHROPIC_API_KEY || process.env.OPENAI_API_KEY)
-  const shouldUseReviewer = options.withReviewer !== false && hasApiKey
+    const currentSha = run('git rev-parse HEAD')
 
-  let comment: string
-  if (shouldUseReviewer) {
-    comment = await generateLLMComment(commits)
-  } else {
-    comment = formatPlainComment(commits)
-  }
+    // Build new PR body
+    const newBody = buildSyncBody(currentBody, currentSha, commits)
 
-  if (options.dryRun) {
-    console.log('\n=== PROPOSED COMMENT ===')
-    console.log(comment)
-    console.log(`\n[Dry run complete. No changes made.]`)
-  } else {
-    ghApiPost(`repos/{owner}/{repo}/issues/${prInfo.number}/comments`, { body: comment })
-    console.log(`PR #${prInfo.number} synced (${commits.length} new commit(s)).`)
+    if (options.dryRun) {
+      console.log(`[DRY RUN] PR #${prInfo.number} — ${commits.length} new commit(s) since ${lastSyncSha || 'base'}`)
+      console.log('\n=== PROPOSED BODY ===')
+      console.log(newBody)
+    } else {
+      ghApiPatch(`repos/{owner}/{repo}/pulls/${prInfo.number}`, { body: newBody })
+    }
+
+    // Generate and post comment
+    const hasApiKey = !!(process.env.GROQ_API_KEY || process.env.ANTHROPIC_API_KEY || process.env.OPENAI_API_KEY)
+    const shouldUseReviewer = options.withReviewer !== false && hasApiKey
+
+    let comment: string
+    if (shouldUseReviewer) {
+      comment = await generateLLMComment(commits)
+    } else {
+      comment = formatPlainComment(commits)
+    }
+
+    if (options.dryRun) {
+      console.log('\n=== PROPOSED COMMENT ===')
+      console.log(comment)
+      console.log(`\n[Dry run complete. No changes made.]`)
+    } else {
+      ghApiPost(`repos/{owner}/{repo}/issues/${prInfo.number}/comments`, { body: comment })
+      console.log(`PR #${prInfo.number} synced (${commits.length} new commit(s)).`)
+    }
+  } catch (err) {
+    const msg = err instanceof Error ? err.message : String(err)
+    console.error(`PR sync failed: ${msg}`)
+    process.exit(1)
   }
 }

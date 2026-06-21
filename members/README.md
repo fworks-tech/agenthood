@@ -44,11 +44,6 @@ When a member's behaviour changes, **only `SKILL.md` needs to be updated** — t
 cp -r agenthood/members/ yourproject/.claude/skills/
 ```
 
-**CodeBuddy:**
-```bash
-cp -r agenthood/members/ yourproject/.codebuddy/skills/
-```
-
 **Agent-agnostic (AGENTS.md):**
 Reference `members/` in your project's `AGENTS.md` to make all runtimes aware.
 

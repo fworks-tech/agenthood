@@ -46,10 +46,9 @@ Knows each provider's caching mechanism and structures member loading accordingl
 |----------|----------------|-----------------|
 | Claude (API) | `cache_control: ephemeral` on system prompt blocks | Mark stable members (Oath, AGENTS.md, conventions) as cached; load task-specific member fresh |
 | Claude Code | CLAUDE.md + on-demand skills | Load only the member skill needed; CLAUDE.md holds the always-on constitution |
-| Gemini CLI | System instruction caching | Cache the Society constitution once per session; member skills loaded per task |
 | OpenAI | Automatic prefix caching (>1024 tokens) | Structure system prompt with stable content first — cache hits are free |
-| CodeBuddy | Per-session skill loading | Already granular; recommend loading by task type |
-| Copilot / Cursor | Custom instructions (always loaded) | Keep always-on instructions minimal; full members loaded only when needed |
+| Groq | Token-based, no persistent cache | Keep system prompt minimal; reload per request |
+| Ollama | Local KV cache on host | Cache entire model + system prompt; member skills loaded per task |
 
 ### 4. Session Handoff
 When context must be closed and a new one opened, The Steward produces a handoff document:

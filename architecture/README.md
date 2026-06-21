@@ -6,8 +6,6 @@ The Agenthood's architecture defines how agents think, coordinate, prioritize,
 recover, and operate. These documents are framework-agnostic — they describe
 the *what* and *why*, not the implementation.
 
-Inspired by the technical architecture of [CodeBuddy](https://github.com/olasunkanmi-SE/codebuddy).
-
 ---
 
 ## Documents

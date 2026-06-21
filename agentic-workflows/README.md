@@ -49,7 +49,7 @@ This decision is documented in [ADR-001](../docs/adr/ADR-001-markdown-skills-ove
 
 ## How to Use a Template
 
-1. Open your AI coding assistant (Claude Code, Copilot, Gemini CLI, etc.)
+1. Open your AI coding assistant (Claude Code, OpenAI Codex CLI, etc.)
 2. Load the relevant Society member skill — e.g., for PR review, load
    `members/the-reviewer/SKILL.md`
 3. Paste the template's **Steps** section as your prompt

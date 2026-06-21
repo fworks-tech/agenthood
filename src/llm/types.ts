@@ -63,9 +63,16 @@ export interface LLMChunk {
   done: boolean
 }
 
+export type ComplexityTier = 'low' | 'medium' | 'high'
+
+export interface RoutingConfig {
+  strategy?: 'static' | 'dynamic'
+}
+
 export interface LLMConfig {
   provider?: string
   model?: string
   baseUrl?: string
   apiKey?: string
+  routing?: RoutingConfig
 }

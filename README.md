@@ -24,32 +24,32 @@ They have opinions about your PR descriptions. They will not merge your branch i
 
 Each agent is a single `.md` file that describes a role, its responsibilities, standards, and how it communicates. Load one or all of them into Claude Code, Cursor, or any runtime that supports skill files.
 
-1. **Clone the repo** — get all 14 agent skill files in one command
+1. **Install the Society** — `npx skills add fworks-tech/agenthood` or clone the repo
 2. **Load into your runtime** — point Claude Code, Cursor, or your agent framework at the skills directory
 3. **Invoke any agent** — ask the Reviewer to check your PR, ask Security to audit your auth flow. They know their role. They have *standards*.
 
 ---
 
-## The agents
+## Meet the team
 
 Every role a real software team needs — available as a skill file with impeccable standards.
 
-| Agent | Role | What it does |
-|-------|------|-------------|
-| [The Scribe](members/the-scribe/SKILL.md) | Commits, PRs, Changelogs | Conventional Commits enforcement, PR quality checks, changelog generation |
-| [The Architect](members/the-architect/SKILL.md) | System Design, ADRs | Spec-first development, task decomposition, architecture decision records |
-| [The Reviewer](members/the-reviewer/SKILL.md) | Code Review | Five-axis review (Correctness, Readability, Architecture, Security, Performance) |
-| [The Tester](members/the-tester/SKILL.md) | TDD, Coverage | Red-Green-Refactor cycle, test pyramid balancing, regression-first testing |
-| [The Debugger](members/the-debugger/SKILL.md) | Error Triage | Read → Reproduce → Hypothesize → Test → Fix protocol, CI diagnosis |
-| [The Auditor](members/the-auditor/SKILL.md) | Security | OWASP Top 10 review, dependency audit, secret scanning |
-| [The Herald](members/the-herald/SKILL.md) | Releases | Semantic versioning, changelog translation, GitHub Releases |
-| [The Librarian](members/the-librarian/SKILL.md) | Documentation | README framework, ADR lifecycle, stale doc detection |
-| [The Doorman](members/the-doorman/SKILL.md) | Validation | Commit/PR validation, health checks, branch protection |
-| [The Oracle](members/the-oracle/SKILL.md) | Institutional Knowledge | Member authoring templates, naming validation, convention rationale |
-| [The Envoy](members/the-envoy/SKILL.md) | Cross-Provider Translation | Provider detection (7 runtimes), skill translation, convention validation |
-| [The Sentinel](members/the-sentinel/SKILL.md) | Integrity | Cross-member contradiction detection, structural drift detection |
-| [The Warden](members/the-warden/SKILL.md) | Code Health | Code smell detection, cyclomatic complexity enforcement, dead code audit |
-| [The Steward](members/the-steward/SKILL.md) | Context Economy | Context budget management, member routing, provider cache strategies |
+| | Agent | Role |
+|---|-------|------|
+| ✍️ | [The Scribe](members/the-scribe/SKILL.md) | Commits, PRs, changelogs |
+| 🏗️ | [The Architect](members/the-architect/SKILL.md) | System design, ADRs, tech decisions |
+| 🔍 | [The Reviewer](members/the-reviewer/SKILL.md) | Code review, standards enforcement |
+| 🧪 | [The Tester](members/the-tester/SKILL.md) | TDD, coverage, edge cases |
+| 🐛 | [The Debugger](members/the-debugger/SKILL.md) | Error triage, root cause analysis |
+| 🔒 | [The Auditor](members/the-auditor/SKILL.md) | Security, vulnerability scanning, dependency audit |
+| 📦 | [The Herald](members/the-herald/SKILL.md) | Releases, versioning, changelogs |
+| 📝 | [The Librarian](members/the-librarian/SKILL.md) | Documentation, API references |
+| 🚪 | [The Doorman](members/the-doorman/SKILL.md) | Validation, branch protection, health checks |
+| 🔮 | [The Oracle](members/the-oracle/SKILL.md) | Institutional knowledge, authoring templates |
+| 🌐 | [The Envoy](members/the-envoy/SKILL.md) | Cross-provider translation, convention validation |
+| 👁️ | [The Sentinel](members/the-sentinel/SKILL.md) | Integrity, cross-member contradiction detection |
+| ⚖️ | [The Warden](members/the-warden/SKILL.md) | Code health, complexity enforcement |
+| 🧭 | [The Steward](members/the-steward/SKILL.md) | Context economy, provider cache strategies |
 
 ---
 
@@ -67,7 +67,7 @@ Members are loaded as context by your existing AI assistant. Works with Claude C
 
 ### Option B — Run agents autonomously
 
-Execute members as real LLM agents that reason, act, and remember across sessions. Powered by a TypeScript runtime with Groq as the default free LLM provider.
+Execute members as real LLM agents that reason, act, and remember across sessions.
 
 ```bash
 npm run build                              # build the runtime (once)
@@ -79,16 +79,6 @@ agenthood run the-architect "plan the implementation for issue #42"
 
 Set `GROQ_API_KEY` in your environment (free at [console.groq.com](https://console.groq.com)), or use Ollama for fully offline execution.
 
-### Option C — Install from skill registries
-
-Agenthood is published as open Agent Skills that any compatible runtime can discover and load.
-
-```bash
-npx skills add fworks-tech/agenthood
-```
-
-This installs all 14 members from the [Skills.sh](https://skills.sh/fworks-tech/agenthood) registry. You can also browse the indexed collection on [SkillsMP](https://skillsmp.com/creators/fworks-tech).
-
 ---
 
 ## What's shipped
@@ -98,45 +88,16 @@ This installs all 14 members from the [Skills.sh](https://skills.sh/fworks-tech/
 | v1.0.0 | [Operationally Ready](https://github.com/fworks-tech/agenthood/milestone/1) — consistent APIs, test harness, health checks | ✅ Shipped |
 | v1.1.0 | VS Code modernization, Python runtime bootstrap | ✅ Shipped |
 | v1.2.0 | VS Code workspace observer event bus | ✅ Shipped |
-| v1.4.0 | [The Living Editor](https://github.com/fworks-tech/agenthood/milestone/4) — Doorman SCM validation, Auditor on-save scanning, Reviewer Diagnostics | ✅ Shipped |
+| v1.4.0 | [The Living Editor](https://github.com/fworks-tech/agenthood/milestone/4) — Doorman SCM, Auditor on-save, Reviewer Diagnostics | ✅ Shipped |
 | v1.5.0 | [Open Standard](https://github.com/fworks-tech/agenthood/milestone/6) — SKILL.md migration for all 14 members | ✅ Shipped |
 | v1.6.x | [The Academy](https://github.com/fworks-tech/agenthood/milestone/12) — Level 1 articles, GitHub Pages, npm via OIDC | ✅ Shipped |
-| v2.0.0 | [Foundation](https://github.com/fworks-tech/agenthood/milestone/3) — TypeScript runtime: ILLMProvider, LLMRouter, ReActLoop, BaseAgent | 📋 Planned |
-| v2.1.0 | [Intelligence](https://github.com/fworks-tech/agenthood/milestone/7) — 5-tier memory, LanceDB, AgenticRAG, Tree-sitter | 📋 Planned |
-| v2.2.0 | [The Full Society](https://github.com/fworks-tech/agenthood/milestone/8) — OracleAgent, DiffImpactAnalyzer, IProtocol | 📋 Planned |
-
----
-
-## Architecture
-
-The framework runs on five core principles adapted from production AI agent systems. Read the [architecture docs](architecture/README.md) to understand how agents coordinate, prioritize, fail over, and stay safe.
-
-| Principle | Document |
-|-----------|---------|
-| Multi-agent orchestration & agent roles | [agent-system.md](architecture/agent-system.md) |
-| Priority queues & concurrency slots | [concurrency-and-queues.md](architecture/concurrency-and-queues.md) |
-| Agent mode vs Ask mode | [operating-modes.md](architecture/operating-modes.md) |
-| Multi-LLM support & automatic failover | [provider-failover.md](architecture/provider-failover.md) |
-| Tool registry, scoping & safety caps | [built-in-tools.md](architecture/built-in-tools.md) |
-
-Architecture Decision Records in [`docs/adr/`](docs/adr/):
-
-| ADR | Decision |
-|-----|---------|
-| [ADR-001](docs/adr/ADR-001-markdown-skills-over-code-agents.md) | Markdown-based skills over code-based agents |
-| [ADR-002](docs/adr/ADR-002-conventional-commits-standard.md) | Conventional Commits as the commit standard |
-| [ADR-003](docs/adr/ADR-003-dual-enforcement-hooks-and-commitlint.md) | Dual enforcement via bash hooks and commitlint |
-| [ADR-004](docs/adr/ADR-004-specialized-members-over-general-agent.md) | 14 specialized agents over a general-purpose agent |
-| [ADR-005](docs/adr/ADR-005-orchestrator-pattern.md) | Orchestrator pattern over peer-to-peer agent communication |
-| [ADR-008](docs/adr/ADR-008-typescript-runtime-over-python.md) | TypeScript-native runtime over Python + DeepAgents |
-| [ADR-009](docs/adr/ADR-009-groq-as-default-llm-provider.md) | Groq as the default free LLM provider |
-| [ADR-010](docs/adr/ADR-010-lancedb-for-vector-storage.md) | LanceDB for vector storage |
+| v2.0.0 | [Foundation](https://github.com/fworks-tech/agenthood/milestone/3) — TypeScript runtime: ILLMProvider, LLMRouter, ReActLoop, BaseAgent | ✅ Shipped |
 
 ---
 
 ## Compatibility
 
-Agenthood is agent-agnostic. Agents work with:
+Agenthood is agent-agnostic. The skill files work with:
 
 - [Claude Code](https://claude.ai/code) — via `.claude/skills/`
 - [GitHub Copilot](https://copilot.github.com) — via `.github/agents/`
@@ -145,6 +106,20 @@ Agenthood is agent-agnostic. Agents work with:
 - [CodeBuddy](https://github.com/olasunkanmi-SE/codebuddy) — via `.codebuddy/skills/`
 
 The TypeScript runtime (`agenthood run`) works alongside any of these — it calls agents as real LLM agents independently of which IDE you use.
+
+---
+
+## Architecture
+
+The framework runs on five core principles adapted from production AI agent systems. See the [architecture docs](architecture/README.md) for details on how agents coordinate, prioritize, fail over, and stay safe.
+
+| Principle | Document |
+|-----------|---------|
+| Multi-agent orchestration & agent roles | [agent-system.md](architecture/agent-system.md) |
+| Priority queues & concurrency slots | [concurrency-and-queues.md](architecture/concurrency-and-queues.md) |
+| Agent mode vs Ask mode | [operating-modes.md](architecture/operating-modes.md) |
+| Multi-LLM support & automatic failover | [provider-failover.md](architecture/provider-failover.md) |
+| Tool registry, scoping & safety caps | [built-in-tools.md](architecture/built-in-tools.md) |
 
 ---
 
@@ -170,7 +145,7 @@ agenthood/
 │
 ├── conventions/                     ← Rules every agent follows
 │   ├── .gitmessage
-│   ├── commitlint.config.cjs
+│   ├── commitlint.config.ts
 │   └── COMMIT_CONVENTION.md
 │
 ├── members/                         ← 14 agent skill files
@@ -210,32 +185,34 @@ agenthood/
 │   └── sync-docs.agent.md
 │
 ├── architecture/                    ← Agent system design docs
+│   ├── README.md
 │   ├── agent-system.md
 │   ├── built-in-tools.md
 │   ├── concurrency-and-queues.md
 │   ├── operating-modes.md
 │   └── provider-failover.md
 │
-├── docs/adr/                        ← Architecture Decision Records (ADR-001–ADR-010)
+├── docs/                            ← Documentation
+│   ├── adr/                         ← Architecture Decision Records
+│   ├── academy/                     ← Agenthood Academy articles
+│   ├── specs/                       ← Implementation specs
+│   └── runtime-guide.md             ← Runtime onboarding guide
 │
 ├── src/                             ← Node.js CLI + TypeScript runtime
 │   ├── cli.ts                       ← Entry point
-│   ├── commands/                    ← CLI commands (init, check, run, list, …)
+│   ├── commands/                    ← CLI commands (init, check, run, list)
 │   ├── agents/                      ← BaseAgent + 4 specialized agents
 │   ├── llm/                         ← ILLMProvider, LLMRouter, 4 providers
 │   ├── skills/                      ← ISkill, SkillRegistry
-│   ├── memory/                      ← ShortTerm, LongTerm, Episodic, Project, Residual
-│   ├── rag/                         ← Embedder, Retriever, Indexer, AgenticRAG
-│   ├── reasoning/                   ← ReActLoop, ThinkingBudget, ChainOfThought
-│   ├── workflows/                   ← WorkflowEngine, GoalChain
-│   ├── evals/                       ← EvalRunner, EpisodeLearner
-│   └── observability/               ← Tracer, TokenCounter, EventBus
+│   ├── core/                        ← SafetyGuard, ConcurrencyQueue, RiskManager
+│   ├── reasoning/                   ← ReActLoop, ThinkingBudget, SchemaValidator
+│   ├── members/                     ← MemberRegistry, MemberAgent
+│   └── prompts/                     ← Templates, PromptBuilder, PromptRegistry
 │
 ├── .github/workflows/               ← CI enforcement
 │   ├── auto-assign.yml              ← The Scribe — assigns owner to new issues and PRs
 │   ├── auditor.yml                  ← The Auditor — secret scanning
 │   ├── commitlint.yml               ← The Doorman — commit message validation
-│   ├── docs.yml                     ← The Librarian — deploy Academy docs
 │   ├── herald.yml                   ← The Herald — CI summary comment on PRs
 │   ├── labeler.yml                  ← The Scribe — labels PRs by changed file paths
 │   ├── librarian.yml                ← The Librarian — checks docs stay in sync with code
@@ -253,11 +230,6 @@ agenthood/
 │
 └── vscode-extension/                ← VS Code extension
     ├── src/
-    │   ├── doormanService.ts        ← Real-time SCM input validation
-    │   ├── auditorService.ts        ← On-save secret and dep scanning
-    │   ├── reviewerService.ts       ← [blocking]/[suggestion] diagnostics
-    │   ├── librarianService.ts      ← Stale documentation nudge
-    │   └── memberWatchProvider.ts   ← 14-agent live sidebar TreeView
     └── package.json
 ```
 
@@ -268,7 +240,6 @@ agenthood/
 - [Conventional Commits](https://www.conventionalcommits.org/)
 - [addyosmani/agent-skills](https://github.com/addyosmani/agent-skills)
 - [groq-sdk](https://github.com/groq/groq-typescript) — default free LLM provider
-- [LanceDB](https://lancedb.github.io/lancedb/) — TypeScript-native vector storage
 - [semantic-release](https://github.com/semantic-release/semantic-release)
 - [commitlint](https://commitlint.js.org/)
 

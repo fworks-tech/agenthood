@@ -11,7 +11,10 @@ export type {
   LLMResponse,
   LLMChunk,
   LLMConfig,
+  ComplexityTier,
+  RoutingConfig,
 } from "./types.ts"
+export { LLMRouter, ComplexityScorer } from "./LLMRouter.ts"
 export { ProviderChain, AllProvidersFailedError, classifyError } from "./ProviderFailover.ts"
 export type { ClassifiedError } from "./ProviderFailover.ts"
 export {

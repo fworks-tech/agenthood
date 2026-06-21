@@ -7,10 +7,16 @@
  *
  * Providers are lazy-initialised so missing API keys don't break the
  * runtime until that specific provider is needed.
+ *
+ * Dynamic routing (v2.0.0): LLMRouter.route() scores query complexity
+ * and selects the optimal provider. Complexity tiers:
+ *   low  → Groq (fast/cheap)
+ *   medium → configured provider or Groq
+ *   high → configured provider or Anthropic (capable)
  */
 
 import type { ILLMProvider } from './ILLMProvider.js'
-import type { LLMConfig } from './types.js'
+import type { LLMConfig, LLMRequest, ComplexityTier } from './types.js'
 import type { ProviderName } from '../members/types.ts'
 import { GroqProvider } from './providers/GroqProvider.js'
 import { OllamaProvider } from './providers/OllamaProvider.js'
@@ -19,6 +25,38 @@ import { AnthropicProvider } from './providers/AnthropicProvider.js'
 import { ProviderChain } from './ProviderFailover.js'
 
 type ProviderFactory = (config: LLMConfig) => ILLMProvider
+
+const COT_MARKERS = [
+  'think step by step',
+  'chain of thought',
+  'let\'s reason',
+  'let\'s work through',
+  'step-by-step',
+  'break down',
+  'carefully analyze',
+  'reason about',
+  'consider the following',
+  'first,',
+  'second,',
+]
+
+export class ComplexityScorer {
+  score(request: LLMRequest): ComplexityTier {
+    const messageCount = request.messages.length
+    const toolCount = request.tools?.length ?? 0
+
+    const systemMessages = request.messages.filter((m) => m.role === 'system')
+    const systemContent = systemMessages.map((m) => m.content.toLowerCase()).join('\n')
+
+    const hasThoughtMarkers = COT_MARKERS.some((marker) => systemContent.includes(marker))
+
+    if (toolCount > 3 || hasThoughtMarkers) return 'high'
+
+    if (messageCount > 5 || toolCount > 0) return 'medium'
+
+    return 'low'
+  }
+}
 
 export class LLMRouter {
   /** Shared provider instances keyed by name, lazy-initialised. */
@@ -73,6 +111,40 @@ export class LLMRouter {
     }
 
     return new ProviderChain(providers_arr, names)
+  }
+
+  /** Dynamically route an LLM request to the best provider based on complexity. */
+  static route(request: LLMRequest, config: LLMConfig): ILLMProvider {
+    LLMRouter.config = config
+
+    const strategy = config.routing?.strategy ?? 'static'
+
+    if (strategy === 'static') {
+      return LLMRouter.create(config)
+    }
+
+    const scorer = new ComplexityScorer()
+    const tier = scorer.score(request)
+
+    const configuredProvider = config.provider
+
+    switch (tier) {
+      case 'low':
+        return LLMRouter.getOrInit('groq') ?? LLMRouter.buildDefaultChain()
+
+      case 'medium':
+        if (configuredProvider && configuredProvider in LLMRouter.providerFactories) {
+          return LLMRouter.getOrInit(configuredProvider) ?? LLMRouter.buildDefaultChain()
+        }
+        return LLMRouter.getOrInit('groq') ?? LLMRouter.buildDefaultChain()
+
+      case 'high':
+        return (
+          LLMRouter.getOrInit('anthropic') ??
+          (configuredProvider ? LLMRouter.getOrInit(configuredProvider) : null) ??
+          LLMRouter.buildDefaultChain()
+        )
+    }
   }
 
   private static getOrInit(name: string): ILLMProvider | null {

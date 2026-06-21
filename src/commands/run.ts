@@ -6,6 +6,9 @@ import { SkillRegistry } from "../skills/SkillRegistry.ts"
 import { ReActLoop } from "../reasoning/ReActLoop.ts"
 import { AgentRegistry } from "../core/AgentRegistry.ts"
 import { DeveloperAgent } from "../agents/DeveloperAgent.ts"
+import { ArchitectAgent } from "../agents/ArchitectAgent.ts"
+import { ReviewerAgent } from "../agents/ReviewerAgent.ts"
+import { QAAgent } from "../agents/QAAgent.ts"
 import { MemberRegistry, MemberAgent } from "../members/index.ts"
 import type { ExecutionContext } from "../core/ExecutionContext.ts"
 
@@ -17,9 +20,12 @@ function createContext(projectPath: string): ExecutionContext {
   const sReg = new SkillRegistry();
   const loop = new ReActLoop(llm, sReg);
 
-  // Register the generic DeveloperAgent for backward compat
+  // Register template agents for backward compat and direct invocation
   const dev = new DeveloperAgent(llm, loop, sReg, agentRegistry);
   agentRegistry.register(dev);
+  agentRegistry.register(new ArchitectAgent(llm, loop, sReg));
+  agentRegistry.register(new ReviewerAgent(llm, loop, sReg));
+  agentRegistry.register(new QAAgent(llm, loop, sReg));
 
   return {
     executionId: randomUUID(),

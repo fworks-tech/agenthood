@@ -35,6 +35,8 @@ export interface TokenUsage {
   promptTokens: number
   completionTokens: number
   totalTokens: number
+  cacheCreationInputTokens?: number
+  cacheReadInputTokens?: number
 }
 
 export interface LLMRequest {

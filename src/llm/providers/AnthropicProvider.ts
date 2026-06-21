@@ -8,13 +8,18 @@ type AnthropicContentBlock =
   | { type: 'tool_use'; id: string; name: string; input: unknown }
   | { type: 'tool_result'; tool_use_id: string; content: string }
 
-function convertMessages(messages: Message[]): { system?: string; messages: { role: 'user' | 'assistant'; content: AnthropicContentBlock[] }[] } {
-  let system: string | undefined
+type SystemBlock = { type: 'text'; text: string; cache_control?: { type: 'ephemeral' } }
+
+function convertMessages(messages: Message[]): { system?: string | SystemBlock[]; messages: { role: 'user' | 'assistant'; content: AnthropicContentBlock[] }[] } {
+  let system: string | SystemBlock[] | undefined
   const converted: { role: 'user' | 'assistant'; content: AnthropicContentBlock[] }[] = []
 
   for (const msg of messages) {
     if (msg.role === 'system') {
-      system = msg.content
+      system = [
+        { type: 'text', text: msg.content },
+        { type: 'text', text: ' ', cache_control: { type: 'ephemeral' } },
+      ]
       continue
     }
     if (msg.role === 'tool') {
@@ -113,6 +118,8 @@ export class AnthropicProvider implements ILLMProvider {
           promptTokens: response.usage.input_tokens,
           completionTokens: response.usage.output_tokens,
           totalTokens: response.usage.input_tokens + response.usage.output_tokens,
+          cacheCreationInputTokens: response.usage.cache_creation_input_tokens ?? undefined,
+          cacheReadInputTokens: response.usage.cache_read_input_tokens ?? undefined,
         },
         model: response.model,
       }

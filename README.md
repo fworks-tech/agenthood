@@ -79,6 +79,8 @@ agenthood run the-architect "plan the implementation for issue #42"
 
 Set `GROQ_API_KEY` in your environment (free at [console.groq.com](https://console.groq.com)), or use Ollama for fully offline execution.
 
+For a full walkthrough — install, commands, CI pipeline, and next steps — see the [Academy Getting Started guide](https://agenthood.flabs.tech/academy/getting-started/).
+
 ---
 
 ## What's shipped
@@ -200,7 +202,7 @@ agenthood/
 │
 ├── src/                             ← Node.js CLI + TypeScript runtime
 │   ├── cli.ts                       ← Entry point
-│   ├── commands/                    ← CLI commands (init, check, run, list)
+│   ├── commands/                    ← CLI commands (init, check, run, list, pr-sync)
 │   ├── agents/                      ← BaseAgent + 4 specialized agents
 │   ├── llm/                         ← ILLMProvider, LLMRouter, 4 providers
 │   ├── skills/                      ← ISkill, SkillRegistry
@@ -214,6 +216,7 @@ agenthood/
 │   ├── auditor.yml                  ← The Auditor — secret scanning
 │   ├── commitlint.yml               ← The Doorman — commit message validation
 │   ├── herald.yml                   ← The Herald — CI summary comment on PRs
+│   ├── scribe-pr-body.yml           ← The Scribe — auto-updates PR body on push
 │   ├── labeler.yml                  ← The Scribe — labels PRs by changed file paths
 │   ├── librarian.yml                ← The Librarian — checks docs stay in sync with code
 │   ├── semantic-release.yml         ← The Herald — automated release + npm publish
@@ -232,6 +235,18 @@ agenthood/
     ├── src/
     └── package.json
 ```
+
+---
+
+## Academy
+
+Structured learning path from "what is a prompt?" to "ship agents to production."
+
+- [Getting Started](https://agenthood.flabs.tech/academy/getting-started/) — install, first commit, CI, configuration
+- [Skills Reference](https://agenthood.flabs.tech/academy/skills-reference/) — all 14 members, their tools, and invocation
+- [Level 1: GenAI & RAG Basics](https://agenthood.flabs.tech/academy/level-1-genai-rag-basics/) — LLMs, prompt engineering, RAG
+- [Level 2: AI Agent Essentials](https://agenthood.flabs.tech/academy/level-2-agent-essentials/) — memory, planning, multi-agent systems
+- [Level 3: Advanced Agent Skills](https://agenthood.flabs.tech/academy/level-3-advanced-skills/) — integration, performance, deployment
 
 ---
 

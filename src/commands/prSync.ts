@@ -98,10 +98,16 @@ function detectPR(options: PrSyncCliOptions): PRInfo | null {
 }
 
 function getCommitsSince(sinceSha: string | null, baseBranch: string): ParsedCommit[] {
-  let range: string
+  let range: string | null = null
   if (sinceSha) {
-    range = `${sinceSha}..HEAD`
-  } else {
+    try {
+      run(`git merge-base --is-ancestor ${sinceSha} HEAD`)
+      range = `${sinceSha}..HEAD`
+    } catch {
+      sinceSha = null
+    }
+  }
+  if (!sinceSha) {
     try {
       const mergeBase = run(`git merge-base HEAD origin/${baseBranch}`)
       range = `${mergeBase}..HEAD`
@@ -175,7 +181,8 @@ export async function prSync(args: string[]): Promise<void> {
       return
     }
 
-    const currentSha = run('git rev-parse HEAD')
+    const parents = run('git rev-list --parents HEAD -1').split(' ')
+    const currentSha = parents.length > 2 ? parents[1] : parents[0]
 
     // Build new PR body
     const newBody = buildSyncBody(currentBody, currentSha, commits)

@@ -78,6 +78,10 @@ export function buildSyncBody(
   const autoSection = `${markerLine}\n\n${whatChanged}\n`
 
   if (!found) {
+    const trimmed = existingBody.trim()
+    if (trimmed) {
+      return `${trimmed}\n\n${autoSection}`
+    }
     const skeleton = '## Why\n\n<!-- Why are these changes needed? -->\n\n## How to Test\n\n<!-- What should reviewers do to verify? -->\n\n---\n\n'
     return `${skeleton}${autoSection}`
   }

@@ -57,13 +57,19 @@ export class PrSyncSkill implements ISkill {
       ).trim()
 
       // Find existing marker to determine since-sha
-      const { sha: lastSyncSha } = parseMarker(currentBody)
+      let { sha: sinceSha } = parseMarker(currentBody)
 
       // Get new commits since last sync
-      let range: string
-      if (lastSyncSha) {
-        range = `${lastSyncSha}..HEAD`
-      } else {
+      let range: string | null = null
+      if (sinceSha) {
+        try {
+          execSync(`git merge-base --is-ancestor ${sinceSha} HEAD`, { encoding: 'utf-8', stdio: 'pipe' })
+          range = `${sinceSha}..HEAD`
+        } catch {
+          sinceSha = ''
+        }
+      }
+      if (!sinceSha) {
         try {
           const mergeBase = execSync(
             `git merge-base HEAD origin/${baseBranch}`,
@@ -90,10 +96,11 @@ export class PrSyncSkill implements ISkill {
         return { success: true, output: 'No new commits since last sync.' }
       }
 
-      const currentSha = execSync(
-        'git rev-parse HEAD',
+      const parents = execSync(
+        'git rev-list --parents HEAD -1',
         { encoding: 'utf-8', stdio: 'pipe' },
-      ).trim()
+      ).trim().split(' ')
+      const currentSha = parents.length > 2 ? parents[1] : parents[0]
 
       // Build new PR body
       const newBody = buildSyncBody(currentBody, currentSha, commits)

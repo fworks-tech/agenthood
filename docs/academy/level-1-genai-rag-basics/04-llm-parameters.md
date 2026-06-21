@@ -68,7 +68,6 @@ const strictRequest: LLMRequest = {
 
 ## Further reading
 
-- [ADR-006 — Python runtime as additive layer](../../adr/ADR-006-python-runtime-as-additive-layer.md)
 - [`src/llm/types.ts`](../../src/llm/types.ts) — source implementation (planned)
 - [Cohere: Parameters Guide](https://docs.cohere.com/docs/temperature-top-p-and-top-k) — how sampling parameters mathematically work
 

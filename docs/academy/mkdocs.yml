@@ -31,6 +31,7 @@ theme:
 
 nav:
   - Academy Home: academy/README.md
+  - Getting Started: academy/getting-started.md
   - "Level 1: GenAI & RAG Basics":
     - Overview: academy/level-1-genai-rag-basics/README.md
     - Generative AI Introduction: academy/level-1-genai-rag-basics/01-generative-ai-introduction.md
@@ -62,6 +63,7 @@ nav:
     - Custom Toolkits: academy/level-3-advanced-skills/03-custom-toolkits.md
     - Optimize Performance: academy/level-3-advanced-skills/04-optimize-performance.md
     - Deploy to Production: academy/level-3-advanced-skills/05-deploy-to-production.md
+    - Skills Reference: academy/skills-reference.md
   - "Architecture Decision Records":
     - "ADR-001: Markdown Skills Over Code Agents": adr/ADR-001-markdown-skills-over-code-agents.md
 

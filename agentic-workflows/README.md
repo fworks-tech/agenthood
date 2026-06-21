@@ -49,7 +49,7 @@ This decision is documented in [ADR-001](../docs/adr/ADR-001-markdown-skills-ove
 
 ## How to Use a Template
 
-1. Open your AI coding assistant (Claude Code, Copilot, Gemini CLI, etc.)
+1. Open your AI coding assistant (Claude Code, OpenAI Codex CLI, etc.)
 2. Load the relevant Society member skill — e.g., for PR review, load
    `members/the-reviewer/SKILL.md`
 3. Paste the template's **Steps** section as your prompt
@@ -70,19 +70,19 @@ Please follow the triage steps from the agentic-workflows/triage-issues.agent.md
 
 ## Executing Workflows via the Runtime (v2.0.0)
 
-With `agenthood-runtime` installed, workflows can be executed autonomously
+With the TypeScript runtime, workflows can be executed autonomously
 rather than pasted into an AI assistant manually.
 
 ```bash
 # Phase 3 — available once the orchestrator is implemented
-agenthood-run workflow review-pr --pr 42
-agenthood-run workflow triage-issues
-agenthood-run workflow diagnose-ci --run-id <id>
-agenthood-run workflow sync-docs
+agenthood run workflow review-pr --pr 42
+agenthood run workflow triage-issues
+agenthood run workflow diagnose-ci --run-id <id>
+agenthood run workflow sync-docs
 ```
 
 The runtime reads the `on:`, `members:`, and `safe-outputs:` frontmatter
-from each `.agent.md` file to configure the LangGraph execution graph and
+from each `.agent.md` file to configure the execution graph and
 set `interrupt_on` gates appropriately. In CI environments, pass `--mode ci`
 to disable interactive approval gates for actions marked `safe-outputs`.
 
@@ -106,8 +106,8 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - run: pip install agenthood-runtime
-      - run: agenthood-run workflow review-pr --pr ${{ github.event.pull_request.number }} --mode ci
+      - run: npm install -g agenthood
+      - run: agenthood run workflow review-pr --pr ${{ github.event.pull_request.number }} --mode ci
         env:
           ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

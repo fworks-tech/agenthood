@@ -26,7 +26,7 @@
   },
   "activationEvents": [
     "workspaceContains:.gitmessage",
-    "workspaceContains:commitlint.config.cjs"
+    "workspaceContains:commitlint.config.ts"
   ],
   "main": "./dist/extension.js",
 
@@ -144,13 +144,14 @@
     "package": "vsce package",
     "publish": "vsce publish",
     "pretest": "tsc -p tsconfig.test.json",
-    "test": "vscode-test"
+    "test": "vscode-test --config ./dist/vscode-test-config.js"
   },
   "devDependencies": {
     "@types/mocha": "^10.0.6",
     "@types/node": "^22.0.0",
     "@types/vscode": "^1.90.0",
     "mocha": "^10.4.0",
+    "tsx": "^4.19.0",
     "@vscode/test-cli": "^0.0.10",
     "@vscode/test-electron": "^2.4.0",
     "@vscode/vsce": "^3.0.0",

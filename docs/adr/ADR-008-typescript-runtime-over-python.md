@@ -2,7 +2,7 @@
 
 **Date:** 2026-06-02
 **Status:** Accepted
-**Supersedes:** [ADR-006](ADR-006-python-runtime-as-additive-layer.md), [ADR-007](ADR-007-deepagents-as-execution-engine.md)
+**Supersedes:** ADR-006 (Python runtime), ADR-007 (DeepAgents) — both deleted
 
 ## Context
 
@@ -54,7 +54,7 @@ they are runtime-agnostic by design (ADR-001) and require no migration.
 ## References
 
 - [ADR-001](ADR-001-markdown-skills-over-code-agents.md) — Markdown skills remain runtime-agnostic
-- [ADR-006](ADR-006-python-runtime-as-additive-layer.md) — superseded
-- [ADR-007](ADR-007-deepagents-as-execution-engine.md) — superseded
+- ADR-006 — Python runtime (deleted, superseded by this ADR)
+- ADR-007 — DeepAgents (deleted, superseded by this ADR)
 - [ADR-009](ADR-009-groq-as-default-llm-provider.md) — Groq as default provider in the TS runtime
 - [ADR-010](ADR-010-lancedb-for-vector-storage.md) — LanceDB as embedded vector store

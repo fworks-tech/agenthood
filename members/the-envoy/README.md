@@ -16,9 +16,9 @@ It ensures that the agent doing those things — whatever agent that is — is o
 under the same standards as every other member of this Society.
 
 The Agenthood was built by humans for any AI. The Envoy is the proof that this is true.
-It walks between Claude Code and Copilot, between Gemini CLI and CodeBuddy, between Cursor
-and whatever runtime ships next year. It carries the Society's conventions in its briefcase
-and does not leave until the new runtime is properly inducted.
+It walks between Claude Code and OpenAI Codex CLI, between this year's runtime and whatever
+ships next year. It carries the Society's conventions in its briefcase and does not leave
+until the new runtime is properly inducted.
 
 *"The provider is not the point. The standard is the point."*
 
@@ -36,12 +36,8 @@ Maps Agenthood member files to the native skill format of the detected provider:
 | Provider | Native Skill Format | Member Target Path |
 |----------|--------------------|--------------------|
 | Claude Code | `.claude/skills/*.md` (YAML frontmatter) | `.claude/skills/the-*.md` |
-| CodeBuddy | `.codebuddy/skills/*.md` | `.codebuddy/skills/the-*.md` |
-| GitHub Copilot | `.github/agents/*.md` | `.github/agents/the-*.md` |
-| Cursor | `.cursor/rules/*.md` | `.cursor/rules/the-*.md` |
-| Gemini CLI | `GEMINI.md` inline sections | Appended to `GEMINI.md` |
 | OpenAI Codex | `AGENTS.md` inline sections | Appended to `AGENTS.md` |
-| Windsurf | `.windsurf/rules/*.md` | `.windsurf/rules/the-*.md` |
+| Groq | Compatible via OpenAI SDK | No translation needed |
 
 ### 3. Convention Validation
 Confirms that core AGENTS.md conventions are enforced in the target environment —
@@ -60,21 +56,23 @@ formats, and which are pending or partially supported.
 
 ## Provider Support Matrix
 
-| Member | Claude Code | CodeBuddy | Copilot | Cursor | Gemini CLI | Codex |
-|--------|:-----------:|:---------:|:-------:|:------:|:----------:|:-----:|
-| The Scribe | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ |
-| The Architect | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ |
-| The Reviewer | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ |
-| The Tester | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ |
-| The Debugger | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ |
-| The Auditor | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ |
-| The Herald | ✅ | ✅ | ⚠️ | ⚠️ | ✅ | ✅ |
-| The Librarian | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ |
-| The Doorman | ✅ | ✅ | ⚠️ | ⚠️ | ⚠️ | ⚠️ |
-| The Oracle | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ |
-| The Envoy | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ |
+| Member | Claude Code | Codex |
+|--------|:-----------:|:-----:|
+| The Scribe | ✅ | ✅ |
+| The Architect | ✅ | ✅ |
+| The Reviewer | ✅ | ✅ |
+| The Tester | ✅ | ✅ |
+| The Debugger | ✅ | ✅ |
+| The Auditor | ✅ | ✅ |
+| The Herald | ✅ | ✅ |
+| The Librarian | ✅ | ✅ |
+| The Doorman | ✅ | ✅ |
+| The Oracle | ✅ | ✅ |
+| The Envoy | ✅ | ✅ |
 
 ✅ Full support  ⚠️ Partial (hook integration unavailable)  ❌ Not supported
+
+Groq and Ollama providers are LLM backends for the TypeScript runtime (`agenthood run`), not skill-target runtimes. No translation needed.
 
 ---
 

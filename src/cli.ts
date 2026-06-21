@@ -16,14 +16,16 @@ import { list } from './commands/list.js';
 import { oath } from './commands/oath.js';
 import { eject } from './commands/eject.js';
 import { setup } from './commands/setup.js';
+import { run } from './commands/run.js';
+import { prSync } from './commands/prSync.js';
 
-const COMMANDS: Record<string, () => Promise<void>> = {
-  init,
-  check,
-  list,
-  oath,
-  eject,
-  setup,
+const COMMANDS: Record<string, (...args: string[]) => Promise<void>> = {
+  init: async () => init(),
+  check: async () => check(),
+  list: async () => list(),
+  oath: async () => oath(),
+  eject: async () => eject(),
+  setup: async () => setup(),
 };
 
 async function main(): Promise<void> {
@@ -46,6 +48,16 @@ async function main(): Promise<void> {
 
   if (command === 'deactivate') {
     await deactivate(args[0]);
+    return;
+  }
+
+  if (command === 'run') {
+    await run(args);
+    return;
+  }
+
+  if (command === 'pr-sync') {
+    await prSync(args);
     return;
   }
 
@@ -72,7 +84,10 @@ Commands:
   check                   Run the Doorman's health check
   activate <member>       Activate a specific member skill
   deactivate <member>     Deactivate a member skill
-  list                    List all members and their status
+  run <member> "<task>"   Run a Society member (the-scribe, the-reviewer, …)
+  pr-sync [--pr N] [--dry-run] [--no-reviewer]
+                          Sync PR body and post comment for new commits
+  list                    List all 14 members, their status, permission & provider
   oath                    Print the Society's oath
   eject                   Remove the Society from your project
 

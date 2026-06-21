@@ -3,32 +3,26 @@
  *
  * Single source of truth for all 14 Society members and runtime detection.
  * Every command imports from here — never define these lists again.
+ *
+ * Member specs (tools, permissions, providers) are maintained in MemberRegistry
+ * at `src/members/MemberRegistry.ts`, derived from the architecture docs.
  */
 
 import { existsSync } from 'node:fs';
 import { join } from 'node:path';
+import { MemberRegistry } from './members/MemberRegistry.ts';
 
 export interface Member {
   name: string
   tagline: string
 }
 
-export const ALL_MEMBERS: Member[] = [
-  { name: 'the-scribe',    tagline: 'Commits, PRs, changelogs' },
-  { name: 'the-architect', tagline: 'Specs, planning, ADRs' },
-  { name: 'the-reviewer',  tagline: 'Five-axis code review' },
-  { name: 'the-tester',    tagline: 'TDD and test generation' },
-  { name: 'the-debugger',  tagline: 'Root cause analysis' },
-  { name: 'the-auditor',   tagline: 'Security and dependencies' },
-  { name: 'the-herald',    tagline: 'Releases and versioning' },
-  { name: 'the-librarian', tagline: 'Documentation and ADRs' },
-  { name: 'the-doorman',   tagline: 'Validation and enforcement' },
-  { name: 'the-oracle',    tagline: 'Research and knowledge' },
-  { name: 'the-envoy',     tagline: 'Communication and handoffs' },
-  { name: 'the-sentinel',  tagline: 'Member file validation' },
-  { name: 'the-warden',    tagline: 'File size enforcement' },
-  { name: 'the-steward',   tagline: 'Context and routing' },
-]
+const registry = new MemberRegistry();
+
+export const ALL_MEMBERS: Member[] = registry.list().map((s) => ({
+  name: s.name,
+  tagline: s.tagline,
+}))
 
 export const MEMBER_NAMES: string[] = ALL_MEMBERS.map(m => m.name)
 

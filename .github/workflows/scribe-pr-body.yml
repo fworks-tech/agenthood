@@ -1,0 +1,79 @@
+name: The Reviewer — Commit Review
+
+on:
+  push:
+    branches-ignore: [main]
+
+permissions:
+  contents: read
+  pull-requests: write
+
+concurrency:
+  group: reviewer-commit-review-${{ github.ref_name }}
+  cancel-in-progress: true
+
+jobs:
+  review:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+
+      - run: npm ci --ignore-scripts
+
+      - run: npm run build
+
+      - name: Run Reviewer
+        id: review
+        continue-on-error: true
+        run: |
+          PR_NUMBER=$(gh pr view --json number --jq '.number' 2>/dev/null || echo "")
+
+          if [ -z "$PR_NUMBER" ]; then
+            echo "No open PR for this branch. Skipping review."
+            exit 0
+          fi
+
+          if [ "${{ github.event.before }}" = "0000000000000000000000000000000000000000" ]; then
+            RANGE="HEAD"
+          else
+            RANGE="${{ github.event.before }}..${{ github.event.after }}"
+          fi
+
+          DIFF=$(git diff "$RANGE" | head -n 8000)
+          if [ -z "$DIFF" ]; then
+            echo "No new changes to review."
+            exit 0
+          fi
+
+          TASK=$(printf "review this git diff:\n%s\n" "$DIFF")
+          node dist/cli.js run the-reviewer "$TASK" 2>&1 | awk 'NR>1' > /tmp/review_body.txt
+        env:
+          GROQ_API_KEY: ${{ secrets.GROQ_API_KEY }}
+
+      - name: Post Review Comment
+        run: |
+          PR_NUMBER=$(gh pr view --json number --jq '.number' 2>/dev/null || echo "")
+
+          if [ -z "$PR_NUMBER" ]; then
+            echo "No open PR. Skipping."
+            exit 0
+          fi
+
+          if [ ! -f /tmp/review_body.txt ] || [ ! -s /tmp/review_body.txt ]; then
+            echo "Review not available — likely a provider issue. Skipping."
+            exit 0
+          fi
+
+          jq -Rs '{body: .}' < /tmp/review_body.txt > /tmp/comment.json
+          gh api "repos/{owner}/{repo}/issues/${PR_NUMBER}/comments" \
+            --input /tmp/comment.json
+        shell: bash
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

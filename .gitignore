@@ -3,8 +3,6 @@ node_modules/
 site/
 dist/node_modules/
 dist/
-.venv/
-venv/
 
 # Local environment
 .env
@@ -13,16 +11,6 @@ venv/
 # Build output
 dist/
 
-# Python
-__pycache__/
-*.py[cod]
-*.pyo
-*.pyd
-*.egg-info/
-.pytest_cache/
-.mypy_cache/
-.ruff_cache/
-
 # VS Code Extension Testing
 vscode-extension/.vscode-test/
 
@@ -30,3 +18,14 @@ vscode-extension/.vscode-test/
 .agenthood/audit.log
 .agenthood/memory.json
 .claude/scheduled_tasks.lock
+
+# Provider-specific skill install directories (skills CLI)
+skills-lock.json
+.agents/skills/
+.claude/skills/
+.codex/skills/
+.cursor/skills/
+.windsurf/skills/
+.gemini/skills/
+.github/copilot/
+.copilot/skills/

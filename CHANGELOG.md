@@ -1,3 +1,53 @@
+# [2.0.0](https://github.com/fworks-tech/agenthood/compare/v1.10.0...v2.0.0) (2026-06-21)
+
+
+### Bug Fixes
+
+* **agents:** add missing contextCompressor property declaration ([10f0d11](https://github.com/fworks-tech/agenthood/commit/10f0d117029e6e613d88c75a807bf80c4b0cabc0))
+* **ci:** add build step before pr-sync in The Manuscript workflow ([fed70f4](https://github.com/fworks-tech/agenthood/commit/fed70f452d200947866d45423a48820672b46b03))
+* **ci:** fail gracefully on push events and split workflow triggers ([28ec4aa](https://github.com/fworks-tech/agenthood/commit/28ec4aa4c61bc1a7a534258633374d5164a07c0c))
+* **ci:** use node dist/cli.js instead of npx to avoid permission denied ([130c91b](https://github.com/fworks-tech/agenthood/commit/130c91bce2fd5c02caf0b261b6aa4327865c034a))
+* **pr-sync:** use PR head SHA and preserve existing PR body ([0a7d99a](https://github.com/fworks-tech/agenthood/commit/0a7d99af7cffaa10fb9ed57b672dd7a8b50a6e88))
+* **providers:** handle missing GROQ_API_KEY in GroqProvider constructor ([59952a2](https://github.com/fworks-tech/agenthood/commit/59952a26d075f987ce94fda64d7efee21c249b2d))
+* remove dead ContextCompressor import that breaks build ([b1ebd38](https://github.com/fworks-tech/agenthood/commit/b1ebd388fad2b025d94cb85ba914c0467310b29a))
+* remove duplicated docs ([91fe01f](https://github.com/fworks-tech/agenthood/commit/91fe01f209abf8d54ed1e201c85705116da60c1c))
+* **tests:** correct Artifact interface usage and add JSON.parse error handling ([cd5e98e](https://github.com/fworks-tech/agenthood/commit/cd5e98e2dad0c942eca5623dd3e7c223e4478fa0))
+* **test:** update commitlint test to import .ts config directly ([195e22d](https://github.com/fworks-tech/agenthood/commit/195e22d07cc2ed1bef12aa5edcf42ec18648c8f1))
+* **vscode-extension:** move test config to src/ for 100% typescript compilation ([717d727](https://github.com/fworks-tech/agenthood/commit/717d727559c458036536afb32e34e68ee161fd77))
+
+
+### chore
+
+* **release:** mark v2.0.0 breaking changes ([23233d5](https://github.com/fworks-tech/agenthood/commit/23233d551ef3856911457fb26c0a6c84be788166))
+
+
+### Features
+
+* add GroqProvider tests, schema validation, and runtime documentation ([5a11b4a](https://github.com/fworks-tech/agenthood/commit/5a11b4a606686506a3945b66ce74eec5b39b7cd0))
+* **agent:** implement ArchitectAgent, ReviewerAgent, QAAgent runtime classes ([b04072d](https://github.com/fworks-tech/agenthood/commit/b04072da8317465af8b342fec67d1b91c369c1f8))
+* **commands:** add pr-sync command, PrSyncSkill, and The Manuscript workflow ([10e5e49](https://github.com/fworks-tech/agenthood/commit/10e5e490c4b0d1f5560f9fe2f87a36c1ab6feb73)), closes [#based](https://github.com/fworks-tech/agenthood/issues/based)
+* **core:** add concurrency queue and safety guard ([694e01d](https://github.com/fworks-tech/agenthood/commit/694e01d7376f0eaaa5e63b3c0f345eb79a4785b6))
+* **core:** add RiskManager, SkillRegistry discovery, dynamic routing, and README rewrite ([8b284d9](https://github.com/fworks-tech/agenthood/commit/8b284d92225f2fd1e9ea5005cfb251970f554d0c)), closes [#103](https://github.com/fworks-tech/agenthood/issues/103) [#162](https://github.com/fworks-tech/agenthood/issues/162) [#102](https://github.com/fworks-tech/agenthood/issues/102) [#102](https://github.com/fworks-tech/agenthood/issues/102) [#103](https://github.com/fworks-tech/agenthood/issues/103) [#162](https://github.com/fworks-tech/agenthood/issues/162)
+* **core:** implement ContextCompressor with token-aware memory summarization ([cc5e078](https://github.com/fworks-tech/agenthood/commit/cc5e07801a297e6ce763264ae339e1e8579f7a6f)), closes [#104](https://github.com/fworks-tech/agenthood/issues/104)
+* **core:** security hardening — Ajv, API key validation, symlink checks ([5a7738f](https://github.com/fworks-tech/agenthood/commit/5a7738fcc252d6f9bacf8c584338a6290d984296))
+* **llm:** add Anthropic prompt caching with cache control breakpoint ([75c13bb](https://github.com/fworks-tech/agenthood/commit/75c13bbd66e296d895f01e13f5a2c61c73e9979d))
+* **llm:** implement ProviderFailover for resilience ([#161](https://github.com/fworks-tech/agenthood/issues/161)) ([b86a604](https://github.com/fworks-tech/agenthood/commit/b86a604913f997ca731fd34ba798dfe954f77fdc))
+* **llm:** provider failover with circuit breaker and per-member preferences ([f68341c](https://github.com/fworks-tech/agenthood/commit/f68341c33f9baea5c8081e91ba976a1872b296f4))
+* **members:** wire all 14 society members to agenthood run ([3339aec](https://github.com/fworks-tech/agenthood/commit/3339aec52eab04a4c27904856aab4cb8ac4b17bb))
+* **reasoning:** implement ContextCompressor for token management ([#104](https://github.com/fworks-tech/agenthood/issues/104)) ([9558a4a](https://github.com/fworks-tech/agenthood/commit/9558a4aaca61fb4830a99432e0e3bbfb70cc66f1))
+* **release:** generate user-friendly release notes via @semantic-release/exec ([d4d47c4](https://github.com/fworks-tech/agenthood/commit/d4d47c49a22067484f6aa30b1f11c14b16920910))
+* **runtime:** release v2.0.0 — TypeScript runtime with autonomous agent execution ([0720bd5](https://github.com/fworks-tech/agenthood/commit/0720bd5f19f8805f5859f4871bde0a2632c2f8fd)), closes [#202](https://github.com/fworks-tech/agenthood/issues/202)
+* ship M4 foundation - TypeScript runtime with providers, agents, skills, and CLI ([7de7215](https://github.com/fworks-tech/agenthood/commit/7de721525f9b9c9828b1791979236cce45eec642))
+* **skills:** export and register SubagentTaskSkill with delegate_task name ([26bec93](https://github.com/fworks-tech/agenthood/commit/26bec93112273bd97b03bd2eb9864014d3159f45)), closes [#3](https://github.com/fworks-tech/agenthood/issues/3) [#8](https://github.com/fworks-tech/agenthood/issues/8) [#9](https://github.com/fworks-tech/agenthood/issues/9)
+* **skills:** implement SubagentTaskSkill for agent delegation ([#199](https://github.com/fworks-tech/agenthood/issues/199)) ([58dc11d](https://github.com/fworks-tech/agenthood/commit/58dc11dec642a9e540b92c2f859752146a8da094))
+* **skills:** replace stub skills with real LLM and filesystem implementations ([4bd32ba](https://github.com/fworks-tech/agenthood/commit/4bd32bad94e8d83f0651d38cb5a3d1be91ceb0ae))
+* **workflow:** replace commit listing with LLM code review by The Reviewer ([ca61f77](https://github.com/fworks-tech/agenthood/commit/ca61f7723e5953d51426c770413db945e399b586))
+
+
+### BREAKING CHANGES
+
+* **release:** The Manuscript PR body sync is replaced by The Reviewer commit review. The Python runtime and runtime/ directory are removed. The Society now runs exclusively on the TypeScript runtime with Groq as the default provider.
+
 # [1.10.0](https://github.com/fworks-tech/agenthood/compare/v1.9.1...v1.10.0) (2026-06-20)
 
 

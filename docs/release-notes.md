@@ -5,7 +5,55 @@
 
 ---
 
-## v1.10.0 — June 19, 2026
+## v2.0.0 — June 21, 2026
+
+### 🐛 Bug Fixes
+
+- **Agents:** add missing contextCompressor property declaration
+- **Ci:** add build step before pr-sync in The Manuscript workflow
+- **Ci:** fail gracefully on push events and split workflow triggers
+- **Ci:** use node dist/cli.js instead of npx to avoid permission denied
+- **Pr-sync:** use PR head SHA and preserve existing PR body
+- **Providers:** handle missing GROQ_API_KEY in GroqProvider constructor
+- remove dead ContextCompressor import that breaks build
+- remove duplicated docs
+- **Tests:** correct Artifact interface usage and add JSON.parse error handling
+- **Test:** update commitlint test to import .ts config directly
+- **Vscode-extension:** move test config to src/ for 100% typescript compilation
+
+### 🔹 chore
+
+- **Release:** mark v2.0.0 breaking changes
+
+### ✨ Features
+
+- add GroqProvider tests, schema validation, and runtime documentation
+- **Agent:** implement ArchitectAgent, ReviewerAgent, QAAgent runtime classes
+- **Commands:** add pr-sync command, PrSyncSkill, and The Manuscript workflow, closes [#based](https://github.com/fworks-tech/agenthood/issues/based)
+- **Core:** add concurrency queue and safety guard
+- **Core:** add RiskManager, SkillRegistry discovery, dynamic routing, and README rewrite #162 #102 #102 #103 #162
+- **Core:** implement ContextCompressor with token-aware memory summarization
+- **Core:** security hardening — Ajv, API key validation, symlink checks
+- **Llm:** add Anthropic prompt caching with cache control breakpoint
+- **Llm:** implement ProviderFailover for resilience (#161)
+- **Llm:** provider failover with circuit breaker and per-member preferences
+- **Members:** wire all 14 society members to agenthood run
+- **Reasoning:** implement ContextCompressor for token management (#104)
+- **Release:** generate user-friendly release notes via @semantic-release/exec
+- **Runtime:** release v2.0.0 — TypeScript runtime with autonomous agent execution
+- ship M4 foundation - TypeScript runtime with providers, agents, skills, and CLI
+- **Skills:** export and register SubagentTaskSkill with delegate_task name #8 #9
+- **Skills:** implement SubagentTaskSkill for agent delegation (#199)
+- **Skills:** replace stub skills with real LLM and filesystem implementations
+- **Workflow:** replace commit listing with LLM code review by The Reviewer
+
+### 🔹 BREAKING CHANGES
+
+- **Release:** The Manuscript PR body sync is replaced by The Reviewer commit review. The Python runtime and runtime/ directory are removed. The Society now runs exclusively on the TypeScript runtime with Groq as the default provider.
+
+---
+
+## v1.10.0 — June 20, 2026
 
 ### ✨ Features
 
@@ -13,7 +61,7 @@
 
 ---
 
-## v1.9.1 — June 19, 2026
+## v1.9.1 — June 20, 2026
 
 ### 🐛 Bug Fixes
 
@@ -21,7 +69,7 @@
 
 ---
 
-## v1.9.0 — June 19, 2026
+## v1.9.0 — June 20, 2026
 
 ### 🐛 Bug Fixes
 
@@ -35,7 +83,7 @@
 
 ---
 
-## v1.8.4 — June 18, 2026
+## v1.8.4 — June 19, 2026
 
 ### 🐛 Bug Fixes
 
@@ -43,7 +91,7 @@
 
 ---
 
-## v1.8.3 — June 17, 2026
+## v1.8.3 — June 18, 2026
 
 ### 🐛 Bug Fixes
 
@@ -51,7 +99,7 @@
 
 ---
 
-## v1.8.2 — June 17, 2026
+## v1.8.2 — June 18, 2026
 
 ### 🐛 Bug Fixes
 
@@ -59,7 +107,7 @@
 
 ---
 
-## v1.8.1 — June 17, 2026
+## v1.8.1 — June 18, 2026
 
 ### 🐛 Bug Fixes
 
@@ -67,7 +115,7 @@
 
 ---
 
-## v1.8.0 — June 16, 2026
+## v1.8.0 — June 17, 2026
 
 ### ✨ Features
 
@@ -75,7 +123,7 @@
 
 ---
 
-## v1.7.2 — June 16, 2026
+## v1.7.2 — June 17, 2026
 
 ### 🐛 Bug Fixes
 
@@ -83,7 +131,7 @@
 
 ---
 
-## v1.7.1 — June 16, 2026
+## v1.7.1 — June 17, 2026
 
 ### 🐛 Bug Fixes
 
@@ -91,7 +139,7 @@
 
 ---
 
-## v1.7.0 — June 16, 2026
+## v1.7.0 — June 17, 2026
 
 ### ✨ Features
 
@@ -99,7 +147,7 @@
 
 ---
 
-## v1.6.7 — June 16, 2026
+## v1.6.7 — June 17, 2026
 
 ### 🐛 Bug Fixes
 
@@ -108,7 +156,7 @@
 
 ---
 
-## v1.6.6 — June 14, 2026
+## v1.6.6 — June 15, 2026
 
 ### 🐛 Bug Fixes
 
@@ -117,7 +165,7 @@
 
 ---
 
-## v1.6.5 — June 12, 2026
+## v1.6.5 — June 13, 2026
 
 ### 🐛 Bug Fixes
 
@@ -126,7 +174,7 @@
 
 ---
 
-## v1.2.3 — June 7, 2026
+## v1.2.3 — June 8, 2026
 
 ### 🐛 Bug Fixes
 
@@ -134,7 +182,7 @@
 
 ---
 
-## v1.2.2 — June 7, 2026
+## v1.2.2 — June 8, 2026
 
 ### 🐛 Bug Fixes
 
@@ -142,7 +190,7 @@
 
 ---
 
-## v1.2.1 — June 7, 2026
+## v1.2.1 — June 8, 2026
 
 ### ✨ Features
 
@@ -150,7 +198,7 @@
 
 ---
 
-## v1.2.0 — June 1, 2026
+## v1.2.0 — June 2, 2026
 
 ### ✨ Features
 
@@ -158,7 +206,7 @@
 
 ---
 
-## v1.1.1 — June 1, 2026
+## v1.1.1 — June 2, 2026
 
 ### 🐛 Bug Fixes
 
@@ -166,7 +214,7 @@
 
 ---
 
-## v1.1.0 — June 1, 2026
+## v1.1.0 — June 2, 2026
 
 ### 🐛 Bug Fixes
 
@@ -179,7 +227,7 @@
 
 ---
 
-## v1.0.3 — June 1, 2026
+## v1.0.3 — June 2, 2026
 
 ### 🐛 Bug Fixes
 
@@ -187,7 +235,7 @@
 
 ---
 
-## v1.0.2 — June 1, 2026
+## v1.0.2 — June 2, 2026
 
 ### 🐛 Bug Fixes
 
@@ -196,7 +244,7 @@
 
 ---
 
-## v1.0.1 — June 1, 2026
+## v1.0.1 — June 2, 2026
 
 ### 🐛 Bug Fixes
 
@@ -205,7 +253,7 @@
 
 ---
 
-## v1.0.0 — June 1, 2026
+## v1.0.0 — June 2, 2026
 
 ### 🐛 Bug Fixes
 

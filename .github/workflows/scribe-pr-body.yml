@@ -1,0 +1,36 @@
+name: The Scribe — The Manuscript
+
+on:
+  pull_request:
+    types: [opened, synchronize]
+  push:
+    branches-ignore: [main]
+
+permissions:
+  contents: read
+  pull-requests: write
+
+concurrency:
+  group: scribe-pr-body-${{ github.head_ref || github.ref_name }}
+  cancel-in-progress: true
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - run: npm ci --ignore-scripts
+
+      - name: Sync PR body and comment
+        run: npx agenthood pr-sync
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GH_PR_NUMBER: ${{ github.event.pull_request.number }}

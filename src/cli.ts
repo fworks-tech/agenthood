@@ -17,6 +17,7 @@ import { oath } from './commands/oath.js';
 import { eject } from './commands/eject.js';
 import { setup } from './commands/setup.js';
 import { run } from './commands/run.js';
+import { prSync } from './commands/prSync.js';
 
 const COMMANDS: Record<string, (...args: string[]) => Promise<void>> = {
   init: async () => init(),
@@ -55,6 +56,11 @@ async function main(): Promise<void> {
     return;
   }
 
+  if (command === 'pr-sync') {
+    await prSync(args);
+    return;
+  }
+
   const handler = COMMANDS[command];
   if (!handler) {
     console.error(`\nUnknown command: "${command}"\n`);
@@ -79,6 +85,8 @@ Commands:
   activate <member>       Activate a specific member skill
   deactivate <member>     Deactivate a member skill
   run <member> "<task>"   Run a Society member (the-scribe, the-reviewer, …)
+  pr-sync [--pr N] [--dry-run] [--no-reviewer]
+                          Sync PR body and post comment for new commits
   list                    List all 14 members, their status, permission & provider
   oath                    Print the Society's oath
   eject                   Remove the Society from your project

@@ -17,6 +17,7 @@ import { ReadFileSkill } from '../skills/project/ReadFileSkill.ts'
 import { WriteFileSkill } from '../skills/project/WriteFileSkill.ts'
 import { SearchCodebaseSkill } from '../skills/code/SearchCodebaseSkill.ts'
 import { ExplainCodeSkill } from '../skills/code/ExplainCodeSkill.ts'
+import { PrSyncSkill } from '../skills/pr/PrSyncSkill.ts'
 
 export class MemberAgent extends BaseAgent {
   role: string
@@ -35,6 +36,7 @@ export class MemberAgent extends BaseAgent {
       new WriteFileSkill(),
       new SearchCodebaseSkill(),
       new ExplainCodeSkill(),
+      new PrSyncSkill(),
     ]
   }
 

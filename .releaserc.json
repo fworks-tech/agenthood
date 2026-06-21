@@ -8,13 +8,19 @@
       { "changelogFile": "CHANGELOG.md" }
     ],
     [
+      "@semantic-release/exec",
+      {
+        "prepareCmd": "tsx scripts/generate-release-notes.ts"
+      }
+    ],
+    [
       "@semantic-release/npm",
       { "npmPublish": true }
     ],
     [
       "@semantic-release/git",
       {
-        "assets": ["CHANGELOG.md", "package.json", "package-lock.json"],
+        "assets": ["CHANGELOG.md", "docs/release-notes.md", "package.json", "package-lock.json"],
         "message": "chore(release): ${nextRelease.version}\n\n${nextRelease.notes}"
       }
     ],

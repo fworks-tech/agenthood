@@ -144,7 +144,7 @@ function ghApiPost(path: string, data: object): void {
 async function generateLLMComment(commits: ParsedCommit[]): Promise<string> {
   try {
     const { LLMRouter } = await import('../llm/LLMRouter.ts')
-    const llm = LLMRouter.create({})
+    const llm = await LLMRouter.create({})
     const prompt = buildReviewerPrompt(commits)
     const result = await llm.complete({
       messages: [{ role: 'user', content: prompt }],

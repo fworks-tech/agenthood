@@ -1,30 +1,9 @@
-/**
- * src/llm/LLMRouter.ts
- *
- * Routes LLM requests to the right provider chain. Supports per-member
- * provider preferences so the-scribe always hits Anthropic, the-doorman
- * hits Ollama, etc.
- *
- * Providers are lazy-initialised so missing API keys don't break the
- * runtime until that specific provider is needed.
- *
- * Dynamic routing (v2.0.0): LLMRouter.route() scores query complexity
- * and selects the optimal provider. Complexity tiers:
- *   low  → Groq (fast/cheap)
- *   medium → configured provider or Groq
- *   high → configured provider or Anthropic (capable)
- */
-
 import type { ILLMProvider } from './ILLMProvider.js'
 import type { LLMConfig, LLMRequest, ComplexityTier } from './types.js'
 import type { ProviderName } from '../members/types.ts'
-import { GroqProvider } from './providers/GroqProvider.js'
-import { OllamaProvider } from './providers/OllamaProvider.js'
-import { OpenAIProvider } from './providers/OpenAIProvider.js'
-import { AnthropicProvider } from './providers/AnthropicProvider.js'
 import { ProviderChain } from './ProviderFailover.js'
 
-type ProviderFactory = (config: LLMConfig) => ILLMProvider
+type ProviderFactory = (config: LLMConfig) => Promise<ILLMProvider>
 
 const COT_MARKERS = [
   'think step by step',
@@ -59,35 +38,44 @@ export class ComplexityScorer {
 }
 
 export class LLMRouter {
-  /** Shared provider instances keyed by name, lazy-initialised. */
   private static providerFactories: Record<string, ProviderFactory> = {
-    anthropic: (c) => new AnthropicProvider(c),
-    groq: (c) => new GroqProvider(c),
-    openai: (c) => new OpenAIProvider(c),
-    ollama: (c) => new OllamaProvider(c),
+    anthropic: async (c) => {
+      const { AnthropicProvider } = await import('./providers/AnthropicProvider.js')
+      return new AnthropicProvider(c)
+    },
+    groq: async (c) => {
+      const { GroqProvider } = await import('./providers/GroqProvider.js')
+      return new GroqProvider(c)
+    },
+    openai: async (c) => {
+      const { OpenAIProvider } = await import('./providers/OpenAIProvider.js')
+      return new OpenAIProvider(c)
+    },
+    ollama: async (c) => {
+      const { OllamaProvider } = await import('./providers/OllamaProvider.js')
+      return new OllamaProvider(c)
+    },
   }
 
   private static instances = new Map<string, ILLMProvider>()
+  private static initPromises = new Map<string, Promise<ILLMProvider | null>>()
   private static config: LLMConfig = {}
 
-  static create(config: LLMConfig): ILLMProvider {
+  static async create(config: LLMConfig): Promise<ILLMProvider> {
     LLMRouter.config = config
 
-    // If a specific provider was requested, return it directly
     if (config.provider && config.provider in LLMRouter.providerFactories) {
-      const inst = LLMRouter.getOrInit(config.provider)
+      const inst = await LLMRouter.getOrInit(config.provider)
       if (inst) return inst
     }
 
-    // Default: return a ProviderChain with Groq as preferred
     return LLMRouter.buildDefaultChain()
   }
 
-  /** Build a failover chain with a specific member's preferences. */
-  static createForMember(
+  static async createForMember(
     preferredProvider: ProviderName,
     config: LLMConfig,
-  ): ILLMProvider {
+  ): Promise<ILLMProvider> {
     LLMRouter.config = config
 
     const fallbackOrder: ProviderName[] = ['groq', 'openai', 'ollama']
@@ -95,7 +83,7 @@ export class LLMRouter {
 
     for (const name of [preferredProvider, ...fallbackOrder]) {
       if (!providers.has(name) && name in LLMRouter.providerFactories) {
-        const inst = LLMRouter.getOrInit(name)
+        const inst = await LLMRouter.getOrInit(name)
         if (inst) providers.set(name, inst)
       }
     }
@@ -113,8 +101,7 @@ export class LLMRouter {
     return new ProviderChain(providers_arr, names)
   }
 
-  /** Dynamically route an LLM request to the best provider based on complexity. */
-  static route(request: LLMRequest, config: LLMConfig): ILLMProvider {
+  static async route(request: LLMRequest, config: LLMConfig): Promise<ILLMProvider> {
     LLMRouter.config = config
 
     const strategy = config.routing?.strategy ?? 'static'
@@ -130,47 +117,50 @@ export class LLMRouter {
 
     switch (tier) {
       case 'low':
-        return LLMRouter.getOrInit('groq') ?? LLMRouter.buildDefaultChain()
+        return (await LLMRouter.getOrInit('groq')) ?? LLMRouter.buildDefaultChain()
 
       case 'medium':
         if (configuredProvider && configuredProvider in LLMRouter.providerFactories) {
-          return LLMRouter.getOrInit(configuredProvider) ?? LLMRouter.buildDefaultChain()
+          return (await LLMRouter.getOrInit(configuredProvider)) ?? LLMRouter.buildDefaultChain()
         }
-        return LLMRouter.getOrInit('groq') ?? LLMRouter.buildDefaultChain()
+        return (await LLMRouter.getOrInit('groq')) ?? LLMRouter.buildDefaultChain()
 
       case 'high':
         return (
-          LLMRouter.getOrInit('anthropic') ??
-          (configuredProvider ? LLMRouter.getOrInit(configuredProvider) : null) ??
+          (await LLMRouter.getOrInit('anthropic')) ??
+          (configuredProvider ? await LLMRouter.getOrInit(configuredProvider) : null) ??
           LLMRouter.buildDefaultChain()
         )
     }
   }
 
-  private static getOrInit(name: string): ILLMProvider | null {
-    let inst = LLMRouter.instances.get(name)
-    if (!inst) {
+  private static async getOrInit(name: string): Promise<ILLMProvider | null> {
+    if (LLMRouter.instances.has(name)) return LLMRouter.instances.get(name)!
+    if (LLMRouter.initPromises.has(name)) return LLMRouter.initPromises.get(name)!
+
+    const promise = (async () => {
       const factory = LLMRouter.providerFactories[name]
       if (!factory) return null
       try {
-        inst = factory(LLMRouter.config)
+        const inst = await factory(LLMRouter.config)
         LLMRouter.instances.set(name, inst)
+        return inst
       } catch {
-        // Provider failed to initialise (e.g. missing API key).
-        // The caller gets null and the provider is skipped.
         return null
       }
-    }
-    return inst
+    })()
+
+    LLMRouter.initPromises.set(name, promise)
+    return promise
   }
 
-  private static buildDefaultChain(): ILLMProvider {
+  private static async buildDefaultChain(): Promise<ILLMProvider> {
     const fallbackOrder: ProviderName[] = ['groq', 'openai', 'ollama']
     const providers = new Map<string, ILLMProvider>()
 
     for (const name of ['groq', ...fallbackOrder.filter((f) => f !== 'groq')]) {
       if (!providers.has(name) && name in LLMRouter.providerFactories) {
-        const inst = LLMRouter.getOrInit(name)
+        const inst = await LLMRouter.getOrInit(name)
         if (inst) providers.set(name, inst)
       }
     }

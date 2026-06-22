@@ -15,8 +15,8 @@ import type { ExecutionContext } from "../core/ExecutionContext.ts"
 const agentRegistry = new AgentRegistry();
 const memberRegistry = new MemberRegistry();
 
-function createContext(projectPath: string): ExecutionContext {
-  const llm = LLMRouter.create({});
+async function createContext(projectPath: string): Promise<ExecutionContext> {
+  const llm = await LLMRouter.create({});
   const sReg = new SkillRegistry();
   const loop = new ReActLoop(llm, sReg);
 
@@ -77,14 +77,14 @@ export async function run(args: string[]): Promise<void> {
 
   validateApiKeys();
 
-  const context = createContext(process.cwd());
+  const context = await createContext(process.cwd());
   const task = taskParts.join(" ");
 
   // Try Society member first (14 named members)
   if (memberRegistry.has(agentName)) {
     const spec = memberRegistry.get(agentName);
     // Use per-member preferred provider with failover fallback
-    const llm = LLMRouter.createForMember(spec.preferredProvider, {});
+    const llm = await LLMRouter.createForMember(spec.preferredProvider, {});
     const sReg = new SkillRegistry();
     const loop = new ReActLoop(llm, sReg);
     const agent = new MemberAgent(spec, llm, loop, sReg);

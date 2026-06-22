@@ -117,8 +117,8 @@ async function installConventions(cwd: string): Promise<void> {
     join(cwd, '.gitmessage'),
   )
   await safeCopy(
-    join(SOCIETY_ROOT, 'conventions', 'commitlint.config.cjs'),
-    join(cwd, 'commitlint.config.cjs'),
+    join(SOCIETY_ROOT, 'conventions', 'commitlint.config.ts'),
+    join(cwd, 'commitlint.config.ts'),
   )
 }
 
@@ -217,7 +217,7 @@ async function scaffoldConfig(cwd: string, runtime: Runtime, members: string[]):
       runtime,
       members,
       hooks: { hooksPath: '.husky' },
-      conventions: { commitTemplate: '.gitmessage', commitlintConfig: 'commitlint.config.cjs' },
+      conventions: { commitTemplate: '.gitmessage', commitlintConfig: 'commitlint.config.ts' },
     }
     await writeFile(configPath, JSON.stringify(config, null, 2) + '\n', 'utf8')
   }

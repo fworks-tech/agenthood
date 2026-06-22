@@ -19,8 +19,7 @@ export async function eject(): Promise<void> {
   const toRemove = [
     // Conventions
     '.gitmessage',
-    'commitlint.config.cjs',
-    'commitlint.config.js',
+    'commitlint.config.ts',
 
     // Husky hooks
     '.husky/commit-msg',

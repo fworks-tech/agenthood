@@ -40,7 +40,7 @@ on its own npm package being installed. Target projects get familiar Husky
 integration.
 
 **Harder:** Rules must be kept in sync between `.githooks/commit-msg` and
-`commitlint.config.cjs`. Drift between the two was the cause of issue #8
+`commitlint.config.ts`. Drift between the two was the cause of issue #8
 (now fixed).
 
 **New risk:** A rule present in the bash hook but absent from commitlint
@@ -50,6 +50,6 @@ The Sentinel CI workflow guards against this.
 ## References
 
 - [.githooks/commit-msg](https://github.com/fworks-tech/agenthood/blob/main/.githooks/commit-msg) — bash enforcement hook
-- [conventions/commitlint.config.cjs](https://github.com/fworks-tech/agenthood/blob/main/conventions/commitlint.config.cjs) — Node.js enforcement config
+- [conventions/commitlint.config.ts](https://github.com/fworks-tech/agenthood/blob/main/conventions/commitlint.config.ts) — Node.js enforcement config
 - [.github/workflows/sentinel.yml](https://github.com/fworks-tech/agenthood/blob/main/.github/workflows/sentinel.yml) — drift detection
 - [ADR-002](ADR-002-conventional-commits-standard.md) — why Conventional Commits

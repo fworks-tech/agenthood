@@ -42,7 +42,7 @@ commit history. The Doorman enforces subject rules but does not require scopes.
 
 ## References
 
-- [conventions/commitlint.config.cjs](https://github.com/fworks-tech/agenthood/blob/main/conventions/commitlint.config.cjs) — enforcement rules
+- [conventions/commitlint.config.ts](https://github.com/fworks-tech/agenthood/blob/main/conventions/commitlint.config.ts) — enforcement rules
 - [conventions/COMMIT_CONVENTION.md](https://github.com/fworks-tech/agenthood/blob/main/conventions/COMMIT_CONVENTION.md) — human-readable guide
 - [members/the-doorman/SKILL.md](https://github.com/fworks-tech/agenthood/blob/main/members/the-doorman/SKILL.md) — enforcement member
 - [members/the-scribe/SKILL.md](https://github.com/fworks-tech/agenthood/blob/main/members/the-scribe/SKILL.md) — commit message author

@@ -144,7 +144,7 @@ Flag any member that:
 
 Flag rules that reference removed or superseded things:
 - Tool names that no longer appear in the project's `package.json` or `requirements.txt`
-- Convention rules that contradict the current `commitlint.config.cjs`
+- Convention rules that contradict the current `commitlint.config.ts`
 - Process steps referencing file paths that no longer exist
 - Red Flags describing patterns the project no longer uses
 

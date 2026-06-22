@@ -113,7 +113,7 @@ The Society reads from `.agenthood/config.json`, scaffolded by `init`:
   "hooks": { "hooksPath": ".husky" },
   "conventions": {
     "commitTemplate": ".gitmessage",
-    "commitlintConfig": "commitlint.config.cjs"
+    "commitlintConfig": "commitlint.config.ts"
   }
 }
 ```

@@ -34,7 +34,7 @@ export async function check(): Promise<void> {
 
   // Conventions
   file('.gitmessage configured', '.gitmessage');
-  file('commitlint.config.js present', 'commitlint.config.js');
+  file('commitlint.config.ts present', 'commitlint.config.ts');
 
   // Hooks — .githooks/ (Agenthood repo) or .husky/ (target project)
   const usesGithooks = existsSync(join(cwd, '.githooks'));

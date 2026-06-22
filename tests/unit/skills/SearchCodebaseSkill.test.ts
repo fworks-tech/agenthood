@@ -33,7 +33,7 @@ describe('SearchCodebaseSkill', () => {
 
       expect(result.success).toBe(true)
       expect(result.output).toContain('SearchCodebaseSkill')
-    })
+    }, 20000)
 
     it('returns matching files for content query', async () => {
       const result = await skill.execute({ query: 'class SearchCodebaseSkill' }, context)

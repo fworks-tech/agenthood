@@ -88,11 +88,11 @@ Commit quality is enforced at three points simultaneously (ADR-003):
 2. **`.githooks/pre-commit`** — Blocks commits to main, audits secrets, checks file sizes
 3. **`.github/workflows/commitlint.yml`** — CI re-validates on PRs
 
-Banned commit subjects include: `wip`, `fix stuff`, `update`, `changes`, `stuff`, `misc`, `temp`, `test`, `asdf`. The custom rule lives in `conventions/commitlint.config.cjs` and is tested in `tests/commitlint.test.ts`.
+Banned commit subjects include: `wip`, `fix stuff`, `update`, `changes`, `stuff`, `misc`, `temp`, `test`, `asdf`. The custom rule lives in `conventions/commitlint.config.ts` and is tested in `tests/commitlint.test.ts`.
 
 ### VS Code extension (`vscode-extension/`)
 
-Separate package (`agenthood-vscode`) wrapping the same commands. Activates when `.gitmessage` or `commitlint.config.cjs` is found in the workspace. Has its own `package.json` and `dist/` build.
+Separate package (`agenthood-vscode`) wrapping the same commands. Activates when `.gitmessage` or `commitlint.config.ts` is found in the workspace. Has its own `package.json` and `dist/` build.
 
 ### Releases
 

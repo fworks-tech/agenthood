@@ -22,7 +22,7 @@ The Doorman does not negotiate. It does not make exceptions for urgent hotfixes 
 
 ### Commit Message Validation
 
-Read the commit message and validate against `commitlint.config.cjs`:
+Read the commit message and validate against `commitlint.config.ts`:
 
 **Check 1 — Type**
 - Must be one of: `feat`, `fix`, `docs`, `test`, `refactor`, `ci`, `chore`
@@ -172,7 +172,7 @@ This activates `.githooks/` (commit-msg, pre-commit, prepare-commit-msg, pre-pus
 2. **commitlint** — commit message linting
    ```bash
    npm install --save-dev @commitlint/cli @commitlint/config-conventional
-   cp agenthood/conventions/commitlint.config.cjs ./commitlint.config.cjs
+   cp agenthood/conventions/commitlint.config.ts ./commitlint.config.ts
    ```
 
 3. **commit-msg hook**

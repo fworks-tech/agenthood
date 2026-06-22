@@ -36,7 +36,7 @@ This single command will prompt you for two choices:
 
 Then it will:
 
-- Copy `.gitmessage` and `commitlint.config.cjs` into your project root
+- Copy `.gitmessage` and `commitlint.config.ts` into your project root
 - Install and configure Husky with `commit-msg` and `pre-push` hooks
 - Install `@commitlint/cli` and `@commitlint/config-conventional`
 - Copy `.github/` templates (PR template, issue templates, commit convention doc)
@@ -127,7 +127,7 @@ The minimal config created by `init` looks like:
   "hooks": { "hooksPath": ".husky" },
   "conventions": {
     "commitTemplate": ".gitmessage",
-    "commitlintConfig": "commitlint.config.cjs"
+    "commitlintConfig": "commitlint.config.ts"
   }
 }
 ```
@@ -150,7 +150,7 @@ Expected output:
 🏛️  Agenthood Health Check
 
   ✅ .gitmessage configured
-  ✅ commitlint.config.cjs present
+  ✅ commitlint.config.ts present
   ✅ Husky commit-msg hook active
   ✅ Husky pre-push hook active
   ✅ .github/pull_request_template.md present

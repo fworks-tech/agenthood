@@ -101,7 +101,7 @@ npm run package  # Creates .vsix file
 ## Troubleshooting
 
 ### Extension doesn't activate
-- Ensure you have `.gitmessage` or `commitlint.config.cjs` in your workspace
+- Ensure you have `.gitmessage` or `commitlint.config.ts` in your workspace
 - Verify Agenthood is initialized: `npx agenthood init`
 
 ### Status bar shows 0/9 members

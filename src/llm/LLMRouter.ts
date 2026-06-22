@@ -1,3 +1,16 @@
+/**
+ * src/llm/LLMRouter.ts
+ *
+ * Routes LLM requests to the optimal provider chain. Supports per-member
+ * provider preferences and complexity-based routing:
+ *   low  → Groq (fast/cheap)
+ *   medium → configured provider or Groq
+ *   high → configured provider or Anthropic (capable)
+ *
+ * Provider modules are loaded lazily — the underlying SDK import happens
+ * on first use, not when LLMRouter is imported.
+ */
+
 import type { ILLMProvider } from './ILLMProvider.js'
 import type { LLMConfig, LLMRequest, ComplexityTier } from './types.js'
 import type { ProviderName } from '../members/types.ts'
@@ -117,19 +130,19 @@ export class LLMRouter {
 
     switch (tier) {
       case 'low':
-        return (await LLMRouter.getOrInit('groq')) ?? LLMRouter.buildDefaultChain()
+        return (await LLMRouter.getOrInit('groq')) ?? await LLMRouter.buildDefaultChain()
 
       case 'medium':
         if (configuredProvider && configuredProvider in LLMRouter.providerFactories) {
-          return (await LLMRouter.getOrInit(configuredProvider)) ?? LLMRouter.buildDefaultChain()
+          return (await LLMRouter.getOrInit(configuredProvider)) ?? await LLMRouter.buildDefaultChain()
         }
-        return (await LLMRouter.getOrInit('groq')) ?? LLMRouter.buildDefaultChain()
+        return (await LLMRouter.getOrInit('groq')) ?? await LLMRouter.buildDefaultChain()
 
       case 'high':
         return (
           (await LLMRouter.getOrInit('anthropic')) ??
           (configuredProvider ? await LLMRouter.getOrInit(configuredProvider) : null) ??
-          LLMRouter.buildDefaultChain()
+          await LLMRouter.buildDefaultChain()
         )
     }
   }

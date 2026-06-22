@@ -125,7 +125,7 @@ export class PrSyncSkill implements ISkill {
         if (hasApiKey) {
           try {
             const { LLMRouter } = await import('../../llm/LLMRouter.ts')
-            const llm = LLMRouter.create({})
+            const llm = await LLMRouter.create({})
             const prompt = buildReviewerPrompt(commits)
             const result = await llm.complete({
               messages: [{ role: 'user', content: prompt }],

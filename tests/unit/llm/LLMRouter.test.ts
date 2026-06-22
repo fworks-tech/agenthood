@@ -74,63 +74,62 @@ describe('ComplexityScorer', () => {
 })
 
 describe('LLMRouter', () => {
-  it('returns GroqProvider for groq config', () => {
-    const provider = LLMRouter.create({ provider: 'groq' })
+  it('returns GroqProvider for groq config', async () => {
+    const provider = await LLMRouter.create({ provider: 'groq' })
     expect(provider).toBeInstanceOf(GroqProvider)
   })
 
-  it('returns OllamaProvider for ollama config', () => {
-    const provider = LLMRouter.create({ provider: 'ollama' })
+  it('returns OllamaProvider for ollama config', async () => {
+    const provider = await LLMRouter.create({ provider: 'ollama' })
     expect(provider).toBeInstanceOf(OllamaProvider)
   })
 
-  it('returns ProviderChain for unknown provider', () => {
-    const provider = LLMRouter.create({ provider: 'unknown' })
+  it('returns ProviderChain for unknown provider', async () => {
+    const provider = await LLMRouter.create({ provider: 'unknown' })
     expect(provider).toBeInstanceOf(ProviderChain)
   })
 
-  it('returns ProviderChain when no provider specified', () => {
-    const provider = LLMRouter.create({})
+  it('returns ProviderChain when no provider specified', async () => {
+    const provider = await LLMRouter.create({})
     expect(provider).toBeInstanceOf(ProviderChain)
   })
 
-  it('createForMember builds ProviderChain with preferred provider first', () => {
-    const provider = LLMRouter.createForMember('anthropic', {})
+  it('createForMember builds ProviderChain with preferred provider first', async () => {
+    const provider = await LLMRouter.createForMember('anthropic', {})
     expect(provider).toBeInstanceOf(ProviderChain)
   })
 
-  it('createForMember with ollama builds a chain', () => {
-    const provider = LLMRouter.createForMember('ollama', {})
+  it('createForMember with ollama builds a chain', async () => {
+    const provider = await LLMRouter.createForMember('ollama', {})
     expect(provider).toBeInstanceOf(ProviderChain)
   })
 
   describe('route — dynamic strategy', () => {
-    it('returns a provider (not ProviderChain) for low complexity', () => {
-      const provider = LLMRouter.route(
+    it('returns a provider (not ProviderChain) for low complexity', async () => {
+      const provider = await LLMRouter.route(
         makeRequest(),
         { routing: { strategy: 'dynamic' } },
       )
-      // Should resolve to a concrete provider (likely Groq or ProviderChain if Groq unavailable)
       expect(provider).toBeDefined()
     })
 
-    it('falls back to static behavior when strategy is static', () => {
-      const provider = LLMRouter.route(
+    it('falls back to static behavior when strategy is static', async () => {
+      const provider = await LLMRouter.route(
         makeRequest({ messages: [{ role: 'user', content: 'x' }] }),
         { provider: 'groq', routing: { strategy: 'static' } },
       )
       expect(provider).toBeInstanceOf(GroqProvider)
     })
 
-    it('falls back to static behavior when no routing config', () => {
-      const provider = LLMRouter.route(
+    it('falls back to static behavior when no routing config', async () => {
+      const provider = await LLMRouter.route(
         makeRequest({ messages: [{ role: 'user', content: 'x' }] }),
         { provider: 'ollama' },
       )
       expect(provider).toBeInstanceOf(OllamaProvider)
     })
 
-    it('returns configured provider for medium complexity', () => {
+    it('returns configured provider for medium complexity', async () => {
       const req = makeRequest({
         messages: [
           { role: 'user', content: '1' },
@@ -141,7 +140,7 @@ describe('LLMRouter', () => {
           { role: 'assistant', content: 'c' },
         ],
       })
-      const provider = LLMRouter.route(req, {
+      const provider = await LLMRouter.route(req, {
         provider: 'ollama',
         routing: { strategy: 'dynamic' },
       })

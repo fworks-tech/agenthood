@@ -6,7 +6,10 @@ docs:
     - any-glob-to-any-file:
       - 'docs/**'
       - '*.md'
-      - 'members/**/*.md'
+
+adr:
+  - changed-files:
+    - any-glob-to-any-file: 'docs/adr/**'
 
 ci:
   - changed-files:
@@ -14,20 +17,49 @@ ci:
       - '.github/**'
       - '.githooks/**'
 
+test:
+  - changed-files:
+    - any-glob-to-any-file: 'tests/**'
+
 llm:
   - changed-files:
-    - any-glob-to-any-file:
-      - 'src/llm/**'
+    - any-glob-to-any-file: 'src/llm/**'
+
+core:
+  - changed-files:
+    - any-glob-to-any-file: 'src/core/**'
+
+agent:
+  - changed-files:
+    - any-glob-to-any-file: 'src/agent/**'
 
 skill:
   - changed-files:
-    - any-glob-to-any-file:
-      - 'src/skills/**'
-      - 'members/**'
+    - any-glob-to-any-file: 'src/skills/**'
+
+skills:
+  - changed-files:
+    - any-glob-to-any-file: 'members/**'
+
+vscode-extension:
+  - changed-files:
+    - any-glob-to-any-file: 'vscode-extension/**'
 
 dx:
   - changed-files:
     - any-glob-to-any-file:
-      - 'vscode-extension/**'
       - 'src/commands/**'
       - 'src/cli.ts'
+
+chore:
+  - changed-files:
+    - any-glob-to-any-file: 'scripts/**'
+
+infra:
+  - changed-files:
+    - any-glob-to-any-file:
+      - 'tsconfig.json'
+      - 'tsconfig.*.json'
+      - '.gitignore'
+      - '.nvmrc'
+      - 'conventions/**'

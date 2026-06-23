@@ -1,3 +1,15 @@
+# [2.2.0](https://github.com/fworks-tech/agenthood/compare/v2.1.0...v2.2.0) (2026-06-23)
+
+
+### Bug Fixes
+
+* **academy:** compute relative links from file dir instead of docs root ([fc0d09b](https://github.com/fworks-tech/agenthood/commit/fc0d09b9f506b74c63c63ce9e0d79ab8b9f5e0da))
+
+
+### Features
+
+* **academy:** replace MkDocs with Node.js build and deploy to GitHub Pages ([0bf5e3a](https://github.com/fworks-tech/agenthood/commit/0bf5e3a9953239dde26c4988b37368e89c55fb23))
+
 # [2.1.0](https://github.com/fworks-tech/agenthood/compare/v2.0.0...v2.1.0) (2026-06-23)
 
 

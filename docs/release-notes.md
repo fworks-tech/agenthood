@@ -5,6 +5,18 @@
 
 ---
 
+## v2.2.0 — June 23, 2026
+
+### 🐛 Bug Fixes
+
+- **Academy:** compute relative links from file dir instead of docs root
+
+### ✨ Features
+
+- **Academy:** replace MkDocs with Node.js build and deploy to GitHub Pages
+
+---
+
 ## v2.1.0 — June 23, 2026
 
 ### 🐛 Bug Fixes

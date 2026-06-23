@@ -27,7 +27,7 @@ jobs:
         run: npm ci
 
       - name: Build site
-        run: node scripts/build-academy.mjs
+        run: npx tsx scripts/build-academy.ts
 
       - name: Create .nojekyll
         run: touch site/.nojekyll

@@ -81,9 +81,10 @@ function rewriteLink(href: string, fileDir: string): string {
   const sourceDir = join(ROOT, 'docs', fileDir)
   const targetAbs = resolve(sourceDir, pathPart)
   const relToDocs = relative(join(ROOT, 'docs'), targetAbs).split(sep).join('/')
+  const fromFile = relative(sourceDir, targetAbs).split(sep).join('/')
 
   if (!relToDocs.startsWith('..') && pathPart.endsWith('.md')) {
-    const parts = relToDocs.split('/')
+    const parts = fromFile.split('/')
     const filename = parts.pop()!
     const isIndex = filename === 'README.md' || filename === 'index.md'
     let newPath: string

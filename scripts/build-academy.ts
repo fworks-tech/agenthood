@@ -7,6 +7,7 @@ import { marked, Renderer } from 'marked'
 const ROOT = fileURLToPath(new URL('..', import.meta.url))
 const SRC_DIRS = ['docs/academy', 'docs/adr']
 const OUT_DIR = join(ROOT, 'site')
+const GITHUB_BLOB = 'https://github.com/fworks-tech/agenthood/blob/main'
 
 function walk(dir: string): string[] {
   const files: string[] = []
@@ -25,28 +26,28 @@ const CSS = `
 body {
   max-width: 42rem; margin: 2rem auto; padding: 0 1rem 4rem;
   font-family: system-ui, -apple-system, sans-serif;
-  line-height: 1.75; color: #1a1a1a; font-size: 1rem;
+  line-height: 1.75; color: #f4f4f5; background: #09090b; font-size: 1rem;
 }
-h1, h2, h3 { line-height: 1.3; margin-top: 2rem; }
-h1 { font-size: 1.75rem; border-bottom: 2px solid #eee; padding-bottom: .5rem; }
+h1, h2, h3 { line-height: 1.3; margin-top: 2rem; color: #ffffff; }
+h1 { font-size: 1.75rem; border-bottom: 2px solid #27272a; padding-bottom: .5rem; }
 h2 { font-size: 1.35rem; }
 h3 { font-size: 1.1rem; }
-a { color: #2563eb; }
+a { color: #a78bfa; }
 a:hover { text-decoration: underline; }
-pre, code { font-size: .9em; background: #f5f5f5; border-radius: 4px; }
-code { padding: .15em .3em; }
-pre { padding: 1rem; overflow-x: auto; }
-pre code { background: none; padding: 0; }
+pre, code { font-size: .9em; background: #18181b; border-radius: 6px; }
+code { padding: .15em .3em; border: 1px solid #27272a; }
+pre { padding: 1rem; overflow-x: auto; border: 1px solid #27272a; }
+pre code { background: none; padding: 0; border: none; }
 blockquote {
   margin: 1rem 0; padding: .5rem 1rem;
-  border-left: 4px solid #2563eb; background: #f8fafc;
+  border-left: 4px solid #a78bfa; background: #18181b;
 }
 table { border-collapse: collapse; width: 100%; margin: 1rem 0; }
-th, td { border: 1px solid #ddd; padding: .5rem; text-align: left; }
-th { background: #f5f5f5; font-weight: 600; }
+th, td { border: 1px solid #27272a; padding: .5rem; text-align: left; }
+th { background: #18181b; font-weight: 600; }
 ol, ul { padding-left: 1.5rem; }
 li { margin: .25rem 0; }
-hr { border: none; border-top: 1px solid #eee; margin: 2rem 0; }
+hr { border: none; border-top: 1px solid #27272a; margin: 2rem 0; }
 main { min-height: 60vh; }
 `
 
@@ -75,30 +76,27 @@ function rewriteLink(href: string, fileDir: string): string {
     return href
   }
 
-  const mdMatch = href.match(/^(.*\.md)(#.*)?$/)
-  if (!mdMatch) {
-    return href
-  }
-
-  const mdPath = mdMatch[1]
-  const anchor = mdMatch[2] || ''
+  const [pathPart, anchor] = href.split('#')
 
   const sourceDir = join(ROOT, 'docs', fileDir)
-  const targetAbs = resolve(sourceDir, mdPath)
-  const relToSource = relative(sourceDir, targetAbs).split(sep).join('/')
+  const targetAbs = resolve(sourceDir, pathPart)
+  const relToDocs = relative(join(ROOT, 'docs'), targetAbs).split(sep).join('/')
 
-  const parts = relToSource.split('/')
-  const filename = parts.pop()!
-  const isIndex = filename === 'README.md' || filename === 'index.md'
-
-  let newPath: string
-  if (isIndex) {
-    newPath = parts.join('/') + '/'
-  } else {
-    newPath = [...parts, filename.replace('.md', '')].join('/') + '/'
+  if (!relToDocs.startsWith('..') && pathPart.endsWith('.md')) {
+    const parts = relToDocs.split('/')
+    const filename = parts.pop()!
+    const isIndex = filename === 'README.md' || filename === 'index.md'
+    let newPath: string
+    if (isIndex) {
+      newPath = parts.join('/') + '/'
+    } else {
+      newPath = [...parts, filename.replace('.md', '')].join('/') + '/'
+    }
+    return anchor ? newPath + '#' + anchor : newPath
   }
 
-  return newPath + anchor
+  const ghPath = relative(ROOT, targetAbs).split(sep).join('/')
+  return GITHUB_BLOB + '/' + ghPath + (anchor ? '#' + anchor : '')
 }
 
 function convertMarkdown(filePath: string): void {

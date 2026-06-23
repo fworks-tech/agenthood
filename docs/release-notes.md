@@ -5,6 +5,20 @@
 
 ---
 
+## v2.1.0 — June 23, 2026
+
+### 🐛 Bug Fixes
+
+- **Ci:** add npm ci step to gh-pages workflow before building, closes [#pages](https://github.com/fworks-tech/agenthood/issues/pages)
+- **Config:** update stale commitlint.config.cjs references to .ts
+- **Llm:** make provider SDK imports lazy, lower engines.node to 22.14.0
+
+### ✨ Features
+
+- **Academy:** replace MkDocs with Node.js build and deploy to GitHub Pages
+
+---
+
 ## v2.0.0 — June 21, 2026
 
 ### 🐛 Bug Fixes

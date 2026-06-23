@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Real-World Integration — Agenthood Academy</title>
+<style>
+body {
+  max-width: 42rem; margin: 2rem auto; padding: 0 1rem 4rem;
+  font-family: system-ui, -apple-system, sans-serif;
+  line-height: 1.75; color: #1a1a1a; font-size: 1rem;
+}
+h1, h2, h3 { line-height: 1.3; margin-top: 2rem; }
+h1 { font-size: 1.75rem; border-bottom: 2px solid #eee; padding-bottom: .5rem; }
+h2 { font-size: 1.35rem; }
+h3 { font-size: 1.1rem; }
+a { color: #2563eb; }
+a:hover { text-decoration: underline; }
+pre, code { font-size: .9em; background: #f5f5f5; border-radius: 4px; }
+code { padding: .15em .3em; }
+pre { padding: 1rem; overflow-x: auto; }
+pre code { background: none; padding: 0; }
+blockquote {
+  margin: 1rem 0; padding: .5rem 1rem;
+  border-left: 4px solid #2563eb; background: #f8fafc;
+}
+table { border-collapse: collapse; width: 100%; margin: 1rem 0; }
+th, td { border: 1px solid #ddd; padding: .5rem; text-align: left; }
+th { background: #f5f5f5; font-weight: 600; }
+ol, ul { padding-left: 1.5rem; }
+li { margin: .25rem 0; }
+hr { border: none; border-top: 1px solid #eee; margin: 2rem 0; }
+main { min-height: 60vh; }
+</style>
+</head>
+<body>
+<main><h1>Real-World Integration</h1>
+<blockquote>
+<p><em>An agent that only talks to itself is a thought experiment. Portals connect it to the world.</em></p>
+</blockquote>
+<hr>
+<h2>What it is</h2>
+<p>Real-world integration is the layer that lets an agent act on systems outside its own process — post a Slack message, comment on a GitHub PR, update a Linear ticket, file a Sentry alert. Without it, your agent is a very smart function that returns strings. With it, your agent closes the loop from reasoning to delivery.</p>
+<p>The integration layer that Agenthood calls Portals is not a pile of HTTP calls. It is a set of typed skills, one per external system, that expose a deliberate subset of the target API. A <code>GitHubSkill</code> does not wrap the entire GitHub REST API — it exposes the actions an agent should take: create a comment, open a PR, merge a branch. Each action has typed input, typed output, and a logged execution trace.</p>
+<p>The boundary matters. An agent with raw API access will find the most destructive endpoint and call it. An agent with a Portal skill can only do what the skill exposes — and the skill exposes what you decided an agent should be able to do. Portals are a security boundary as much as an integration boundary.</p>
+<hr>
+<h2>Why it matters in production</h2>
+<p>Untyped API calls break silently. When GitHub renames a field in their REST response, your agent&#39;s <code>comment.body</code> becomes <code>comment.body_b64</code> and the agent proceeds with garbage. The failure does not throw — it produces a wrong action based on a wrong assumption, and you find out when a user reports it.</p>
+<p>Typed portal skills solve this at compile time. The <code>GitHubSkill</code> interface declares the shape it expects; if the upstream API drifts, the skill&#39;s adapter layer is the one place that needs updating, and the agent&#39;s logic is untouched. The integration boundary is also the maintenance boundary.</p>
+<p>The second production concern is auditability. Every external action an agent takes — every Slack post, every PR comment, every ticket update — must be logged before it executes, not after. An agent that posts to a customer-facing channel and then logs the post is an agent that cannot be rolled back. The Portals layer logs intent, arguments, and target <em>before</em> the HTTP call fires, so the audit trail exists even if the call fails or times out.</p>
+<hr>
+<h2>How Agenthood implements it</h2>
+<p>The Portals layer (planned in <code>src/portals/</code>, coming in v2.2.0) ships typed skills for the integrations the Society uses internally. <code>GitHubSkill</code> is the canonical example:</p>
+<pre><code class="language-typescript">import { GitHubSkill } from &#39;agenthood&#39;;
+
+const github = new GitHubSkill({ token: process.env.GITHUB_TOKEN });
+
+// Typed actions — no raw API surface, no unauthenticated calls
+await github.createComment({
+  repo: &#39;fworks-tech/agenthood&#39;,
+  pr: 181,
+  body: &#39;Reviewed by the-reviewer. 0 blockers, 2 nits. See trace.&#39;,
+});
+
+await github.openPR({
+  repo: &#39;fworks-tech/agenthood&#39;,
+  head: &#39;feat/issue-42-oauth-login&#39;,
+  base: &#39;main&#39;,
+  title: &#39;feat(auth): add OAuth2 login to API&#39;,
+  body: &#39;Closes #42&#39;,
+});
+
+await github.mergePR({ repo: &#39;fworks-tech/agenthood&#39;, pr: 181, method: &#39;squash&#39; });
+</code></pre>
+<p>Each method is a typed contract — input schema, output schema, logged execution. The skill does not expose <code>deleteRepository</code> or <code>forcePush</code>. It exposes what an agent should be able to do, and the security boundary is enforced by what the skill does not expose. Sibling skills (<code>SlackSkill</code>, <code>LinearSkill</code>, <code>SentrySkill</code>, <code>NotionSkill</code>) follow the same pattern.</p>
+<hr>
+<h2>Hands-on example</h2>
+<pre><code class="language-bash"># The Society&#39;s runtime composes portal skills into agent workflows
+agenthood run the-herald &quot;ship: cut release v1.8.0 and announce it&quot;
+</code></pre>
+<p>The Herald orchestrates across portals — one agent, multiple integrations, one audit trail:</p>
+<pre><code>[think] Release v1.8.0 requires: tag, release notes, Slack announcement, Linear update.
+[act]  github.createRelease({ tag: &#39;v1.8.0&#39;, notes: changelog })
+[portal:github] logged → POST /repos/.../releases  (before execution)
+[see]  Release v1.8.0 published.
+[act]  slack.postMessage({ channel: &#39;#engineering&#39;, text: &#39;v1.8.0 shipped — see changelog&#39; })
+[portal:slack]  logged → POST /conversations.postMessage  (before execution)
+[see]  Message posted to #engineering.
+[act]  linear.updateCycle({ cycle: &#39;current&#39;, status: &#39;released&#39;, version: &#39;v1.8.0&#39; })
+[portal:linear] logged → POST /cycles/update  (before execution)
+[see]  Cycle updated.
+[done] Release v1.8.0 shipped across GitHub, Slack, and Linear. 3 portal actions, 3 log entries.
+</code></pre>
+<p>Each <code>portal:*</code> line is the audit entry, written before the action. If any call fails, the log shows exactly which one and why.</p>
+<hr>
+<h2>Further reading</h2>
+<ul>
+<li><a href="../../src/portals/GitHubSkill.ts">`src/portals/GitHubSkill.ts`</a> — the GitHub portal skill (v2.2.0)</li>
+<li><a href="https://docs.github.com/en/rest">GitHub REST API documentation</a> — the target the GitHub portal wraps</li>
+<li><a href="https://api.slack.com/">Slack API</a> — the target the Slack portal wraps</li>
+</ul>
+</main>
+</body>
+</html>

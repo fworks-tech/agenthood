@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Multi-Agent Systems — Agenthood Academy</title>
+<style>
+body {
+  max-width: 42rem; margin: 2rem auto; padding: 0 1rem 4rem;
+  font-family: system-ui, -apple-system, sans-serif;
+  line-height: 1.75; color: #1a1a1a; font-size: 1rem;
+}
+h1, h2, h3 { line-height: 1.3; margin-top: 2rem; }
+h1 { font-size: 1.75rem; border-bottom: 2px solid #eee; padding-bottom: .5rem; }
+h2 { font-size: 1.35rem; }
+h3 { font-size: 1.1rem; }
+a { color: #2563eb; }
+a:hover { text-decoration: underline; }
+pre, code { font-size: .9em; background: #f5f5f5; border-radius: 4px; }
+code { padding: .15em .3em; }
+pre { padding: 1rem; overflow-x: auto; }
+pre code { background: none; padding: 0; }
+blockquote {
+  margin: 1rem 0; padding: .5rem 1rem;
+  border-left: 4px solid #2563eb; background: #f8fafc;
+}
+table { border-collapse: collapse; width: 100%; margin: 1rem 0; }
+th, td { border: 1px solid #ddd; padding: .5rem; text-align: left; }
+th { background: #f5f5f5; font-weight: 600; }
+ol, ul { padding-left: 1.5rem; }
+li { margin: .25rem 0; }
+hr { border: none; border-top: 1px solid #eee; margin: 2rem 0; }
+main { min-height: 60vh; }
+</style>
+</head>
+<body>
+<main><h1>Multi-Agent Systems</h1>
+<blockquote>
+<p><em>Peer-to-peer coordination looks elegant on a diagram. In production, it becomes a deadlock.</em></p>
+</blockquote>
+<hr>
+<h2>What it is</h2>
+<p>A multi-agent system is a setup where more than one agent works on the same problem. The question is not whether to use multiple agents — real tasks need specialists — but how they coordinate. There are two patterns, and they produce wildly different systems.</p>
+<p><strong>Peer-to-peer</strong>: agents invoke each other directly. The Architect calls the Tester, the Tester calls the Developer, the Developer calls the Reviewer. Each agent decides, on its own, when to hand off. This looks elegant on a whiteboard because there is no central coordinator — the agents self-organize.</p>
+<p><strong>Orchestrator-driven</strong>: a central controller routes tasks to agents. The orchestrator decides which agent runs, in what order, and what context it receives. Agents do not call each other. They receive a task, execute it, return a result, and stop.</p>
+<p>The difference shows up the moment something fails. In a peer-to-peer system, a failure in one agent propagates to every agent that called it, and the propagation path is invisible — you cannot tell which agent triggered which. In an orchestrator system, the failure is localized to one step, and the orchestrator&#39;s log shows exactly which step failed and why.</p>
+<hr>
+<h2>Why it matters in production</h2>
+<p>Peer-to-peer multi-agent systems have a hidden property: every agent is also a point of failure for every other agent. When the Developer agent calls the Reviewer agent and the Reviewer hangs, the Developer hangs. When the Tester calls the Developer with malformed input and the Developer hallucinates, the Tester proceeds on bad output. The failure propagation graph is the full connection graph, and the full connection graph is unmanageable past three agents.</p>
+<p>The second problem is context leakage. In a peer-to-peer system, agents pass their full context to whoever they call. The Reviewer receives the Architect&#39;s planning context, the Tester&#39;s test context, and the Developer&#39;s implementation context — all merged into one opaque blob. The Reviewer cannot tell which context is relevant, so it reasons over all of it, and the irrelevant parts actively confuse it.</p>
+<p>The orchestrator pattern solves both. Each agent receives only the context the orchestrator explicitly assigns. The Reviewer gets the diff and the test results — not the Architect&#39;s planning notes. Failures are localized: if the Developer fails, the orchestrator retries or escalates; no other agent is affected. And the invocation graph is a linear log, not a tangled web. This is why ADR-005 chose orchestrator over peer-to-peer for the Society&#39;s 14 members.</p>
+<hr>
+<h2>How Agenthood implements it</h2>
+<p>The orchestrator lives in <code>WorkflowEngine</code> (coming in v2.3.0) and is documented in ADR-005. Agents never invoke each other directly. The orchestrator routes, agents execute, results return:</p>
+<pre><code class="language-typescript">import { WorkflowEngine, AgentStep, ParallelStep } from &#39;agenthood&#39;;
+
+// The orchestrator — not the agents — decides the execution graph
+const pipeline = new WorkflowEngine()
+  .step(new AgentStep(&#39;the-architect&#39;, { task: &#39;plan the feature&#39; }))
+  .step(new AgentStep(&#39;the-tester&#39;,    { task: &#39;write tests from the plan&#39; }))
+  .step(new AgentStep(&#39;the-developer&#39;, { task: &#39;implement against the tests&#39; }))
+  .step(new ParallelStep([
+      new AgentStep(&#39;the-reviewer&#39;,  { task: &#39;review the diff&#39; }),
+      new AgentStep(&#39;the-auditor&#39;,   { task: &#39;audit dependencies&#39; }),
+  ]))
+  .step(new AgentStep(&#39;the-scribe&#39;, { task: &#39;write the commit message&#39; }));
+
+const result = await pipeline.run();
+</code></pre>
+<p>Each <code>AgentStep</code> receives exactly the inputs the orchestrator provides — no agent sees another agent&#39;s internal context. <code>ParallelStep</code> runs independent agents concurrently and merges their outputs. The v2.0.0 phase (ADR-005 update) implements the orchestrator as a state graph with <code>interrupt_on</code> approval gates.</p>
+<hr>
+<h2>Hands-on example</h2>
+<pre><code class="language-bash"># The Steward routes a multi-member task through the orchestrator
+agenthood run the-steward &quot;ship: add OAuth2 login to the API&quot;
+</code></pre>
+<p>The orchestrator log shows the linear invocation graph — no peer-to-peer tangle:</p>
+<pre><code>route  → the-architect (plan)
+exec   → the-architect: &quot;3 endpoints to add, 1 middleware to extend&quot;
+route  → the-tester (tests)
+exec   → the-tester: &quot;6 tests written — 3 happy path, 3 error cases&quot;
+route  → the-developer (implement)
+exec   → the-developer: &quot;OAuth2 middleware + 3 handlers implemented&quot;
+route  → parallel [the-reviewer, the-auditor]
+exec   → the-reviewer: &quot;approved, 1 nit&quot;
+exec   → the-auditor:  &quot;no new vulnerabilities&quot;
+route  → the-scribe (commit)
+exec   → the-scribe:  &quot;feat(auth): add OAuth2 login to API&quot;
+done   → 5 members, 0 failures, 1 human approval gate
+</code></pre>
+<hr>
+<h2>Further reading</h2>
+<ul>
+<li><a href="../../adr/ADR-005-orchestrator-pattern/">ADR-005 — Orchestrator pattern over peer-to-peer</a> — the decision and its alternatives</li>
+<li><a href="../../src/workflows/WorkflowEngine.ts">`src/workflows/WorkflowEngine.ts`</a> — the orchestrator (v2.3.0)</li>
+<li><a href="https://arxiv.org/abs/2308.08155">AutoGen: Enabling Next-Gen LLM Applications via Multi-Agent Conversation</a> — the multi-agent paper whose peer-to-peer model ADR-005 rejected</li>
+</ul>
+</main>
+</body>
+</html>

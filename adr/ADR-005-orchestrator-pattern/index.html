@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ADR-005: Orchestrator Pattern Over Peer-to-Peer Member Communication — Agenthood Academy</title>
+<style>
+body {
+  max-width: 42rem; margin: 2rem auto; padding: 0 1rem 4rem;
+  font-family: system-ui, -apple-system, sans-serif;
+  line-height: 1.75; color: #1a1a1a; font-size: 1rem;
+}
+h1, h2, h3 { line-height: 1.3; margin-top: 2rem; }
+h1 { font-size: 1.75rem; border-bottom: 2px solid #eee; padding-bottom: .5rem; }
+h2 { font-size: 1.35rem; }
+h3 { font-size: 1.1rem; }
+a { color: #2563eb; }
+a:hover { text-decoration: underline; }
+pre, code { font-size: .9em; background: #f5f5f5; border-radius: 4px; }
+code { padding: .15em .3em; }
+pre { padding: 1rem; overflow-x: auto; }
+pre code { background: none; padding: 0; }
+blockquote {
+  margin: 1rem 0; padding: .5rem 1rem;
+  border-left: 4px solid #2563eb; background: #f8fafc;
+}
+table { border-collapse: collapse; width: 100%; margin: 1rem 0; }
+th, td { border: 1px solid #ddd; padding: .5rem; text-align: left; }
+th { background: #f5f5f5; font-weight: 600; }
+ol, ul { padding-left: 1.5rem; }
+li { margin: .25rem 0; }
+hr { border: none; border-top: 1px solid #eee; margin: 2rem 0; }
+main { min-height: 60vh; }
+</style>
+</head>
+<body>
+<main><h1>ADR-005: Orchestrator Pattern Over Peer-to-Peer Member Communication</h1>
+<p><strong>Date:</strong> 2026-06-02
+<strong>Status:</strong> Accepted</p>
+<h2>Context</h2>
+<p>With 14 specialized members, a coordination pattern was needed. Two main
+options were available: peer-to-peer (members invoke each other directly)
+or orchestrator-driven (a central controller routes tasks to members, which
+operate independently and return results).</p>
+<p>The choice affects how members are composed, how context is managed, and
+what happens when a member hands off to another.</p>
+<h2>Decision</h2>
+<p>The Society uses the <strong>Orchestrator pattern</strong>: the developer (or a Steward-
+assisted routing prompt) acts as the orchestrator, invoking individual members
+as needed. Members do not invoke each other directly.</p>
+<h2>Alternatives Considered</h2>
+<table>
+<thead>
+<tr>
+<th>Option</th>
+<th>Pros</th>
+<th>Cons</th>
+<th>Why Rejected</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Peer-to-peer</td>
+<td>Members can autonomously compose workflows</td>
+<td>Creates hidden invocation chains; context leaks between members; hard to debug</td>
+<td>Unpredictable and difficult to audit</td>
+</tr>
+<tr>
+<td>Orchestrator (chosen)</td>
+<td>Explicit invocation; clear context boundaries; each member receives only what it needs</td>
+<td>Requires the orchestrator (developer or Steward) to know the routing</td>
+<td>—</td>
+</tr>
+<tr>
+<td>Event-driven (pub/sub)</td>
+<td>Decoupled; members react to events</td>
+<td>Requires a runtime event bus not available in most AI coding assistants today</td>
+<td>No infrastructure support in current runtimes</td>
+</tr>
+</tbody></table>
+<h2>Consequences</h2>
+<p><strong>Easier:</strong> Each member&#39;s context is controlled — The Tester receives test
+context, not release context. Invocations are auditable in conversation history.</p>
+<p><strong>Harder:</strong> Multi-step workflows (e.g., Architect → Tester → Reviewer → Scribe)
+require the developer to chain invocations manually or use The Steward for
+routing guidance.</p>
+<p><strong>New risk:</strong> Without an automated orchestrator, long workflows rely on the
+developer remembering the correct sequence. The Steward&#39;s routing table and
+the <code>agentic-workflows/</code> templates mitigate this.</p>
+<h2>Update — Phase 3 (planned, v2.0.0)</h2>
+<p>The orchestrator described here will be implemented as a LangGraph <code>StateGraph</code> in
+<code>runtime/agenthood_runtime/orchestrator/graph.py</code>. Key components:</p>
+<ul>
+<li><code>OrchestratorState</code> — TypedDict holding task, active members, member outputs, approval state</li>
+<li><code>StewardRouter</code> — deterministic routing table derived from <code>the-steward/SKILL.md</code>; LLM-assisted for ambiguous tasks</li>
+<li><code>build_orchestrator_graph()</code> — nodes: <code>classify_task → route_members → execute_member → check_approval → advance_member</code></li>
+</ul>
+<p><code>MemorySaver</code> checkpointing enables resumable multi-step workflows via <code>--thread-id</code>.
+<code>interrupt_on</code> gates enforce the approval model documented in this ADR.</p>
+<h2>References</h2>
+<ul>
+<li><a href="https://github.com/fworks-tech/agenthood/blob/main/members/the-steward/SKILL.md">members/the-steward/SKILL.md</a> — routing guidance</li>
+<li><a href="https://github.com/fworks-tech/agenthood/tree/main/agentic-workflows/">agentic-workflows/</a> — multi-step workflow templates</li>
+<li><a href="https://github.com/fworks-tech/agenthood/blob/main/architecture/agent-system.md">architecture/agent-system.md</a> — system design</li>
+<li><a href="https://github.com/fworks-tech/agenthood/blob/main/architecture/concurrency-and-queues.md">architecture/concurrency-and-queues.md</a> — queue design</li>
+<li><a href="ADR-008-typescript-runtime-over-python/">ADR-008</a> — TypeScript runtime over Python</li>
+</ul>
+</main>
+</body>
+</html>

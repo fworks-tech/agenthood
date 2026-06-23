@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Prompt Engineering — Agenthood Academy</title>
+<style>
+body {
+  max-width: 42rem; margin: 2rem auto; padding: 0 1rem 4rem;
+  font-family: system-ui, -apple-system, sans-serif;
+  line-height: 1.75; color: #1a1a1a; font-size: 1rem;
+}
+h1, h2, h3 { line-height: 1.3; margin-top: 2rem; }
+h1 { font-size: 1.75rem; border-bottom: 2px solid #eee; padding-bottom: .5rem; }
+h2 { font-size: 1.35rem; }
+h3 { font-size: 1.1rem; }
+a { color: #2563eb; }
+a:hover { text-decoration: underline; }
+pre, code { font-size: .9em; background: #f5f5f5; border-radius: 4px; }
+code { padding: .15em .3em; }
+pre { padding: 1rem; overflow-x: auto; }
+pre code { background: none; padding: 0; }
+blockquote {
+  margin: 1rem 0; padding: .5rem 1rem;
+  border-left: 4px solid #2563eb; background: #f8fafc;
+}
+table { border-collapse: collapse; width: 100%; margin: 1rem 0; }
+th, td { border: 1px solid #ddd; padding: .5rem; text-align: left; }
+th { background: #f5f5f5; font-weight: 600; }
+ol, ul { padding-left: 1.5rem; }
+li { margin: .25rem 0; }
+hr { border: none; border-top: 1px solid #eee; margin: 2rem 0; }
+main { min-height: 60vh; }
+</style>
+</head>
+<body>
+<main><h1>Prompt Engineering</h1>
+<blockquote>
+<p>A poor prompt is a failure of leadership. The Society demands clarity.</p>
+</blockquote>
+<hr>
+<h2>What it is</h2>
+<p>Prompt engineering is the discipline of structuring text so an LLM understands exactly what you want, how to format it, and what constraints to follow. It is the UI of the generative AI world.</p>
+<p>Effective prompting relies on clear context, specific instructions, and formatted output schemas (like JSON or XML). It is not about &quot;tricking&quot; the model; it is about providing the precise statistical context the model needs to navigate its latent space toward the correct answer.</p>
+<pre><code class="language-mermaid">graph TD
+    A[Role/Persona] --&gt; B[Task Definition]
+    B --&gt; C[Context/Input Data]
+    C --&gt; D[Formatting Rules]
+    D --&gt; E[Final Prompt]
+</code></pre>
+<hr>
+<h2>Why it matters in production</h2>
+<p>If your prompts are vague, the LLM will guess your intent. In a chat interface, a bad guess is annoying. In an autonomous agent, a bad guess means the agent deletes the wrong file, misinterprets code, or enters an infinite loop.</p>
+<p>Production prompt engineering prevents context degradation. It ensures the model&#39;s output can be safely parsed by downstream code, dramatically reducing <code>JSON.parse</code> errors and unpredictable state transitions.</p>
+<hr>
+<h2>How Agenthood implements it</h2>
+<p>Agenthood implements prompt engineering through the <code>PromptBuilder</code> utility and the strict Markdown templates defining its members (<code>members/*/*.md</code>). </p>
+<p>The <code>PromptBuilder</code> (planned for a future milestone in <code>src/llm/PromptBuilder.ts</code>) constructs structured prompts programmatically:</p>
+<pre><code class="language-typescript">// Planned for a future milestone
+const prompt = new PromptBuilder()
+  .setSystem(member.systemPrompt)
+  .addContext(codeDiff)
+  .setInstruction(&#39;Review this diff for security flaws.&#39;)
+  .requireFormat(&#39;json&#39;)
+  .build();
+</code></pre>
+<p>Instead of chaotic string concatenation, Agenthood uses typed builders and rigid templates to guarantee prompt integrity.</p>
+<hr>
+<h2>Hands-on example</h2>
+<p>You can view the Society&#39;s mastery of prompt engineering by reading any of the member files.</p>
+<pre><code class="language-bash"># Read The Reviewer&#39;s strict prompt instructions
+cat members/the-reviewer/SKILL.md
+</code></pre>
+<p>Or programmatically (future milestone):</p>
+<pre><code class="language-typescript">import { PromptBuilder } from &#39;@agenthood/llm&#39;;
+
+const p = new PromptBuilder().setInstruction(&#39;Do not hallucinate.&#39;).build();
+</code></pre>
+<hr>
+<h2>Further reading</h2>
+<ul>
+<li><a href="../../adr/ADR-001-markdown-skills-over-code-agents/">ADR-001 — Markdown skills over code agents</a></li>
+<li><a href="../../src/llm/PromptBuilder.ts">`src/llm/PromptBuilder.ts`</a> — source implementation (planned)</li>
+<li><a href="https://platform.openai.com/docs/guides/prompt-engineering">OpenAI: Prompt Engineering Guide</a> — best practices for structuring prompts</li>
+</ul>
+</main>
+</body>
+</html>

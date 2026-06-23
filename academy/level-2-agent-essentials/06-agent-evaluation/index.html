@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Agent Evaluation — Agenthood Academy</title>
+<style>
+body {
+  max-width: 42rem; margin: 2rem auto; padding: 0 1rem 4rem;
+  font-family: system-ui, -apple-system, sans-serif;
+  line-height: 1.75; color: #1a1a1a; font-size: 1rem;
+}
+h1, h2, h3 { line-height: 1.3; margin-top: 2rem; }
+h1 { font-size: 1.75rem; border-bottom: 2px solid #eee; padding-bottom: .5rem; }
+h2 { font-size: 1.35rem; }
+h3 { font-size: 1.1rem; }
+a { color: #2563eb; }
+a:hover { text-decoration: underline; }
+pre, code { font-size: .9em; background: #f5f5f5; border-radius: 4px; }
+code { padding: .15em .3em; }
+pre { padding: 1rem; overflow-x: auto; }
+pre code { background: none; padding: 0; }
+blockquote {
+  margin: 1rem 0; padding: .5rem 1rem;
+  border-left: 4px solid #2563eb; background: #f8fafc;
+}
+table { border-collapse: collapse; width: 100%; margin: 1rem 0; }
+th, td { border: 1px solid #ddd; padding: .5rem; text-align: left; }
+th { background: #f5f5f5; font-weight: 600; }
+ol, ul { padding-left: 1.5rem; }
+li { margin: .25rem 0; }
+hr { border: none; border-top: 1px solid #eee; margin: 2rem 0; }
+main { min-height: 60vh; }
+</style>
+</head>
+<body>
+<main><h1>Agent Evaluation</h1>
+<blockquote>
+<p><em>An agent you cannot measure is an agent you cannot improve. The Society measures everything.</em></p>
+</blockquote>
+<hr>
+<h2>What it is</h2>
+<p>Agent evaluation is the discipline of measuring how well an agent performs — not once, but continuously, across every task it runs. It is the feedback loop that turns &quot;it seems to work&quot; into &quot;it scored 0.87 on faithfulness and 0.92 on answer correctness, up from 0.71 and 0.78 last week.&quot;</p>
+<p>Evaluation for agents extends RAG evaluation. A RAG system is judged on whether the retrieved context was relevant and whether the generated answer was faithful to it. An agent adds a third dimension: did the <em>actions</em> it took — the tool calls, the file edits, the loop iterations — move toward the goal or away from it? An agent that produces a correct answer through a broken reasoning path is a liability, because the path will break differently next time.</p>
+<p>The four metrics the Society tracks are faithfulness (is the answer grounded in retrieved context, not hallucinated), relevance (is the retrieved context actually about the question), context recall (did retrieval find the relevant information that exists), and answer correctness (is the final answer right). Each catches a different failure mode, and all four are needed because no single metric catches them all.</p>
+<hr>
+<h2>Why it matters in production</h2>
+<p>Answer quality degrades silently. A RAG pipeline that scored well in the demo drifts as the document corpus changes, as the embedding model is updated, as the chunking strategy is tweaked. Without continuous evaluation, you discover the degradation in production — when a user reports a wrong answer and you have no data to explain why.</p>
+<p>The same is true for agents, amplified. An agent that loops one extra iteration on 5% of tasks adds cost and latency that you will never notice without measurement. An agent that calls the wrong tool 3% of the time produces failures that look like flaky tests. Evaluation makes the invisible visible: the <code>EvalRunner</code> runs the agent against a fixed suite, scores the four metrics, and compares to the baseline.</p>
+<p>The loop closes when eval scores feed back into agent behavior. An agent that scores low on faithfulness needs tighter retrieval grounding. An agent that scores low on answer correctness needs better reasoning or better tools. Agenthood&#39;s <code>EpisodeLearner</code> consumes the eval trace and adjusts future behavior — this is how agents improve instead of merely persisting.</p>
+<hr>
+<h2>How Agenthood implements it</h2>
+<p>The <code>EvalRunner</code> (coming in v2.4.0) lives in <code>src/evals/EvalRunner.ts</code>. It runs an agent against a suite, scores the four metrics, and returns a structured report:</p>
+<pre><code class="language-typescript">import { EvalRunner } from &#39;agenthood&#39;;
+
+const runner = new EvalRunner({
+  agent: new DeveloperAgent(),
+  suite: &#39;./evals/developer-agent-suite.json&#39;,
+  metrics: [&#39;faithfulness&#39;, &#39;relevance&#39;, &#39;context_recall&#39;, &#39;answer_correctness&#39;],
+});
+
+const report = await runner.run();
+
+// report.scores = {
+//   faithfulness:       0.87,
+//   relevance:          0.94,
+//   context_recall:     0.81,
+//   answer_correctness: 0.92,
+// }
+// report.regression = { faithfulness: +0.04, answer_correctness: +0.08 }
+</code></pre>
+<p>The <code>EvalRunner</code> compares every run to the stored baseline and flags regressions. The <code>EpisodeLearner</code> consumes the trace — which steps took the longest, which tool calls failed, which reasoning paths produced the wrong answer — and feeds it back into the agent&#39;s memory so the next run avoids the same detours.</p>
+<hr>
+<h2>Hands-on example</h2>
+<pre><code class="language-bash"># Once the v2 runtime ships, eval suites run like tests
+agenthood eval the-developer --suite ./evals/developer-agent-suite.json
+</code></pre>
+<p>Expected output:</p>
+<pre><code>Eval Suite: developer-agent-suite (12 cases)
+─────────────────────────────────────────────
+faithfulness         0.87   (+0.04 vs baseline)
+relevance            0.94   (+0.01)
+context_recall       0.81   (-0.02)  ⚠ regression
+answer_correctness   0.92   (+0.08)
+─────────────────────────────────────────────
+2 cases regressed on context_recall — see trace.
+</code></pre>
+<p>The regression flag is the point. A green test suite tells you nothing about answer quality. The <code>EvalRunner</code> tells you exactly which metric dropped and on which case.</p>
+<hr>
+<h2>Further reading</h2>
+<ul>
+<li><a href="../../src/evals/EvalRunner.ts">`src/evals/EvalRunner.ts`</a> — evaluation runner (v2.4.0)</li>
+<li><a href="https://arxiv.org/abs/2309.15217">RAGAS: Automated Evaluation of Retrieval Augmented Generation</a> — the framework the four metrics derive from</li>
+<li><a href="https://eugeneyan.com/writing/evaluating-llm-applications/">Evaluating LLM Applications</a> — Eugene Yan on eval strategy</li>
+</ul>
+</main>
+</body>
+</html>

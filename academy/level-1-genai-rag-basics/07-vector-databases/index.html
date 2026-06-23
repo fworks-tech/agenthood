@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Vector Databases — Agenthood Academy</title>
+<style>
+body {
+  max-width: 42rem; margin: 2rem auto; padding: 0 1rem 4rem;
+  font-family: system-ui, -apple-system, sans-serif;
+  line-height: 1.75; color: #1a1a1a; font-size: 1rem;
+}
+h1, h2, h3 { line-height: 1.3; margin-top: 2rem; }
+h1 { font-size: 1.75rem; border-bottom: 2px solid #eee; padding-bottom: .5rem; }
+h2 { font-size: 1.35rem; }
+h3 { font-size: 1.1rem; }
+a { color: #2563eb; }
+a:hover { text-decoration: underline; }
+pre, code { font-size: .9em; background: #f5f5f5; border-radius: 4px; }
+code { padding: .15em .3em; }
+pre { padding: 1rem; overflow-x: auto; }
+pre code { background: none; padding: 0; }
+blockquote {
+  margin: 1rem 0; padding: .5rem 1rem;
+  border-left: 4px solid #2563eb; background: #f8fafc;
+}
+table { border-collapse: collapse; width: 100%; margin: 1rem 0; }
+th, td { border: 1px solid #ddd; padding: .5rem; text-align: left; }
+th { background: #f5f5f5; font-weight: 600; }
+ol, ul { padding-left: 1.5rem; }
+li { margin: .25rem 0; }
+hr { border: none; border-top: 1px solid #eee; margin: 2rem 0; }
+main { min-height: 60vh; }
+</style>
+</head>
+<body>
+<main><h1>Vector Databases</h1>
+<blockquote>
+<p>Keyword search finds the words you typed. Vector search finds the meaning you intended.</p>
+</blockquote>
+<hr>
+<h2>What it is</h2>
+<p>A Vector Database is a specialized storage system designed to hold high-dimensional mathematical representations of data (vectors or embeddings). When text is converted into an embedding, words with similar semantic meanings are placed closer together in mathematical space.</p>
+<p>Unlike relational databases (SQL) that rely on exact keyword matches, vector databases perform &quot;similarity searches.&quot; If you search for &quot;dog,&quot; it will return documents about &quot;puppies&quot; and &quot;canines&quot; because their vectors are grouped near each other.</p>
+<hr>
+<h2>Why it matters in production</h2>
+<p>Traditional search fails when users ask natural language questions (&quot;How do I fix the auth bug?&quot;). RAG pipelines require the ability to retrieve documents based on semantic relevance, not exact text matches.</p>
+<p>In production, vector databases provide the blazing-fast similarity search that makes real-time agentic workflows possible. Without them, comparing a query against thousands of codebase chunks would be computationally paralyzing.</p>
+<hr>
+<h2>How Agenthood implements it</h2>
+<p>Agenthood implements vector storage using LanceDB, an embedded, high-performance vector database that requires no external infrastructure. This aligns with the Society&#39;s principle of lightweight, local-first tooling.</p>
+<p>This integration will be managed via the <code>VectorStore</code> interface in <code>src/rag/VectorStore.ts</code> (future milestone, outlined in ADR-010):</p>
+<pre><code class="language-typescript">// Planned for a future milestone
+import * as lancedb from &#39;vectordb&#39;;
+
+export class LanceDBStore implements VectorStore {
+  async search(queryVector: number[], options: SearchOptions) {
+    const table = await this.db.openTable(&#39;codebase&#39;);
+    return await table.search(queryVector).limit(options.topK).execute();
+  }
+}
+</code></pre>
+<p>No heavy cloud infrastructure. No external dependencies. Just fast, local semantic search.</p>
+<hr>
+<h2>Hands-on example</h2>
+<p>When the RAG tools are introduced, you will interact with the local vector store transparently:</p>
+<pre><code class="language-bash"># Initialize local vector storage
+npx agenthood rag:init-db
+
+# The database lives in .agenthood/vectors/
+ls -la .agenthood/vectors/
+</code></pre>
+<p>Or conceptually in TypeScript:</p>
+<pre><code class="language-typescript">// The local embedded nature of LanceDB makes this seamless
+const db = new LanceDBStore(&#39;.agenthood/vectors&#39;);
+await db.insert(chunks);
+</code></pre>
+<hr>
+<h2>Further reading</h2>
+<ul>
+<li><a href="../../adr/ADR-010-lancedb-for-vector-storage/">ADR-010 — LanceDB for Vector Storage</a></li>
+<li><a href="../../src/rag/VectorStore.ts">`src/rag/VectorStore.ts`</a> — source implementation (planned)</li>
+<li><a href="https://lancedb.github.io/lancedb/">LanceDB Documentation</a> — why embedded vector DBs are the future</li>
+</ul>
+</main>
+</body>
+</html>

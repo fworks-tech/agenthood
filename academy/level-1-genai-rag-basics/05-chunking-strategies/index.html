@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Chunking Strategies — Agenthood Academy</title>
+<style>
+body {
+  max-width: 42rem; margin: 2rem auto; padding: 0 1rem 4rem;
+  font-family: system-ui, -apple-system, sans-serif;
+  line-height: 1.75; color: #1a1a1a; font-size: 1rem;
+}
+h1, h2, h3 { line-height: 1.3; margin-top: 2rem; }
+h1 { font-size: 1.75rem; border-bottom: 2px solid #eee; padding-bottom: .5rem; }
+h2 { font-size: 1.35rem; }
+h3 { font-size: 1.1rem; }
+a { color: #2563eb; }
+a:hover { text-decoration: underline; }
+pre, code { font-size: .9em; background: #f5f5f5; border-radius: 4px; }
+code { padding: .15em .3em; }
+pre { padding: 1rem; overflow-x: auto; }
+pre code { background: none; padding: 0; }
+blockquote {
+  margin: 1rem 0; padding: .5rem 1rem;
+  border-left: 4px solid #2563eb; background: #f8fafc;
+}
+table { border-collapse: collapse; width: 100%; margin: 1rem 0; }
+th, td { border: 1px solid #ddd; padding: .5rem; text-align: left; }
+th { background: #f5f5f5; font-weight: 600; }
+ol, ul { padding-left: 1.5rem; }
+li { margin: .25rem 0; }
+hr { border: none; border-top: 1px solid #eee; margin: 2rem 0; }
+main { min-height: 60vh; }
+</style>
+</head>
+<body>
+<main><h1>Chunking Strategies</h1>
+<blockquote>
+<p>Poor chunking quietly destroys retrieval quality. The Society does not tolerate quiet destruction.</p>
+</blockquote>
+<hr>
+<h2>What it is</h2>
+<p>Chunking is the process of breaking a large document into smaller, manageable pieces before embedding and storing them in a vector database. Because LLMs have context window limits and embedding models have maximum token constraints, you cannot process a 1,000-page manual all at once.</p>
+<p>A chunking strategy determines <em>how</em> to break the text. You can split by character count, by word, by paragraph, or by semantic structure (like Markdown headers or code functions). </p>
+<pre><code class="language-mermaid">graph TD
+    A[Large Document] --&gt; B{Chunking Strategy}
+    B --&gt;|Fixed Size| C[Chunk 1: 500 tokens]
+    B --&gt;|Fixed Size| D[Chunk 2: 500 tokens]
+    B --&gt;|Semantic| E[Chunk 1: Function A]
+    B --&gt;|Semantic| F[Chunk 2: Function B]
+</code></pre>
+<hr>
+<h2>Why it matters in production</h2>
+<p>If you blindly chop text every 500 characters, you will split sentences in half and sever code blocks from their declarations. When the retriever fetches that chunk later, the LLM will lack the necessary context to answer the user&#39;s question, leading to hallucinations.</p>
+<p>In production, bad chunking is the number one cause of RAG failure. A smart <code>HierarchicalChunkStrategy</code> ensures that the semantic meaning of the text is preserved, drastically improving the accuracy of vector search.</p>
+<hr>
+<h2>How Agenthood implements it</h2>
+<p>Agenthood plans to implement chunking via the <code>ChunkStrategy</code> interface, specifically utilizing a <code>HierarchicalChunkStrategy</code> for code and markdown parsing.</p>
+<p>This will be found in <code>src/rag/ChunkStrategy.ts</code> (future milestone):</p>
+<pre><code class="language-typescript">// Planned for a future milestone
+export interface ChunkStrategy {
+  chunk(text: string, metadata: FileMetadata): DocumentChunk[];
+}
+
+export class HierarchicalChunkStrategy implements ChunkStrategy {
+  // Splits Markdown by H1, H2, H3 or Code by class/function
+}
+</code></pre>
+<p>The Society understands that code cannot be split arbitrarily. A function must remain whole.</p>
+<hr>
+<h2>Hands-on example</h2>
+<p>Though the formal pipeline is under development, you can test semantic chunking concepts using standard text processing:</p>
+<pre><code class="language-bash"># A future command to test chunking
+npx agenthood rag:chunk README.md --strategy semantic
+</code></pre>
+<p>Or conceptually in TypeScript:</p>
+<pre><code class="language-typescript">// Example of a naive vs semantic split
+const text = &quot;export class Agent { ... }&quot;;
+// Bad: text.slice(0, 10) -&gt; &quot;export cla&quot;
+// Good: extract syntax tree node
+</code></pre>
+<hr>
+<h2>Further reading</h2>
+<ul>
+<li><a href="../../adr/ADR-010-lancedb-for-vector-storage/">ADR-010 — LanceDB for Vector Storage</a></li>
+<li><a href="../../src/rag/ChunkStrategy.ts">`src/rag/ChunkStrategy.ts`</a> — source implementation (planned)</li>
+<li><a href="https://www.pinecone.io/learn/chunking-strategies/">Pinecone: Chunking Strategies</a> — an excellent breakdown of chunking methods</li>
+</ul>
+</main>
+</body>
+</html>

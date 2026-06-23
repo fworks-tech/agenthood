@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Tool Integration — Agenthood Academy</title>
+<style>
+body {
+  max-width: 42rem; margin: 2rem auto; padding: 0 1rem 4rem;
+  font-family: system-ui, -apple-system, sans-serif;
+  line-height: 1.75; color: #1a1a1a; font-size: 1rem;
+}
+h1, h2, h3 { line-height: 1.3; margin-top: 2rem; }
+h1 { font-size: 1.75rem; border-bottom: 2px solid #eee; padding-bottom: .5rem; }
+h2 { font-size: 1.35rem; }
+h3 { font-size: 1.1rem; }
+a { color: #2563eb; }
+a:hover { text-decoration: underline; }
+pre, code { font-size: .9em; background: #f5f5f5; border-radius: 4px; }
+code { padding: .15em .3em; }
+pre { padding: 1rem; overflow-x: auto; }
+pre code { background: none; padding: 0; }
+blockquote {
+  margin: 1rem 0; padding: .5rem 1rem;
+  border-left: 4px solid #2563eb; background: #f8fafc;
+}
+table { border-collapse: collapse; width: 100%; margin: 1rem 0; }
+th, td { border: 1px solid #ddd; padding: .5rem; text-align: left; }
+th { background: #f5f5f5; font-weight: 600; }
+ol, ul { padding-left: 1.5rem; }
+li { margin: .25rem 0; }
+hr { border: none; border-top: 1px solid #eee; margin: 2rem 0; }
+main { min-height: 60vh; }
+</style>
+</head>
+<body>
+<main><h1>Tool Integration</h1>
+<blockquote>
+<p>Agents that cannot plan cannot be trusted. Agents that cannot act are just chatbots. Planning and acting requires tools.</p>
+</blockquote>
+<hr>
+<h2>What it is</h2>
+<p>Tool Integration (also known as Function Calling) is the mechanism that allows an LLM to interact with the outside world. Instead of just returning text, the model can return a structured request to execute a specific function—such as reading a file, querying a database, or triggering a CI pipeline.</p>
+<p>This is powered by the ReAct (Reasoning and Acting) loop: the agent observes its environment, reasons about what to do next, executes a tool, observes the result, and loops until the goal is achieved.</p>
+<pre><code class="language-mermaid">graph TD
+    A[User Request] --&gt; B[Agent Reasons]
+    B --&gt; C{Needs Tool?}
+    C --&gt;|Yes| D[Call Tool e.g., read_file]
+    D --&gt; E[Observe Output]
+    E --&gt; B
+    C --&gt;|No| F[Final Answer]
+</code></pre>
+<hr>
+<h2>Why it matters in production</h2>
+<p>Without tools, an LLM is isolated in a sandbox. It cannot verify if code compiles, it cannot read a Slack message, and it cannot commit to a repository. </p>
+<p>In production, agents must take action. But blindly allowing an LLM to execute code is a massive security risk. Tools provide the strict, typed boundary where the LLM&#39;s requested actions are validated, scoped, and executed safely by your application logic.</p>
+<hr>
+<h2>How Agenthood implements it</h2>
+<p>Agenthood implements this via the <code>ISkill</code> interface, managed by the <code>SkillRegistry</code>, and executed within a <code>ReActLoop</code>.</p>
+<p>This allows members of the Society to seamlessly utilize tools. The architecture will reside in <code>src/agent/ISkill.ts</code> (future milestone):</p>
+<pre><code class="language-typescript">// Planned for a future milestone
+export interface ISkill {
+  name: string;
+  description: string;
+  schema: JSONSchema;
+  execute(args: any): Promise&lt;string&gt;;
+}
+
+export class SkillRegistry {
+  register(skill: ISkill): void;
+  getAvailableTools(): ToolDefinition[];
+}
+</code></pre>
+<p>The Society demands that all actions are defined by a strict <code>JSONSchema</code> contract.</p>
+<hr>
+<h2>Hands-on example</h2>
+<p>When the runtime is active, you can provide tools directly to an agent:</p>
+<pre><code class="language-bash"># Invoke an agent and provide it with filesystem skills
+agenthood-run invoke the-architect &quot;Draft an ADR&quot; --tools fs-write,fs-read
+</code></pre>
+<p>Or in TypeScript (future milestone):</p>
+<pre><code class="language-typescript">const registry = new SkillRegistry();
+registry.register(new FileReadSkill());
+
+const loop = new ReActLoop(provider, registry);
+await loop.run(&quot;Read the package.json and summarize dependencies.&quot;);
+</code></pre>
+<hr>
+<h2>Further reading</h2>
+<ul>
+<li><a href="../../src/agent/ISkill.ts">`src/agent/ISkill.ts`</a> — source implementation (planned)</li>
+<li><a href="https://arxiv.org/abs/2210.03629">ReAct: Synergizing Reasoning and Acting in Language Models</a> — the foundational paper on tool use</li>
+</ul>
+</main>
+</body>
+</html>

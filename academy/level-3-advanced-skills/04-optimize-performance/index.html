@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Optimize Performance — Agenthood Academy</title>
+<style>
+body {
+  max-width: 42rem; margin: 2rem auto; padding: 0 1rem 4rem;
+  font-family: system-ui, -apple-system, sans-serif;
+  line-height: 1.75; color: #1a1a1a; font-size: 1rem;
+}
+h1, h2, h3 { line-height: 1.3; margin-top: 2rem; }
+h1 { font-size: 1.75rem; border-bottom: 2px solid #eee; padding-bottom: .5rem; }
+h2 { font-size: 1.35rem; }
+h3 { font-size: 1.1rem; }
+a { color: #2563eb; }
+a:hover { text-decoration: underline; }
+pre, code { font-size: .9em; background: #f5f5f5; border-radius: 4px; }
+code { padding: .15em .3em; }
+pre { padding: 1rem; overflow-x: auto; }
+pre code { background: none; padding: 0; }
+blockquote {
+  margin: 1rem 0; padding: .5rem 1rem;
+  border-left: 4px solid #2563eb; background: #f8fafc;
+}
+table { border-collapse: collapse; width: 100%; margin: 1rem 0; }
+th, td { border: 1px solid #ddd; padding: .5rem; text-align: left; }
+th { background: #f5f5f5; font-weight: 600; }
+ol, ul { padding-left: 1.5rem; }
+li { margin: .25rem 0; }
+hr { border: none; border-top: 1px solid #eee; margin: 2rem 0; }
+main { min-height: 60vh; }
+</style>
+</head>
+<body>
+<main><h1>Optimize Performance</h1>
+<blockquote>
+<p><em>Fast, cheap, and reliable. Production agents need all three. Agenthood routes to all three.</em></p>
+</blockquote>
+<hr>
+<h2>What it is</h2>
+<p>Agent performance is three axes, and optimizing only one loses on the other two. <strong>Speed</strong> is latency — how long until the agent&#39;s first action, and how long until it completes. <strong>Cost</strong> is tokens — how much each run costs in LLM provider fees. <strong>Reliability</strong> is uptime — what happens when a provider rate-limits you, goes down, or returns a degraded response. A production agent needs all three under control, and the three are in tension: the fastest model is not always the cheapest, the cheapest is not always the most reliable, the most reliable is not always the fastest.</p>
+<p>The levers that move these axes are routing, failover, and observability. <strong>Routing</strong> matches the model to the query — a simple formatting task does not need the same model as a complex debugging task. <strong>Failover</strong> keeps the agent running when a provider fails — if Groq is down, fall back to OpenAI; if OpenAI is down, fall back to a local model. <strong>Observability</strong> makes cost visible per request, so a regression in token usage is caught before the invoice arrives.</p>
+<p>Without these levers, every request goes to the same model at the same provider, and you accept whatever latency, cost, and uptime that choice implies. At demo scale this is fine. At production scale, it is a budget drain and an outage waiting to happen.</p>
+<hr>
+<h2>Why it matters in production</h2>
+<p>At scale, every unnecessary call to the most expensive model is a line item. An agent that routes &quot;write a commit message&quot; to a 70B-parameter model is spending 10x what it should — the task does not need that capability. Multiplied across thousands of runs per day, the overspend is the difference between an agent that is sustainable to operate and one that gets disabled when the invoice arrives.</p>
+<p>The reliability problem is more visible because it produces incidents. A single-provider agent goes down when the provider goes down — and every LLM provider has outages. An agent without failover becomes a hard dependency on one provider&#39;s uptime, which is a dependency you do not control. Provider failover turns a provider outage from &quot;our agents are down&quot; into &quot;our agents are slower for 10 minutes while we fail over.&quot;</p>
+<p>Cost visibility is the silent one. A change to a prompt that adds 500 tokens per call does not break anything — the agent still works. But at 10,000 calls per day, that change adds 5 million tokens per day to the bill. <code>CostEstimator</code> makes this visible per request, so a token regression is a detected regression, not a surprise on the monthly invoice.</p>
+<hr>
+<h2>How Agenthood implements it</h2>
+<p>Three components in <code>src/llm/</code> and <code>src/evals/</code> (coming in v2.0.0 / v2.4.0) handle the three axes:</p>
+<pre><code class="language-typescript">import { LLMRouter, ProviderFailover, CostEstimator } from &#39;agenthood&#39;;
+
+// 1. Dynamic routing — match model capability to query complexity
+const router = new LLMRouter({
+  rules: [
+    { match: { complexity: &#39;low&#39;,  task: /commit|format|summarize/i }, provider: &#39;groq&#39;,    model: &#39;llama-3.1-8b-instant&#39; },
+    { match: { complexity: &#39;high&#39;, task: /debug|architect|review/i   }, provider: &#39;groq&#39;,    model: &#39;llama-3.3-70b-versatile&#39; },
+    { match: { complexity: &#39;high&#39;, task: /security|audit/i           }, provider: &#39;openai&#39;,  model: &#39;gpt-4o&#39; },
+  ],
+});
+
+// 2. Provider failover — keep running when a provider goes down
+const failover = new ProviderFailover({
+  chain: [&#39;groq&#39;, &#39;openai&#39;, &#39;ollama-local&#39;],
+  retryPolicy: { retries: 2, backoff: &#39;exponential&#39; },
+});
+
+// 3. Cost visibility — track tokens and cost per request
+const costEstimator = new CostEstimator({
+  pricing: {
+    &#39;groq:llama-3.1-8b-instant&#39;:    { input: 0.05,  output: 0.08  },  // per 1M tokens
+    &#39;groq:llama-3.3-70b-versatile&#39;: { input: 0.59,  output: 0.99  },
+    &#39;openai:gpt-4o&#39;:                { input: 2.50,  output: 10.00 },
+  },
+});
+
+// Composed into the agent&#39;s LLM layer
+const llm = router.withFailover(failover).withCostTracking(costEstimator);
+const response = await llm.complete({ system, user });
+// response.cost = { inputTokens: 320, outputTokens: 180, totalCost: 0.00041 }
+</code></pre>
+<p>The <code>LLMRouter</code> inspects each request and routes it to the model whose capability matches the task. The <code>ProviderFailover</code> wraps every call — if the primary provider returns a 5xx or times out, the call retries on the next provider in the chain. The <code>CostEstimator</code> attaches a cost record to every response, so the agent&#39;s run log shows not just what it did but what it cost.</p>
+<hr>
+<h2>Hands-on example</h2>
+<pre><code class="language-bash"># The Society&#39;s runtime reports cost alongside the result
+agenthood run the-scribe &quot;write a commit message for the current diff&quot;
+</code></pre>
+<p>Output with cost visibility:</p>
+<pre><code>[route] task: commit message → complexity: low → groq:llama-3.1-8b-instant
+[act]   llm.complete(...)
+[see]   &quot;feat(auth): add OAuth2 login to API middleware&quot;
+[cost]  input: 412 tokens, output: 18 tokens, total: $0.00003
+[done]  Commit message generated. Total run cost: $0.00003
+</code></pre>
+<p>Contrast with the same task routed without the router — to a 70B model by default:</p>
+<pre><code>[act]   llm.complete(...)
+[see]   &quot;feat(auth): add OAuth2 login to API middleware&quot;
+[cost]  input: 412 tokens, output: 18 tokens, total: $0.00029  ← 10x more expensive
+</code></pre>
+<p>Same output, 10x the cost. The router&#39;s job is to make sure that does not happen by default.</p>
+<p>When a provider fails, the failover chain fires:</p>
+<pre><code>[route] task: code review → complexity: high → groq:llama-3.3-70b-versatile
+[act]   llm.complete(...)
+[fail]  groq: 503 Service Unavailable
+[retry] failover → openai:gpt-4o
+[act]   llm.complete(...)
+[see]   &quot;Approved — 0 blockers, 2 nits&quot;
+[cost]  input: 1840 tokens, output: 92 tokens, total: $0.00550
+[done]  Review complete via failover (groq → openai). Cost: $0.00550
+</code></pre>
+<p>The agent stayed running. The user saw a result, not an error.</p>
+<hr>
+<h2>Further reading</h2>
+<ul>
+<li><a href="../../src/llm/LLMRouter.ts">`src/llm/LLMRouter.ts`</a> — dynamic routing (v2.0.0)</li>
+<li><a href="../../src/llm/ProviderFailover.ts">`src/llm/ProviderFailover.ts`</a> — provider failover chain (v2.0.0)</li>
+<li><a href="https://artificialanalysis.ai/">Artificial Analysis</a> — live LLM pricing and performance benchmarks</li>
+</ul>
+</main>
+</body>
+</html>

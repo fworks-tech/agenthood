@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Safety and Guardrails — Agenthood Academy</title>
+<style>
+body {
+  max-width: 42rem; margin: 2rem auto; padding: 0 1rem 4rem;
+  font-family: system-ui, -apple-system, sans-serif;
+  line-height: 1.75; color: #1a1a1a; font-size: 1rem;
+}
+h1, h2, h3 { line-height: 1.3; margin-top: 2rem; }
+h1 { font-size: 1.75rem; border-bottom: 2px solid #eee; padding-bottom: .5rem; }
+h2 { font-size: 1.35rem; }
+h3 { font-size: 1.1rem; }
+a { color: #2563eb; }
+a:hover { text-decoration: underline; }
+pre, code { font-size: .9em; background: #f5f5f5; border-radius: 4px; }
+code { padding: .15em .3em; }
+pre { padding: 1rem; overflow-x: auto; }
+pre code { background: none; padding: 0; }
+blockquote {
+  margin: 1rem 0; padding: .5rem 1rem;
+  border-left: 4px solid #2563eb; background: #f8fafc;
+}
+table { border-collapse: collapse; width: 100%; margin: 1rem 0; }
+th, td { border: 1px solid #ddd; padding: .5rem; text-align: left; }
+th { background: #f5f5f5; font-weight: 600; }
+ol, ul { padding-left: 1.5rem; }
+li { margin: .25rem 0; }
+hr { border: none; border-top: 1px solid #eee; margin: 2rem 0; }
+main { min-height: 60vh; }
+</style>
+</head>
+<body>
+<main><h1>Safety and Guardrails</h1>
+<blockquote>
+<p><em>Autonomous does not mean uncontrolled. The Society is autonomous because it is disciplined, not despite it.</em></p>
+</blockquote>
+<hr>
+<h2>What it is</h2>
+<p>Agent safety is the set of controls that prevent an autonomous agent from taking actions it should not take, producing outputs it should not produce, or consuming resources it should not consume. Autonomy without safety is not a feature — it is a liability waiting for a target.</p>
+<p>Three layers make up a complete safety system. <strong>Risk scoring</strong> evaluates each proposed action before it executes: is this action destructive? Is it reversible? Does it affect shared state? A high-risk action is gated, paused, or rejected before it runs. <strong>Compute budgets</strong> prevent runaway reasoning: an agent that loops forever consumes tokens, time, and money, and a budget forces it to stop. <strong>Output validation</strong> inspects what the agent produces before it reaches the user or a downstream system: does the response contain secrets? Does it include unverified claims? Is the proposed diff actually safe to apply?</p>
+<p>Each layer catches a different failure. Risk scoring catches the agent that tries to <code>rm -rf</code> the build directory. Compute budgets catch the agent that gets stuck in a reasoning loop and burns $40 in tokens overnight. Output validation catches the agent that pastes an API key into a commit message. You need all three because no single layer sees all three failure modes.</p>
+<hr>
+<h2>Why it matters in production</h2>
+<p>Unguarded autonomous agents are not a feature. They are a liability. The failure modes are not hypothetical — they are the documented incidents of every team that shipped an agent without safety gates.</p>
+<p>The risk-scored failure: an agent with write access to the filesystem deletes a file it judged irrelevant, and the file was a migration script that runs in CI. The action was autonomous, fast, and irreversible. Risk scoring gates destructive actions <em>before</em> they execute — not after, when the only recourse is a restore from backup.</p>
+<p>The budget failure: an agent enters a reasoning loop, retrying the same failed tool call 200 times overnight. The bill is $400. The task is no closer to done. A thinking budget forces termination after N iterations, turning an open-ended cost into a bounded one.</p>
+<p>The output failure: an agent produces a correct answer that includes a secret it read from an env file, and the answer is posted to a public PR. Output validation catches the secret before it ships. Without it, the secret is now in git history and must be rotated.</p>
+<hr>
+<h2>How Agenthood implements it</h2>
+<p>Three components, all in <code>src/core/</code> (coming in v2.0.0):</p>
+<pre><code class="language-typescript">import { RiskManager, ThinkingBudget, SafetyGuard } from &#39;agenthood&#39;;
+
+// Risk scoring — gates destructive actions before execution
+const riskManager = new RiskManager({
+  rules: [
+    { pattern: /rm -rf|drop table|force push/i, action: &#39;block&#39;,  reason: &#39;destructive&#39; },
+    { pattern: /write_file|edit_file/i,         action: &#39;review&#39;, reason: &#39;mutating&#39; },
+    { pattern: /read_file|run_test/i,           action: &#39;allow&#39;,  reason: &#39;safe&#39; },
+  ],
+});
+
+// Thinking budget — prevents runaway reasoning loops
+const budget = new ThinkingBudget({ maxSteps: 25, maxTokens: 50_000 });
+
+// SafetyGuard — output validation before delivery
+const guard = new SafetyGuard({
+  checks: [secretScanner, licenseChecker, hallucinationHeuristic],
+});
+
+// Composed into an agent
+const agent = new DeveloperAgent({
+  riskManager,
+  thinkingBudget: budget,
+  safetyGuard: guard,
+});
+</code></pre>
+<p>Every action the agent proposes passes through <code>RiskManager</code> before it executes. Every reasoning step increments <code>ThinkingBudget</code>, and the loop terminates when the budget is exhausted. Every output passes through <code>SafetyGuard</code> before it is returned to the user or written to disk. The three layers are independent, composable, and each can be customized per agent.</p>
+<hr>
+<h2>Hands-on example</h2>
+<pre><code class="language-bash"># The Society&#39;s runtime applies all three layers automatically
+agenthood run the-developer &quot;clean up the build directory&quot;
+</code></pre>
+<p>Watch the safety layers fire:</p>
+<pre><code>[think] I&#39;ll remove the build artifacts to clean up.
+[act]  propose: rm -rf dist/
+[risk] ⚠ BLOCKED — pattern matches &#39;rm -rf&#39; (destructive)
+[think] Rejected. I&#39;ll use the build tool&#39;s clean command instead.
+[act]  propose: npm run clean
+[risk] ✓ allowed — safe command
+[see]  dist/ removed (47 files)
+[think] Done. Generating summary.
+[output] SafetyGuard: ✓ no secrets detected, ✓ no license issues
+[done]  Cleaned 47 build artifacts from dist/ via `npm run clean`
+</code></pre>
+<p>The <code>rm -rf</code> was blocked before it ran. The agent adapted. The output was scanned before delivery. All three layers fired, and the user saw only the safe, verified result.</p>
+<hr>
+<h2>Further reading</h2>
+<ul>
+<li><a href="../../src/core/RiskManager.ts">`src/core/RiskManager.ts`</a> — action risk scoring (v2.0.0)</li>
+<li><a href="../../src/core/SafetyGuard.ts">`src/core/SafetyGuard.ts`</a> — output validation before delivery (v2.0.0)</li>
+<li><a href="https://arxiv.org/abs/2212.08073">Constitutional AI: Harmlessness from AI Feedback</a> — Anthropic&#39;s safety framework paper</li>
+</ul>
+</main>
+</body>
+</html>

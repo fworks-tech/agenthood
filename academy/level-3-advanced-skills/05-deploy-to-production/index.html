@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Deploy to Production — Agenthood Academy</title>
+<style>
+body {
+  max-width: 42rem; margin: 2rem auto; padding: 0 1rem 4rem;
+  font-family: system-ui, -apple-system, sans-serif;
+  line-height: 1.75; color: #1a1a1a; font-size: 1rem;
+}
+h1, h2, h3 { line-height: 1.3; margin-top: 2rem; }
+h1 { font-size: 1.75rem; border-bottom: 2px solid #eee; padding-bottom: .5rem; }
+h2 { font-size: 1.35rem; }
+h3 { font-size: 1.1rem; }
+a { color: #2563eb; }
+a:hover { text-decoration: underline; }
+pre, code { font-size: .9em; background: #f5f5f5; border-radius: 4px; }
+code { padding: .15em .3em; }
+pre { padding: 1rem; overflow-x: auto; }
+pre code { background: none; padding: 0; }
+blockquote {
+  margin: 1rem 0; padding: .5rem 1rem;
+  border-left: 4px solid #2563eb; background: #f8fafc;
+}
+table { border-collapse: collapse; width: 100%; margin: 1rem 0; }
+th, td { border: 1px solid #ddd; padding: .5rem; text-align: left; }
+th { background: #f5f5f5; font-weight: 600; }
+ol, ul { padding-left: 1.5rem; }
+li { margin: .25rem 0; }
+hr { border: none; border-top: 1px solid #eee; margin: 2rem 0; }
+main { min-height: 60vh; }
+</style>
+</head>
+<body>
+<main><h1>Deploy to Production</h1>
+<blockquote>
+<p><em>An agent that works on your machine is a prototype. An agent that works for your users is a product.</em></p>
+</blockquote>
+<hr>
+<h2>What it is</h2>
+<p>Deploying an agent to production is the step that turns a working prototype into a service real users depend on. It is not &quot;run the agent on a server.&quot; It is the set of concerns that only exist when multiple users, with different permissions, hitting rate limits, expecting uptime, are involved.</p>
+<p>The production layer has three parts. An <strong>API</strong> that exposes the agent as an HTTP endpoint — so users and other systems can call it without a CLI. <strong>Auth middleware</strong> that identifies the caller and scopes what they can access — so one user&#39;s agent run cannot read another user&#39;s context. <strong>Rate limiting</strong> that bounds how many requests a user can make in a window — so one runaway client does not exhaust the LLM budget for everyone.</p>
+<p>These are the same concerns as any production API, plus one that is agent-specific: per-user context isolation. A multi-tenant agent must not share memory between users. User A&#39;s episodic memory, project memory, and long-term facts must be scoped to user A. Sharing memory across users is not a performance optimization — it is a security boundary violation. The v3.0.0 API layer enforces this at the memory tier, not at the API edge, so the isolation holds even if the API is bypassed.</p>
+<hr>
+<h2>Why it matters in production</h2>
+<p>Most agent demos never become products. The gap is not capability — a demo agent that writes code is already capable. The gap is auth, rate limits, and the runbook you did not write.</p>
+<p>Auth is the first failure. An agent with no auth is an open endpoint that can run arbitrary reasoning against your LLM budget. The first user to discover it will not be friendly. Auth is not a feature to add later — it is the boundary between &quot;internal tool&quot; and &quot;product,&quot; and it must exist on day one of production.</p>
+<p>Rate limiting is the second. An agent that can be called without limit will be called without limit — by a buggy client, by a script in a loop, by an attacker. Each call costs tokens. Without rate limiting, one client can spend your entire monthly LLM budget in an afternoon. Rate limiting protects both your budget and the other users who share it.</p>
+<p>The runbook is the one teams skip and regret. What do you do when the agent starts returning errors at 3am? When the LLM provider is down? When a user reports a wrong answer? Without a runbook, the answer is &quot;page someone who guesses.&quot; The runbook is the difference between a service you operate and a service that operates you.</p>
+<hr>
+<h2>How Agenthood implements it</h2>
+<p>The v3.0.0 API layer (planned, tracked in the <a href="https://github.com/fworks-tech/agenthood/milestone/11">M9 — Platform milestone</a> and the <a href="https://github.com/fworks-tech/agenthood/milestone/3">M4 — Foundation milestone</a>) ships the production scaffold. The API is Express-based, with auth and rate limiting as composable middleware:</p>
+<pre><code class="language-typescript">import { AgenthoodAPI, AuthMiddleware, RateLimitMiddleware } from &#39;agenthood&#39;;
+
+const api = new AgenthoodAPI({
+  agents: [new DeveloperAgent(), new ReviewerAgent(), new ScribeAgent()],
+  memory: { isolation: &#39;per-user&#39; },   // enforced at the memory tier
+});
+
+api.use(new AuthMiddleware({ strategy: &#39;jwt&#39;, audience: &#39;agenthood-api&#39; }));
+api.use(new RateLimitMiddleware({
+  window: &#39;1m&#39;, max: 20,               // 20 requests per minute per user
+  burst: 5,                             // allow short bursts above the steady-state limit
+}));
+
+api.post(&#39;/agents/:name/run&#39;, async (req, res) =&gt; {
+  const { name } = req.params;
+  const { task } = req.body;
+  const userId = req.auth.userId;       // scoped by AuthMiddleware
+
+  const agent = api.agents.get(name);
+  const result = await agent.run(task, { userId });  // memory isolated per userId
+  res.json(result);
+});
+
+api.listen(3000);
+</code></pre>
+<p>The <code>memory: { isolation: &#39;per-user&#39; }</code> setting is the agent-specific part. It tells the memory tiers from Level 2 article 05 to namespace every read and write by <code>userId</code>. User A&#39;s episodic memory query returns only user A&#39;s past runs. User B&#39;s project memory holds only user B&#39;s codebase index. The isolation is enforced at the memory layer, so even a bug in the API routing cannot leak context across users.</p>
+<hr>
+<h2>Hands-on example</h2>
+<pre><code class="language-bash"># Once the v3.0.0 API ships, deploy and call it like any HTTP service
+agenthood serve --port 3000
+
+# Authenticated request — the agent runs scoped to the caller
+curl -X POST https://api.yourapp.com/agents/the-developer/run \
+  -H &quot;Authorization: Bearer $JWT&quot; \
+  -H &quot;Content-Type: application/json&quot; \
+  -d &#39;{&quot;task&quot;: &quot;refactor the auth middleware to use async/await&quot;}&#39;
+</code></pre>
+<p>Response:</p>
+<pre><code class="language-json">{
+  &quot;agent&quot;: &quot;the-developer&quot;,
+  &quot;userId&quot;: &quot;usr_8f3a&quot;,
+  &quot;output&quot;: &quot;Refactored src/middleware/auth.ts to use async/await. 3 functions updated, 0 behavior changes.&quot;,
+  &quot;steps&quot;: 7,
+  &quot;cost&quot;: { &quot;inputTokens&quot;: 1840, &quot;outputTokens&quot;: 220, &quot;totalCost&quot;: 0.0018 },
+  &quot;memoryScope&quot;: &quot;usr_8f3a&quot;
+}
+</code></pre>
+<p>The <code>memoryScope</code> field is the proof of isolation — the run&#39;s memory was scoped to <code>usr_8f3a</code>, and no other user&#39;s context was accessible. The cost is reported per request, so the operator sees spend in real time.</p>
+<hr>
+<h2>Operational runbook</h2>
+<p>The production runbook for an Agenthood deployment covers the failure modes that matter:</p>
+<ol>
+<li><strong>LLM provider down</strong> — <code>ProviderFailover</code> (see Level 3 article 04) routes to the next provider automatically. Verify the failover chain is configured before deploying.</li>
+<li><strong>Agent looping forever</strong> — <code>ThinkingBudget</code> (see Level 2 article 11) terminates the loop at the configured step/token limit. Set the budget per agent, not globally.</li>
+<li><strong>User reports wrong answer</strong> — pull the run&#39;s trace (every reasoning step and tool call is logged) and the eval scores for that case. The trace is the artifact; the eval baseline is the comparison.</li>
+<li><strong>Cost spike</strong> — <code>CostEstimator</code> aggregates per-user and per-agent spend. Alert on any user exceeding 2x their 7-day average.</li>
+<li><strong>Memory leak across users</strong> — this should be impossible (isolation is enforced at the memory tier), but if reported, check the <code>userId</code> propagation in the API middleware and the memory tier&#39;s namespace config.</li>
+</ol>
+<hr>
+<h2>Further reading</h2>
+<ul>
+<li><a href="https://github.com/fworks-tech/agenthood/milestone/3">M4 — Foundation milestone</a> — the base infrastructure milestone</li>
+<li><a href="https://github.com/fworks-tech/agenthood/milestone/11">M9 — Platform milestone</a> — the API and multi-tenancy milestone</li>
+<li><a href="https://12factor.net/">The Twelve-Factor App</a> — production deployment principles that apply to agent services too</li>
+</ul>
+</main>
+</body>
+</html>

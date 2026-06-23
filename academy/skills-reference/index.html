@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Skills Reference — Agenthood Academy</title>
+<style>
+body {
+  max-width: 42rem; margin: 2rem auto; padding: 0 1rem 4rem;
+  font-family: system-ui, -apple-system, sans-serif;
+  line-height: 1.75; color: #1a1a1a; font-size: 1rem;
+}
+h1, h2, h3 { line-height: 1.3; margin-top: 2rem; }
+h1 { font-size: 1.75rem; border-bottom: 2px solid #eee; padding-bottom: .5rem; }
+h2 { font-size: 1.35rem; }
+h3 { font-size: 1.1rem; }
+a { color: #2563eb; }
+a:hover { text-decoration: underline; }
+pre, code { font-size: .9em; background: #f5f5f5; border-radius: 4px; }
+code { padding: .15em .3em; }
+pre { padding: 1rem; overflow-x: auto; }
+pre code { background: none; padding: 0; }
+blockquote {
+  margin: 1rem 0; padding: .5rem 1rem;
+  border-left: 4px solid #2563eb; background: #f8fafc;
+}
+table { border-collapse: collapse; width: 100%; margin: 1rem 0; }
+th, td { border: 1px solid #ddd; padding: .5rem; text-align: left; }
+th { background: #f5f5f5; font-weight: 600; }
+ol, ul { padding-left: 1.5rem; }
+li { margin: .25rem 0; }
+hr { border: none; border-top: 1px solid #eee; margin: 2rem 0; }
+main { min-height: 60vh; }
+</style>
+</head>
+<body>
+<main><h1>Skills Reference</h1>
+<blockquote>
+<p><em>Fourteen members. Fourteen specializations. Zero overlap.</em></p>
+</blockquote>
+<hr>
+<h2>Engineering</h2>
+<h3>The Scribe</h3>
+<blockquote>
+<p><em>Turns your diff into prose worth reading.</em></p>
+</blockquote>
+<p><strong>Specialty:</strong> Commit messages, PR descriptions, changelogs
+<strong>Tools:</strong> <code>read_file</code>, <code>write_file</code>, <code>search_codebase</code>, <code>explain_code</code>, <code>pr_sync</code>
+<strong>Runtime:</strong> <code>agenthood run the-scribe &quot;write a commit message for the current diff&quot;</code></p>
+<h3>The Architect</h3>
+<blockquote>
+<p><em>No code before the blueprint.</em></p>
+</blockquote>
+<p><strong>Specialty:</strong> System design, ADRs, task decomposition, tech decisions
+<strong>Tools:</strong> <code>read_file</code>, <code>write_file</code>, <code>write_code</code>, <code>search_codebase</code>, <code>explain_code</code>
+<strong>Runtime:</strong> <code>agenthood run the-architect &quot;plan the implementation for issue #42&quot;</code></p>
+<h3>The Tester</h3>
+<blockquote>
+<p><em>Red. Green. Refactor. Repeat.</em></p>
+</blockquote>
+<p><strong>Specialty:</strong> TDD, test generation, coverage enforcement, edge cases
+<strong>Tools:</strong> <code>read_file</code>, <code>write_file</code>, <code>write_code</code>, <code>search_codebase</code>, <code>explain_code</code>
+<strong>Runtime:</strong> <code>agenthood run the-tester &quot;write tests for the auth module&quot;</code></p>
+<h3>The Debugger</h3>
+<blockquote>
+<p><em>Five steps to every root cause. No guessing allowed.</em></p>
+</blockquote>
+<p><strong>Specialty:</strong> Error triage, root cause analysis, systematic recovery
+<strong>Tools:</strong> <code>read_file</code>, <code>write_file</code>, <code>search_codebase</code>, <code>explain_code</code>
+<strong>Runtime:</strong> <code>agenthood run the-debugger &quot;diagnose the CI failure&quot;</code></p>
+<hr>
+<h2>Validation</h2>
+<h3>The Reviewer</h3>
+<blockquote>
+<p><em>Five axes. No mercy. All respect.</em></p>
+</blockquote>
+<p><strong>Specialty:</strong> Code review across correctness, readability, architecture, security, performance
+<strong>Tools:</strong> <code>read_file</code>, <code>write_file</code>
+<strong>Runtime:</strong> <code>agenthood run the-reviewer &quot;review the latest commit&quot;</code></p>
+<h3>The Auditor</h3>
+<blockquote>
+<p><em>Reads everything. Trusts nothing.</em></p>
+</blockquote>
+<p><strong>Specialty:</strong> Security review, dependency audit, secrets scanning, OWASP Top 10
+<strong>Tools:</strong> <code>read_file</code>, <code>write_file</code>, <code>search_codebase</code>
+<strong>Runtime:</strong> <code>agenthood run the-auditor &quot;audit the authentication module&quot;</code></p>
+<h3>The Doorman</h3>
+<blockquote>
+<p><em>Nothing gets in without proper credentials.</em></p>
+</blockquote>
+<p><strong>Specialty:</strong> Commit message validation, branch protection, health checks, enforcement
+<strong>Tools:</strong> <code>read_file</code>, <code>write_file</code>, <code>search_codebase</code>, <code>explain_code</code>
+<strong>Runtime:</strong> <code>agenthood run the-doorman &quot;validate the current branch&quot;</code></p>
+<h3>The Sentinel</h3>
+<blockquote>
+<p><em>The Society cannot enforce standards it no longer understands.</em></p>
+</blockquote>
+<p><strong>Specialty:</strong> Member file integrity, cross-member contradiction detection, structural drift
+<strong>Tools:</strong> <code>read_file</code>, <code>write_file</code>, <code>search_codebase</code>
+<strong>Runtime:</strong> <code>agenthood run the-sentinel &quot;audit member files for consistency&quot;</code></p>
+<h3>The Warden</h3>
+<blockquote>
+<p><em>The chaos does not arrive all at once. I am here for the accumulation.</em></p>
+</blockquote>
+<p><strong>Specialty:</strong> Code smell detection, complexity enforcement, architectural boundary violations
+<strong>Tools:</strong> <code>read_file</code>, <code>write_file</code>, <code>search_codebase</code>, <code>explain_code</code>
+<strong>Runtime:</strong> <code>agenthood run the-warden &quot;scan for code smells&quot;</code></p>
+<hr>
+<h2>Knowledge</h2>
+<h3>The Librarian</h3>
+<blockquote>
+<p><em>Every decision, recorded for posterity.</em></p>
+</blockquote>
+<p><strong>Specialty:</strong> Documentation management, ADR creation, API references, knowledge management
+<strong>Tools:</strong> <code>read_file</code>, <code>write_file</code>, <code>search_codebase</code>, <code>explain_code</code>
+<strong>Runtime:</strong> <code>agenthood run the-librarian &quot;document the API endpoints&quot;</code></p>
+<h3>The Oracle</h3>
+<blockquote>
+<p><em>Ask me anything about the Society. I have read every scroll.</em></p>
+</blockquote>
+<p><strong>Specialty:</strong> Institutional knowledge, member authoring templates, naming guidance, convention rationale
+<strong>Tools:</strong> <code>read_file</code>, <code>write_file</code>, <code>search_codebase</code>, <code>explain_code</code>
+<strong>Runtime:</strong> <code>agenthood run the-oracle &quot;what members should I activate for a library project?&quot;</code></p>
+<hr>
+<h2>Lifecycle</h2>
+<h3>The Herald</h3>
+<blockquote>
+<p><em>Announces with ceremony. Ships with precision.</em></p>
+</blockquote>
+<p><strong>Specialty:</strong> Semantic versioning, changelog generation, release notes, scheduled reports
+<strong>Tools:</strong> <code>read_file</code>, <code>write_file</code>, <code>search_codebase</code>, <code>explain_code</code>
+<strong>Runtime:</strong> <code>agenthood run the-herald &quot;generate the changelog for the next release&quot;</code></p>
+<h3>The Envoy</h3>
+<blockquote>
+<p><em>One Society. Every runtime. No exceptions.</em></p>
+</blockquote>
+<p><strong>Specialty:</strong> Cross-provider translation, bootstrap generation, convention validation across runtimes
+<strong>Tools:</strong> <code>read_file</code>, <code>write_file</code>, <code>search_codebase</code>, <code>explain_code</code>
+<strong>Runtime:</strong> <code>agenthood run the-envoy &quot;translate skills for Copilot&quot;</code></p>
+<h3>The Steward</h3>
+<blockquote>
+<p><em>I was born from the situation I exist to prevent.</em></p>
+</blockquote>
+<p><strong>Specialty:</strong> Context economy, member routing, provider cache strategy, session triage
+<strong>Tools:</strong> <code>read_file</code>, <code>write_file</code>, <code>search_codebase</code>, <code>explain_code</code>
+<strong>Runtime:</strong> <code>agenthood run the-steward &quot;optimize the agent configuration&quot;</code></p>
+<hr>
+<h2>Special skills</h2>
+<h3>The Manuscript — PR body sync</h3>
+<p>Invoked via <code>pr_sync</code> skill or the <code>pr-sync</code> CLI command:</p>
+<pre><code class="language-bash"># Fast path (zero LLM, CI-friendly)
+npx agenthood pr-sync --pr 42
+
+# Context-aware path (loads full Society context)
+agenthood run the-scribe &quot;sync PR #42&quot;
+</code></pre>
+<p>Read more in the <a href="getting-started/#the-manuscript--pr-sync">Getting Started guide</a>.</p>
+<hr>
+<p><em>Fourteen members. One Society. Every member knows their lane.</em></p>
+</main>
+</body>
+</html>

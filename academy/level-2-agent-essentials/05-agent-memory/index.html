@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Agent Memory — Agenthood Academy</title>
+<style>
+body {
+  max-width: 42rem; margin: 2rem auto; padding: 0 1rem 4rem;
+  font-family: system-ui, -apple-system, sans-serif;
+  line-height: 1.75; color: #1a1a1a; font-size: 1rem;
+}
+h1, h2, h3 { line-height: 1.3; margin-top: 2rem; }
+h1 { font-size: 1.75rem; border-bottom: 2px solid #eee; padding-bottom: .5rem; }
+h2 { font-size: 1.35rem; }
+h3 { font-size: 1.1rem; }
+a { color: #2563eb; }
+a:hover { text-decoration: underline; }
+pre, code { font-size: .9em; background: #f5f5f5; border-radius: 4px; }
+code { padding: .15em .3em; }
+pre { padding: 1rem; overflow-x: auto; }
+pre code { background: none; padding: 0; }
+blockquote {
+  margin: 1rem 0; padding: .5rem 1rem;
+  border-left: 4px solid #2563eb; background: #f8fafc;
+}
+table { border-collapse: collapse; width: 100%; margin: 1rem 0; }
+th, td { border: 1px solid #ddd; padding: .5rem; text-align: left; }
+th { background: #f5f5f5; font-weight: 600; }
+ol, ul { padding-left: 1.5rem; }
+li { margin: .25rem 0; }
+hr { border: none; border-top: 1px solid #eee; margin: 2rem 0; }
+main { min-height: 60vh; }
+</style>
+</head>
+<body>
+<main><h1>Agent Memory</h1>
+<blockquote>
+<p><em>An agent with no memory repeats its mistakes. An agent with no memory governance accumulates them.</em></p>
+</blockquote>
+<hr>
+<h2>What it is</h2>
+<p>Agent memory is the system that lets an agent carry information forward — across iterations of a single task, and across tasks entirely. Without it, every reasoning step starts from zero. With it, the agent remembers what it tried, what worked, what the codebase looks like, and what it learned last time.</p>
+<p>Not all memory is the same. A working context buffer that holds the last few tool outputs is fundamentally different from a persistent knowledge store that survives process restarts. Treating them as one thing produces the two most common memory failures: context overflow (the working buffer grows until it pushes out the prompt itself) and stale poisoning (the persistent store accumulates facts that were true last month but are wrong today).</p>
+<p>The Society&#39;s model separates memory into tiers, each with its own lifecycle, its own retrieval path, and its own eviction policy. You do not query a long-term fact store the same way you query the last tool output. You do not evict a project-level fact the same way you evict a working-context buffer entry.</p>
+<hr>
+<h2>Why it matters in production</h2>
+<p>Short-term memory fills up. Every tool call, every observation, every intermediate reasoning step adds tokens to the context window. Without compression or eviction, the window overflows — and the model starts dropping the earliest, most important context (the user&#39;s actual request) to make room for the latest, least important (the tenth tool output). This is why agents hallucinate halfway through long tasks: they have literally forgotten what they were asked to do.</p>
+<p>Long-term memory without governance is worse. An agent that &quot;remembers&quot; a deprecated API signature from three months ago will confidently call it today and fail. The failure is silent because the agent has no reason to doubt its own memory. Stale facts poison fresh queries, and because the memory store is opaque, you cannot tell which fact is the bad one without a full audit.</p>
+<p>This is why each memory tier needs an explicit lifecycle. Short-term memory is cheap and disposable. Long-term memory is expensive and must be versioned, timestamped, and refreshable. Project memory — knowledge about a specific codebase — must be invalidated when the codebase changes. Treating memory as a single bucket is the architectural mistake that turns &quot;the agent remembers&quot; from a feature into a defect.</p>
+<hr>
+<h2>How Agenthood implements it</h2>
+<p>Agenthood&#39;s memory model is five tiers, each in <code>src/memory/</code> (coming in v2.1.0). The interface that unifies them is <code>IMemoryStore</code>:</p>
+<pre><code class="language-typescript">export interface IMemoryStore&lt;T&gt; {
+  tier: &#39;short&#39; | &#39;long&#39; | &#39;episodic&#39; | &#39;project&#39; | &#39;residual&#39;;
+  add(entry: T): Promise&lt;void&gt;;
+  query(selector: MemorySelector): Promise&lt;T[]&gt;;
+  evict(policy: EvictionPolicy): Promise&lt;number&gt;;
+}
+
+export const MEMORY_TIERS = {
+  short:    { ttl: 1,        unit: &#39;task&#39;  },  // working context buffer
+  long:     { ttl: Infinity, unit: &#39;forever&#39; }, // persistent facts
+  episodic: { ttl: Infinity, unit: &#39;forever&#39; }, // past execution traces
+  project:  { ttl: Infinity, unit: &#39;forever&#39; }, // codebase knowledge
+  residual: { ttl: 1,        unit: &#39;task&#39;  },  // implicit trace signals
+} as const;
+</code></pre>
+<p>The five tiers serve distinct purposes. <strong>Short-term</strong> holds the working context for the current task — the last few observations, the current plan, the active tool outputs. <strong>Long-term</strong> holds persistent facts that survive across sessions: the user&#39;s preferences, the project&#39;s conventions, the team&#39;s commit style. <strong>Episodic</strong> stores past execution traces so the agent can recall how it solved a similar problem before. <strong>Project</strong> holds indexed knowledge about the codebase itself — file structure, dependency graph, API surfaces. <strong>Residual</strong> captures implicit signals left in the trace that no tier explicitly claimed, so nothing is silently lost.</p>
+<p>ADR-010 covers the vector store backing long-term and project memory (LanceDB, embedded, zero infrastructure).</p>
+<hr>
+<h2>Hands-on example</h2>
+<pre><code class="language-bash"># Once the v2 runtime ships, memory is managed per-agent
+agenthood run the-developer &quot;fix the same bug we fixed in the billing service last week&quot;
+</code></pre>
+<p>The agent queries episodic memory for past billing-service fixes, retrieves the relevant trace, and applies the learned pattern. Without episodic memory, it would start from scratch:</p>
+<pre><code class="language-typescript">import { EpisodicMemory } from &#39;agenthood&#39;;
+
+const episodic = new EpisodicMemory();
+const prior = await episodic.query({ topic: &#39;billing-service-bug&#39;, limit: 3 });
+
+// prior[0].trace — the exact steps that fixed it last time
+// prior[0].outcome — what worked, what did not
+</code></pre>
+<hr>
+<h2>Further reading</h2>
+<ul>
+<li><a href="../../adr/ADR-010-lancedb-for-vector-storage/">ADR-010 — LanceDB for vector storage</a> — the embedded store backing long-term and project memory</li>
+<li><a href="../../src/memory/IMemoryStore.ts">`src/memory/IMemoryStore.ts`</a> — memory store interface (v2.1.0)</li>
+<li><a href="https://arxiv.org/abs/2309.02427">The Cognitive Architecture for Language Agents (CoALA)</a> — the memory taxonomy paper this model derives from</li>
+</ul>
+</main>
+</body>
+</html>

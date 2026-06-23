@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Custom Toolkits — Agenthood Academy</title>
+<style>
+body {
+  max-width: 42rem; margin: 2rem auto; padding: 0 1rem 4rem;
+  font-family: system-ui, -apple-system, sans-serif;
+  line-height: 1.75; color: #1a1a1a; font-size: 1rem;
+}
+h1, h2, h3 { line-height: 1.3; margin-top: 2rem; }
+h1 { font-size: 1.75rem; border-bottom: 2px solid #eee; padding-bottom: .5rem; }
+h2 { font-size: 1.35rem; }
+h3 { font-size: 1.1rem; }
+a { color: #2563eb; }
+a:hover { text-decoration: underline; }
+pre, code { font-size: .9em; background: #f5f5f5; border-radius: 4px; }
+code { padding: .15em .3em; }
+pre { padding: 1rem; overflow-x: auto; }
+pre code { background: none; padding: 0; }
+blockquote {
+  margin: 1rem 0; padding: .5rem 1rem;
+  border-left: 4px solid #2563eb; background: #f8fafc;
+}
+table { border-collapse: collapse; width: 100%; margin: 1rem 0; }
+th, td { border: 1px solid #ddd; padding: .5rem; text-align: left; }
+th { background: #f5f5f5; font-weight: 600; }
+ol, ul { padding-left: 1.5rem; }
+li { margin: .25rem 0; }
+hr { border: none; border-top: 1px solid #eee; margin: 2rem 0; }
+main { min-height: 60vh; }
+</style>
+</head>
+<body>
+<main><h1>Custom Toolkits</h1>
+<blockquote>
+<p><em>The Society&#39;s 14 skills are a starting point. Your domain has skills the Society has not written yet.</em></p>
+</blockquote>
+<hr>
+<h2>What it is</h2>
+<p>A custom skill is a tool you write that implements the Society&#39;s <code>ISkill</code> contract, so your agent can use it exactly like the built-in skills. The Society ships 14 members covering general software-engineering domains — commits, reviews, tests, security. Your domain has knowledge the Society has not encoded: the query that checks your internal status dashboard, the script that validates your data pipeline, the API that files a ticket in your custom issue tracker. Custom skills are how that knowledge becomes a first-class agent tool.</p>
+<p>The mechanism is discovery, not registration. You do not edit a config file or call a register function. You write a <code>.ts</code> file that implements <code>ISkill</code>, drop it into the skills directory, and restart. <code>SkillRegistry.discover()</code> finds it at startup, reads its metadata, and adds it to the agent&#39;s available tools. The skill is now indistinguishable from a built-in — the agent&#39;s reasoning loop can choose to call it the same way it chooses to call <code>ReadFileSkill</code>.</p>
+<p>The contract is what makes this safe. <code>ISkill</code> defines a name, a description, an input schema, and an <code>execute</code> method. The name and description are what the agent&#39;s reasoning sees when deciding which tool to call. The input schema is a JSON Schema that validates arguments before <code>execute</code> runs. The <code>execute</code> method returns a <code>SkillResult</code> — success, failure, or needs-more-input — that the loop handles uniformly. A skill that does not implement the contract is not discovered; a skill that implements it incorrectly fails at the schema boundary, not inside the agent&#39;s reasoning.</p>
+<hr>
+<h2>Why it matters in production</h2>
+<p>Hardcoded side effects are the anti-pattern of agent integration. When an agent&#39;s &quot;check the deploy status&quot; logic is a buried <code>fetch()</code> call inside a prompt template, three things break: the call cannot be tested in isolation, the result cannot be traced, and the logic cannot be reused by another agent. The skill becomes a hidden coupling between the prompt and the network.</p>
+<p>Custom skills fix all three. A skill is a unit — it has a name, a contract, and a testable <code>execute</code> method. The agent&#39;s reasoning decides <em>when</em> to call it; the skill decides <em>how</em> to execute it. The two are separate, which means the skill can be unit-tested without an LLM, and the agent&#39;s reasoning can be evaluated without the skill&#39;s network dependency. This separation is what makes custom skills production-grade instead of prototype-grade.</p>
+<p>The discovery model also matters for team scaling. When a new engineer joins, they do not need to learn a registration framework or edit a shared config. They write a <code>.ts</code> file in the skills directory, and on the next restart it is available to every agent. The skill is the unit of contribution — and code review on a skill file is review on a self-contained, contract-bound artifact, not on a snippet buried in a prompt.</p>
+<hr>
+<h2>How Agenthood implements it</h2>
+<p>The <code>ISkill</code> interface and <code>SkillRegistry</code> live in <code>src/skills/</code> (coming in v2.0.0). Here is a complete <code>ISkill</code> implementation — a custom skill that checks an internal deploy dashboard:</p>
+<pre><code class="language-typescript">import { ISkill, SkillResult, SkillContext } from &#39;agenthood&#39;;
+
+interface DeployStatusInput {
+  service: string;
+  environment: &#39;staging&#39; | &#39;production&#39;;
+}
+
+interface DeployStatusOutput {
+  service: string;
+  environment: string;
+  version: string;
+  healthy: boolean;
+  lastDeploy: string;
+}
+
+export class DeployStatusSkill implements ISkill&lt;DeployStatusInput, DeployStatusOutput&gt; {
+  name = &#39;deploy_status&#39;;
+  description = &#39;Check the deployment status and health of a service in a given environment. Use when the user asks whether a service is deployed, healthy, or running a specific version.&#39;;
+  inputSchema = {
+    type: &#39;object&#39;,
+    properties: {
+      service:      { type: &#39;string&#39;, description: &#39;The service name, e.g. &quot;auth-api&quot;.&#39; },
+      environment:  { type: &#39;string&#39;, enum: [&#39;staging&#39;, &#39;production&#39;] },
+    },
+    required: [&#39;service&#39;, &#39;environment&#39;],
+  } as const;
+
+  async execute(input: DeployStatusInput, context: SkillContext): Promise&lt;SkillResult&lt;DeployStatusOutput&gt;&gt; {
+    const url = `${context.config.dashboardUrl}/api/services/${input.service}/${input.environment}`;
+    const res = await fetch(url, { headers: { Authorization: `Bearer ${context.config.dashboardToken}` } });
+
+    if (!res.ok) {
+      return {
+        status: &#39;failure&#39;,
+        error: `Dashboard returned ${res.status}: ${await res.text()}`,
+      };
+    }
+
+    const data = await res.json() as DeployStatusOutput;
+    return {
+      status: &#39;success&#39;,
+      output: data,
+    };
+  }
+}
+</code></pre>
+<p>Discovery is automatic — drop this file in <code>src/skills/</code> (or your project&#39;s skills directory) and <code>SkillRegistry.discover()</code> finds it on the next startup:</p>
+<pre><code class="language-typescript">import { SkillRegistry } from &#39;agenthood&#39;;
+
+const registry = new SkillRegistry();
+await registry.discover(&#39;./src/skills&#39;);   // scans for ISkill implementations
+
+// The custom skill is now available alongside the built-ins
+const skill = registry.get(&#39;deploy_status&#39;);
+const result = await skill.execute({ service: &#39;auth-api&#39;, environment: &#39;production&#39; }, context);
+</code></pre>
+<p>The agent&#39;s reasoning loop sees <code>deploy_status</code> in the tool list with its description and schema. When the user asks &quot;is auth-api healthy in prod?&quot;, the loop selects the skill, validates the input against <code>inputSchema</code>, calls <code>execute</code>, and feeds the typed output back into the next reasoning step. No registration boilerplate, no prompt editing, no hardcoded fetch.</p>
+<hr>
+<h2>Hands-on example</h2>
+<pre><code class="language-bash"># Drop a skill file into the skills directory and restart — that is the entire setup
+mkdir -p .agenthood/skills
+cp deploy-status.ts .agenthood/skills/
+agenthood run the-developer &quot;is auth-api healthy in production?&quot;
+</code></pre>
+<p>The agent discovers the skill and uses it:</p>
+<pre><code>[think] The user is asking about deploy status. I have a deploy_status skill.
+[act]  deploy_status({ service: &#39;auth-api&#39;, environment: &#39;production&#39; })
+[see]  { service: &#39;auth-api&#39;, version: &#39;v2.3.1&#39;, healthy: true, lastDeploy: &#39;2026-06-17T14:22Z&#39; }
+[think] auth-api is healthy, running v2.3.1, last deployed 6 hours ago.
+[done] auth-api is healthy in production — v2.3.1, deployed 2026-06-17 14:22 UTC.
+</code></pre>
+<p>The skill was not registered. It was discovered. The agent chose to call it based on its description matching the user&#39;s intent.</p>
+<hr>
+<h2>Further reading</h2>
+<ul>
+<li><a href="../../src/skills/ISkill.ts">`src/skills/ISkill.ts`</a> — the skill contract every custom skill implements (v2.0.0)</li>
+<li><a href="../../src/skills/SkillRegistry.ts">`src/skills/SkillRegistry.ts`</a> — dynamic discovery via <code>SkillRegistry.discover()</code> (v2.0.0)</li>
+<li><a href="https://json-schema.org/">JSON Schema</a> — the input validation standard <code>inputSchema</code> uses</li>
+</ul>
+</main>
+</body>
+</html>

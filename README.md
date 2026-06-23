@@ -1,6 +1,6 @@
 # Agenthood
 
-[![npm version](https://img.shields.io/npm/v/agenthood?style=flat-square&logo=npm)](https://www.npmjs.com/package/agenthood) [![npm downloads](https://img.shields.io/npm/dm/agenthood?style=flat-square&logo=npm)](https://www.npmjs.com/package/agenthood) [![License: MIT](https://img.shields.io/badge/License-MIT-blue?style=flat-square)](LICENSE) [![Node.js](https://img.shields.io/badge/node-%3E%3D20-brightgreen?style=flat-square&logo=node.js)](https://nodejs.org) [![skills.sh](https://skills.sh/b/fworks-tech/agenthood)](https://skills.sh/fworks-tech/agenthood)
+[![npm version](https://img.shields.io/npm/v/agenthood?style=flat-square&logo=npm)](https://www.npmjs.com/package/agenthood) [![npm downloads](https://img.shields.io/npm/dm/agenthood?style=flat-square&logo=npm)](https://www.npmjs.com/package/agenthood) [![License: MIT](https://img.shields.io/badge/License-MIT-blue?style=flat-square)](LICENSE) [![Node.js](https://img.shields.io/badge/node-%3E%3D22.14.0-brightgreen?style=flat-square&logo=node.js)](https://nodejs.org) [![skills.sh](https://skills.sh/b/fworks-tech/agenthood)](https://skills.sh/fworks-tech/agenthood)
 
 > A full AI engineering team as plain Markdown files.
 
@@ -22,11 +22,11 @@ They have opinions about your PR descriptions. They will not merge your branch i
 
 ## How it works
 
-Each agent is a single `.md` file that describes a role, its responsibilities, standards, and how it communicates. Load one or all of them into Claude Code, OpenAI Codex CLI, or any runtime that supports skill files.
+Each agent is a single `.md` file that describes a role, its responsibilities, standards, and how it communicates. Load one or all of them into Claude Code, Copilot, Gemini CLI, or any runtime that supports skill files. Or run them autonomously via the TypeScript CLI.
 
-1. **Install the Society** — `npx skills add fworks-tech/agenthood` or clone the repo
-2. **Load into your runtime** — point Claude Code, OpenAI Codex CLI, or your agent framework at the skills directory
-3. **Invoke any agent** — ask the Reviewer to check your PR, ask Security to audit your auth flow. They know their role. They have *standards*.
+1. **Install the Society** — `npm install --save-dev agenthood && npx agenthood init` (or `npx skills add fworks-tech/agenthood` via [skills.sh](https://skills.sh/fworks-tech/agenthood))
+2. **Load into your runtime** — point Claude Code, Copilot, or your agent framework at the skills directory
+3. **Invoke any agent** — ask the Reviewer to check your PR, ask the Auditor to scan your auth flow. They know their role. They have *standards*.
 
 ---
 
@@ -63,13 +63,14 @@ npx agenthood init       # interactive setup (~5 minutes)
 npx agenthood check      # verify everything is in place
 ```
 
-Members are loaded as context by your existing AI assistant. Works with Claude Code and OpenAI Codex CLI.
+Members are loaded as context by your existing AI assistant. Works with Claude Code, Copilot, and Gemini CLI.
 
 ### Option B — Run agents autonomously
 
 Execute members as real LLM agents that reason, act, and remember across sessions.
 
 ```bash
+# From the repo clone (when installed via npm, the runtime is pre-built)
 npm run build                              # build the runtime (once)
 agenthood list                              # see available agents
 agenthood run the-scribe "write a commit message for the current diff"
@@ -77,9 +78,17 @@ agenthood run the-reviewer "review the changes in the last commit"
 agenthood run the-architect "plan the implementation for issue #42"
 ```
 
-Set `GROQ_API_KEY` in your environment (free at [console.groq.com](https://console.groq.com)), or use Ollama for fully offline execution.
+Set one of these in your environment:
 
-For a full walkthrough — install, commands, CI pipeline, and next steps — see the [Academy Getting Started guide](https://agenthood.flabs.tech/academy/getting-started/).
+| Variable | Provider | Free tier |
+|----------|----------|-----------|
+| `GROQ_API_KEY` | Groq (default) | [console.groq.com](https://console.groq.com) |
+| `ANTHROPIC_API_KEY` | Anthropic | — |
+| `OPENAI_API_KEY` | OpenAI | — |
+
+Or use Ollama for fully offline execution (no key required).
+
+For a full walkthrough — install, commands, CI pipeline, and next steps — see the [Academy Getting Started guide](https://github.com/fworks-tech/agenthood/blob/v2.0.x/docs/academy/getting-started.md).
 
 ---
 
@@ -102,7 +111,8 @@ For a full walkthrough — install, commands, CI pipeline, and next steps — se
 Agenthood is agent-agnostic. The skill files work with:
 
 - [Claude Code](https://claude.ai/code) — via `.claude/skills/`
-- [OpenAI Codex CLI](https://github.com/openai/codex) — via `AGENTS.md` + skills
+- [GitHub Copilot](https://github.com/features/copilot) — via `.github/copilot-instructions.md/`
+- [Gemini CLI](https://cloud.google.com/gemini-cli) — via `AGENTS.md` + skills
 
 The TypeScript runtime (`agenthood run`) supports Groq (default, free tier at [console.groq.com](https://console.groq.com)), Anthropic, OpenAI, and Ollama for fully offline execution.
 
@@ -196,9 +206,12 @@ agenthood/
 │   ├── academy/                     ← Agenthood Academy articles
 │   ├── specs/                       ← Implementation specs
 │
+├── .agenthood/                      ← Agenthood configuration template
+│   └── config.example.json
+│
 ├── src/                             ← Node.js CLI + TypeScript runtime
 │   ├── cli.ts                       ← Entry point
-│   ├── commands/                    ← CLI commands (init, check, run, list, pr-sync)
+│   ├── commands/                    ← CLI commands (init, check, run, list, pr-sync, setup, oath, eject, activate, deactivate)
 │   ├── agents/                      ← BaseAgent + 4 specialized agents
 │   ├── llm/                         ← ILLMProvider, LLMRouter, 4 providers
 │   ├── skills/                      ← ISkill, SkillRegistry
@@ -212,7 +225,7 @@ agenthood/
 │   ├── auditor.yml                  ← The Auditor — secret scanning
 │   ├── commitlint.yml               ← The Doorman — commit message validation
 │   ├── herald.yml                   ← The Herald — CI summary comment on PRs
-│   ├── scribe-pr-body.yml           ← The Reviewer — reviews every pushed diff
+│   ├── scribe-pr-body.yml           ← The Reviewer — LLM commit review on every push
 │   ├── labeler.yml                  ← The Scribe — labels PRs by changed file paths
 │   ├── librarian.yml                ← The Librarian — checks docs stay in sync with code
 │   ├── semantic-release.yml         ← The Herald — automated release + npm publish
@@ -227,9 +240,14 @@ agenthood/
 │   ├── pre-push                     ← Enforces ticket-first branch naming
 │   └── prepare-commit-msg           ← Injects commit message template
 │
-└── vscode-extension/                ← VS Code extension
-    ├── src/
-    └── package.json
+├── vscode-extension/                ← VS Code extension
+│   ├── src/
+│   └── package.json
+│
+└── tests/                           ← Test suite
+    ├── commands/                    ← CLI command tests
+    ├── unit/                        ← Unit tests (agents, core, llm, skills, members, reasoning)
+    └── helpers/                     ← Test utilities
 ```
 
 ---
@@ -238,11 +256,11 @@ agenthood/
 
 Structured learning path from "what is a prompt?" to "ship agents to production."
 
-- [Getting Started](https://agenthood.flabs.tech/academy/getting-started/) — install, first commit, CI, configuration
-- [Skills Reference](https://agenthood.flabs.tech/academy/skills-reference/) — all 14 members, their tools, and invocation
-- [Level 1: GenAI & RAG Basics](https://agenthood.flabs.tech/academy/level-1-genai-rag-basics/) — LLMs, prompt engineering, RAG
-- [Level 2: AI Agent Essentials](https://agenthood.flabs.tech/academy/level-2-agent-essentials/) — memory, planning, multi-agent systems
-- [Level 3: Advanced Agent Skills](https://agenthood.flabs.tech/academy/level-3-advanced-skills/) — integration, performance, deployment
+- [Getting Started](docs/academy/getting-started.md) — install, first commit, CI, configuration
+- [Skills Reference](docs/academy/skills-reference.md) — all 14 members, their tools, and invocation
+- [Level 1: GenAI & RAG Basics](docs/academy/level-1-genai-rag-basics/) — LLMs, prompt engineering, RAG
+- [Level 2: AI Agent Essentials](docs/academy/level-2-agent-essentials/) — memory, planning, multi-agent systems
+- [Level 3: Advanced Agent Skills](docs/academy/level-3-advanced-skills/) — integration, performance, deployment
 
 ---
 

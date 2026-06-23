@@ -1,3 +1,17 @@
+# [2.1.0](https://github.com/fworks-tech/agenthood/compare/v2.0.0...v2.1.0) (2026-06-23)
+
+
+### Bug Fixes
+
+* **ci:** add npm ci step to gh-pages workflow before building ([86fe39f](https://github.com/fworks-tech/agenthood/commit/86fe39f85b03ceec3fadfd91daf5b2c01b3e3f3b)), closes [#pages](https://github.com/fworks-tech/agenthood/issues/pages)
+* **config:** update stale commitlint.config.cjs references to .ts ([2390aab](https://github.com/fworks-tech/agenthood/commit/2390aab298b052d055bd9e134bd05bbcc708dc69)), closes [#237](https://github.com/fworks-tech/agenthood/issues/237)
+* **llm:** make provider SDK imports lazy, lower engines.node to 22.14.0 ([dd5a7c1](https://github.com/fworks-tech/agenthood/commit/dd5a7c11d8192ba727bbe055e0ee28d106b38d5a))
+
+
+### Features
+
+* **academy:** replace MkDocs with Node.js build and deploy to GitHub Pages ([0460fc9](https://github.com/fworks-tech/agenthood/commit/0460fc9edeab1c630e448b1c8b209a7e5ddab224))
+
 # [2.0.0](https://github.com/fworks-tech/agenthood/compare/v1.10.0...v2.0.0) (2026-06-21)
 
 

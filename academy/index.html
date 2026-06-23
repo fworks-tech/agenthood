@@ -8,28 +8,28 @@
 body {
   max-width: 42rem; margin: 2rem auto; padding: 0 1rem 4rem;
   font-family: system-ui, -apple-system, sans-serif;
-  line-height: 1.75; color: #1a1a1a; font-size: 1rem;
+  line-height: 1.75; color: #f4f4f5; background: #09090b; font-size: 1rem;
 }
-h1, h2, h3 { line-height: 1.3; margin-top: 2rem; }
-h1 { font-size: 1.75rem; border-bottom: 2px solid #eee; padding-bottom: .5rem; }
+h1, h2, h3 { line-height: 1.3; margin-top: 2rem; color: #ffffff; }
+h1 { font-size: 1.75rem; border-bottom: 2px solid #27272a; padding-bottom: .5rem; }
 h2 { font-size: 1.35rem; }
 h3 { font-size: 1.1rem; }
-a { color: #2563eb; }
+a { color: #a78bfa; }
 a:hover { text-decoration: underline; }
-pre, code { font-size: .9em; background: #f5f5f5; border-radius: 4px; }
-code { padding: .15em .3em; }
-pre { padding: 1rem; overflow-x: auto; }
-pre code { background: none; padding: 0; }
+pre, code { font-size: .9em; background: #18181b; border-radius: 6px; }
+code { padding: .15em .3em; border: 1px solid #27272a; }
+pre { padding: 1rem; overflow-x: auto; border: 1px solid #27272a; }
+pre code { background: none; padding: 0; border: none; }
 blockquote {
   margin: 1rem 0; padding: .5rem 1rem;
-  border-left: 4px solid #2563eb; background: #f8fafc;
+  border-left: 4px solid #a78bfa; background: #18181b;
 }
 table { border-collapse: collapse; width: 100%; margin: 1rem 0; }
-th, td { border: 1px solid #ddd; padding: .5rem; text-align: left; }
-th { background: #f5f5f5; font-weight: 600; }
+th, td { border: 1px solid #27272a; padding: .5rem; text-align: left; }
+th { background: #18181b; font-weight: 600; }
 ol, ul { padding-left: 1.5rem; }
 li { margin: .25rem 0; }
-hr { border: none; border-top: 1px solid #eee; margin: 2rem 0; }
+hr { border: none; border-top: 1px solid #27272a; margin: 2rem 0; }
 main { min-height: 60vh; }
 </style>
 </head>
@@ -52,19 +52,19 @@ main { min-height: 60vh; }
 </tr>
 </thead>
 <tbody><tr>
-<td><a href="level-1-genai-rag-basics/">Level 1</a></td>
+<td><a href="academy/level-1-genai-rag-basics/">Level 1</a></td>
 <td>GenAI &amp; RAG Basics</td>
 <td>9</td>
 <td>How LLMs work, how RAG works, how to write prompts that don&#39;t embarrass you</td>
 </tr>
 <tr>
-<td><a href="level-2-agent-essentials/">Level 2</a></td>
+<td><a href="academy/level-2-agent-essentials/">Level 2</a></td>
 <td>AI Agent Essentials</td>
 <td>11</td>
 <td>How agents reason, remember, plan, and fail — and how to prevent the failure</td>
 </tr>
 <tr>
-<td><a href="level-3-advanced-skills/">Level 3</a></td>
+<td><a href="academy/level-3-advanced-skills/">Level 3</a></td>
 <td>Advanced Agent Skills</td>
 <td>5</td>
 <td>How to ship agents into production and keep them there</td>
@@ -74,41 +74,41 @@ main { min-height: 60vh; }
 <h2>Level 1 — GenAI &amp; RAG Basics</h2>
 <p><em>The foundation. If you do not understand these, your agents will fail in ways you cannot explain.</em></p>
 <ol>
-<li><a href="level-1-genai-rag-basics/01-generative-ai-introduction/">Generative AI Introduction</a></li>
-<li><a href="level-1-genai-rag-basics/02-basics-of-llms/">Basics of LLMs</a></li>
-<li><a href="level-1-genai-rag-basics/03-prompt-engineering/">Prompt Engineering</a></li>
-<li><a href="level-1-genai-rag-basics/04-llm-parameters/">LLM Parameters</a></li>
-<li><a href="level-1-genai-rag-basics/05-chunking-strategies/">Chunking Strategies</a></li>
-<li><a href="level-1-genai-rag-basics/06-rag-fundamentals/">RAG Fundamentals</a></li>
-<li><a href="level-1-genai-rag-basics/07-vector-databases/">Vector Databases</a></li>
-<li><a href="level-1-genai-rag-basics/08-api-wrappers/">API Wrappers</a></li>
-<li><a href="level-1-genai-rag-basics/09-tool-integration/">Tool Integration</a></li>
+<li><a href="academy/level-1-genai-rag-basics/01-generative-ai-introduction/">Generative AI Introduction</a></li>
+<li><a href="academy/level-1-genai-rag-basics/02-basics-of-llms/">Basics of LLMs</a></li>
+<li><a href="academy/level-1-genai-rag-basics/03-prompt-engineering/">Prompt Engineering</a></li>
+<li><a href="academy/level-1-genai-rag-basics/04-llm-parameters/">LLM Parameters</a></li>
+<li><a href="academy/level-1-genai-rag-basics/05-chunking-strategies/">Chunking Strategies</a></li>
+<li><a href="academy/level-1-genai-rag-basics/06-rag-fundamentals/">RAG Fundamentals</a></li>
+<li><a href="academy/level-1-genai-rag-basics/07-vector-databases/">Vector Databases</a></li>
+<li><a href="academy/level-1-genai-rag-basics/08-api-wrappers/">API Wrappers</a></li>
+<li><a href="academy/level-1-genai-rag-basics/09-tool-integration/">Tool Integration</a></li>
 </ol>
 <hr>
 <h2>Level 2 — AI Agent Essentials</h2>
 <p><em>The concepts where most developers stop learning. This is where The Society separates the builders from the browsers.</em></p>
 <ol>
-<li><a href="level-2-agent-essentials/01-what-are-ai-agents/">What Are AI Agents</a></li>
-<li><a href="level-2-agent-essentials/02-agentic-frameworks/">Agentic Frameworks</a></li>
-<li><a href="level-2-agent-essentials/03-build-your-first-agent/">Build Your First Agent</a></li>
-<li><a href="level-2-agent-essentials/04-agent-workflows/">Agent Workflows</a></li>
-<li><a href="level-2-agent-essentials/05-agent-memory/">Agent Memory</a></li>
-<li><a href="level-2-agent-essentials/06-agent-evaluation/">Agent Evaluation</a></li>
-<li><a href="level-2-agent-essentials/07-multi-step-reasoning/">Multi-Step Reasoning</a></li>
-<li><a href="level-2-agent-essentials/08-multi-agent-systems/">Multi-Agent Systems</a></li>
-<li><a href="level-2-agent-essentials/09-agentic-rag/">Agentic RAG</a></li>
-<li><a href="level-2-agent-essentials/10-action-planning/">Action Planning</a></li>
-<li><a href="level-2-agent-essentials/11-safety-and-guardrails/">Safety and Guardrails</a></li>
+<li><a href="academy/level-2-agent-essentials/01-what-are-ai-agents/">What Are AI Agents</a></li>
+<li><a href="academy/level-2-agent-essentials/02-agentic-frameworks/">Agentic Frameworks</a></li>
+<li><a href="academy/level-2-agent-essentials/03-build-your-first-agent/">Build Your First Agent</a></li>
+<li><a href="academy/level-2-agent-essentials/04-agent-workflows/">Agent Workflows</a></li>
+<li><a href="academy/level-2-agent-essentials/05-agent-memory/">Agent Memory</a></li>
+<li><a href="academy/level-2-agent-essentials/06-agent-evaluation/">Agent Evaluation</a></li>
+<li><a href="academy/level-2-agent-essentials/07-multi-step-reasoning/">Multi-Step Reasoning</a></li>
+<li><a href="academy/level-2-agent-essentials/08-multi-agent-systems/">Multi-Agent Systems</a></li>
+<li><a href="academy/level-2-agent-essentials/09-agentic-rag/">Agentic RAG</a></li>
+<li><a href="academy/level-2-agent-essentials/10-action-planning/">Action Planning</a></li>
+<li><a href="academy/level-2-agent-essentials/11-safety-and-guardrails/">Safety and Guardrails</a></li>
 </ol>
 <hr>
 <h2>Level 3 — Advanced Agent Skills</h2>
 <p><em>For engineers who have shipped agents and are ready to ship them better.</em></p>
 <ol>
-<li><a href="level-3-advanced-skills/01-real-world-integration/">Real-World Integration</a></li>
-<li><a href="level-3-advanced-skills/02-autonomous-loops/">Autonomous Loops</a></li>
-<li><a href="level-3-advanced-skills/03-custom-toolkits/">Custom Toolkits</a></li>
-<li><a href="level-3-advanced-skills/04-optimize-performance/">Optimize Performance</a></li>
-<li><a href="level-3-advanced-skills/05-deploy-to-production/">Deploy to Production</a></li>
+<li><a href="academy/level-3-advanced-skills/01-real-world-integration/">Real-World Integration</a></li>
+<li><a href="academy/level-3-advanced-skills/02-autonomous-loops/">Autonomous Loops</a></li>
+<li><a href="academy/level-3-advanced-skills/03-custom-toolkits/">Custom Toolkits</a></li>
+<li><a href="academy/level-3-advanced-skills/04-optimize-performance/">Optimize Performance</a></li>
+<li><a href="academy/level-3-advanced-skills/05-deploy-to-production/">Deploy to Production</a></li>
 </ol>
 <hr>
 <h2>The Article Format</h2>

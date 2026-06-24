@@ -12,7 +12,7 @@
  */
 
 import type { ILLMProvider } from './ILLMProvider.js'
-import type { LLMConfig, LLMRequest, ComplexityTier } from './types.js'
+import type { LLMConfig, LLMRequest, ComplexityTier, ProviderEntry } from './types.js'
 import type { ProviderName } from '../members/types.ts'
 import { ProviderChain } from './ProviderFailover.js'
 
@@ -75,6 +75,10 @@ export class LLMRouter {
   private static config: LLMConfig = {}
 
   static async create(config: LLMConfig): Promise<ILLMProvider> {
+    if (config.providers && config.providers.length > 0) {
+      return LLMRouter.fromConfig(config)
+    }
+
     LLMRouter.config = config
 
     if (config.provider && config.provider in LLMRouter.providerFactories) {
@@ -82,7 +86,46 @@ export class LLMRouter {
       if (inst) return inst
     }
 
-    return LLMRouter.buildDefaultChain()
+    return LLMRouter.buildDefaultChain(config)
+  }
+
+  static async fromConfig(config: LLMConfig): Promise<ILLMProvider> {
+    const entries = config.providers ?? []
+    if (entries.length === 0) return LLMRouter.create(config)
+
+    const sorted = [...entries].sort((a, b) => (a.priority ?? 999) - (b.priority ?? 999))
+
+    const instances: ILLMProvider[] = []
+    const names: string[] = []
+    const modelMap = new Map<string, string[]>()
+
+    for (const entry of sorted) {
+      const factory = LLMRouter.providerFactories[entry.name]
+      if (!factory) continue
+      try {
+        const inst = await factory(LLMRouter.entryToConfig(entry, config))
+        instances.push(inst)
+        names.push(entry.name)
+        if (entry.models && entry.models.length > 1) {
+          modelMap.set(entry.name, entry.models)
+        }
+      } catch {
+        // Provider init failed, skip
+      }
+    }
+
+    if (instances.length === 0) return LLMRouter.create(config)
+
+    return new ProviderChain(
+      instances,
+      names,
+      {
+        failureThreshold: config.failureThreshold,
+        cooldownMs: config.cooldownMs,
+        probeEnabled: config.probeEnabled,
+      },
+      modelMap.size > 0 ? modelMap : undefined,
+    )
   }
 
   static async createForMember(
@@ -111,7 +154,25 @@ export class LLMRouter {
       }
     }
 
-    return new ProviderChain(providers_arr, names)
+    return new ProviderChain(
+      providers_arr,
+      names,
+      {
+        failureThreshold: config.failureThreshold,
+        cooldownMs: config.cooldownMs,
+        probeEnabled: config.probeEnabled,
+      },
+    )
+  }
+
+  private static entryToConfig(entry: ProviderEntry, base: LLMConfig): LLMConfig {
+    return {
+      ...base,
+      provider: entry.name,
+      model: entry.model ?? base.model,
+      apiKey: entry.apiKey ?? base.apiKey,
+      baseUrl: entry.baseUrl ?? base.baseUrl,
+    }
   }
 
   static async route(request: LLMRequest, config: LLMConfig): Promise<ILLMProvider> {
@@ -130,19 +191,19 @@ export class LLMRouter {
 
     switch (tier) {
       case 'low':
-        return (await LLMRouter.getOrInit('groq')) ?? await LLMRouter.buildDefaultChain()
+        return (await LLMRouter.getOrInit('groq')) ?? await LLMRouter.buildDefaultChain(config)
 
       case 'medium':
         if (configuredProvider && configuredProvider in LLMRouter.providerFactories) {
-          return (await LLMRouter.getOrInit(configuredProvider)) ?? await LLMRouter.buildDefaultChain()
+          return (await LLMRouter.getOrInit(configuredProvider)) ?? await LLMRouter.buildDefaultChain(config)
         }
-        return (await LLMRouter.getOrInit('groq')) ?? await LLMRouter.buildDefaultChain()
+        return (await LLMRouter.getOrInit('groq')) ?? await LLMRouter.buildDefaultChain(config)
 
       case 'high':
         return (
           (await LLMRouter.getOrInit('anthropic')) ??
           (configuredProvider ? await LLMRouter.getOrInit(configuredProvider) : null) ??
-          await LLMRouter.buildDefaultChain()
+          await LLMRouter.buildDefaultChain(config)
         )
     }
   }
@@ -167,7 +228,15 @@ export class LLMRouter {
     return promise
   }
 
-  private static async buildDefaultChain(): Promise<ILLMProvider> {
+  private static buildChainConfig(config: LLMConfig) {
+    return {
+      failureThreshold: config.failureThreshold,
+      cooldownMs: config.cooldownMs,
+      probeEnabled: config.probeEnabled,
+    }
+  }
+
+  private static async buildDefaultChain(config?: LLMConfig): Promise<ILLMProvider> {
     const fallbackOrder: ProviderName[] = ['groq', 'openai', 'ollama']
     const providers = new Map<string, ILLMProvider>()
 
@@ -188,6 +257,6 @@ export class LLMRouter {
       }
     }
 
-    return new ProviderChain(providers_arr, names)
+    return new ProviderChain(providers_arr, names, LLMRouter.buildChainConfig(config ?? {}))
   }
 }

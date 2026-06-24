@@ -41,6 +41,35 @@
     "model": "claude-sonnet-4-6"
   },
 
+  "_comment_providers": "Optional: Ordered list of LLM providers for failover. First = primary, subsequent = fallbacks. Each provider can specify fallback models for model downgrade on failure.",
+  "providers": [
+    {
+      "name": "anthropic",
+      "model": "claude-sonnet-4-6",
+      "models": ["claude-sonnet-4-6", "claude-haiku-3-5"],
+      "priority": 1
+    },
+    {
+      "name": "groq",
+      "model": "llama-3.1-70b-versatile",
+      "priority": 2
+    },
+    {
+      "name": "ollama",
+      "model": "llama3.2",
+      "baseUrl": "http://localhost:11434",
+      "_comment": "No API key needed for local Ollama",
+      "priority": 3
+    }
+  ],
+
+  "_comment_failover": "Optional: Circuit breaker and probe recovery settings.",
+  "failover": {
+    "failureThreshold": 3,
+    "cooldownMs": 60000,
+    "probeEnabled": true
+  },
+
   "_comment_permissions": "Optional: permission profile for automated member actions. conservative = read-only; standard = read + safe writes; elevated = full write access.",
   "permissions": {
     "profile": "standard",

@@ -1,4 +1,4 @@
-import { describe, it, expect } from 'vitest'
+import { describe, it, expect, vi } from 'vitest'
 import { ContextCompressor } from '../../../src/core/ContextCompressor.js'
 import type { ILLMProvider } from '../../../src/llm/ILLMProvider.js'
 import type { Message } from '../../../src/llm/types.js'
@@ -15,6 +15,7 @@ function stubProvider(contextWindow = 8192): ILLMProvider {
     },
     async embed(_text: string): Promise<number[]> { return [] },
     getContextWindow(): number { return contextWindow },
+    setModel: vi.fn(),
   }
 }
 

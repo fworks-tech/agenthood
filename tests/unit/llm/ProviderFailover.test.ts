@@ -14,14 +14,15 @@ import {
 } from '../../../src/llm/errors.js'
 import type { ILLMProvider } from '../../../src/llm/ILLMProvider.js'
 
-function mockProvider(label: string, shouldFail?: boolean): ILLMProvider {
+function mockProvider(label: string, shouldFail?: boolean, models?: string[]): ILLMProvider {
+  let currentModel = models?.[0] ?? `${label}-model`
   return {
     complete: vi.fn().mockImplementation(async () => {
       if (shouldFail) throw new Error(`${label} failed`)
       return {
         content: `${label} response`,
         usage: { promptTokens: 10, completionTokens: 5, totalTokens: 15 },
-        model: `${label}-model`,
+        model: currentModel,
       }
     }),
     stream: vi.fn().mockImplementation(async function* () {
@@ -30,6 +31,8 @@ function mockProvider(label: string, shouldFail?: boolean): ILLMProvider {
       yield { delta: '', done: true }
     }),
     embed: vi.fn().mockResolvedValue([0.1, 0.2, 0.3]),
+    getContextWindow: () => 8192,
+    setModel: vi.fn().mockImplementation((m: string) => { currentModel = m }),
   }
 }
 
@@ -38,6 +41,8 @@ function mockErrorProvider(error: Error): ILLMProvider {
     complete: vi.fn().mockRejectedValue(error),
     stream: vi.fn().mockRejectedValue(error),
     embed: vi.fn().mockRejectedValue(error),
+    getContextWindow: () => 8192,
+    setModel: vi.fn(),
   }
 }
 
@@ -179,5 +184,240 @@ describe('ProviderChain', () => {
     await expect(
       chain.stream({ messages: [{ role: 'user', content: 'hello' }] }),
     ).rejects.toThrow(AllProvidersFailedError)
+  })
+
+  describe('model downgrade (Strategy 4)', () => {
+    it('downgrades to fallback model when first model fails', async () => {
+      const modelErrors = new Map<string, Error>()
+      let currentModel = 'sonnet'
+      const provider = {
+        complete: vi.fn().mockImplementation(async () => {
+          if (modelErrors.has(currentModel)) throw modelErrors.get(currentModel)!
+          return {
+            content: `${currentModel} response`,
+            usage: { promptTokens: 10, completionTokens: 5, totalTokens: 15 },
+            model: currentModel,
+          }
+        }),
+        stream: vi.fn(),
+        embed: vi.fn().mockResolvedValue([0.1, 0.2, 0.3]),
+        getContextWindow: () => 8192,
+        setModel: vi.fn().mockImplementation((m: string) => { currentModel = m }),
+      }
+      modelErrors.set('sonnet', new Error('model overloaded'))
+
+      const modelMap = new Map([['anthropic', ['sonnet', 'haiku']]])
+      const chain = new ProviderChain([provider], ['anthropic'], undefined, modelMap)
+
+      const result = await chain.complete({ messages: [{ role: 'user', content: 'hello' }] })
+
+      expect(result.content).toBe('haiku response')
+      expect(provider.setModel).toHaveBeenCalledWith('haiku')
+    })
+
+    it('throws when all models on a provider fail', async () => {
+      const modelErrors = new Map<string, Error>()
+      let currentModel = 'sonnet'
+      const provider = {
+        complete: vi.fn().mockImplementation(async () => {
+          throw modelErrors.get(currentModel) ?? new Error('failed')
+        }),
+        stream: vi.fn(),
+        embed: vi.fn().mockResolvedValue([0.1, 0.2, 0.3]),
+        getContextWindow: () => 8192,
+        setModel: vi.fn().mockImplementation((m: string) => { currentModel = m }),
+      }
+      modelErrors.set('sonnet', new Error('sonnet failed'))
+      modelErrors.set('haiku', new Error('haiku failed'))
+
+      const modelMap = new Map([['anthropic', ['sonnet', 'haiku']]])
+      const chain = new ProviderChain([provider], ['anthropic'], undefined, modelMap)
+
+      await expect(
+        chain.complete({ messages: [{ role: 'user', content: 'hello' }] }),
+      ).rejects.toThrow(AllProvidersFailedError)
+    })
+
+    it('skips model downgrade when no modelMap is provided', async () => {
+      const p1 = mockProvider('p1', true)
+      const p2 = mockProvider('p2')
+      const chain = new ProviderChain([p1, p2], ['p1', 'p2'])
+
+      const result = await chain.complete({ messages: [{ role: 'user', content: 'hello' }] })
+      expect(result.content).toBe('p2 response')
+    })
+
+    it('downgrades before failing over to next provider in chain', async () => {
+      const modelErrors = new Map<string, Error>()
+      let currentModel = 'sonnet'
+      const primary = {
+        complete: vi.fn().mockImplementation(async () => {
+          if (modelErrors.has(currentModel)) throw modelErrors.get(currentModel)!
+          return {
+            content: `${currentModel} response`,
+            usage: { promptTokens: 10, completionTokens: 5, totalTokens: 15 },
+            model: currentModel,
+          }
+        }),
+        stream: vi.fn(),
+        embed: vi.fn().mockResolvedValue([0.1, 0.2, 0.3]),
+        getContextWindow: () => 8192,
+        setModel: vi.fn().mockImplementation((m: string) => { currentModel = m }),
+      }
+      modelErrors.set('sonnet', new Error('sonnet failed'))
+
+      const backup = mockProvider('groq')
+
+      const modelMap = new Map([['anthropic', ['sonnet', 'haiku']]])
+      const chain = new ProviderChain([primary, backup], ['anthropic', 'groq'], undefined, modelMap)
+
+      const result = await chain.complete({ messages: [{ role: 'user', content: 'hello' }] })
+      expect(result.content).toBe('haiku response')
+      expect(primary.setModel).toHaveBeenCalledWith('haiku')
+      expect(backup.complete).not.toHaveBeenCalled()
+    })
+  })
+
+  describe('circuit breaker config', () => {
+    it('respects failureThreshold', async () => {
+      const p1 = mockErrorProvider(new TimeoutError('test'))
+      const p2 = mockProvider('p2')
+      const chain = new ProviderChain([p1, p2], ['p1', 'p2'], { failureThreshold: 3 })
+
+      // First call: failureCount = 1, threshold = 3 -> stays CLOSED
+      await chain.complete({ messages: [{ role: 'user', content: 'hello' }] })
+      let state = chain.getBreakerState('p1')!
+      expect(state.state).toBe('CLOSED')
+      expect(state.failureCount).toBe(1)
+
+      // Second call: failureCount = 2, still CLOSED
+      await chain.complete({ messages: [{ role: 'user', content: 'hello' }] })
+      state = chain.getBreakerState('p1')!
+      expect(state.state).toBe('CLOSED')
+      expect(state.failureCount).toBe(2)
+
+      // Third call: failureCount = 3 -> trips to OPEN
+      await chain.complete({ messages: [{ role: 'user', content: 'hello' }] })
+      state = chain.getBreakerState('p1')!
+      expect(state.state).toBe('OPEN')
+      expect(state.failureCount).toBe(3)
+    })
+
+    it('resets failureCount on success', async () => {
+      let callCount = 0
+      const p1 = {
+        complete: vi.fn().mockImplementation(async () => {
+          callCount++
+          if (callCount <= 3) throw new TimeoutError('test')
+          return { content: 'ok', usage: { promptTokens: 1, completionTokens: 1, totalTokens: 2 }, model: 'm' }
+        }),
+        stream: vi.fn(),
+        embed: vi.fn().mockResolvedValue([0.1, 0.2, 0.3]),
+        getContextWindow: () => 8192,
+        setModel: vi.fn(),
+      }
+      const p2 = mockProvider('p2')
+      const chain = new ProviderChain([p1, p2], ['p1', 'p2'], { failureThreshold: 3 })
+
+      // First complete() call: p1's executeWithStrategy retries (2 calls total),
+      // both fail with TimeoutError -> tripBreaker runs once -> failureCount = 1
+      await chain.complete({ messages: [{ role: 'user', content: 'hello' }] })
+      expect(chain.getBreakerState('p1')!.failureCount).toBe(1)
+
+      // Second complete() call: p1 fails 2 more times (callCount 3,4) -> failureCount = 2,3
+      // then succeeds on callCount 5
+      await chain.complete({ messages: [{ role: 'user', content: 'hello' }] })
+      expect(chain.getBreakerState('p1')!.failureCount).toBe(0)
+      expect(chain.getBreakerState('p1')!.state).toBe('CLOSED')
+    })
+
+    it('uses configured cooldownMs instead of error cooldown', async () => {
+      const p1 = mockErrorProvider(new TimeoutError('test'))
+      const p2 = mockProvider('backup')
+      const chain = new ProviderChain([p1, p2], ['primary', 'backup'], { cooldownMs: 5000 })
+
+      await chain.complete({ messages: [{ role: 'user', content: 'hello' }] })
+
+      const state = chain.getBreakerState('primary')!
+      expect(state.state).toBe('OPEN')
+      // Cooldown should be 5000, not the default 30000 for TimeoutError
+      expect(state.cooldownUntil).toBeLessThan(Date.now() + 10000)
+    })
+
+    it('disables probe recovery when probeEnabled is false', async () => {
+      const p1 = mockErrorProvider(new TimeoutError('test'))
+      const p2 = mockProvider('backup')
+      const chain = new ProviderChain([p1, p2], ['primary', 'backup'], {
+        cooldownMs: 60_000,
+        probeEnabled: false,
+      })
+
+      await chain.complete({ messages: [{ role: 'user', content: 'hello' }] })
+
+      const state = chain.getBreakerState('primary')!
+      expect(state.probeScheduledAt).toBe(0)
+    })
+  })
+
+  describe('HALF_OPEN probe recovery', () => {
+    it('transitions to HALF_OPEN when cooldown expires', async () => {
+      const p1 = mockErrorProvider(new TimeoutError('test'))
+      const p2 = mockProvider('backup')
+      const chain = new ProviderChain([p1, p2], ['primary', 'backup'], { cooldownMs: 50 })
+
+      await chain.complete({ messages: [{ role: 'user', content: 'hello' }] })
+      expect(chain.getBreakerState('primary')!.state).toBe('OPEN')
+
+      // Wait for cooldown to expire
+      await new Promise((r) => setTimeout(r, 100))
+
+      // activeProviders() should transition primary to HALF_OPEN.
+      // The HALF_OPEN attempt will fail (mockErrorProvider always fails),
+      // tripping breaker back to OPEN. But we can verify the transition
+      // by checking the breaker state was HALF_OPEN at some point.
+      // Instead, verify that primary was tried again (not skipped as OPEN):
+      // after cooldown, primary gets a chance and fails again.
+      await chain.complete({ messages: [{ role: 'user', content: 'hello' }] })
+      // Now primary should be OPEN again (HALF_OPEN attempt failed)
+      expect(chain.getBreakerState('primary')!.state).toBe('OPEN')
+      // failureCount is 2 because it was tried twice now
+      expect(chain.getBreakerState('primary')!.failureCount).toBe(2)
+    })
+
+    it('restores to CLOSED on successful probe', async () => {
+      let phase: 'initial' | 'probe' = 'initial'
+      const p1 = {
+        complete: vi.fn().mockImplementation(async () => {
+          if (phase === 'initial') throw new TimeoutError('test')
+          return {
+            content: 'recovered response',
+            usage: { promptTokens: 10, completionTokens: 5, totalTokens: 15 },
+            model: 'recovered',
+          }
+        }),
+        stream: vi.fn(),
+        embed: vi.fn().mockResolvedValue([0.1, 0.2, 0.3]),
+        getContextWindow: () => 8192,
+        setModel: vi.fn(),
+      }
+      const p2 = mockProvider('backup')
+      const chain = new ProviderChain([p1, p2], ['primary', 'backup'], { cooldownMs: 50 })
+
+      // First call: executeWithStrategy calls p1 twice (both fail) -> OPEN
+      await chain.complete({ messages: [{ role: 'user', content: 'hello' }] })
+      expect(chain.getBreakerState('primary')!.state).toBe('OPEN')
+
+      // Switch to probe mode so p1 will succeed
+      phase = 'probe'
+
+      // Wait for cooldown to expire
+      await new Promise((r) => setTimeout(r, 100))
+
+      // Second call: activeProviders() transitions to HALF_OPEN,
+      // executeWithStrategy tries p1 (both Strategy 1 + 2 succeed) -> CLOSED
+      const result = await chain.complete({ messages: [{ role: 'user', content: 'hello' }] })
+      expect(result.content).toBe('recovered response')
+      expect(chain.getBreakerState('primary')!.state).toBe('CLOSED')
+    })
   })
 })

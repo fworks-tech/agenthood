@@ -5,4 +5,5 @@ export interface ILLMProvider {
   stream(request: LLMRequest): Promise<AsyncGenerator<LLMChunk>>
   embed(text: string): Promise<number[]>
   getContextWindow(): number
+  setModel(model: string): void
 }

@@ -138,6 +138,10 @@ export class OllamaProvider implements ILLMProvider {
     return 8192
   }
 
+  setModel(model: string): void {
+    this.model = model
+  }
+
   async embed(text: string): Promise<number[]> {
     try {
       const response = await fetch(`${this.baseUrl}/api/embeddings`, {

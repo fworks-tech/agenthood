@@ -103,6 +103,10 @@ export class OpenAIProvider implements ILLMProvider {
     return 128000
   }
 
+  setModel(model: string): void {
+    this.model = model
+  }
+
   async embed(text: string): Promise<number[]> {
     try {
       const response = await this.client.embeddings.create({

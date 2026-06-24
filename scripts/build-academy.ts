@@ -71,7 +71,7 @@ function ensureDir(filePath: string): void {
   if (!existsSync(dir)) mkdirSync(dir, { recursive: true })
 }
 
-function rewriteLink(href: string, fileDir: string): string {
+function rewriteLink(href: string, fileDir: string, sourceIsIndex: boolean): string {
   if (href.startsWith('http://') || href.startsWith('https://') || href.startsWith('#')) {
     return href
   }
@@ -87,11 +87,12 @@ function rewriteLink(href: string, fileDir: string): string {
     const parts = fromFile.split('/')
     const filename = parts.pop()!
     const isIndex = filename === 'README.md' || filename === 'index.md'
+    const depthPrefix = sourceIsIndex ? '' : '../'
     let newPath: string
     if (isIndex) {
-      newPath = parts.join('/') + '/'
+      newPath = depthPrefix + parts.join('/') + '/'
     } else {
-      newPath = [...parts, filename.replace('.md', '')].join('/') + '/'
+      newPath = depthPrefix + [...parts, filename.replace('.md', '')].join('/') + '/'
     }
     return anchor ? newPath + '#' + anchor : newPath
   }
@@ -106,18 +107,17 @@ function convertMarkdown(filePath: string): void {
   const relPath = relative(join(ROOT, 'docs'), filePath)
   const dir = dirname(relPath)
   const fileDir = dir.split(sep).join('/')
+  const name = basename(filePath, '.md')
+  const isIndex = name === 'README' || name === 'index'
 
   const renderer = new Renderer()
   renderer.link = function ({ href, title, text }) {
-    const rewritten = rewriteLink(href, fileDir)
+    const rewritten = rewriteLink(href, fileDir, isIndex)
     const titleAttr = title ? ` title="${title}"` : ''
     return `<a href="${rewritten}"${titleAttr}>${text}</a>`
   }
 
   const html = marked.parse(content, { renderer, mangle: false, headerIds: true }) as string
-
-  const name = basename(filePath, '.md')
-  const isIndex = name === 'README' || name === 'index'
 
   const title = content.split('\n')[0]?.replace(/^#\s*/, '') || 'Agenthood Academy'
   const outPath = isIndex

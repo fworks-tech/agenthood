@@ -32,7 +32,22 @@ const COT_MARKERS = [
   'second,',
 ]
 
+/**
+ * Heuristic complexity scorer for LLM requests.
+ *
+ * Evaluates message count, tool count, and chain‑of‑thought markers
+ * to classify a request as low, medium, or high complexity.
+ * Used by LLMRouter.route() when strategy is 'dynamic'.
+ */
 export class ComplexityScorer {
+  /**
+   * Score a request and return the complexity tier.
+   *
+   * Rules:
+   * - high: >3 tools or system prompt contains chain‑of‑thought markers
+   * - medium: >5 messages or any tools present
+   * - low: else
+   */
   score(request: LLMRequest): ComplexityTier {
     const messageCount = request.messages.length
     const toolCount = request.tools?.length ?? 0
@@ -50,6 +65,17 @@ export class ComplexityScorer {
   }
 }
 
+/**
+ * Static router that creates and caches LLM providers.
+ *
+ * Supports three modes:
+ * - **create** — single provider or default provider chain
+ * - **createForMember** — per‑member provider chain with preferred + fallback
+ * - **route** — complexity‑based dynamic provider selection
+ *
+ * Provider modules are lazy‑loaded (dynamic import on first use),
+ * so importing LLMRouter does not pull in provider SDKs.
+ */
 export class LLMRouter {
   private static providerFactories: Record<string, ProviderFactory> = {
     anthropic: async (c) => {
@@ -74,6 +100,11 @@ export class LLMRouter {
   private static initPromises = new Map<string, Promise<ILLMProvider | null>>()
   private static config: LLMConfig = {}
 
+  /**
+   * Create a single provider or a default provider chain from config.
+   * If config specifies a known provider, returns that provider.
+   * Otherwise builds a ProviderChain with fallback order: groq → openai → ollama.
+   */
   static async create(config: LLMConfig): Promise<ILLMProvider> {
     if (config.providers && config.providers.length > 0) {
       return LLMRouter.fromConfig(config)
@@ -128,6 +159,11 @@ export class LLMRouter {
     )
   }
 
+  /**
+   * Create a per‑member provider chain with the member's preferred provider first,
+   * then fallback providers (groq, openai, ollama) in order.
+   * Used when running individual Society members via `agenthood run <member>`.
+   */
   static async createForMember(
     preferredProvider: ProviderName,
     config: LLMConfig,
@@ -175,6 +211,16 @@ export class LLMRouter {
     }
   }
 
+  /**
+   * Route a request to a provider based on complexity score.
+   *
+   * When strategy is 'dynamic', uses ComplexityScorer to select:
+   * - low → Groq (fast/cheap)
+   * - medium → configured provider or Groq
+   * - high → Anthropic (capable) or configured provider
+   *
+   * When strategy is 'static' (default), delegates to create().
+   */
   static async route(request: LLMRequest, config: LLMConfig): Promise<ILLMProvider> {
     LLMRouter.config = config
 
@@ -208,6 +254,11 @@ export class LLMRouter {
     }
   }
 
+  /**
+   * Get a cached provider instance or initialise it on first access.
+   * Deduplicates concurrent init requests so the same provider is
+   * only constructed once even if multiple callers race.
+   */
   private static async getOrInit(name: string): Promise<ILLMProvider | null> {
     if (LLMRouter.instances.has(name)) return LLMRouter.instances.get(name)!
     if (LLMRouter.initPromises.has(name)) return LLMRouter.initPromises.get(name)!
@@ -236,6 +287,11 @@ export class LLMRouter {
     }
   }
 
+  /**
+   * Build the default ProviderChain with fallback order: groq → openai → ollama.
+   * Used when config does not specify a single provider or when member
+   * provider initialisation fails.
+   */
   private static async buildDefaultChain(config?: LLMConfig): Promise<ILLMProvider> {
     const fallbackOrder: ProviderName[] = ['groq', 'openai', 'ollama']
     const providers = new Map<string, ILLMProvider>()

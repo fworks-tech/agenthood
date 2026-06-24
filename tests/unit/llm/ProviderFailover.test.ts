@@ -270,6 +270,35 @@ describe('ProviderChain', () => {
       expect(result.content).toBe('backup response')
     })
 
+    it('downgrades model on stream when primary model fails', async () => {
+      const modelErrors = new Map<string, Error>()
+      let currentModel = 'sonnet'
+      const provider = {
+        complete: vi.fn(),
+        stream: vi.fn().mockImplementation(async function* () {
+          if (modelErrors.has(currentModel)) throw modelErrors.get(currentModel)!
+          yield { delta: `${currentModel} chunk`, done: false }
+          yield { delta: '', done: true }
+        }),
+        embed: vi.fn().mockResolvedValue([0.1, 0.2, 0.3]),
+        getContextWindow: () => 8192,
+        setModel: vi.fn().mockImplementation((m: string) => { currentModel = m }),
+      }
+      modelErrors.set('sonnet', new Error('model overloaded'))
+
+      const modelMap = new Map([['anthropic', ['sonnet', 'haiku']]])
+      const backup = mockProvider('backup')
+      const chain = new ProviderChain([provider, backup], ['anthropic', 'backup'], undefined, modelMap)
+
+      const gen = await chain.stream({ messages: [{ role: 'user', content: 'hello' }] })
+      const chunks: string[] = []
+      for await (const chunk of gen) {
+        chunks.push(chunk.delta)
+      }
+      expect(chunks.join('')).toBe('haiku chunk')
+      expect(provider.setModel).toHaveBeenCalledWith('haiku')
+    })
+
     it('downgrades before failing over to next provider in chain', async () => {
       const modelErrors = new Map<string, Error>()
       let currentModel = 'sonnet'
@@ -365,6 +394,18 @@ describe('ProviderChain', () => {
       expect(state.state).toBe('OPEN')
       // Cooldown should be 5000, not the default 30000 for TimeoutError
       expect(state.cooldownUntil).toBeLessThan(Date.now() + 10000)
+    })
+
+    it('trips immediately on permanent error regardless of failureThreshold', async () => {
+      const p1 = mockErrorProvider(new AuthError('bad key'))
+      const p2 = mockProvider('backup')
+      const chain = new ProviderChain([p1, p2], ['primary', 'backup'], { failureThreshold: 5 })
+
+      await chain.complete({ messages: [{ role: 'user', content: 'hello' }] })
+
+      const state = chain.getBreakerState('primary')!
+      expect(state.state).toBe('OPEN')
+      expect(state.failureCount).toBe(1)
     })
 
     it('disables probe recovery when probeEnabled is false', async () => {

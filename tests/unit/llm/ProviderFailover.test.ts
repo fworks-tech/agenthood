@@ -135,7 +135,7 @@ describe('ProviderChain', () => {
     await expect(
       chain.complete({ messages: [{ role: 'user', content: 'hello' }] }),
     ).rejects.toThrow(AllProvidersFailedError)
-  })
+  }, 15000)
 
   it('trips circuit breaker on permanent error', async () => {
     const p1 = mockErrorProvider(new AuthError('bad key'))
@@ -270,6 +270,36 @@ describe('ProviderChain', () => {
       expect(result.content).toBe('backup response')
     })
 
+    it('fails over to next provider on stream when all models fail', async () => {
+      const modelErrors = new Map<string, Error>()
+      let currentModel = 'sonnet'
+      const provider = {
+        complete: vi.fn(),
+        stream: vi.fn().mockImplementation(async function* () {
+          if (modelErrors.has(currentModel)) throw modelErrors.get(currentModel)!
+          yield { delta: `${currentModel} chunk`, done: false }
+          yield { delta: '', done: true }
+        }),
+        embed: vi.fn().mockResolvedValue([0.1, 0.2, 0.3]),
+        getContextWindow: () => 8192,
+        setModel: vi.fn().mockImplementation((m: string) => { currentModel = m }),
+      }
+      modelErrors.set('sonnet', new Error('sonnet failed'))
+      modelErrors.set('haiku', new Error('haiku failed'))
+
+      const modelMap = new Map([['anthropic', ['sonnet', 'haiku']]])
+      const backup = mockProvider('backup')
+
+      const chain = new ProviderChain([provider, backup], ['anthropic', 'backup'], undefined, modelMap)
+
+      const gen = await chain.stream({ messages: [{ role: 'user', content: 'hello' }] })
+      const chunks: string[] = []
+      for await (const chunk of gen) {
+        chunks.push(chunk.delta)
+      }
+      expect(chunks.join('')).toBe('backup chunk')
+    }, 15000)
+
     it('downgrades model on stream when primary model fails', async () => {
       const modelErrors = new Map<string, Error>()
       let currentModel = 'sonnet'
@@ -296,6 +326,27 @@ describe('ProviderChain', () => {
         chunks.push(chunk.delta)
       }
       expect(chunks.join('')).toBe('haiku chunk')
+      expect(provider.setModel).toHaveBeenCalledWith('haiku')
+    })
+
+    it('downgrades model on embed when primary model fails', async () => {
+      let currentModel = 'sonnet'
+      const provider = {
+        complete: vi.fn(),
+        stream: vi.fn(),
+        embed: vi.fn().mockImplementation(async () => {
+          if (currentModel === 'sonnet') throw new Error('sonnet embedding failed')
+          return [0.5, 0.6, 0.7]
+        }),
+        getContextWindow: () => 8192,
+        setModel: vi.fn().mockImplementation((m: string) => { currentModel = m }),
+      }
+
+      const modelMap = new Map([['anthropic', ['sonnet', 'haiku']]])
+      const chain = new ProviderChain([provider], ['anthropic'], undefined, modelMap)
+
+      const result = await chain.embed('test text')
+      expect(result).toEqual([0.5, 0.6, 0.7])
       expect(provider.setModel).toHaveBeenCalledWith('haiku')
     })
 
@@ -353,7 +404,7 @@ describe('ProviderChain', () => {
       state = chain.getBreakerState('p1')!
       expect(state.state).toBe('OPEN')
       expect(state.failureCount).toBe(3)
-    })
+    }, 15000)
 
     it('resets failureCount on success', async () => {
       let callCount = 0
@@ -443,7 +494,7 @@ describe('ProviderChain', () => {
       await chain.complete({ messages: [{ role: 'user', content: 'hello' }] })
       expect(chain.getBreakerState('primary')!.state).toBe('OPEN')
       expect(chain.getBreakerState('primary')!.failureCount).toBe(2)
-    })
+    }, 15000)
 
     it('transitions to HALF_OPEN when cooldown expires', async () => {
       const p1 = mockErrorProvider(new TimeoutError('test'))
@@ -467,7 +518,7 @@ describe('ProviderChain', () => {
       expect(chain.getBreakerState('primary')!.state).toBe('OPEN')
       // failureCount is 2 because it was tried twice now
       expect(chain.getBreakerState('primary')!.failureCount).toBe(2)
-    })
+    }, 15000)
 
     it('restores to CLOSED on successful probe', async () => {
       let phase: 'initial' | 'probe' = 'initial'

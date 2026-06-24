@@ -101,11 +101,19 @@ CLOSED      → Provider restored
 OPEN        → Back to bypass
 ```
 
+The circuit breaker is configurable per chain:
+
+| Parameter | Default | Description |
+|-----------|---------|-------------|
+| `failureThreshold` | 1 | Consecutive failures before circuit opens. Permanent errors (auth, payment, model_not_found) always open immediately regardless. |
+| `cooldownMs` | Error-specific | Override the cooldown duration in ms (e.g., `5000` to wait 5s before probe). |
+| `probeEnabled` | `true` | When `false`, disables preemptive probe recovery. Providers still recover naturally when cooldown expires. |
+
 Five recovery strategies are available for sustained failures:
 1. **Immediate retry** — for transient network blips
-2. **Exponential backoff** — 3 attempts with increasing delay
+2. **Exponential backoff** — up to 3 attempts with increasing delay (`1000ms`, `2000ms`)
 3. **Provider rotation** — move to next in chain
-4. **Model downgrade** — switch to cheaper/faster model on same provider
+4. **Model downgrade** — switch to cheaper/faster model on same provider; applies to `complete()`, `stream()`, and `embed()`
 5. **Human escalation** — all providers exhausted, alert the human
 
 ---

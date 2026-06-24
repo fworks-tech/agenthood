@@ -104,13 +104,16 @@ export class AllProvidersFailedError extends Error {
 export class ProviderChain implements ILLMProvider {
   private circuitBreakers = new Map<string, CircuitBreakerState>()
   private providerNames: string[]
+  readonly modelMap: Map<string, string[]>
 
   constructor(
     private providers: ILLMProvider[],
     providerNames?: string[],
     private readonly chainConfig: ProviderChainConfig = {},
+    modelMap?: Map<string, string[]>,
   ) {
     this.providerNames = providerNames ?? providers.map((p) => p.constructor.name.replace('Provider', '').toLowerCase())
+    this.modelMap = modelMap ?? new Map()
     for (const name of this.providerNames) {
       this.circuitBreakers.set(name, this.freshState())
     }
@@ -130,12 +133,7 @@ export class ProviderChain implements ILLMProvider {
       const breaker = this.circuitBreakers.get(name)!
 
       if (breaker.state === 'OPEN') {
-        // Check if cooldown expired → move to HALF_OPEN
-        if (Date.now() >= breaker.cooldownUntil) {
-          breaker.state = 'HALF_OPEN'
-        } else {
-          continue
-        }
+        continue
       }
 
       try {
@@ -176,11 +174,7 @@ export class ProviderChain implements ILLMProvider {
       const breaker = this.circuitBreakers.get(name)!
 
       if (breaker.state === 'OPEN') {
-        if (Date.now() >= breaker.cooldownUntil) {
-          breaker.state = 'HALF_OPEN'
-        } else {
-          continue
-        }
+        continue
       }
 
       try {
@@ -239,6 +233,7 @@ export class ProviderChain implements ILLMProvider {
     providers: Map<string, ILLMProvider>,
     preferred: string,
     fallbackOrder: string[],
+    modelMap?: Map<string, string[]>,
   ): { chain: ProviderChain; names: string[] } {
     // Preferred first, then the rest in fallbackOrder, deduplicated
     const ordered = [preferred, ...fallbackOrder.filter((f) => f !== preferred)]
@@ -253,7 +248,7 @@ export class ProviderChain implements ILLMProvider {
       }
     }
 
-    return { chain: new ProviderChain(available, names), names }
+    return { chain: new ProviderChain(available, names, undefined, modelMap), names }
   }
 
   // -----------------------------------------------------------------------
@@ -287,7 +282,23 @@ export class ProviderChain implements ILLMProvider {
     }
 
     // Strategy 3: provider rotation is handled by the caller loop
-    // Strategy 4: model downgrade — not yet implemented per-provider
+
+    // Strategy 4: model downgrade — try fallback models on same provider
+    const name = this.providerName(provider)
+    const models = this.modelMap.get(name)
+    if (models && models.length > 1) {
+      for (const model of models.slice(1)) {
+        try {
+          provider.setModel(model)
+          return await provider.complete(request)
+        } catch (err) {
+          lastError = err
+          const classified = classifyError(err)
+          if (classified.permanent) break
+        }
+      }
+    }
+
     throw lastError
   }
 
@@ -305,27 +316,42 @@ export class ProviderChain implements ILLMProvider {
     if (!breaker) return
 
     breaker.failureCount++
-    breaker.state = 'OPEN'
-    breaker.cooldownUntil = cooldownMs === Infinity ? Infinity : Date.now() + cooldownMs
+    const threshold = this.chainConfig.failureThreshold ?? 1
+    if (breaker.failureCount < threshold) return
 
-    // Schedule a probe 30s before cooldown expiry
-    if (cooldownMs > 30_000 && cooldownMs !== Infinity) {
-      breaker.probeScheduledAt = Date.now() + cooldownMs - 30_000
+    breaker.state = 'OPEN'
+    const effectiveCooldown = cooldownMs === Infinity
+      ? Infinity
+      : (this.chainConfig.cooldownMs ?? cooldownMs)
+    breaker.cooldownUntil = effectiveCooldown === Infinity ? Infinity : Date.now() + effectiveCooldown
+
+    if (this.chainConfig.probeEnabled ?? true) {
+      if (effectiveCooldown > 30_000 && effectiveCooldown !== Infinity) {
+        breaker.probeScheduledAt = Date.now() + effectiveCooldown - 30_000
+      } else {
+        breaker.probeScheduledAt = 0
+      }
     } else {
       breaker.probeScheduledAt = 0
     }
   }
 
   private activeProviders(): ILLMProvider[] {
-    // Run probe recovery for any provider whose probe time has arrived
     for (const [, breaker] of this.circuitBreakers) {
-      if (
-        breaker.state === 'OPEN' &&
-        breaker.probeScheduledAt > 0 &&
-        Date.now() >= breaker.probeScheduledAt
-      ) {
+      if (breaker.state !== 'OPEN') continue
+
+      // Check 1: probe recovery (30s before cooldown expiry)
+      const probeEnabled = this.chainConfig.probeEnabled ?? true
+      if (probeEnabled && breaker.probeScheduledAt > 0 && Date.now() >= breaker.probeScheduledAt) {
         breaker.state = 'HALF_OPEN'
         breaker.probeScheduledAt = 0
+        continue
+      }
+
+      // Check 2: cooldown expired naturally — allow a probe attempt
+      if (breaker.cooldownUntil > 0 && breaker.cooldownUntil !== Infinity && Date.now() >= breaker.cooldownUntil) {
+        breaker.state = 'HALF_OPEN'
+        breaker.cooldownUntil = 0
       }
     }
 
@@ -352,6 +378,11 @@ export class ProviderChain implements ILLMProvider {
     return this.circuitBreakers.get(name)
   }
 
+  setModel(model: string): void {
+    const first = this.providers[0]
+    if (first) first.setModel(model)
+  }
+
   getContextWindow(): number {
     return this.providers[0]?.getContextWindow() ?? 8192
   }
@@ -376,6 +407,9 @@ function firstChunkGenerator(
 export interface ProviderChainConfig {
   maxRetries?: number
   backoffBaseMs?: number
+  failureThreshold?: number
+  cooldownMs?: number
+  probeEnabled?: boolean
 }
 
 function sleep(ms: number): Promise<void> {

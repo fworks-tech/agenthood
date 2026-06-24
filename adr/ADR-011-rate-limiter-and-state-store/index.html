@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ADR-011: Rate Limiter and State Store — Agenthood Academy</title>
+<style>
+body {
+  max-width: 42rem; margin: 2rem auto; padding: 0 1rem 4rem;
+  font-family: system-ui, -apple-system, sans-serif;
+  line-height: 1.75; color: #f4f4f5; background: #09090b; font-size: 1rem;
+}
+h1, h2, h3 { line-height: 1.3; margin-top: 2rem; color: #ffffff; }
+h1 { font-size: 1.75rem; border-bottom: 2px solid #27272a; padding-bottom: .5rem; }
+h2 { font-size: 1.35rem; }
+h3 { font-size: 1.1rem; }
+a { color: #a78bfa; }
+a:hover { text-decoration: underline; }
+pre, code { font-size: .9em; background: #18181b; border-radius: 6px; }
+code { padding: .15em .3em; border: 1px solid #27272a; }
+pre { padding: 1rem; overflow-x: auto; border: 1px solid #27272a; }
+pre code { background: none; padding: 0; border: none; }
+blockquote {
+  margin: 1rem 0; padding: .5rem 1rem;
+  border-left: 4px solid #a78bfa; background: #18181b;
+}
+table { border-collapse: collapse; width: 100%; margin: 1rem 0; }
+th, td { border: 1px solid #27272a; padding: .5rem; text-align: left; }
+th { background: #18181b; font-weight: 600; }
+ol, ul { padding-left: 1.5rem; }
+li { margin: .25rem 0; }
+hr { border: none; border-top: 1px solid #27272a; margin: 2rem 0; }
+main { min-height: 60vh; }
+</style>
+</head>
+<body>
+<main><h1>ADR-011: Rate Limiter and State Store</h1>
+<p><strong>Date:</strong> 2026-06-24
+<strong>Status:</strong> Accepted</p>
+<h2>Context</h2>
+<p>Agenthood needs rate limiting to protect against provider API rate limits and to prevent runaway agent loops from overwhelming external services. The ProviderFailover module (<code>src/llm/ProviderFailover.ts</code>) already classifies 429 (rate limited) errors and applies circuit breaker cooldowns, but the current implementation is ad-hoc:</p>
+<ul>
+<li>Cooldowns are in-memory only — lost on restart</li>
+<li>No per-tool or per-agent rate limiting — only per-provider circuit breaker states</li>
+<li>No distinction between provider-side rate limits and agent-side rate limit enforcement</li>
+<li>Retry-After header parsing is not implemented (uses hardcoded 60s default for 429s)</li>
+</ul>
+<p>Academy articles reference ADR-011 as a stub, and the v2.0.0 Foundation Audit identified this gap.</p>
+<h2>Decision</h2>
+<p>Rate limiting is handled at two layers, with a clear separation of concerns:</p>
+<h3>Layer 1: Provider-level circuit breaker (current, in ProviderFailover)</h3>
+<p>The existing per-provider circuit breaker (<code>src/llm/ProviderFailover.ts</code>) remains the first line of defense. It:</p>
+<ul>
+<li>Classifies provider errors including 429 (rate_limited)</li>
+<li>Trips a circuit breaker with configurable cooldown</li>
+<li>Probes for recovery before cooldown expiry</li>
+<li>Uses hardcoded defaults (60s for 429) until Retry-After header parsing is added</li>
+</ul>
+<p>This layer is in-memory only. Circuit state persistence across restarts is deferred (see Open Questions).</p>
+<h3>Layer 2: Agent-level rate limiter</h3>
+<p>A new <code>RateLimiter</code> class in <code>src/core/RateLimiter.ts</code> enforces outbound rate limits:</p>
+<ul>
+<li><strong>Algorithm:</strong> Sliding window log — tracks request timestamps per provider, rejects if window exceeds threshold</li>
+<li><strong>Window:</strong> 60 seconds (configurable per provider)</li>
+<li><strong>Threshold:</strong> Default 30 requests per minute (configurable via <code>LLMConfig.failover</code>)</li>
+<li><strong>Scope:</strong> Per-provider, not per-tool or per-agent — a single agent using one provider shares the same window</li>
+<li><strong>State:</strong> In-memory only (matches circuit breaker pattern; persistence deferred)</li>
+<li><strong>Relationship to circuit breaker:</strong> RateLimiter prevents 429s (proactive), circuit breaker handles them when they happen (reactive)</li>
+</ul>
+<h3>State store</h3>
+<p>Both layers use in-memory state. The circuit breaker states and rate limiter windows are stored in <code>Map&lt;string, CircuitBreakerState&gt;</code> and <code>Map&lt;string, number[]&gt;</code> respectively, inside the relevant class instances.</p>
+<p><strong>Why not Redis or LanceDB?</strong></p>
+<ul>
+<li>No external infrastructure (consistent with ADR-008 zero-infrastructure goal)</li>
+<li>Circuit breaker state is ephemeral by nature — a restart resets it, which is acceptable</li>
+<li>Rate limiter windows are high-frequency, high-churn data — not suitable for persistent storage</li>
+<li>LanceDB (ADR-010) is optimized for vector storage, not for high-throughput counter data</li>
+</ul>
+<h2>Alternatives Considered</h2>
+<table>
+<thead>
+<tr>
+<th>Option</th>
+<th>Pros</th>
+<th>Cons</th>
+<th>Why Rejected</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Sliding window log (chosen)</td>
+<td>Precise; no clock skew issues; easy to reason about</td>
+<td>O(window) memory per provider</td>
+<td>Acceptable — max ~60 timestamps per provider per minute</td>
+</tr>
+<tr>
+<td>Token bucket</td>
+<td>Constant memory per provider; burst-friendly</td>
+<td>Harder to tune bucket size/refill rate; clock-dependent</td>
+<td>Simplicity favors sliding window for v2</td>
+</tr>
+<tr>
+<td>Fixed window counter</td>
+<td>Minimal memory; simple implement</td>
+<td>Thundering herd at window boundary (all requests reset at once)</td>
+<td>Burst behavior at boundary is undesirable</td>
+</tr>
+<tr>
+<td>Leaky bucket</td>
+<td>Smooth egress; predictable</td>
+<td>Underutilizes capacity during low traffic</td>
+<td>Overly conservative for agent workloads</td>
+</tr>
+<tr>
+<td>Redis-backed</td>
+<td>Shared state across processes; persistent</td>
+<td>External dependency; operations burden</td>
+<td>Violates ADR-008 zero-infrastructure constraint</td>
+</tr>
+</tbody></table>
+<h2>Consequences</h2>
+<p><strong>Easier:</strong></p>
+<ul>
+<li>Rate limiting and circuit breaking work together: limiter prevents, breaker recovers</li>
+<li>No infrastructure dependencies — all state is in-memory</li>
+<li>Sliding window is simple to implement and test</li>
+<li>Configurable thresholds allow operators to tune per-provider</li>
+</ul>
+<p><strong>Harder:</strong></p>
+<ul>
+<li>Restart resets all circuit breaker and rate limiter state (acceptable for v2)</li>
+<li>No cross-process rate limiting (not a concern for single-process CLI runtime)</li>
+<li>Provider-side Retry-After headers are not yet parsed (hardcoded defaults used instead)</li>
+</ul>
+<p><strong>Deferred:</strong></p>
+<ul>
+<li>Circuit breaker state persistence (beyond session)</li>
+<li>Retry-After header parsing from provider responses</li>
+<li>Per-tool or per-agent rate limit scopes (only per-provider)</li>
+</ul>
+<h2>References</h2>
+<ul>
+<li><a href="https://github.com/fworks-tech/agenthood/blob/main/src/llm/ProviderFailover.ts">ProviderFailover.ts</a> — circuit breaker implementation</li>
+<li><a href="../ADR-008-typescript-runtime-over-python/">ADR-008</a> — TypeScript runtime constraint</li>
+<li><a href="../ADR-009-groq-as-default-llm-provider/">ADR-009</a> — default LLM provider</li>
+<li><a href="../ADR-010-lancedb-for-vector-storage/">ADR-010</a> — vector store (contrast with rate limiter state store)</li>
+<li><a href="../../academy/level-2-agent-essentials/10-action-planning/">Academy: Action Planning</a> — original ADR-011 stub reference</li>
+</ul>
+</main>
+</body>
+</html>

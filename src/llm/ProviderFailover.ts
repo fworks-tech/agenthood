@@ -26,12 +26,18 @@ import {
 // Circuit breaker state
 // ---------------------------------------------------------------------------
 
+/** CLOSED = normal, OPEN = cooldown, HALF_OPEN = probe in flight */
 type CircuitState = 'CLOSED' | 'OPEN' | 'HALF_OPEN'
 
+/** Per‑provider circuit breaker state, stored in‑memory. */
 interface CircuitBreakerState {
+  /** Current breaker state */
   state: CircuitState
+  /** Consecutive failure count since last CLOSED */
   failureCount: number
+  /** Timestamp after which this provider may be probed again */
   cooldownUntil: number
+  /** Timestamp for preemptive probe — 30s before cooldown expiry */
   probeScheduledAt: number
 }
 
@@ -39,14 +45,30 @@ interface CircuitBreakerState {
 // Failure classification
 // ---------------------------------------------------------------------------
 
+/**
+ * Structured error classification returned by classifyError().
+ * Every provider error maps to one of 7 categories with explicit
+ * retryability and cooldown semantics.
+ */
 export interface ClassifiedError {
+  /** Machine‑readable error category */
   category: 'auth' | 'payment' | 'rate_limited' | 'timeout' | 'unavailable' | 'model_not_found' | 'unknown'
+  /** Whether the provider should be retried after cooldown */
   retryable: boolean
-  retryAfter: number  // seconds
-  cooldownMs: number  // ms to cool down before probe
+  /** Suggested seconds to wait before retry (from Retry-After header or default) */
+  retryAfter: number
+  /** Milliseconds to cool down before probe */
+  cooldownMs: number
+  /** If true, the provider is skipped permanently (auth, payment, model_not_found) */
   permanent: boolean
 }
 
+/**
+ * Classify an error into a structured category with retry/cooldown semantics.
+ * Checks typed error classes first (AuthError, RateLimitedError, etc.),
+ * then falls back to HTTP status codes embedded in error messages,
+ * then returns 'unknown' as the default.
+ */
 export function classifyError(err: unknown): ClassifiedError {
   if (err instanceof AuthError) {
     return { category: 'auth', retryable: false, retryAfter: 0, cooldownMs: 0, permanent: true }
@@ -87,7 +109,13 @@ export function classifyError(err: unknown): ClassifiedError {
 // AllProvidersFailedError
 // ---------------------------------------------------------------------------
 
+/**
+ * Thrown when every provider in the chain has been exhausted.
+ * Carries the category of the most recent failure so callers can
+ * decide whether to escalate or provide a fallback experience.
+ */
 export class AllProvidersFailedError extends Error {
+  /** The category of the most recent failure */
   readonly category: string
 
   constructor(errors: string[], category: string = 'unknown') {
@@ -101,11 +129,29 @@ export class AllProvidersFailedError extends Error {
 // ProviderChain
 // ---------------------------------------------------------------------------
 
+/**
+ * Orchestrates multiple LLM providers with failover, circuit breaker,
+ * failure classification, and probe recovery.
+ *
+ * Usage:
+ * ```
+ * const chain = new ProviderChain([groq, openai, ollama], ['groq', 'openai', 'ollama'])
+ * const response = await chain.complete(request)
+ * ```
+ *
+ * If the first provider fails, the chain tries the next, applying
+ * retry strategies and circuit breaker state per provider.
+ */
 export class ProviderChain implements ILLMProvider {
   private circuitBreakers = new Map<string, CircuitBreakerState>()
   private providerNames: string[]
   readonly modelMap: Map<string, string[]>
 
+  /**
+   * @param providers - Ordered list of provider instances to try
+   * @param providerNames - Names matching providers order (for breaker state lookup)
+   * @param chainConfig - Optional retry/backoff configuration
+   */
   constructor(
     private providers: ILLMProvider[],
     providerNames?: string[],
@@ -119,6 +165,17 @@ export class ProviderChain implements ILLMProvider {
     }
   }
 
+  /**
+   * Complete an LLM request by trying each active provider in order.
+   *
+   * For each provider:
+   * - Skips OPEN providers (unless cooldown expired → HALF_OPEN)
+   * - Applies retry strategies (immediate retry, exponential backoff)
+   * - On failure: classifies the error, trips breaker, moves to next provider
+   * - On success: resets breaker to CLOSED
+   *
+   * @throws AllProvidersFailedError when every provider has been exhausted
+   */
   async complete(request: LLMRequest): Promise<LLMResponse> {
     const errors: string[] = []
     const active = this.activeProviders()
@@ -164,7 +221,12 @@ export class ProviderChain implements ILLMProvider {
     throw new AllProvidersFailedError(errors)
   }
 
-  /** Try each active provider in order, with model downgrade on failure. */
+  /**
+   * Streaming variant of complete(). Eagerly fetches the first chunk
+   * to surface initialisation errors (auth, model_not_found) before
+   * handing the generator to the caller.
+   * Includes model downgrade on failure.
+   */
   async stream(request: LLMRequest): Promise<AsyncGenerator<LLMChunk>> {
     const errors: string[] = []
     const active = this.activeProviders()
@@ -233,7 +295,10 @@ export class ProviderChain implements ILLMProvider {
     throw new AllProvidersFailedError(errors)
   }
 
-  /** Try each active provider in order, with model downgrade on failure. */
+  /**
+   * Generate embeddings trying each active provider with model downgrade on failure.
+   * Trips the circuit breaker on permanent errors.
+   */
   async embed(text: string): Promise<number[]> {
     const errors: string[] = []
     const active = this.activeProviders()
@@ -281,7 +346,10 @@ export class ProviderChain implements ILLMProvider {
     throw new AllProvidersFailedError(errors)
   }
 
-  /** Build a failover chain for a given member. */
+  /**
+   * Build a failover chain for a given member from a map of available providers.
+   * The preferred provider is first, followed by the fallback order (deduplicated).
+   */
   static buildChain(
     providers: Map<string, ILLMProvider>,
     preferred: string,
@@ -308,6 +376,14 @@ export class ProviderChain implements ILLMProvider {
   // Private helpers
   // -----------------------------------------------------------------------
 
+  /**
+   * Execute a request against a single provider with retry strategies.
+   *
+   * Strategy 1: immediate retry
+   * Strategy 2: exponential backoff (1000 × 2^index ms delay)
+   * Strategy 3: provider rotation (handled by the caller loop)
+   * Strategy 4: model downgrade — not yet implemented (#217)
+   */
   private async executeWithStrategy(
     provider: ILLMProvider,
     request: LLMRequest,
@@ -352,6 +428,7 @@ export class ProviderChain implements ILLMProvider {
     throw lastError
   }
 
+  /** Reset the circuit breaker to CLOSED on successful completion. */
   private onSuccess(name: string): void {
     const breaker = this.circuitBreakers.get(name)
     if (!breaker) return
@@ -400,6 +477,11 @@ export class ProviderChain implements ILLMProvider {
     }
   }
 
+  /**
+   * Return providers whose circuit breaker is not OPEN.
+   * Runs probe recovery first — any provider past its probe time is
+   * transitioned to HALF_OPEN, allowing it to be tried again.
+   */
   private activeProviders(): ILLMProvider[] {
     for (const [, breaker] of this.circuitBreakers) {
       if (breaker.state !== 'OPEN') continue
@@ -426,6 +508,7 @@ export class ProviderChain implements ILLMProvider {
     })
   }
 
+  /** Look up the human‑readable name for a provider instance. */
   private providerName(provider: ILLMProvider): string {
     const idx = this.providers.indexOf(provider)
     return idx >= 0 && idx < this.providerNames.length
@@ -433,11 +516,15 @@ export class ProviderChain implements ILLMProvider {
       : provider.constructor.name.replace('Provider', '').toLowerCase()
   }
 
+  /** Return a fresh circuit breaker in CLOSED state with zeroed timers. */
   private freshState(): CircuitBreakerState {
     return { state: 'CLOSED', failureCount: 0, cooldownUntil: 0, probeScheduledAt: 0 }
   }
 
-  /** Exposed for testing */
+  /**
+   * Return the current circuit breaker state for a named provider.
+   * Exposed for testing — not part of ILLMProvider.
+   */
   getBreakerState(name: string): CircuitBreakerState | undefined {
     return this.circuitBreakers.get(name)
   }
@@ -447,17 +534,18 @@ export class ProviderChain implements ILLMProvider {
     if (first) first.setModel(model)
   }
 
+  /** Return the context window of the first (preferred) provider. */
   getContextWindow(): number {
     return this.providers[0]?.getContextWindow() ?? 8192
   }
 }
 
-/** AsyncGenerator that yields no values and completes immediately. */
+/** AsyncGenerator that yields no values and completes immediately — used for empty stream responses. */
 function emptyGenerator(): AsyncGenerator<LLMChunk> {
   return (async function* () {})()
 }
 
-/** AsyncGenerator that yields a first chunk then delegates to `rest`. */
+/** AsyncGenerator that yields a first chunk then delegates to `rest` — used for eager first‑chunk detection in stream(). */
 function firstChunkGenerator(
   first: LLMChunk,
   rest: AsyncGenerator<LLMChunk>,

@@ -9,6 +9,7 @@ const SRC_DIRS = ['docs/academy', 'docs/adr']
 const OUT_DIR = join(ROOT, 'site')
 const GITHUB_BLOB = 'https://github.com/fworks-tech/agenthood/blob/main'
 
+/** Recursively walk a directory and return all `.md` file paths. */
 function walk(dir: string): string[] {
   const files: string[] = []
   for (const entry of readdirSync(dir)) {
@@ -51,6 +52,7 @@ hr { border: none; border-top: 1px solid #27272a; margin: 2rem 0; }
 main { min-height: 60vh; }
 `
 
+/** Wrap HTML body content in a full document with dark‑theme styling and a titled <head>. */
 export function htmlTemplate(title: string, body: string): string {
   return `<!DOCTYPE html>
 <html lang="en">
@@ -66,11 +68,24 @@ export function htmlTemplate(title: string, body: string): string {
 </html>`
 }
 
+/** Create the parent directory for a file path if it does not already exist. */
 function ensureDir(filePath: string): void {
   const dir = dirname(filePath)
   if (!existsSync(dir)) mkdirSync(dir, { recursive: true })
 }
 
+/**
+ * Rewrite a markdown link href to its HTML equivalent.
+ *
+ * - Absolute URLs (http/https) and anchor‑only hrefs (#) → pass through
+ * - Internal `.md` links within docs/ → converted to directory‑style HTML paths
+ *   (e.g. `../foo.md` → `foo/` for index sources, `../foo/` for non‑index)
+ * - Links outside docs/ → rewritten as GitHub blob URLs
+ *
+ * @param href - The original link target from markdown
+ * @param fileDir - Directory of the source file relative to docs/
+ * @param sourceIsIndex - True if the source file is a README or index.md
+ */
 export function rewriteLink(href: string, fileDir: string, sourceIsIndex: boolean): string {
   if (href.startsWith('http://') || href.startsWith('https://') || href.startsWith('#')) {
     return href
@@ -101,6 +116,7 @@ export function rewriteLink(href: string, fileDir: string, sourceIsIndex: boolea
   return GITHUB_BLOB + '/' + ghPath + (anchor ? '#' + anchor : '')
 }
 
+/** Convert a single markdown file to HTML and write it to the site output directory. */
 function convertMarkdown(filePath: string): void {
   const content = readFileSync(filePath, 'utf-8')
 
@@ -129,6 +145,7 @@ function convertMarkdown(filePath: string): void {
   console.log('  →', relative(OUT_DIR, outPath))
 }
 
+/** Build the entire Academy site: walk source dirs, convert all markdown files, write to site/. */
 function build(): void {
   console.log('Building Academy site...\n')
 
@@ -149,6 +166,7 @@ if (isMain()) {
   build()
 }
 
+/** Guard that returns true only when this module is executed directly (not imported for tests). */
 function isMain(): boolean {
   try {
     return fileURLToPath(import.meta.url) === resolve(process.argv[1] ?? '')

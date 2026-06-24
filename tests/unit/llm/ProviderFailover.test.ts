@@ -163,6 +163,18 @@ describe('ProviderChain', () => {
     expect(chain).toBeInstanceOf(ProviderChain)
   })
 
+  it('buildChain passes modelMap to constructed chain', () => {
+    const providers = new Map<string, ILLMProvider>([
+      ['anthropic', mockProvider('anthropic', false, ['sonnet', 'haiku'])],
+      ['groq', mockProvider('groq')],
+    ])
+    const modelMap = new Map([['anthropic', ['sonnet', 'haiku']]])
+
+    const { chain } = ProviderChain.buildChain(providers, 'anthropic', ['groq'], modelMap)
+
+    expect(chain.modelMap.get('anthropic')).toEqual(['sonnet', 'haiku'])
+  })
+
   it('stream fails over to next provider', async () => {
     const p1 = mockProvider('first', true)
     const p2 = mockProvider('second')
@@ -245,6 +257,17 @@ describe('ProviderChain', () => {
 
       const result = await chain.complete({ messages: [{ role: 'user', content: 'hello' }] })
       expect(result.content).toBe('p2 response')
+    })
+
+    it('skips model downgrade when modelMap has no fallback models', async () => {
+      const primary = mockProvider('primary', true, ['only-model'])
+      const backup = mockProvider('backup')
+      const modelMap = new Map([['primary', ['only-model']]])
+
+      const chain = new ProviderChain([primary, backup], ['primary', 'backup'], undefined, modelMap)
+
+      const result = await chain.complete({ messages: [{ role: 'user', content: 'hello' }] })
+      expect(result.content).toBe('backup response')
     })
 
     it('downgrades before failing over to next provider in chain', async () => {
@@ -360,6 +383,27 @@ describe('ProviderChain', () => {
   })
 
   describe('HALF_OPEN probe recovery', () => {
+    it('recovers via cooldown expiry when probeEnabled is false', async () => {
+      const p1 = mockErrorProvider(new TimeoutError('test'))
+      const p2 = mockProvider('backup')
+      const chain = new ProviderChain([p1, p2], ['primary', 'backup'], {
+        cooldownMs: 50,
+        probeEnabled: false,
+      })
+
+      // First call: primary fails -> OPEN (probeScheduledAt = 0)
+      await chain.complete({ messages: [{ role: 'user', content: 'hello' }] })
+      expect(chain.getBreakerState('primary')!.probeScheduledAt).toBe(0)
+
+      // Wait for cooldown to expire
+      await new Promise((r) => setTimeout(r, 100))
+
+      // Second call: cooldown expiry -> HALF_OPEN -> primary is tried again -> fails
+      await chain.complete({ messages: [{ role: 'user', content: 'hello' }] })
+      expect(chain.getBreakerState('primary')!.state).toBe('OPEN')
+      expect(chain.getBreakerState('primary')!.failureCount).toBe(2)
+    })
+
     it('transitions to HALF_OPEN when cooldown expires', async () => {
       const p1 = mockErrorProvider(new TimeoutError('test'))
       const p2 = mockProvider('backup')

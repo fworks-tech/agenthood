@@ -69,10 +69,23 @@ export interface RoutingConfig {
   strategy?: 'static' | 'dynamic'
 }
 
+export interface ProviderEntry {
+  name: string
+  model?: string
+  apiKey?: string
+  baseUrl?: string
+  models?: string[]
+  priority?: number
+}
+
 export interface LLMConfig {
   provider?: string
   model?: string
   baseUrl?: string
   apiKey?: string
   routing?: RoutingConfig
+  providers?: ProviderEntry[]
+  failureThreshold?: number
+  cooldownMs?: number
+  probeEnabled?: boolean
 }

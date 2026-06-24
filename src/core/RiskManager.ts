@@ -1,13 +1,20 @@
 import type { ISkill } from '../skills/ISkill.js'
 
+/** Per-tool constraints that define acceptable execution boundaries. */
 export interface RiskPolicy {
+  /** Glob patterns for paths a tool is allowed to write to (e.g. src/**) */
   allowedPaths: string[]
+  /** Glob patterns for paths a tool must never write to (e.g. .git/**) */
   blockedPaths: string[]
+  /** Glob patterns for hosts a web tool is allowed to call (e.g. api.github.com) */
   allowedHosts: string[]
+  /** Maximum wall-clock time per tool invocation in milliseconds */
   maxExecutionMs: number
+  /** Maximum file content size in bytes that a write tool may produce */
   maxFileSizeBytes: number
 }
 
+/** A structured record of a policy violation — returned instead of thrown so callers can audit decisions. */
 export interface RiskViolation {
   type: 'path' | 'host' | 'timeout' | 'filesize'
   skill: string
@@ -25,6 +32,10 @@ const DEFAULT_POLICY: RiskPolicy = {
   maxFileSizeBytes: 5 * 1024 * 1024,
 }
 
+/**
+ * Simple glob matcher supporting * (single segment) and ** (multi-segment).
+ * Uses backtracking so ** matches across directory boundaries.
+ */
 function matchesGlob(pattern: string, value: string): boolean {
   if (pattern === '**') return true
   const parts = pattern.split('/')
@@ -56,9 +67,31 @@ function matchesGlob(pattern: string, value: string): boolean {
   return pi >= parts.length
 }
 
+/**
+ * Mediator that enforces per-tool safety constraints before execution.
+ *
+ * Two responsibilities:
+ * 1. validate — Check tool input against the policy (paths, hosts, file size)
+ *    and return a structured violation instead of throwing, so callers can log
+ *    or escalate decisions.
+ * 2. wrap — Enforce execution timeout by racing the executor against a timer.
+ *
+ * Designed to complement SafetyGuard (agent-loop caps) — RiskManager is the
+ * per-invocation gate, SafetyGuard is the per-session monitor.
+ */
 export class RiskManager {
   constructor(private policy: RiskPolicy = DEFAULT_POLICY) {}
 
+  /**
+   * Validate a skill invocation against the current policy.
+   *
+   * Checks depend on the skill name convention:
+   * - Write/refactor skills are checked against path allow/block lists and file size limits
+   * - Web skills are checked against allowed host patterns
+   * - Other skills pass through with no validation (returns null)
+   *
+   * @returns A RiskViolation if the input violates policy, or null if allowed
+   */
   validate(skill: ISkill, input: unknown): RiskViolation | null {
     const skillName = skill.name.toLowerCase()
     const inputObj = input as Record<string, unknown> || {}
@@ -119,6 +152,11 @@ export class RiskManager {
     return null
   }
 
+  /**
+   * Wrap an executor with a timeout enforced via Promise.race.
+   * The returned function has the same signature as the original executor
+   * so it can be used as a transparent drop-in replacement.
+   */
   wrap(executor: Executor): Executor {
     const policy = this.policy
     return async (input: unknown, context: unknown) => {
@@ -133,6 +171,7 @@ export class RiskManager {
   }
 }
 
+/** Extract hostname from a URL string, handling missing protocol and malformed input. */
 function extractHost(url: string): string | null {
   try {
     const u = new URL(url.startsWith('http') ? url : `https://${url}`)

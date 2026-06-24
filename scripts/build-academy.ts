@@ -51,7 +51,7 @@ hr { border: none; border-top: 1px solid #27272a; margin: 2rem 0; }
 main { min-height: 60vh; }
 `
 
-function htmlTemplate(title: string, body: string): string {
+export function htmlTemplate(title: string, body: string): string {
   return `<!DOCTYPE html>
 <html lang="en">
 <head>
@@ -71,7 +71,7 @@ function ensureDir(filePath: string): void {
   if (!existsSync(dir)) mkdirSync(dir, { recursive: true })
 }
 
-function rewriteLink(href: string, fileDir: string, sourceIsIndex: boolean): string {
+export function rewriteLink(href: string, fileDir: string, sourceIsIndex: boolean): string {
   if (href.startsWith('http://') || href.startsWith('https://') || href.startsWith('#')) {
     return href
   }
@@ -145,4 +145,14 @@ function build(): void {
   console.log('\nDone —', files.length, 'pages built to site/')
 }
 
-build()
+if (isMain()) {
+  build()
+}
+
+function isMain(): boolean {
+  try {
+    return fileURLToPath(import.meta.url) === resolve(process.argv[1] ?? '')
+  } catch {
+    return false
+  }
+}

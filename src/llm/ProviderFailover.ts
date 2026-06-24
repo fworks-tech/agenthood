@@ -161,6 +161,7 @@ export class ProviderChain implements ILLMProvider {
     throw new AllProvidersFailedError(errors)
   }
 
+  /** Try each active provider in order, with model downgrade on failure. */
   async stream(request: LLMRequest): Promise<AsyncGenerator<LLMChunk>> {
     const errors: string[] = []
     const active = this.activeProviders()
@@ -225,6 +226,7 @@ export class ProviderChain implements ILLMProvider {
     throw new AllProvidersFailedError(errors)
   }
 
+  /** Try each active provider in order, with model downgrade on failure. */
   async embed(text: string): Promise<number[]> {
     const errors: string[] = []
     const active = this.activeProviders()
@@ -232,12 +234,29 @@ export class ProviderChain implements ILLMProvider {
     for (const provider of active) {
       const name = this.providerName(provider)
 
-      try {
-        const result = await provider.embed(text)
-        this.onSuccess(name)
-        return result
-      } catch (err) {
-        const msg = err instanceof Error ? err.message : String(err)
+      // Strategy 4: model downgrade — try fallback models on same provider
+      const models = this.modelMap.get(name)
+      const fallbackModels = models && models.length > 1 ? models.slice(1) : undefined
+      let lastError: unknown
+
+      for (let attempt = 0; attempt <= (fallbackModels?.length ?? 0); attempt++) {
+        if (attempt > 0 && fallbackModels) {
+          provider.setModel(fallbackModels[attempt - 1])
+        }
+
+        try {
+          const result = await provider.embed(text)
+          this.onSuccess(name)
+          return result
+        } catch (err) {
+          lastError = err
+          const classified = classifyError(err)
+          if (classified.permanent) break
+        }
+      }
+
+      if (lastError) {
+        const msg = lastError instanceof Error ? lastError.message : String(lastError)
         errors.push(`${name}: ${msg}`)
         this.tripBreaker(name, 60_000)
       }
@@ -278,20 +297,15 @@ export class ProviderChain implements ILLMProvider {
     request: LLMRequest,
     index: number,
   ): Promise<LLMResponse> {
-    // Strategy 1: immediate retry for transient errors
-    const strategies = [
-      () => provider.complete(request),
-      // Strategy 2: exponential backoff (retry once after delay)
-      async () => {
-        await sleep(1000 * Math.pow(2, index))
-        return provider.complete(request)
-      },
-    ]
-
     let lastError: unknown
-    for (const strategy of strategies) {
+
+    // Strategies 1-2: immediate retry + exponential backoff (3 attempts)
+    for (let retry = 0; retry < 3; retry++) {
       try {
-        return await strategy()
+        if (retry > 0) {
+          await sleep(1000 * Math.pow(2, retry - 1 + index))
+        }
+        return await provider.complete(request)
       } catch (err) {
         lastError = err
         const classified = classifyError(err)
@@ -329,6 +343,11 @@ export class ProviderChain implements ILLMProvider {
     breaker.probeScheduledAt = 0
   }
 
+  /**
+   * Record a failure and open the circuit if the threshold is exceeded.
+   * Permanent errors (cooldownMs === Infinity) always open immediately
+   * regardless of failureThreshold — retrying a bad API key wastes quota.
+   */
   private tripBreaker(name: string, cooldownMs: number): void {
     const breaker = this.circuitBreakers.get(name)
     if (!breaker) return
@@ -431,11 +450,17 @@ function firstChunkGenerator(
   })()
 }
 
+/** Configurable limits for provider-level retry behaviour within a chain. */
 export interface ProviderChainConfig {
+  /** Maximum retry attempts per provider (default: 3). */
   maxRetries?: number
+  /** Base delay for exponential backoff in ms (default: 1000). */
   backoffBaseMs?: number
+  /** Consecutive failures before circuit opens (default: 1). */
   failureThreshold?: number
+  /** Override cooldown duration in ms (overrides error-classified cooldown). */
   cooldownMs?: number
+  /** Whether preemptive probe recovery is enabled (default: true). */
   probeEnabled?: boolean
 }
 

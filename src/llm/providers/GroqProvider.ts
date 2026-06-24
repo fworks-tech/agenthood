@@ -91,6 +91,10 @@ export class GroqProvider implements ILLMProvider {
     return 8192
   }
 
+  setModel(model: string): void {
+    this.model = model
+  }
+
   async embed(text: string): Promise<number[]> {
     void text; // embed not supported
     throw new UnsupportedOperationError("embed", "GroqProvider");

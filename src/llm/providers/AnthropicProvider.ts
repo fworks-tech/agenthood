@@ -160,6 +160,10 @@ export class AnthropicProvider implements ILLMProvider {
     return 200000
   }
 
+  setModel(model: string): void {
+    this.model = model
+  }
+
   async embed(text: string): Promise<number[]> {
     void text
     throw new UnsupportedOperationError('embed', 'AnthropicProvider')

@@ -177,23 +177,41 @@ export class ProviderChain implements ILLMProvider {
         continue
       }
 
-      try {
-        // Eagerly try the first chunk so that generator-initialisation
-        // errors (e.g. auth failure, model not found) are caught here
-        // rather than on the caller's first iteration.
-        const gen = await provider.stream(request)
-        const first = await gen.next()
+      // Strategy 4: model downgrade — try fallback models on same provider
+      const models = this.modelMap.get(name)
+      const fallbackModels = models && models.length > 1 ? models.slice(1) : undefined
+      let lastError: unknown
 
-        if (first.done) {
-          this.onSuccess(name)
-          return emptyGenerator()
+      for (let attempt = 0; attempt <= (fallbackModels?.length ?? 0); attempt++) {
+        if (attempt > 0 && fallbackModels) {
+          provider.setModel(fallbackModels[attempt - 1])
         }
 
-        this.onSuccess(name)
-        return firstChunkGenerator(first.value, gen)
-      } catch (err) {
-        const classified = classifyError(err)
-        const msg = err instanceof Error ? err.message : String(err)
+        try {
+          // Eagerly try the first chunk so that generator-initialisation
+          // errors (e.g. auth failure, model not found) are caught here
+          // rather than on the caller's first iteration.
+          const gen = await provider.stream(request)
+          const first = await gen.next()
+
+          if (first.done) {
+            this.onSuccess(name)
+            return emptyGenerator()
+          }
+
+          this.onSuccess(name)
+          return firstChunkGenerator(first.value, gen)
+        } catch (err) {
+          lastError = err
+          const classified = classifyError(err)
+          if (classified.permanent) break
+        }
+      }
+
+      // All model attempts on this provider failed
+      if (lastError) {
+        const classified = classifyError(lastError)
+        const msg = lastError instanceof Error ? lastError.message : String(lastError)
         errors.push(`${name}: ${msg}`)
 
         if (classified.permanent) {
@@ -316,13 +334,22 @@ export class ProviderChain implements ILLMProvider {
     if (!breaker) return
 
     breaker.failureCount++
+
+    // Permanent errors (auth, payment, model_not_found) always open the
+    // circuit immediately regardless of failureThreshold — retrying a bad
+    // API key wastes quota and time.
+    if (cooldownMs === Infinity) {
+      breaker.state = 'OPEN'
+      breaker.cooldownUntil = Infinity
+      breaker.probeScheduledAt = 0
+      return
+    }
+
     const threshold = this.chainConfig.failureThreshold ?? 1
     if (breaker.failureCount < threshold) return
 
     breaker.state = 'OPEN'
-    const effectiveCooldown = cooldownMs === Infinity
-      ? Infinity
-      : (this.chainConfig.cooldownMs ?? cooldownMs)
+    const effectiveCooldown = this.chainConfig.cooldownMs ?? cooldownMs
     breaker.cooldownUntil = effectiveCooldown === Infinity ? Infinity : Date.now() + effectiveCooldown
 
     if (this.chainConfig.probeEnabled ?? true) {

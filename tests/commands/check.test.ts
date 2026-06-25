@@ -107,4 +107,34 @@ describe('check command', () => {
     await check()
     expect(output).not.toContain('API key')
   })
+
+  it('reports vector store initialized when directory exists', async () => {
+    vi.mocked(existsSync).mockImplementation((p) =>
+      typeof p === 'string' && p.includes('config.json') ? false : true
+    )
+    const { check } = await import('../../src/commands/check.js')
+    await check()
+    expect(output).toContain('LanceDB vector store initialized')
+    expect(output).toContain('✅')
+  })
+
+  it('reports residual memory traces when file exists', async () => {
+    vi.mocked(existsSync).mockImplementation((p) =>
+      typeof p === 'string' && p.includes('config.json') ? false : true
+    )
+    const { check } = await import('../../src/commands/check.js')
+    await check()
+    expect(output).toContain('Residual memory traces found')
+    expect(output).toContain('✅')
+  })
+
+  it('reports knowledge graph when file exists', async () => {
+    vi.mocked(existsSync).mockImplementation((p) =>
+      typeof p === 'string' && p.includes('config.json') ? false : true
+    )
+    const { check } = await import('../../src/commands/check.js')
+    await check()
+    expect(output).toContain('Knowledge graph found')
+    expect(output).toContain('✅')
+  })
 })

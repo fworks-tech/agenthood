@@ -78,7 +78,7 @@ describe('LanceDBStore', () => {
   it('connects and creates table when none exists', async () => {
     const s = new LanceDBStore(3)
     await s.connect('/tmp/test-lancedb')
-    expect(mockTable.mockCreateTable).toHaveBeenCalledWith('vectors', [], 'overwrite')
+    expect(mockTable.mockCreateTable).toHaveBeenCalledWith('vectors', [])
   })
 
   it('opens existing table when one exists', async () => {
@@ -177,7 +177,7 @@ describe('LanceDBStore', () => {
   })
 
   it('deletes records matching filter', async () => {
-    mockTable.mockDelete.mockResolvedValue({ num_deleted_rows: 2, version: 1 })
+    mockTable.    mockDelete.mockResolvedValue({ numDeletedRows: 2, version: 1 })
 
     const s = new LanceDBStore(3)
     await s.connect('/tmp/test-lancedb')

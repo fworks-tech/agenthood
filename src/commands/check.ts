@@ -5,10 +5,12 @@
  * is complete and all standards are in place.
  */
 
-import { existsSync } from 'node:fs';
+import { existsSync, readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { execSync } from 'node:child_process';
 import { MEMBER_NAMES, resolveSkillsDir } from '../members.js';
+import { validateApiKeys } from '../llm/validateApiKeys.js';
+import type { LLMConfig } from '../llm/types.js';
 
 interface CheckResult {
   label: string;
@@ -73,6 +75,27 @@ export async function check(): Promise<void> {
 
   // AGENTS.md
   file('AGENTS.md present', 'AGENTS.md');
+
+  // API key validation (only when a remote provider is explicitly configured)
+  const configPath = join(cwd, '.agenthood', 'config.json');
+  if (existsSync(configPath)) {
+    let provider: string | undefined;
+    try {
+      const raw = JSON.parse(readFileSync(configPath, 'utf8'));
+      provider = typeof raw.provider === 'string' ? raw.provider : raw.provider?.name;
+    } catch {
+      // ignore — treat as no provider configured
+    }
+
+    if (provider) {
+      try {
+        validateApiKeys({ provider });
+        results.push({ label: `LLM API key configured (${provider})`, pass: true });
+      } catch {
+        results.push({ label: `LLM API key configured (${provider})`, pass: false });
+      }
+    }
+  }
 
   // Report
   const passing = results.filter((r) => r.pass).length;

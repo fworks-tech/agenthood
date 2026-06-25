@@ -12,6 +12,7 @@ import { ArchitectAgent } from "../agents/ArchitectAgent.ts"
 import { ReviewerAgent } from "../agents/ReviewerAgent.ts"
 import { QAAgent } from "../agents/QAAgent.ts"
 import { MemberRegistry, MemberAgent } from "../members/index.ts"
+import { validateApiKeys, MissingApiKeyError } from "../llm/validateApiKeys.ts"
 import type { ExecutionContext } from "../core/ExecutionContext.ts"
 import type { LLMConfig, ProviderEntry } from "../llm/types.ts"
 
@@ -115,35 +116,6 @@ async function createContext(projectPath: string, config: LLMConfig): Promise<Ex
   }
 }
 
-function validateApiKeys(config: LLMConfig): void {
-  const providers = config.providers?.map((p) => p.name) ?? (config.provider ? [config.provider] : ['groq', 'openai', 'anthropic'])
-  const needsKey = new Map<string, string>([
-    ['groq', 'GROQ_API_KEY'],
-    ['openai', 'OPENAI_API_KEY'],
-    ['anthropic', 'ANTHROPIC_API_KEY'],
-  ])
-
-  const missing: string[] = []
-  for (const name of providers) {
-    const envVar = needsKey.get(name)
-    if (envVar && !process.env[envVar]) {
-      missing.push(envVar)
-    }
-  }
-
-  if (missing.length === providers.length) {
-    console.error('')
-    console.error('No LLM provider API keys found. Set at least one:')
-    console.error('  $env:GROQ_API_KEY = "your-key"        (free tier available)')
-    console.error('  $env:OPENAI_API_KEY = "your-key"')
-    console.error('  $env:ANTHROPIC_API_KEY = "your-key"')
-    console.error('')
-    console.error('Or run Ollama locally for offline execution (no key needed).')
-    console.error('')
-    process.exit(1)
-  }
-}
-
 export async function run(args: string[]): Promise<void> {
   const { positional, providerOverride } = parseFlags(args)
   const [agentName, ...taskParts] = positional
@@ -155,7 +127,15 @@ export async function run(args: string[]): Promise<void> {
   }
 
   const config = await loadConfig(providerOverride)
-  validateApiKeys(config)
+  try {
+    validateApiKeys(config)
+  } catch (err) {
+    if (err instanceof MissingApiKeyError) {
+      console.error(`\n${err.message}\n`)
+      process.exit(1)
+    }
+    throw err
+  }
   const context = await createContext(process.cwd(), config)
   const task = taskParts.join(" ")
 

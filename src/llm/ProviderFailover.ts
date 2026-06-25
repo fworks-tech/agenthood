@@ -479,8 +479,11 @@ export class ProviderChain implements ILLMProvider {
 
   /**
    * Return providers whose circuit breaker is not OPEN.
-   * Runs probe recovery first — any provider past its probe time is
-   * transitioned to HALF_OPEN, allowing it to be tried again.
+   *
+   * Side effect: transitions expired cooldowns to HALF_OPEN and runs
+   * probe recovery (30s before cooldown expiry) before filtering.
+   * This avoids the double-lookup pattern where callers checked
+   * cooldown expiry after already filtering out OPEN providers.
    */
   private activeProviders(): ILLMProvider[] {
     for (const [, breaker] of this.circuitBreakers) {

@@ -18,6 +18,9 @@ import { ProviderChain } from './ProviderFailover.js'
 
 type ProviderFactory = (config: LLMConfig) => Promise<ILLMProvider>
 
+/** Heuristic set of chain-of-thought triggers in system prompts.
+ *  Extend as needed per deployment — non-English or alternative
+ *  reasoning phrasing will not match without adding to this list. */
 const COT_MARKERS = [
   'think step by step',
   'chain of thought',
@@ -296,7 +299,7 @@ export class LLMRouter {
     const fallbackOrder: ProviderName[] = ['groq', 'openai', 'ollama']
     const providers = new Map<string, ILLMProvider>()
 
-    for (const name of ['groq', ...fallbackOrder.filter((f) => f !== 'groq')]) {
+    for (const name of fallbackOrder) {
       if (!providers.has(name) && name in LLMRouter.providerFactories) {
         const inst = await LLMRouter.getOrInit(name)
         if (inst) providers.set(name, inst)
@@ -305,7 +308,7 @@ export class LLMRouter {
 
     const providers_arr: ILLMProvider[] = []
     const names: string[] = []
-    for (const name of ['groq', ...fallbackOrder.filter((f) => f !== 'groq')]) {
+    for (const name of fallbackOrder) {
       const p = providers.get(name)
       if (p) {
         providers_arr.push(p)

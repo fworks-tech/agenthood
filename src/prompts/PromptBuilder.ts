@@ -1,12 +1,22 @@
 import type { Message } from '../llm/types.js'
 import { PromptRegistry } from './PromptRegistry.js'
+import type { ResidualMemory } from '../memory/ResidualMemory.js'
 
 export class PromptBuilder {
-  constructor(private registry: PromptRegistry) {}
+  constructor(
+    private registry: PromptRegistry,
+    private residualMemory?: ResidualMemory,
+  ) {}
 
   build(templateName: string, variables: Record<string, unknown>): Message {
     const template = this.registry.get(templateName)
-    const content = this.interpolate(template, variables)
+    let content = this.interpolate(template, variables)
+    if (this.residualMemory) {
+      const hints = this.residualMemory.toPromptHints()
+      if (hints) {
+        content += `\n\n${hints}`
+      }
+    }
     return { role: 'system', content }
   }
 

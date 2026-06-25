@@ -480,6 +480,38 @@ describe('ProviderChain', () => {
     })
   })
 
+  it('fails over with retryable classified error and trips breaker', async () => {
+    const p1 = mockErrorProvider(new TimeoutError('request timed out'))
+    const p2 = mockProvider('fallback')
+    const chain = new ProviderChain([p1, p2], ['primary', 'fallback'])
+
+    const result = await chain.complete({ messages: [{ role: 'user', content: 'hello' }] })
+    expect(result.content).toBe('fallback response')
+
+    const state = chain.getBreakerState('primary')!
+    expect(state.state).toBe('OPEN')
+    expect(state.failureCount).toBe(1)
+
+    // Verify p2.complete was actually called
+    expect(p2.complete).toHaveBeenCalledTimes(1)
+  })
+
+  it('fails over with retryable classified error in stream', async () => {
+    const p1 = mockErrorProvider(new TimeoutError('stream timeout'))
+    const p2 = mockProvider('fallback')
+    const chain = new ProviderChain([p1, p2], ['primary', 'fallback'])
+
+    const gen = await chain.stream({ messages: [{ role: 'user', content: 'hello' }] })
+    const chunks: string[] = []
+    for await (const chunk of gen) {
+      chunks.push(chunk.delta)
+    }
+    expect(chunks.join('')).toBe('fallback chunk')
+
+    const state = chain.getBreakerState('primary')!
+    expect(state.state).toBe('OPEN')
+  })
+
   describe('circuit breaker config', () => {
     it('respects failureThreshold', async () => {
       const p1 = mockErrorProvider(new TimeoutError('test'))

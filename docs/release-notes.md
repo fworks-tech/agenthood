@@ -5,6 +5,22 @@
 
 ---
 
+## v2.3.0 — June 25, 2026
+
+### 🐛 Bug Fixes
+
+- **Academy:** compute relative link from non-index pages at correct depth
+- **Failover:** add embed model downgrade, 3-attempt backoff, JSDoc, align with spec
+- **Failover:** trip permanent errors immediately, add model downgrade to stream()
+
+### ✨ Features
+
+- **Cli:** add provider selection logging, runtime guide, and failover integration tests
+- **Cli:** wire provider failover config into CLI and LLMRouter
+- **Provider:** implement model downgrade and circuit breaker config
+
+---
+
 ## v2.2.0 — June 23, 2026
 
 ### 🐛 Bug Fixes

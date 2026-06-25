@@ -1,3 +1,19 @@
+# [2.3.0](https://github.com/fworks-tech/agenthood/compare/v2.2.0...v2.3.0) (2026-06-25)
+
+
+### Bug Fixes
+
+* **academy:** compute relative link from non-index pages at correct depth ([c75e6da](https://github.com/fworks-tech/agenthood/commit/c75e6da8c20c88e03848fee7be642f25234271ec)), closes [#243](https://github.com/fworks-tech/agenthood/issues/243)
+* **failover:** add embed model downgrade, 3-attempt backoff, JSDoc, align with spec ([f37cdfa](https://github.com/fworks-tech/agenthood/commit/f37cdfa7bf6cb4acf6fe7c4a70bc0b950b8bee80))
+* **failover:** trip permanent errors immediately, add model downgrade to stream() ([d4fb73d](https://github.com/fworks-tech/agenthood/commit/d4fb73d9972350b4aad6df04025d5c113c456d4c))
+
+
+### Features
+
+* **cli:** add provider selection logging, runtime guide, and failover integration tests ([c4b9244](https://github.com/fworks-tech/agenthood/commit/c4b924480ae7388b76f4c4f274ba9c188ac4c958)), closes [#207](https://github.com/fworks-tech/agenthood/issues/207)
+* **cli:** wire provider failover config into CLI and LLMRouter ([d2236ec](https://github.com/fworks-tech/agenthood/commit/d2236ec728a051a96f30f1ae403dbde678bfb948))
+* **provider:** implement model downgrade and circuit breaker config ([a189f6b](https://github.com/fworks-tech/agenthood/commit/a189f6baf794fe34d9c220260f13d7ed3c150d22)), closes [#217](https://github.com/fworks-tech/agenthood/issues/217)
+
 # [2.2.0](https://github.com/fworks-tech/agenthood/compare/v2.1.0...v2.2.0) (2026-06-23)
 
 

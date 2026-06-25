@@ -139,6 +139,6 @@ jobs:
           gh pr comment ${{ github.event.pull_request.number }} \
             --body "## The Librarian — Documentation Check ⚠️
 
-Documentation may be out of sync with code changes. Review the [workflow run](${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}) for details.
+          Documentation may be out of sync with code changes. Review the [workflow run](${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}) for details.
 
-*— The Librarian, Agenthood*"
+          *— The Librarian, Agenthood*"

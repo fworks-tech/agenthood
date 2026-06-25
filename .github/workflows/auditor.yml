@@ -47,6 +47,6 @@ jobs:
           gh pr comment ${{ github.event.pull_request.number }} \
             --body "## The Auditor — Secret Scan ⚠️
 
-Potential secrets or configuration issues were detected. Review the [workflow run](${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}) for details.
+          Potential secrets or configuration issues were detected. Review the [workflow run](${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}) for details.
 
-*— The Auditor, Agenthood*"
+          *— The Auditor, Agenthood*"

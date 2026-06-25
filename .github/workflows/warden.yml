@@ -58,6 +58,6 @@ jobs:
           gh pr comment ${{ github.event.pull_request.number }} \
             --body "## The Warden — File Size Check ⚠️
 
-One or more changed files exceed the 500-line limit. Review the [workflow run](${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}) for details.
+          One or more changed files exceed the 500-line limit. Review the [workflow run](${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}) for details.
 
-*— The Warden, Agenthood*"
+          *— The Warden, Agenthood*"

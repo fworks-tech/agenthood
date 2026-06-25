@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ADR-013: Distribution Channel Priority — Agenthood Academy</title>
+<style>
+body {
+  max-width: 42rem; margin: 2rem auto; padding: 0 1rem 4rem;
+  font-family: system-ui, -apple-system, sans-serif;
+  line-height: 1.75; color: #f4f4f5; background: #09090b; font-size: 1rem;
+}
+h1, h2, h3 { line-height: 1.3; margin-top: 2rem; color: #ffffff; }
+h1 { font-size: 1.75rem; border-bottom: 2px solid #27272a; padding-bottom: .5rem; }
+h2 { font-size: 1.35rem; }
+h3 { font-size: 1.1rem; }
+a { color: #a78bfa; }
+a:hover { text-decoration: underline; }
+pre, code { font-size: .9em; background: #18181b; border-radius: 6px; }
+code { padding: .15em .3em; border: 1px solid #27272a; }
+pre { padding: 1rem; overflow-x: auto; border: 1px solid #27272a; }
+pre code { background: none; padding: 0; border: none; }
+blockquote {
+  margin: 1rem 0; padding: .5rem 1rem;
+  border-left: 4px solid #a78bfa; background: #18181b;
+}
+table { border-collapse: collapse; width: 100%; margin: 1rem 0; }
+th, td { border: 1px solid #27272a; padding: .5rem; text-align: left; }
+th { background: #18181b; font-weight: 600; }
+ol, ul { padding-left: 1.5rem; }
+li { margin: .25rem 0; }
+hr { border: none; border-top: 1px solid #27272a; margin: 2rem 0; }
+main { min-height: 60vh; }
+</style>
+</head>
+<body>
+<main><h1>ADR-013: Distribution Channel Priority</h1>
+<p><strong>Date:</strong> 2026-06-24
+<strong>Status:</strong> Accepted</p>
+<h2>Context</h2>
+<p>Agenthood has four distribution channels available simultaneously. With a single maintainer and limited time, investing equally in all four is a mistake. This ADR decides which channel gets optimised first, second, and third — and what the criteria are for re-prioritising.</p>
+<p>The four channels:</p>
+<ol>
+<li><strong>npm</strong> — <code>npm install --save-dev agenthood</code>. Published automatically via <code>@semantic-release/npm</code> on every <code>main</code> push. Currently published as latest (managed by semantic-release). Requires keyword optimisation for discoverability.</li>
+<li><strong>Skills.sh</strong> — 600k+ skills marketplace, Vercel-backed. Skills appear automatically once installed via <code>npx agenthood init</code>. Zero-cost listing via <code>skills.sh.json</code>.</li>
+<li><strong>VS Code Marketplace</strong> — IDE extension (<code>agenthood-vscode</code>). Published via <code>.github/workflows/vscode-extension.yml</code>. Currently at v0.1.0. Requires publisher account setup and ongoing maintenance.</li>
+<li><strong>SkillsMP</strong> — 1.7M+ skills, GitHub-scrape-based. Requires 2+ stars for listing. Star count currently insufficient.</li>
+</ol>
+<h2>Decision</h2>
+<p><strong>Priority order (highest to lowest):</strong></p>
+<ol>
+<li><strong>npm</strong> — Already published, keyword optimisation is immediate. The primary adoption trigger for the CLI. One <code>package.json</code> change + compounding discoverability via weekly download stats.</li>
+<li><strong>Skills.sh</strong> — Zero additional cost. Once <code>npx agenthood init</code> is run, skills appear automatically on the leaderboard. Seed installs are the only activation needed. Groupings already configured in <code>skills.sh.json</code>.</li>
+<li><strong>VS Code Marketplace</strong> — Requires publisher account verification (1–2 hours setup). High ongoing visibility but lower engagement intensity than CLI users. Extension at v0.1.0 — feature-complete for web views but not yet a primary adoption driver.</li>
+<li><strong>SkillsMP</strong> — Blocked by the 2-star gate. Comes naturally as npm + skills.sh drive star growth.</li>
+</ol>
+<p>This order reflects the <strong>minimum effort for maximum incremental visibility</strong> principle. Each channel is optimised only when the previous channel is fully operational.</p>
+<h2>Alternatives Considered</h2>
+<table>
+<thead>
+<tr>
+<th>Option</th>
+<th>Pros</th>
+<th>Cons</th>
+<th>Why Rejected</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Skills.sh first</td>
+<td>Highest traffic (600k+), Vercel-backed leaderboard</td>
+<td>Leaderboard position is purely install-count; gaming is possible</td>
+<td>Without npm adoption, there are no seed installs to drive the leaderboard</td>
+</tr>
+<tr>
+<td>SkillsMP first</td>
+<td>1.7M+ skills, GitHub-scrape-based (no manual submission)</td>
+<td>Requires 2+ stars gate; no control over listing timing</td>
+<td>Blocked by current star count — cannot act on it now</td>
+</tr>
+<tr>
+<td>VS Code Marketplace first</td>
+<td>Direct IDE integration; one-click trial</td>
+<td>Lower engagement than CLI users; publisher setup overhead</td>
+<td>Not yet feature-complete enough to justify the setup investment</td>
+</tr>
+</tbody></table>
+<h2>Consequences</h2>
+<p><strong>Easier:</strong></p>
+<ul>
+<li>Clear ordering removes decision paralysis — always know which channel to work on next</li>
+<li>npm and Skills.sh compound benefits: npm downloads increase stars, stars unlock SkillsMP</li>
+<li>Semantic release pipeline already publishes npm automatically — no new infrastructure needed</li>
+</ul>
+<p><strong>Harder:</strong></p>
+<ul>
+<li>VS Code Marketplace and SkillsMP remain inactive until npm and Skills.sh reach targets</li>
+<li>If npm keyword optimisation does not move the needle within 4 weeks, the entire strategy pivots</li>
+</ul>
+<p><strong>Re-prioritisation trigger:</strong>
+If npm weekly downloads do not reach 50 within 4 weeks of keyword optimisation, escalate VS Code Marketplace to #2 priority and begin active publisher setup. Skills.sh and SkillsMP priorities remain unchanged in this scenario — Skills.sh is already zero-cost and SkillsMP remains star-gated regardless of channel priority.</p>
+<h2>References</h2>
+<ul>
+<li><a href="https://github.com/fworks-tech/agenthood/blob/main/.releaserc.json">.releaserc.json</a> — semantic-release configuration with <code>@semantic-release/npm</code> plugin</li>
+<li><a href="https://github.com/fworks-tech/agenthood/blob/main/.github/workflows/semantic-release.yml">.github/workflows/semantic-release.yml</a> — automated npm publish on <code>main</code> push</li>
+<li><a href="https://github.com/fworks-tech/agenthood/blob/main/skills.sh.json">skills.sh.json</a> — Skills.sh marketplace groupings configuration</li>
+<li><a href="https://github.com/fworks-tech/agenthood/blob/main/vscode-extension/package.json">vscode-extension/package.json</a> — VS Code extension manifest (publisher: <code>fworks-tech</code>)</li>
+<li><a href="https://github.com/fworks-tech/agenthood/blob/main/.github/workflows/vscode-extension.yml">.github/workflows/vscode-extension.yml</a> — VS Code extension publish workflow</li>
+</ul>
+</main>
+</body>
+</html>

@@ -136,6 +136,8 @@ export class ProviderChain implements ILLMProvider {
         continue
       }
 
+      console.info(i === 0 ? `Using ${name} (primary)` : `${errors[errors.length - 1]?.split(':')[0] ?? 'previous'} failed, falling back to ${name}`)
+
       try {
         const result = await this.executeWithStrategy(provider, request, i)
         this.onSuccess(name)
@@ -153,6 +155,7 @@ export class ProviderChain implements ILLMProvider {
 
         // If this was the last provider, escalate
         if (i === active.length - 1) {
+          console.info(`All providers exhausted`)
           throw new AllProvidersFailedError(errors, classified.category)
         }
       }
@@ -177,6 +180,8 @@ export class ProviderChain implements ILLMProvider {
       if (breaker.state === 'OPEN') {
         continue
       }
+
+      console.info(errors.length === 0 ? `Using ${name} (primary)` : `${errors[errors.length - 1]?.split(':')[0] ?? 'previous'} failed, falling back to ${name}`)
 
       // Strategy 4: model downgrade — try fallback models on same provider
       const models = this.modelMap.get(name)
@@ -224,6 +229,7 @@ export class ProviderChain implements ILLMProvider {
       }
     }
 
+    console.info('All providers exhausted')
     throw new AllProvidersFailedError(errors)
   }
 
@@ -234,6 +240,8 @@ export class ProviderChain implements ILLMProvider {
 
     for (const provider of active) {
       const name = this.providerName(provider)
+
+      console.info(errors.length === 0 ? `Using ${name} (primary)` : `${errors[errors.length - 1]?.split(':')[0] ?? 'previous'} failed, falling back to ${name}`)
 
       // Strategy 4: model downgrade — try fallback models on same provider
       const models = this.modelMap.get(name)
@@ -269,6 +277,7 @@ export class ProviderChain implements ILLMProvider {
       }
     }
 
+    console.info('All providers exhausted')
     throw new AllProvidersFailedError(errors)
   }
 

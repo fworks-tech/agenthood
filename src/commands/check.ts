@@ -97,6 +97,11 @@ export async function check(): Promise<void> {
     }
   }
 
+  // Memory stores
+  file('LanceDB vector store initialized', '.agenthood/memory/vectors');
+  file('Residual memory traces found', '.agenthood/residual.json');
+  file('Knowledge graph found', '.agenthood/graph.json');
+
   // Report
   const passing = results.filter((r) => r.pass).length;
   const failing = results.filter((r) => !r.pass).length;

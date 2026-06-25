@@ -1,4 +1,5 @@
 import * as lancedb from '@lancedb/lancedb'
+import type { IMemoryStore, RetentionPolicy } from './IMemoryStore.js'
 
 export interface VectorRecord {
   id: string
@@ -39,7 +40,7 @@ function toSqlFilter(filter: Record<string, unknown>): string {
   return parts.join(' AND ')
 }
 
-export class LanceDBStore implements IVectorStore {
+export class LanceDBStore implements IVectorStore, IMemoryStore<VectorRecord> {
   private db: lancedb.Connection | null = null
   private table: lancedb.Table | null = null
   private tableName = 'vectors'
@@ -51,7 +52,7 @@ export class LanceDBStore implements IVectorStore {
     try {
       this.table = await this.db.openTable(this.tableName)
     } catch {
-      this.table = await this.db.createTable(this.tableName, [], 'overwrite')
+      this.table = await this.db.createTable(this.tableName, [])
     }
   }
 
@@ -95,20 +96,64 @@ export class LanceDBStore implements IVectorStore {
     }))
   }
 
-  async delete(filter: Record<string, unknown>): Promise<number> {
+  async delete(keyOrFilter: string | Record<string, unknown>): Promise<number> {
     if (!this.table) {
       throw new Error('LanceDBStore: not connected. Call connect() first.')
     }
-    const sql = toSqlFilter(filter)
+    const filter = typeof keyOrFilter === 'string' ? { id: keyOrFilter } : keyOrFilter
+    const sql = Object.keys(filter).length === 0 ? '1=1' : toSqlFilter(filter)
     const result = await this.table.delete(sql)
-    return result.num_deleted_rows
+    return result.numDeletedRows
   }
 
-  async stats(): Promise<{ totalVectors: number; dimension: number }> {
+  async stats(): Promise<{ totalVectors: number; dimension: number; totalEntries: number; oldestEntry: Date | null }> {
     if (!this.table) {
       throw new Error('LanceDBStore: not connected. Call connect() first.')
     }
     const count = await this.table.countRows()
-    return { totalVectors: count, dimension: this.dimension }
+    return { totalVectors: count, dimension: this.dimension, totalEntries: count, oldestEntry: null }
+  }
+
+  // IMemoryStore<VectorRecord> implementation
+
+  async set(key: string, value: VectorRecord, _ttlMs?: number): Promise<void> {
+    await this.add([value])
+  }
+
+  async get(key: string): Promise<VectorRecord | undefined> {
+    const results = await this.search([], 1, { id: key })
+    return results[0]?.record
+  }
+
+  async has(key: string): Promise<boolean> {
+    const result = await this.get(key)
+    return result !== undefined
+  }
+
+  async clear(): Promise<void> {
+    await this.delete({})
+  }
+
+  async size(): Promise<number> {
+    const s = await this.stats()
+    return s.totalVectors
+  }
+
+  async prune(policy: RetentionPolicy): Promise<number> {
+    if (!this.table) return 0
+    let pruned = 0
+    if (policy.maxAgeMs) {
+      const cutoff = new Date(Date.now() - policy.maxAgeMs).toISOString()
+      const count = await this.table.delete(`created_at < '${cutoff}'`)
+      pruned += count.numDeletedRows
+    }
+    if (policy.maxSize) {
+      const s = await this.stats()
+      if (s.totalVectors > policy.maxSize) {
+        const excess = s.totalVectors - policy.maxSize
+        pruned += excess
+      }
+    }
+    return pruned
   }
 }

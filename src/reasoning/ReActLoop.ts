@@ -4,7 +4,7 @@ import type { Message, ToolCall } from "../llm/types.ts"
 import { ContextCompressor } from "../core/ContextCompressor.ts"
 import { SkillRegistry, SkillNotFoundError } from "../skills/SkillRegistry.ts"
 import { ThinkingBudget } from "./ThinkingBudget.ts"
-import { validateSchema, SchemaValidationError } from "./SchemaValidator.ts"
+import { validateSchema, SchemaValidationError } from "../core/SchemaValidator.ts"
 
 export class ReActLoop {
   constructor(

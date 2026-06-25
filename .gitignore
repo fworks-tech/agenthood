@@ -15,8 +15,8 @@ dist/
 vscode-extension/.vscode-test/
 
 # Agenthood runtime artifacts
-.agenthood/audit.log
-.agenthood/memory.json
+.agenthood/*
+!.agenthood/config.example.json
 .claude/scheduled_tasks.lock
 
 # Provider-specific skill install directories (skills CLI)

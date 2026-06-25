@@ -6,12 +6,21 @@ import { SkillRegistry, SkillNotFoundError } from "../skills/SkillRegistry.ts"
 import { ThinkingBudget } from "./ThinkingBudget.ts"
 import { validateSchema, SchemaValidationError } from "../core/SchemaValidator.ts"
 
+export class ToolLoopDetectedError extends Error {
+  constructor(toolName: string, count: number) {
+    super(`Tool loop detected: "${toolName}" called ${count} times with identical arguments within the detection window. Breaking out to avoid wasting token budget.`)
+    this.name = 'ToolLoopDetectedError'
+  }
+}
+
 export class ReActLoop {
   constructor(
     private llm: ILLMProvider,
     private skillRegistry: SkillRegistry,
     private budget: ThinkingBudget = new ThinkingBudget(),
     private compressor: ContextCompressor = new ContextCompressor(llm),
+    private loopWindow = 5,
+    private loopThreshold = 3,
   ) {}
 
   async run(
@@ -23,6 +32,8 @@ export class ReActLoop {
       { role: "system", content: systemPrompt },
       { role: "user", content: userInput },
     ];
+
+    const recentCalls: string[] = [];
 
     for (let step = 0; ; step++) {
       this.budget.check(step);
@@ -53,6 +64,15 @@ export class ReActLoop {
       }
 
       for (const toolCall of response.toolCalls) {
+        const signature = `${toolCall.name}:${JSON.stringify(toolCall.args)}`
+        const occurrences = recentCalls.filter((s) => s === signature).length
+        if (occurrences >= this.loopThreshold - 1) {
+          context.tracer.endSpan(`react-step-${step}`, { status: "loop-detected" });
+          throw new ToolLoopDetectedError(toolCall.name, occurrences + 1);
+        }
+        recentCalls.push(signature)
+        if (recentCalls.length > this.loopWindow) recentCalls.shift()
+
         const result = await this.executeTool(toolCall, context);
         messages.push({
           role: "tool",

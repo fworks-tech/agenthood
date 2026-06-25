@@ -48,35 +48,50 @@ main { min-height: 60vh; }
 <p>In production, API Wrappers prevent vendor lock-in. They also provide a central chokepoint to implement critical features like retry logic, telemetry logging, and fallback routing (e.g., if OpenAI goes down, automatically route to Gemini).</p>
 <hr>
 <h2>How Agenthood implements it</h2>
-<p>Agenthood achieves this via the <code>ILLMProvider</code> interface. It defines a strict contract that all provider implementations (OpenAI, Anthropic, etc.) must adhere to.</p>
-<p>This pattern will live in <code>src/llm/ILLMProvider.ts</code> (future milestone):</p>
-<pre><code class="language-typescript">// Planned for a future milestone
-export interface ILLMProvider {
-  complete(request: LLMRequest): Promise&lt;LLMResponse&gt;;
+<p>Agenthood achieves this via the <code>ILLMProvider</code> interface in <code>src/llm/ILLMProvider.ts</code>.
+It defines a strict contract that all four provider implementations (Anthropic, Groq,
+OpenAI, Ollama) adhere to:</p>
+<pre><code class="language-typescript">export interface ILLMProvider {
+  complete(request: LLMRequest): Promise&lt;LLMResponse&gt;
+  stream(request: LLMRequest): Promise&lt;AsyncGenerator&lt;LLMChunk&gt;&gt;
+  embed(text: string): Promise&lt;number[]&gt;
+  setModel(model: string): void
+  getContextWindow(): number
 }
 
-// Anthropic and OpenAI implementations both satisfy the interface
 export class AnthropicProvider implements ILLMProvider { ... }
+export class GroqProvider implements ILLMProvider { ... }
 export class OpenAIProvider implements ILLMProvider { ... }
+export class OllamaProvider implements ILLMProvider { ... }
+</code></pre>
+<p>The <code>ProviderChain</code> wraps multiple providers with failover logic:</p>
+<pre><code class="language-typescript">const chain = new ProviderChain(
+  [anthropicProvider, groqProvider],
+  [&#39;anthropic&#39;, &#39;groq&#39;],
+  { failureThreshold: 1, cooldownMs: 30_000 },
+  new Map([[&#39;anthropic&#39;, [&#39;sonnet&#39;, &#39;haiku&#39;]]])
+)
 </code></pre>
 <p>The Society does not care who generates the tokens, as long as the contract is respected.</p>
 <hr>
 <h2>Hands-on example</h2>
-<p>Because of this abstraction, switching the active model for an agent is a configuration change, not a code change.</p>
+<p>Because of this abstraction, switching the active provider for an agent is a configuration change, not a code change.</p>
 <pre><code class="language-bash"># Switch the runtime provider seamlessly
-agenthood-run invoke the-scribe &quot;Write a commit&quot; --provider anthropic
-agenthood-run invoke the-scribe &quot;Write a commit&quot; --provider openai
+agenthood run the-scribe &quot;Write a commit&quot; --provider anthropic
+agenthood run the-scribe &quot;Write a commit&quot; --provider groq
 </code></pre>
-<p>Or in TypeScript (future milestone):</p>
-<pre><code class="language-typescript">// The orchestrator doesn&#39;t care which provider is passed
-const provider = config.useLocal ? new LocalProvider() : new AnthropicProvider();
-const agent = new Agent(provider);
+<p>Or in TypeScript:</p>
+<pre><code class="language-typescript">const router = LLMRouter.fromConfig(config, providers)
+const chain = router.createForMember(&#39;the-scribe&#39;)
+const response = await chain.complete({ messages: [...] })
 </code></pre>
 <hr>
 <h2>Further reading</h2>
 <ul>
 <li><a href="../../../adr/ADR-005-orchestrator-pattern/">ADR-005 — Orchestrator pattern</a></li>
-<li><a href="https://github.com/fworks-tech/agenthood/blob/main/src/llm/ILLMProvider.ts">`src/llm/ILLMProvider.ts`</a> — source implementation (planned)</li>
+<li><a href="https://github.com/fworks-tech/agenthood/blob/main/src/llm/ILLMProvider.ts">`src/llm/ILLMProvider.ts`</a> — source implementation</li>
+<li><a href="https://github.com/fworks-tech/agenthood/blob/main/src/llm/ProviderFailover.ts">`src/llm/ProviderFailover.ts`</a> — failover chain</li>
+<li><a href="https://github.com/fworks-tech/agenthood/blob/main/architecture/provider-failover.md">architecture/provider-failover.md</a> — architecture doc</li>
 <li><a href="https://martinfowler.com/articles/gateway-pattern.html">Martin Fowler: Gateway Pattern</a> — the architectural basis for API wrappers</li>
 </ul>
 </main>

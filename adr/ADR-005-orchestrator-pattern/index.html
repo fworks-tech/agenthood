@@ -86,16 +86,6 @@ routing guidance.</p>
 <p><strong>New risk:</strong> Without an automated orchestrator, long workflows rely on the
 developer remembering the correct sequence. The Steward&#39;s routing table and
 the <code>agentic-workflows/</code> templates mitigate this.</p>
-<h2>Update — Phase 3 (planned, v2.0.0)</h2>
-<p>The orchestrator described here will be implemented as a LangGraph <code>StateGraph</code> in
-<code>runtime/agenthood_runtime/orchestrator/graph.py</code>. Key components:</p>
-<ul>
-<li><code>OrchestratorState</code> — TypedDict holding task, active members, member outputs, approval state</li>
-<li><code>StewardRouter</code> — deterministic routing table derived from <code>the-steward/SKILL.md</code>; LLM-assisted for ambiguous tasks</li>
-<li><code>build_orchestrator_graph()</code> — nodes: <code>classify_task → route_members → execute_member → check_approval → advance_member</code></li>
-</ul>
-<p><code>MemorySaver</code> checkpointing enables resumable multi-step workflows via <code>--thread-id</code>.
-<code>interrupt_on</code> gates enforce the approval model documented in this ADR.</p>
 <h2>References</h2>
 <ul>
 <li><a href="https://github.com/fworks-tech/agenthood/blob/main/members/the-steward/SKILL.md">members/the-steward/SKILL.md</a> — routing guidance</li>

@@ -1,0 +1,278 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ADR-012: Error Handling and Resilience Strategy — Agenthood Academy</title>
+<style>
+body {
+  max-width: 42rem; margin: 2rem auto; padding: 0 1rem 4rem;
+  font-family: system-ui, -apple-system, sans-serif;
+  line-height: 1.75; color: #f4f4f5; background: #09090b; font-size: 1rem;
+}
+h1, h2, h3 { line-height: 1.3; margin-top: 2rem; color: #ffffff; }
+h1 { font-size: 1.75rem; border-bottom: 2px solid #27272a; padding-bottom: .5rem; }
+h2 { font-size: 1.35rem; }
+h3 { font-size: 1.1rem; }
+a { color: #a78bfa; }
+a:hover { text-decoration: underline; }
+pre, code { font-size: .9em; background: #18181b; border-radius: 6px; }
+code { padding: .15em .3em; border: 1px solid #27272a; }
+pre { padding: 1rem; overflow-x: auto; border: 1px solid #27272a; }
+pre code { background: none; padding: 0; border: none; }
+blockquote {
+  margin: 1rem 0; padding: .5rem 1rem;
+  border-left: 4px solid #a78bfa; background: #18181b;
+}
+table { border-collapse: collapse; width: 100%; margin: 1rem 0; }
+th, td { border: 1px solid #27272a; padding: .5rem; text-align: left; }
+th { background: #18181b; font-weight: 600; }
+ol, ul { padding-left: 1.5rem; }
+li { margin: .25rem 0; }
+hr { border: none; border-top: 1px solid #27272a; margin: 2rem 0; }
+main { min-height: 60vh; }
+</style>
+</head>
+<body>
+<main><h1>ADR-012: Error Handling and Resilience Strategy</h1>
+<p><strong>Date:</strong> 2026-06-24
+<strong>Status:</strong> Accepted</p>
+<h2>Context</h2>
+<p>The ProviderFailover module (<code>src/llm/ProviderFailover.ts</code>) implements a multi-layered resilience strategy, but the design decisions were never formally documented. The v2.0.0 Foundation Audit identified that ADR-011 and ADR-012 were stubs referenced in academy articles but never created. This ADR captures the error handling taxonomy, circuit breaker state machine, retry strategies, and the relationships between resilience components.</p>
+<p>The strategy spans three layers:</p>
+<ol>
+<li><strong>Rate limiter</strong> (proactive — prevents errors before they happen)</li>
+<li><strong>Circuit breaker</strong> (reactive — handles errors when they occur)</li>
+<li><strong>Provider chain</strong> (orchestration — rotates through providers)</li>
+</ol>
+<h2>Decision</h2>
+<h3>Failure classification taxonomy</h3>
+<p>All provider errors are classified into one of 7 categories by <code>classifyError()</code> in <code>ProviderFailover.ts</code>:</p>
+<table>
+<thead>
+<tr>
+<th>Category</th>
+<th>HTTP Codes</th>
+<th>Retryable</th>
+<th>Permanent</th>
+<th>Default Cooldown</th>
+<th>Behavior</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>auth</code></td>
+<td>401</td>
+<td>No</td>
+<td>Yes</td>
+<td>0ms</td>
+<td>Skip provider permanently, throw immediately</td>
+</tr>
+<tr>
+<td><code>payment</code></td>
+<td>402</td>
+<td>No</td>
+<td>Yes</td>
+<td>0ms</td>
+<td>Skip provider permanently</td>
+</tr>
+<tr>
+<td><code>rate_limited</code></td>
+<td>429</td>
+<td>Yes</td>
+<td>No</td>
+<td><code>Retry-After</code> header × 1000 (default 60s)</td>
+<td>Trip breaker, probe before cooldown expiry</td>
+</tr>
+<tr>
+<td><code>timeout</code></td>
+<td>408</td>
+<td>Yes</td>
+<td>No</td>
+<td>30s</td>
+<td>Trip breaker, retry with backoff</td>
+</tr>
+<tr>
+<td><code>unavailable</code></td>
+<td>503, 500+</td>
+<td>Yes</td>
+<td>No</td>
+<td>60s</td>
+<td>Trip breaker, probe before cooldown expiry</td>
+</tr>
+<tr>
+<td><code>model_not_found</code></td>
+<td>404</td>
+<td>No</td>
+<td>Yes</td>
+<td>0ms</td>
+<td>Skip provider permanently</td>
+</tr>
+<tr>
+<td><code>unknown</code></td>
+<td>Other</td>
+<td>No</td>
+<td>No</td>
+<td>0ms</td>
+<td>Propagate to caller — no circuit state change</td>
+</tr>
+</tbody></table>
+<p>Classification cascades: instanceof checks first (via typed error classes), then regex match for embedded HTTP status codes in error messages, then falls through to <code>unknown</code>.</p>
+<h3>Circuit breaker state machine</h3>
+<p>Three states, stored per-provider in <code>Map&lt;string, CircuitBreakerState&gt;</code>:</p>
+<pre><code>                  ┌──────────────────────────────────────┐
+                  │                                      │
+                  ▼                                      │
+    ┌─────────┐       permanent error       ┌────────┐  │
+    │  CLOSED │ ──────────────────────────▶  │  OPEN  │  │
+    │         │         (cooldown=inf)       │        │──┘
+    │ (normal)│                              │ (open) │
+    │         │◀──── probe succeeds ────────│        │
+    └─────────┘     (onSuccess())            └────────┘
+         │                                      │
+         │ retryable error          cooldown    │
+         │ (tripBreaker())          expires     │
+         │                                      │
+         ▼                                      ▼
+    ┌─────────┐                              ┌──────────┐
+    │         │                              │ HALF_OPEN │
+    │         │◀───── probe scheduled ──────│          │
+    │         │      (cooldown - 30s)        │  (probing)│
+    └─────────┘                              └──────────┘
+                                                   │
+                                          probe     │
+                                          fails     │
+                                                   ▼
+                                               ┌────────┐
+                                               │  OPEN  │
+                                               └────────┘
+</code></pre>
+<p><strong>Transitions:</strong></p>
+<ul>
+<li><strong>CLOSED → OPEN:</strong> <code>tripBreaker()</code> called when failure count reaches <code>failureThreshold</code> (default: 1). Permanent errors (auth, payment) always open immediately regardless of threshold. Sets <code>cooldownUntil</code> timestamp.</li>
+<li><strong>OPEN → HALF_OPEN:</strong> <code>activeProviders()</code> runs before each request. If <code>Date.now() &gt;= probeScheduledAt</code>, transitions to probing state.</li>
+<li><strong>HALF_OPEN → CLOSED:</strong> <code>onSuccess()</code> resets failure count and cooldown. The probe request succeeded.</li>
+<li><strong>HALF_OPEN → OPEN:</strong> If probe request fails, <code>tripBreaker()</code> is called again, resetting cooldown.</li>
+</ul>
+<h3>Retry/backoff strategies (5 strategies)</h3>
+<p>Defined in <code>executeWithStrategy()</code> and the provider loop in <code>complete()</code>:</p>
+<p>1-2. <strong>Immediate retry + exponential backoff</strong> — Up to 3 attempts on the same provider with backoff <code>1000 × 2^(retry-1+index)</code> ms. Permanent errors (except <code>model_not_found</code>) throw immediately without retry.
+3. <strong>Provider rotation</strong> — If all strategies on provider A fail, move to provider B in the chain
+4. <strong>Model downgrade</strong> — When primary model fails on a provider, retry with cheaper/faster model on the same provider using a <code>modelMap</code> per-provider. Implemented in <code>executeWithStrategy()</code> for <code>complete()</code>, and in-stream for <code>stream()</code> and <code>embed()</code>. Falls through to <code>model_not_found</code> when all models are exhausted.
+5. <strong>Human escalation</strong> — NOT YET IMPLEMENTED. When all providers and models fail, surface the error chain to the user</p>
+<h3>Probe recovery</h3>
+<p>Probe requests are sent 30 seconds before cooldown expiry (<code>probeScheduledAt = cooldownUntil - 30_000</code>). This preemptive approach:</p>
+<ul>
+<li>Reduces user-visible latency (no need to wait for full cooldown)</li>
+<li>Works for cooldowns &gt; 30s (rate_limited: 60s, unavailable: 60s, timeout: 30s — timeout is borderline)</li>
+<li>Uses <code>activeProviders()</code> filter, called at the start of every <code>complete()</code> and <code>stream()</code> invocation</li>
+<li>No separate probe request — the next user request to that provider serves as the probe</li>
+<li>Also transitions OPEN → HALF_OPEN when cooldown expires naturally (<code>Date.now() &gt;= cooldownUntil</code>), providing a second recovery path in <code>activeProviders()</code></li>
+</ul>
+<h3>Error propagation across the provider chain</h3>
+<pre><code>Provider A (preferred)
+  ├── Strategy 1: immediate retry
+  ├── Strategy 2: exponential backoff
+  ├── Strategy 3: provider rotation (to B)
+  └── Strategy 4: model downgrade (on A, fallback models via modelMap)
+
+Provider B (fallback 1)  ← same strategy set repeats
+Provider C (fallback 2)  ← same strategy set repeats
+
+All failed → AllProvidersFailedError with concatenated error messages
+</code></pre>
+<p><code>AllProvidersFailedError</code> carries a <code>category</code> field reflecting the most recent failure category, enabling callers to make informed decisions about what to report to the user.</p>
+<h3>Relationship to RiskManager and SafetyGuard</h3>
+<table>
+<thead>
+<tr>
+<th>Component</th>
+<th>Concern</th>
+<th>Interaction with ProviderFailover</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><strong>ProviderFailover</strong></td>
+<td>Provider reliability</td>
+<td>Circuit breaker, failover, retry</td>
+</tr>
+<tr>
+<td><strong>RiskManager</strong></td>
+<td>Tool-level safety (paths, hosts, file size)</td>
+<td>Separate — validates inputs before any provider call</td>
+</tr>
+<tr>
+<td><strong>SafetyGuard</strong></td>
+<td>Agent loop safety (caps, profiles, loop detection)</td>
+<td>Separate — monitors agent behavior, not provider calls</td>
+</tr>
+<tr>
+<td><strong>RateLimiter</strong></td>
+<td>Request throttling (proposed in ADR-011)</td>
+<td>Prevents 429s; circuit breaker handles them when they occur</td>
+</tr>
+</tbody></table>
+<h2>Alternatives Considered</h2>
+<table>
+<thead>
+<tr>
+<th>Strategy</th>
+<th>Pros</th>
+<th>Cons</th>
+<th>Why Rejected</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Exponential backoff only (no circuit breaker)</td>
+<td>Simpler implementation</td>
+<td>No cooldown — hammering provider on every retry</td>
+<td>Without circuit breaker, transient errors cause sustained load</td>
+</tr>
+<tr>
+<td>Circuit breaker without probe recovery</td>
+<td>Simpler state machine</td>
+<td>Must wait full cooldown before retrying — poor UX</td>
+<td>Preemptive probes reduce visible latency</td>
+</tr>
+<tr>
+<td>All errors are permanent</td>
+<td>Simple, predictable</td>
+<td>Poor resilience — any transient failure kills the agent</td>
+<td>Unacceptable for production use</td>
+</tr>
+<tr>
+<td>Single provider, no failover</td>
+<td>Simplest possible</td>
+<td>Single point of failure</td>
+<td>Incompatible with M4 requirements</td>
+</tr>
+</tbody></table>
+<h2>Consequences</h2>
+<p><strong>Easier:</strong></p>
+<ul>
+<li>Clear taxonomy for classifying any provider error</li>
+<li>State machine is simple enough to reason about and test</li>
+<li>Probe recovery reduces user-visible latency</li>
+<li>Provider chain is extensible (add a provider → more resilience)</li>
+</ul>
+<p><strong>Harder:</strong></p>
+<ul>
+<li>5 strategies are split across two code paths (executeWithStrategy + provider loop) — non-obvious</li>
+<li>No Retry-After header parsing (hardcoded defaults)</li>
+<li>Probe recovery at <code>cooldown - 30s</code> is a heuristic — may not match all provider rate limit windows</li>
+</ul>
+<p><strong>Deferred to #217:</strong></p>
+<ul>
+<li>Strategy 5 (human escalation) — surface the error chain to the user when all providers and models fail</li>
+</ul>
+<h2>References</h2>
+<ul>
+<li><a href="https://github.com/fworks-tech/agenthood/blob/main/src/llm/ProviderFailover.ts">ProviderFailover.ts</a> — implementation</li>
+<li><a href="../../specs/provider-failover/">docs/specs/provider-failover.md</a> — full spec with acceptance criteria</li>
+<li><a href="../ADR-008-typescript-runtime-over-python/">ADR-008</a> — TypeScript runtime</li>
+<li><a href="../ADR-009-groq-as-default-llm-provider/">ADR-009</a> — default LLM provider</li>
+<li><a href="../ADR-011-rate-limiter-and-state-store/">ADR-011</a> — rate limiting (companion resilience layer)</li>
+<li><a href="../../academy/level-2-agent-essentials/04-agent-workflows/">Academy: Agent Workflows</a> — original ADR-012 stub reference</li>
+</ul>
+</main>
+</body>
+</html>

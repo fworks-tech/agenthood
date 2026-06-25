@@ -205,7 +205,8 @@ export class ProviderChain implements ILLMProvider {
         } catch (err) {
           lastError = err
           const classified = classifyError(err)
-          if (classified.permanent) break
+          // ModelNotFoundError is model-specific, not provider-fatal — try next fallback
+          if (classified.permanent && classified.category !== 'model_not_found') break
         }
       }
 
@@ -251,14 +252,20 @@ export class ProviderChain implements ILLMProvider {
         } catch (err) {
           lastError = err
           const classified = classifyError(err)
-          if (classified.permanent) break
+          if (classified.permanent && classified.category !== 'model_not_found') break
         }
       }
 
       if (lastError) {
+        const classified = classifyError(lastError)
         const msg = lastError instanceof Error ? lastError.message : String(lastError)
         errors.push(`${name}: ${msg}`)
-        this.tripBreaker(name, 60_000)
+
+        if (classified.permanent) {
+          this.tripBreaker(name, Infinity)
+        } else if (classified.retryable) {
+          this.tripBreaker(name, classified.cooldownMs)
+        }
       }
     }
 
@@ -307,9 +314,10 @@ export class ProviderChain implements ILLMProvider {
         }
         return await provider.complete(request)
       } catch (err) {
-        lastError = err
-        const classified = classifyError(err)
-        if (classified.permanent) throw err
+          lastError = err
+          const classified = classifyError(err)
+          // ModelNotFoundError is model-specific — fall through to Strategy 4 for fallback models
+          if (classified.permanent && classified.category !== 'model_not_found') throw err
       }
     }
 
@@ -326,7 +334,8 @@ export class ProviderChain implements ILLMProvider {
         } catch (err) {
           lastError = err
           const classified = classifyError(err)
-          if (classified.permanent) break
+          // ModelNotFoundError is model-specific, not provider-fatal — try next fallback
+          if (classified.permanent && classified.category !== 'model_not_found') break
         }
       }
     }

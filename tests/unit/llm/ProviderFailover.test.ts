@@ -329,6 +329,105 @@ describe('ProviderChain', () => {
       expect(provider.setModel).toHaveBeenCalledWith('haiku')
     })
 
+    it('downgrades model on complete when primary throws ModelNotFoundError', async () => {
+      const modelErrors = new Map<string, Error>()
+      let currentModel = 'sonnet'
+      const provider = {
+        complete: vi.fn().mockImplementation(async () => {
+          if (modelErrors.has(currentModel)) throw modelErrors.get(currentModel)!
+          return {
+            content: `${currentModel} response`,
+            usage: { promptTokens: 10, completionTokens: 5, totalTokens: 15 },
+            model: currentModel,
+          }
+        }),
+        stream: vi.fn(),
+        embed: vi.fn().mockResolvedValue([0.1, 0.2, 0.3]),
+        getContextWindow: () => 8192,
+        setModel: vi.fn().mockImplementation((m: string) => { currentModel = m }),
+      }
+      modelErrors.set('sonnet', new ModelNotFoundError('sonnet removed', 'sonnet'))
+
+      const modelMap = new Map([['anthropic', ['sonnet', 'haiku']]])
+      const chain = new ProviderChain([provider], ['anthropic'], undefined, modelMap)
+
+      const result = await chain.complete({ messages: [{ role: 'user', content: 'hello' }] })
+      expect(result.content).toBe('haiku response')
+      expect(provider.setModel).toHaveBeenCalledWith('haiku')
+    })
+
+    it('downgrades model on stream when primary throws ModelNotFoundError', async () => {
+      const modelErrors = new Map<string, Error>()
+      let currentModel = 'sonnet'
+      const provider = {
+        complete: vi.fn(),
+        stream: vi.fn().mockImplementation(async function* () {
+          if (modelErrors.has(currentModel)) throw modelErrors.get(currentModel)!
+          yield { delta: `${currentModel} chunk`, done: false }
+          yield { delta: '', done: true }
+        }),
+        embed: vi.fn().mockResolvedValue([0.1, 0.2, 0.3]),
+        getContextWindow: () => 8192,
+        setModel: vi.fn().mockImplementation((m: string) => { currentModel = m }),
+      }
+      modelErrors.set('sonnet', new ModelNotFoundError('sonnet removed', 'sonnet'))
+
+      const modelMap = new Map([['anthropic', ['sonnet', 'haiku']]])
+      const chain = new ProviderChain([provider], ['anthropic'], undefined, modelMap)
+
+      const gen = await chain.stream({ messages: [{ role: 'user', content: 'hello' }] })
+      const chunks: string[] = []
+      for await (const chunk of gen) {
+        chunks.push(chunk.delta)
+      }
+      expect(chunks.join('')).toBe('haiku chunk')
+      expect(provider.setModel).toHaveBeenCalledWith('haiku')
+    })
+
+    it('downgrades model on embed when primary throws ModelNotFoundError', async () => {
+      let currentModel = 'sonnet'
+      const provider = {
+        complete: vi.fn(),
+        stream: vi.fn(),
+        embed: vi.fn().mockImplementation(async () => {
+          if (currentModel === 'sonnet') throw new ModelNotFoundError('sonnet removed', 'sonnet')
+          return [0.5, 0.6, 0.7]
+        }),
+        getContextWindow: () => 8192,
+        setModel: vi.fn().mockImplementation((m: string) => { currentModel = m }),
+      }
+
+      const modelMap = new Map([['anthropic', ['sonnet', 'haiku']]])
+      const chain = new ProviderChain([provider], ['anthropic'], undefined, modelMap)
+
+      const result = await chain.embed('test text')
+      expect(result).toEqual([0.5, 0.6, 0.7])
+      expect(provider.setModel).toHaveBeenCalledWith('haiku')
+    })
+
+    it('trips embed provider permanently on AuthError instead of hardcoded 60s', async () => {
+      let currentModel = 'sonnet'
+      const provider = {
+        complete: vi.fn(),
+        stream: vi.fn(),
+        embed: vi.fn().mockImplementation(async () => {
+          throw new AuthError('bad key')
+        }),
+        getContextWindow: () => 8192,
+        setModel: vi.fn().mockImplementation((m: string) => { currentModel = m }),
+      }
+      const backup = mockProvider('backup')
+
+      const chain = new ProviderChain([provider, backup], ['primary', 'backup'], undefined)
+
+      await chain.embed('test text')
+
+      // Should be OPEN with Infinity cooldown, not 60_000
+      const state = chain.getBreakerState('primary')!
+      expect(state.state).toBe('OPEN')
+      expect(state.cooldownUntil).toBe(Infinity)
+    })
+
     it('downgrades model on embed when primary model fails', async () => {
       let currentModel = 'sonnet'
       const provider = {

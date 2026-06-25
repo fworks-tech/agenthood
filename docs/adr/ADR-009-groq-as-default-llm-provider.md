@@ -15,13 +15,13 @@ a billing account to experience the Society's agentic capabilities.
 
 ## Decision
 
-Groq is the default LLM provider in `src/llm/providers/GroqProvider.ts`. It is
+Groq is the default LLM provider in `src/llm/GroqProvider.ts`. It is
 selected for its free tier, low-latency inference (LPU hardware), and OpenAI-compatible
 API surface, which minimises the `ILLMProvider` implementation complexity.
 
 Adopters can override the provider via `.agenthood/config.json`:
 ```json
-{ "llm": { "provider": "anthropic", "model": "claude-sonnet-4-6" } }
+{ "llm": { "provider": "anthropic", "model": "claude-sonnet-4-20250514" } }
 ```
 
 ## Alternatives Considered

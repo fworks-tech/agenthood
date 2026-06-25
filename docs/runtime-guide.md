@@ -40,6 +40,26 @@ The runtime supports automatic provider failover when a provider fails (rate lim
 
 See `.agenthood/config.example.json` for the complete reference.
 
+## API Key Validation
+
+The runtime validates LLM API keys at startup before making any provider calls. Only the configured provider's key is checked — if you set `provider` to `"ollama"`, no key validation is performed.
+
+Key resolution order (per provider):
+1. `providers[].apiKey` — key in config array entry
+2. `apiKey` — top-level key in config
+3. `GROQ_API_KEY` / `OPENAI_API_KEY` / `ANTHROPIC_API_KEY` — environment variables
+
+If no key is found and the provider requires one, startup fails with:
+```
+GROQ_API_KEY not set for provider "groq". Get a key at https://console.groq.com
+```
+
+Run `npx agenthood check` to verify API key configuration as part of a full health check.
+
+### Ollama / Local Providers
+
+Providers not in the known key list (ollama, custom-local) skip key validation entirely — no key required.
+
 ## CLI Provider Override
 
 Override the provider at runtime:

@@ -215,8 +215,8 @@ agenthood/
 │   ├── agents/                      ← BaseAgent + 4 specialized agents
 │   ├── llm/                         ← ILLMProvider, LLMRouter, 4 providers
 │   ├── skills/                      ← ISkill, SkillRegistry
-│   ├── core/                        ← SafetyGuard, ConcurrencyQueue, RiskManager
-│   ├── reasoning/                   ← ReActLoop, ThinkingBudget, SchemaValidator
+│   ├── core/                        ← SafetyGuard, ConcurrencyQueue, RiskManager, SchemaValidator
+│   ├── reasoning/                   ← ReActLoop, ThinkingBudget
 │   ├── members/                     ← MemberRegistry, MemberAgent
 │   └── prompts/                     ← Templates, PromptBuilder, PromptRegistry
 │

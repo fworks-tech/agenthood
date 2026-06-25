@@ -9,7 +9,7 @@ Agenthood has four distribution channels available simultaneously. With a single
 
 The four channels:
 
-1. **npm** — `npm install --save-dev agenthood`. Published automatically via `@semantic-release/npm` on every `main` push. Currently at v2.2.0. Requires keyword optimisation for discoverability.
+1. **npm** — `npm install --save-dev agenthood`. Published automatically via `@semantic-release/npm` on every `main` push. Currently published as latest (managed by semantic-release). Requires keyword optimisation for discoverability.
 2. **Skills.sh** — 600k+ skills marketplace, Vercel-backed. Skills appear automatically once installed via `npx agenthood init`. Zero-cost listing via `skills.sh.json`.
 3. **VS Code Marketplace** — IDE extension (`agenthood-vscode`). Published via `.github/workflows/vscode-extension.yml`. Currently at v0.1.0. Requires publisher account setup and ongoing maintenance.
 4. **SkillsMP** — 1.7M+ skills, GitHub-scrape-based. Requires 2+ stars for listing. Star count currently insufficient.
@@ -45,7 +45,7 @@ This order reflects the **minimum effort for maximum incremental visibility** pr
 - If npm keyword optimisation does not move the needle within 4 weeks, the entire strategy pivots
 
 **Re-prioritisation trigger:**
-If npm weekly downloads do not reach 50 within 4 weeks of keyword optimisation, escalate VS Code Marketplace to #2 priority and begin active publisher setup.
+If npm weekly downloads do not reach 50 within 4 weeks of keyword optimisation, escalate VS Code Marketplace to #2 priority and begin active publisher setup. Skills.sh and SkillsMP priorities remain unchanged in this scenario — Skills.sh is already zero-cost and SkillsMP remains star-gated regardless of channel priority.
 
 ## References
 

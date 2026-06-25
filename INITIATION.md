@@ -173,7 +173,7 @@ Expected output:
 For teams who want members to execute autonomously — reasoning, acting, and remembering
 across sessions without a human in the loop — use the TypeScript runtime.
 
-**Requirements:** Node.js 18+, `GROQ_API_KEY` (free at console.groq.com) or Ollama (offline)
+**Requirements:** Node.js 22.14+, `GROQ_API_KEY` (free at console.groq.com) or Ollama (offline)
 
 ```bash
 # Build the runtime (once, after install)

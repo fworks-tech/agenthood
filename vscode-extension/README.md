@@ -11,8 +11,8 @@ Shows how many Society members are active in your project.
 Click to open the member list.
 
 ```
-🏛️ 9/9   ← all members active
-🏛️ 3/9   ← partial activation
+🏛️ 14/14   ← all members active
+🏛️ 3/14    ← partial activation
 ```
 
 ### 🎛️ Command Palette
@@ -104,7 +104,7 @@ npm run package  # Creates .vsix file
 - Ensure you have `.gitmessage` or `commitlint.config.ts` in your workspace
 - Verify Agenthood is initialized: `npx agenthood init`
 
-### Status bar shows 0/9 members
+### Status bar shows 0/14 members
 - Check that member skill files exist in `.agenthood/skills/` or `.claude/skills/`
 - Run `npx agenthood list` to verify setup
 
@@ -114,20 +114,18 @@ npm run package  # Creates .vsix file
 
 ---
 
-## Runtime Integration (v2.0.0 — planned)
+## Runtime Integration (v2.0.0)
 
-When the TypeScript runtime is installed and `ANTHROPIC_API_KEY` is set, a future
-version of this extension will surface `agenthood` commands directly in the
-Command Palette:
+The TypeScript runtime is accessible via the integrated terminal:
 
-| Command | What it does |
-|---------|-------------|
-| `Agenthood: Invoke Member` | Pick a member and enter a task — streams output in a panel |
-| `Agenthood: Review Current File` | Runs `the-reviewer` against the active editor file |
-| `Agenthood: Write Commit Message` | Runs `the-scribe` against the current staged diff |
-| `Agenthood: Start Ritual Scheduler` | Starts the APScheduler daemon for ritual automations |
+```bash
+npm run build
+agenthood list               # list all 14 members
+agenthood run the-scribe "..."   # invoke a member
+```
 
-Until then, the runtime is accessible via the integrated terminal with `agenthood-run`.
+A future version of this extension will surface `agenthood` commands directly
+in the Command Palette.
 
 ## The Society
 

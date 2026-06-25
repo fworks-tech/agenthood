@@ -5,6 +5,14 @@
 
 ---
 
+## v2.3.1 — June 25, 2026
+
+### 🐛 Bug Fixes
+
+- **Workflows:** correct yaml indentation in member attribution comments (#260)
+
+---
+
 ## v2.3.0 — June 25, 2026
 
 ### 🐛 Bug Fixes

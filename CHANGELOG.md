@@ -1,3 +1,10 @@
+## [2.3.1](https://github.com/fworks-tech/agenthood/compare/v2.3.0...v2.3.1) (2026-06-25)
+
+
+### Bug Fixes
+
+* **workflows:** correct yaml indentation in member attribution comments ([#260](https://github.com/fworks-tech/agenthood/issues/260)) ([f3f102b](https://github.com/fworks-tech/agenthood/commit/f3f102b43549a03ff02d9a4d750fda53f6d3d431))
+
 # [2.3.0](https://github.com/fworks-tech/agenthood/compare/v2.2.0...v2.3.0) (2026-06-25)
 
 

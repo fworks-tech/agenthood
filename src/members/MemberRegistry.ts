@@ -2,7 +2,7 @@
  * src/members/MemberRegistry.ts
  *
  * Canonical spec for all 14 Society members. This is the TypeScript runtime's
- * equivalent of `runtime/agenthood_runtime/members/specs.py`. Every member's
+ * registry. Every member's
  * tool scope, permission profile, and preferred provider is defined here and
  * derived from the architecture docs.
  */

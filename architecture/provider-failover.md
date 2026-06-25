@@ -118,16 +118,13 @@ Five recovery strategies are available for sustained failures:
 
 ---
 
-## Credential Security
+## Credential Security (Planned)
 
 API keys never reach the agent directly.
 
-An HTTP proxy on `localhost` injects credentials from the OS keychain into outbound LLM requests:
-- Routes per provider
-- Session token authentication between agent and proxy
-- Per-provider rate limiting enforced at proxy layer
-- Audit log (ring buffer, 1000 entries) for all credential usage
-- 10 MB body size limit
+An HTTP proxy on `localhost` injects credentials from the OS keychain into outbound LLM requests
+(not yet implemented). Currently, credentials are injected at the provider constructor level
+from environment variables.
 
 ---
 

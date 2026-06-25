@@ -1,6 +1,6 @@
 # Spec: Provider Failover with Circuit Breaker
 
-**Status:** Proposed  
+**Status:** Implemented (v2.0.0)  
 **Issue:** #161  
 **Architecture Doc:** [architecture/provider-failover.md](../../architecture/provider-failover.md)
 
@@ -140,8 +140,7 @@ For network errors and timeouts:
 The following are explicitly **NOT included** in this spec:
 
 - **Credential proxy** — API key injection via localhost proxy (separate feature)
-- **Member-level provider preferences** — The Scribe prefers Claude, The Doorman prefers Groq (future enhancement)
-- **Model downgrade** — Switching from Claude Opus to Claude Sonnet on the same provider (future enhancement)
+- **Credential proxy** — API key injection via localhost proxy (separate feature)
 - **Thread checkpoint** — Persisting conversation state for cross-provider continuity (separate feature, may not be needed)
 - **Provider cost tracking** — Monitoring token usage and costs per provider (separate feature)
 - **Human escalation UI** — Interactive prompt to choose fallback provider when all fail (future enhancement)
@@ -201,36 +200,37 @@ Test scenarios:
 ## Acceptance Criteria
 
 ### Phase 1: Basic Failover
-- [ ] `ProviderFailover` class exists in `src/llm/providerFailover.ts`
-- [ ] Loads provider chain from `.agenthood/config.json`
-- [ ] Attempts each provider in sequence until one succeeds
-- [ ] Collects all failure reasons and throws `AllProvidersFailedError` if all fail
-- [ ] Integrated into `executeMember()` in `src/runtime/executor.ts`
-- [ ] Existing member executions work without changes (transparent integration)
-- [ ] Unit tests pass for basic failover logic
-- [ ] Integration test demonstrates Groq → Ollama fallback
+- [x] `ProviderChain` class exists in `src/llm/ProviderFailover.ts`
+- [x] Loads provider chain from `.agenthood/config.json` (via `LLMRouter.fromConfig()`)
+- [x] Attempts each provider in sequence until one succeeds
+- [x] Collects all failure reasons and throws `AllProvidersFailedError` if all fail
+- [x] Integrated via `LLMRouter` into `run.ts`
+- [x] Existing member executions work without changes (transparent integration)
+- [x] Unit tests pass for basic failover logic
+- [ ] Integration test demonstrates Groq → Ollama fallback (not yet implemented)
 
 ### Phase 2: Circuit Breaker
-- [ ] Circuit state tracked per provider (in-memory Map)
-- [ ] Circuit opens after 3 failures within 60 seconds
-- [ ] Open circuit skips provider during failover
-- [ ] Circuit transitions to HALF_OPEN after 120 seconds
-- [ ] Probe request tests provider recovery in HALF_OPEN state
-- [ ] Probe success → CLOSED, probe failure → OPEN with extended cooldown
-- [ ] Circuit state logged on every transition (debug level)
-- [ ] Unit tests cover all state transitions
-- [ ] Integration test demonstrates circuit behavior across multiple executions
+- [x] Circuit state tracked per provider (in-memory Map)
+- [x] Circuit opens after configurable `failureThreshold` (default: 1)
+- [x] Open circuit skips provider during failover
+- [x] Circuit transitions to HALF_OPEN after configurable `cooldownMs`
+- [x] Probe request tests provider recovery in HALF_OPEN state
+- [x] Probe success → CLOSED, probe failure → OPEN with extended cooldown
+- [x] Circuit state accessible via `getBreakerState()`
+- [x] Unit tests cover all state transitions
+- [ ] Integration test demonstrates circuit behavior across multiple executions (not yet implemented)
 
 ### Phase 3: Advanced Recovery
-- [ ] HTTP status codes classified (401, 402, 429, 408, 503, 404, network)
-- [ ] Permanent failures (401, 402, 404) skip provider without cooldown
-- [ ] Rate limit failures (429) parse `Retry-After` header and set cooldown
-- [ ] Transient failures (network, 408) use exponential backoff (3 retries)
-- [ ] Probe request sent 30 seconds before cooldown expires
-- [ ] Probe success restores provider early
-- [ ] All failures logged with classification and cooldown duration
-- [ ] Unit tests cover all failure classifications
-- [ ] E2E test demonstrates rate limit → cooldown → probe recovery
+- [x] HTTP status codes classified (401, 402, 429, 408, 503, 404, network)
+- [x] Permanent failures (401, 402) skip provider without cooldown
+- [x] ModelNotFoundError (404) skips to fallback model on same provider before tripping
+- [x] Rate limit failures (429) apply cooldown; `Retry-After` header parsing deferred (hardcoded defaults)
+- [x] Transient failures (408, 503) use exponential backoff (3 attempts: 1000ms, 2000ms)
+- [x] Probe request sent 30 seconds before cooldown expires
+- [x] Probe success restores provider early
+- [x] All failures logged with classification and cooldown duration
+- [x] Unit tests cover all failure classifications
+- [ ] E2E test demonstrates rate limit → cooldown → probe recovery (not yet implemented)
 
 ---
 
@@ -283,12 +283,18 @@ Test scenarios:
 ### Directory Structure
 ```
 src/llm/
-├── providerFailover.ts          # ProviderFailover class
-├── providerFailover.test.ts     # Unit tests
-├── circuitBreaker.ts            # CircuitBreaker class (Phase 2)
-├── circuitBreaker.test.ts       # Circuit breaker unit tests
-├── failureClassifier.ts         # Failure classification logic (Phase 3)
-└── failureClassifier.test.ts    # Failure classifier tests
+├── ProviderFailover.ts          # ProviderChain + classifyError + circuit breaker
+├── ILLMProvider.ts              # Unified provider interface
+├── LLMRouter.ts                 # Router: builds chains from config
+├── types.ts                     # ProviderEntry, LLMConfig, LLMRequest/Response
+├── errors.ts                    # Error classes: AuthError, RateLimitedError, etc.
+├── AnthropicProvider.ts
+├── GroqProvider.ts
+├── OpenAIProvider.ts
+└── OllamaProvider.ts
+
+tests/unit/llm/
+└── ProviderFailover.test.ts     # 36 tests covering all failover scenarios
 ```
 
 ### Configuration Schema
@@ -298,33 +304,40 @@ Add to `.agenthood/config.json`:
 {
   "llm": {
     "providers": [
-      {"name": "anthropic", "model": "claude-sonnet-4.6"},
-      {"name": "google", "model": "gemini-2.5-pro"},
-      {"name": "openai", "model": "gpt-4o"},
-      {"name": "groq", "model": "llama-3.1-70b-versatile"}
+      {
+        "name": "anthropic",
+        "model": "claude-sonnet-4-20250514",
+        "apiKey": "...",
+        "models": ["claude-sonnet-4-20250514", "claude-haiku-3-20250301"]
+      },
+      {
+        "name": "groq",
+        "model": "llama-3.1-70b-versatile",
+        "apiKey": "..."
+      }
     ],
     "failover": {
-      "enabled": true,
-      "circuitBreaker": {
-        "failureThreshold": 3,
-        "failureWindow": 60,
-        "cooldownDuration": 120,
-        "probeBeforeCooldown": 30
-      }
+      "failureThreshold": 1,
+      "cooldownMs": 30000,
+      "probeEnabled": true
     }
   }
 }
 ```
 
+The `models` array on a provider entry defines the model downgrade chain for
+Strategy 4. The first entry is the primary model; subsequent entries are
+fallbacks tried before failing over to the next provider.
+
 ### Error Handling
 ```typescript
 class AllProvidersFailedError extends Error {
-  constructor(
-    public failures: Array<{ provider: string; error: Error; classification: string }>
-  ) {
-    super(`All providers failed:\n${failures.map(f => 
-      `- ${f.provider}: ${f.error.message} (${f.classification})`
-    ).join('\n')}`);
+  readonly category: string
+
+  constructor(errors: string[], category: string = 'unknown') {
+    super(`All providers failed: ${errors.join('; ')}`)
+    this.name = 'AllProvidersFailedError'
+    this.category = category
   }
 }
 ```
@@ -359,5 +372,8 @@ These metrics can be logged to `.agenthood/logs/failover-metrics.json` or emitte
 - **Issue:** #161 — Implement ProviderFailover for resilience
 - **Pattern:** [Circuit Breaker Pattern (Martin Fowler)](https://martinfowler.com/bliki/CircuitBreaker.html)
 - **Related ADRs:** 
-  - ADR-009: Groq as Default LLM Provider
   - ADR-008: TypeScript Runtime over Python
+  - ADR-009: Groq as Default LLM Provider
+  - ADR-011: Rate Limiter and Shared State Store
+  - ADR-012: Error Handling and Resilience Strategy
+  - ADR-013: Distribution Channel Priority

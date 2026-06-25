@@ -29,3 +29,6 @@ skills-lock.json
 .gemini/skills/
 .github/copilot/
 .copilot/skills/
+
+# Provider-specific agent definitions (generated from members/)
+.opencode/

@@ -1,0 +1,13 @@
+{
+  "$schema": "https://opencode.ai/config.json",
+  "skills": {
+    "paths": ["members"]
+  },
+  "instructions": ["AGENTS.md"],
+  "agent": {
+    "the-steward": {
+      "description": "Route tasks to the minimal set of Agenthood members. Start here for any Agenthood task.",
+      "mode": "primary"
+    }
+  }
+}

@@ -64,7 +64,7 @@ Three states, stored per-provider in `Map<string, CircuitBreakerState>`:
 ```
 
 **Transitions:**
-- **CLOSED → OPEN:** `tripBreaker()` called on any classified error. Sets `cooldownUntil` timestamp.
+- **CLOSED → OPEN:** `tripBreaker()` called when failure count reaches `failureThreshold` (default: 1). Permanent errors (auth, payment) always open immediately regardless of threshold. Sets `cooldownUntil` timestamp.
 - **OPEN → HALF_OPEN:** `activeProviders()` runs before each request. If `Date.now() >= probeScheduledAt`, transitions to probing state.
 - **HALF_OPEN → CLOSED:** `onSuccess()` resets failure count and cooldown. The probe request succeeded.
 - **HALF_OPEN → OPEN:** If probe request fails, `tripBreaker()` is called again, resetting cooldown.
@@ -73,10 +73,9 @@ Three states, stored per-provider in `Map<string, CircuitBreakerState>`:
 
 Defined in `executeWithStrategy()` and the provider loop in `complete()`:
 
-1. **Immediate retry** — Retry the same provider once immediately for transient errors
-2. **Exponential backoff** — Sleep `1000 × 2^index` ms then retry (index = retry attempt number)
+1-2. **Immediate retry + exponential backoff** — Up to 3 attempts on the same provider with backoff `1000 × 2^(retry-1+index)` ms. Permanent errors (except `model_not_found`) throw immediately without retry.
 3. **Provider rotation** — If all strategies on provider A fail, move to provider B in the chain
-4. **Model downgrade** — NOT YET IMPLEMENTED. When primary model fails on a provider, retry with cheaper/faster model on the same provider (tracked in #217)
+4. **Model downgrade** — When primary model fails on a provider, retry with cheaper/faster model on the same provider using a `modelMap` per-provider. Implemented in `executeWithStrategy()` for `complete()`, and in-stream for `stream()` and `embed()`. Falls through to `model_not_found` when all models are exhausted.
 5. **Human escalation** — NOT YET IMPLEMENTED. When all providers and models fail, surface the error chain to the user
 
 ### Probe recovery
@@ -87,6 +86,7 @@ Probe requests are sent 30 seconds before cooldown expiry (`probeScheduledAt = c
 - Works for cooldowns > 30s (rate_limited: 60s, unavailable: 60s, timeout: 30s — timeout is borderline)
 - Uses `activeProviders()` filter, called at the start of every `complete()` and `stream()` invocation
 - No separate probe request — the next user request to that provider serves as the probe
+- Also transitions OPEN → HALF_OPEN when cooldown expires naturally (`Date.now() >= cooldownUntil`), providing a second recovery path in `activeProviders()`
 
 ### Error propagation across the provider chain
 
@@ -95,7 +95,7 @@ Provider A (preferred)
   ├── Strategy 1: immediate retry
   ├── Strategy 2: exponential backoff
   ├── Strategy 3: provider rotation (to B)
-  └── Strategy 4: model downgrade (on A, not yet implemented)
+  └── Strategy 4: model downgrade (on A, fallback models via modelMap)
 
 Provider B (fallback 1)  ← same strategy set repeats
 Provider C (fallback 2)  ← same strategy set repeats
@@ -133,14 +133,11 @@ All failed → AllProvidersFailedError with concatenated error messages
 
 **Harder:**
 - 5 strategies are split across two code paths (executeWithStrategy + provider loop) — non-obvious
-- No configurable failure threshold (always trips on first error)
 - No Retry-After header parsing (hardcoded defaults)
 - Probe recovery at `cooldown - 30s` is a heuristic — may not match all provider rate limit windows
 
 **Deferred to #217:**
-- Strategy 4 (model downgrade per-provider)
-- Strategy 5 (human escalation)
-- Configurable circuit breaker thresholds (`failureThreshold`, `failureWindow`)
+- Strategy 5 (human escalation) — surface the error chain to the user when all providers and models fail
 
 ## References
 

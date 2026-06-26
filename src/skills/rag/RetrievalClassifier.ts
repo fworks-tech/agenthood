@@ -27,14 +27,14 @@ export class RetrievalClassifier implements ISkill {
   }
 
   classify(query: string, context: ExecutionContext): RetrievalStrategy {
-    const lowerQuery = query.toLowerCase()
+    const lowerQuery = query.toLowerCase().slice(0, 2000)
 
     if (this.isAnswerableFromSTM(query, context)) {
       return 'skip'
     }
 
     const graphRoots = ['depend', 'call', 'import', 'extend', 'implement', 'relat',
-      'connect', 'neighbor', 'referenc', 'affect', 'us', 'use']
+      'connect', 'neighbor', 'referenc', 'affect', 'use']
     const vectorRoots = ['what ', 'explain', 'describe', 'summariz', 'mean',
       'concept', 'purpose', 'overview', 'differ', 'how ']
 

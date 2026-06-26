@@ -12,7 +12,7 @@ Retrieval-Augmented Generation (RAG) comes in two flavors, and confusing them is
 
 **Agentic RAG** treats retrieval as a decision the agent makes. The agent looks at the query, considers what it already knows, considers what sources are available, and decides: retrieve now, retrieve from a different source, or skip retrieval entirely because the answer is already in context. Retrieval becomes a tool the agent calls when it judges it necessary — not a pipeline that runs regardless.
 
-The architectural difference is where the retrieval logic lives. In passive RAG, it lives in a hardcoded pipeline before the LLM. In Agentic RAG, it lives *inside* the agent's reasoning loop, as a `RetrievalDecisionSkill` the agent invokes like any other tool. This is why Agentic RAG is a Level 2 concept, not Level 1 — it requires the agent loop from article 01 and the multi-step reasoning from article 07.
+The architectural difference is where the retrieval logic lives. In passive RAG, it lives in a hardcoded pipeline before the LLM. In Agentic RAG, it lives *inside* the agent's reasoning loop, as a `RetrievalClassifier` the agent invokes like any other tool. This is why Agentic RAG is a Level 2 concept, not Level 1 — it requires the agent loop from article 01 and the multi-step reasoning from article 07.
 
 ---
 

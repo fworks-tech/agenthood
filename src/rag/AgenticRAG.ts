@@ -21,6 +21,7 @@ export interface AgenticRAGOptions {
   knowledgeGraphStore?: IGraphStore
   parentStorePath?: string
   decisionSkill?: RetrievalClassifier
+  graphHops?: number
 }
 
 export class AgenticRAG {
@@ -28,6 +29,7 @@ export class AgenticRAG {
   private knowledgeGraphStore?: IGraphStore
   private decisionSkill: RetrievalClassifier
   private embedder: ILLMProvider
+  private graphHops: number
 
   constructor(options: AgenticRAGOptions) {
     this.retriever = new Retriever(
@@ -39,6 +41,7 @@ export class AgenticRAG {
     this.knowledgeGraphStore = options.knowledgeGraphStore
     this.decisionSkill = options.decisionSkill ?? new RetrievalClassifier()
     this.embedder = options.embedder
+    this.graphHops = options.graphHops ?? 2
   }
 
   async retrieve(
@@ -103,12 +106,13 @@ export class AgenticRAG {
     if (strategy === 'both' && this.knowledgeGraphStore) {
       const graphResults = await this.executeGraphStrategy(query)
       if (results.length > 0) {
-        const existing = results[0]
-        existing.graphHops = graphResults.length > 0 ? graphResults[0].graphHops : 0
-        existing.sourcePaths = [...existing.sourcePaths, ...graphResults.flatMap((g) => g.sourcePaths)]
+        const merged = { ...results[0] }
+        merged.graphHops = graphResults.length > 0 ? graphResults[0].graphHops : 0
+        merged.sourcePaths = [...merged.sourcePaths, ...graphResults.flatMap((g) => g.sourcePaths)]
         if (graphResults.length > 0) {
-          existing.content = [existing.content, ...graphResults.map((g) => `Graph neighbors: ${g.sourcePaths.join('; ')}`)].filter(Boolean).join(' | ')
+          merged.content = [merged.content, ...graphResults.map((g) => `Graph neighbors: ${g.sourcePaths.join('; ')}`)].filter(Boolean).join(' | ')
         }
+        results[0] = merged
       } else {
         results.push(...graphResults)
       }
@@ -120,7 +124,6 @@ export class AgenticRAG {
   private async executeGraphStrategy(query: string): Promise<AgenticRetrievalResult[]> {
     if (!this.knowledgeGraphStore) return []
 
-    const graphHops = 2
     const graphNodeIds = await this.resolveGraphNodes(query)
     const sourcePaths: string[] = []
 
@@ -144,7 +147,7 @@ export class AgenticRAG {
       chunkIndex: 0,
       strategy: 'graph',
       vectorMatches: 0,
-      graphHops,
+      graphHops: this.graphHops,
       sourcePaths,
     }]
   }

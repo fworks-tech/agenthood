@@ -10,6 +10,13 @@ export interface ChunkOptions {
   overlap?: number
 }
 
+export interface CodeEntityStub {
+  type: string
+  name: string
+  startLine: number
+  endLine: number
+}
+
 export interface ChunkStrategy {
   chunk(text: string, options?: ChunkOptions): Chunk[]
 }
@@ -150,7 +157,8 @@ export class MarkdownHierarchicalChunkStrategy implements HierarchicalChunkStrat
     for (let i = 0; i < lines.length; i++) {
       const line = lines[i]
 
-      if (line.startsWith('## ') && !line.startsWith('### ')) {
+      // Match # or ## headings, but not ### (subsections)
+      if ((line.startsWith('# ') || line.startsWith('## ')) && !line.startsWith('### ')) {
         if (currentSection) {
           currentSection.endLine = i - 1
           currentSection.fullText = lines.slice(currentSection.headerLine, i).join('\n')
@@ -161,7 +169,7 @@ export class MarkdownHierarchicalChunkStrategy implements HierarchicalChunkStrat
         currentSection = {
           headerLine: i,
           endLine: i,
-          heading: line.slice(3).trim(),
+          heading: line.replace(/^#+ /, '').trim(),
           bodyText: '',
           fullText: line,
         }
@@ -176,5 +184,129 @@ export class MarkdownHierarchicalChunkStrategy implements HierarchicalChunkStrat
     }
 
     return sections
+  }
+}
+
+export class CodeHierarchicalChunkStrategy implements HierarchicalChunkStrategy {
+  private childChunker: FixedSizeChunkStrategy
+
+  constructor() {
+    this.childChunker = new FixedSizeChunkStrategy()
+  }
+
+  chunk(
+    text: string,
+    metadata: { filePath: string; startLine: number; endLine: number },
+    options?: ChunkOptions,
+  ): { parents: ParentChunk[]; children: ChildChunk[] } {
+    if (text.length === 0) return { parents: [], children: [] }
+
+    const childChunkSize = options?.chunkSize ? Math.floor(options.chunkSize / 4) : 128
+    const childOverlap = options?.overlap ? Math.floor(options.overlap / 4) : 16
+    const lines = text.split('\n')
+
+    const parents: ParentChunk[] = []
+    const children: ChildChunk[] = []
+
+    // Treat entire file as a single parent section
+    const safePath = metadata.filePath.replace(/[\/\\]/g, '_')
+    const parentId = `code_parent_${safePath}`
+    const parentMeta = { filePath: metadata.filePath, startLine: metadata.startLine, endLine: metadata.endLine }
+
+    // Split code into logical blocks by top-level declarations
+    const blocks = this.splitCodeBlocks(lines, metadata.filePath)
+
+    let childIndex = 0
+    const childIds: string[] = []
+
+    for (const block of blocks) {
+      const childChunks = this.childChunker.chunk(block.text, {
+        chunkSize: childChunkSize,
+        overlap: childOverlap,
+      })
+
+      for (const cc of childChunks) {
+        const childId = `${parentId}_child_${childIndex++}`
+        children.push({
+          id: childId,
+          content: cc.content,
+          parentId,
+          parentMetadata: parentMeta,
+          embeddingContent: cc.content,
+        })
+        childIds.push(childId)
+      }
+    }
+
+    parents.push({
+      id: parentId,
+      content: text,
+      metadata: parentMeta,
+      children: childIds,
+    })
+
+    return { parents, children }
+  }
+
+  private splitCodeBlocks(lines: string[], filePath: string): Array<{ text: string; startLine: number; endLine: number }> {
+    const ext = filePath.split('.').pop()?.toLowerCase()
+    const blocks: Array<{ text: string; startLine: number; endLine: number }> = []
+
+    let currentStart = 0
+    let inBlock = false
+    let blockStart = 0
+
+    for (let i = 0; i < lines.length; i++) {
+      const line = lines[i]
+      const trimmed = line.trim()
+
+      // Detect top-level declarations based on language
+      const isTopLevelDecl = this.isTopLevelDeclaration(trimmed, ext)
+
+      if (isTopLevelDecl) {
+        if (inBlock) {
+          blocks.push({
+            text: lines.slice(blockStart, i).join('\n'),
+            startLine: blockStart,
+            endLine: i - 1,
+          })
+        }
+        inBlock = true
+        blockStart = i
+      }
+    }
+
+    if (inBlock) {
+      blocks.push({
+        text: lines.slice(blockStart).join('\n'),
+        startLine: blockStart,
+        endLine: lines.length - 1,
+      })
+    }
+
+    // If no blocks found, treat whole file as one block
+    if (blocks.length === 0 && lines.length > 0) {
+      blocks.push({
+        text: lines.join('\n'),
+        startLine: 0,
+        endLine: lines.length - 1,
+      })
+    }
+
+    return blocks
+  }
+
+  private isTopLevelDeclaration(trimmed: string, ext?: string): boolean {
+    const keywords = ['class ', 'function ', 'async function', 'export ', 'interface ',
+      'type ', 'const ', 'let ', 'var ', 'def ', 'async def', 'func ',
+      'impl ', 'struct ', 'enum ', 'trait ']
+
+    for (const kw of keywords) {
+      if (trimmed.startsWith(kw) || trimmed === kw.trim()) {
+        return true
+      }
+    }
+
+    return false
   }
 }

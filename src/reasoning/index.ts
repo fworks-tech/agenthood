@@ -1,2 +1,6 @@
 export { ReActLoop } from './ReActLoop.js'
 export { ThinkingBudget, BudgetExceededError } from './ThinkingBudget.js'
+export { MemberOrchestrator } from './MemberOrchestrator.js'
+export { MEMBER_TRIGGERS } from './MemberTriggers.js'
+export type { MemberTrigger, TaskStage } from './MemberTriggers.js'
+export type { DetectionContext, DetectionResult } from './MemberOrchestrator.js'

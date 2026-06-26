@@ -31,11 +31,16 @@ interface LanceRow {
   _distance?: number
 }
 
+function sanitizeSqlKey(key: string): string {
+  return key.replace(/[^a-zA-Z0-9_]/g, '_')
+}
+
 function toSqlFilter(filter: Record<string, unknown>): string {
   const parts: string[] = []
   for (const [key, value] of Object.entries(filter)) {
+    const safeKey = sanitizeSqlKey(key)
     const escaped = typeof value === 'string' ? `'${value.replace(/'/g, "''")}'` : String(value)
-    parts.push(`metadata LIKE '%"${key}": ${escaped}%'`)
+    parts.push(`metadata LIKE '%"${safeKey}": ${escaped}%'`)
   }
   return parts.join(' AND ')
 }
@@ -100,8 +105,13 @@ export class LanceDBStore implements IVectorStore, IMemoryStore<VectorRecord> {
     if (!this.table) {
       throw new Error('LanceDBStore: not connected. Call connect() first.')
     }
-    const filter = typeof keyOrFilter === 'string' ? { id: keyOrFilter } : keyOrFilter
-    const sql = Object.keys(filter).length === 0 ? '1=1' : toSqlFilter(filter)
+    let sql: string
+    if (typeof keyOrFilter === 'string') {
+      const escaped = keyOrFilter.replace(/'/g, "''")
+      sql = `id = '${escaped}'`
+    } else {
+      sql = Object.keys(keyOrFilter).length === 0 ? '1=1' : toSqlFilter(keyOrFilter)
+    }
     const result = await this.table.delete(sql)
     return result.numDeletedRows
   }
@@ -121,8 +131,25 @@ export class LanceDBStore implements IVectorStore, IMemoryStore<VectorRecord> {
   }
 
   async get(key: string): Promise<VectorRecord | undefined> {
-    const results = await this.search([], 1, { id: key })
-    return results[0]?.record
+    if (!this.table) {
+      throw new Error('LanceDBStore: not connected. Call connect() first.')
+    }
+    const escaped = key.replace(/'/g, "''")
+    const rows = await this.table
+      .vectorSearch(new Float32Array(this.dimension))
+      .limit(1)
+      .filter(`id = '${escaped}'`)
+      .toArray()
+    const results = rows as unknown as LanceRow[]
+    if (results.length === 0) return undefined
+    const row = results[0]
+    return {
+      id: row.id,
+      vector: Array.from(row.vector),
+      content: row.content,
+      metadata: JSON.parse(row.metadata),
+      createdAt: new Date(row.created_at),
+    }
   }
 
   async has(key: string): Promise<boolean> {

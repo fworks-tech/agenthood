@@ -28,7 +28,7 @@ Agentic RAG solves both. The agent skips retrieval when the answer is in context
 
 ## How Agenthood implements it
 
-The two components are `AgenticRAG` and `RetrievalDecisionSkill`, both in `src/rag/` and `src/skills/rag/` (coming in v2.1.0):
+The foundation is `KnowledgeGraphStore` in `src/rag/`. The higher-level `AgenticRAG` and `RetrievalDecisionSkill` are planned for subsequent milestones:
 
 ```typescript
 import { AgenticRAG, RetrievalDecisionSkill } from 'agenthood';
@@ -56,7 +56,6 @@ The `RetrievalDecisionSkill` is what makes it agentic. It inspects the query, th
 ## Hands-on example
 
 ```bash
-# Once the v2 runtime ships, Agentic RAG runs through the agent loop
 agenthood run the-developer "how does the auth middleware connect to the rate limiter?"
 ```
 
@@ -78,8 +77,8 @@ Contrast with passive RAG, which would have embedded the query, hit the vector s
 
 ## Further reading
 
-- [`src/rag/AgenticRAG.ts`](../../src/rag/AgenticRAG.ts) — agentic retrieval orchestration (v2.1.0)
-- [`src/skills/rag/RetrievalDecisionSkill.ts`](../../src/skills/rag/RetrievalDecisionSkill.ts) — the routing decision skill (v2.1.0)
+- [`src/rag/KnowledgeGraphStore.ts`](../../src/rag/KnowledgeGraphStore.ts) — bidirectional graph store for structural relationships
+- [`docs/adr/ADR-010-lancedb-for-vector-storage.md`](../../adr/ADR-010-lancedb-for-vector-storage.md) — the embedded vector store backing semantic retrieval
 - [Self-RAG: Learning to Retrieve, Generate, and Critique through Self-Reflection](https://arxiv.org/abs/2310.11511) — the foundational Agentic RAG paper
 
 

@@ -72,7 +72,7 @@ which superseded the earlier Python/DeepAgents runtime approach.
 | `ConcurrencyQueue` — priority + starvation | `src/core/ConcurrencyQueue.ts` | ✅ v2.0.0 |
 | `SafetyGuard` — caps, loop detection, blocklist | `src/core/SafetyGuard.ts` | ✅ v2.0.0 |
 | Orchestrator (publish/subscribe event bus) | `src/orchestrator/` | 📋 Planned — Phase 3 |
-| 5-tier memory | `src/memory/` | 📋 Planned — v2.1.0 |
-| RAG (LanceDB) | `src/rag/` | 📋 Planned — v2.1.0 |
+| 5-tier memory (IMemoryStore, ResidualMemory, InMemoryStore, VectorStore) | `src/memory/` | ✅ Shipped |
+| RAG — Knowledge Graph Store | `src/rag/` | ✅ Shipped |
 
 The TS CLI is the single supported runtime for `agenthood run`.

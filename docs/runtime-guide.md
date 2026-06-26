@@ -60,6 +60,30 @@ Run `npx agenthood check` to verify API key configuration as part of a full heal
 
 Providers not in the known key list (ollama, custom-local) skip key validation entirely — no key required.
 
+## Memory & Vector Store
+
+The runtime includes a tiered memory system and a vector store, all persisted locally:
+
+### Memory Store
+
+Pre-configured paths used by the runtime for memory persistence:
+
+| Path | Store | Purpose |
+|------|-------|---------|
+| `.agenthood/memory/` | LanceDB vector store (embedded) | Vector embeddings, semantic search, metadata filtering |
+| `.agenthood/residual.json` | ResidualMemory | Decay-weighted trace signals from past agent runs |
+| `.agenthood/graph.json` | KnowledgeGraphStore | Bidirectional structural relationships between entities |
+
+The `IMemoryStore` interface at `src/memory/IMemoryStore.ts` unifies all memory tiers with common operations (`set`, `get`, `delete`, `has`, `prune`, `stats`). The `InMemoryStore` provides a synchronous TTL/LRU store for in-process caching. `LanceDBStore` (in `src/memory/VectorStore.ts`) implements both `IVectorStore` (vector search) and `IMemoryStore<VectorRecord>` (key-value access by id).
+
+### Residual Memory
+
+`ResidualMemory` captures trace signals that no explicit tier claimed. It is automatically decayed at the start of each agent session and reinforced after each run. Decay follows an exponential rate (`decayRate ^ daysElapsed`), and signals below 0.1 strength are pruned automatically. The decayed signals are injected as soft context into the system prompt by `PromptBuilder`.
+
+### Knowledge Graph
+
+`KnowledgeGraphStore` stores named nodes and bidirectional relations. Use it for structural queries: "what connects these two components?" Path finding uses BFS and returns the shortest path. The graph persists to `.agenthood/graph.json`.
+
 ## CLI Provider Override
 
 Override the provider at runtime:

@@ -103,6 +103,7 @@ For a full walkthrough — install, commands, CI pipeline, and next steps — se
 | v1.5.0 | [Open Standard](https://github.com/fworks-tech/agenthood/milestone/6) — SKILL.md migration for all 14 members | ✅ Shipped |
 | v1.6.x | [The Academy](https://github.com/fworks-tech/agenthood/milestone/12) — Level 1 articles, GitHub Pages, npm via OIDC | ✅ Shipped |
 | v2.0.0 | [Foundation](https://github.com/fworks-tech/agenthood/milestone/3) — TypeScript runtime: ILLMProvider, LLMRouter, ReActLoop, BaseAgent | ✅ Shipped |
+| v2.1.0 | [Intelligence](https://github.com/fworks-tech/agenthood/milestone/5) — Security, 5-tier memory, RAG foundation, LanceDB vector store | ✅ Shipped (Phase 0) |
 
 ---
 
@@ -129,6 +130,8 @@ The framework runs on five core principles adapted from production AI agent syst
 | Agent mode vs Ask mode | [operating-modes.md](architecture/operating-modes.md) |
 | Multi-LLM support & automatic failover | [provider-failover.md](architecture/provider-failover.md) |
 | Tool registry, scoping & safety caps | [built-in-tools.md](architecture/built-in-tools.md) |
+| 5-tier agent memory | [memory](src/memory/) — ResidualMemory, IMemoryStore, InMemoryStore, LanceDBStore |
+| Service-agnostic RAG (graph, vector) | [rag](src/rag/) — KnowledgeGraphStore, LanceDB vector store |
 
 ---
 
@@ -217,6 +220,9 @@ agenthood/
 │   ├── skills/                      ← ISkill, SkillRegistry
 │   ├── core/                        ← SafetyGuard, ConcurrencyQueue, RiskManager, SchemaValidator
 │   ├── reasoning/                   ← ReActLoop, ThinkingBudget
+│   ├── memory/                      ← ResidualMemory, IMemoryStore, VectorStore (LanceDB)
+│   ├── memory/stores/               ← InMemoryStore
+│   ├── rag/                         ← KnowledgeGraphStore
 │   ├── members/                     ← MemberRegistry, MemberAgent
 │   └── prompts/                     ← Templates, PromptBuilder, PromptRegistry
 │

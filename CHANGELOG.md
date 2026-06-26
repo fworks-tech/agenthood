@@ -1,3 +1,10 @@
+## [2.5.1](https://github.com/fworks-tech/agenthood/compare/v2.5.0...v2.5.1) (2026-06-26)
+
+
+### Bug Fixes
+
+* **memory:** align ProjectMemoryImpl return types with ProjectMemory interface ([f1325c8](https://github.com/fworks-tech/agenthood/commit/f1325c8244dc98556368ff237612eea5cc6baea9)), closes [#269](https://github.com/fworks-tech/agenthood/issues/269)
+
 # [2.5.0](https://github.com/fworks-tech/agenthood/compare/v2.4.0...v2.5.0) (2026-06-26)
 
 

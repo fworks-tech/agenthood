@@ -5,6 +5,14 @@
 
 ---
 
+## v2.5.1 — June 26, 2026
+
+### 🐛 Bug Fixes
+
+- **Memory:** align ProjectMemoryImpl return types with ProjectMemory interface
+
+---
+
 ## v2.5.0 — June 26, 2026
 
 ### 🐛 Bug Fixes

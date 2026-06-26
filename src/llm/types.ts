@@ -4,6 +4,7 @@ export interface Message {
   role: MessageRole
   content: string
   toolCalls?: ToolCall[]
+  tool_call_id?: string
   name?: string
 }
 

@@ -77,6 +77,7 @@ export class ReActLoop {
         messages.push({
           role: "tool",
           content: JSON.stringify(result),
+          tool_call_id: toolCall.id,
           name: toolCall.name,
         });
       }

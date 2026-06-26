@@ -41,7 +41,7 @@ export class OpenCodeProvider implements ILLMProvider {
 
   constructor(config: LLMConfig) {
     this.client = new SomeSDKClient({
-      apiKey: config.apiKey ?? process.env.OPencode_API_KEY ?? '',
+      apiKey: config.apiKey ?? process.env.OPENCODE_API_KEY ?? '',
       baseURL: config.baseUrl,
     })
     this.model = config.model ?? 'opencode-default-model'

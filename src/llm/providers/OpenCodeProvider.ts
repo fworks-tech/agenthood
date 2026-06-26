@@ -32,6 +32,41 @@ function parseToolCall(
   };
 }
 
+function toOpenAIMessages(
+  messages: LLMRequest["messages"],
+): OpenAI.Chat.ChatCompletionMessageParam[] {
+  return messages.map((msg) => {
+    const base: Record<string, unknown> = {
+      role: msg.role,
+      content: msg.content,
+    }
+
+    // Convert toolCalls (camelCase) -> tool_calls (snake_case) for OpenAI SDK
+    if (msg.toolCalls && msg.toolCalls.length > 0) {
+      base.tool_calls = msg.toolCalls.map((tc) => ({
+        id: tc.id,
+        type: "function" as const,
+        function: {
+          name: tc.name,
+          arguments: JSON.stringify(tc.args),
+        },
+      }))
+    }
+
+    // Pass through tool_call_id for tool result messages
+    if (msg.tool_call_id) {
+      base.tool_call_id = msg.tool_call_id
+    }
+
+    // Pass through name
+    if (msg.name) {
+      base.name = msg.name
+    }
+
+    return base as unknown as OpenAI.Chat.ChatCompletionMessageParam
+  })
+}
+
 export class OpenCodeProvider implements ILLMProvider {
   private client: OpenAI;
   private model: string;
@@ -46,17 +81,22 @@ export class OpenCodeProvider implements ILLMProvider {
 
   async complete(request: LLMRequest): Promise<LLMResponse> {
     try {
+      const openaiTools = request.tools?.map((t) => ({
+        type: "function" as const,
+        function: {
+          name: t.name,
+          description: t.description,
+          parameters: t.inputSchema as Record<string, unknown>,
+        },
+      }))
+
       const response = await this.client.chat.completions.create({
         model: this.model,
-        messages:
-          request.messages as unknown as OpenAI.Chat.ChatCompletionMessageParam[],
-        tools: request.tools as unknown as OpenAI.Chat.ChatCompletionTool[],
+        messages: toOpenAIMessages(request.messages),
+        tools: openaiTools as OpenAI.Chat.ChatCompletionTool[] | undefined,
         temperature: request.temperature,
         max_tokens: request.maxTokens,
         top_p: request.top_p,
-        frequency_penalty: request.frequency_penalty,
-        presence_penalty: request.presence_penalty,
-        stop: request.stop ?? undefined,
       });
 
       const choice = response.choices[0];
@@ -82,8 +122,7 @@ export class OpenCodeProvider implements ILLMProvider {
   async stream(request: LLMRequest): Promise<AsyncGenerator<LLMChunk>> {
     const stream = await this.client.chat.completions.create({
       model: this.model,
-      messages:
-        request.messages as unknown as OpenAI.Chat.ChatCompletionMessageParam[],
+      messages: toOpenAIMessages(request.messages),
       temperature: request.temperature,
       max_tokens: request.maxTokens,
       stream: true,

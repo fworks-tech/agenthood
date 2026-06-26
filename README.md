@@ -22,7 +22,7 @@ They have opinions about your PR descriptions. They will not merge your branch i
 
 ## How it works
 
-Each agent is a single `.md` file that describes a role, its responsibilities, standards, and how it communicates. Load one or all of them into Claude Code, Copilot, Gemini CLI, or any runtime that supports skill files. Or run them autonomously via the TypeScript CLI.
+Each agent is a single `.md` file that describes a role, its responsibilities, standards, and how it communicates. Load one or all of them into Claude Code, Copilot, or any runtime that supports skill files. Or run them autonomously via the TypeScript CLI.
 
 1. **Install the Society** — `npm install --save-dev agenthood && npx agenthood init` (or `npx skills add fworks-tech/agenthood` via [skills.sh](https://skills.sh/fworks-tech/agenthood))
 2. **Load into your runtime** — point Claude Code, Copilot, or your agent framework at the skills directory
@@ -63,7 +63,7 @@ npx agenthood init       # interactive setup (~5 minutes)
 npx agenthood check      # verify everything is in place
 ```
 
-Members are loaded as context by your existing AI assistant. Works with Claude Code, Copilot, and Gemini CLI.
+Members are loaded as context by your existing AI assistant. Works with Claude Code and Copilot.
 
 ### Option B — Run agents autonomously
 
@@ -72,10 +72,10 @@ Execute members as real LLM agents that reason, act, and remember across session
 ```bash
 # From the repo clone (when installed via npm, the runtime is pre-built)
 npm run build                              # build the runtime (once)
-agenthood list                              # see available agents
-agenthood run the-scribe "write a commit message for the current diff"
-agenthood run the-reviewer "review the changes in the last commit"
-agenthood run the-architect "plan the implementation for issue #42"
+npx agenthood list                          # see available agents
+npx agenthood run the-scribe "write a commit message for the current diff"
+npx agenthood run the-reviewer "review the changes in the last commit"
+npx agenthood run the-architect "plan the implementation for issue #42"
 ```
 
 Set one of these in your environment:
@@ -88,7 +88,7 @@ Set one of these in your environment:
 
 Or use Ollama for fully offline execution (no key required).
 
-For a full walkthrough — install, commands, CI pipeline, and next steps — see the [Academy Getting Started guide](https://github.com/fworks-tech/agenthood/blob/v2.0.x/docs/academy/getting-started.md).
+For a full walkthrough — install, commands, CI pipeline, and next steps — see the [Academy Getting Started guide](docs/academy/getting-started.md).
 
 ---
 
@@ -103,8 +103,11 @@ For a full walkthrough — install, commands, CI pipeline, and next steps — se
 | v1.5.0 | [Open Standard](https://github.com/fworks-tech/agenthood/milestone/6) — SKILL.md migration for all 14 members | ✅ Shipped |
 | v1.6.x | [The Academy](https://github.com/fworks-tech/agenthood/milestone/12) — Level 1 articles, GitHub Pages, npm via OIDC | ✅ Shipped |
 | v2.0.0 | [Foundation](https://github.com/fworks-tech/agenthood/milestone/3) — TypeScript runtime: ILLMProvider, LLMRouter, ReActLoop, BaseAgent | ✅ Shipped |
-| v2.1.0 | [Intelligence](https://github.com/fworks-tech/agenthood/milestone/5) — Security, 5-tier memory, RAG foundation, LanceDB vector store | ✅ Shipped (Phase 0) |
-| v2.2.0 | RAG Pipeline + Consumers — ChunkStrategy, Indexer, Retriever, TreeSitterParser, ProjectIngestion, SocietyIndexer, Memory Tiers (ShortTerm, LongTerm, Episodic, Project), PersonalisationStore | ✅ Shipped (Phase 1) |
+| v2.1.0 | Academy build system, GitHub Pages deployment, lazy provider SDK imports | ✅ Shipped |
+| v2.2.0 | Academy MkDocs replacement, cross-platform documentation build | ✅ Shipped |
+| v2.3.0 | Provider failover with model downgrade, circuit breaker, ADRs 011–013 | ✅ Shipped |
+| v2.4.0 | [Intelligence](https://github.com/fworks-tech/agenthood/milestone/5) — Security, 5-tier memory, RAG foundation, LanceDB vector store | ✅ Shipped (Phase 0) |
+| v2.5.0 | RAG Pipeline + Consumers — ChunkStrategy, Indexer, Retriever, TreeSitterParser, SocietyIndexer, Memory Tiers, PersonalisationStore | ✅ Shipped (Phase 1) |
 
 ---
 
@@ -113,8 +116,7 @@ For a full walkthrough — install, commands, CI pipeline, and next steps — se
 Agenthood is agent-agnostic. The skill files work with:
 
 - [Claude Code](https://claude.ai/code) — via `.claude/skills/`
-- [GitHub Copilot](https://github.com/features/copilot) — via `.github/copilot-instructions.md/`
-- [Gemini CLI](https://cloud.google.com/gemini-cli) — via `AGENTS.md` + skills
+- [GitHub Copilot](https://github.com/features/copilot) — via `.github/copilot-instructions.md`
 
 The TypeScript runtime (`agenthood run`) supports Groq (default, free tier at [console.groq.com](https://console.groq.com)), Anthropic, OpenAI, and Ollama for fully offline execution.
 
@@ -131,7 +133,7 @@ The framework runs on five core principles adapted from production AI agent syst
 | Agent mode vs Ask mode | [operating-modes.md](architecture/operating-modes.md) |
 | Multi-LLM support & automatic failover | [provider-failover.md](architecture/provider-failover.md) |
 | Tool registry, scoping & safety caps | [built-in-tools.md](architecture/built-in-tools.md) |
-| 5-tier agent memory | [memory](src/memory/) — ResidualMemory, IMemoryStore, InMemoryStore, LanceDBStore |
+| Agent memory tiers | [memory](src/memory/) — ResidualMemory, ShortTermMemory, LongTermMemory, EpisodicMemory, ProjectMemory, InMemoryStore, PersonalisationStore, LanceDBStore |
 | Service-agnostic RAG (graph, vector) | [rag](src/rag/) — KnowledgeGraphStore, ChunkStrategy, Indexer, Retriever, TreeSitterParser, ProjectIngestion |
 
 ---
@@ -255,7 +257,7 @@ agenthood/
 │
 └── tests/                           ← Test suite
     ├── commands/                    ← CLI command tests
-    ├── unit/                        ← Unit tests (agents, core, llm, skills, members, reasoning)
+    ├── unit/                        ← Unit tests (agents, core, llm, memory, rag, members, reasoning, scripts, skills)
     └── helpers/                     ← Test utilities
 ```
 

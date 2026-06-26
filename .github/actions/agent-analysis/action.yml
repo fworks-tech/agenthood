@@ -21,6 +21,10 @@ inputs:
     description: OPENCODE_API_KEY
     required: false
     default: ""
+  github-token:
+    description: GITHUB_TOKEN for gh CLI
+    required: false
+    default: ""
 
 runs:
   using: composite
@@ -33,6 +37,7 @@ runs:
         HEAD_SHA="${{ inputs.head-sha }}"
         PROMPT_TEMPLATE="${{ inputs.prompt-template }}"
         OPENCODE_API_KEY="${{ inputs.api-key }}"
+        export GITHUB_TOKEN="${{ inputs.github-token }}"
 
         analysis_file="/tmp/${AGENT_NAME}_analysis.txt"
         error_file="/tmp/${AGENT_NAME}_errors.txt"

@@ -40,7 +40,10 @@ jobs:
             exit 0
           fi
 
-          PR_NUMBER=$(gh pr view --json number --jq '.number' 2>/dev/null || echo "")
+          PR_NUMBER=$(gh pr view --json number --jq '.number' 2>/dev/null) || {
+            echo "::warning::gh pr view failed — branch may have no open PR"
+            PR_NUMBER=""
+          }
 
           if [ -z "$PR_NUMBER" ]; then
             echo "No open PR for this branch. Skipping review."
@@ -62,12 +65,15 @@ jobs:
           TASK=$(printf "review this git diff:\n%s\n" "$DIFF")
           node dist/cli.js run the-reviewer "$TASK" --provider opencode-go 2>&1 | grep -v "^Error running\|^Using \|^opencode-go\|^groq\|^ollama\|^All providers\|^$" > /tmp/review_body.txt
         env:
-          OPENCODE_API_KEY: ${{ secrets.OPENCODE_API_KEY }}
           GITHUB_TOKEN: ${{ github.token }}
+          OPENCODE_API_KEY: ${{ secrets.OPENCODE_API_KEY }}
 
       - name: Post Review Comment
         run: |
-          PR_NUMBER=$(gh pr view --json number --jq '.number' 2>/dev/null || echo "")
+          PR_NUMBER=$(gh pr view --json number --jq '.number' 2>/dev/null) || {
+            echo "::warning::gh pr view failed — branch may have no open PR"
+            PR_NUMBER=""
+          }
 
           if [ -z "$PR_NUMBER" ]; then
             echo "No open PR. Skipping."

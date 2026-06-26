@@ -8,21 +8,31 @@ The runtime supports automatic provider failover when a provider fails (rate lim
 {
   "providers": [
     {
+      "name": "opencode",
+      "model": "deepseek-v4-flash",
+      "priority": 1
+    },
+    {
+      "name": "opencode-go",
+      "model": "deepseek-v4-flash",
+      "priority": 2
+    },
+    {
       "name": "anthropic",
       "model": "claude-sonnet-4-6",
       "models": ["claude-sonnet-4-6", "claude-haiku-3-5"],
-      "priority": 1
+      "priority": 3
     },
     {
       "name": "groq",
       "model": "llama-3.1-70b-versatile",
-      "priority": 2
+      "priority": 4
     },
     {
       "name": "ollama",
       "model": "llama3.2",
       "baseUrl": "http://localhost:11434",
-      "priority": 3
+      "priority": 5
     }
   ],
 
@@ -47,11 +57,11 @@ The runtime validates LLM API keys at startup before making any provider calls. 
 Key resolution order (per provider):
 1. `providers[].apiKey` — key in config array entry
 2. `apiKey` — top-level key in config
-3. `GROQ_API_KEY` / `OPENAI_API_KEY` / `ANTHROPIC_API_KEY` — environment variables
+3. `OPENCODE_API_KEY` / `OPENAI_API_KEY` / `ANTHROPIC_API_KEY` / `GROQ_API_KEY` — environment variables
 
 If no key is found and the provider requires one, startup fails with:
 ```
-GROQ_API_KEY not set for provider "groq". Get a key at https://console.groq.com
+OPENCODE_API_KEY not set for provider "opencode". Get a key at https://opencode.ai/auth
 ```
 
 Run `npx agenthood check` to verify API key configuration as part of a full health check.

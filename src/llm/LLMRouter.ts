@@ -101,6 +101,10 @@ export class LLMRouter {
       const { OpenCodeProvider } = await import('./providers/OpenCodeProvider.js')
       return new OpenCodeProvider(c)
     },
+    'opencode-go': async (c) => {
+      const { OpenCodeGoProvider } = await import('./providers/OpenCodeGoProvider.js')
+      return new OpenCodeGoProvider(c)
+    },
   }
 
   private static instances = new Map<string, ILLMProvider>()

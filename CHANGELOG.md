@@ -1,3 +1,22 @@
+# [2.4.0](https://github.com/fworks-tech/agenthood/compare/v2.3.1...v2.4.0) (2026-06-26)
+
+
+### Bug Fixes
+
+* address reviewer findings and update Phase 0 docs ([e242951](https://github.com/fworks-tech/agenthood/commit/e242951b9695f9aa3b5f407e83f2850b815f252e)), closes [#268](https://github.com/fworks-tech/agenthood/issues/268)
+* ignore entire .agenthood/ directory except config.example.json ([5babd6b](https://github.com/fworks-tech/agenthood/commit/5babd6b5853400616519780130e8ce62bdb7c57b)), closes [#110](https://github.com/fworks-tech/agenthood/issues/110)
+* **llm:** extract and granularize api key validation ([3225b2f](https://github.com/fworks-tech/agenthood/commit/3225b2fa44dc609aa9193462116280e9daf1293f)), closes [#203](https://github.com/fworks-tech/agenthood/issues/203)
+
+
+### Features
+
+* **core:** move schema validator to core and harden error messages ([3f335f5](https://github.com/fworks-tech/agenthood/commit/3f335f56c44f9b57a6e44c91fd359a7a79754042)), closes [#205](https://github.com/fworks-tech/agenthood/issues/205)
+* **memory:** implement LanceDB vector store with IVectorStore interface ([cfdb868](https://github.com/fworks-tech/agenthood/commit/cfdb868320c824afb074c668f0d561e16a1617e8)), closes [#261](https://github.com/fworks-tech/agenthood/issues/261)
+* **memory:** implement memory governance with IMemoryStore and InMemoryStore ([faa524c](https://github.com/fworks-tech/agenthood/commit/faa524c0433f9342bacc4866eebe23520b6f135f)), closes [#111](https://github.com/fworks-tech/agenthood/issues/111)
+* **memory:** implement ResidualMemory — decay-weighted trace signals ([91a34ea](https://github.com/fworks-tech/agenthood/commit/91a34ea6ab3ea5b2d3a3a7e812e0417ae048076b)), closes [#110](https://github.com/fworks-tech/agenthood/issues/110)
+* **rag:** implement KnowledgeGraphStore for relationship-aware retrieval ([0f0013e](https://github.com/fworks-tech/agenthood/commit/0f0013e45ffa33e3e2c5c84b64f8e293108aede5)), closes [#105](https://github.com/fworks-tech/agenthood/issues/105)
+* **reasoning:** add infinite loop detection to reactloop ([869fdd7](https://github.com/fworks-tech/agenthood/commit/869fdd73b8daacd543b921e2d541747fcfde6ad9)), closes [#206](https://github.com/fworks-tech/agenthood/issues/206)
+
 ## [2.3.1](https://github.com/fworks-tech/agenthood/compare/v2.3.0...v2.3.1) (2026-06-25)
 
 

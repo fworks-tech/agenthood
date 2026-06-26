@@ -5,6 +5,25 @@
 
 ---
 
+## v2.4.0 — June 26, 2026
+
+### 🐛 Bug Fixes
+
+- address reviewer findings and update Phase 0 docs
+- ignore entire .agenthood/ directory except config.example.json
+- **Llm:** extract and granularize api key validation
+
+### ✨ Features
+
+- **Core:** move schema validator to core and harden error messages
+- **Memory:** implement LanceDB vector store with IVectorStore interface
+- **Memory:** implement memory governance with IMemoryStore and InMemoryStore
+- **Memory:** implement ResidualMemory — decay-weighted trace signals
+- **Rag:** implement KnowledgeGraphStore for relationship-aware retrieval
+- **Reasoning:** add infinite loop detection to reactloop
+
+---
+
 ## v2.3.1 — June 25, 2026
 
 ### 🐛 Bug Fixes

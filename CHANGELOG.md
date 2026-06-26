@@ -1,3 +1,42 @@
+# [3.0.0](https://github.com/fworks-tech/agenthood/compare/v2.5.1...v3.0.0) (2026-06-26)
+
+
+### Bug Fixes
+
+* address PR review feedback and update docs ([86d89bd](https://github.com/fworks-tech/agenthood/commit/86d89bda477b3b0956937f4a554778f495e62615))
+* **ci:** add GITHUB_TOKEN to Run Reviewer step ([d778167](https://github.com/fworks-tech/agenthood/commit/d778167c8d50795ff1b1f66b755dd72beb6c7580))
+* **ci:** address reviewer feedback on gh pr view error handling ([1c14b40](https://github.com/fworks-tech/agenthood/commit/1c14b40a383826010c4fb04925f6202d7c1ddfdc))
+* **ci:** convert skills/ symlinks to regular files ([d983f73](https://github.com/fworks-tech/agenthood/commit/d983f73b682dcc45c27b7d8104734b1555219fe4))
+* **ci:** ensure all gh commands have GITHUB_TOKEN auth ([71fd025](https://github.com/fworks-tech/agenthood/commit/71fd025c2a9854a7831239b13abe5030ec7419f3))
+* **ci:** fix YAML indentation in sentinel, auditor, warden workflows ([4c5f059](https://github.com/fworks-tech/agenthood/commit/4c5f059169aa6f062bb548ba820a4d9ee4d96e9e))
+* **ci:** install gitleaks binary before pre-check step ([3ea8625](https://github.com/fworks-tech/agenthood/commit/3ea8625d7cd4eff3763e409c1eb0453d96b01a83))
+* **ci:** remove noisy gitleaks pre-check step ([f191d3c](https://github.com/fworks-tech/agenthood/commit/f191d3c242eee45e06282c11c163efbbc82a67d8))
+* **ci:** update sentinel to check file content instead of symlinks ([37c1cd4](https://github.com/fworks-tech/agenthood/commit/37c1cd4ecab3788a4fe9ab4804c43dba2322553b)), closes [#285](https://github.com/fworks-tech/agenthood/issues/285)
+* **cli:** wire detect flag through CLI parser ([12335ae](https://github.com/fworks-tech/agenthood/commit/12335ae8d0ee3d53902743a2b84d4de1c389953b))
+* implement all review findings from architect and reviewer ([88bfbfe](https://github.com/fworks-tech/agenthood/commit/88bfbfe0c0892588aaed451ed065fcbd4bf332da))
+* **security:** address all Auditor findings from PR [#285](https://github.com/fworks-tech/agenthood/issues/285) ([f5a0bca](https://github.com/fworks-tech/agenthood/commit/f5a0bcadd5c882d0e05c5a16598d9230c44c909e))
+
+
+### Documentation
+
+* **governance:** create member RACI map and release policy ([21f8230](https://github.com/fworks-tech/agenthood/commit/21f8230a260035d043bee55dc48eabc4e5b4efa5)), closes [#283](https://github.com/fworks-tech/agenthood/issues/283)
+
+
+### Features
+
+* **ci:** make API usage smart and economic ([067af97](https://github.com/fworks-tech/agenthood/commit/067af97ee7fc1c91fb9c0c6f5ef5cd64b5e3e75f))
+* **llm:** add OpenCode Go provider ([8d8d06e](https://github.com/fworks-tech/agenthood/commit/8d8d06e1449cc3ede2938fd21f23cbd04ba004c6))
+* **llm:** add OpenCode Zen provider ([f96ffc5](https://github.com/fworks-tech/agenthood/commit/f96ffc551fa264079fb868a7889fcd683698145b))
+* **llm:** fix OpenCode provider for DeepSeek tool format compatibility ([c70277e](https://github.com/fworks-tech/agenthood/commit/c70277eb34b19a48078bbb441336a08c8023ec40)), closes [#285](https://github.com/fworks-tech/agenthood/issues/285)
+* **orchestration:** implement MemberOrchestrator detection ([cebe214](https://github.com/fworks-tech/agenthood/commit/cebe21471c3a3cf8b430295a3089b8753e3cd035)), closes [#201](https://github.com/fworks-tech/agenthood/issues/201)
+* **rag:** implement AgenticRAG with RetrievalDecisionSkill ([5b8d272](https://github.com/fworks-tech/agenthood/commit/5b8d272ddb585b41fc83bf726459ce6828d8bbe2)), closes [#108](https://github.com/fworks-tech/agenthood/issues/108)
+* **rag:** implement HierarchicalChunkStrategy with parent-child chunking ([af6b336](https://github.com/fworks-tech/agenthood/commit/af6b336fdd4e03c9b99fb41c63738950dd19faa5)), closes [#109](https://github.com/fworks-tech/agenthood/issues/109)
+
+
+### BREAKING CHANGES
+
+* **governance:** announcements, deprecation policy, compliance
+
 ## [2.5.1](https://github.com/fworks-tech/agenthood/compare/v2.5.0...v2.5.1) (2026-06-26)
 
 

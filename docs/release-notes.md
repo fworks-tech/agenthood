@@ -5,21 +5,40 @@
 
 ---
 
-## v2.6.0 — June 26, 2026
-
-### ✨ Features
-
-- **Rag:** implement MarkdownHierarchicalChunkStrategy for parent-child chunking of Markdown documents (H2 sections = parents, paragraphs = children)
-- **Rag:** implement AgenticRAG with RetrievalClassifier for agent-controlled retrieval strategy (skip, vector, graph, both) with provenance tracking
-- **Reasoning:** implement MemberOrchestrator Phase 1 — member detection via keyword, file pattern, and stage matching across all 14 members
-- **Llm:** add OpenCode Zen provider — OpenAI-compatible endpoint at `opencode.ai/zen/v1` (pay-as-you-go)
-- **Llm:** add OpenCode Go provider — subscription-based endpoint at `opencode.ai/zen/go/v1`
-- **Governance:** add RACI member map defining responsibilities, consult/inform relationships, and escalation paths
-- **Governance:** add release policy for member SKILL.md versioning, change approvals, and deprecation process
+## v3.0.0 — June 26, 2026
 
 ### 🐛 Bug Fixes
 
-- **Memory:** align ProjectMemoryImpl return types with ProjectMemory interface
+- address PR review feedback and update docs
+- **Ci:** add GITHUB_TOKEN to Run Reviewer step
+- **Ci:** address reviewer feedback on gh pr view error handling
+- **Ci:** convert skills/ symlinks to regular files
+- **Ci:** ensure all gh commands have GITHUB_TOKEN auth
+- **Ci:** fix YAML indentation in sentinel, auditor, warden workflows
+- **Ci:** install gitleaks binary before pre-check step
+- **Ci:** remove noisy gitleaks pre-check step
+- **Ci:** update sentinel to check file content instead of symlinks
+- **Cli:** wire detect flag through CLI parser
+- implement all review findings from architect and reviewer
+- **Security:** address all Auditor findings from PR #285
+
+### 📝 Documentation
+
+- **Governance:** create member RACI map and release policy
+
+### ✨ Features
+
+- **Ci:** make API usage smart and economic
+- **Llm:** add OpenCode Go provider
+- **Llm:** add OpenCode Zen provider
+- **Llm:** fix OpenCode provider for DeepSeek tool format compatibility
+- **Orchestration:** implement MemberOrchestrator detection
+- **Rag:** implement AgenticRAG with RetrievalDecisionSkill
+- **Rag:** implement HierarchicalChunkStrategy with parent-child chunking
+
+### 🔹 BREAKING CHANGES
+
+- **Governance:** announcements, deprecation policy, compliance
 
 ---
 
@@ -39,7 +58,7 @@
 
 ### ✨ Features
 
-- **Memory:** implement PersonalisationStore for per-project agent adaptation, closes #112
+- **Memory:** implement PersonalisationStore for per-project agent adaptation, closes [hi#weight](https://github.com/hi/issues/weight) #112
 - **Memory:** implement ShortTerm, LongTerm, Episodic, and Project memory tiers
 - **Rag:** implement baseline RAG pipeline — ChunkStrategy, Indexer, Retriever
 - **Rag:** implement SocietyIndexer for members, ADRs, and conventions
@@ -140,7 +159,7 @@
 
 - add GroqProvider tests, schema validation, and runtime documentation
 - **Agent:** implement ArchitectAgent, ReviewerAgent, QAAgent runtime classes
-- **Commands:** add pr-sync command, PrSyncSkill, and The Manuscript workflow, closes #162
+- **Commands:** add pr-sync command, PrSyncSkill, and The Manuscript workflow, closes [#based](https://github.com/fworks-tech/agenthood/issues/based)
 - **Core:** add concurrency queue and safety guard
 - **Core:** add RiskManager, SkillRegistry discovery, dynamic routing, and README rewrite #162 #102 #102 #103 #162
 - **Core:** implement ContextCompressor with token-aware memory summarization

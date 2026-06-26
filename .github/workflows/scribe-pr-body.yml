@@ -33,6 +33,11 @@ jobs:
         id: review
         continue-on-error: true
         run: |
+          if [ -z "$OPENCODE_API_KEY" ]; then
+            echo "OPENCODE_API_KEY not set. Skipping review."
+            exit 0
+          fi
+
           PR_NUMBER=$(gh pr view --json number --jq '.number' 2>/dev/null || echo "")
 
           if [ -z "$PR_NUMBER" ]; then
@@ -53,7 +58,7 @@ jobs:
           fi
 
           TASK=$(printf "review this git diff:\n%s\n" "$DIFF")
-          node dist/cli.js run the-reviewer "$TASK" --provider opencode-go 2>&1 | awk 'NR>1' > /tmp/review_body.txt
+          node dist/cli.js run the-reviewer "$TASK" --provider opencode-go 2>&1 | grep -v "^Error running\|^Using \|^opencode-go\|^groq\|^ollama\|^All providers\|^$" > /tmp/review_body.txt
         env:
           OPENCODE_API_KEY: ${{ secrets.OPENCODE_API_KEY }}
 

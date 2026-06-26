@@ -156,9 +156,24 @@ jobs:
         env:
           OPENCODE_API_KEY: ${{ secrets.OPENCODE_API_KEY }}
         run: |
+          # Skip if no API key configured
+          if [ -z "$OPENCODE_API_KEY" ]; then
+            echo "OPENCODE_API_KEY not set. Skipping agent analysis."
+            exit 0
+          fi
+
           CHANGED=$(git diff --name-only --diff-filter=ACM "${{ github.event.pull_request.base.sha }}" "${{ github.event.pull_request.head.sha }}" 2>/dev/null || echo "")
+
+          # Skip if nothing changed — no point calling the LLM
+          if [ -z "$CHANGED" ]; then
+            echo "No member files changed. Skipping agent analysis."
+            exit 0
+          fi
+
+          # Cap to first 10 files to keep token usage low (~$0.01 per run)
+          CHANGED=$(echo "$CHANGED" | head -10)
           TASK=$(printf "analyze these changed member files for structural drift and consistency issues:\n%s\n" "$CHANGED")
-          node dist/cli.js run the-sentinel "$TASK" --provider opencode-go 2>&1 | awk 'NR>1' > /tmp/sentinel_agent.txt
+          node dist/cli.js run the-sentinel "$TASK" --provider opencode-go 2>&1 | grep -v "^Error running\|^Using \|^opencode-go\|^groq\|^ollama\|^All providers\|^$" > /tmp/sentinel_agent.txt
 
       - name: The Sentinel — post agent findings
         if: always() && github.event_name == 'pull_request'

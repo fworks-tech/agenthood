@@ -104,6 +104,7 @@ For a full walkthrough — install, commands, CI pipeline, and next steps — se
 | v1.6.x | [The Academy](https://github.com/fworks-tech/agenthood/milestone/12) — Level 1 articles, GitHub Pages, npm via OIDC | ✅ Shipped |
 | v2.0.0 | [Foundation](https://github.com/fworks-tech/agenthood/milestone/3) — TypeScript runtime: ILLMProvider, LLMRouter, ReActLoop, BaseAgent | ✅ Shipped |
 | v2.1.0 | [Intelligence](https://github.com/fworks-tech/agenthood/milestone/5) — Security, 5-tier memory, RAG foundation, LanceDB vector store | ✅ Shipped (Phase 0) |
+| v2.2.0 | RAG Pipeline + Consumers — ChunkStrategy, Indexer, Retriever, TreeSitterParser, ProjectIngestion, SocietyIndexer, Memory Tiers (ShortTerm, LongTerm, Episodic, Project), PersonalisationStore | ✅ Shipped (Phase 1) |
 
 ---
 
@@ -131,7 +132,7 @@ The framework runs on five core principles adapted from production AI agent syst
 | Multi-LLM support & automatic failover | [provider-failover.md](architecture/provider-failover.md) |
 | Tool registry, scoping & safety caps | [built-in-tools.md](architecture/built-in-tools.md) |
 | 5-tier agent memory | [memory](src/memory/) — ResidualMemory, IMemoryStore, InMemoryStore, LanceDBStore |
-| Service-agnostic RAG (graph, vector) | [rag](src/rag/) — KnowledgeGraphStore, LanceDB vector store |
+| Service-agnostic RAG (graph, vector) | [rag](src/rag/) — KnowledgeGraphStore, ChunkStrategy, Indexer, Retriever, TreeSitterParser, ProjectIngestion |
 
 ---
 
@@ -220,9 +221,11 @@ agenthood/
 │   ├── skills/                      ← ISkill, SkillRegistry
 │   ├── core/                        ← SafetyGuard, ConcurrencyQueue, RiskManager, SchemaValidator
 │   ├── reasoning/                   ← ReActLoop, ThinkingBudget
-│   ├── memory/                      ← ResidualMemory, IMemoryStore, VectorStore (LanceDB)
+│   ├── memory/                      ← ResidualMemory, IMemoryStore, VectorStore (LanceDB), ShortTermMemory, LongTermMemory, EpisodicMemory, ProjectMemory, PersonalisationStore
 │   ├── memory/stores/               ← InMemoryStore
-│   ├── rag/                         ← KnowledgeGraphStore
+│   ├── rag/                         ← KnowledgeGraphStore, ChunkStrategy, Indexer, Retriever
+│   ├── rag/parsers/                 ← TreeSitterParser (AST code structure extraction)
+│   ├── project/                     ← SocietyIndexer, ProjectIngestion
 │   ├── members/                     ← MemberRegistry, MemberAgent
 │   └── prompts/                     ← Templates, PromptBuilder, PromptRegistry
 │

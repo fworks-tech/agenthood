@@ -233,10 +233,13 @@ agenthood/
 │   ├── members/                     ← MemberRegistry, MemberAgent
 │   └── prompts/                     ← Templates, PromptBuilder, PromptRegistry
 │
-├── .github/workflows/               ← CI enforcement
+├── .github/                          ← CI and contribution automation
+│   ├── actions/agent-analysis/        ← Shared composite action for LLM agent checks in CI
+│   └── workflows/                     ← CI enforcement
 │   ├── auto-assign.yml              ← The Scribe — assigns owner to new issues and PRs
 │   ├── auditor.yml                  ← The Auditor — secret scanning
 │   ├── commitlint.yml               ← The Doorman — commit message validation
+│   ├── gh-pages.yml                 ← The Librarian — deploy Academy docs to GitHub Pages
 │   ├── herald.yml                   ← The Herald — CI summary comment on PRs
 │   ├── scribe-pr-body.yml           ← The Reviewer — LLM commit review on every push
 │   ├── labeler.yml                  ← The Scribe — labels PRs by changed file paths

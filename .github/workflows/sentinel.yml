@@ -136,3 +136,40 @@ jobs:
           fi
 
           echo "The Sentinel: all skills/ files match members/."
+
+      - uses: actions/setup-node@v4
+        if: always()
+        with:
+          node-version: 24
+          cache: npm
+
+      - run: npm ci --ignore-scripts
+        if: always()
+
+      - run: npm run build
+        if: always()
+
+      - name: The Sentinel — agent analysis
+        if: always()
+        continue-on-error: true
+        id: sentinel-agent
+        env:
+          OPENCODE_API_KEY: ${{ secrets.OPENCODE_API_KEY }}
+        run: |
+          CHANGED=$(git diff --name-only --diff-filter=ACM "${{ github.event.pull_request.base.sha }}" "${{ github.event.pull_request.head.sha }}" 2>/dev/null || echo "")
+          TASK=$(printf "analyze these changed member files for structural drift and consistency issues:\n%s\n" "$CHANGED")
+          node dist/cli.js run the-sentinel "$TASK" --provider opencode-go 2>&1 | awk 'NR>1' > /tmp/sentinel_agent.txt
+
+      - name: The Sentinel — post agent findings
+        if: always() && github.event_name == 'pull_request'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          if [ -f /tmp/sentinel_agent.txt ] && [ -s /tmp/sentinel_agent.txt ]; then
+            gh pr comment ${{ github.event.pull_request.number }} \
+              --body "## The Sentinel — Agent Analysis 🔍
+
+$(cat /tmp/sentinel_agent.txt)
+
+*— The Sentinel, Agenthood*"
+          fi

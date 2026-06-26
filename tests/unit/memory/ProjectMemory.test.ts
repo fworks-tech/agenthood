@@ -27,7 +27,7 @@ describe('ProjectMemoryImpl', () => {
 
     const conventions = await pm.getConventions()
     expect(conventions).toHaveLength(1)
-    expect(conventions[0].type).toBe('convention')
+    expect(conventions[0].name).toBe('COMMIT_CONVENTION.md')
   })
 
   it('falls back to filesystem when no knowledge graph', async () => {
@@ -37,17 +37,17 @@ describe('ProjectMemoryImpl', () => {
     const pm = new ProjectMemoryImpl('/test')
     const conventions = await pm.getConventions()
     expect(conventions).toHaveLength(2)
-    expect(conventions[0].label).toBe('COMMIT_CONVENTION.md')
+    expect(conventions[0].name).toBe('COMMIT_CONVENTION.md')
   })
 
   it('returns ADRs from knowledge graph when available', async () => {
     const kg = new KnowledgeGraphStore()
-    kg.addNode({ id: 'adr:ADR-010', type: 'adr', label: 'LanceDB', metadata: {} })
+    kg.addNode({ id: 'adr:ADR-010', type: 'adr', label: 'LanceDB Store', metadata: {} })
     const pm = new ProjectMemoryImpl('/test', kg)
 
     const adrs = await pm.getArchitecturalDecisions()
     expect(adrs).toHaveLength(1)
-    expect(adrs[0].type).toBe('adr')
+    expect(adrs[0]).toBe('LanceDB Store')
   })
 
   it('falls back to filesystem for ADRs when no knowledge graph', async () => {
@@ -57,7 +57,7 @@ describe('ProjectMemoryImpl', () => {
     const pm = new ProjectMemoryImpl('/test')
     const adrs = await pm.getArchitecturalDecisions()
     expect(adrs).toHaveLength(2)
-    expect(adrs[0].label).toBe('ADR-010-lancedb')
+    expect(adrs[0]).toBe('ADR-010-lancedb')
   })
 
   it('returns empty array when conventions directory does not exist', async () => {

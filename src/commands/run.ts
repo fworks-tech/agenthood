@@ -16,6 +16,11 @@ import { MemberRegistry, MemberAgent } from "../members/index.ts"
 import { validateApiKeys, MissingApiKeyError } from "../llm/validateApiKeys.ts"
 import { SocietyIndexer } from "../project/SocietyIndexer.ts"
 import { KnowledgeGraphStore } from "../rag/KnowledgeGraphStore.ts"
+import { ShortTermMemoryImpl } from "../memory/ShortTermMemory.ts"
+import { LongTermMemoryImpl } from "../memory/LongTermMemory.ts"
+import { EpisodicMemoryImpl } from "../memory/EpisodicMemory.ts"
+import { ProjectMemoryImpl } from "../memory/ProjectMemory.ts"
+import { LanceDBStore } from "../memory/VectorStore.ts"
 import type { ExecutionContext } from "../core/ExecutionContext.ts"
 import type { LLMConfig, ProviderEntry } from "../llm/types.ts"
 
@@ -108,6 +113,15 @@ async function createContext(projectPath: string, config: LLMConfig): Promise<Ex
     }
   }
 
+  // Initialize vector store for persistent memory tiers
+  const vectorStore = new LanceDBStore(1536)
+  const memoryPath = join(projectPath, '.agenthood', 'memory')
+  try {
+    await vectorStore.connect(memoryPath)
+  } catch {
+    // vector store unavailable — memory tiers will operate without persistence
+  }
+
   return {
     executionId: randomUUID(),
     project: {
@@ -115,13 +129,10 @@ async function createContext(projectPath: string, config: LLMConfig): Promise<Ex
       name: projectPath.split(/[/\\]/).pop() ?? "project",
     },
     memory: {
-      shortTerm: { add: () => {}, getRecent: () => [], clear: () => {} },
-      longTerm: { store: async () => {}, retrieve: async () => null },
-      episodic: { record: async () => {}, recall: async () => [] },
-      project: {
-        getConventions: async () => [],
-        getArchitecturalDecisions: async () => [],
-      },
+      shortTerm: new ShortTermMemoryImpl(20),
+      longTerm: new LongTermMemoryImpl(vectorStore),
+      episodic: new EpisodicMemoryImpl(vectorStore, llm),
+      project: new ProjectMemoryImpl(projectPath, societyGraph),
     },
     llm,
     prompts: new PromptBuilder(new PromptRegistry()),

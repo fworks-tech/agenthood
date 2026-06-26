@@ -27,7 +27,20 @@ jobs:
 
       - run: npm ci --ignore-scripts
 
+      - run: npm audit --audit-level=high || echo "::warning::npm audit found vulnerabilities"
+
       - run: npm run build
+
+      - name: Pre-check diff for secrets before LLM review
+        continue-on-error: true
+        id: secret-check
+        run: |
+          if [ "${{ github.event.before }}" = "0000000000000000000000000000000000000000" ]; then
+            RANGE="HEAD"
+          else
+            RANGE="${{ github.event.before }}..${{ github.event.after }}"
+          fi
+          git diff "$RANGE" | gitleaks detect --no-git -v -s /dev/stdin 2>/dev/null
 
       - name: Run Reviewer
         id: review
@@ -81,4 +94,4 @@ jobs:
             --input /tmp/comment.json
         shell: bash
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_TOKEN: ${{ github.token }}

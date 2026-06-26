@@ -81,9 +81,9 @@ jobs:
         run: |
           if [ -f /tmp/auditor_agent.txt ] && [ -s /tmp/auditor_agent.txt ]; then
             gh pr comment ${{ github.event.pull_request.number }} \
-              --body "## The Auditor — Security Analysis 🔒
+              --body "## The Auditor — Security Analysis :lock:
 
-$(cat /tmp/auditor_agent.txt)
+          $(cat /tmp/auditor_agent.txt)
 
-*— The Auditor, Agenthood*"
+          *— The Auditor, Agenthood*"
           fi

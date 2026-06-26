@@ -167,9 +167,9 @@ jobs:
         run: |
           if [ -f /tmp/sentinel_agent.txt ] && [ -s /tmp/sentinel_agent.txt ]; then
             gh pr comment ${{ github.event.pull_request.number }} \
-              --body "## The Sentinel — Agent Analysis 🔍
+              --body "## The Sentinel — Agent Analysis :mag:
 
-$(cat /tmp/sentinel_agent.txt)
+          $(cat /tmp/sentinel_agent.txt)
 
-*— The Sentinel, Agenthood*"
+          *— The Sentinel, Agenthood*"
           fi

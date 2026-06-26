@@ -5,6 +5,8 @@ import type { ILLMProvider } from "../llm/ILLMProvider.ts"
 import type { IVectorStore, VectorRecord } from "../memory/VectorStore.ts"
 import type { ChunkStrategy } from "./ChunkStrategy.ts"
 import { FixedSizeChunkStrategy } from "./ChunkStrategy.ts"
+import { TreeSitterParser, languageFromFile } from "./parsers/TreeSitterParser.ts"
+import type { CodeEntity } from "./parsers/TreeSitterParser.ts"
 
 export interface IndexOptions {
   chunkStrategy?: ChunkStrategy
@@ -27,6 +29,7 @@ export class Indexer {
   private totalDocuments = 0
   private totalChunks = 0
   private indexedExtensions = new Set<string>()
+  private codeParser?: TreeSitterParser
 
   constructor(options: IndexOptions) {
     this.chunkStrategy = options.chunkStrategy ?? new FixedSizeChunkStrategy()
@@ -34,9 +37,19 @@ export class Indexer {
     this.vectorStore = options.vectorStore
   }
 
+  setParser(parser: TreeSitterParser): void {
+    this.codeParser = parser
+  }
+
   async indexDocument(filePath: string, content: string): Promise<void> {
     const ext = extname(filePath).toLowerCase()
     this.indexedExtensions.add(ext)
+
+    const lang = languageFromFile(filePath)
+    if (lang && this.codeParser) {
+      await this.indexWithParser(filePath, content, lang)
+      return
+    }
 
     const chunks = this.chunkStrategy.chunk(content, {
       chunkSize: 512,
@@ -67,6 +80,28 @@ export class Indexer {
 
     this.totalDocuments++
     this.totalChunks += chunks.length
+  }
+
+  private async indexWithParser(filePath: string, content: string, lang: string): Promise<void> {
+    const entities = this.codeParser!.parse(content, lang as never, filePath)
+    const combined = entities.map((e) => `${e.type} ${e.name} (lines ${e.startLine}-${e.endLine})`).join("\n")
+    const vector = await this.embedder.embed(combined)
+
+    await this.vectorStore.add([{
+      id: `${filePath}::code-summary`,
+      vector,
+      metadata: {
+        source: filePath,
+        parser: "tree-sitter",
+        entityCount: entities.length,
+        entityTypes: [...new Set(entities.map((e) => e.type))],
+      },
+      content: `Code entities in ${filePath}:\n${combined}`,
+      createdAt: new Date(),
+    }])
+
+    this.totalDocuments++
+    this.totalChunks += entities.length
   }
 
   async indexDirectory(dirPath: string, filter?: (filePath: string) => boolean): Promise<void> {

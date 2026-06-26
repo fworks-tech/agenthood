@@ -63,6 +63,7 @@ jobs:
           node dist/cli.js run the-reviewer "$TASK" --provider opencode-go 2>&1 | grep -v "^Error running\|^Using \|^opencode-go\|^groq\|^ollama\|^All providers\|^$" > /tmp/review_body.txt
         env:
           OPENCODE_API_KEY: ${{ secrets.OPENCODE_API_KEY }}
+          GITHUB_TOKEN: ${{ github.token }}
 
       - name: Post Review Comment
         run: |

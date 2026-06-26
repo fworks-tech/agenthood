@@ -5,6 +5,22 @@
 
 ---
 
+## v2.6.0 — June 26, 2026
+
+### ✨ Features
+
+- **Rag:** implement MarkdownHierarchicalChunkStrategy for parent-child chunking of Markdown documents (H2 sections = parents, paragraphs = children)
+- **Rag:** implement AgenticRAG with RetrievalClassifier for agent-controlled retrieval strategy (skip, vector, graph, both) with provenance tracking
+- **Reasoning:** implement MemberOrchestrator Phase 1 — member detection via keyword, file pattern, and stage matching across all 14 members
+- **Governance:** add RACI member map defining responsibilities, consult/inform relationships, and escalation paths
+- **Governance:** add release policy for member SKILL.md versioning, change approvals, and deprecation process
+
+### 🐛 Bug Fixes
+
+- **Memory:** align ProjectMemoryImpl return types with ProjectMemory interface
+
+---
+
 ## v2.5.1 — June 26, 2026
 
 ### 🐛 Bug Fixes

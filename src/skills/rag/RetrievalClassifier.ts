@@ -2,13 +2,11 @@ import type { ISkill, SkillResult } from '../ISkill.js'
 import type { ExecutionContext } from '../../core/ExecutionContext.js'
 import type { JSONSchema } from '../../llm/types.js'
 
-type RetrievalStrategy = 'skip' | 'vector' | 'graph' | 'both'
+export type RetrievalStrategy = 'skip' | 'vector' | 'graph' | 'both'
 
-export type { RetrievalStrategy }
-
-export class RetrievalDecisionSkill implements ISkill {
+export class RetrievalClassifier implements ISkill {
   name = 'decide_retrieval'
-  description = 'Decide whether to retrieve context before answering. Returns: skip | vector | graph | both'
+  description = 'Classify query to decide retrieval strategy: skip | vector | graph | both'
 
   inputSchema: JSONSchema = {
     type: 'object',
@@ -20,8 +18,7 @@ export class RetrievalDecisionSkill implements ISkill {
 
   async execute(input: unknown, context: ExecutionContext): Promise<SkillResult> {
     const { query } = input as { query: string }
-
-    const decision = this.decide(query, context)
+    const decision = this.classify(query, context)
 
     return {
       success: true,
@@ -29,7 +26,7 @@ export class RetrievalDecisionSkill implements ISkill {
     }
   }
 
-  decide(query: string, context: ExecutionContext): RetrievalStrategy {
+  classify(query: string, context: ExecutionContext): RetrievalStrategy {
     const lowerQuery = query.toLowerCase()
 
     if (this.isAnswerableFromSTM(query, context)) {
@@ -59,11 +56,12 @@ export class RetrievalDecisionSkill implements ISkill {
     if (recent.length === 0) return false
 
     const words = query.toLowerCase().split(/\s+/).filter((w) => w.length > 3)
-    if (words.length === 0) return false
+    if (words.length < 2) return false
 
     for (const entry of recent) {
       const lowerEntry = entry.toLowerCase()
-      if (words.some((w) => lowerEntry.includes(w))) {
+      const matchedWords = words.filter((w) => lowerEntry.includes(w))
+      if (matchedWords.length >= 2) {
         return true
       }
     }

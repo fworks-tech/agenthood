@@ -93,7 +93,8 @@ export class MarkdownHierarchicalChunkStrategy implements HierarchicalChunkStrat
 
     for (let i = 0; i < sections.length; i++) {
       const section = sections[i]
-      const parentId = `parent_${i}_${metadata.filePath.replace(/[^a-zA-Z0-9]/g, '_')}`
+      const safePath = metadata.filePath.replace(/[\/\\]/g, '_')
+      const parentId = `parent_${i}_${safePath}`
       const parentStartLine = metadata.startLine + section.headerLine
       const parentEndLine = metadata.startLine + section.endLine
 

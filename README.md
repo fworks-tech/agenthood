@@ -108,6 +108,7 @@ For a full walkthrough — install, commands, CI pipeline, and next steps — se
 | v2.3.0 | Provider failover with model downgrade, circuit breaker, ADRs 011–013 | ✅ Shipped |
 | v2.4.0 | [Intelligence](https://github.com/fworks-tech/agenthood/milestone/5) — Security, 5-tier memory, RAG foundation, LanceDB vector store | ✅ Shipped (Phase 0) |
 | v2.5.0 | RAG Pipeline + Consumers — ChunkStrategy, Indexer, Retriever, TreeSitterParser, SocietyIndexer, Memory Tiers, PersonalisationStore | ✅ Shipped (Phase 1) |
+| v2.6.0 | [M5 — Intelligence](https://github.com/fworks-tech/agenthood/milestone/7) — HierarchicalChunkStrategy, AgenticRAG (skip/vector/graph/both), MemberOrchestrator Phase 1, governance docs (RACI + release policy) | ✅ Shipped |
 
 ---
 
@@ -134,7 +135,7 @@ The framework runs on five core principles adapted from production AI agent syst
 | Multi-LLM support & automatic failover | [provider-failover.md](architecture/provider-failover.md) |
 | Tool registry, scoping & safety caps | [built-in-tools.md](architecture/built-in-tools.md) |
 | Agent memory tiers | [memory](src/memory/) — ResidualMemory, ShortTermMemory, LongTermMemory, EpisodicMemory, ProjectMemory, InMemoryStore, PersonalisationStore, LanceDBStore |
-| Service-agnostic RAG (graph, vector) | [rag](src/rag/) — KnowledgeGraphStore, ChunkStrategy, Indexer, Retriever, TreeSitterParser, ProjectIngestion |
+| Service-agnostic RAG (graph, vector, agentic) | [rag](src/rag/) — KnowledgeGraphStore, FixedSizeChunkStrategy + MarkdownHierarchicalChunkStrategy, Indexer, Retriever, AgenticRAG, TreeSitterParser, ProjectIngestion |
 
 ---
 
@@ -207,7 +208,8 @@ agenthood/
 │   ├── operating-modes.md
 │   └── provider-failover.md
 │
-├── docs/                            ← Documentation
+├── governance/          ← RACI member map, release policy
+├── docs/                ← Documentation
 │   ├── adr/                         ← Architecture Decision Records
 │   ├── academy/                     ← Agenthood Academy articles
 │   ├── specs/                       ← Implementation specs

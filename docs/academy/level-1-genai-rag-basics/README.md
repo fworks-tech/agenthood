@@ -14,8 +14,8 @@ Nine articles. The foundation. Start here.
 | 2 | [Basics of LLMs](02-basics-of-llms.md) | `ILLMProvider`, 4 providers |
 | 3 | [Prompt Engineering](03-prompt-engineering.md) | `PromptBuilder`, member `SKILL.md` files |
 | 4 | [LLM Parameters](04-llm-parameters.md) | `LLMRequest` type |
-| 5 | [Chunking Strategies](05-chunking-strategies.md) | `ChunkStrategy`, `FixedSizeChunkStrategy` |
-| 6 | [RAG Fundamentals](06-rag-fundamentals.md) | `Retriever`, `Indexer` |
+| 5 | [Chunking Strategies](05-chunking-strategies.md) | `ChunkStrategy`, `FixedSizeChunkStrategy`, `MarkdownHierarchicalChunkStrategy` |
+| 6 | [RAG Fundamentals](06-rag-fundamentals.md) | `Retriever`, `Indexer`, `AgenticRAG` |
 | 7 | [Vector Databases](07-vector-databases.md) | `VectorStore` (LanceDB), ADR-010 |
 | 8 | [API Wrappers](08-api-wrappers.md) | `ILLMProvider` as abstraction pattern |
 | 9 | [Tool Integration](09-tool-integration.md) | `ISkill`, `SkillRegistry`, `ReActLoop` |

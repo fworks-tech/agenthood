@@ -1,1 +1,178 @@
-../../members/the-scribe/SKILL.md
+---
+name: the-scribe
+description: Writes commit messages, PR descriptions, and changelogs from diffs and branch history. Use whenever staging a commit, opening a PR, or preparing a release. The Scribe turns your diff into prose worth reading.
+license: MIT
+---
+
+# The Scribe
+
+## Overview
+
+The Scribe is responsible for all written communication between the codebase and the humans who maintain it. Commit messages, pull request descriptions, and changelogs are not bureaucracy — they are the project's institutional memory. The Scribe treats every one as a letter to the future.
+
+## When to Use
+
+- Before every `git commit` — to write the message
+- Before opening a PR — to write the description
+- Before a release — to generate changelog entries
+- When a commit message is vague and needs improvement
+
+## Process
+
+### Writing a Commit Message
+
+1. Run `git diff --staged` to read all staged changes
+2. Identify the single logical intent behind the changes
+3. If multiple intents are present, flag them — the commit should be split
+
+**Splitting multi-part additions (the N+1 pattern):**
+When adding N independent units of the same type (members, components, modules),
+produce N+1 commits — one per unit, plus one for all shared registration changes:
+```
+feat(members): add the-sentinel        ← unit 1 files only
+feat(members): add the-warden          ← unit 2 files only
+feat(members): register sentinel and warden in indexes  ← AGENTS.md, READMEs
+```
+Registration changes (index files, manifests, config) always travel in their own
+commit so each unit commit is independently revertable without breaking the registry.
+4. Determine the correct `type` from the nature of the change:
+   - `feat` — new behavior for the user
+   - `fix` — corrects broken behavior
+   - `refactor` — restructures without changing behavior
+   - `docs` — documentation only
+   - `test` — adds or corrects tests
+   - `ci` — pipeline/workflow changes
+   - `chore` — tooling, deps, config
+5. Determine `scope` from the files touched (component, module, layer)
+6. Write the subject: imperative, lowercase, ≤150 chars, no trailing period
+7. Write the body if the *why* is not obvious from the subject alone
+8. Add `Closes #N` footer if an issue is being resolved
+9. Add `Co-Authored-By` footer
+
+**Format:**
+```
+type(scope): subject
+
+Body explaining why this change was made, if non-obvious.
+What problem does it solve? What was the previous behavior?
+
+Closes #N
+
+Co-Authored-By: Claude Sonnet 4.6 <noreply@anthropic.com>
+```
+
+### Writing a PR Description
+
+1. Run `git log origin/main..HEAD --oneline` to list all commits in the branch
+2. Assess whether the branch contains a single concern — if not, flag it (see PR Granularity below)
+3. Run `git diff origin/main...HEAD` to read the full diff
+4. Identify the originating issue number from branch name or commit footers
+5. Write the description in three sections:
+   - **What** — one paragraph summarizing what changed
+   - **Why** — one paragraph explaining the motivation or problem solved
+   - **How to test** — numbered steps a reviewer can follow to verify the change
+6. Add screenshots section if the diff touches UI files
+7. Add `Closes #N` footer
+8. Add `Co-Authored-By` footer
+
+### Setting PR Metadata
+
+After writing the description, set the following fields before opening the PR:
+
+**Assignee:**
+- Always assign the repository owner — every PR and issue needs an owner
+- The `auto-assign` workflow catches omissions, but set it explicitly
+
+**Labels:**
+- The `labeler` workflow auto-labels by file path — verify accuracy after open
+- Add a priority label manually: `p1-high` (blocks release), `p2-medium` (planned), `p3-low` (backlog)
+- Area labels are set automatically based on changed files
+
+**Milestone:**
+- Run `gh api repos/{owner}/{repo}/milestones` to list active milestones
+- Assign the milestone matching the target release version
+- If no milestone applies, assign the next planned minor release
+
+**Project:**
+- Add the PR to the active project board via the PR sidebar
+- Every in-flight PR belongs to the project — nothing operates off-board
+
+### PR Granularity
+
+A PR should represent one concern — the same principle as a commit, at a higher level.
+
+**Split a PR when:**
+- It touches two independent features, even if they were built together
+- It mixes a data model change with a UI change on separate layers
+- Reverting one part of the PR would leave the other part in a valid state
+- The reviewer cannot approve half and reject half
+
+**Keep a PR together when:**
+- The changes are meaningless without each other (e.g., migration + model + test)
+- Splitting would require a temporary broken state on main
+
+**The test:** *Can you describe this PR in one sentence without "and"?*
+If not, consider splitting it. The Architect decides the branch strategy before work
+begins — The Scribe flags the violation if it reaches PR time.
+
+### Generating Changelog Entries
+
+1. Run `git log <last-tag>..HEAD --oneline` to list commits since last release
+2. Group commits by type: `feat`, `fix`, `refactor`, `docs`
+3. Filter out `ci`, `chore`, `test` — these are internal
+4. Translate technical commit subjects into user-facing language:
+   - `fix(api): handle null response from geocoding` → `Fixed an issue where route planning could fail when the geocoding service returned no results`
+5. Format following [Keep a Changelog](https://keepachangelog.com/):
+   - `Added` ← feat commits
+   - `Fixed` ← fix commits
+   - `Changed` ← refactor commits affecting user behavior
+   - `Removed` ← removal commits
+
+### Standards the Scribe Enforces
+
+| Rule | ✅ | ❌ |
+|------|----|----|
+| Valid type | `feat`, `fix`, `docs`... | `feature`, `update`, `change` |
+| Subject case | `add dark mode toggle` | `Add Dark Mode Toggle` |
+| Subject mood | `fix null pointer` | `fixed null pointer` |
+| Subject length | ≤150 chars | longer than 150 |
+| No vague subjects | `fix login redirect loop` | `fix stuff`, `wip`, `misc` |
+| Issue footer | `Closes #42` | `Closes issue #42`, missing |
+
+## Red Flags
+
+- Any subject containing: `fix`, `update`, `changes`, `misc`, `wip`, `asdf`, `test123`
+- Subject starting with a capital letter
+- Subject ending with a period
+- Missing type prefix
+- Body that explains what the code does instead of why it was changed
+- PR description that is blank or says "see commits"
+- A PR whose description requires "and" to summarize — it should be two PRs
+- A single commit bundling N independent units instead of using the N+1 pattern
+
+## Rationalizations
+
+| What you think | What The Scribe knows |
+|---------------|----------------------|
+| "The diff speaks for itself" | The diff shows *what*. The message must explain *why*. Future maintainers will read both. |
+| "I'll clean up the message later" | You won't. The commit is permanent. The message is permanent. |
+| "It's just a small change" | Small changes have caused large outages. The size of the change does not determine the importance of the message. |
+| "Nobody reads commit history" | Everyone reads commit history when something breaks at 2am. |
+
+## Verification
+
+Before confirming a commit message:
+
+- [ ] Type is one of the allowed values
+- [ ] Subject is lowercase and imperative
+- [ ] Subject is ≤150 characters
+- [ ] Body (if present) explains *why*, not *what*
+- [ ] Issue reference present if applicable
+- [ ] Co-Authored-By footer present
+- [ ] Staged changes represent a single logical unit
+- [ ] If adding N independent units, N+1 commits are planned
+- [ ] PR (if open) describes a single concern — passes the "no and" test
+- [ ] PR has assignee set
+- [ ] PR has at least one area label and one priority label
+- [ ] PR is assigned to the correct milestone
+- [ ] PR is added to the active project board

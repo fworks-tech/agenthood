@@ -43,22 +43,35 @@ export class MemberOrchestrator {
         }
       }
 
-      for (const pattern of trigger.filePatterns) {
-        if (pattern.startsWith('!')) continue
+      const excludePatterns: string[] = []
+      const includePatterns: string[] = []
 
+      for (const pattern of trigger.filePatterns) {
+        if (pattern.startsWith('!')) {
+          excludePatterns.push(pattern.slice(1))
+        } else {
+          includePatterns.push(pattern)
+        }
+      }
+
+      for (const pattern of includePatterns) {
         const globPrefix = pattern.replace('**/*', '')
         const basePattern = globPrefix.replace(/\*$/, '')
 
         for (const file of changedFiles) {
           if (this.matchFilePattern(file, pattern)) {
-            score += 1
-            matchedFiles.push(file)
+            if (!excludePatterns.some((ex) => this.matchFilePattern(file, ex))) {
+              score += 1
+              matchedFiles.push(file)
+            }
           }
         }
 
         for (const dir of changedDirs) {
           if (dir.startsWith(basePattern) || basePattern.includes(dir)) {
-            score += 1
+            if (!excludePatterns.some((ex) => ex.includes(dir) || dir.includes(ex))) {
+              score += 1
+            }
           }
         }
       }

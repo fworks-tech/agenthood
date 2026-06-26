@@ -10,7 +10,7 @@
 
 export type PermissionProfile = 'restricted' | 'standard' | 'trusted'
 
-export type ProviderName = 'anthropic' | 'groq' | 'openai' | 'ollama' | 'opencode'
+export type ProviderName = 'anthropic' | 'groq' | 'openai' | 'ollama' | 'opencode' | 'opencode-go'
 
 export type MemberCategory = 'engineering' | 'validation' | 'knowledge' | 'lifecycle'
 

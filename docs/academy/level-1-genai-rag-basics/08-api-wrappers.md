@@ -62,15 +62,15 @@ Because of this abstraction, switching the active provider for an agent is a con
 
 ```bash
 # Switch the runtime provider seamlessly
-agenthood run the-scribe "Write a commit" --provider anthropic
-agenthood run the-scribe "Write a commit" --provider groq
+npx agenthood run the-scribe "Write a commit" --provider anthropic
+npx agenthood run the-scribe "Write a commit" --provider groq
 ```
 
 Or in TypeScript:
 
 ```typescript
-const router = LLMRouter.fromConfig(config, providers)
-const chain = router.createForMember('the-scribe')
+const router = LLMRouter.fromConfig(config)
+const chain = LLMRouter.createForMember('the-scribe', config)
 const response = await chain.complete({ messages: [...] })
 ```
 

@@ -26,7 +26,7 @@ Cost visibility is the silent one. A change to a prompt that adds 500 tokens per
 
 ## How Agenthood implements it
 
-Three components in `src/llm/` and `src/evals/` (coming in v2.0.0 / v2.4.0) handle the three axes:
+Three components in `src/llm/` and `src/evals/` (LLMRouter and ProviderFailover shipped in v2.0.0; evals and CostEstimator not yet implemented) handle the three axes:
 
 ```typescript
 import { LLMRouter, ProviderFailover, CostEstimator } from 'agenthood';

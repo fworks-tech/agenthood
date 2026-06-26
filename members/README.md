@@ -56,7 +56,7 @@ for your chosen AI runtime automatically.
 ## Invoking Members via the Autonomous Runtime
 
 With the TypeScript runtime built, any member can be invoked directly as a real
-LLLM agent — no manual copy-paste into an AI assistant required.
+LLM agent — no manual copy-paste into an AI assistant required.
 
 ```bash
 # Build the runtime (once, after install)
@@ -67,13 +67,13 @@ npm run build
 # or use Ollama for fully offline execution — no key required
 
 # Invoke any member by name
-agenthood run the-scribe "write a commit message for the current diff"
-agenthood run the-reviewer "review the changes against the spec in issue #12"
-agenthood run the-architect "plan the OAuth2 integration"
-agenthood run the-auditor "run a security audit on the authentication module"
+npx agenthood run the-scribe "write a commit message for the current diff"
+npx agenthood run the-reviewer "review the changes against the spec in issue #12"
+npx agenthood run the-architect "plan the OAuth2 integration"
+npx agenthood run the-auditor "run a security audit on the authentication module"
 
 # List all 14 available members
-agenthood list
+npx agenthood list
 ```
 
 The runtime loads each member's `SKILL.md` file at execution time.

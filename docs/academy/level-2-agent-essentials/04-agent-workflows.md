@@ -26,7 +26,7 @@ Human-in-the-loop checkpoints are the other non-negotiable. An autonomous workfl
 
 ## How Agenthood implements it
 
-The `WorkflowEngine` (coming in v2.3.0) lives in `src/workflows/WorkflowEngine.ts`. It executes a graph of typed steps, each with a defined input and output contract:
+The `WorkflowEngine` (planned — `src/workflows/` does not exist yet) will live in `src/workflows/WorkflowEngine.ts`. It executes a graph of typed steps, each with a defined input and output contract:
 
 ```typescript
 import { WorkflowEngine, AgentStep, ParallelStep, HumanInLoopStep } from 'agenthood';
@@ -52,7 +52,7 @@ Each step produces a typed output that the next step consumes. The `HumanInLoopS
 
 ```bash
 # Run a predefined Society workflow
-agenthood run the-steward "ship: add rate limiting to the API middleware"
+npx agenthood run the-steward "ship: add rate limiting to the API middleware"
 ```
 
 The Steward routes the task through the appropriate members: Architect plans, Tester writes tests, Developer implements, Reviewer reviews. Each step's output is logged:
@@ -72,7 +72,7 @@ The Steward routes the task through the appropriate members: Architect plans, Te
 ## Further reading
 
 - [ADR-005 — Orchestrator pattern over peer-to-peer](../../adr/ADR-005-orchestrator-pattern.md) — why workflows are orchestrated, not peer-to-peer
-- [`src/workflows/WorkflowEngine.ts`](../../src/workflows/WorkflowEngine.ts) — workflow orchestration (v2.3.0)
+- [`src/workflows/WorkflowEngine.ts`](../../src/workflows/WorkflowEngine.ts) — workflow orchestration (planned)
 - [Patterns for Building LLM-based Systems & Products](https://eugeneyan.com/writing/llm-patterns/) — Eugene Yan's pattern catalog
 
 

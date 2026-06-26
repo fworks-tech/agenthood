@@ -146,7 +146,7 @@ When a new member is added, update all of these:
 
 | File | Change |
 |------|--------|
-| `members/README.md` | Add row to member table; update "nine members" count |
+| `members/README.md` | Add row to member table; update member count |
 | `AGENTS.md` | Add bullet to `## The Members` list |
 | `README.md` (root) | Add row to member table; add `the-<name>/` to structure tree |
 | `C:/Users/<user>/.claude/CLAUDE.md` | Add trigger row to Active Member Skills table if the member should be globally active |

@@ -111,7 +111,7 @@ The Envoy — Convention Validation Report
 Provider: GitHub Copilot
 Date: YYYY-MM-DD
 
-✅ Skill files translated (11/11 members)
+✅ Skill files translated (14/14 members)
 ✅ AGENTS.md convention source present
 ⚠️  Commit hook not configured — The Doorman is present but unarmed
 ⚠️  CI commitlint workflow not installed

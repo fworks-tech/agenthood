@@ -28,7 +28,7 @@ The output failure: an agent produces a correct answer that includes a secret it
 
 ## How Agenthood implements it
 
-Three components, all in `src/core/` (coming in v2.0.0):
+Three components, all in `src/core/` (shipped in v2.0.0):
 
 ```typescript
 import { RiskManager, ThinkingBudget, SafetyGuard } from 'agenthood';
@@ -66,7 +66,7 @@ Every action the agent proposes passes through `RiskManager` before it executes.
 
 ```bash
 # The Society's runtime applies all three layers automatically
-agenthood run the-developer "clean up the build directory"
+npx agenthood run the-developer "clean up the build directory"
 ```
 
 Watch the safety layers fire:

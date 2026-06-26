@@ -25,24 +25,26 @@ graph TD
 
 If you blindly chop text every 500 characters, you will split sentences in half and sever code blocks from their declarations. When the retriever fetches that chunk later, the LLM will lack the necessary context to answer the user's question, leading to hallucinations.
 
-In production, bad chunking is the number one cause of RAG failure. A smart `HierarchicalChunkStrategy` ensures that the semantic meaning of the text is preserved, drastically improving the accuracy of vector search.
+In production, bad chunking is the number one cause of RAG failure. A smart `FixedSizeChunkStrategy` ensures that the semantic meaning of the text is preserved, drastically improving the accuracy of vector search.
 
 ---
 
 ## How Agenthood implements it
 
-Agenthood plans to implement chunking via the `ChunkStrategy` interface, specifically utilizing a `HierarchicalChunkStrategy` for code and markdown parsing.
+Agenthood plans to implement chunking via the `ChunkStrategy` interface, specifically utilizing a `FixedSizeChunkStrategy` for code and markdown parsing.
 
-This will be found in `src/rag/ChunkStrategy.ts` (future milestone):
+This is implemented in `src/rag/ChunkStrategy.ts` (shipped in Phase 1):
 
 ```typescript
-// Planned for a future milestone
 export interface ChunkStrategy {
   chunk(text: string, metadata: FileMetadata): DocumentChunk[];
 }
 
-export class HierarchicalChunkStrategy implements ChunkStrategy {
-  // Splits Markdown by H1, H2, H3 or Code by class/function
+export class FixedSizeChunkStrategy implements ChunkStrategy {
+  chunk(text: string, metadata: FileMetadata): DocumentChunk[] {
+    const size = metadata.type === 'code' ? 250 : 500;
+    return splitByTokens(text, size, metadata);
+  }
 }
 ```
 
@@ -56,7 +58,7 @@ Though the formal pipeline is under development, you can test semantic chunking 
 
 ```bash
 # A future command to test chunking
-npx agenthood rag:chunk README.md --strategy semantic
+# No dedicated CLI subcommand — use the API directly via the runtime
 ```
 
 Or conceptually in TypeScript:
@@ -73,7 +75,7 @@ const text = "export class Agent { ... }";
 ## Further reading
 
 - [ADR-010 — LanceDB for Vector Storage](../../adr/ADR-010-lancedb-for-vector-storage.md)
-- [`src/rag/ChunkStrategy.ts`](../../src/rag/ChunkStrategy.ts) — source implementation (planned)
+- [`src/rag/ChunkStrategy.ts`](../../../src/rag/ChunkStrategy.ts) — source implementation (shipped in Phase 1)
 - [Pinecone: Chunking Strategies](https://www.pinecone.io/learn/chunking-strategies/) — an excellent breakdown of chunking methods
 
 

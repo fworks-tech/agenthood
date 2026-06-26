@@ -24,10 +24,9 @@ In production, Generative AI cannot be deployed naked. It must be wrapped in gua
 
 Agenthood is not another LLM wrapper; it is a framework of conventions. It places Generative AI within the `ILLMProvider` abstraction, ensuring that the model is only a cog in a larger, deterministic machine.
 
-This architecture is currently being finalized for a future milestone. It will reside in `src/llm/ILLMProvider.ts`:
+The `ILLMProvider` interface is implemented at `src/llm/ILLMProvider.ts` (shipped in v2.0.0):
 
 ```typescript
-// Planned for a future milestone
 export interface ILLMProvider {
   generate(prompt: string, options: LLMRequest): Promise<string>;
   verify(response: string, contract: Contract): boolean;
@@ -44,7 +43,7 @@ While the formal `ILLMProvider` is under construction, you can invoke the Societ
 
 ```bash
 # Ask The Scribe to write a commit message
-agenthood-run invoke the-scribe "Write a commit message for the staged changes"
+npx agenthood run the-scribe "Write a commit message for the staged changes"
 ```
 
 The agent will strictly follow the Conventional Commits standard, proving that Generative AI can be constrained to produce reliable output.

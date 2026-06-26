@@ -26,7 +26,7 @@ Human-in-the-loop checkpoints are only useful if there is a plan to checkpoint. 
 
 ## How Agenthood implements it
 
-Two components handle planning: `PlanSkill` and `ArchitectAgent`, in `src/skills/reasoning/PlanSkill.ts` and `src/agents/ArchitectAgent.ts` (coming in v2.0.0 / v2.2.0):
+Two components are planned for planning: `PlanSkill` and `ArchitectAgent`, in `src/skills/reasoning/PlanSkill.ts` and `src/agents/ArchitectAgent.ts` (both not yet implemented):
 
 ```typescript
 import { ArchitectAgent } from 'agenthood';
@@ -56,7 +56,7 @@ const plan = await architect.plan({
 
 ```bash
 # The Architect produces a plan; nothing executes until approved
-agenthood run the-architect "plan: add OAuth2 login to the API"
+npx agenthood run the-architect "plan: add OAuth2 login to the API"
 ```
 
 Output:
@@ -87,7 +87,7 @@ The agent does not start editing until you approve. This is what "autonomous but
 ## Further reading
 
 - [ADR-005 — Orchestrator pattern](../../adr/ADR-005-orchestrator-pattern.md) — how plans flow through the orchestrator with approval gates
-- [`src/skills/reasoning/PlanSkill.ts`](../../src/skills/reasoning/PlanSkill.ts) — the planning skill (v2.2.0)
+- [`src/skills/reasoning/PlanSkill.ts`](../../src/skills/reasoning/PlanSkill.ts) — the planning skill (planned)
 - [Tree of Thoughts: Deliberate Problem Solving with Large Language Models](https://arxiv.org/abs/2305.10601) — the planning paper this model draws from
 
 

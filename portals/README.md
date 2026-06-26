@@ -41,7 +41,7 @@ The `tools_for(member_name)` method on each portal class enforces the
 so The Herald only receives release tools and The Reviewer only receives
 PR read/comment tools.
 
-This is implemented in **Phase 5** of the v2.0.0 milestone.
+This is planned for a future milestone (see `src/portals/` — directory does not exist yet).
 
 ---
 

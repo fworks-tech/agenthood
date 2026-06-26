@@ -32,10 +32,9 @@ Production prompt engineering prevents context degradation. It ensures the model
 
 Agenthood implements prompt engineering through the `PromptBuilder` utility and the strict Markdown templates defining its members (`members/*/*.md`). 
 
-The `PromptBuilder` (planned for a future milestone in `src/llm/PromptBuilder.ts`) constructs structured prompts programmatically:
+The `PromptBuilder` is implemented at `src/prompts/PromptBuilder.ts` (shipped in v2.0.0):
 
 ```typescript
-// Planned for a future milestone
 const prompt = new PromptBuilder()
   .setSystem(member.systemPrompt)
   .addContext(codeDiff)
@@ -70,7 +69,7 @@ const p = new PromptBuilder().setInstruction('Do not hallucinate.').build();
 ## Further reading
 
 - [ADR-001 — Markdown skills over code agents](../../adr/ADR-001-markdown-skills-over-code-agents.md)
-- [`src/llm/PromptBuilder.ts`](../../src/llm/PromptBuilder.ts) — source implementation (planned)
+- [`src/prompts/PromptBuilder.ts`](../../../src/prompts/PromptBuilder.ts) — source implementation (shipped in v2.0.0)
 - [OpenAI: Prompt Engineering Guide](https://platform.openai.com/docs/guides/prompt-engineering) — best practices for structuring prompts
 
 

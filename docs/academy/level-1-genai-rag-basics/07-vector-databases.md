@@ -47,10 +47,10 @@ You interact with the local vector store transparently through the runtime:
 
 ```bash
 # Initialize local vector storage
-npx agenthood rag:init-db
+# No dedicated CLI subcommand — LanceDB initializes on first use
 
 # The database lives in .agenthood/vectors/
-ls -la .agenthood/vectors/
+ls -la .agenthood/
 ```
 
 Or conceptually in TypeScript:
@@ -66,7 +66,7 @@ await db.insert(chunks);
 ## Further reading
 
 - [ADR-010 — LanceDB for Vector Storage](../../adr/ADR-010-lancedb-for-vector-storage.md)
-- [`src/memory/VectorStore.ts`](../../src/memory/VectorStore.ts) — IVectorStore interface + LanceDBStore (shipped)
+- [`src/memory/VectorStore.ts`](../../../src/memory/VectorStore.ts) — IVectorStore interface + LanceDBStore (shipped)
 - [LanceDB Documentation](https://lancedb.github.io/lancedb/) — why embedded vector DBs are the future
 
 

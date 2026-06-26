@@ -34,10 +34,9 @@ RAG grounds the LLM in reality. In production, RAG prevents hallucinations, allo
 
 ## How Agenthood implements it
 
-Agenthood's RAG architecture starts with `KnowledgeGraphStore` for structural retrieval. The higher-level `Retriever` and `Indexer` components are planned for subsequent milestones:
+Agenthood's RAG architecture starts with `KnowledgeGraphStore` for structural retrieval. The `Retriever` and `Indexer` components are implemented at `src/rag/` (shipped in Phase 1):
 
 ```typescript
-// Planned for a future milestone
 export class Retriever {
   constructor(private vectorStore: VectorStore, private embedder: Embedder) {}
 
@@ -58,10 +57,10 @@ The structural retrieval layer (`KnowledgeGraphStore`) is available now. The ful
 
 ```bash
 # Index the current repository (future milestone)
-npx agenthood rag:index .
+# No dedicated CLI subcommand — use the API directly (see src/rag/Indexer.ts)
 
 # Query the codebase (future milestone)
-npx agenthood rag:query "Where is the orchestrator defined?"
+# No dedicated CLI subcommand — use the API directly (see src/rag/Retriever.ts)
 ```
 
 ---
@@ -69,8 +68,8 @@ npx agenthood rag:query "Where is the orchestrator defined?"
 ## Further reading
 
 - [ADR-010 — LanceDB for Vector Storage](../../adr/ADR-010-lancedb-for-vector-storage.md)
-- [`src/rag/KnowledgeGraphStore.ts`](../../src/rag/KnowledgeGraphStore.ts) — bidirectional graph store (shipped)
-- [`src/memory/VectorStore.ts`](../../src/memory/VectorStore.ts) — LanceDB vector store (shipped)
+- [`src/rag/KnowledgeGraphStore.ts`](../../../src/rag/KnowledgeGraphStore.ts) — bidirectional graph store (shipped)
+- [`src/memory/VectorStore.ts`](../../../src/memory/VectorStore.ts) — LanceDB vector store (shipped)
 - [IBM: What is RAG?](https://research.ibm.com/blog/retrieval-augmented-generation-RAG) — foundational overview of the RAG pattern
 
 

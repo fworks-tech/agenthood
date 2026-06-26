@@ -22,7 +22,7 @@ A working first agent teaches you every integration point at once: how the LLM p
 
 ## How Agenthood implements it
 
-`BaseAgent` lives in `src/agents/base/BaseAgent.ts` (coming in v2.0.0). It defines the contract every Society member follows. Here is a complete, runnable `DeveloperAgent` that extends it:
+`BaseAgent` lives in `src/agents/base/BaseAgent.ts` (shipped in v2.0.0). It defines the contract every Society member follows. Here is a complete, runnable `DeveloperAgent` that extends it:
 
 ```typescript
 import { BaseAgent, Skill, AgentResult } from 'agenthood';
@@ -73,10 +73,10 @@ The `DeveloperAgent` class is 4 lines of real logic. `BaseAgent` and `ReActLoop`
 
 ```bash
 # Once the v2 runtime ships, run your custom agent directly
-agenthood run the-developer "add input validation to the login handler"
+npx agenthood run the-developer "add input validation to the login handler"
 ```
 
-If you want to test the pattern today, before v2.0.0, here is a minimal standalone version that uses the raw LLM API to simulate the loop:
+If you want to test the pattern today, here is a minimal standalone version that uses the raw LLM API to simulate the loop:
 
 ```typescript
 const llm = new GroqProvider({ model: 'llama-3.3-70b' });

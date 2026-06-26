@@ -34,10 +34,9 @@ In production, agents must take action. But blindly allowing an LLM to execute c
 
 Agenthood implements this via the `ISkill` interface, managed by the `SkillRegistry`, and executed within a `ReActLoop`.
 
-This allows members of the Society to seamlessly utilize tools. The architecture will reside in `src/agent/ISkill.ts` (future milestone):
+This allows members of the Society to seamlessly utilize tools. The interface is in `src/skills/ISkill.ts` (shipped in v2.0.0):
 
 ```typescript
-// Planned for a future milestone
 export interface ISkill {
   name: string;
   description: string;
@@ -61,7 +60,7 @@ When the runtime is active, you can provide tools directly to an agent:
 
 ```bash
 # Invoke an agent and provide it with filesystem skills
-agenthood-run invoke the-architect "Draft an ADR" --tools fs-write,fs-read
+npx agenthood run the-architect "Draft an ADR" --tools fs-write,fs-read
 ```
 
 Or in TypeScript (future milestone):
@@ -78,7 +77,7 @@ await loop.run("Read the package.json and summarize dependencies.");
 
 ## Further reading
 
-- [`src/agent/ISkill.ts`](../../src/agent/ISkill.ts) — source implementation (planned)
+- [`src/skills/ISkill.ts`](../../../src/skills/ISkill.ts) — source implementation (shipped in v2.0.0)
 - [ReAct: Synergizing Reasoning and Acting in Language Models](https://arxiv.org/abs/2210.03629) — the foundational paper on tool use
 
 

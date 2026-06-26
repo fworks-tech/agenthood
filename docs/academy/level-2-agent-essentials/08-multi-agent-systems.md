@@ -28,7 +28,7 @@ The orchestrator pattern solves both. Each agent receives only the context the o
 
 ## How Agenthood implements it
 
-The orchestrator lives in `WorkflowEngine` (coming in v2.3.0) and is documented in ADR-005. Agents never invoke each other directly. The orchestrator routes, agents execute, results return:
+The orchestrator (planned — `src/orchestrator/` does not exist yet) will live in `WorkflowEngine` and is documented in ADR-005. Agents never invoke each other directly. The orchestrator routes, agents execute, results return:
 
 ```typescript
 import { WorkflowEngine, AgentStep, ParallelStep } from 'agenthood';
@@ -47,7 +47,7 @@ const pipeline = new WorkflowEngine()
 const result = await pipeline.run();
 ```
 
-Each `AgentStep` receives exactly the inputs the orchestrator provides — no agent sees another agent's internal context. `ParallelStep` runs independent agents concurrently and merges their outputs. The v2.0.0 phase (ADR-005 update) implements the orchestrator as a state graph with `interrupt_on` approval gates.
+Each `AgentStep` receives exactly the inputs the orchestrator provides — no agent sees another agent's internal context. `ParallelStep` runs independent agents concurrently and merges their outputs. The orchestrator design (ADR-005) specifies a state graph with `interrupt_on` approval gates, but `src/orchestrator/` is not yet implemented.
 
 ---
 
@@ -55,7 +55,7 @@ Each `AgentStep` receives exactly the inputs the orchestrator provides — no ag
 
 ```bash
 # The Steward routes a multi-member task through the orchestrator
-agenthood run the-steward "ship: add OAuth2 login to the API"
+npx agenthood run the-steward "ship: add OAuth2 login to the API"
 ```
 
 The orchestrator log shows the linear invocation graph — no peer-to-peer tangle:

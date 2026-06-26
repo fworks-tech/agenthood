@@ -69,6 +69,9 @@ formats, and which are pending or partially supported.
 | The Doorman | ✅ | ✅ |
 | The Oracle | ✅ | ✅ |
 | The Envoy | ✅ | ✅ |
+| The Sentinel | ✅ | ✅ |
+| The Warden | ✅ | ✅ |
+| The Steward | ✅ | ✅ |
 
 ✅ Full support  ⚠️ Partial (hook integration unavailable)  ❌ Not supported
 

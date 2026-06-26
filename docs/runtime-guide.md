@@ -84,6 +84,53 @@ The `IMemoryStore` interface at `src/memory/IMemoryStore.ts` unifies all memory 
 
 `KnowledgeGraphStore` stores named nodes and bidirectional relations. Use it for structural queries: "what connects these two components?" Path finding uses BFS and returns the shortest path. The graph persists to `.agenthood/graph.json`.
 
+## RAG Pipeline
+
+The runtime includes a modular RAG (Retrieval-Augmented Generation) pipeline for indexing and retrieving documents. The pipeline consists of three components:
+
+### Chunk Strategy
+
+`ChunkStrategy` defines how documents are split into chunks before embedding. The built-in `FixedSizeChunkStrategy` splits text by approximate token count (512 tokens default) with configurable overlap (64 tokens default). Token count is estimated as `characters / 4`.
+
+```typescript
+import { FixedSizeChunkStrategy } from 'src/rag/ChunkStrategy.ts'
+
+const strategy = new FixedSizeChunkStrategy()
+const chunks = strategy.chunk(documentText, { chunkSize: 512, overlap: 64 })
+```
+
+### Indexer
+
+`Indexer` chunks documents, embeds them via `ILLMProvider.embed()`, and stores the vectors in an `IVectorStore`. It supports both single-file and recursive directory indexing.
+
+```typescript
+import { Indexer } from 'src/rag/Indexer.ts'
+
+const indexer = new Indexer({ embedder, vectorStore })
+await indexer.indexDocument('/path/to/file.md', fileContent)
+await indexer.indexDirectory('/path/to/project', (file) => file.endsWith('.md'))
+const stats = indexer.stats()
+// { totalDocuments: 10, totalChunks: 42, indexedExtensions: ['.md', '.ts'] }
+```
+
+### Retriever
+
+`Retriever` takes a natural language query, embeds it, and searches the vector store for the most relevant chunks. Optional `KnowledgeGraphStore` integration enriches results with relationship context.
+
+```typescript
+import { Retriever } from 'src/rag/Retriever.ts'
+
+const retriever = new Retriever(embedder, vectorStore, knowledgeGraphStore)
+const results = await retriever.retrieve('how do I configure failover?', {
+  topK: 5,
+  minScore: 0.5,
+  metadataFilter: { source: 'docs/runtime-guide.md' },
+})
+// Each result: { content, score, source, chunkIndex, graphContext?, metadata }
+```
+
+Results can be filtered by `minScore` (relevance threshold) and `metadataFilter` (field-level filtering). When a `KnowledgeGraphStore` is provided, results are enriched with the node's label, type, and neighbor relationships.
+
 ## CLI Provider Override
 
 Override the provider at runtime:

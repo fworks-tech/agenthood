@@ -105,6 +105,11 @@ export async function check(): Promise<void> {
   file('Residual memory traces found', '.agenthood/residual.json');
   file('Knowledge graph found', '.agenthood/graph.json');
 
+  // RAG pipeline
+  file('RAG Indexer available', 'src/rag/Indexer.ts');
+  file('RAG Retriever available', 'src/rag/Retriever.ts');
+  file('Chunk strategy configured', 'src/rag/ChunkStrategy.ts');
+
   // Report
   const passing = results.filter((r) => r.pass).length;
   const failing = results.filter((r) => !r.pass).length;

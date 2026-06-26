@@ -1,2 +1,8 @@
 export { KnowledgeGraphStore } from "./KnowledgeGraphStore.ts"
 export type { GraphNode, GraphEdge, NeighborResult, IGraphStore } from "./KnowledgeGraphStore.ts"
+export { FixedSizeChunkStrategy } from "./ChunkStrategy.ts"
+export type { Chunk, ChunkOptions, ChunkStrategy } from "./ChunkStrategy.ts"
+export { Indexer } from "./Indexer.ts"
+export type { IndexOptions, IndexStats } from "./Indexer.ts"
+export { Retriever } from "./Retriever.ts"
+export type { RetrievalOptions, RetrievalResult } from "./Retriever.ts"

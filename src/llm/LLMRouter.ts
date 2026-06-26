@@ -97,6 +97,10 @@ export class LLMRouter {
       const { OllamaProvider } = await import('./providers/OllamaProvider.js')
       return new OllamaProvider(c)
     },
+    opencode: async (c) => {
+      const { OpenCodeProvider } = await import('./providers/OpenCodeProvider.js')
+      return new OpenCodeProvider(c)
+    },
   }
 
   private static instances = new Map<string, ILLMProvider>()

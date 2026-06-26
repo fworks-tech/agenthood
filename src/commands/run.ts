@@ -24,6 +24,7 @@ import { LanceDBStore } from "../memory/VectorStore.ts"
 import { MemberOrchestrator } from "../reasoning/MemberOrchestrator.ts"
 import type { ExecutionContext } from "../core/ExecutionContext.ts"
 import type { LLMConfig, ProviderEntry } from "../llm/types.ts"
+import type { ProviderName } from "../members/types.ts"
 
 const agentRegistry = new AgentRegistry()
 const memberRegistry = new MemberRegistry()
@@ -205,7 +206,8 @@ export async function run(args: string[]): Promise<void> {
   // Try Society member first (14 named members)
   if (memberRegistry.has(agentName)) {
     const spec = memberRegistry.get(agentName)
-    const llm = await LLMRouter.createForMember(spec.preferredProvider, config)
+    const memberProvider = (config.provider ?? spec.preferredProvider) as ProviderName
+    const llm = await LLMRouter.createForMember(memberProvider, config)
     const sReg = new SkillRegistry()
     const loop = new ReActLoop(llm, sReg)
     const agent = new MemberAgent(spec, llm, loop, sReg)

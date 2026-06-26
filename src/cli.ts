@@ -34,6 +34,7 @@ async function main(): Promise<void> {
     args: process.argv.slice(2),
     options: {
       detect: { type: 'boolean', default: false },
+      provider: { type: 'string', default: undefined },
     },
   });
 
@@ -55,7 +56,9 @@ async function main(): Promise<void> {
   }
 
   if (command === 'run') {
-    const forwarded = values.detect ? [...args, '--detect'] : args
+    const forwarded: string[] = [...args]
+    if (values.detect) forwarded.push('--detect')
+    if (values.provider) forwarded.push('--provider', values.provider)
     await run(forwarded);
     return;
   }
@@ -90,6 +93,7 @@ Commands:
   deactivate <member>     Deactivate a member skill
    run <member> "<task>"   Run a Society member (the-scribe, the-reviewer, …)
                            Use --detect to auto-detect members for the task
+                           Use --provider <name> to override the LLM provider
                            Sync PR body and post comment for new commits
   list                    List all 14 members, their status, permission & provider
   oath                    Print the Society's oath

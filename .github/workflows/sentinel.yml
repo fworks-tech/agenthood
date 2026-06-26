@@ -16,175 +16,126 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: The Sentinel — audit member structure
+      - name: Check member README.md presence
         shell: bash
         run: |
-          FAILED=0
-
-          check_section() {
-            local skill_file="$1"
-            local name="$2"
-            local section="$3"
-            if ! grep -qF "^$section" "$skill_file" && ! grep -qF "$section" "$skill_file"; then
-              echo "FAIL [$name]: missing section '$section' in skill file"
-              return 1
+          failed=0
+          for dir in members/*/; do
+            name=$(basename "$dir")
+            [ "$name" = "README.md" ] && continue
+            if [ ! -f "${dir}README.md" ]; then
+              echo "FAIL [$name]: missing README.md"
+              failed=1
             fi
-            return 0
-          }
+          done
+          if [ "$failed" -eq 1 ]; then exit 1; fi
+          echo "All members have README.md"
 
-          for MEMBER_DIR in members/*/; do
-            NAME=$(basename "$MEMBER_DIR")
-
-            [ "$NAME" = "README.md" ] && continue
-
-            if [ ! -f "${MEMBER_DIR}README.md" ]; then
-              echo "FAIL [$NAME]: missing README.md"
-              FAILED=1
-            fi
-
-            SKILL_FILE="${MEMBER_DIR}SKILL.md"
-            if [ ! -f "$SKILL_FILE" ]; then
-              echo "FAIL [$NAME]: missing adopter-facing skill file $SKILL_FILE"
-              FAILED=1
+      - name: Validate SKILL.md exists and has frontmatter
+        shell: bash
+        run: |
+          failed=0
+          for dir in members/*/; do
+            name=$(basename "$dir")
+            [ "$name" = "README.md" ] && continue
+            skill="${dir}SKILL.md"
+            if [ ! -f "$skill" ]; then
+              echo "FAIL [$name]: missing SKILL.md"
+              failed=1
               continue
             fi
-
-            FM=$(awk '/^---/{count++; if(count==2) exit} count==1' "$SKILL_FILE")
-
-            if ! echo "$FM" | grep -q "^name:"; then
-              echo "FAIL [$NAME]: SKILL.md missing 'name:' in frontmatter"
-              FAILED=1
+            fm=$(awk '/^---/{count++; if(count==2) exit} count==1' "$skill")
+            if ! echo "$fm" | grep -q "^name:"; then
+              echo "FAIL [$name]: SKILL.md missing 'name:' in frontmatter"
+              failed=1
             fi
-
-            if ! echo "$FM" | grep -q "^description:"; then
-              echo "FAIL [$NAME]: SKILL.md missing 'description:' in frontmatter"
-              FAILED=1
+            if ! echo "$fm" | grep -q "^description:"; then
+              echo "FAIL [$name]: SKILL.md missing 'description:' in frontmatter"
+              failed=1
             fi
+          done
+          if [ "$failed" -eq 1 ]; then exit 1; fi
+          echo "All SKILL.md files have valid frontmatter"
 
-            for SECTION in "## Overview" "## When to Use" "## Process" "## Red Flags" "## Rationalizations" "## Verification"; do
-              if ! grep -qF "$SECTION" "$SKILL_FILE"; then
-                echo "FAIL [$NAME]: SKILL.md missing section '$SECTION'"
-                FAILED=1
+      - name: Validate SKILL.md required sections
+        shell: bash
+        run: |
+          failed=0
+          sections="## Overview ## When to Use ## Process ## Red Flags ## Rationalizations ## Verification"
+          for dir in members/*/; do
+            name=$(basename "$dir")
+            [ "$name" = "README.md" ] && continue
+            skill="${dir}SKILL.md"
+            [ ! -f "$skill" ] && continue
+            for section in $sections; do
+              if ! grep -qF "$section" "$skill"; then
+                echo "FAIL [$name]: SKILL.md missing section '$section'"
+                failed=1
               fi
             done
           done
+          if [ "$failed" -eq 1 ]; then exit 1; fi
+          echo "All SKILL.md files have required sections"
 
-          # Cross-check: every member directory must be registered in all three indexes
-          for MEMBER_DIR in members/*/; do
-            NAME=$(basename "$MEMBER_DIR")
-            [ "$NAME" = "README.md" ] && continue
-
-            if ! grep -q "$NAME" AGENTS.md; then
-              echo "FAIL [$NAME]: not registered in AGENTS.md"
-              FAILED=1
-            fi
-
-            if ! grep -q "$NAME" members/README.md; then
-              echo "FAIL [$NAME]: not registered in members/README.md"
-              FAILED=1
-            fi
-
-            if ! grep -q "$NAME" README.md; then
-              echo "FAIL [$NAME]: not registered in README.md"
-              FAILED=1
-            fi
-          done
-
-          if [ "$FAILED" -eq 1 ]; then
-            echo ""
-            echo "The Sentinel found structural violations. All members must conform."
-            exit 1
-          fi
-
-          echo "The Sentinel: all members structurally sound."
-
-      - name: The Sentinel — verify skills/ reflect members/
+      - name: Cross-check member registration in index files
         shell: bash
         run: |
-          FAILED=0
+          failed=0
+          indexes="AGENTS.md members/README.md README.md"
+          for dir in members/*/; do
+            name=$(basename "$dir")
+            [ "$name" = "README.md" ] && continue
+            for idx in $indexes; do
+              if ! grep -q "$name" "$idx"; then
+                echo "FAIL [$name]: not registered in $idx"
+                failed=1
+              fi
+            done
+          done
+          if [ "$failed" -eq 1 ]; then exit 1; fi
+          echo "All members registered in all index files"
 
-          # Check: every member has a corresponding file in skills/ with matching content
-          for MEMBER_DIR in members/*/; do
-            NAME=$(basename "$MEMBER_DIR")
-            [ "$NAME" = "README.md" ] && continue
-
-            MEMBER_FILE="members/$NAME/SKILL.md"
-            SKILL_FILE="skills/$NAME/SKILL.md"
-
-            if [ ! -f "$SKILL_FILE" ]; then
-              echo "FAIL [$NAME]: missing file at $SKILL_FILE"
-              FAILED=1
-            elif ! cmp -s "$MEMBER_FILE" "$SKILL_FILE"; then
-              echo "FAIL [$NAME]: $SKILL_FILE content differs from $MEMBER_FILE"
-              FAILED=1
+      - name: Verify skills/ reflect members/
+        shell: bash
+        run: |
+          failed=0
+          for dir in members/*/; do
+            name=$(basename "$dir")
+            [ "$name" = "README.md" ] && continue
+            member_file="members/$name/SKILL.md"
+            skill_file="skills/$name/SKILL.md"
+            if [ ! -f "$skill_file" ]; then
+              echo "FAIL [$name]: missing file at $skill_file"
+              failed=1
+            elif ! cmp -s "$member_file" "$skill_file"; then
+              echo "FAIL [$name]: $skill_file content differs from $member_file"
+              failed=1
             fi
           done
+          if [ "$failed" -eq 1 ]; then exit 1; fi
+          echo "All skills/ files match members/ content."
 
-          # Check: no orphan files in skills/ (member no longer exists)
-          for SKILL_DIR in skills/*/; do
-            NAME=$(basename "$SKILL_DIR")
-            if [ ! -d "members/$NAME" ]; then
-              echo "FAIL [skills/$NAME]: directory exists but no matching member in members/"
-              FAILED=1
+      - name: Check for orphan files in skills/
+        shell: bash
+        run: |
+          failed=0
+          for dir in skills/*/; do
+            name=$(basename "$dir")
+            if [ ! -d "members/$name" ]; then
+              echo "FAIL [skills/$name]: directory exists but no matching member in members/"
+              failed=1
             fi
           done
-
-          if [ "$FAILED" -eq 1 ]; then
-            echo ""
-            echo "The Sentinel: skills/ are out of sync with members/. Sync before merging."
-            exit 1
-          fi
-
-          echo "The Sentinel: all skills/ files match members/."
-
-      - uses: actions/setup-node@v4
-        if: always()
-        with:
-          node-version: 24
-          cache: npm
-
-      - run: npm ci --ignore-scripts
-        if: always()
-
-      - run: npm run build
-        if: always()
+          if [ "$failed" -eq 1 ]; then exit 1; fi
+          echo "No orphan skills/ directories."
 
       - name: The Sentinel — agent analysis
-        if: always()
         continue-on-error: true
-        id: sentinel-agent
-        env:
-          OPENCODE_API_KEY: ${{ secrets.OPENCODE_API_KEY }}
-        run: |
-          # Skip if no API key configured
-          if [ -z "$OPENCODE_API_KEY" ]; then
-            echo "OPENCODE_API_KEY not set. Skipping agent analysis."
-            exit 0
-          fi
-
-          CHANGED=$(git diff --name-only --diff-filter=ACM "${{ github.event.pull_request.base.sha }}" "${{ github.event.pull_request.head.sha }}" 2>/dev/null || echo "")
-
-          # Skip if nothing changed — no point calling the LLM
-          if [ -z "$CHANGED" ]; then
-            echo "No member files changed. Skipping agent analysis."
-            exit 0
-          fi
-
-          # Cap to first 10 files to keep token usage low (~$0.01 per run)
-          CHANGED=$(echo "$CHANGED" | head -10)
-          TASK=$(printf "analyze these changed member files for structural drift and consistency issues:\n%s\n" "$CHANGED")
-          node dist/cli.js run the-sentinel "$TASK" --provider opencode-go 2>&1 | grep -v "^Error running\|^Using \|^opencode-go\|^groq\|^ollama\|^All providers\|^$" > /tmp/sentinel_agent.txt
-
-      - name: The Sentinel — post agent findings
-        if: always() && github.event_name == 'pull_request'
-        env:
-          GH_TOKEN: ${{ github.token }}
-        run: |
-          if [ -f /tmp/sentinel_agent.txt ] && [ -s /tmp/sentinel_agent.txt ]; then
-            gh pr comment ${{ github.event.pull_request.number }} \
-              --body "## The Sentinel — Agent Analysis :mag:
-
-          $(cat /tmp/sentinel_agent.txt)
-
-          *— The Sentinel, Agenthood*"
-          fi
+        uses: ./.github/actions/agent-analysis
+        with:
+          agent-name: the-sentinel
+          prompt-template: "analyze these changed member files for structural drift and consistency issues:\n%s\n"
+          pr-number: ${{ github.event.pull_request.number }}
+          base-sha: ${{ github.event.pull_request.base.sha }}
+          head-sha: ${{ github.event.pull_request.head.sha }}
+          api-key: ${{ secrets.OPENCODE_API_KEY }}

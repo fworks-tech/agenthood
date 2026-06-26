@@ -1,0 +1,97 @@
+name: Agent Analysis (Composite)
+description: Run an agenthood member analysis and post findings as a PR comment
+
+inputs:
+  agent-name:
+    description: Agenthood member name (e.g. the-warden)
+    required: true
+  prompt-template:
+    description: Prompt template for analysis. Use %s for the file list.
+    required: true
+  pr-number:
+    description: Pull request number
+    required: true
+  base-sha:
+    description: Base SHA for the diff
+    required: true
+  head-sha:
+    description: Head SHA for the diff
+    required: true
+  api-key:
+    description: OPENCODE_API_KEY
+    required: false
+    default: ""
+
+runs:
+  using: composite
+  steps:
+    - shell: bash
+      run: |
+        AGENT_NAME="${{ inputs.agent-name }}"
+        PR_NUMBER="${{ inputs.pr-number }}"
+        BASE_SHA="${{ inputs.base-sha }}"
+        HEAD_SHA="${{ inputs.head-sha }}"
+        PROMPT_TEMPLATE="${{ inputs.prompt-template }}"
+        OPENCODE_API_KEY="${{ inputs.api-key }}"
+
+        analysis_file="/tmp/${AGENT_NAME}_analysis.txt"
+        error_file="/tmp/${AGENT_NAME}_errors.txt"
+        body_file="/tmp/${AGENT_NAME}_body.md"
+        > "$error_file"
+
+        # skip if no API key
+        if [ -z "$OPENCODE_API_KEY" ]; then
+          echo "OPENCODE_API_KEY not set. Skipping agent analysis."
+          exit 0
+        fi
+
+        # get changed files
+        CHANGED=$(git diff --name-only --diff-filter=ACM "$BASE_SHA" "$HEAD_SHA" 2>/dev/null || echo "")
+        if [ -z "$CHANGED" ]; then
+          echo "No files changed. Skipping agent analysis."
+          exit 0
+        fi
+
+        # cap to first 10 files
+        CHANGED=$(echo "$CHANGED" | head -10)
+        TASK=$(printf "$PROMPT_TEMPLATE" "$CHANGED")
+
+        echo "agent-analysis: running $AGENT_NAME on $(echo "$CHANGED" | tr '\n' ' ')"
+
+        # run the agent, capture stdout and stderr separately
+        node dist/cli.js run "$AGENT_NAME" "$TASK" --provider opencode-go \
+          1> "$analysis_file" \
+          2>> "$error_file"
+
+        rc=$?
+
+        # build body file (avoids shell escaping issues with --body)
+        {
+          # title: capitalize first letter and keep rest
+          NAME_DISPLAY=$(echo "$AGENT_NAME" | sed 's/-/ /g; s/\b\(.\)/\u\1/g')
+          echo "## $NAME_DISPLAY — Analysis"
+          echo ""
+
+          if [ -s "$error_file" ]; then
+            echo "> **Note:** The analysis encountered issues:"
+            echo ">"
+            sed 's/^/> /' "$error_file"
+            echo ""
+          fi
+
+          if [ -s "$analysis_file" ]; then
+            grep -v "^Error running\|^Using \|^opencode-go\|^groq\|^ollama\|^All providers\|^$" "$analysis_file" || true
+          fi
+
+          if [ ! -s "$analysis_file" ] && [ ! -s "$error_file" ]; then
+            echo "*No analysis output produced.*"
+          elif [ ! -s "$analysis_file" ] && [ -s "$error_file" ]; then
+            echo ""
+            echo "*Agent analysis failed. Review the error details above.*"
+          fi
+        } > "$body_file"
+
+        # post comment
+        if [ -s "$body_file" ]; then
+          gh pr comment "$PR_NUMBER" --body-file "$body_file"
+        fi

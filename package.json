@@ -90,7 +90,11 @@
     "@lancedb/lancedb": "^0.30.0",
     "ajv": "^8.20.0",
     "groq-sdk": "^1.2.1",
-    "openai": "^6.44.0"
+    "openai": "^6.44.0",
+    "tree-sitter": "^0.21.1",
+    "tree-sitter-go": "^0.25.0",
+    "tree-sitter-python": "^0.25.0",
+    "tree-sitter-typescript": "^0.23.2"
   },
   "allowScripts": {
     "esbuild@0.28.1": true

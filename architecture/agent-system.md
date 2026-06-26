@@ -160,7 +160,7 @@ this repo (`src/`), per [ADR-008](../docs/adr/ADR-008-typescript-runtime-over-py
 | Concurrency queue | `src/core/ConcurrencyQueue.ts` | ✅ v2.0.0 |
 | Safety caps | `src/core/SafetyGuard.ts` | ✅ v2.0.0 |
 | Provider failover + circuit breaker | `src/llm/ProviderFailover.ts` | ✅ v2.0.0 |
-| Persistent memory (5 tiers) | `src/memory/` | 📋 Planned — v2.1.0 |
+| Persistent memory (IMemoryStore, ResidualMemory, InMemoryStore, VectorStore) | `src/memory/` | ✅ Shipped |
 | Orchestrator (event bus, multi-step handoff) | `src/orchestrator/` | 📋 Planned — Phase 3 |
 | Member → Member direct handoff (today) | `SubagentTaskSkill` | ✅ Shipped (no bus) |
 

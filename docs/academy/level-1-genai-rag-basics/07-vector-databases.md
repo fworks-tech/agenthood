@@ -24,18 +24,17 @@ In production, vector databases provide the blazing-fast similarity search that 
 
 Agenthood implements vector storage using LanceDB, an embedded, high-performance vector database that requires no external infrastructure. This aligns with the Society's principle of lightweight, local-first tooling.
 
-This integration will be managed via the `VectorStore` interface in `src/rag/VectorStore.ts` (future milestone, outlined in ADR-010):
+This integration is managed via the `IVectorStore` interface in `src/memory/VectorStore.ts` using `@lancedb/lancedb` v0.30.0 (see ADR-010):
 
 ```typescript
-// Planned for a future milestone
-import * as lancedb from 'vectordb';
+import { LanceDBStore } from 'agenthood';
 
-export class LanceDBStore implements VectorStore {
-  async search(queryVector: number[], options: SearchOptions) {
-    const table = await this.db.openTable('codebase');
-    return await table.search(queryVector).limit(options.topK).execute();
-  }
-}
+const store = new LanceDBStore(1536);
+await store.connect('.agenthood/memory/vectors');
+await store.add([
+  { id: 'doc-1', vector: embedding, content: 'document text', metadata: { source: 'docs' }, createdAt: new Date() },
+]);
+const results = await store.search(queryVector, 5, { source: 'docs' });
 ```
 
 No heavy cloud infrastructure. No external dependencies. Just fast, local semantic search.
@@ -44,7 +43,7 @@ No heavy cloud infrastructure. No external dependencies. Just fast, local semant
 
 ## Hands-on example
 
-When the RAG tools are introduced, you will interact with the local vector store transparently:
+You interact with the local vector store transparently through the runtime:
 
 ```bash
 # Initialize local vector storage
@@ -67,7 +66,7 @@ await db.insert(chunks);
 ## Further reading
 
 - [ADR-010 — LanceDB for Vector Storage](../../adr/ADR-010-lancedb-for-vector-storage.md)
-- [`src/rag/VectorStore.ts`](../../src/rag/VectorStore.ts) — source implementation (planned)
+- [`src/memory/VectorStore.ts`](../../src/memory/VectorStore.ts) — IVectorStore interface + LanceDBStore (shipped)
 - [LanceDB Documentation](https://lancedb.github.io/lancedb/) — why embedded vector DBs are the future
 
 

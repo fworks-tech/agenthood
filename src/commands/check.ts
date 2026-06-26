@@ -80,16 +80,19 @@ export async function check(): Promise<void> {
   const configPath = join(cwd, '.agenthood', 'config.json');
   if (existsSync(configPath)) {
     let provider: string | undefined;
+    let rawConfig: Record<string, unknown> | undefined;
     try {
-      const raw = JSON.parse(readFileSync(configPath, 'utf8'));
-      provider = typeof raw.provider === 'string' ? raw.provider : raw.provider?.name;
+      const parsed = JSON.parse(readFileSync(configPath, 'utf8')) as Record<string, unknown>;
+      rawConfig = parsed;
+      const p = parsed.provider;
+      provider = typeof p === 'string' ? p : (p as Record<string, unknown> | undefined)?.name as string | undefined;
     } catch {
       // ignore — treat as no provider configured
     }
 
-    if (provider) {
+    if (provider && rawConfig) {
       try {
-        validateApiKeys({ provider });
+        validateApiKeys(rawConfig as LLMConfig);
         results.push({ label: `LLM API key configured (${provider})`, pass: true });
       } catch {
         results.push({ label: `LLM API key configured (${provider})`, pass: false });

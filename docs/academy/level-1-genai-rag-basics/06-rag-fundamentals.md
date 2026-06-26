@@ -34,9 +34,7 @@ RAG grounds the LLM in reality. In production, RAG prevents hallucinations, allo
 
 ## How Agenthood implements it
 
-Agenthood's planned RAG architecture is built around three core components: the `Indexer` (for ingesting files), the `Embedder` (for vectorizing them), and the `Retriever` (for fetching context).
-
-These components will reside in `src/rag/Retriever.ts` and `src/rag/Indexer.ts` (future milestone):
+Agenthood's RAG architecture starts with `KnowledgeGraphStore` for structural retrieval. The higher-level `Retriever` and `Indexer` components are planned for subsequent milestones:
 
 ```typescript
 // Planned for a future milestone
@@ -56,21 +54,14 @@ The Society retrieves facts before it speaks.
 
 ## Hands-on example
 
-Once the RAG module is fully implemented in a future milestone, you will be able to index and query your repository directly:
+The structural retrieval layer (`KnowledgeGraphStore`) is available now. The full indexing and embedding pipeline is planned for a subsequent milestone, at which point you will be able to:
 
 ```bash
-# Index the current repository
+# Index the current repository (future milestone)
 npx agenthood rag:index .
 
-# Query the codebase
+# Query the codebase (future milestone)
 npx agenthood rag:query "Where is the orchestrator defined?"
-```
-
-Or in TypeScript (future milestone):
-
-```typescript
-const context = await retriever.retrieveContext("Explain the orchestrator");
-const prompt = `Use this context: ${context}\n\nExplain the orchestrator.`;
 ```
 
 ---
@@ -78,7 +69,8 @@ const prompt = `Use this context: ${context}\n\nExplain the orchestrator.`;
 ## Further reading
 
 - [ADR-010 — LanceDB for Vector Storage](../../adr/ADR-010-lancedb-for-vector-storage.md)
-- [`src/rag/Retriever.ts`](../../src/rag/Retriever.ts) — source implementation (planned)
+- [`src/rag/KnowledgeGraphStore.ts`](../../src/rag/KnowledgeGraphStore.ts) — bidirectional graph store (shipped)
+- [`src/memory/VectorStore.ts`](../../src/memory/VectorStore.ts) — LanceDB vector store (shipped)
 - [IBM: What is RAG?](https://research.ibm.com/blog/retrieval-augmented-generation-RAG) — foundational overview of the RAG pattern
 
 

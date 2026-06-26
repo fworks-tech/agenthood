@@ -205,4 +205,113 @@ describe('LanceDBStore', () => {
     const s = new LanceDBStore(3)
     await expect(s.search([0.1, 0.2, 0.3], 10)).rejects.toThrow('not connected')
   })
+
+  describe('IMemoryStore adapter', () => {
+    it('set delegates to add', async () => {
+      const s = new LanceDBStore(3)
+      await s.connect('/tmp/test-lancedb')
+      const record = makeRecord()
+      await s.set('vec-1', record)
+      expect(mockTable.mockAdd).toHaveBeenCalledTimes(1)
+    })
+
+    it('get returns record by id', async () => {
+      mockTable.mockVectorSearch.mockResolvedValue([{
+        id: 'vec-1',
+        vector: new Float32Array([0.1, 0.2, 0.3]),
+        content: 'test content',
+        metadata: '{"type":"test"}',
+        created_at: '2026-01-01T00:00:00.000Z',
+        _distance: 0.0,
+      }])
+
+      const s = new LanceDBStore(3)
+      await s.connect('/tmp/test-lancedb')
+      const result = await s.get('vec-1')
+      expect(result).toBeDefined()
+      expect(result!.id).toBe('vec-1')
+      expect(result!.content).toBe('test content')
+      expect(result!.metadata).toEqual({ type: 'test' })
+    })
+
+    it('get returns undefined for missing id', async () => {
+      mockTable.mockVectorSearch.mockResolvedValue([])
+
+      const s = new LanceDBStore(3)
+      await s.connect('/tmp/test-lancedb')
+      const result = await s.get('nonexistent')
+      expect(result).toBeUndefined()
+    })
+
+    it('has returns true when record exists', async () => {
+      mockTable.mockVectorSearch.mockResolvedValue([{
+        id: 'vec-1',
+        vector: new Float32Array([0.1, 0.2, 0.3]),
+        content: 'test',
+        metadata: '{}',
+        created_at: '2026-01-01T00:00:00.000Z',
+      }])
+
+      const s = new LanceDBStore(3)
+      await s.connect('/tmp/test-lancedb')
+      const result = await s.has('vec-1')
+      expect(result).toBe(true)
+    })
+
+    it('has returns false when record missing', async () => {
+      mockTable.mockVectorSearch.mockResolvedValue([])
+
+      const s = new LanceDBStore(3)
+      await s.connect('/tmp/test-lancedb')
+      const result = await s.has('nonexistent')
+      expect(result).toBe(false)
+    })
+
+    it('clear deletes all records', async () => {
+      mockTable.mockDelete.mockResolvedValue({ numDeletedRows: 3, version: 1 })
+
+      const s = new LanceDBStore(3)
+      await s.connect('/tmp/test-lancedb')
+      await s.clear()
+      expect(mockTable.mockDelete).toHaveBeenCalledWith('1=1')
+    })
+
+    it('size returns total vector count', async () => {
+      mockTable.mockCountRows.mockResolvedValue(5)
+
+      const s = new LanceDBStore(3)
+      await s.connect('/tmp/test-lancedb')
+      const result = await s.size()
+      expect(result).toBe(5)
+    })
+
+    it('delete by string key uses id column predicate', async () => {
+      mockTable.mockDelete.mockResolvedValue({ numDeletedRows: 1, version: 1 })
+
+      const s = new LanceDBStore(3)
+      await s.connect('/tmp/test-lancedb')
+      const count = await s.delete('vec-1')
+      expect(count).toBe(1)
+      expect(mockTable.mockDelete).toHaveBeenCalledWith("id = 'vec-1'")
+    })
+
+    it('delete escapes single quotes in string key', async () => {
+      mockTable.mockDelete.mockResolvedValue({ numDeletedRows: 0, version: 1 })
+
+      const s = new LanceDBStore(3)
+      await s.connect('/tmp/test-lancedb')
+      await s.delete("it's")
+      expect(mockTable.mockDelete).toHaveBeenCalledWith("id = 'it''s'")
+    })
+
+    it('throws on get without connect', async () => {
+      const s = new LanceDBStore(3)
+      await expect(s.get('x')).rejects.toThrow('not connected')
+    })
+
+    it('throws on delete without connect', async () => {
+      const s = new LanceDBStore(3)
+      await expect(s.delete('x')).rejects.toThrow('not connected')
+    })
+  })
 })

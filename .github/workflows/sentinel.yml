@@ -139,3 +139,4 @@ jobs:
           base-sha: ${{ github.event.pull_request.base.sha }}
           head-sha: ${{ github.event.pull_request.head.sha }}
           api-key: ${{ secrets.OPENCODE_API_KEY }}
+          github-token: ${{ github.token }}

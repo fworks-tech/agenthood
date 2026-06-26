@@ -90,8 +90,8 @@ The `rm -rf` was blocked before it ran. The agent adapted. The output was scanne
 
 ## Further reading
 
-- [`src/core/RiskManager.ts`](../../src/core/RiskManager.ts) — action risk scoring (v2.0.0)
-- [`src/core/SafetyGuard.ts`](../../src/core/SafetyGuard.ts) — output validation before delivery (v2.0.0)
+- [`src/core/RiskManager.ts`](../../../src/core/RiskManager.ts) — action risk scoring (v2.0.0)
+- [`src/core/SafetyGuard.ts`](../../../src/core/SafetyGuard.ts) — output validation before delivery (v2.0.0)
 - [Constitutional AI: Harmlessness from AI Feedback](https://arxiv.org/abs/2212.08073) — Anthropic's safety framework paper
 
 

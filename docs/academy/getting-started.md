@@ -35,7 +35,7 @@ Requirements: Node.js 22+, `git`, and `gh` CLI for PR sync. No API key required 
 | `check` | Health check — confirm the Society is fully operational |
 | `run <member> "<task>"` | Invoke a member as an autonomous agent |
 | `list` | List all 14 members with activation status |
-| `pr-sync --pr <N>` | Auto-sync PR body with new commits (The Manuscript) |
+| `pr-sync --pr <N>` | Auto-sync PR body with new commits |
 | `activate <member>` | Enable a member's skill file in your runtime |
 | `deactivate <member>` | Disable a member's skill file |
 | `oath` | Read the Society oath |
@@ -80,9 +80,9 @@ These run on GitHub Actions. Every check must pass before merge.
 
 ---
 
-## The Manuscript — PR sync
+## PR body sync
 
-The Scribe keeps PR descriptions accurate as new commits land. A `<!-- pr-sync: sha=... -->` marker splits the body into two zones: your narrative above, auto-generated content below.
+The Reviewer keeps PR descriptions accurate as new commits land (replaced The Manuscript in v2.0.0). A `<!-- pr-sync: sha=... -->` marker splits the body into two zones: your narrative above, auto-generated content below.
 
 ```bash
 # Fast path — no API key required, runs in CI

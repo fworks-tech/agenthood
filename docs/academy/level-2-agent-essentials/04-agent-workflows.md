@@ -72,7 +72,7 @@ The Steward routes the task through the appropriate members: Architect plans, Te
 ## Further reading
 
 - [ADR-005 — Orchestrator pattern over peer-to-peer](../../adr/ADR-005-orchestrator-pattern.md) — why workflows are orchestrated, not peer-to-peer
-- [`src/workflows/WorkflowEngine.ts`](../../src/workflows/WorkflowEngine.ts) — workflow orchestration (planned)
+- [`src/workflows/WorkflowEngine.ts`](../../../src/workflows/WorkflowEngine.ts) — workflow orchestration (planned)
 - [Patterns for Building LLM-based Systems & Products](https://eugeneyan.com/writing/llm-patterns/) — Eugene Yan's pattern catalog
 
 

@@ -118,8 +118,8 @@ The skill was not registered. It was discovered. The agent chose to call it base
 
 ## Further reading
 
-- [`src/skills/ISkill.ts`](../../src/skills/ISkill.ts) — the skill contract every custom skill implements (v2.0.0)
-- [`src/skills/SkillRegistry.ts`](../../src/skills/SkillRegistry.ts) — dynamic discovery via `SkillRegistry.discover()` (v2.0.0)
+- [`src/skills/ISkill.ts`](../../../src/skills/ISkill.ts) — the skill contract every custom skill implements (v2.0.0)
+- [`src/skills/SkillRegistry.ts`](../../../src/skills/SkillRegistry.ts) — dynamic discovery via `SkillRegistry.discover()` (v2.0.0)
 - [JSON Schema](https://json-schema.org/) — the input validation standard `inputSchema` uses
 
 

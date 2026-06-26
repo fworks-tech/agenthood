@@ -96,7 +96,7 @@ Expected output: a step-by-step plan, the specific files to change, and the reas
 ## Further reading
 
 - [ADR-005 — Orchestrator pattern](../../adr/ADR-005-orchestrator-pattern.md) — how multiple agents compose without peer-to-peer coupling
-- [`src/agents/base/BaseAgent.ts`](../../src/agents/base/BaseAgent.ts) — the class to extend (v2.0.0)
+- [`src/agents/base/BaseAgent.ts`](../../../src/agents/base/BaseAgent.ts) — the class to extend (v2.0.0)
 - [Building agents with LLMs](https://lilianweng.github.io/posts/2023-06-23-agent/) — Lilian Weng's comprehensive breakdown
 
 

@@ -13,13 +13,13 @@ Eleven articles. The concepts where most people quit. Do not quit here.
 | 1 | [What Are AI Agents](01-what-are-ai-agents.md) | `BaseAgent`, `ReActLoop` |
 | 2 | [Agentic Frameworks](02-agentic-frameworks.md) | ADR-008 — why Agenthood builds its own |
 | 3 | [Build Your First Agent](03-build-your-first-agent.md) | `DeveloperAgent` extending `BaseAgent` |
-| 4 | [Agent Workflows](04-agent-workflows.md) | `WorkflowEngine`, step types |
+| 4 | [Agent Workflows](04-agent-workflows.md) | `WorkflowEngine` (planned), step types |
 | 5 | [Agent Memory](05-agent-memory.md) | Short/Long/Episodic/Project/Residual memory tiers |
-| 6 | [Agent Evaluation](06-agent-evaluation.md) | `EvalRunner`, 4 metrics |
+| 6 | [Agent Evaluation](06-agent-evaluation.md) | `EvalRunner` (planned), 4 metrics |
 | 7 | [Multi-Step Reasoning](07-multi-step-reasoning.md) | `ReActLoop`, `ChainOfThought` |
-| 8 | [Multi-Agent Systems](08-multi-agent-systems.md) | `WorkflowEngine`, `ParallelStep`, ADR-005 |
-| 9 | [Agentic RAG](09-agentic-rag.md) | `AgenticRAG`, `RetrievalDecisionSkill` |
-| 10 | [Action Planning](10-action-planning.md) | `PlanSkill`, `ArchitectAgent` |
+| 8 | [Multi-Agent Systems](08-multi-agent-systems.md) | `WorkflowEngine` (planned), `ParallelStep` (planned), ADR-005 |
+| 9 | [Agentic RAG](09-agentic-rag.md) | `AgenticRAG` (planned), `RetrievalDecisionSkill` (planned) |
+| 10 | [Action Planning](10-action-planning.md) | `PlanSkill` (planned), `ArchitectAgent` |
 | 11 | [Safety and Guardrails](11-safety-and-guardrails.md) | `RiskManager`, `ThinkingBudget`, `SafetyGuard` |
 
 ---

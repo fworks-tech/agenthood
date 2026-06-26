@@ -77,7 +77,7 @@ Contrast with passive RAG, which would have embedded the query, hit the vector s
 
 ## Further reading
 
-- [`src/rag/KnowledgeGraphStore.ts`](../../src/rag/KnowledgeGraphStore.ts) — bidirectional graph store for structural relationships
+- [`src/rag/KnowledgeGraphStore.ts`](../../../src/rag/KnowledgeGraphStore.ts) — bidirectional graph store for structural relationships
 - [`docs/adr/ADR-010-lancedb-for-vector-storage.md`](../../adr/ADR-010-lancedb-for-vector-storage.md) — the embedded vector store backing semantic retrieval
 - [Self-RAG: Learning to Retrieve, Generate, and Critique through Self-Reflection](https://arxiv.org/abs/2310.11511) — the foundational Agentic RAG paper
 

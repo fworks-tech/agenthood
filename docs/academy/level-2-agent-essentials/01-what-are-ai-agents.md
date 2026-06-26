@@ -26,7 +26,7 @@ This is why the loop must be observable. Each reasoning step and each action mus
 
 ## How Agenthood implements it
 
-Agenthood's agent architecture is built on two primitives: `BaseAgent` and `ReActLoop`. Every Society member — The Scribe, The Architect, The Reviewer — extends `BaseAgent` and runs its reasoning through `ReActLoop`. These components land in `src/agents/base/BaseAgent.ts` and `src/reasoning/ReActLoop.ts` (coming in v2.0.0):
+Agenthood's agent architecture is built on two primitives: `BaseAgent` and `ReActLoop`. Every Society member — The Scribe, The Architect, The Reviewer — extends `BaseAgent` and runs its reasoning through `ReActLoop`. These components land in `src/agents/base/BaseAgent.ts` and `src/reasoning/ReActLoop.ts` (shipped in v2.0.0):
 
 ```typescript
 export abstract class BaseAgent {
@@ -64,7 +64,7 @@ The simplest way to see an agent in action is the Society's own runtime:
 agenthood run the-developer "refactor the auth middleware to use async/await"
 ```
 
-Or in TypeScript, once the v2 runtime ships:
+Or in TypeScript (as of v2.0.0):
 
 ```typescript
 import { BaseAgent, ReActLoop } from 'agenthood';
@@ -85,7 +85,7 @@ The `run()` call enters the ReAct loop. The agent reads the file, reasons about 
 ## Further reading
 
 - [ADR-004 — Specialized members over general agent](../../adr/ADR-004-specialized-members-over-general-agent.md) — why 14 specialists beat one generalist
-- [`src/agents/base/BaseAgent.ts`](../../src/agents/base/BaseAgent.ts) — the base agent class (v2.0.0)
+- [`src/agents/base/BaseAgent.ts`](../../../src/agents/base/BaseAgent.ts) — the base agent class (v2.0.0)
 - [ReAct: Synergizing Reasoning and Acting in Language Models](https://arxiv.org/abs/2210.03629) — the foundational ReAct paper
 
 

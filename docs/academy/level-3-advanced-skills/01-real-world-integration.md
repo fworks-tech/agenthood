@@ -84,7 +84,7 @@ Each `portal:*` line is the audit entry, written before the action. If any call 
 
 ## Further reading
 
-- [`src/portals/GitHubSkill.ts`](../../src/portals/GitHubSkill.ts) — the GitHub portal skill (planned)
+- [`src/portals/GitHubSkill.ts`](../../../src/portals/GitHubSkill.ts) — the GitHub portal skill (planned)
 - [GitHub REST API documentation](https://docs.github.com/en/rest) — the target the GitHub portal wraps
 - [Slack API](https://api.slack.com/) — the target the Slack portal wraps
 

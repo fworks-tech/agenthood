@@ -10,10 +10,10 @@ Five articles. For engineers who have reached Level 2 and are ready to move from
 
 | # | Article | Agenthood Component |
 |---|---------|---------------------|
-| 1 | [Real-World Integration](01-real-world-integration.md) | Portals layer, `GitHubSkill`, Slack, Linear |
-| 2 | [Autonomous Loops](02-autonomous-loops.md) | `GoalChain`, Rituals layer |
+| 1 | [Real-World Integration](01-real-world-integration.md) | Portals layer (planned), `GitHubSkill` (planned), Slack, Linear |
+| 2 | [Autonomous Loops](02-autonomous-loops.md) | `GoalChain` (planned), Rituals layer |
 | 3 | [Custom Toolkits](03-custom-toolkits.md) | `ISkill`, `SkillRegistry.discover()` |
-| 4 | [Optimize Performance](04-optimize-performance.md) | `CostEstimator`, `LLMRouter` dynamic routing, `ProviderFailover` |
+| 4 | [Optimize Performance](04-optimize-performance.md) | `CostEstimator` (planned), `LLMRouter` dynamic routing, `ProviderFailover` |
 | 5 | [Deploy to Production](05-deploy-to-production.md) | v3.0.0 API layer, auth middleware, rate limiting |
 | — | [Skills Reference](../skills-reference.md) | All 14 members, tools, and invocation |
 

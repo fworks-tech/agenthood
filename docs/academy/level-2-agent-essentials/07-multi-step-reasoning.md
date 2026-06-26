@@ -26,7 +26,7 @@ The cost tradeoff is real but manageable. Chain-of-thought roughly doubles token
 
 ## How Agenthood implements it
 
-Agenthood implements ReAct as the default loop and CoT as a composable reasoning primitive. Both land in `src/reasoning/` (coming in v2.0.0):
+Agenthood implements ReAct as the default loop and CoT as a composable reasoning primitive. Both land in `src/reasoning/` (shipped in v2.0.0):
 
 ```typescript
 import { ReActLoop, ChainOfThought } from 'agenthood';
@@ -45,7 +45,7 @@ const reasoning = await cot.reason({
 // reasoning = ['Hypothesis: null check missing', 'Verify: line 38 passes null', 'Conclusion: add guard at line 38']
 ```
 
-`ReActLoop` is what `BaseAgent.run()` uses by default. `ChainOfThought` is available as a skill — you compose it into an agent's reasoning pipeline when a task benefits from explicit upfront thinking before actions begin. ToT-style branching is on the roadmap for v2.5.0, exposed as a `TreeOfThought` primitive with a configurable branch factor.
+`ReActLoop` is what `BaseAgent.run()` uses by default. `ChainOfThought` is available as a skill — you compose it into an agent's reasoning pipeline when a task benefits from explicit upfront thinking before actions begin. ToT-style branching (`TreeOfThought`) is a planned enhancement for a future milestone — it was not shipped in v2.5.0.
 
 ---
 
@@ -79,6 +79,6 @@ Each `[think]` line is a reasoning checkpoint. If the fix were wrong, you would 
 
 - [ReAct: Synergizing Reasoning and Acting in Language Models](https://arxiv.org/abs/2210.03629) — the ReAct pattern paper
 - [Chain-of-Thought Prompting Elicits Reasoning in Large Language Models](https://arxiv.org/abs/2201.11903) — the CoT paper
-- [`src/reasoning/ReActLoop.ts`](../../src/reasoning/ReActLoop.ts) — the reasoning loop (v2.0.0)
+- [`src/reasoning/ReActLoop.ts`](../../../src/reasoning/ReActLoop.ts) — the reasoning loop (v2.0.0)
 
 

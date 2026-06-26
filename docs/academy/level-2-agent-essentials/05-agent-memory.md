@@ -74,10 +74,10 @@ const prior = await episodic.query({ topic: 'billing-service-bug', limit: 3 });
 ## Further reading
 
 - [ADR-010 — LanceDB for vector storage](../../adr/ADR-010-lancedb-for-vector-storage.md) — the embedded store backing long-term and project memory
-- [`src/memory/IMemoryStore.ts`](../../src/memory/IMemoryStore.ts) — memory store interface
-- [`src/memory/ResidualMemory.ts`](../../src/memory/ResidualMemory.ts) — decay-weighted trace signal memory
-- [`src/memory/stores/InMemoryStore.ts`](../../src/memory/stores/InMemoryStore.ts) — TTL/LRU in-memory store
-- [`src/memory/VectorStore.ts`](../../src/memory/VectorStore.ts) — LanceDB-backed vector store
+- [`src/memory/IMemoryStore.ts`](../../../src/memory/IMemoryStore.ts) — memory store interface
+- [`src/memory/ResidualMemory.ts`](../../../src/memory/ResidualMemory.ts) — decay-weighted trace signal memory
+- [`src/memory/stores/InMemoryStore.ts`](../../../src/memory/stores/InMemoryStore.ts) — TTL/LRU in-memory store
+- [`src/memory/VectorStore.ts`](../../../src/memory/VectorStore.ts) — LanceDB-backed vector store
 - [The Cognitive Architecture for Language Agents (CoALA)](https://arxiv.org/abs/2309.02427) — the memory taxonomy paper this model derives from
 
 

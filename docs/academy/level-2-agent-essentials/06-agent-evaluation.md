@@ -55,7 +55,7 @@ The `EvalRunner` compares every run to the stored baseline and flags regressions
 ## Hands-on example
 
 ```bash
-# Once the v2 runtime ships, eval suites run like tests
+# Eval suites run like tests
 npx agenthood eval the-developer --suite ./evals/developer-agent-suite.json
 ```
 
@@ -78,7 +78,7 @@ The regression flag is the point. A green test suite tells you nothing about ans
 
 ## Further reading
 
-- [`src/evals/EvalRunner.ts`](../../src/evals/EvalRunner.ts) — evaluation runner (v2.4.0)
+- [`src/evals/EvalRunner.ts`](../../../src/evals/EvalRunner.ts) — evaluation runner (planned — `src/evals/` does not exist yet)
 - [RAGAS: Automated Evaluation of Retrieval Augmented Generation](https://arxiv.org/abs/2309.15217) — the framework the four metrics derive from
 - [Evaluating LLM Applications](https://eugeneyan.com/writing/evaluating-llm-applications/) — Eugene Yan on eval strategy
 

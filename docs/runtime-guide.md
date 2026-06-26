@@ -150,7 +150,7 @@ The runtime includes four specialized memory implementations accessed via `Execu
 | ShortTerm | `ShortTermMemoryImpl` | In-memory ring buffer | Recent conversation context (default capacity: 20 entries) |
 | LongTerm | `LongTermMemoryImpl` | LanceDB VectorStore | Persistent key-value storage across sessions |
 | Episodic | `EpisodicMemoryImpl` | LanceDB VectorStore + ILLMProvider | Episode recall with semantic search |
-| Project | `ProjectMemoryImpl` | KnowlegeGraphStore + filesystem | Project conventions and architectural decisions |
+| Project | `ProjectMemoryImpl` | KnowledgeGraphStore + filesystem | Project conventions and architectural decisions |
 
 All four tiers are wired into `createContext()` in `src/commands/run.ts` and available to every agent via `context.memory`.
 

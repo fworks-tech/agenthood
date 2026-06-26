@@ -26,7 +26,7 @@ Goal chains solve the other production problem: long tasks that do not fit in on
 
 ## How Agenthood implements it
 
-Two components handle autonomy: `GoalChain` in `src/workflows/GoalChain.ts` (coming in v2.3.0) and the Rituals layer (coming in v2.5.0):
+Two components handle autonomy: `GoalChain` in `src/workflows/GoalChain.ts` and the Rituals layer (both planned — `src/workflows/` does not exist yet):
 
 ```typescript
 import { GoalChain } from 'agenthood';
@@ -75,9 +75,9 @@ Rituals are stateless between runs; `GoalChain` is stateful. The two compose: a 
 
 ```bash
 # Once the v2 runtime ships, rituals run via the Society's scheduler
-agenthood ritual run morning-briefing
-agenthood ritual list                     # see all scheduled rituals
-agenthood goal advance auth-migration     # advance a goal chain manually
+npx agenthood ritual run morning-briefing
+npx agenthood ritual list                     # see all scheduled rituals
+npx agenthood goal advance auth-migration     # advance a goal chain manually
 ```
 
 Expected output from the morning briefing ritual:
@@ -102,8 +102,8 @@ The briefing appeared in Slack at 8am without anyone typing a query. That is wha
 
 ## Further reading
 
-- [`src/workflows/GoalChain.ts`](../../src/workflows/GoalChain.ts) — persistent multi-session goal tracking (v2.3.0)
-- [Rituals layer](../../rituals/) — scheduled automation manifests (v2.5.0)
+- [`src/workflows/GoalChain.ts`](../../src/workflows/GoalChain.ts) — persistent multi-session goal tracking (planned)
+- [Rituals layer](../../rituals/) — scheduled automation manifests (planned)
 - [The Little Manual of API Design](https://web.archive.org/web/20240421073800/https://apisyouwonthate.com/books/the-little-manual-of-api-design) — design principles for durable integration surfaces
 
 

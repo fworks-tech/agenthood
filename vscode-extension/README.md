@@ -56,7 +56,7 @@ code --install-extension agenthood-vscode-*.vsix
 
 ## Requirements
 
-- Node.js ≥ 20
+- Node.js ≥ 22.14
 - `agenthood` package installed in your project (`npm install --save-dev agenthood`)
 - Git repository initialized in your workspace
 
@@ -114,14 +114,14 @@ npm run package  # Creates .vsix file
 
 ---
 
-## Runtime Integration (v2.0.0)
+## Runtime Integration
 
 The TypeScript runtime is accessible via the integrated terminal:
 
 ```bash
 npm run build
-agenthood list               # list all 14 members
-agenthood run the-scribe "..."   # invoke a member
+npx agenthood list               # list all 14 members
+npx agenthood run the-scribe "..."   # invoke a member
 ```
 
 A future version of this extension will surface `agenthood` commands directly

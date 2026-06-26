@@ -26,10 +26,9 @@ In production, mismatched parameters lead to unstable agents. If you need JSON o
 
 Agenthood defines strict parameter boundaries within the `LLMRequest` type. Every call to an `ILLMProvider` must declare its parameters.
 
-This ensures agents cannot accidentally run amok. It will be implemented in `src/llm/types.ts` (future milestone):
+This ensures agents cannot accidentally run amok. It is implemented in `src/llm/types.ts` (shipped in v2.0.0):
 
 ```typescript
-// Planned for a future milestone
 export interface LLMRequest {
   prompt: string;
   temperature: number; // 0.0 for strict tasks, 0.7 for creative tasks
@@ -49,7 +48,7 @@ You can configure these parameters directly when initializing the runtime layer.
 
 ```bash
 # Agenthood runtime defaults to low temperature for code tasks
-agenthood-run invoke the-scribe "Write a commit" --temperature 0.1
+npx agenthood run the-scribe "Write a commit" --temperature 0.1
 ```
 
 Or in TypeScript (future milestone):
@@ -68,7 +67,7 @@ const strictRequest: LLMRequest = {
 
 ## Further reading
 
-- [`src/llm/types.ts`](../../src/llm/types.ts) — source implementation (planned)
+- [`src/llm/types.ts`](../../../src/llm/types.ts) — source implementation (shipped in v2.0.0)
 - [Cohere: Parameters Guide](https://docs.cohere.com/docs/temperature-top-p-and-top-k) — how sampling parameters mathematically work
 
 

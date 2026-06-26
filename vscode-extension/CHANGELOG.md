@@ -22,7 +22,7 @@ All notable changes to the Agenthood VS Code Extension will be documented in thi
 - Enhanced terminal command execution with logging
 - Updated README with accurate feature descriptions and troubleshooting
 - Removed unused `execSync` import
-- Status bar message now shows actual active member count (e.g., "3/9" instead of hardcoded "9/9")
+- Status bar message now shows actual active member count (e.g., "3/14" instead of hardcoded "14/14")
 
 ### Fixed
 - TypeScript compilation errors in extension activation

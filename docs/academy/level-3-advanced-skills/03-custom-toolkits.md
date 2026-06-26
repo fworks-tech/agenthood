@@ -26,7 +26,7 @@ The discovery model also matters for team scaling. When a new engineer joins, th
 
 ## How Agenthood implements it
 
-The `ISkill` interface and `SkillRegistry` live in `src/skills/` (coming in v2.0.0). Here is a complete `ISkill` implementation — a custom skill that checks an internal deploy dashboard:
+The `ISkill` interface and `SkillRegistry` live in `src/skills/` (shipped in v2.0.0). Here is a complete `ISkill` implementation — a custom skill that checks an internal deploy dashboard:
 
 ```typescript
 import { ISkill, SkillResult, SkillContext } from 'agenthood';

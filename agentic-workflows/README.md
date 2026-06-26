@@ -68,17 +68,17 @@ Please follow the triage steps from the agentic-workflows/triage-issues.agent.md
 
 ---
 
-## Executing Workflows via the Runtime (v2.0.0)
+## Executing Workflows via the Runtime
 
 With the TypeScript runtime, workflows can be executed autonomously
 rather than pasted into an AI assistant manually.
 
 ```bash
-# Phase 3 — available once the orchestrator is implemented
-agenthood run workflow review-pr --pr 42
-agenthood run workflow triage-issues
-agenthood run workflow diagnose-ci --run-id <id>
-agenthood run workflow sync-docs
+# Requires orchestrator (planned — `src/orchestrator/` does not exist yet)
+npx agenthood run workflow review-pr --pr 42
+npx agenthood run workflow triage-issues
+npx agenthood run workflow diagnose-ci --run-id <id>
+npx agenthood run workflow sync-docs
 ```
 
 The runtime reads the `on:`, `members:`, and `safe-outputs:` frontmatter
@@ -86,14 +86,13 @@ from each `.agent.md` file to configure the execution graph and
 set `interrupt_on` gates appropriately. In CI environments, pass `--mode ci`
 to disable interactive approval gates for actions marked `safe-outputs`.
 
-This automation is implemented in **Phase 3** of the v2.0.0 milestone.
-Until then, the manual-prompt approach below remains the workflow.
+The orchestrator (`src/orchestrator/`) is not yet implemented. The manual-prompt approach below remains the workflow.
 
 ---
 
 ## When Fully Automated (CI)
 
-Once Phase 5 ships, the `review-pr` workflow will run automatically on every
+When the orchestrator ships, the `review-pr` workflow will run automatically on every
 PR via a GitHub Actions workflow template:
 
 ```yaml
@@ -107,7 +106,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - run: npm install -g agenthood
-      - run: agenthood run workflow review-pr --pr ${{ github.event.pull_request.number }} --mode ci
+      - run: npx agenthood run workflow review-pr --pr ${{ github.event.pull_request.number }} --mode ci
         env:
           ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

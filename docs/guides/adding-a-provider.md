@@ -149,7 +149,7 @@ For the failover chain with model fallback:
 | Check | Command |
 |-------|---------|
 | No type errors | `npx tsc --noEmit` |
-| Basic completion | `agenthood run the-scribe "hello" --provider opencode` |
+| Basic completion | `npx agenthood run the-scribe "hello" --provider opencode` |
 | All tests pass | `npx vitest run --exclude 'vscode-extension/**'` |
 | Failover triggers | Configure a bad API key for OpenCode + working Groq backup |
 
@@ -161,5 +161,5 @@ For the failover chain with model fallback:
 - [ ] Factory registered in `LLMRouter.providerFactories`
 - [ ] `embed()` throws `UnsupportedOperationError` if not supported
 - [ ] No type errors
-- [ ] Provider works with `agenthood run` via `--provider`
+- [ ] Provider works with `npx agenthood run` via `--provider`
 - [ ] Provider participates in failover chain when configured

@@ -26,7 +26,7 @@ The second production concern is auditability. Every external action an agent ta
 
 ## How Agenthood implements it
 
-The Portals layer (planned in `src/portals/`, coming in v2.2.0) ships typed skills for the integrations the Society uses internally. `GitHubSkill` is the canonical example:
+The Portals layer (`src/portals/` does not exist yet) is planned to ship typed skills for the integrations the Society uses internally. `GitHubSkill` is the canonical example:
 
 ```typescript
 import { GitHubSkill } from 'agenthood';
@@ -59,7 +59,7 @@ Each method is a typed contract — input schema, output schema, logged executio
 
 ```bash
 # The Society's runtime composes portal skills into agent workflows
-agenthood run the-herald "ship: cut release v1.8.0 and announce it"
+npx agenthood run the-herald "ship: cut release v1.8.0 and announce it"
 ```
 
 The Herald orchestrates across portals — one agent, multiple integrations, one audit trail:
@@ -84,7 +84,7 @@ Each `portal:*` line is the audit entry, written before the action. If any call 
 
 ## Further reading
 
-- [`src/portals/GitHubSkill.ts`](../../src/portals/GitHubSkill.ts) — the GitHub portal skill (v2.2.0)
+- [`src/portals/GitHubSkill.ts`](../../src/portals/GitHubSkill.ts) — the GitHub portal skill (planned)
 - [GitHub REST API documentation](https://docs.github.com/en/rest) — the target the GitHub portal wraps
 - [Slack API](https://api.slack.com/) — the target the Slack portal wraps
 

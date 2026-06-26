@@ -33,10 +33,9 @@ In production, you cannot rely on an LLM to self-correct without explicit instru
 
 Agenthood abstracts the complexities of LLMs behind the `ILLMProvider` interface, allowing you to swap between the 4 major providers (Anthropic, OpenAI, Google, and local models) without rewriting your agent logic.
 
-This is planned for a future milestone and will live in `src/llm/ILLMProvider.ts`:
+The `ILLMProvider` interface is implemented at `src/llm/ILLMProvider.ts` (shipped in v2.0.0):
 
 ```typescript
-// Planned for a future milestone
 export interface ILLMProvider {
   /**
    * Generates a completion using the specified provider.
@@ -72,7 +71,7 @@ const response = await provider.complete({ prompt: 'Explain the Society.' });
 ## Further reading
 
 - [ADR-005 — Orchestrator pattern](../../adr/ADR-005-orchestrator-pattern.md)
-- [`src/llm/ILLMProvider.ts`](../../src/llm/ILLMProvider.ts) — source implementation (planned)
+- [`src/llm/ILLMProvider.ts`](../../../src/llm/ILLMProvider.ts) — source implementation (shipped in v2.0.0)
 - [Anthropic: Introduction to Prompting](https://docs.anthropic.com/en/docs/intro-to-prompting) — excellent foundational knowledge
 
 

@@ -26,7 +26,7 @@ The loop closes when eval scores feed back into agent behavior. An agent that sc
 
 ## How Agenthood implements it
 
-The `EvalRunner` (coming in v2.4.0) lives in `src/evals/EvalRunner.ts`. It runs an agent against a suite, scores the four metrics, and returns a structured report:
+The `EvalRunner` (planned — `src/evals/` does not exist yet) will live in `src/evals/EvalRunner.ts`. It runs an agent against a suite, scores the four metrics, and returns a structured report:
 
 ```typescript
 import { EvalRunner } from 'agenthood';
@@ -56,7 +56,7 @@ The `EvalRunner` compares every run to the stored baseline and flags regressions
 
 ```bash
 # Once the v2 runtime ships, eval suites run like tests
-agenthood eval the-developer --suite ./evals/developer-agent-suite.json
+npx agenthood eval the-developer --suite ./evals/developer-agent-suite.json
 ```
 
 Expected output:

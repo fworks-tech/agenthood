@@ -117,6 +117,7 @@ Produce a table showing each member's domain boundary:
 | The Envoy | Provider translation | Skill format mapping, bootstrap, coverage matrix |
 | The Sentinel | Society integrity | Member consistency, contradiction detection, drift |
 | The Warden | Code health | Smell detection, architectural decay, complexity |
+| The Steward | Context economy | Member routing, cache strategy, session triage |
 
 Flag any two members whose Owned Decisions columns overlap.
 

@@ -1,19 +1,21 @@
-import { readFileSync } from "node:fs"
+import { readFileSync, existsSync, mkdirSync, writeFileSync } from "node:fs"
 import { readdirSync, statSync } from "node:fs"
-import { extname, join, relative } from "node:path"
+import { extname, join, relative, dirname } from "node:path"
 import type { ILLMProvider } from "../llm/ILLMProvider.ts"
 import type { IVectorStore, VectorRecord } from "../memory/VectorStore.ts"
-import type { ChunkStrategy } from "./ChunkStrategy.ts"
-import { FixedSizeChunkStrategy } from "./ChunkStrategy.ts"
+import type { ChunkStrategy, HierarchicalChunkStrategy, ParentChunk } from "./ChunkStrategy.ts"
+import { FixedSizeChunkStrategy, MarkdownHierarchicalChunkStrategy } from "./ChunkStrategy.ts"
 import { TreeSitterParser, languageFromFile } from "./parsers/TreeSitterParser.ts"
 import type { CodeEntity } from "./parsers/TreeSitterParser.ts"
 
 export interface IndexOptions {
   chunkStrategy?: ChunkStrategy
+  hierarchicalChunkStrategy?: HierarchicalChunkStrategy
   embedder: ILLMProvider
   vectorStore: IVectorStore
   chunkSize?: number
   chunkOverlap?: number
+  parentStorePath?: string
 }
 
 export interface IndexStats {
@@ -24,17 +26,21 @@ export interface IndexStats {
 
 export class Indexer {
   private chunkStrategy: ChunkStrategy
+  private hierarchicalStrategy?: HierarchicalChunkStrategy
   private embedder: ILLMProvider
   private vectorStore: IVectorStore
   private totalDocuments = 0
   private totalChunks = 0
   private indexedExtensions = new Set<string>()
   private codeParser?: TreeSitterParser
+  private parentStorePath: string
 
   constructor(options: IndexOptions) {
     this.chunkStrategy = options.chunkStrategy ?? new FixedSizeChunkStrategy()
+    this.hierarchicalStrategy = options.hierarchicalChunkStrategy
     this.embedder = options.embedder
     this.vectorStore = options.vectorStore
+    this.parentStorePath = options.parentStorePath ?? join(process.cwd(), '.agenthood', 'chunks')
   }
 
   setParser(parser: TreeSitterParser): void {
@@ -48,6 +54,11 @@ export class Indexer {
     const lang = languageFromFile(filePath)
     if (lang && this.codeParser) {
       await this.indexWithParser(filePath, content, lang)
+      return
+    }
+
+    if (this.hierarchicalStrategy) {
+      await this.indexWithHierarchy(filePath, content)
       return
     }
 
@@ -80,6 +91,67 @@ export class Indexer {
 
     this.totalDocuments++
     this.totalChunks += chunks.length
+  }
+
+  private async indexWithHierarchy(filePath: string, content: string): Promise<void> {
+    const { parents, children } = this.hierarchicalStrategy!.chunk(
+      content,
+      { filePath, startLine: 0, endLine: content.split('\n').length },
+      { chunkSize: this.chunkStrategy ? undefined : 512, overlap: this.hierarchicalStrategy ? 64 : undefined },
+    )
+
+    if (children.length === 0 && parents.length === 0) return
+
+    const childRecords: VectorRecord[] = []
+    for (const child of children) {
+      const vector = await this.embedder.embed(child.embeddingContent)
+      childRecords.push({
+        id: child.id,
+        vector,
+        metadata: {
+          source: filePath,
+          parentId: child.parentId,
+          parentStartLine: child.parentMetadata.startLine,
+          parentEndLine: child.parentMetadata.endLine,
+          isChild: true,
+        },
+        content: child.content,
+        createdAt: new Date(),
+      })
+    }
+
+    if (childRecords.length > 0) {
+      await this.vectorStore.add(childRecords)
+    }
+
+    this.storeParents(parents)
+
+    this.totalDocuments++
+    this.totalChunks += children.length
+  }
+
+  private storeParents(parents: ParentChunk[]): void {
+    const storeDir = this.parentStorePath
+    if (!existsSync(storeDir)) {
+      mkdirSync(storeDir, { recursive: true })
+    }
+
+    const manifestPath = join(storeDir, 'parents.json')
+    let manifest: Record<string, ParentChunk> = {}
+
+    if (existsSync(manifestPath)) {
+      try {
+        manifest = JSON.parse(readFileSync(manifestPath, 'utf8'))
+      } catch {
+        manifest = {}
+      }
+    }
+
+    for (const parent of parents) {
+      manifest[parent.id] = parent
+    }
+
+    writeFileSync(manifestPath, JSON.stringify(manifest, null, 2), 'utf8')
   }
 
   private async indexWithParser(filePath: string, content: string, lang: string): Promise<void> {

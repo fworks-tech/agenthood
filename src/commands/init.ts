@@ -18,6 +18,7 @@ import { createInterface } from 'node:readline'
 import { ALL_MEMBERS } from '../members.js'
 import { SocietyIndexer } from '../project/SocietyIndexer.js'
 import { KnowledgeGraphStore } from '../rag/KnowledgeGraphStore.js'
+import { PersonalisationStore } from '../memory/PersonalisationStore.js'
 
 const __dirname = dirname(fileURLToPath(import.meta.url))
 const SOCIETY_ROOT = join(__dirname, '..', '..')
@@ -43,6 +44,7 @@ export async function init(): Promise<void> {
     ['Git commit template', () => configureGitTemplate(cwd)],
     ['Agenthood config', () => scaffoldConfig(cwd, runtime, members)],
     ['Society index', () => indexSociety(cwd)],
+    ['Personalisation', () => setupPersonalisation(cwd)],
   ]
 
   for (const [label, step] of steps) {
@@ -224,6 +226,33 @@ async function scaffoldConfig(cwd: string, runtime: Runtime, members: string[]):
     }
     await writeFile(configPath, JSON.stringify(config, null, 2) + '\n', 'utf8')
   }
+}
+
+async function setupPersonalisation(cwd: string): Promise<void> {
+  const prefsPath = join(cwd, '.agenthood', 'preferences.json')
+  if (existsSync(prefsPath)) return
+
+  const store = new PersonalisationStore()
+  const style = await promptPreference('style', 'coding style', ['concise', 'verbose', 'balanced'])
+  if (style) store.set('style', style, 'explicit')
+  const depth = await promptPreference('depth', 'analysis depth', ['high', 'medium', 'low'])
+  if (depth) store.set('depth', depth, 'explicit')
+  const domain = await promptPreference('domain', 'primary domain', ['web', 'data', 'devops', 'general'])
+  if (domain) store.set('domain', domain, 'explicit')
+  store.save(prefsPath)
+}
+
+async function promptPreference(key: string, label: string, options: string[]): Promise<string | null> {
+  console.log(`\n  ${label}?`)
+  options.forEach((o, i) => console.log(`    ${i + 1}. ${o}`))
+  const answer = await prompt(`  Select (1-${options.length}) or press Enter to skip: `)
+  const index = parseInt(answer, 10) - 1
+  if (index >= 0 && index < options.length) {
+    console.log(`    → ${options[index]}\n`)
+    return options[index]
+  }
+  console.log()
+  return null
 }
 
 async function indexSociety(cwd: string): Promise<void> {

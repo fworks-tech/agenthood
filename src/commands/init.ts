@@ -16,6 +16,8 @@ import { fileURLToPath } from 'node:url'
 import { execSync } from 'node:child_process'
 import { createInterface } from 'node:readline'
 import { ALL_MEMBERS } from '../members.js'
+import { SocietyIndexer } from '../project/SocietyIndexer.js'
+import { KnowledgeGraphStore } from '../rag/KnowledgeGraphStore.js'
 
 const __dirname = dirname(fileURLToPath(import.meta.url))
 const SOCIETY_ROOT = join(__dirname, '..', '..')
@@ -40,6 +42,7 @@ export async function init(): Promise<void> {
     ['Member skills', () => installSkills(cwd, runtime, members)],
     ['Git commit template', () => configureGitTemplate(cwd)],
     ['Agenthood config', () => scaffoldConfig(cwd, runtime, members)],
+    ['Society index', () => indexSociety(cwd)],
   ]
 
   for (const [label, step] of steps) {
@@ -221,6 +224,21 @@ async function scaffoldConfig(cwd: string, runtime: Runtime, members: string[]):
     }
     await writeFile(configPath, JSON.stringify(config, null, 2) + '\n', 'utf8')
   }
+}
+
+async function indexSociety(cwd: string): Promise<void> {
+  const societyRoot = join(cwd, 'node_modules', 'agenthood')
+  const sourceRoot = existsSync(societyRoot) ? societyRoot : dirname(fileURLToPath(import.meta.url))
+  const basePath = join(sourceRoot, '..', '..')
+
+  const kg = new KnowledgeGraphStore()
+  const indexer = new SocietyIndexer({
+    basePath,
+    knowledgeGraph: kg,
+  })
+
+  await indexer.index()
+  kg.save(join(cwd, '.agenthood', 'society-graph.json'))
 }
 
 async function safeCopy(src: string, dest: string): Promise<void> {

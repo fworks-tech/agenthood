@@ -3,7 +3,7 @@ import { dirname } from 'node:path'
 
 export interface GraphNode {
   id: string
-  type: 'member' | 'skill' | 'adr' | 'file' | 'function' | 'class'
+  type: 'member' | 'skill' | 'adr' | 'file' | 'function' | 'class' | 'convention' | 'project'
   label: string
   metadata?: Record<string, unknown>
 }

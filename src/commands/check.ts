@@ -110,6 +110,9 @@ export async function check(): Promise<void> {
   file('RAG Retriever available', 'src/rag/Retriever.ts');
   file('Chunk strategy configured', 'src/rag/ChunkStrategy.ts');
 
+  // Society index
+  file('Society index (members, ADRs, conventions)', '.agenthood/society-graph.json');
+
   // Report
   const passing = results.filter((r) => r.pass).length;
   const failing = results.filter((r) => !r.pass).length;

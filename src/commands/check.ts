@@ -105,6 +105,12 @@ export async function check(): Promise<void> {
   file('Residual memory traces found', '.agenthood/residual.json');
   file('Knowledge graph found', '.agenthood/graph.json');
 
+  // Memory tiers
+  file('ShortTermMemory available', 'src/memory/ShortTermMemory.ts');
+  file('LongTermMemory available', 'src/memory/LongTermMemory.ts');
+  file('EpisodicMemory available', 'src/memory/EpisodicMemory.ts');
+  file('ProjectMemory available', 'src/memory/ProjectMemory.ts');
+
   // RAG pipeline
   file('RAG Indexer available', 'src/rag/Indexer.ts');
   file('RAG Retriever available', 'src/rag/Retriever.ts');

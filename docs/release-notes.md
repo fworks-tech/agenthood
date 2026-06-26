@@ -12,6 +12,8 @@
 - **Rag:** implement MarkdownHierarchicalChunkStrategy for parent-child chunking of Markdown documents (H2 sections = parents, paragraphs = children)
 - **Rag:** implement AgenticRAG with RetrievalClassifier for agent-controlled retrieval strategy (skip, vector, graph, both) with provenance tracking
 - **Reasoning:** implement MemberOrchestrator Phase 1 — member detection via keyword, file pattern, and stage matching across all 14 members
+- **Llm:** add OpenCode Zen provider — OpenAI-compatible endpoint at `opencode.ai/zen/v1` (pay-as-you-go)
+- **Llm:** add OpenCode Go provider — subscription-based endpoint at `opencode.ai/zen/go/v1`
 - **Governance:** add RACI member map defining responsibilities, consult/inform relationships, and escalation paths
 - **Governance:** add release policy for member SKILL.md versioning, change approvals, and deprecation process
 

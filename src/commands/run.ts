@@ -1,4 +1,5 @@
 import { randomUUID } from "node:crypto"
+import { existsSync } from "node:fs"
 import { readFile } from "node:fs/promises"
 import { join } from "node:path"
 import { PromptBuilder } from "../prompts/PromptBuilder.ts"
@@ -13,6 +14,8 @@ import { ReviewerAgent } from "../agents/ReviewerAgent.ts"
 import { QAAgent } from "../agents/QAAgent.ts"
 import { MemberRegistry, MemberAgent } from "../members/index.ts"
 import { validateApiKeys, MissingApiKeyError } from "../llm/validateApiKeys.ts"
+import { SocietyIndexer } from "../project/SocietyIndexer.ts"
+import { KnowledgeGraphStore } from "../rag/KnowledgeGraphStore.ts"
 import type { ExecutionContext } from "../core/ExecutionContext.ts"
 import type { LLMConfig, ProviderEntry } from "../llm/types.ts"
 
@@ -93,6 +96,17 @@ async function createContext(projectPath: string, config: LLMConfig): Promise<Ex
   agentRegistry.register(new ArchitectAgent(llm, loop, sReg))
   agentRegistry.register(new ReviewerAgent(llm, loop, sReg))
   agentRegistry.register(new QAAgent(llm, loop, sReg))
+
+  // Load Society index (members, ADRs, conventions) if available
+  const societyGraphPath = join(projectPath, '.agenthood', 'society-graph.json')
+  const societyGraph = new KnowledgeGraphStore()
+  if (existsSync(societyGraphPath)) {
+    try {
+      societyGraph.load(societyGraphPath)
+    } catch {
+      // corrupt or missing — proceed without
+    }
+  }
 
   return {
     executionId: randomUUID(),

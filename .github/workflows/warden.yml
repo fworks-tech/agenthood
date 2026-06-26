@@ -80,9 +80,9 @@ jobs:
         run: |
           if [ -f /tmp/warden_agent.txt ] && [ -s /tmp/warden_agent.txt ]; then
             gh pr comment ${{ github.event.pull_request.number }} \
-              --body "## The Warden — Code Health Analysis 🏗️
+              --body "## The Warden — Code Health Analysis :building_construction:
 
-$(cat /tmp/warden_agent.txt)
+          $(cat /tmp/warden_agent.txt)
 
-*— The Warden, Agenthood*"
+          *— The Warden, Agenthood*"
           fi

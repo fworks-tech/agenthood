@@ -32,11 +32,20 @@ All providers use a unified `ILLMProvider` interface
 response types. Member skills are written once and run on any provider via `LLMRouter`
 ([`src/llm/LLMRouter.ts`](../src/llm/LLMRouter.ts)).
 
-### Planned providers
+### Supported providers
+
+| Provider | Status | Details |
+|----------|--------|---------|
+| OpenAI | ✅ Shipped | `src/llm/providers/OpenAIProvider.ts` |
+| Anthropic | ✅ Shipped | `src/llm/providers/AnthropicProvider.ts` |
+| Groq | ✅ Shipped | `src/llm/providers/GroqProvider.ts` |
+| Ollama | ✅ Shipped | `src/llm/providers/OllamaProvider.ts` (local, no API key) |
+| OpenCode Zen | ✅ Shipped | `src/llm/providers/OpenCodeProvider.ts` — pay-as-you-go at `api.opencode.ai/zen/v1` |
+| OpenCode Go | ✅ Shipped | `src/llm/providers/OpenCodeGoProvider.ts` — subscription at `api.opencode.ai/zen/go/v1` |
 
 Additional providers (DeepSeek, Qwen) may be added in future releases.
 When added, they will be slotted into the failover chain behind the
-four supported providers.
+six supported providers.
 
 ---
 
@@ -50,7 +59,7 @@ Primary → Fallback 1 → Fallback 2 → ... → Error (all exhausted)
 
 **Example chain:**
 ```
-Claude Sonnet 4.6 → GPT-4o → Groq → Ollama
+OpenCode (Zen/Go) → Claude Sonnet 4.6 → GPT-4o → Groq → Ollama
 ```
 
 Thread continuity is preserved across failovers via checkpoint-based `thread_id`.

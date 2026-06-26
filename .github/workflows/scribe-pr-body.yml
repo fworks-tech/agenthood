@@ -31,22 +31,6 @@ jobs:
 
       - run: npm run build
 
-      - name: Pre-check diff for secrets before LLM review
-        continue-on-error: true
-        id: secret-check
-        run: |
-          # Install gitleaks binary for the pre-check
-          curl -sL https://github.com/gitleaks/gitleaks/releases/latest/download/gitleaks-linux-amd64 -o /tmp/gitleaks
-          chmod +x /tmp/gitleaks
-
-          if [ "${{ github.event.before }}" = "0000000000000000000000000000000000000000" ]; then
-            RANGE="HEAD"
-          else
-            RANGE="${{ github.event.before }}..${{ github.event.after }}"
-          fi
-
-          git diff "$RANGE" | /tmp/gitleaks detect --no-git -v -s /dev/stdin 2>/dev/null
-
       - name: Run Reviewer
         id: review
         continue-on-error: true

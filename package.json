@@ -57,7 +57,7 @@
     "dev": "node --watch src/cli.ts",
     "start": "node dist/cli.js",
     "prepublishOnly": "npm run build",
-    "postinstall": "node -e \"const{existsSync}=require('fs');if(existsSync('dist/cli.js')){require('child_process').execSync('node dist/cli.js setup',{stdio:'inherit'})}\"",
+    "postinstall": "node -e \"if(!process.env.AGENTHOOD_AUTO_SETUP){process.exit(0)}const{existsSync}=require('fs');if(existsSync('dist/cli.js')){require('child_process').execSync('node dist/cli.js setup',{stdio:'inherit'})}\"",
     "test": "vitest run --exclude 'vscode-extension/**'",
     "lint": "eslint src/",
     "typecheck": "tsc --noEmit"

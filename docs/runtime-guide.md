@@ -136,12 +136,27 @@ Results can be filtered by `minScore` (relevance threshold) and `metadataFilter`
 Override the provider at runtime:
 
 ```bash
-agenthood run <agent> "<task>" --provider ollama
+npx agenthood run <agent> "<task>" --provider ollama
 ```
 
 This bypasses the configured provider chain and uses the specified provider directly.
 
-## Logging
+### Memory Tiers
+
+The runtime includes four specialized memory implementations accessed via `ExecutionContext.memory`:
+
+| Tier | Implementation | Backing | Purpose |
+|------|---------------|---------|---------|
+| ShortTerm | `ShortTermMemoryImpl` | In-memory ring buffer | Recent conversation context (default capacity: 20 entries) |
+| LongTerm | `LongTermMemoryImpl` | LanceDB VectorStore | Persistent key-value storage across sessions |
+| Episodic | `EpisodicMemoryImpl` | LanceDB VectorStore + ILLMProvider | Episode recall with semantic search |
+| Project | `ProjectMemoryImpl` | KnowlegeGraphStore + filesystem | Project conventions and architectural decisions |
+
+All four tiers are wired into `createContext()` in `src/commands/run.ts` and available to every agent via `context.memory`.
+
+### Society Index
+
+`SocietyIndexer` indexes all 14 Society members, ADRs, and conventions into a `KnowledgeGraphStore` and optionally into `VectorStore`. It is run automatically during `agenthood init` and loaded by `agenthood run` at startup. The index persists to `.agenthood/society-graph.json`.
 
 ### Personalisation Store
 

@@ -29,8 +29,8 @@ npx agenthood init
 
 This single command will prompt you for two choices:
 
-1. **Which AI runtime are you using?** — Claude Code, Copilot, Gemini CLI, or other.
-   Skills are installed into the matching directory (`.claude/skills/`, `.github/skills/`, `.gemini/skills/`, or `.agenthood/skills/`).
+1. **Which AI runtime are you using?** — Claude Code, Copilot, or other.
+   Skills are installed into the matching directory (`.claude/skills/`, `.github/skills/`, or `.agenthood/skills/`).
 
 2. **Which members do you want to activate?** — enter numbers separated by commas, or `all`.
 
@@ -157,11 +157,11 @@ Expected output:
   ✅ .github/ISSUE_TEMPLATE/bug_report.md present
   ✅ .github/ISSUE_TEMPLATE/feature_request.md present
   ✅ .github/workflows/commitlint.yml present
-  ✅ Member skills installed (9/9)
-  ✅ git commit.template configured
-  ✅ AGENTS.md present
+   ✅ Member skills installed (14/14)
+   ✅ git commit.template configured
+   ✅ AGENTS.md present
 
-  12 passing · 0 failing
+   23 passing · 0 failing
 
   The Society is ready. You may proceed.
 ```
@@ -180,12 +180,12 @@ across sessions without a human in the loop — use the TypeScript runtime.
 npm run build
 
 # List all 14 members
-agenthood list
+npx agenthood list
 
 # Invoke a member against a real task
-agenthood run the-scribe "write a commit message for the current diff"
-agenthood run the-architect "plan the implementation for issue #42"
-agenthood run the-reviewer "review the open PR"
+npx agenthood run the-scribe "write a commit message for the current diff"
+npx agenthood run the-architect "plan the implementation for issue #42"
+npx agenthood run the-reviewer "review the open PR"
 ```
 
 The runtime reads the same `.agenthood/config.json` the CLI created — no

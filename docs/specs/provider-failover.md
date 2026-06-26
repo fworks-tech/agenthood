@@ -16,7 +16,7 @@ This creates poor production reliability:
 - **Intermittent failures** force manual retry from humans instead of automated recovery
 - **No retry logic** means transient network blips cause permanent task failure
 
-The user expects the Society to handle provider fragility transparently. If Claude is down, use Gemini. If Groq hits rate limits, switch to Ollama. The member should continue working—the human should never notice the plumbing.
+The user expects the Society to handle provider fragility transparently. If Claude is down, use OpenAI. If Groq hits rate limits, switch to Ollama. The member should continue working—the human should never notice the plumbing.
 
 ---
 
@@ -176,7 +176,7 @@ Test cases:
 Test scenarios:
 - ✅ Real member execution with mocked provider responses
 - ✅ Groq rate limit → Ollama fallback → task completes
-- ✅ Claude auth failure → Gemini fallback → task completes
+- ✅ Claude auth failure → OpenAI fallback → task completes
 - ✅ All providers fail → error includes all failure reasons
 - ✅ Provider recovers mid-execution → circuit closes
 - ✅ Config validation: invalid provider name rejected
@@ -265,7 +265,7 @@ Test scenarios:
 ---
 
 ### Q3: How should member-specific provider preferences interact with failover?
-**Context:** The Doorman wants fast/cheap providers (Groq, Ollama). The Architect wants deep reasoning (Claude, Gemini). Should the failover chain be member-aware?
+**Context:** The Doorman wants fast/cheap providers (Groq, Ollama). The Architect wants deep reasoning (Claude, OpenAI). Should the failover chain be member-aware?
 
 **Options:**
 - **A:** Global failover chain (all members use same chain)

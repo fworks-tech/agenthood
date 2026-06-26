@@ -19,29 +19,28 @@ jobs:
       - name: The Warden — enforce file size limits
         shell: bash
         run: |
-          FAILED=0
-          BASE_SHA=${{ github.event.pull_request.base.sha }}
-          HEAD_SHA=${{ github.event.pull_request.head.sha }}
+          failed=0
+          base_sha=${{ github.event.pull_request.base.sha }}
+          head_sha=${{ github.event.pull_request.head.sha }}
 
-          CHANGED=$(git diff --name-only --diff-filter=ACM "$BASE_SHA" "$HEAD_SHA" 2>/dev/null)
+          changed=$(git diff --name-only --diff-filter=ACM "$base_sha" "$head_sha" 2>/dev/null)
 
-          for FILE in $CHANGED; do
-            [ -f "$FILE" ] || continue
-            # Skip generated lock files — line count is not meaningful
-            case "$FILE" in
+          for file in $changed; do
+            [ -f "$file" ] || continue
+            case "$file" in
               package-lock.json|yarn.lock|pnpm-lock.yaml) continue ;;
             esac
-            LINES=$(wc -l < "$FILE" | tr -d ' ')
+            lines=$(wc -l < "$file" | tr -d ' ')
 
-            if [ "$LINES" -gt 500 ]; then
-              echo "FAIL: $FILE — $LINES lines (limit: 500)"
-              FAILED=1
-            elif [ "$LINES" -gt 300 ]; then
-              echo "WARN: $FILE — $LINES lines (approaching limit of 500)"
+            if [ "$lines" -gt 500 ]; then
+              echo "FAIL: $file — $lines lines (limit: 500)"
+              failed=1
+            elif [ "$lines" -gt 300 ]; then
+              echo "WARN: $file — $lines lines (approaching limit of 500)"
             fi
           done
 
-          if [ "$FAILED" -eq 1 ]; then
+          if [ "$failed" -eq 1 ]; then
             echo ""
             echo "The Warden: one or more files exceed the 500-line limit."
             echo "Split the file or justify the exception in the PR description."
@@ -50,50 +49,13 @@ jobs:
 
           echo "The Warden: all changed files within size limits."
 
-      - uses: actions/setup-node@v4
-        if: always()
-        with:
-          node-version: 24
-          cache: npm
-
-      - run: npm ci --ignore-scripts
-        if: always()
-
-      - run: npm run build
-        if: always()
-
       - name: The Warden — agent analysis
-        if: always()
         continue-on-error: true
-        id: warden-agent
-        env:
-          OPENCODE_API_KEY: ${{ secrets.OPENCODE_API_KEY }}
-        run: |
-          if [ -z "$OPENCODE_API_KEY" ]; then
-            echo "OPENCODE_API_KEY not set. Skipping agent analysis."
-            exit 0
-          fi
-
-          CHANGED=$(git diff --name-only --diff-filter=ACM "${{ github.event.pull_request.base.sha }}" "${{ github.event.pull_request.head.sha }}" 2>/dev/null || echo "")
-          if [ -z "$CHANGED" ]; then
-            echo "No files changed. Skipping agent analysis."
-            exit 0
-          fi
-          CHANGED=$(echo "$CHANGED" | head -10)
-
-          TASK=$(printf "analyze these changed files for code smells, complexity issues, and architectural decay:\n%s\n" "$CHANGED")
-          node dist/cli.js run the-warden "$TASK" --provider opencode-go 2>&1 | grep -v "^Error running\|^Using \|^opencode-go\|^groq\|^ollama\|^All providers\|^$" > /tmp/warden_agent.txt
-
-      - name: The Warden — post agent findings
-        if: always() && github.event_name == 'pull_request'
-        env:
-          GH_TOKEN: ${{ github.token }}
-        run: |
-          if [ -f /tmp/warden_agent.txt ] && [ -s /tmp/warden_agent.txt ]; then
-            gh pr comment ${{ github.event.pull_request.number }} \
-              --body "## The Warden — Code Health Analysis :building_construction:
-
-          $(cat /tmp/warden_agent.txt)
-
-          *— The Warden, Agenthood*"
-          fi
+        uses: ./.github/actions/agent-analysis
+        with:
+          agent-name: the-warden
+          prompt-template: "analyze these changed files for code smells, complexity issues, and architectural decay:\n%s\n"
+          pr-number: ${{ github.event.pull_request.number }}
+          base-sha: ${{ github.event.pull_request.base.sha }}
+          head-sha: ${{ github.event.pull_request.head.sha }}
+          api-key: ${{ secrets.OPENCODE_API_KEY }}

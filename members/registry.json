@@ -1,0 +1,117 @@
+{
+  "version": 1,
+  "members": [
+    {
+      "name": "the-scribe",
+      "displayName": "The Scribe",
+      "tagline": "Turns your diff into prose worth reading",
+      "role": "commit messages, PR descriptions, changelogs",
+      "stage": ["commit"],
+      "priority": 1
+    },
+    {
+      "name": "the-architect",
+      "displayName": "The Architect",
+      "tagline": "No code before the blueprint",
+      "role": "spec-driven development, planning, ADRs",
+      "stage": ["spec"],
+      "priority": 2
+    },
+    {
+      "name": "the-reviewer",
+      "displayName": "The Reviewer",
+      "tagline": "Five axes. No mercy. All respect.",
+      "role": "code review, quality gates",
+      "stage": ["review"],
+      "priority": 3
+    },
+    {
+      "name": "the-tester",
+      "displayName": "The Tester",
+      "tagline": "Red. Green. Refactor. Repeat.",
+      "role": "TDD, test generation, coverage",
+      "stage": ["test"],
+      "priority": 4
+    },
+    {
+      "name": "the-debugger",
+      "displayName": "The Debugger",
+      "tagline": "Five steps to every root cause. No guessing allowed.",
+      "role": "error triage, root cause analysis",
+      "stage": ["test"],
+      "priority": 5
+    },
+    {
+      "name": "the-auditor",
+      "displayName": "The Auditor",
+      "tagline": "Reads everything. Trusts nothing.",
+      "role": "security review, dependency audit",
+      "stage": ["audit"],
+      "priority": 6
+    },
+    {
+      "name": "the-herald",
+      "displayName": "The Herald",
+      "tagline": "Announces with ceremony. Ships with precision.",
+      "role": "semantic versioning, release notes",
+      "stage": ["release"],
+      "priority": 7
+    },
+    {
+      "name": "the-librarian",
+      "displayName": "The Librarian",
+      "tagline": "Every decision, recorded for posterity.",
+      "role": "documentation, knowledge management",
+      "stage": ["docs"],
+      "priority": 8
+    },
+    {
+      "name": "the-doorman",
+      "displayName": "The Doorman",
+      "tagline": "Nothing gets in without proper credentials.",
+      "role": "validation, health checks, enforcement",
+      "stage": ["commit"],
+      "priority": 9
+    },
+    {
+      "name": "the-oracle",
+      "displayName": "The Oracle",
+      "tagline": "Ask me anything about the Society. I have read every scroll.",
+      "role": "institutional knowledge, member authoring templates, naming guidance",
+      "stage": ["spec"],
+      "priority": 10
+    },
+    {
+      "name": "the-envoy",
+      "displayName": "The Envoy",
+      "tagline": "One Society. Every runtime. No exceptions.",
+      "role": "cross-provider translation, bootstrap generation, convention validation",
+      "stage": ["implement"],
+      "priority": 11
+    },
+    {
+      "name": "the-sentinel",
+      "displayName": "The Sentinel",
+      "tagline": "The Society cannot enforce standards it no longer understands.",
+      "role": "Society document integrity, cross-member contradiction detection, structural drift",
+      "stage": ["review"],
+      "priority": 12
+    },
+    {
+      "name": "the-warden",
+      "displayName": "The Warden",
+      "tagline": "The chaos does not arrive all at once. I am here for the accumulation.",
+      "role": "code smell detection, complexity enforcement, architectural boundary violations",
+      "stage": ["review"],
+      "priority": 13
+    },
+    {
+      "name": "the-steward",
+      "displayName": "The Steward",
+      "tagline": "I was born from the situation I exist to prevent.",
+      "role": "context economy, member routing, provider cache strategy, session triage",
+      "stage": ["deploy"],
+      "priority": 14
+    }
+  ]
+}

@@ -3,14 +3,6 @@ name: The Auditor — Secret Scanning
 on:
   pull_request:
     branches: [main]
-  # push:
-  #   branches:
-  #     - 'feat/**'
-  #     - 'fix/**'
-  #     - 'docs/**'
-  #     - 'refactor/**'
-  #     - 'ci/**'
-  #     - 'chore/**'
 
 jobs:
   auditor:
@@ -45,56 +37,19 @@ jobs:
           GH_TOKEN: ${{ github.token }}
         run: |
           gh pr comment ${{ github.event.pull_request.number }} \
-            --body "## The Auditor — Secret Scan ⚠️
+            --body "## The Auditor — Secret Scan :warning:
 
           Potential secrets or configuration issues were detected. Review the [workflow run](${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}) for details.
 
           *— The Auditor, Agenthood*"
 
-      - uses: actions/setup-node@v4
-        if: always()
-        with:
-          node-version: 24
-          cache: npm
-
-      - run: npm ci --ignore-scripts
-        if: always()
-
-      - run: npm run build
-        if: always()
-
       - name: The Auditor — agent analysis
-        if: always()
         continue-on-error: true
-        id: auditor-agent
-        env:
-          OPENCODE_API_KEY: ${{ secrets.OPENCODE_API_KEY }}
-        run: |
-          if [ -z "$OPENCODE_API_KEY" ]; then
-            echo "OPENCODE_API_KEY not set. Skipping agent analysis."
-            exit 0
-          fi
-
-          CHANGED=$(git diff --name-only --diff-filter=ACM "${{ github.event.pull_request.base.sha }}" "${{ github.event.pull_request.head.sha }}" 2>/dev/null || echo "")
-          if [ -z "$CHANGED" ]; then
-            echo "No files changed. Skipping agent analysis."
-            exit 0
-          fi
-          CHANGED=$(echo "$CHANGED" | head -10)
-
-          TASK=$(printf "audit these changed files for security concerns, secrets, and dependency risks:\n%s\n" "$CHANGED")
-          node dist/cli.js run the-auditor "$TASK" --provider opencode-go 2>&1 | grep -v "^Error running\|^Using \|^opencode-go\|^groq\|^ollama\|^All providers\|^$" > /tmp/auditor_agent.txt
-
-      - name: The Auditor — post agent findings
-        if: always() && github.event_name == 'pull_request'
-        env:
-          GH_TOKEN: ${{ github.token }}
-        run: |
-          if [ -f /tmp/auditor_agent.txt ] && [ -s /tmp/auditor_agent.txt ]; then
-            gh pr comment ${{ github.event.pull_request.number }} \
-              --body "## The Auditor — Security Analysis :lock:
-
-          $(cat /tmp/auditor_agent.txt)
-
-          *— The Auditor, Agenthood*"
-          fi
+        uses: ./.github/actions/agent-analysis
+        with:
+          agent-name: the-auditor
+          prompt-template: "audit these changed files for security concerns, secrets, and dependency risks:\n%s\n"
+          pr-number: ${{ github.event.pull_request.number }}
+          base-sha: ${{ github.event.pull_request.base.sha }}
+          head-sha: ${{ github.event.pull_request.head.sha }}
+          api-key: ${{ secrets.OPENCODE_API_KEY }}

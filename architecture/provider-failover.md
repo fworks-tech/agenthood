@@ -16,9 +16,8 @@ The human sees the work continue. The Society handles the plumbing.
 
 ## Supported Providers
 
-The Agenthood runtime is **LLM-agnostic**. The four providers below are implemented
-in [`src/llm/providers/`](../src/llm/providers/) and are the supported set as of
-v2.0.0. Any member can run on any provider.
+The Agenthood runtime is **LLM-agnostic**. The six providers below are implemented
+in [`src/llm/providers/`](../src/llm/providers/). Any member can run on any provider.
 
 | Provider | Default model | Notes |
 |----------|---------------|-------|

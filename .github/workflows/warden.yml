@@ -69,9 +69,20 @@ jobs:
         env:
           OPENCODE_API_KEY: ${{ secrets.OPENCODE_API_KEY }}
         run: |
+          if [ -z "$OPENCODE_API_KEY" ]; then
+            echo "OPENCODE_API_KEY not set. Skipping agent analysis."
+            exit 0
+          fi
+
           CHANGED=$(git diff --name-only --diff-filter=ACM "${{ github.event.pull_request.base.sha }}" "${{ github.event.pull_request.head.sha }}" 2>/dev/null || echo "")
+          if [ -z "$CHANGED" ]; then
+            echo "No files changed. Skipping agent analysis."
+            exit 0
+          fi
+          CHANGED=$(echo "$CHANGED" | head -10)
+
           TASK=$(printf "analyze these changed files for code smells, complexity issues, and architectural decay:\n%s\n" "$CHANGED")
-          node dist/cli.js run the-warden "$TASK" --provider opencode-go 2>&1 | awk 'NR>1' > /tmp/warden_agent.txt
+          node dist/cli.js run the-warden "$TASK" --provider opencode-go 2>&1 | grep -v "^Error running\|^Using \|^opencode-go\|^groq\|^ollama\|^All providers\|^$" > /tmp/warden_agent.txt
 
       - name: The Warden — post agent findings
         if: always() && github.event_name == 'pull_request'

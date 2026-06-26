@@ -7,7 +7,7 @@ export class BudgetExceededError extends Error {
 
 export class ThinkingBudget {
   constructor(
-    private maxSteps: number = 10,
+    private maxSteps: number = 20,
     private maxTokens?: number
   ) {
     void this.maxTokens

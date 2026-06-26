@@ -21,6 +21,7 @@ import { LongTermMemoryImpl } from "../memory/LongTermMemory.ts"
 import { EpisodicMemoryImpl } from "../memory/EpisodicMemory.ts"
 import { ProjectMemoryImpl } from "../memory/ProjectMemory.ts"
 import { LanceDBStore } from "../memory/VectorStore.ts"
+import { MemberOrchestrator } from "../reasoning/MemberOrchestrator.ts"
 import type { ExecutionContext } from "../core/ExecutionContext.ts"
 import type { LLMConfig, ProviderEntry } from "../llm/types.ts"
 
@@ -75,20 +76,23 @@ async function loadConfig(providerOverride?: string): Promise<LLMConfig> {
   }
 }
 
-function parseFlags(args: string[]): { flags: string[]; positional: string[]; providerOverride?: string } {
+function parseFlags(args: string[]): { flags: string[]; positional: string[]; providerOverride?: string; detect: boolean } {
   const flags: string[] = []
   const positional: string[] = []
   let providerOverride: string | undefined
+  let detect = false
 
   for (let i = 0; i < args.length; i++) {
     if (args[i] === '--provider' && i + 1 < args.length) {
       providerOverride = args[++i]
+    } else if (args[i] === '--detect') {
+      detect = true
     } else {
       positional.push(args[i])
     }
   }
 
-  return { flags, positional, providerOverride }
+  return { flags, positional, providerOverride, detect }
 }
 
 async function createContext(projectPath: string, config: LLMConfig): Promise<ExecutionContext> {
@@ -142,12 +146,13 @@ async function createContext(projectPath: string, config: LLMConfig): Promise<Ex
 }
 
 export async function run(args: string[]): Promise<void> {
-  const { positional, providerOverride } = parseFlags(args)
+  const { positional, providerOverride, detect } = parseFlags(args)
   const [agentName, ...taskParts] = positional
 
   if (!agentName || taskParts.length === 0) {
     console.error('Usage: agenthood run <agent> "<task description>"')
     console.error('  --provider <name>   Override LLM provider (e.g. groq, anthropic, ollama)')
+    console.error('  --detect            Auto-detect members for this task')
     process.exit(1)
   }
 
@@ -163,6 +168,22 @@ export async function run(args: string[]): Promise<void> {
   }
   const context = await createContext(process.cwd(), config)
   const task = taskParts.join(" ")
+
+  // Run member detection if --detect flag is set
+  if (detect) {
+    const orchestrator = new MemberOrchestrator()
+    const detected = orchestrator.detectMembers({
+      userMessage: task,
+      changedFiles: [],
+      currentStage: undefined,
+    })
+
+    if (detected.length > 0) {
+      console.log(`\n🎯 Detected members: ${detected.map((d) => `${d.member} (score: ${d.score})`).join(', ')}\n`)
+    } else {
+      console.log('\nNo members detected for this task.\n')
+    }
+  }
 
   // Try Society member first (14 named members)
   if (memberRegistry.has(agentName)) {

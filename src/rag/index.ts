@@ -1,6 +1,6 @@
 export { KnowledgeGraphStore } from "./KnowledgeGraphStore.ts"
 export type { GraphNode, GraphEdge, NeighborResult, IGraphStore } from "./KnowledgeGraphStore.ts"
-export { FixedSizeChunkStrategy, MarkdownHierarchicalChunkStrategy } from "./ChunkStrategy.ts"
+export { FixedSizeChunkStrategy, MarkdownHierarchicalChunkStrategy, CodeHierarchicalChunkStrategy } from "./ChunkStrategy.ts"
 export type { Chunk, ChunkOptions, ChunkStrategy, ParentChunk, ChildChunk, HierarchicalChunkStrategy } from "./ChunkStrategy.ts"
 export { Indexer } from "./Indexer.ts"
 export type { IndexOptions, IndexStats } from "./Indexer.ts"

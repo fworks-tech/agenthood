@@ -5,6 +5,22 @@
 
 ---
 
+## v2.5.0 — June 26, 2026
+
+### 🐛 Bug Fixes
+
+- **Deps:** pin tree-sitter-go and tree-sitter-python to v0.23.x to resolve peer dependency conflict
+
+### ✨ Features
+
+- **Memory:** implement PersonalisationStore for per-project agent adaptation, closes [hi#weight](https://github.com/hi/issues/weight) #112
+- **Memory:** implement ShortTerm, LongTerm, Episodic, and Project memory tiers
+- **Rag:** implement baseline RAG pipeline — ChunkStrategy, Indexer, Retriever
+- **Rag:** implement SocietyIndexer for members, ADRs, and conventions
+- **Rag:** implement TreeSitterParser for AST-based code structure extraction
+
+---
+
 ## v2.4.0 — June 26, 2026
 
 ### 🐛 Bug Fixes

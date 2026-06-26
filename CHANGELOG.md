@@ -1,3 +1,19 @@
+# [2.5.0](https://github.com/fworks-tech/agenthood/compare/v2.4.0...v2.5.0) (2026-06-26)
+
+
+### Bug Fixes
+
+* **deps:** pin tree-sitter-go and tree-sitter-python to v0.23.x to resolve peer dependency conflict ([9710d50](https://github.com/fworks-tech/agenthood/commit/9710d501c2799ba78767c9bf78ad9d61c501681c)), closes [#269](https://github.com/fworks-tech/agenthood/issues/269)
+
+
+### Features
+
+* **memory:** implement PersonalisationStore for per-project agent adaptation ([20c3f43](https://github.com/fworks-tech/agenthood/commit/20c3f437788586261979285a3329a8a5bd3dac3d)), closes [hi#weight](https://github.com/hi/issues/weight) [#112](https://github.com/fworks-tech/agenthood/issues/112)
+* **memory:** implement ShortTerm, LongTerm, Episodic, and Project memory tiers ([98d6a56](https://github.com/fworks-tech/agenthood/commit/98d6a560e4209f52d860f5862643f4381af5cda4)), closes [#262](https://github.com/fworks-tech/agenthood/issues/262)
+* **rag:** implement baseline RAG pipeline — ChunkStrategy, Indexer, Retriever ([9a257cf](https://github.com/fworks-tech/agenthood/commit/9a257cfa035df4e874c70cb73bc831aa52aeadb3)), closes [#263](https://github.com/fworks-tech/agenthood/issues/263)
+* **rag:** implement SocietyIndexer for members, ADRs, and conventions ([9caccad](https://github.com/fworks-tech/agenthood/commit/9caccade098cfc71fc5fd50e936b5bbc449a5bbb)), closes [#107](https://github.com/fworks-tech/agenthood/issues/107)
+* **rag:** implement TreeSitterParser for AST-based code structure extraction ([6606bb9](https://github.com/fworks-tech/agenthood/commit/6606bb9ecc7578bb73a75561306d42f586b3c88b)), closes [#106](https://github.com/fworks-tech/agenthood/issues/106)
+
 # [2.4.0](https://github.com/fworks-tech/agenthood/compare/v2.3.1...v2.4.0) (2026-06-26)
 
 

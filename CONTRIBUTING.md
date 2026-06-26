@@ -57,7 +57,7 @@ Hooks are installed by `npx agenthood init` and enforce the format automatically
 
 ### Pull Requests
 
-- Target the `v2.0.x` branch for stacked changes
+- Target the `main` branch for feature branches
 - PR title follows the same Conventional Commits format
 - Include Closes/Fixes in the description
 - All CI checks must pass before merge

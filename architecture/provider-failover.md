@@ -34,9 +34,9 @@ response types. Member skills are written once and run on any provider via `LLMR
 
 ### Planned providers
 
-The earlier roadmap mentioned Google Gemini, DeepSeek, and Qwen. They are not
-implemented yet; once added they will be slotted into the failover chain behind
-the four supported providers.
+Additional providers (DeepSeek, Qwen) may be added in future releases.
+When added, they will be slotted into the failover chain behind the
+four supported providers.
 
 ---
 

@@ -27,8 +27,6 @@ Every task the Agenthood handles follows this path:
 ```
 User Request
     ↓
-InputValidator          — sanitize, classify, check permissions
-    ↓
 ConcurrencyQueue        — assign priority, wait for slot
     ↓
 Orchestrator            — route to the right member(s)
@@ -38,8 +36,6 @@ Member Execution        — reason → act → observe loop
 SafetyGuard             — enforce limits, detect loops
     ↓
 ProviderFailover        — retry with backup LLM if needed
-    ↓
-DiffReview              — surface changes for human approval
     ↓
 Response
 ```
@@ -72,7 +68,7 @@ which superseded the earlier Python/DeepAgents runtime approach.
 | `ConcurrencyQueue` — priority + starvation | `src/core/ConcurrencyQueue.ts` | ✅ v2.0.0 |
 | `SafetyGuard` — caps, loop detection, blocklist | `src/core/SafetyGuard.ts` | ✅ v2.0.0 |
 | Orchestrator (publish/subscribe event bus) | `src/orchestrator/` | 📋 Planned — Phase 3 |
-| 5-tier memory (IMemoryStore, ResidualMemory, InMemoryStore, VectorStore, ShortTerm, LongTerm, Episodic, Project) | `src/memory/` | ✅ Shipped |
+| Memory tiers (IMemoryStore, ResidualMemory, InMemoryStore, VectorStore, ShortTerm, LongTerm, Episodic, Project, PersonalisationStore) | `src/memory/` | ✅ Shipped |
 | RAG — Knowledge Graph Store, ChunkStrategy, Indexer, Retriever, TreeSitterParser | `src/rag/` | ✅ Shipped |
 | Society index (members, ADRs, conventions) | `src/project/SocietyIndexer.ts` | ✅ Shipped |
 

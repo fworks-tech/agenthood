@@ -48,9 +48,9 @@ Agenthood is a **multi-agent AI framework** distributed as an npm package + VS C
 | 5 — Agentic Workflows | `agentic-workflows/` | Manual prompt templates (triage, review PR, diagnose CI) |
 | 6 — CI | `.github/workflows/` | GitHub Actions enforcing every layer |
 | 7 — Runtime | `src/` | TypeScript CLI + autonomous runtime (`agenthood run`) |
-| 8 — Memory & RAG | `src/memory/`, `src/rag/` | 5-tier memory, AgenticRAG, Tree-sitter, LanceDB |
-| 9 — Workflows | `src/workflows/` | Multi-member orchestration (AgentStep, ParallelStep, HumanInLoop) |
-| 10 — Evals | `src/evals/` | EvalRunner, 4 quality metrics, EpisodeLearner |
+| 8 — Memory & RAG | `src/memory/`, `src/rag/` | Memory tiers, KnowledgeGraphStore, RAG pipeline, Tree-sitter, LanceDB |
+| 9 — Workflows | _not yet implemented_ | Multi-member orchestration (AgentStep, ParallelStep, HumanInLoop) — 📋 Planned |
+| 10 — Evals | _not yet implemented_ | EvalRunner, quality metrics, EpisodeLearner — 📋 Planned |
 
 ### CLI source (`src/`)
 
@@ -61,11 +61,11 @@ Entry point is `src/cli.ts` — it parses args and dispatches to `src/commands/<
 - `activate.ts` / `deactivate.ts` — Copy or remove a member skill file into a project
 - `list.ts`, `oath.ts`, `eject.ts` — Utility commands
 
-There are no production dependencies. The CLI uses only Node.js built-ins (`fs`, `path`, `child_process`, `readline`, `node:util` `parseArgs`).
+The CLI's production dependencies include `@anthropic-ai/sdk`, `groq-sdk`, `openai` (LLM providers), `@lancedb/lancedb` (vector store), `ajv` (schema validation), and `tree-sitter` (code parsing). The CLI also uses Node.js built-ins (`fs`, `path`, `child_process`, `readline`, `parseArgs`).
 
 ### Members (`members/`)
 
-14 specialized agent skills, each a Markdown file (`members/<name>/SKILL.md`). They are **agent-agnostic** — designed to work with Claude Code, GitHub Copilot, Gemini CLI, OpenAI Codex, CodeBuddy, and others. Key members:
+14 specialized agent skills, each a Markdown file (`members/<name>/SKILL.md`). They are **agent-agnostic** — designed to work with Claude Code, GitHub Copilot, OpenAI Codex, CodeBuddy, and others. Key members:
 - **the-scribe** — N+1 commit pattern, PR "no and" test, changelog generation, Conventional Commits enforcement
 - **the-architect** — Interview mode to 95% confidence, spec-first development, task decomposition, stacked branch planning
 - **the-reviewer** — Five-axis review (Correctness, Readability, Architecture, Security, Performance), test-first review, change sizing
@@ -77,8 +77,8 @@ There are no production dependencies. The CLI uses only Node.js built-ins (`fs`,
 
 Agent coordination flows through an orchestrator rather than peer-to-peer:
 ```
-User Request → InputValidator → ConcurrencyQueue → Orchestrator →
-Member Execution → SafetyGuard → ProviderFailover → DiffReview → Response
+User Request → ConcurrencyQueue → Orchestrator →
+Member Execution → SafetyGuard → ProviderFailover → Response
 ```
 
 ### Conventions enforcement

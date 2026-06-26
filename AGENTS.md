@@ -1,7 +1,7 @@
 # AGENTS.md — The Member Registry
 
 This file is the agent-agnostic convention source for the Agenthood.
-All AI coding agents (Claude Code, Copilot, Gemini, Codex) should read this file
+All AI coding agents (Claude Code, Copilot, Codex) should read this file
 to understand the Society's standards before taking any action in a repository.
 
 ---
@@ -71,12 +71,12 @@ npm run build
 # or use Ollama for fully offline execution — no key required
 
 # List available members
-agenthood list
+npx agenthood list
 
 # Invoke any member against a task
-agenthood run the-scribe "write a commit message for the current diff"
-agenthood run the-reviewer "review the open PR"
-agenthood run the-architect "plan the implementation for issue #42"
+npx agenthood run the-scribe "write a commit message for the current diff"
+npx agenthood run the-reviewer "review the open PR"
+npx agenthood run the-architect "plan the implementation for issue #42"
 ```
 
 The runtime reads `.agenthood/config.json` (written by `npx agenthood init`) and respects

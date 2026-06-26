@@ -28,7 +28,7 @@ The orchestrator pattern solves both. Each agent receives only the context the o
 
 ## How Agenthood implements it
 
-The orchestrator (planned — `src/orchestrator/` does not exist yet) will live in `WorkflowEngine` and is documented in ADR-005. Agents never invoke each other directly. The orchestrator routes, agents execute, results return:
+The orchestrator (planned — `src/orchestrator/` does not exist yet) will live in `WorkflowEngine` and is documented in ADR-005. MemberOrchestrator Phase 1 (member detection) is shipped at `src/reasoning/MemberOrchestrator.ts`. Agents never invoke each other directly. The orchestrator routes, agents execute, results return:
 
 ```typescript
 import { WorkflowEngine, AgentStep, ParallelStep } from 'agenthood';

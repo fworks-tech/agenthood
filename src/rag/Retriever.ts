@@ -26,6 +26,9 @@ export class Retriever {
   private vectorStore: IVectorStore
   private knowledgeGraphStore?: IGraphStore
   private parentStorePath: string | null
+  private parentCache: Record<string, ParentChunk> | null = null
+  private parentCacheTime = 0
+  private readonly parentCacheTTL = 30_000
 
   constructor(
     embedder: ILLMProvider,
@@ -65,7 +68,7 @@ export class Retriever {
             score: result.score,
             source: meta.source as string ?? record.id,
             chunkIndex: 0,
-            metadata: { ...meta, resolvedFromChild: record.id, isParent: true },
+            metadata: { ...meta, resolvedFromChild: record.id, isParent: true, scoreIsFromChild: true },
             graphContext: undefined,
           })
           continue
@@ -107,11 +110,18 @@ export class Retriever {
   private loadParents(): Record<string, ParentChunk> | null {
     if (!this.parentStorePath) return null
 
+    const now = Date.now()
+    if (this.parentCache && (now - this.parentCacheTime) < this.parentCacheTTL) {
+      return this.parentCache
+    }
+
     const manifestPath = join(this.parentStorePath, 'parents.json')
     if (!existsSync(manifestPath)) return null
 
     try {
-      return JSON.parse(readFileSync(manifestPath, 'utf8'))
+      this.parentCache = JSON.parse(readFileSync(manifestPath, 'utf8'))
+      this.parentCacheTime = now
+      return this.parentCache
     } catch {
       return null
     }

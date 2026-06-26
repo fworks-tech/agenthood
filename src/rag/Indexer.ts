@@ -1,10 +1,10 @@
-import { readFileSync, existsSync, mkdirSync, writeFileSync } from "node:fs"
-import { readdirSync, statSync } from "node:fs"
-import { extname, join, relative, dirname } from "node:path"
+import { readFileSync, existsSync, mkdirSync, writeFileSync, renameSync } from "node:fs"
+import { readdirSync } from "node:fs"
+import { extname, join } from "node:path"
 import type { ILLMProvider } from "../llm/ILLMProvider.ts"
 import type { IVectorStore, VectorRecord } from "../memory/VectorStore.ts"
 import type { ChunkStrategy, HierarchicalChunkStrategy, ParentChunk } from "./ChunkStrategy.ts"
-import { FixedSizeChunkStrategy, MarkdownHierarchicalChunkStrategy } from "./ChunkStrategy.ts"
+import { FixedSizeChunkStrategy } from "./ChunkStrategy.ts"
 import { TreeSitterParser, languageFromFile } from "./parsers/TreeSitterParser.ts"
 import type { CodeEntity } from "./parsers/TreeSitterParser.ts"
 
@@ -97,7 +97,6 @@ export class Indexer {
     const { parents, children } = this.hierarchicalStrategy!.chunk(
       content,
       { filePath, startLine: 0, endLine: content.split('\n').length },
-      { chunkSize: this.chunkStrategy ? undefined : 512, overlap: this.hierarchicalStrategy ? 64 : undefined },
     )
 
     if (children.length === 0 && parents.length === 0) return
@@ -137,6 +136,7 @@ export class Indexer {
     }
 
     const manifestPath = join(storeDir, 'parents.json')
+    const tempPath = join(storeDir, 'parents.json.tmp')
     let manifest: Record<string, ParentChunk> = {}
 
     if (existsSync(manifestPath)) {
@@ -151,7 +151,8 @@ export class Indexer {
       manifest[parent.id] = parent
     }
 
-    writeFileSync(manifestPath, JSON.stringify(manifest, null, 2), 'utf8')
+    writeFileSync(tempPath, JSON.stringify(manifest, null, 2), 'utf8')
+    renameSync(tempPath, manifestPath)
   }
 
   private async indexWithParser(filePath: string, content: string, lang: string): Promise<void> {

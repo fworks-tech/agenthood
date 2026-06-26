@@ -68,8 +68,10 @@ which superseded the earlier Python/DeepAgents runtime approach.
 | `ConcurrencyQueue` — priority + starvation | `src/core/ConcurrencyQueue.ts` | ✅ v2.0.0 |
 | `SafetyGuard` — caps, loop detection, blocklist | `src/core/SafetyGuard.ts` | ✅ v2.0.0 |
 | Orchestrator (publish/subscribe event bus) | `src/orchestrator/` | 📋 Planned — Phase 3 |
+| MemberOrchestrator Phase 1 — detection | `src/reasoning/MemberOrchestrator.ts` | ✅ v2.6.0 |
 | Memory tiers (IMemoryStore, ResidualMemory, InMemoryStore, VectorStore, ShortTerm, LongTerm, Episodic, Project, PersonalisationStore) | `src/memory/` | ✅ Shipped |
-| RAG — Knowledge Graph Store, ChunkStrategy, Indexer, Retriever, TreeSitterParser | `src/rag/` | ✅ Shipped |
+| RAG — KnowledgeGraphStore, FixedSizeChunkStrategy + MarkdownHierarchicalChunkStrategy, Indexer, Retriever, AgenticRAG, TreeSitterParser | `src/rag/` | ✅ Shipped |
 | Society index (members, ADRs, conventions) | `src/project/SocietyIndexer.ts` | ✅ Shipped |
+| Governance docs (RACI + release policy) | `governance/` | ✅ v2.6.0 |
 
 The TS CLI is the single supported runtime for `agenthood run`.

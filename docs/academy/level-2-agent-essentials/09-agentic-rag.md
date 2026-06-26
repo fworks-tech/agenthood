@@ -28,10 +28,10 @@ Agentic RAG solves both. The agent skips retrieval when the answer is in context
 
 ## How Agenthood implements it
 
-The foundation is `KnowledgeGraphStore` in `src/rag/`. The higher-level `AgenticRAG` and `RetrievalDecisionSkill` are planned for subsequent milestones:
+The foundation is `KnowledgeGraphStore` in `src/rag/`. The `AgenticRAG` class and `RetrievalClassifier` are implemented at `src/rag/AgenticRAG.ts` and `src/skills/rag/RetrievalClassifier.ts` (shipped in v2.6.0).
 
 ```typescript
-import { AgenticRAG, RetrievalDecisionSkill } from 'agenthood';
+import { AgenticRAG, RetrievalClassifier } from 'agenthood';
 
 const agenticRag = new AgenticRAG({
   sources: {
@@ -39,7 +39,7 @@ const agenticRag = new AgenticRAG({
     graph:    codeGraphStore,      // structural relationships
     directly: fileSystemReader,    // fresh file reads
   },
-  decision: new RetrievalDecisionSkill(),
+  decision: new RetrievalClassifier(),
 });
 
 // The agent decides — it does not reflexively retrieve
@@ -49,7 +49,7 @@ const answer = await agenticRag.query('How does BaseAgent relate to ReActLoop?')
 // answer: "BaseAgent.run() delegates to ReActLoop.execute() — see src/agents/base/BaseAgent.ts:12"
 ```
 
-The `RetrievalDecisionSkill` is what makes it agentic. It inspects the query, the current context, and the available sources, and emits a routing decision: `retrieve:vector`, `retrieve:graph`, `retrieve:direct`, or `skip`. The `AgenticRAG` orchestrator executes the decision and attaches provenance to the result.
+The `RetrievalClassifier` is what makes it agentic. It inspects the query, the current context, and the available sources, and emits a routing decision: `retrieve:vector`, `retrieve:graph`, `retrieve:direct`, or `skip`. The `AgenticRAG` orchestrator executes the decision and attaches provenance to the result.
 
 ---
 

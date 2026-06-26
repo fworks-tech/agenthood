@@ -99,6 +99,15 @@ const strategy = new FixedSizeChunkStrategy()
 const chunks = strategy.chunk(documentText, { chunkSize: 512, overlap: 64 })
 ```
 
+The `MarkdownHierarchicalChunkStrategy` implements parent-child chunking for Markdown documents. It splits by `##` section headers into parent chunks, then sub-splits each parent into fixed-size child chunks for embedding. On retrieval, child vector matches resolve to parent content for full context.
+
+```typescript
+import { MarkdownHierarchicalChunkStrategy } from 'src/rag/ChunkStrategy.ts'
+
+const strategy = new MarkdownHierarchicalChunkStrategy()
+const { parents, children } = strategy.chunk(documentText, { filePath: 'doc.md', startLine: 1, endLine: 100 })
+```
+
 ### Indexer
 
 `Indexer` chunks documents, embeds them via `ILLMProvider.embed()`, and stores the vectors in an `IVectorStore`. It supports both single-file and recursive directory indexing.
@@ -130,6 +139,32 @@ const results = await retriever.retrieve('how do I configure failover?', {
 ```
 
 Results can be filtered by `minScore` (relevance threshold) and `metadataFilter` (field-level filtering). When a `KnowledgeGraphStore` is provided, results are enriched with the node's label, type, and neighbor relationships.
+
+### Agentic RAG
+
+`AgenticRAG` wraps the `Retriever` with a `RetrievalClassifier` that decides per-query whether to skip (answer from short-term memory), search vectors (semantic), traverse the knowledge graph (structural), or both. Each result includes provenance: which strategy was used, how many vector matches, graph hops, and source paths.
+
+```typescript
+import { AgenticRAG } from 'src/rag/AgenticRAG.ts'
+
+const agenticRag = new AgenticRAG({ embedder, vectorStore, knowledgeGraphStore })
+const results = await agenticRag.retrieve('how does failover work?', executionContext)
+// Each result: { content, strategy, vectorMatches, graphHops, sourcePaths }
+```
+
+### Member Detection
+
+`MemberOrchestrator` (Phase 1) detects which member(s) should handle a task based on keyword matching, changed file patterns, and task stage. It lives at `src/reasoning/MemberOrchestrator.ts` and supports all 14 members.
+
+```typescript
+import { MemberOrchestrator } from 'src/reasoning/MemberOrchestrator.ts'
+
+const orchestrator = new MemberOrchestrator()
+const detected = orchestrator.detectMembers({
+  userMessage: 'review this PR and check for security issues',
+})
+// [{ member: 'the-reviewer', score: 4 }, { member: 'the-auditor', score: 2 }]
+```
 
 ## CLI Provider Override
 

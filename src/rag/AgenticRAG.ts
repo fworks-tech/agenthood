@@ -5,8 +5,8 @@ import type { IGraphStore } from "./KnowledgeGraphStore.ts"
 import type { ILLMProvider } from "../llm/ILLMProvider.ts"
 import type { IVectorStore } from "../memory/VectorStore.ts"
 import type { ExecutionContext } from "../core/ExecutionContext.js"
-import { RetrievalDecisionSkill } from "../skills/rag/RetrievalDecisionSkill.js"
-import type { RetrievalStrategy } from "../skills/rag/RetrievalDecisionSkill.js"
+import { RetrievalClassifier } from "../skills/rag/RetrievalClassifier.js"
+import type { RetrievalStrategy } from "../skills/rag/RetrievalClassifier.js"
 
 export interface AgenticRetrievalResult extends RetrievalResult {
   strategy: RetrievalStrategy
@@ -20,13 +20,13 @@ export interface AgenticRAGOptions {
   vectorStore: IVectorStore
   knowledgeGraphStore?: IGraphStore
   parentStorePath?: string
-  decisionSkill?: RetrievalDecisionSkill
+  decisionSkill?: RetrievalClassifier
 }
 
 export class AgenticRAG {
   private retriever: Retriever
   private knowledgeGraphStore?: IGraphStore
-  private decisionSkill: RetrievalDecisionSkill
+  private decisionSkill: RetrievalClassifier
   private embedder: ILLMProvider
 
   constructor(options: AgenticRAGOptions) {
@@ -37,7 +37,7 @@ export class AgenticRAG {
       options.parentStorePath,
     )
     this.knowledgeGraphStore = options.knowledgeGraphStore
-    this.decisionSkill = options.decisionSkill ?? new RetrievalDecisionSkill()
+    this.decisionSkill = options.decisionSkill ?? new RetrievalClassifier()
     this.embedder = options.embedder
   }
 
@@ -62,6 +62,28 @@ export class AgenticRAG {
       }]
     }
 
+    if (strategy === 'graph') {
+      if (this.knowledgeGraphStore) {
+        const graphResults = await this.executeGraphStrategy(query)
+        results.push(...graphResults)
+      } else {
+        const vectorFallback = await this.retriever.retrieve(query, {
+          ...retrievalOptions,
+          resolveParents: true,
+        })
+        for (const r of vectorFallback) {
+          results.push({
+            ...r,
+            strategy: 'graph' as RetrievalStrategy,
+            vectorMatches: vectorFallback.length,
+            graphHops: 0,
+            sourcePaths: [r.source],
+          })
+        }
+      }
+      return results
+    }
+
     if (strategy === 'vector' || strategy === 'both') {
       const vectorResults = await this.retriever.retrieve(query, {
         ...retrievalOptions,
@@ -78,46 +100,53 @@ export class AgenticRAG {
       }
     }
 
-    if ((strategy === 'graph' || strategy === 'both') && this.knowledgeGraphStore) {
-      const graphHops = 2
-      const graphNodeIds = await this.resolveGraphNodes(query)
-      const sourcePaths: string[] = []
-
-      for (const nodeId of graphNodeIds) {
-        try {
-          const neighbors = this.knowledgeGraphStore.neighbors(nodeId)
-          for (const neighbor of neighbors) {
-            sourcePaths.push(`${nodeId} -> ${neighbor.node.id}`)
-          }
-        } catch {
-          // node not found — skip
+    if (strategy === 'both' && this.knowledgeGraphStore) {
+      const graphResults = await this.executeGraphStrategy(query)
+      if (results.length > 0) {
+        const existing = results[0]
+        existing.graphHops = graphResults.length > 0 ? graphResults[0].graphHops : 0
+        existing.sourcePaths = [...existing.sourcePaths, ...graphResults.flatMap((g) => g.sourcePaths)]
+        if (graphResults.length > 0) {
+          existing.content = [existing.content, ...graphResults.map((g) => `Graph neighbors: ${g.sourcePaths.join('; ')}`)].filter(Boolean).join(' | ')
         }
-      }
-
-      if (graphNodeIds.length > 0) {
-        const existingFirst = results[0]
-        if (existingFirst && existingFirst.strategy === 'both') {
-          existingFirst.graphHops = graphHops
-          existingFirst.sourcePaths = [...existingFirst.sourcePaths, ...sourcePaths]
-          existingFirst.content = [existingFirst.content, `Graph neighbors: ${sourcePaths.join('; ')}`]
-            .filter(Boolean)
-            .join(' | ')
-        } else {
-          results.push({
-            content: `Graph traversal from: ${graphNodeIds.join(', ')}. Neighbors: ${sourcePaths.join('; ')}`,
-            score: 0.5,
-            source: 'knowledge-graph',
-            chunkIndex: 0,
-            strategy: 'graph',
-            vectorMatches: 0,
-            graphHops,
-            sourcePaths,
-          })
-        }
+      } else {
+        results.push(...graphResults)
       }
     }
 
     return results
+  }
+
+  private async executeGraphStrategy(query: string): Promise<AgenticRetrievalResult[]> {
+    if (!this.knowledgeGraphStore) return []
+
+    const graphHops = 2
+    const graphNodeIds = await this.resolveGraphNodes(query)
+    const sourcePaths: string[] = []
+
+    for (const nodeId of graphNodeIds) {
+      try {
+        const neighbors = this.knowledgeGraphStore.neighbors(nodeId)
+        for (const neighbor of neighbors) {
+          sourcePaths.push(`${nodeId} -> ${neighbor.node.id}`)
+        }
+      } catch {
+        // node not found — skip
+      }
+    }
+
+    if (sourcePaths.length === 0) return []
+
+    return [{
+      content: `Graph traversal from: ${graphNodeIds.join(', ')}. Neighbors: ${sourcePaths.join('; ')}`,
+      score: 0.5,
+      source: 'knowledge-graph',
+      chunkIndex: 0,
+      strategy: 'graph',
+      vectorMatches: 0,
+      graphHops,
+      sourcePaths,
+    }]
   }
 
   private async decideStrategy(query: string, context: ExecutionContext): Promise<RetrievalStrategy> {

@@ -1,7 +1,7 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest'
 import { AgenticRAG } from '../../../src/rag/AgenticRAG.js'
 import type { AgenticRetrievalResult, AgenticRAGOptions } from '../../../src/rag/AgenticRAG.js'
-import { RetrievalDecisionSkill } from '../../../src/skills/rag/RetrievalDecisionSkill.js'
+import { RetrievalClassifier } from '../../../src/skills/rag/RetrievalClassifier.js'
 import type { ExecutionContext } from '../../../src/core/ExecutionContext.js'
 
 function mockEmbedder() {
@@ -86,7 +86,7 @@ describe('AgenticRAG', () => {
   })
 
   it('returns skip result when STM has answer', async () => {
-    ctx.memory.shortTerm.getRecent = vi.fn().mockReturnValue(['BaseAgent explanation'])
+    ctx.memory.shortTerm.getRecent = vi.fn().mockReturnValue(['BaseAgent explanation about what agents do'])
     const rag = new AgenticRAG({ embedder, vectorStore })
     const results = await rag.retrieve('what is BaseAgent', ctx)
 

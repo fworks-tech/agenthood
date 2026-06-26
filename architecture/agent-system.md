@@ -136,10 +136,7 @@ The Society remembers across sessions:
 - **User scope** — preferences, feedback, workflow patterns
 - **Session scope** — current task state, in-progress work
 
-Memory is stored in `.agenthood/memory.json` and loaded at session start.
-Members read from memory before acting and write to it after significant decisions.
-
-Memory is backed by a tiered store with three namespaces — `project`, `session`, `user` — and synced to `.agenthood/memory.json` so it remains human-readable outside the runtime.
+Memory is backed by a tiered store: LanceDB for vector storage (`.agenthood/memory/`), ResidualMemory (`.agenthood/residual.json`), KnowledgeGraphStore (`.agenthood/graph.json`), and ShortTermMemory (in-memory ring buffer). Multiple namespaces — `shortTerm`, `longTerm`, `episodic`, `project` — keep concerns separated.
 
 ---
 
@@ -161,8 +158,9 @@ this repo (`src/`), per [ADR-008](../docs/adr/ADR-008-typescript-runtime-over-py
 | Safety caps | `src/core/SafetyGuard.ts` | ✅ v2.0.0 |
 | Provider failover + circuit breaker | `src/llm/ProviderFailover.ts` | ✅ v2.0.0 |
 | Persistent memory (IMemoryStore, ResidualMemory, InMemoryStore, VectorStore, ShortTerm, LongTerm, Episodic, Project) | `src/memory/` | ✅ Shipped |
-| RAG pipeline (ChunkStrategy, Indexer, Retriever, TreeSitterParser, ProjectIngestion) | `src/rag/` | ✅ Shipped |
+| RAG pipeline (ChunkStrategy (FixedSize + MarkdownHierarchical), Indexer, Retriever, AgenticRAG, TreeSitterParser, ProjectIngestion) | `src/rag/` | ✅ Shipped |
 | Society index (members, ADRs, conventions → KGS + VectorStore) | `src/project/SocietyIndexer.ts` | ✅ Shipped |
+| MemberOrchestrator Phase 1 — detection | `src/reasoning/MemberOrchestrator.ts` | ✅ v2.6.0 |
 | Orchestrator (event bus, multi-step handoff) | `src/orchestrator/` | 📋 Planned — Phase 3 |
 | Member → Member direct handoff (today) | `SubagentTaskSkill` | ✅ Shipped (no bus) |
 

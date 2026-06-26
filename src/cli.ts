@@ -29,9 +29,12 @@ const COMMANDS: Record<string, (...args: string[]) => Promise<void>> = {
 };
 
 async function main(): Promise<void> {
-  const { positionals } = parseArgs({
+  const { positionals, values } = parseArgs({
     allowPositionals: true,
     args: process.argv.slice(2),
+    options: {
+      detect: { type: 'boolean', default: false },
+    },
   });
 
   const [command, ...args] = positionals;
@@ -52,7 +55,8 @@ async function main(): Promise<void> {
   }
 
   if (command === 'run') {
-    await run(args);
+    const forwarded = values.detect ? [...args, '--detect'] : args
+    await run(forwarded);
     return;
   }
 
@@ -84,9 +88,9 @@ Commands:
   check                   Run the Doorman's health check
   activate <member>       Activate a specific member skill
   deactivate <member>     Deactivate a member skill
-  run <member> "<task>"   Run a Society member (the-scribe, the-reviewer, …)
-  pr-sync [--pr N] [--dry-run] [--no-reviewer]
-                          Sync PR body and post comment for new commits
+   run <member> "<task>"   Run a Society member (the-scribe, the-reviewer, …)
+                           Use --detect to auto-detect members for the task
+                           Sync PR body and post comment for new commits
   list                    List all 14 members, their status, permission & provider
   oath                    Print the Society's oath
   eject                   Remove the Society from your project

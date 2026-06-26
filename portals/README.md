@@ -30,7 +30,7 @@ The credential proxy handles authentication — members never see raw API keys.
 
 ---
 
-## Runtime Integration (Phase 5)
+## Runtime Integration (planned)
 
 With the TypeScript runtime, portal tools are available as injectable functions
 injected directly into member agents — no manual MCP server configuration

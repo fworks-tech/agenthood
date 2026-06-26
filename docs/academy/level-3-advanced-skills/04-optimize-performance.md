@@ -111,8 +111,8 @@ The agent stayed running. The user saw a result, not an error.
 
 ## Further reading
 
-- [`src/llm/LLMRouter.ts`](../../src/llm/LLMRouter.ts) — dynamic routing (v2.0.0)
-- [`src/llm/ProviderFailover.ts`](../../src/llm/ProviderFailover.ts) — provider failover chain (v2.0.0)
+- [`src/llm/LLMRouter.ts`](../../../src/llm/LLMRouter.ts) — dynamic routing (v2.0.0)
+- [`src/llm/ProviderFailover.ts`](../../../src/llm/ProviderFailover.ts) — provider failover chain (v2.0.0)
 - [Artificial Analysis](https://artificialanalysis.ai/) — live LLM pricing and performance benchmarks
 
 

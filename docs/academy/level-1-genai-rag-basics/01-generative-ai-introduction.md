@@ -28,8 +28,11 @@ The `ILLMProvider` interface is implemented at `src/llm/ILLMProvider.ts` (shippe
 
 ```typescript
 export interface ILLMProvider {
-  generate(prompt: string, options: LLMRequest): Promise<string>;
-  verify(response: string, contract: Contract): boolean;
+  complete(request: LLMRequest): Promise<LLMResponse>;
+  stream(request: LLMRequest): AsyncIterable<LLMResponse>;
+  embed(text: string): Promise<number[]>;
+  getContextWindow(): number;
+  setModel(model: string): void;
 }
 ```
 
@@ -39,7 +42,7 @@ The Society restricts the chaos of Generative AI behind these firm boundaries.
 
 ## Hands-on example
 
-While the formal `ILLMProvider` is under construction, you can invoke the Society's existing agents to see disciplined Generative AI in action:
+The `ILLMProvider` interface is shipped in v2.0.0. You can invoke the Society's existing agents to see disciplined Generative AI in action:
 
 ```bash
 # Ask The Scribe to write a commit message

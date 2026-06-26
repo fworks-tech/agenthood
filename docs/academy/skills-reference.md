@@ -134,9 +134,9 @@
 
 ## Special skills
 
-### The Manuscript — PR body sync
+### PR body sync
 
-Invoked via `pr_sync` skill or the `pr-sync` CLI command:
+PR body synchronization is handled by The Reviewer (replaced The Manuscript in v2.0.0):
 
 ```bash
 # Fast path (zero LLM, CI-friendly)
@@ -145,8 +145,6 @@ npx agenthood pr-sync --pr 42
 # Context-aware path (loads full Society context)
 npx agenthood run the-scribe "sync PR #42"
 ```
-
-Read more in the [Getting Started guide](getting-started.md#the-manuscript--pr-sync).
 
 ---
 

@@ -57,10 +57,10 @@ To see how the Society interacts with LLMs under the hood, you can inspect the c
 npx agenthood check
 ```
 
-Or in TypeScript (future milestone):
+Or in TypeScript (available since v2.0.0):
 
 ```typescript
-import { AnthropicProvider } from '@agenthood/llm';
+import { AnthropicProvider } from 'agenthood';
 
 const provider = new AnthropicProvider({ apiKey: process.env.ANTHROPIC_API_KEY });
 const response = await provider.complete({ prompt: 'Explain the Society.' });

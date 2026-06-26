@@ -21,7 +21,7 @@
 
 ### ✨ Features
 
-- **Memory:** implement PersonalisationStore for per-project agent adaptation, closes [hi#weight](https://github.com/hi/issues/weight) #112
+- **Memory:** implement PersonalisationStore for per-project agent adaptation, closes #112
 - **Memory:** implement ShortTerm, LongTerm, Episodic, and Project memory tiers
 - **Rag:** implement baseline RAG pipeline — ChunkStrategy, Indexer, Retriever
 - **Rag:** implement SocietyIndexer for members, ADRs, and conventions
@@ -122,7 +122,7 @@
 
 - add GroqProvider tests, schema validation, and runtime documentation
 - **Agent:** implement ArchitectAgent, ReviewerAgent, QAAgent runtime classes
-- **Commands:** add pr-sync command, PrSyncSkill, and The Manuscript workflow, closes [#based](https://github.com/fworks-tech/agenthood/issues/based)
+- **Commands:** add pr-sync command, PrSyncSkill, and The Manuscript workflow, closes #162
 - **Core:** add concurrency queue and safety guard
 - **Core:** add RiskManager, SkillRegistry discovery, dynamic routing, and README rewrite #162 #102 #102 #103 #162
 - **Core:** implement ContextCompressor with token-aware memory summarization

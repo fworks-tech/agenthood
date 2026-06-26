@@ -143,6 +143,23 @@ This bypasses the configured provider chain and uses the specified provider dire
 
 ## Logging
 
+### Personalisation Store
+
+`PersonalisationStore` stores per-project agent preferences: coding style, analysis depth, and primary domain. Preferences are either set explicitly (via `agenthood init` prompts or `agenthood config set`) or inferred from `ResidualMemory` high-weight signals.
+
+Preferences are injected into the system prompt by `PromptBuilder` after residual memory hints:
+
+```
+Personalisation:
+- style: concise (explicit)
+- depth: high (explicit)
+- domain: web (inferred)
+```
+
+Preferences persist to `.agenthood/preferences.json`.
+
+## Logging
+
 When failover activates, the runtime logs provider selection to stderr:
 
 ```

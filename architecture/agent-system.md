@@ -160,7 +160,9 @@ this repo (`src/`), per [ADR-008](../docs/adr/ADR-008-typescript-runtime-over-py
 | Concurrency queue | `src/core/ConcurrencyQueue.ts` | ✅ v2.0.0 |
 | Safety caps | `src/core/SafetyGuard.ts` | ✅ v2.0.0 |
 | Provider failover + circuit breaker | `src/llm/ProviderFailover.ts` | ✅ v2.0.0 |
-| Persistent memory (IMemoryStore, ResidualMemory, InMemoryStore, VectorStore) | `src/memory/` | ✅ Shipped |
+| Persistent memory (IMemoryStore, ResidualMemory, InMemoryStore, VectorStore, ShortTerm, LongTerm, Episodic, Project) | `src/memory/` | ✅ Shipped |
+| RAG pipeline (ChunkStrategy, Indexer, Retriever, TreeSitterParser, ProjectIngestion) | `src/rag/` | ✅ Shipped |
+| Society index (members, ADRs, conventions → KGS + VectorStore) | `src/project/SocietyIndexer.ts` | ✅ Shipped |
 | Orchestrator (event bus, multi-step handoff) | `src/orchestrator/` | 📋 Planned — Phase 3 |
 | Member → Member direct handoff (today) | `SubagentTaskSkill` | ✅ Shipped (no bus) |
 

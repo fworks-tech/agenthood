@@ -53,9 +53,9 @@ jobs:
           fi
 
           TASK=$(printf "review this git diff:\n%s\n" "$DIFF")
-          node dist/cli.js run the-reviewer "$TASK" 2>&1 | awk 'NR>1' > /tmp/review_body.txt
+          node dist/cli.js run the-reviewer "$TASK" --provider opencode-go 2>&1 | awk 'NR>1' > /tmp/review_body.txt
         env:
-          GROQ_API_KEY: ${{ secrets.GROQ_API_KEY }}
+          OPENCODE_API_KEY: ${{ secrets.OPENCODE_API_KEY }}
 
       - name: Post Review Comment
         run: |

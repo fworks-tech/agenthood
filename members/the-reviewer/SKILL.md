@@ -144,8 +144,11 @@ Every review comment must follow this structure for consistent rendering:
 |---------|----------|----------|
 | <finding> | [tag] | <category> |
 
-## Verification Checklist
-...
+Category refers to the axis name (Correctness, Readability, Architecture, Security, or Performance).
+
+## Self-Check
+
+Verify all items in the **Verification** section below are satisfied before publishing.
 ```
 
 Formatting rules:

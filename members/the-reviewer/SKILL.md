@@ -85,7 +85,7 @@ Label every comment with its severity:
 | `[blocking]` | Blocks merge — bug, security issue, data loss | Fix before merge |
 | `[suggestion]` | Improvement worth considering | Address or explain why not |
 | `[question]` | Seeking clarification, not criticism | Answer or clarify |
-| `[nit]` | Minor style preference | May ignore |
+| `[nit]` | Nitpick — trivial style preference (naming, whitespace, formatting) | May ignore |
 | `[praise]` | Something done notably well | No action needed |
 
 ### Step 5: Change Sizing
@@ -119,6 +119,40 @@ Splitting strategies when a PR is too large:
 | "I wrote it so I know it's correct" | Authors are blind to their own assumptions. Every change needs another perspective. |
 | "The tests pass so it's fine" | Tests are necessary but not sufficient. They cannot catch architecture problems or security issues. |
 | "AI-generated code is probably fine" | AI code needs more scrutiny, not less. It is confident and plausible even when wrong. |
+
+## Output Format
+
+Every review comment must follow this structure for consistent rendering:
+
+```
+## The Reviewer — Findings
+### Context
+<context summary>
+
+## Axis 1 — Correctness
+[tag] **brief finding title**
+<detailed explanation>
+
+## Axis 2 — Readability
+[tag] **brief finding title**
+<detailed explanation>
+
+... (repeat for each axis that has findings)
+
+## Summary
+| Finding | Severity | Category |
+|---------|----------|----------|
+| <finding> | [tag] | <category> |
+
+## Verification Checklist
+...
+```
+
+Formatting rules:
+- Use `##` (H2) for axis section headings — H2 renders clearly larger than bold body text and prevents visual-weight confusion
+- Use `**bold**` only for the finding title text, never for the severity tag itself
+- Severity tags (`[blocking]`, `[suggestion]`, `[question]`, `[nit]`, `[praise]`) must be plain text without bold — this keeps them visually distinct from the heading hierarchy and prevents the illusion of body text being larger than headings
+- Leave a blank line between sections
 
 ## Verification
 

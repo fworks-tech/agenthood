@@ -108,7 +108,7 @@ For a full walkthrough — install, commands, CI pipeline, and next steps — se
 | v2.3.0 | Provider failover with model downgrade, circuit breaker, ADRs 011–013 | ✅ Shipped |
 | v2.4.0 | [Intelligence](https://github.com/fworks-tech/agenthood/milestone/5) — Security, 5-tier memory, RAG foundation, LanceDB vector store | ✅ Shipped (Phase 0) |
 | v2.5.0 | RAG Pipeline + Consumers — ChunkStrategy, Indexer, Retriever, TreeSitterParser, SocietyIndexer, Memory Tiers, PersonalisationStore | ✅ Shipped (Phase 1) |
-| v2.6.0 | [M5 — Intelligence](https://github.com/fworks-tech/agenthood/milestone/7) — HierarchicalChunkStrategy, AgenticRAG (skip/vector/graph/both), MemberOrchestrator Phase 1, governance docs (RACI + release policy) | ✅ Shipped |
+| v3.0.0 | [M5 — Intelligence](https://github.com/fworks-tech/agenthood/milestone/7) — HierarchicalChunkStrategy, AgenticRAG (skip/vector/graph/both), MemberOrchestrator Phase 1, governance docs (RACI + release policy) | ✅ Shipped |
 
 ---
 

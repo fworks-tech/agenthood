@@ -168,6 +168,17 @@ After code changes, identify stale documentation:
    - Mark it as `> ⚠️ This section is outdated as of v[version]. See [link] for current behavior.`
 4. Report which docs were updated and which need human review
 
+### Postmortems
+
+Postmortems are structured incident reports consumed by The Librarian to feed back into test cases, standards, and checklists. The template lives at `docs/templates/postmortem.md`.
+
+When a postmortem is finalized:
+1. Record the decision in the Decision Log (`.agenthood/decisions/`)
+2. Extract test cases from the root cause and file them as issues for The Tester
+3. Extract standards gaps from the prevention section and file them for The Auditor
+4. Update relevant documentation (READMEs, runbooks, ADRs) to reflect lessons learned
+5. Link the postmortem from any documentation it updated
+
 ## Documentation Principles
 
 - **Write for strangers** — the reader has never seen this codebase

@@ -20,6 +20,7 @@ import { ShortTermMemoryImpl } from "../memory/ShortTermMemory.ts"
 import { LongTermMemoryImpl } from "../memory/LongTermMemory.ts"
 import { EpisodicMemoryImpl } from "../memory/EpisodicMemory.ts"
 import { ProjectMemoryImpl } from "../memory/ProjectMemory.ts"
+import { DecisionLog } from "../memory/DecisionLog.ts"
 import { LanceDBStore } from "../memory/VectorStore.ts"
 import { MemberOrchestrator } from "../reasoning/MemberOrchestrator.ts"
 import type { ExecutionContext } from "../core/ExecutionContext.ts"
@@ -138,6 +139,7 @@ async function createContext(projectPath: string, config: LLMConfig): Promise<Ex
       longTerm: new LongTermMemoryImpl(vectorStore),
       episodic: new EpisodicMemoryImpl(vectorStore, llm),
       project: new ProjectMemoryImpl(projectPath, societyGraph),
+      decisions: new DecisionLog({ decisionsDir: join(projectPath, '.agenthood', 'decisions') }),
     },
     llm,
     prompts: new PromptBuilder(new PromptRegistry()),
@@ -210,6 +212,17 @@ export async function run(args: string[]): Promise<void> {
     const llm = await LLMRouter.createForMember(memberProvider, config)
     const sReg = new SkillRegistry()
     const loop = new ReActLoop(llm, sReg)
+
+    const configPath = join(process.cwd(), '.agenthood', 'config.json')
+    try {
+      const raw = JSON.parse(await readFile(configPath, 'utf8'))
+      if (raw.skills?.autoDiscover === true) {
+        await sReg.discover(join(process.cwd(), 'src', 'skills'))
+      }
+    } catch {
+      // config not available — skip auto-discovery
+    }
+
     const agent = new MemberAgent(spec, llm, loop, sReg)
 
     try {

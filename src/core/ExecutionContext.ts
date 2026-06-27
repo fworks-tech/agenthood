@@ -8,6 +8,7 @@ import type {
   LongTermMemory,
   EpisodicMemory,
   ProjectMemory,
+  DecisionLog,
 } from './types.js'
 
 export interface ExecutionContext {
@@ -18,9 +19,11 @@ export interface ExecutionContext {
     longTerm: LongTermMemory
     episodic: EpisodicMemory
     project: ProjectMemory
+    decisions: DecisionLog
   }
   llm: ILLMProvider
   prompts: { build(templateName: string, variables: Record<string, unknown>): Message }
   tracer: Tracer
   artifacts: Artifact[]
+  oracle?: { ask(question: string): Promise<string> }
 }

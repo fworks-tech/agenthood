@@ -154,6 +154,7 @@ The assistant loads the member's SKILL.md as context. Ask the Reviewer to check 
 - [Level 2: AI Agent Essentials](level-2-agent-essentials/) — memory, planning, multi-agent
 - [Level 3: Advanced Agent Skills](level-3-advanced-skills/) — integration, performance, production
 - [Architecture Decision Records](../adr/) — why the Society is built the way it is
+- [Online docs](https://agenthood.flabs.tech/getting-started/) — hosted version of this guide
 
 ---
 

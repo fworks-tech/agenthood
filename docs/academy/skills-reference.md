@@ -148,4 +148,9 @@ npx agenthood run the-scribe "sync PR #42"
 
 ---
 
+- [Getting Started](getting-started.md) — install and first workflow
+- [Online docs](https://agenthood.flabs.tech/getting-started/) — hosted version of this guide
+
+---
+
 *Fourteen members. One Society. Every member knows their lane.*

@@ -164,7 +164,6 @@ Expected output:
   ✅ Member skills installed (14/14)
   ✅ git commit.template configured
   ✅ AGENTS.md present
-  ✅ LLM API key configured
   ✅ LanceDB vector store initialized
   ✅ Residual memory traces found
   ✅ Knowledge graph found
@@ -176,7 +175,7 @@ Expected output:
   ✅ RAG Retriever available
   ✅ Chunk strategy configured
 
-  24 passing · 0 failing
+  22 passing · 0 failing
 
   The Society is ready. You may proceed.
 ```

@@ -59,7 +59,7 @@ Or conceptually in TypeScript:
 // The local embedded nature of LanceDB makes this seamless
 const db = new LanceDBStore(1536);
 await db.connect('.agenthood/memory');
-await db.insert(chunks);
+await db.add(chunks);
 ```
 
 ---

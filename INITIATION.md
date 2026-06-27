@@ -44,6 +44,10 @@ Then it will:
 - Copy the selected member skills into the runtime's skill directory
 - Set `git config commit.template .gitmessage`
 - Scaffold `.agenthood/config.json` with your selections
+- Initialize LanceDB vector store (`.agenthood/memory/`)
+- Initialize residual memory traces (`.agenthood/residual.json`)
+- Index the Society (members, ADRs, conventions) into the knowledge graph
+- Prompt for personalisation preferences (coding style, analysis depth, domain)
 
 Running `init` a second time is safe — existing files are never overwritten.
 
@@ -157,11 +161,22 @@ Expected output:
   ✅ .github/ISSUE_TEMPLATE/bug_report.md present
   ✅ .github/ISSUE_TEMPLATE/feature_request.md present
   ✅ .github/workflows/commitlint.yml present
-   ✅ Member skills installed (14/14)
-   ✅ git commit.template configured
-   ✅ AGENTS.md present
+  ✅ Member skills installed (14/14)
+  ✅ git commit.template configured
+  ✅ AGENTS.md present
+  ✅ LLM API key configured
+  ✅ LanceDB vector store initialized
+  ✅ Residual memory traces found
+  ✅ Knowledge graph found
+  ✅ ShortTermMemory available
+  ✅ LongTermMemory available
+  ✅ EpisodicMemory available
+  ✅ ProjectMemory available
+  ✅ RAG Indexer available
+  ✅ RAG Retriever available
+  ✅ Chunk strategy configured
 
-   23 passing · 0 failing
+  24 passing · 0 failing
 
   The Society is ready. You may proceed.
 ```

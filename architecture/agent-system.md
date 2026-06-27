@@ -136,7 +136,7 @@ The Society remembers across sessions:
 - **User scope** — preferences, feedback, workflow patterns
 - **Session scope** — current task state, in-progress work
 
-Memory is backed by a tiered store: LanceDB for vector storage (`.agenthood/memory/`), ResidualMemory (`.agenthood/residual.json`), KnowledgeGraphStore (`.agenthood/graph.json`), and ShortTermMemory (in-memory ring buffer). Multiple namespaces — `shortTerm`, `longTerm`, `episodic`, `project` — keep concerns separated.
+Memory is backed by a tiered store: LanceDB for vector storage (`.agenthood/memory/`), ResidualMemory (`.agenthood/residual.json`), KnowledgeGraphStore (`.agenthood/society-graph.json`), and ShortTermMemory (in-memory ring buffer). Multiple namespaces — `shortTerm`, `longTerm`, `episodic`, `project` — keep concerns separated.
 
 ---
 

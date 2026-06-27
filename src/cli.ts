@@ -6,6 +6,7 @@
  * initiation, activation, and health check operations.
  */
 
+import 'dotenv/config'
 import { parseArgs } from 'node:util';
 import { ALL_MEMBERS } from './members.js';
 import { init } from './commands/init.js';

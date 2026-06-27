@@ -54,10 +54,18 @@ See `.agenthood/config.example.json` for the complete reference.
 
 The runtime validates LLM API keys at startup before making any provider calls. Only the configured provider's key is checked — if you set `provider` to `"ollama"`, no key validation is performed.
 
+The runtime automatically loads environment variables from a `.env` file in the project root (via `dotenv`).
+
 Key resolution order (per provider):
 1. `providers[].apiKey` — key in config array entry
 2. `apiKey` — top-level key in config
-3. `OPENCODE_API_KEY` / `OPENAI_API_KEY` / `ANTHROPIC_API_KEY` / `GROQ_API_KEY` — environment variables
+3. `process.env.<VAR>` — environment variables (including those loaded from `.env`)
+
+Supported environment variables:
+- `OPENCODE_API_KEY` — OpenCode / OpenCodeGo
+- `OPENAI_API_KEY` — OpenAI
+- `ANTHROPIC_API_KEY` — Anthropic
+- `GROQ_API_KEY` — Groq
 
 If no key is found and the provider requires one, startup fails with:
 ```

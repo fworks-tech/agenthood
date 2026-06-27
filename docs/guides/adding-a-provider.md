@@ -52,6 +52,7 @@ export class OpenCodeProvider implements ILLMProvider {
 
 - Accept `LLMConfig` as the sole constructor argument
 - Read credentials from `config.apiKey` first, then fall back to `process.env`
+- Use `undefined` instead of `''` as the final fallback for SDK clients that reject empty strings in the constructor (e.g., OpenAI SDK v6+)
 - Store `config.model` (with a sensible default)
 
 ### 4. Map SDK errors to Agenthood error classes

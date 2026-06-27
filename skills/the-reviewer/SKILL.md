@@ -126,15 +126,18 @@ Every review comment must follow this structure for consistent rendering:
 
 ```
 ## The Reviewer — Findings
-### Context
-<context summary>
+
+Context: <context summary>
 
 ## Axis 1 — Correctness
-[tag] **brief finding title**
+[tag] **finding title**
+<detailed explanation>
+
+[tag] **another finding in the same axis**
 <detailed explanation>
 
 ## Axis 2 — Readability
-[tag] **brief finding title**
+[tag] **finding title**
 <detailed explanation>
 
 ... (repeat for each axis that has findings)
@@ -147,15 +150,15 @@ Every review comment must follow this structure for consistent rendering:
 Category refers to the axis name (Correctness, Readability, Architecture, Security, or Performance).
 
 ## Self-Check
-
 Verify all items in the **Verification** section below are satisfied before publishing.
 ```
 
 Formatting rules:
-- Use `##` (H2) for axis section headings — H2 renders clearly larger than bold body text and prevents visual-weight confusion
+- Use `##` (H2) for headings — H2 renders clearly larger than bold body text and prevents visual-weight confusion
 - Use `**bold**` only for the finding title text, never for the severity tag itself
 - Severity tags (`[blocking]`, `[suggestion]`, `[question]`, `[nit]`, `[praise]`) must be plain text without bold — this keeps them visually distinct from the heading hierarchy and prevents the illusion of body text being larger than headings
 - Leave a blank line between sections
+- Within an axis section, separate multiple findings with a blank line
 
 ## Verification
 

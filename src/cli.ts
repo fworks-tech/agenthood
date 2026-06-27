@@ -19,6 +19,9 @@ import { eject } from './commands/eject.js';
 import { setup } from './commands/setup.js';
 import { run } from './commands/run.js';
 import { prSync } from './commands/prSync.js';
+import { verify } from './commands/verify.js';
+import { rollback } from './commands/rollback.js';
+import { status } from './commands/status.js';
 
 const COMMANDS: Record<string, (...args: string[]) => Promise<void>> = {
   init: async () => init(),
@@ -27,6 +30,9 @@ const COMMANDS: Record<string, (...args: string[]) => Promise<void>> = {
   oath: async () => oath(),
   eject: async () => eject(),
   setup: async () => setup(),
+  verify: async (...args) => verify(args),
+  rollback: async (...args) => rollback(args),
+  status: async () => status(),
 };
 
 async function main(): Promise<void> {
@@ -76,7 +82,7 @@ async function main(): Promise<void> {
     process.exit(1);
   }
 
-  await handler();
+  await handler(...args);
 }
 
 function printHelp(): void {

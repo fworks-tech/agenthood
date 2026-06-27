@@ -175,7 +175,7 @@ Expected output:
   ✅ RAG Retriever available
   ✅ Chunk strategy configured
 
-  22 passing · 0 failing
+  21 passing · 0 failing
 
   The Society is ready. You may proceed.
 ```

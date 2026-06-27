@@ -130,28 +130,28 @@ Every review comment must follow this structure for consistent rendering:
 Context: <context summary>
 
 ## Axis 1 — Correctness
-[tag] **finding title**
+[SEVERITY] **finding title**
 <detailed explanation>
 
-[tag] **another finding in the same axis**
+[SEVERITY] **another finding in the same axis**
 <detailed explanation>
 
 ## Axis 2 — Readability
-[tag] **finding title**
+[SEVERITY] **finding title**
 <detailed explanation>
-
-... (repeat for each axis that has findings)
 
 ## Summary
 | Finding | Severity | Category |
 |---------|----------|----------|
-| <finding> | [tag] | <category> |
+| <finding> | [SEVERITY] | <category> |
 
 Category refers to the axis name (Correctness, Readability, Architecture, Security, or Performance).
 
 ## Self-Check
 Verify all items in the **Verification** section below are satisfied before publishing.
 ```
+
+Axes without findings may be omitted.
 
 Formatting rules:
 - Use `##` (H2) for headings — H2 renders clearly larger than bold body text and prevents visual-weight confusion

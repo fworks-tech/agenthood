@@ -22,6 +22,7 @@ import { prSync } from './commands/prSync.js';
 import { verify } from './commands/verify.js';
 import { rollback } from './commands/rollback.js';
 import { status } from './commands/status.js';
+import { workflow } from './commands/workflow.js';
 
 const COMMANDS: Record<string, (...args: string[]) => Promise<void>> = {
   init: async () => init(),
@@ -33,6 +34,7 @@ const COMMANDS: Record<string, (...args: string[]) => Promise<void>> = {
   verify: async (...args) => verify(args),
   rollback: async (...args) => rollback(args),
   status: async () => status(),
+  workflow: async (...args) => workflow(args),
 };
 
 async function main(): Promise<void> {

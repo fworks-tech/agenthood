@@ -78,13 +78,14 @@ npx agenthood run the-reviewer "review the changes in the last commit"
 npx agenthood run the-architect "plan the implementation for issue #42"
 ```
 
-Set one of these in your environment:
+Set one of these in a `.env` file in your project root (loaded automatically by the runtime):
 
 | Variable | Provider | Free tier |
 |----------|----------|-----------|
 | `GROQ_API_KEY` | Groq (default) | [console.groq.com](https://console.groq.com) |
 | `ANTHROPIC_API_KEY` | Anthropic | — |
 | `OPENAI_API_KEY` | OpenAI | — |
+| `OPENCODE_API_KEY` | OpenCode / OpenCodeGo | [opencode.ai](https://opencode.ai) |
 
 Or use Ollama for fully offline execution (no key required).
 

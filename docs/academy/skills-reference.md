@@ -148,8 +148,10 @@ npx agenthood run the-scribe "sync PR #42"
 
 ---
 
+## Related
+
 - [Getting Started](getting-started.md) — install and first workflow
-- [Online docs](https://agenthood.flabs.tech/getting-started/) — hosted version of this guide
+- [Online docs](https://agenthood.flabs.tech/) — hosted documentation site
 
 ---
 

@@ -1,3 +1,23 @@
+# [3.1.0](https://github.com/fworks-tech/agenthood/compare/v3.0.0...v3.1.0) (2026-06-27)
+
+
+### Bug Fixes
+
+* **docs:** address Reviewer findings on init check count and LanceDBStore API example ([4c215ef](https://github.com/fworks-tech/agenthood/commit/4c215ef688cfff1f67c9bf8c9a331f19f0eec404)), closes [#286](https://github.com/fworks-tech/agenthood/issues/286)
+* **docs:** correct check count to 21 and fix insert->add API example ([deb2591](https://github.com/fworks-tech/agenthood/commit/deb25910ac6a15c3317d794750df59a6b43e1ffa)), closes [#286](https://github.com/fworks-tech/agenthood/issues/286)
+* **docs:** fix mentioned shipped version ([60a43e1](https://github.com/fworks-tech/agenthood/commit/60a43e14650628d23f61fefbb3910d1f9cf779bb))
+* **init,check:** align init ceremony with health check expectations ([cd0a6bc](https://github.com/fworks-tech/agenthood/commit/cd0a6bc5bf29254e2c1cecafcd0880f9580fec4c)), closes [#286](https://github.com/fworks-tech/agenthood/issues/286)
+* **skills:** add output format section to the-reviewer SKILL.md for consistent rendering ([86c7162](https://github.com/fworks-tech/agenthood/commit/86c71629f394cc334ad5becce99bff95d135cf2e)), closes [#286](https://github.com/fworks-tech/agenthood/issues/286)
+* sync skills/the-reviewer/SKILL.md with members/ changes ([473707d](https://github.com/fworks-tech/agenthood/commit/473707d01972ac51af1da2e7cab61ba4927ff825)), closes [#286](https://github.com/fworks-tech/agenthood/issues/286)
+* **the-reviewer:** address review findings on output format and README ([8aa91f9](https://github.com/fworks-tech/agenthood/commit/8aa91f950d4de39de8ded7760cf66346d43440dc)), closes [#286](https://github.com/fworks-tech/agenthood/issues/286)
+* **the-reviewer:** flatten heading hierarchy and add intra-section spacing example ([faa73fc](https://github.com/fworks-tech/agenthood/commit/faa73fc3ce08367d8010d8ac261e9a01bdd15c0f)), closes [#286](https://github.com/fworks-tech/agenthood/issues/286)
+* **the-reviewer:** use [SEVERITY] placeholder and move meta-instruction outside template ([e073edb](https://github.com/fworks-tech/agenthood/commit/e073edba897975a88ed2078d1ccb97980a05ec06)), closes [#286](https://github.com/fworks-tech/agenthood/issues/286)
+
+
+### Features
+
+* load .env file automatically via dotenv ([91fac79](https://github.com/fworks-tech/agenthood/commit/91fac793b37d271ad3c04b6c505a127a27bf3bde)), closes [#286](https://github.com/fworks-tech/agenthood/issues/286)
+
 # [3.0.0](https://github.com/fworks-tech/agenthood/compare/v2.5.1...v3.0.0) (2026-06-26)
 
 

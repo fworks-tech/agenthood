@@ -5,6 +5,26 @@
 
 ---
 
+## v3.1.0 — June 27, 2026
+
+### 🐛 Bug Fixes
+
+- **Docs:** address Reviewer findings on init check count and LanceDBStore API example
+- **Docs:** correct check count to 21 and fix insert->add API example
+- **Docs:** fix mentioned shipped version
+- **Init,check:** align init ceremony with health check expectations
+- **Skills:** add output format section to the-reviewer SKILL.md for consistent rendering
+- sync skills/the-reviewer/SKILL.md with members/ changes
+- **The-reviewer:** address review findings on output format and README
+- **The-reviewer:** flatten heading hierarchy and add intra-section spacing example
+- **The-reviewer:** use [SEVERITY] placeholder and move meta-instruction outside template
+
+### ✨ Features
+
+- load .env file automatically via dotenv
+
+---
+
 ## v3.0.0 — June 26, 2026
 
 ### 🐛 Bug Fixes

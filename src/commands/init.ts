@@ -19,6 +19,8 @@ import { ALL_MEMBERS } from '../members.js'
 import { SocietyIndexer } from '../project/SocietyIndexer.js'
 import { KnowledgeGraphStore } from '../rag/KnowledgeGraphStore.js'
 import { PersonalisationStore } from '../memory/PersonalisationStore.js'
+import { LanceDBStore } from '../memory/VectorStore.js'
+import { ResidualMemory } from '../memory/ResidualMemory.js'
 
 const __dirname = dirname(fileURLToPath(import.meta.url))
 const SOCIETY_ROOT = join(__dirname, '..', '..')
@@ -43,6 +45,8 @@ export async function init(): Promise<void> {
     ['Member skills', () => installSkills(cwd, runtime, members)],
     ['Git commit template', () => configureGitTemplate(cwd)],
     ['Agenthood config', () => scaffoldConfig(cwd, runtime, members)],
+    ['Vector store', () => initVectorStore(cwd)],
+    ['Residual memory', () => initResidualMemory(cwd)],
     ['Society index', () => indexSociety(cwd)],
     ['Personalisation', () => setupPersonalisation(cwd)],
   ]
@@ -253,6 +257,23 @@ async function promptPreference(key: string, label: string, options: string[]): 
   }
   console.log()
   return null
+}
+
+async function initVectorStore(cwd: string): Promise<void> {
+  const memoryPath = join(cwd, '.agenthood', 'memory')
+  try {
+    const store = new LanceDBStore(1536)
+    await store.connect(memoryPath)
+  } catch {
+    await mkdir(memoryPath, { recursive: true })
+  }
+}
+
+async function initResidualMemory(cwd: string): Promise<void> {
+  const residualPath = join(cwd, '.agenthood', 'residual.json')
+  if (existsSync(residualPath)) return
+  const rm = new ResidualMemory()
+  rm.save(residualPath)
 }
 
 async function indexSociety(cwd: string): Promise<void> {

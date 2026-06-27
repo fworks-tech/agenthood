@@ -101,9 +101,9 @@ export async function check(): Promise<void> {
   }
 
   // Memory stores
-  file('LanceDB vector store initialized', '.agenthood/memory/vectors');
+  file('LanceDB vector store initialized', '.agenthood/memory');
   file('Residual memory traces found', '.agenthood/residual.json');
-  file('Knowledge graph found', '.agenthood/graph.json');
+  file('Knowledge graph found', '.agenthood/society-graph.json');
 
   // Memory tiers
   file('ShortTermMemory available', 'src/memory/ShortTermMemory.ts');
@@ -115,9 +115,6 @@ export async function check(): Promise<void> {
   file('RAG Indexer available', 'src/rag/Indexer.ts');
   file('RAG Retriever available', 'src/rag/Retriever.ts');
   file('Chunk strategy configured', 'src/rag/ChunkStrategy.ts');
-
-  // Society index
-  file('Society index (members, ADRs, conventions)', '.agenthood/society-graph.json');
 
   // Report
   const passing = results.filter((r) => r.pass).length;

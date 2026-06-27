@@ -101,10 +101,24 @@ export const MEMBER_TRIGGERS: MemberTrigger[] = [
     stages: ['review', 'audit'],
   },
   {
+    name: 'the-strategist',
+    keywords: ['ambiguous', 'unclear', 'goal', 'strategy', 'requirements', 'scope', 'prioritize', 'refine', 'discover', 'problem statement'],
+    filePatterns: [],
+    contexts: ['feature_start', 'unclear_requirements', 'ambiguous_goal'],
+    stages: ['spec'],
+  },
+  {
     name: 'the-steward',
     keywords: ['context', 'token', 'session', 'routing', 'cache', 'triage', 'capacity'],
     filePatterns: [],
     contexts: ['session_start', 'context_heavy', 'session_end', 'task_switching'],
     stages: [],
+  },
+  {
+    name: 'the-operator',
+    keywords: ['rollback', 'deploy', 'incident', 'runtime health', 'monitor', 'drift', 'lockfile', 'verify', 'unhealthy'],
+    filePatterns: ['members/**/*.md', 'agenthood.lock'],
+    contexts: ['deploy_failure', 'health_check', 'drift_detected', 'post_rollback'],
+    stages: ['deploy'],
   },
 ]

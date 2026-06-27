@@ -4,8 +4,8 @@ import { MemberRegistry, MemberNotFoundError } from '../../../src/members/Member
 describe('MemberRegistry', () => {
   const registry = new MemberRegistry()
 
-  it('has exactly 14 members', () => {
-    expect(registry.list()).toHaveLength(14)
+  it('has exactly 16 members', () => {
+    expect(registry.list()).toHaveLength(16)
   })
 
   it('returns correct spec for each known member', () => {
@@ -13,7 +13,7 @@ describe('MemberRegistry', () => {
       'the-scribe', 'the-architect', 'the-reviewer', 'the-tester',
       'the-debugger', 'the-auditor', 'the-herald', 'the-librarian',
       'the-doorman', 'the-oracle', 'the-envoy', 'the-sentinel',
-      'the-warden', 'the-steward',
+      'the-warden', 'the-steward', 'the-strategist', 'the-operator',
     ]
     for (const name of names) {
       const spec = registry.get(name)
@@ -49,8 +49,8 @@ describe('MemberRegistry', () => {
     expect(knowledge.length).toBeGreaterThanOrEqual(1)
     expect(lifecycle.length).toBeGreaterThanOrEqual(1)
 
-    // Total should still be 14
-    expect(engineering.length + validation.length + knowledge.length + lifecycle.length).toBe(14)
+    // Total should still be 16
+    expect(engineering.length + validation.length + knowledge.length + lifecycle.length).toBe(16)
   })
 
   it('permission profiles match architecture docs', () => {

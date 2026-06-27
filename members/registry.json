@@ -2,6 +2,14 @@
   "version": 1,
   "members": [
     {
+      "name": "the-strategist",
+      "displayName": "The Strategist",
+      "tagline": "The right solution starts with the right problem.",
+      "role": "goal refinement, requirement discovery, ambiguity resolution",
+      "stage": ["spec"],
+      "priority": 0
+    },
+    {
       "name": "the-scribe",
       "displayName": "The Scribe",
       "tagline": "Turns your diff into prose worth reading",
@@ -112,6 +120,14 @@
       "role": "context economy, member routing, provider cache strategy, session triage",
       "stage": ["deploy"],
       "priority": 14
+    },
+    {
+      "name": "the-operator",
+      "displayName": "The Operator",
+      "tagline": "Health is not a goal; it is a practice.",
+      "role": "runtime health, deployment, incidents, rollback, monitoring",
+      "stage": ["deploy"],
+      "priority": 15
     }
   ]
 }

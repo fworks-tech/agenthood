@@ -139,12 +139,28 @@ const rawSpecs: RawSpec[] = [
     preferredProvider: 'anthropic',
   },
   {
+    name: 'the-strategist',
+    description: 'Translates ambiguous goals into structured problem statements, success criteria, and ranked priorities',
+    tagline: 'Goal refinement and requirement discovery',
+    category: 'engineering',
+    permissionProfile: 'restricted',
+    preferredProvider: 'anthropic',
+  },
+  {
     name: 'the-steward',
     description: 'Monitors context window capacity, routes tasks to the minimal required member set',
     tagline: 'Context and routing',
     category: 'lifecycle',
     permissionProfile: 'restricted',
     preferredProvider: 'groq',
+  },
+  {
+    name: 'the-operator',
+    description: 'Manages runtime health, deployment, incidents, rollback, and monitoring',
+    tagline: 'Deployment, incidents, rollback',
+    category: 'lifecycle',
+    permissionProfile: 'restricted',
+    preferredProvider: 'anthropic',
   },
 ]
 

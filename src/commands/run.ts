@@ -12,6 +12,7 @@ import { DeveloperAgent } from "../agents/DeveloperAgent.ts"
 import { ArchitectAgent } from "../agents/ArchitectAgent.ts"
 import { ReviewerAgent } from "../agents/ReviewerAgent.ts"
 import { QAAgent } from "../agents/QAAgent.ts"
+import { OracleAgent } from "../agents/OracleAgent.ts"
 import { MemberRegistry, MemberAgent } from "../members/index.ts"
 import { validateApiKeys, MissingApiKeyError } from "../llm/validateApiKeys.ts"
 import { SocietyIndexer } from "../project/SocietyIndexer.ts"
@@ -128,7 +129,11 @@ async function createContext(projectPath: string, config: LLMConfig): Promise<Ex
     // vector store unavailable — memory tiers will operate without persistence
   }
 
-  return {
+  const oracleLlm = await LLMRouter.create(config)
+  const oracleReg = new SkillRegistry()
+  const oracleAgent = new OracleAgent(oracleLlm, new ReActLoop(oracleLlm, oracleReg), oracleReg, societyGraph)
+
+  const ctx = {
     executionId: randomUUID(),
     project: {
       localPath: projectPath,
@@ -145,7 +150,9 @@ async function createContext(projectPath: string, config: LLMConfig): Promise<Ex
     prompts: new PromptBuilder(new PromptRegistry()),
     tracer: { startSpan: () => {}, endSpan: () => {} },
     artifacts: [],
+    oracle: { ask: (q: string) => oracleAgent.ask(q, ctx) },
   }
+  return ctx
 }
 
 export async function run(args: string[]): Promise<void> {

@@ -82,7 +82,7 @@ Pre-configured paths used by the runtime for memory persistence:
 |------|-------|---------|
 | `.agenthood/memory/` | LanceDB vector store (embedded) | Vector embeddings, semantic search, metadata filtering |
 | `.agenthood/residual.json` | ResidualMemory | Decay-weighted trace signals from past agent runs |
-| `.agenthood/graph.json` | KnowledgeGraphStore | Bidirectional structural relationships between entities |
+| `.agenthood/society-graph.json` | KnowledgeGraphStore | Bidirectional structural relationships between entities |
 
 The `IMemoryStore` interface at `src/memory/IMemoryStore.ts` unifies all memory tiers with common operations (`set`, `get`, `delete`, `has`, `prune`, `stats`). The `InMemoryStore` provides a synchronous TTL/LRU store for in-process caching. `LanceDBStore` (in `src/memory/VectorStore.ts`) implements both `IVectorStore` (vector search) and `IMemoryStore<VectorRecord>` (key-value access by id).
 
@@ -92,7 +92,7 @@ The `IMemoryStore` interface at `src/memory/IMemoryStore.ts` unifies all memory 
 
 ### Knowledge Graph
 
-`KnowledgeGraphStore` stores named nodes and bidirectional relations. Use it for structural queries: "what connects these two components?" Path finding uses BFS and returns the shortest path. The graph persists to `.agenthood/graph.json`.
+`KnowledgeGraphStore` stores named nodes and bidirectional relations. Use it for structural queries: "what connects these two components?" Path finding uses BFS and returns the shortest path. The graph persists to `.agenthood/society-graph.json`.
 
 ## RAG Pipeline
 

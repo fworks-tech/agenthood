@@ -55,7 +55,7 @@ Agenthood is a **multi-agent AI framework** distributed as an npm package + VS C
 ### CLI source (`src/`)
 
 Entry point is `src/cli.ts` — it parses args and dispatches to `src/commands/<command>.ts`. Commands are:
-- `init.ts` — Interactive ceremony: prompts, copies conventions + hooks + skills, writes `.agenthood/config.json`
+- `init.ts` — Interactive ceremony: prompts, copies conventions + hooks + skills, initializes vector store and residual memory, writes `.agenthood/config.json`
 - `setup.ts` — Self-setup for this repo (sets git hooks path, chmod, installs commit template)
 - `check.ts` — Health check validating all installed components
 - `activate.ts` / `deactivate.ts` — Copy or remove a member skill file into a project

@@ -30,7 +30,7 @@ This integration is managed via the `IVectorStore` interface in `src/memory/Vect
 import { LanceDBStore } from 'agenthood';
 
 const store = new LanceDBStore(1536);
-await store.connect('.agenthood/memory/vectors');
+await store.connect('.agenthood/memory');
 await store.add([
   { id: 'doc-1', vector: embedding, content: 'document text', metadata: { source: 'docs' }, createdAt: new Date() },
 ]);
@@ -49,15 +49,15 @@ You interact with the local vector store transparently through the runtime:
 # Initialize local vector storage
 # No dedicated CLI subcommand — LanceDB initializes on first use
 
-# The database lives in .agenthood/vectors/
-ls -la .agenthood/
+# The database lives in .agenthood/memory/
+ls -la .agenthood/memory/
 ```
 
 Or conceptually in TypeScript:
 
 ```typescript
 // The local embedded nature of LanceDB makes this seamless
-const db = new LanceDBStore('.agenthood/vectors');
+const db = new LanceDBStore('.agenthood/memory');
 await db.insert(chunks);
 ```
 

@@ -120,11 +120,14 @@ The Society reads from `.agenthood/config.json`, scaffolded by `init`:
 
 **Key environment variables:**
 
+The runtime automatically loads variables from a `.env` file in your project root.
+
 | Variable | Required for | Default |
 |----------|-------------|---------|
 | `GROQ_API_KEY` | Runtime mode (free at console.groq.com) | — |
 | `ANTHROPIC_API_KEY` | Runtime mode, high-complexity tasks | — |
 | `OPENAI_API_KEY` | Runtime mode (fallback provider) | — |
+| `OPENCODE_API_KEY` | OpenCode / OpenCodeGo provider | — |
 | `GITHUB_TOKEN` | PR sync (auto-set in CI) | — |
 
 No API key is needed for skill-file mode or for `pr-sync` in CI.

@@ -26,7 +26,7 @@ The loop closes when eval scores feed back into agent behavior. An agent that sc
 
 ## How Agenthood implements it
 
-The `EvalRunner` (planned — `src/evals/` does not exist yet) will live in `src/evals/EvalRunner.ts`. It runs an agent against a suite, scores the four metrics, and returns a structured report:
+The `EvalRunner` (planned) will live in `src/evals/EvalRunner.ts`. It runs an agent against a suite, scores the four metrics, and returns a structured report. The `EpisodeLearner` (`src/evals/EpisodeLearner.ts`) is already shipped — it writes high-scoring eval results into `LongTermMemory` and reinforces `ResidualMemory` signals:
 
 ```typescript
 import { EvalRunner } from 'agenthood';
@@ -78,7 +78,8 @@ The regression flag is the point. A green test suite tells you nothing about ans
 
 ## Further reading
 
-- [`src/evals/EvalRunner.ts`](../../../src/evals/EvalRunner.ts) — evaluation runner (planned — `src/evals/` does not exist yet)
+- [`src/evals/EpisodeLearner.ts`](../../../src/evals/EpisodeLearner.ts) — episode learner (shipped), writes eval results into memory
+- [`src/evals/EvalRunner.ts`](../../../src/evals/EvalRunner.ts) — evaluation runner (planned — `src/evals/EvalRunner.ts` does not exist yet)
 - [RAGAS: Automated Evaluation of Retrieval Augmented Generation](https://arxiv.org/abs/2309.15217) — the framework the four metrics derive from
 - [Evaluating LLM Applications](https://eugeneyan.com/writing/evaluating-llm-applications/) — Eugene Yan on eval strategy
 

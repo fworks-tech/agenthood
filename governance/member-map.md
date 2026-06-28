@@ -1,12 +1,12 @@
 # Member Map — RACI
 
-> *The Society has seventeen members. Every one knows their lane. This is the map.*
+> *Every member knows their lane. This is the map.*
 
 ---
 
 ## What this is
 
-A RACI (Responsible / Accountable / Consulted / Informed) matrix documenting the current 14 Society members plus the 3 planned for M6 (Strategist, Mediator, Operator). Every member has:
+A RACI (Responsible / Accountable / Consulted / Informed) matrix documenting all Society members. Every member has:
 - **Lane** — single-sentence specialty
 - **Owned decisions** — what this member alone decides
 - **Consulted members** — who they must consult before deciding

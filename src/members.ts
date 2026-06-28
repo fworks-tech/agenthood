@@ -1,7 +1,7 @@
 /**
  * src/members.ts
  *
- * Single source of truth for all 14 Society members and runtime detection.
+ * Single source of truth for all Society members and runtime detection.
  * Every command imports from here — never define these lists again.
  *
  * Member specs (tools, permissions, providers) are maintained in MemberRegistry

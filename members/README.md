@@ -1,6 +1,6 @@
 # The Members
 
-The Agenthood has sixteen members. Each is a specialist.
+Every member of the Agenthood is a specialist.
 Each has a README describing their identity, responsibilities, and usage.
 Each has a skill file that your agent runtime loads to activate them.
 
@@ -74,7 +74,7 @@ npx agenthood run the-reviewer "review the changes against the spec in issue #12
 npx agenthood run the-architect "plan the OAuth2 integration"
 npx agenthood run the-auditor "run a security audit on the authentication module"
 
-# List all 16 available members
+# List all available members
 npx agenthood list
 ```
 

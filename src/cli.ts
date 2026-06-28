@@ -104,7 +104,7 @@ Commands:
                            Use --detect to auto-detect members for the task
                            Use --provider <name> to override the LLM provider
                            Sync PR body and post comment for new commits
-  list                    List all 14 members, their status, permission & provider
+  list                    List all members, their status, permission & provider
   oath                    Print the Society's oath
   eject                   Remove the Society from your project
 

@@ -6,12 +6,12 @@
 
 ## What is Agenthood
 
-Agenthood is a suite of 16 specialized AI agents that automate the work around your code: commit messages, PR reviews, security audits, changelogs, and more. Two modes:
+Agenthood is a suite of specialized AI agents that automate the work around your code: commit messages, PR reviews, security audits, changelogs, and more. Two modes:
 
 - **Runtime mode** (flagship) — agents run autonomously via the TypeScript CLI. They reason, use tools, and produce results without manual prompting.
 - **Skill mode** (alternative) — members load as Markdown skill files into Claude Code, Copilot, or any agent runtime that supports skill files.
 
-Both modes use the same 16 member definitions. Choose runtime for automation, skill mode for assisted workflows.
+Both modes use the same member definitions. Choose runtime for automation, skill mode for assisted workflows.
 
 ---
 
@@ -34,7 +34,7 @@ Requirements: Node.js 22+, `git`, and `gh` CLI for PR sync. No API key required 
 | `init` | Install hooks, templates, and member skills into your project |
 | `check` | Health check — confirm the Society is fully operational |
 | `run <member> "<task>"` | Invoke a member as an autonomous agent |
-| `list` | List all 16 members with activation status |
+| `list` | List all members with activation status |
 | `pr-sync --pr <N>` | Auto-sync PR body with new commits |
 | `activate <member>` | Enable a member's skill file in your runtime |
 | `deactivate <member>` | Disable a member's skill file |
@@ -149,7 +149,7 @@ The assistant loads the member's SKILL.md as context. Ask the Reviewer to check 
 
 ## Next steps
 
-- [Skills Reference](skills-reference.md) — all 16 members, their tools, and invocation syntax
+- [Skills Reference](skills-reference.md) — all members, their tools, and invocation syntax
 - [Level 1: GenAI & RAG Basics](level-1-genai-rag-basics/) — LLMs, prompt engineering, RAG
 - [Level 2: AI Agent Essentials](level-2-agent-essentials/) — memory, planning, multi-agent
 - [Level 3: Advanced Agent Skills](level-3-advanced-skills/) — integration, performance, production

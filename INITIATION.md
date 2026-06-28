@@ -193,7 +193,7 @@ across sessions without a human in the loop — use the TypeScript runtime.
 # Build the runtime (once, after install)
 npm run build
 
-# List all 16 members
+# List all members
 npx agenthood list
 
 # Invoke a member against a real task

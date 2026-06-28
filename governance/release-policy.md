@@ -23,9 +23,9 @@
 | Typo fix or formatting | Member owner (self-approve) | Any other member |
 | Clarification of existing behavior | Member owner + 1 member in "Consult" column | The Sentinel |
 | New responsibility added | The Architect + The Oracle | The Sentinel |
-| Lane boundary change (new domain) | The Architect + The Oracle + The Sentinel | All 14 members notified |
-| Deprecation of old behavior | The Oracle + The Herald | All 14 members notified |
-| New member added | The Oracle + The Architect + The Sentinel | All 14 members |
+| Lane boundary change (new domain) | The Architect + The Oracle + The Sentinel | All members notified |
+| Deprecation of old behavior | The Oracle + The Herald | All members notified |
+| New member added | The Oracle + The Architect + The Sentinel | All members |
 
 ### The Oracle's role
 

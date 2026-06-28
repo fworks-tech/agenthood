@@ -82,7 +82,7 @@
     "probeEnabled": true
   },
 
-  "_comment_qualityGates": "Optional: configure which quality gates are enabled. Each gate can be enabled or disabled independently.",
+  "_comment_qualityGates": "Optional: configure which quality gates are enabled. Each gate can be enabled or disabled independently. Read by QualityGates.fromConfig().",
   "qualityGates": {
     "typescript": true,
     "tests": true,

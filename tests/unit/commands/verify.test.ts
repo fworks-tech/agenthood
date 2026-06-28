@@ -13,6 +13,7 @@ vi.mock('node:fs', async (importOriginal) => {
 
 import { existsSync, readFileSync, readdirSync, writeFileSync } from 'node:fs'
 import { verify } from '../../../src/commands/verify.js'
+import { contentHash } from '../../../src/utils/hash.js'
 
 const VALID_SKILL = `---
 name: the-test
@@ -101,5 +102,22 @@ describe('verify command', () => {
 
     await verify(['--update-lock'])
     expect(writeFileSync).toHaveBeenCalled()
+  })
+
+  it('detects drift when lockfile hash does not match', async () => {
+    const currentHash = contentHash(VALID_SKILL)
+    const lockfileJson = JSON.stringify({ version: 1, members: { 'the-test': { version: 'different-hash', updatedAt: '2026-01-01T00:00:00.000Z' } } })
+    vi.mocked(readFileSync)
+      .mockReturnValueOnce(lockfileJson)
+      .mockReturnValueOnce(VALID_SKILL)
+    const log = vi.spyOn(console, 'log').mockImplementation(() => {})
+    const exit = vi.spyOn(process, 'exit').mockImplementation((() => {}) as any)
+
+    await verify([])
+
+    expect(exit).toHaveBeenCalledWith(1)
+    const output = log.mock.calls.flat().join(' ')
+    expect(output).toContain('Drift detected')
+    expect(output).toContain('the-test')
   })
 })

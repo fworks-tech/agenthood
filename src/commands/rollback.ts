@@ -2,11 +2,7 @@ import { existsSync, readFileSync } from 'node:fs'
 import { join } from 'node:path'
 import { execSync } from 'node:child_process'
 import { contentHash } from '../utils/hash.js'
-
-interface Lockfile {
-  version: number
-  members: Record<string, { version: string; updatedAt: string }>
-}
+import type { Lockfile } from '../utils/lockfile.js'
 
 function findRevision(cwd: string, skillPath: string, lockedHash: string): string | null {
   const gitCmd = `git log --all --pretty=format:"%H" -- "${skillPath}"`

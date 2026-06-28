@@ -83,10 +83,10 @@ check_agenthood_decision() {
       echo "::error::${AGENT_NAME} found blocking findings -- see PR comment for details"
       return 1
     fi
+    return 0
   else
     echo "::warning::${AGENT_NAME} output missing structured decision block -- see comment for manual review"
   fi
-  return 0
 }
 
 validate_prerequisites
@@ -111,4 +111,6 @@ if [ "$rc" -ne 0 ]; then
   echo "::warning::${AGENT_NAME} CLI exited with code $rc -- analysis may be incomplete"
 fi
 
-check_agenthood_decision
+if ! check_agenthood_decision; then
+  exit 1
+fi

@@ -5,6 +5,8 @@ import type { AgentResult } from "./AgentResult.js";
 import { ReActLoop } from "../../reasoning/ReActLoop.js";
 import { SkillRegistry } from "../../skills/SkillRegistry.js";
 import type { ResidualMemory } from "../../memory/ResidualMemory.js";
+import type { EpisodeLearner } from "../../evals/EpisodeLearner.js";
+import type { EvalResult } from "../../core/types.js";
 
 export abstract class BaseAgent {
   abstract role: string;
@@ -18,6 +20,7 @@ export abstract class BaseAgent {
     protected reasoningLoop: ReActLoop,
     protected skillRegistry: SkillRegistry,
     protected residualMemory?: ResidualMemory,
+    protected episodeLearner?: EpisodeLearner,
   ) {}
 
   async run(input: string, context: ExecutionContext): Promise<AgentResult> {
@@ -37,6 +40,16 @@ export abstract class BaseAgent {
 
     this.residualMemory?.record(`agent:${this.role}:${input.slice(0, 80)}`, 0.5);
 
-    return { role: this.role, output, artifacts: context.artifacts };
+    const result: AgentResult = { role: this.role, output, artifacts: context.artifacts };
+
+    const evalResult: EvalResult = {
+      episodeId: context.executionId,
+      scores: {},
+      metadata: { member: this.role },
+    };
+
+    this.episodeLearner?.learn(evalResult, context).catch(() => {});
+
+    return result
   }
 }

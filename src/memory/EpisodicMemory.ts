@@ -35,6 +35,17 @@ export class EpisodicMemoryImpl {
     }])
   }
 
+  async getEpisode(id: string): Promise<{ episode: string; outcome: string; timestamp: string } | null> {
+    const record = await this.vectorStore.getById(id)
+    if (!record) return null
+    const parsed = JSON.parse(record.content)
+    return {
+      episode: parsed.episode,
+      outcome: parsed.outcome,
+      timestamp: parsed.timestamp,
+    }
+  }
+
   async recall(query: string, topK: number = 5): Promise<string[]> {
     const queryVector = this.embedder
       ? await this.embedder.embed(query)

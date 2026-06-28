@@ -19,7 +19,8 @@ export interface IVectorStore {
   add(records: VectorRecord[]): Promise<void>
   search(query: number[], topK: number, filter?: Record<string, unknown>): Promise<VectorSearchResult[]>
   delete(filter: Record<string, unknown>): Promise<number>
-  stats(): Promise<{ totalVectors: number; dimension: number }>
+  stats(): Promise<{ totalVectors: number; dimension: number; totalEntries: number; oldestEntry: Date | null }>
+  getById(id: string): Promise<VectorRecord | null>
 }
 
 interface LanceRow {
@@ -164,6 +165,11 @@ export class LanceDBStore implements IVectorStore, IMemoryStore<VectorRecord> {
   async size(): Promise<number> {
     const s = await this.stats()
     return s.totalVectors
+  }
+
+  async getById(id: string): Promise<VectorRecord | null> {
+    const result = await this.get(id)
+    return result ?? null
   }
 
   async prune(policy: RetentionPolicy): Promise<number> {

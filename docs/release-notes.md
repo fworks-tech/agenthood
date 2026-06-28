@@ -5,6 +5,18 @@
 
 ---
 
+## v3.3.0 — June 28, 2026
+
+### 🐛 Bug Fixes
+
+- correct vitest JSON field names (num prefix), remove duplicate detect block in run.ts
+
+### ✨ Features
+
+- **Core:** implement metrics collector, status --watch/--json/--drift, quality gates drift detection and config
+
+---
+
 ## v3.2.0 — June 28, 2026
 
 ### 🐛 Bug Fixes

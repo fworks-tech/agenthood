@@ -1,5 +1,6 @@
 #!/usr/bin/env bash
 set -euo pipefail
+set -x
 
 BASE_SHA="${RANGE%%...*}"
 HEAD_SHA="${RANGE#*...}"

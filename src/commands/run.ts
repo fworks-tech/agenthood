@@ -170,22 +170,6 @@ export async function run(args: string[]): Promise<void> {
   const config = await loadConfig(providerOverride)
   const task = taskParts.join(" ")
 
-  // Run member detection if --detect flag is set (doesn't need LLM)
-  if (detect) {
-    const orchestrator = new MemberOrchestrator()
-    const detected = orchestrator.detectMembers({
-      userMessage: task,
-      changedFiles: [],
-      currentStage: undefined,
-    })
-
-    if (detected.length > 0) {
-      console.log(`\n🎯 Detected members: ${detected.map((d) => `${d.member} (score: ${d.score})`).join(', ')}\n`)
-    } else {
-      console.log('\nNo members detected for this task.\n')
-    }
-  }
-
   try {
     validateApiKeys(config)
   } catch (err) {

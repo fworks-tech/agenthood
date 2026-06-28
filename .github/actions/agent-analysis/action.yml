@@ -44,37 +44,33 @@ runs:
         body_file="/tmp/${AGENT_NAME}_body.md"
         > "$error_file"
 
-        # skip if no API key
         if [ -z "$OPENCODE_API_KEY" ]; then
           echo "OPENCODE_API_KEY not set. Skipping agent analysis."
           exit 0
         fi
 
-        # get changed files
         CHANGED=$(git diff --name-only --diff-filter=ACM "$BASE_SHA" "$HEAD_SHA" 2>/dev/null || echo "")
         if [ -z "$CHANGED" ]; then
           echo "No files changed. Skipping agent analysis."
           exit 0
         fi
 
-        # cap to first 10 files
         CHANGED=$(echo "$CHANGED" | head -10)
         TASK=$(printf "$PROMPT_TEMPLATE" "$CHANGED")
 
         echo "agent-analysis: running $AGENT_NAME on $(echo "$CHANGED" | tr '\n' ' ')"
 
-        # run the agent, capture stdout and stderr separately
+        npm ci && npm run build
+
         node dist/cli.js run "$AGENT_NAME" "$TASK" --provider opencode-go \
           1> "$analysis_file" \
           2>> "$error_file"
 
         rc=$?
 
-        # build body file (avoids shell escaping issues with --body)
         {
-          # title: capitalize first letter and keep rest
           NAME_DISPLAY=$(echo "$AGENT_NAME" | sed 's/-/ /g; s/\b\(.\)/\u\1/g')
-          echo "## $NAME_DISPLAY — Analysis"
+          echo "## $NAME_DISPLAY -- Analysis"
           echo ""
 
           if [ -s "$error_file" ]; then
@@ -96,7 +92,6 @@ runs:
           fi
         } > "$body_file"
 
-        # post comment
         if [ -s "$body_file" ]; then
           gh pr comment "$PR_NUMBER" --body-file "$body_file"
         fi

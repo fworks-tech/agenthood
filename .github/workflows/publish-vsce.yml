@@ -1,0 +1,28 @@
+name: The Envoy -- VS Code Extension Publish
+
+on:
+  release:
+    types: [published]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  publish:
+    name: Publish to VS Code Marketplace
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "24"
+
+      - name: Install dependencies
+        run: cd vscode-extension && npm ci
+
+      - name: Publish to Marketplace
+        run: cd vscode-extension && npx vsce publish
+        env:
+          VSCE_TOKEN: ${{ secrets.VSCE_TOKEN }}

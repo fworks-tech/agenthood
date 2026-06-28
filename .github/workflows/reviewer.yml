@@ -1,4 +1,4 @@
-name: The Reviewer — Commit Review
+name: The Reviewer -- Commit Review
 
 on:
   push:
@@ -41,7 +41,7 @@ jobs:
           fi
 
           PR_NUMBER=$(gh pr view --json number --jq '.number' 2>/dev/null) || {
-            echo "::warning::gh pr view failed — branch may have no open PR"
+            echo "::warning::gh pr view failed -- branch may have no open PR"
             PR_NUMBER=""
           }
 
@@ -71,7 +71,7 @@ jobs:
       - name: Post Review Comment
         run: |
           PR_NUMBER=$(gh pr view --json number --jq '.number' 2>/dev/null) || {
-            echo "::warning::gh pr view failed — branch may have no open PR"
+            echo "::warning::gh pr view failed"
             PR_NUMBER=""
           }
 
@@ -81,7 +81,7 @@ jobs:
           fi
 
           if [ ! -f /tmp/review_body.txt ] || [ ! -s /tmp/review_body.txt ]; then
-            echo "Review not available — likely a provider issue. Skipping."
+            echo "Review not available. Skipping."
             exit 0
           fi
 

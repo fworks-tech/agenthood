@@ -1,0 +1,65 @@
+name: The Envoy -- Distribution
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "members/**"
+      - "skills/**"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  skills-sh:
+    name: Verify Skills.sh listing
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Check Skills.sh badge resolves
+        run: |
+          STATUS=$(curl -s -o /dev/null -w "%{http_code}" https://skills.sh/b/fworks-tech/agenthood)
+          if [ "$STATUS" -ne 200 ]; then
+            echo "::warning::Skills.sh badge returned HTTP $STATUS -- listing may be stale"
+          else
+            echo "Skills.sh badge resolves OK (HTTP $STATUS)"
+          fi
+
+  skillsmp:
+    name: Validate SkillsMP schema
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Validate SKILL.md frontmatter against SkillsMP schema
+        shell: bash
+        run: |
+          failed=0
+          for dir in members/*/; do
+            name=$(basename "$dir")
+            [ "$name" = "README.md" ] && continue
+            skill="${dir}SKILL.md"
+            [ ! -f "$skill" ] && echo "FAIL [$name]: missing SKILL.md" && failed=1 && continue
+            fm=$(awk '/^---/{count++; if(count==2) exit} count==1' "$skill")
+            ! echo "$fm" | grep -q "^name:" && echo "FAIL [$name]: missing 'name:'" && failed=1
+            ! echo "$fm" | grep -q "^description:" && echo "FAIL [$name]: missing 'description:'" && failed=1
+            ! echo "$fm" | grep -q "^license:" && echo "FAIL [$name]: missing 'license:'" && failed=1
+          done
+          [ "$failed" -eq 1 ] && exit 1
+          echo "All members pass SkillsMP frontmatter requirements"
+
+  traction:
+    name: Update traction badges
+    runs-on: ubuntu-latest
+    steps:
+      - name: Fetch npm downloads
+        run: |
+          DATA=$(curl -s https://api.npmjs.org/downloads/point/last-week/agenthood)
+          DOWNLOADS=$(echo "$DATA" | python3 -c "import sys,json; d=json.load(sys.stdin); print(d.get('downloads', 'N/A'))")
+          echo "npm weekly downloads: $DOWNLOADS"
+      - name: Fetch GitHub stars
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          STARS=$(gh api repos/fworks-tech/agenthood --jq '.stargazers_count')
+          echo "GitHub stars: $STARS"

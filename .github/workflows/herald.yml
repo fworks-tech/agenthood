@@ -1,17 +1,11 @@
-name: The Herald — CI Summary
+name: The Herald -- CI Summary
 
 on:
   workflow_run:
     workflows:
-      - The Auditor — Secret Scanning
-      - Society — Auto-assign
-      - The Doorman — Commit Message Validation
-      - Society — PR Labeler
-      - The Librarian — Documentation Sync
-      - The Sentinel — Member File Structure
-      - The Tester — Test Suite
-      - The Envoy — VS Code Extension Build and Test
-      - The Warden — File Size Enforcement
+      - Society -- PR Standards
+      - The Envoy -- VS Code Extension Build and Test
+      - The Reviewer -- Commit Review
     types:
       - completed
 
@@ -38,9 +32,7 @@ jobs:
             const prNumber = pr.number;
 
             const { data: checkRuns } = await github.rest.checks.listForRef({
-              owner,
-              repo,
-              ref: sha,
+              owner, repo, ref: sha,
             });
 
             const runs = checkRuns.check_runs;
@@ -48,7 +40,7 @@ jobs:
             if (!completed) return;
 
             const rows = runs.map(r => {
-              const icon = r.conclusion === 'success' ? '✅' : '❌';
+              const icon = r.conclusion === 'success' ? ':white_check_mark:' : ':x:';
               return `| ${r.name} | ${icon} ${r.conclusion} |`;
             }).join('\n');
 
@@ -56,7 +48,7 @@ jobs:
             const verdict = passed
               ? 'All trials passed. The PR is cleared for merge.'
               : 'Some trials failed. Review the details above.';
-            const summaryEmoji = passed ? '✅' : '❌';
+            const summaryEmoji = passed ? ':white_check_mark:' : ':x:';
 
             const body = [
               `## ${summaryEmoji} The Herald's Verdict`,
@@ -72,20 +64,26 @@ jobs:
               `**${verdict}**`,
               '',
               '---',
-              '<sub>The Herald — CI Summary</sub>',
+              '<sub>The Herald -- CI Summary</sub>',
             ].join('\n');
 
             const { data: comments } = await github.rest.issues.listComments({
-              owner,
-              repo,
+              owner, repo,
               issue_number: prNumber,
             });
 
-            if (comments.some(c => c.body.includes("The Herald's Verdict"))) return;
+            const existingComment = comments.find(c => c.body.includes("The Herald's Verdict"));
 
-            await github.rest.issues.createComment({
-              owner,
-              repo,
-              issue_number: prNumber,
-              body,
-            });
+            if (existingComment) {
+              await github.rest.issues.updateComment({
+                owner, repo,
+                comment_id: existingComment.id,
+                body,
+              });
+            } else {
+              await github.rest.issues.createComment({
+                owner, repo,
+                issue_number: prNumber,
+                body,
+              });
+            }

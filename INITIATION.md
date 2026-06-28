@@ -161,7 +161,7 @@ Expected output:
   ✅ .github/ISSUE_TEMPLATE/bug_report.md present
   ✅ .github/ISSUE_TEMPLATE/feature_request.md present
   ✅ .github/workflows/commitlint.yml present
-  ✅ Member skills installed (N/N)
+  ✅ Member skills installed
   ✅ git commit.template configured
   ✅ AGENTS.md present
   ✅ LanceDB vector store initialized

@@ -59,22 +59,17 @@ Every step is automated. Every step has a member responsible.
 
 ## CI pipeline
 
-The Society ships 11 workflows that enforce standards on every push and PR:
+The Society ships 7 workflows that enforce standards on every push and PR:
 
-| Workflow | Member | What it does |
-|----------|--------|-------------|
-| `commitlint.yml` | The Doorman | Validates commit messages match conventional commits |
-| `auto-assign.yml` | The Scribe | Assigns an owner to new issues and PRs |
-| `labeler.yml` | The Scribe | Labels PRs by changed file paths |
-| `scribe-pr-body.yml` | The Reviewer | Reviews every pushed diff via LLM, posts findings as PR comment |
+| Workflow | Members | What it does |
+|----------|---------|-------------|
+| `pr.yml` | Doorman, Auditor, Scribe, Warden, Librarian, Sentinel, Tester | 7 merged PR checks: commit messages, secrets, labels, file sizes, docs sync, member structure, test suite |
+| `reviewer.yml` | The Reviewer | Reviews every pushed diff via LLM, posts findings as PR comment |
 | `herald.yml` | The Herald | Posts a CI summary comment on every PR |
 | `semantic-release.yml` | The Herald | Automated release and npm publish |
-| `auditor.yml` | The Auditor | Scans for secrets and credentials |
-| `librarian.yml` | The Librarian | Checks documentation stays in sync with code |
-| `sentinel.yml` | The Sentinel | Validates member file structure and integrity |
-| `tester.yml` | The Tester | Runs the full test suite |
-| `warden.yml` | The Warden | Enforces file size and code health limits |
-| `vscode-extension.yml` | The Envoy | Builds and tests the VS Code extension |
+| `vscode-extension.yml` | The Envoy | Builds, tests, and packages the VS Code extension |
+| `publish-vsce.yml` | The Envoy | Publishes extension to VS Code Marketplace on release |
+| `distribution.yml` | The Envoy | Skills.sh verification, SkillsMP schema validation, traction badges |
 
 These run on GitHub Actions. Every check must pass before merge.
 

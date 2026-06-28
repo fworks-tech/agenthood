@@ -88,7 +88,7 @@ Member Execution → SafetyGuard → ProviderFailover → Response
 Commit quality is enforced at three points simultaneously (ADR-003):
 1. **`.githooks/commit-msg`** — Local Doorman validation
 2. **`.githooks/pre-commit`** — Blocks commits to main, audits secrets, checks file sizes
-3. **`.github/workflows/commitlint.yml`** — CI re-validates on PRs
+3. **`.github/workflows/pr.yml`** — CI re-validates all PR standards (commit messages, tests, file sizes, docs, member structure, secrets)
 
 Banned commit subjects include: `wip`, `fix stuff`, `update`, `changes`, `stuff`, `misc`, `temp`, `test`, `asdf`. The custom rule lives in `conventions/commitlint.config.ts` and is tested in `tests/commitlint.test.ts`.
 

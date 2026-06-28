@@ -1,0 +1,391 @@
+name: Society -- PR Standards
+
+on:
+  pull_request:
+    branches: [main]
+    types: [opened, synchronize, reopened]
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+concurrency:
+  group: pr-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+  pull-requests: write
+
+jobs:
+  # ──────────────────────────────────────────────
+  # The Doorman -- commit message validation
+  # ──────────────────────────────────────────────
+  commitlint:
+    name: The Doorman -- Commit Message Validation
+    if: github.event_name == 'pull_request'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "24"
+      - name: Install commitlint
+        run: npm install --save-dev tsx @commitlint/cli @commitlint/config-conventional @commitlint/types
+      - name: The Doorman -- validate commits in PR range
+        env:
+          NODE_OPTIONS: "--import tsx"
+        run: |
+          npx commitlint \
+            --config conventions/commitlint.config.ts \
+            --from ${{ github.event.pull_request.base.sha }} \
+            --to ${{ github.event.pull_request.head.sha }} \
+            --verbose
+
+  # ──────────────────────────────────────────────
+  # The Auditor -- Gitleaks secret scanning
+  # ──────────────────────────────────────────────
+  gitleaks:
+    name: The Auditor -- Secret Scanning
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Warn if private repo without license
+        if: github.event.repository.private == true
+        run: |
+          if [ -z "$GITLEAKS_LICENSE" ]; then
+            echo "::warning::The Auditor: private repo and GITLEAKS_LICENSE not set."
+          fi
+        env:
+          GITLEAKS_LICENSE: ${{ secrets.GITLEAKS_LICENSE || '' }}
+      - uses: gitleaks/gitleaks-action@dcedce43c6f43de0b836d1fe38946645c9c638dc
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITLEAKS_LICENSE: ${{ secrets.GITLEAKS_LICENSE || '' }}
+      - name: The Auditor -- post findings to PR
+        if: failure() && github.event_name == 'pull_request'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh pr comment ${{ github.event.pull_request.number }} \
+            --body "## The Auditor -- Secret Scan :warning:
+
+          Potential secrets or configuration issues were detected. Review the [workflow run](${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}) for details.
+
+          *-- The Auditor, Agenthood*"
+      - name: The Auditor -- agent analysis
+        continue-on-error: true
+        uses: ./.github/actions/agent-analysis
+        with:
+          agent-name: the-auditor
+          prompt-template: "audit these changed files for security concerns, secrets, and dependency risks:\n%s\n"
+          pr-number: ${{ github.event.pull_request.number }}
+          base-sha: ${{ github.event.pull_request.base.sha }}
+          head-sha: ${{ github.event.pull_request.head.sha }}
+          api-key: ${{ secrets.OPENCODE_API_KEY }}
+          github-token: ${{ github.token }}
+
+  # ──────────────────────────────────────────────
+  # The Scribe -- auto-label PR by changed files
+  # ──────────────────────────────────────────────
+  labeler:
+    name: Society -- PR Labeler
+    if: github.event_name == 'pull_request'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/labeler@v5
+        with:
+          repo-token: ${{ secrets.GITHUB_TOKEN }}
+
+  # ──────────────────────────────────────────────
+  # The Warden -- file size enforcement
+  # ──────────────────────────────────────────────
+  filesize:
+    name: The Warden -- File Size Enforcement
+    if: github.event_name == 'pull_request'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: The Warden -- enforce file size limits
+        shell: bash
+        run: |
+          failed=0
+          base_sha=${{ github.event.pull_request.base.sha }}
+          head_sha=${{ github.event.pull_request.head.sha }}
+          changed=$(git diff --name-only --diff-filter=ACM "$base_sha" "$head_sha" 2>/dev/null)
+          for file in $changed; do
+            [ -f "$file" ] || continue
+            case "$file" in
+              package-lock.json|yarn.lock|pnpm-lock.yaml) continue ;;
+            esac
+            lines=$(wc -l < "$file" | tr -d ' ')
+            if [ "$lines" -gt 500 ]; then
+              echo "FAIL: $file -- $lines lines (limit: 500)"
+              failed=1
+            elif [ "$lines" -gt 300 ]; then
+              echo "WARN: $file -- $lines lines (approaching limit of 500)"
+            fi
+          done
+          if [ "$failed" -eq 1 ]; then
+            echo ""
+            echo "The Warden: one or more files exceed the 500-line limit."
+            echo "Split the file or justify the exception in the PR description."
+            exit 1
+          fi
+          echo "The Warden: all changed files within size limits."
+      - name: The Warden -- agent analysis
+        continue-on-error: true
+        uses: ./.github/actions/agent-analysis
+        with:
+          agent-name: the-warden
+          prompt-template: "analyze these changed files for code smells, complexity issues, and architectural decay:\n%s\n"
+          pr-number: ${{ github.event.pull_request.number }}
+          base-sha: ${{ github.event.pull_request.base.sha }}
+          head-sha: ${{ github.event.pull_request.head.sha }}
+          api-key: ${{ secrets.OPENCODE_API_KEY }}
+          github-token: ${{ github.token }}
+
+  # ──────────────────────────────────────────────
+  # The Librarian -- documentation sync check
+  # ──────────────────────────────────────────────
+  librarian:
+    name: The Librarian -- Documentation Sync
+    if: github.event_name == 'pull_request'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: The Librarian -- verify docs reflect changed files
+        shell: bash
+        run: |
+          FAILED=0
+          BASE_SHA=${{ github.event.pull_request.base.sha }}
+          HEAD_SHA=${{ github.event.pull_request.head.sha }}
+          CHANGED=$(git diff --name-only --diff-filter=ACM "$BASE_SHA" "$HEAD_SHA" 2>/dev/null)
+
+          for FILE in $CHANGED; do
+            if echo "$FILE" | grep -qE "^members/the-[a-z-]+/"; then
+              NAME=$(echo "$FILE" | sed 's|members/\(the-[a-z-]*\)/.*|\1|')
+              if ! grep -q "$NAME" AGENTS.md; then
+                echo "FAIL: $NAME added but not registered in AGENTS.md"; FAILED=1
+              fi
+              if ! grep -q "$NAME" members/README.md; then
+                echo "FAIL: $NAME added but not registered in members/README.md"; FAILED=1
+              fi
+              if ! grep -q "$NAME" README.md; then
+                echo "FAIL: $NAME added but not registered in README.md"; FAILED=1
+              fi
+            fi
+          done
+
+          CONVENTIONS_CHANGED=$(echo "$CHANGED" | grep "^conventions/" || true)
+          if [ -n "$CONVENTIONS_CHANGED" ]; then
+            DOCS_CHANGED=$(echo "$CHANGED" | grep -E "^(AGENTS\.md|README\.md|INITIATION\.md|members/)" || true)
+            if [ -z "$DOCS_CHANGED" ]; then
+              echo "WARN: conventions/ changed but no doc files updated"
+            fi
+          fi
+
+          for FILE in $CHANGED; do
+            if echo "$FILE" | grep -qE "^\.github/workflows/[a-z-]+\.yml"; then
+              WORKFLOW=$(basename "$FILE" .yml)
+              if ! grep -qF "$WORKFLOW.yml" README.md; then
+                echo "FAIL: $WORKFLOW.yml added but not listed in README.md"
+                FAILED=1
+              fi
+            fi
+          done
+
+          for FILE in $CHANGED; do
+            if echo "$FILE" | grep -qE "^\.githooks/"; then
+              HOOK=$(basename "$FILE")
+              if ! grep -qF "$HOOK" README.md; then
+                echo "FAIL: $HOOK added to .githooks/ but not listed in README.md"
+                FAILED=1
+              fi
+            fi
+          done
+
+          for MEMBER_DIR in members/*/; do
+            NAME=$(basename "$MEMBER_DIR")
+            [ "$NAME" = "README.md" ] && continue
+            if ! grep -q "$NAME" AGENTS.md; then
+              echo "FAIL: $NAME exists in members/ but not in AGENTS.md"
+              FAILED=1
+            fi
+          done
+
+          DOCS_DIR_CHANGED=$(echo "$CHANGED" | grep "^docs/" || true)
+          if [ -n "$DOCS_DIR_CHANGED" ]; then
+            ADR_COUNT=$(find docs/adr -name "*.md" 2>/dev/null | wc -l)
+            if [ "$ADR_COUNT" -eq 0 ]; then
+              echo "FAIL: docs/ changed but docs/adr/ has no ADRs"
+              FAILED=1
+            fi
+          fi
+
+          COMMANDS_CHANGED=$(echo "$CHANGED" | grep "^src/commands/" || true)
+          if [ -n "$COMMANDS_CHANGED" ]; then
+            SPEC_UPDATED=$(echo "$CHANGED" | grep -E "^(CONTRIBUTING\.md|CLAUDE\.md)" || true)
+            if [ -z "$SPEC_UPDATED" ]; then
+              echo "WARN: src/commands/ changed but CONTRIBUTING.md nor CLAUDE.md was updated"
+            fi
+          fi
+
+          CONVENTIONS_OR_HOOKS=$(echo "$CHANGED" | grep -E "^(conventions/|\.githooks/)" || true)
+          if [ -n "$CONVENTIONS_OR_HOOKS" ]; then
+            CONTRIBUTING_UPDATED=$(echo "$CHANGED" | grep "^CONTRIBUTING\.md" || true)
+            if [ -z "$CONTRIBUTING_UPDATED" ]; then
+              echo "WARN: conventions/ or .githooks/ changed but CONTRIBUTING.md was not updated"
+            fi
+          fi
+
+          CHANGELOG_CHANGED=$(echo "$CHANGED" | grep "^CHANGELOG\.md" || true)
+          if [ -n "$CHANGELOG_CHANGED" ]; then
+            echo "WARN: CHANGELOG.md modified manually -- it is managed by semantic-release"
+          fi
+
+          if [ "$FAILED" -eq 1 ]; then
+            echo ""
+            echo "The Librarian: documentation is out of sync with the code."
+            exit 1
+          fi
+          echo "The Librarian: documentation is consistent with the changes."
+      - name: The Librarian -- post doc sync report to PR
+        if: failure() && github.event_name == 'pull_request'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh pr comment ${{ github.event.pull_request.number }} \
+            --body "## The Librarian -- Documentation Check :warning:
+
+          Documentation may be out of sync with code changes. Review the [workflow run](${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}) for details.
+
+          *-- The Librarian, Agenthood*"
+
+  # ──────────────────────────────────────────────
+  # The Sentinel -- member file structure
+  # ──────────────────────────────────────────────
+  sentinel:
+    name: The Sentinel -- Member File Structure
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Check member README.md presence
+        shell: bash
+        run: |
+          failed=0
+          for dir in members/*/; do
+            name=$(basename "$dir")
+            [ "$name" = "README.md" ] && continue
+            if [ ! -f "${dir}README.md" ]; then
+              echo "FAIL [$name]: missing README.md"; failed=1
+            fi
+          done
+          [ "$failed" -eq 1 ] && exit 1
+          echo "All members have README.md"
+      - name: Validate SKILL.md exists and has frontmatter
+        shell: bash
+        run: |
+          failed=0
+          for dir in members/*/; do
+            name=$(basename "$dir")
+            [ "$name" = "README.md" ] && continue
+            skill="${dir}SKILL.md"
+            [ ! -f "$skill" ] && echo "FAIL [$name]: missing SKILL.md" && failed=1 && continue
+            fm=$(awk '/^---/{count++; if(count==2) exit} count==1' "$skill")
+            ! echo "$fm" | grep -q "^name:" && echo "FAIL [$name]: SKILL.md missing 'name:'" && failed=1
+            ! echo "$fm" | grep -q "^description:" && echo "FAIL [$name]: SKILL.md missing 'description:'" && failed=1
+          done
+          [ "$failed" -eq 1 ] && exit 1
+          echo "All SKILL.md files have valid frontmatter"
+      - name: Validate SKILL.md required sections
+        shell: bash
+        run: |
+          failed=0
+          sections="## Overview ## When to Use ## Process ## Red Flags ## Rationalizations ## Verification"
+          for dir in members/*/; do
+            name=$(basename "$dir")
+            [ "$name" = "README.md" ] && continue
+            skill="${dir}SKILL.md"
+            [ ! -f "$skill" ] && continue
+            for section in $sections; do
+              ! grep -qF "$section" "$skill" && echo "FAIL [$name]: SKILL.md missing '$section'" && failed=1
+            done
+          done
+          [ "$failed" -eq 1 ] && exit 1
+          echo "All SKILL.md files have required sections"
+      - name: Cross-check member registration in index files
+        shell: bash
+        run: |
+          failed=0
+          indexes="AGENTS.md members/README.md README.md"
+          for dir in members/*/; do
+            name=$(basename "$dir")
+            [ "$name" = "README.md" ] && continue
+            for idx in $indexes; do
+              ! grep -q "$name" "$idx" && echo "FAIL [$name]: not registered in $idx" && failed=1
+            done
+          done
+          [ "$failed" -eq 1 ] && exit 1
+          echo "All members registered in all index files"
+      - name: Verify skills/ reflect members/
+        shell: bash
+        run: |
+          failed=0
+          for dir in members/*/; do
+            name=$(basename "$dir")
+            [ "$name" = "README.md" ] && continue
+            member_file="members/$name/SKILL.md"
+            skill_file="skills/$name/SKILL.md"
+            if [ ! -f "$skill_file" ]; then
+              echo "FAIL [$name]: missing $skill_file"; failed=1
+            elif ! cmp -s "$member_file" "$skill_file"; then
+              echo "FAIL [$name]: $skill_file differs from $member_file"; failed=1
+            fi
+          done
+          [ "$failed" -eq 1 ] && exit 1
+          echo "All skills/ files match members/ content."
+      - name: Check for orphan files in skills/
+        shell: bash
+        run: |
+          failed=0
+          for dir in skills/*/; do
+            name=$(basename "$dir")
+            [ ! -d "members/$name" ] && echo "FAIL [skills/$name]: orphan directory" && failed=1
+          done
+          [ "$failed" -eq 1 ] && exit 1
+          echo "No orphan skills/ directories."
+      - name: The Sentinel -- agent analysis
+        continue-on-error: true
+        uses: ./.github/actions/agent-analysis
+        with:
+          agent-name: the-sentinel
+          prompt-template: "analyze these changed member files for structural drift and consistency issues:\n%s\n"
+          pr-number: ${{ github.event.pull_request.number }}
+          base-sha: ${{ github.event.pull_request.base.sha }}
+          head-sha: ${{ github.event.pull_request.head.sha }}
+          api-key: ${{ secrets.OPENCODE_API_KEY }}
+          github-token: ${{ github.token }}
+
+  # ──────────────────────────────────────────────
+  # The Tester -- test suite
+  # ──────────────────────────────────────────────
+  tests:
+    name: The Tester -- Test Suite
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "24"
+          cache: npm
+      - run: npm ci
+      - name: The Tester -- run test suite
+        run: npm test

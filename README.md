@@ -249,19 +249,13 @@ agenthood/
 ├── .github/                          ← CI and contribution automation
 │   ├── actions/agent-analysis/        ← Shared composite action for LLM agent checks in CI
 │   └── workflows/                     ← CI enforcement
-│   ├── auto-assign.yml              ← The Scribe — assigns owner to new issues and PRs
-│   ├── auditor.yml                  ← The Auditor — secret scanning
-│   ├── commitlint.yml               ← The Doorman — commit message validation
-│   ├── gh-pages.yml                 ← The Librarian — deploy Academy docs to GitHub Pages
+│   ├── pr.yml                       ← The Doorman, Auditor, Scribe, Warden, Librarian, Sentinel, Tester — PR standards (7 checks merged)
+│   ├── reviewer.yml                 ← The Reviewer — LLM commit review on every push
 │   ├── herald.yml                   ← The Herald — CI summary comment on PRs
-│   ├── scribe-pr-body.yml           ← The Reviewer — LLM commit review on every push
-│   ├── labeler.yml                  ← The Scribe — labels PRs by changed file paths
-│   ├── librarian.yml                ← The Librarian — checks docs stay in sync with code
 │   ├── semantic-release.yml         ← The Herald — automated release + npm publish
-│   ├── sentinel.yml                 ← The Sentinel — agent integrity checks
-│   ├── tester.yml                   ← The Tester — runs the full test suite
-│   ├── vscode-extension.yml         ← The Envoy — build VS Code extension
-│   └── warden.yml                   ← The Warden — file size and code health checks
+│   ├── vscode-extension.yml         ← The Envoy — build and test VS Code extension
+│   ├── publish-vsce.yml             ← The Envoy — publish VSIX to Marketplace
+│   └── distribution.yml             ← The Envoy — Skills.sh, SkillsMP, traction badges
 │
 ├── .githooks/                       ← Local git hook enforcement
 │   ├── commit-msg                   ← Validates commit message format

@@ -5,22 +5,24 @@
     "email": "inbox@flabs.tech"
   },
   "metadata": {
-    "description": "The Agenthood Society — 14 specialized agent skills for the full software engineering lifecycle: architecture, TDD, debugging, code review, security audit, commit messages, changelogs, documentation, institutional knowledge, cross-provider validation, drift detection, code smell enforcement, context stewardship, and release management.",
+    "description": "The Agenthood Society — 16 specialized agent skills for the full software engineering lifecycle: architecture, TDD, debugging, code review, security audit, commit messages, changelogs, documentation, institutional knowledge, cross-provider validation, drift detection, code smell enforcement, context stewardship, runtime operations, goal refinement, and release management.",
     "version": "1.8.4"
   },
   "plugins": [
     {
       "name": "agenthood-all",
-      "description": "All 14 Agenthood members — every skill for every stage of the engineering lifecycle. Architecture, TDD, debugging, code review, security audit, commit messages, PR descriptions, changelogs, documentation, institutional knowledge, cross-provider translation, structural drift detection, code smell enforcement, context management, and release management.",
+      "description": "All 16 Agenthood members — every skill for every stage of the engineering lifecycle. Architecture, TDD, debugging, code review, security audit, commit messages, PR descriptions, changelogs, documentation, institutional knowledge, cross-provider translation, structural drift detection, code smell enforcement, context management, goal refinement, runtime operations, and release management.",
       "source": "./",
       "strict": false,
       "skills": [
         "./members/the-scribe",
         "./members/the-architect",
+        "./members/the-strategist",
         "./members/the-tester",
         "./members/the-debugger",
         "./members/the-reviewer",
         "./members/the-auditor",
+        "./members/the-operator",
         "./members/the-doorman",
         "./members/the-sentinel",
         "./members/the-warden",
@@ -33,12 +35,13 @@
     },
     {
       "name": "agenthood-engineering",
-      "description": "Engineering workflow skills: commit messages & PR descriptions (the-scribe), spec-first architecture planning (the-architect), TDD test generation (the-tester), and systematic error diagnosis (the-debugger).",
+      "description": "Engineering workflow skills: commit messages & PR descriptions (the-scribe), spec-first architecture planning (the-architect), goal refinement and requirement discovery (the-strategist), TDD test generation (the-tester), and systematic error diagnosis (the-debugger).",
       "source": "./",
       "strict": false,
       "skills": [
         "./members/the-scribe",
         "./members/the-architect",
+        "./members/the-strategist",
         "./members/the-tester",
         "./members/the-debugger"
       ]
@@ -68,12 +71,13 @@
     },
     {
       "name": "agenthood-lifecycle",
-      "description": "Release lifecycle skills: semantic versioning, changelogs, release notes (the-herald), cross-provider translation and bootstrap generation (the-envoy), and context window management and member routing (the-steward).",
+      "description": "Release lifecycle skills: semantic versioning, changelogs, release notes (the-herald), cross-provider translation and bootstrap generation (the-envoy), runtime health, deployments, rollback (the-operator), and context window management and member routing (the-steward).",
       "source": "./",
       "strict": false,
       "skills": [
         "./members/the-herald",
         "./members/the-envoy",
+        "./members/the-operator",
         "./members/the-steward"
       ]
     }

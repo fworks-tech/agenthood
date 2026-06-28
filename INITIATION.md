@@ -161,7 +161,7 @@ Expected output:
   ✅ .github/ISSUE_TEMPLATE/bug_report.md present
   ✅ .github/ISSUE_TEMPLATE/feature_request.md present
   ✅ .github/workflows/commitlint.yml present
-  ✅ Member skills installed (14/14)
+  ✅ Member skills installed (16/16)
   ✅ git commit.template configured
   ✅ AGENTS.md present
   ✅ LanceDB vector store initialized
@@ -193,7 +193,7 @@ across sessions without a human in the loop — use the TypeScript runtime.
 # Build the runtime (once, after install)
 npm run build
 
-# List all 14 members
+# List all 16 members
 npx agenthood list
 
 # Invoke a member against a real task

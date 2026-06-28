@@ -36,7 +36,7 @@ Monitors available context capacity and alerts the Society at defined thresholds
 ### 2. Member Routing
 For any given task, determines the minimal set of members to load:
 - Maps task type → required members (e.g., "write commit" → The Scribe + The Doorman only)
-- Prevents loading all 14 members when 2 are sufficient
+- Prevents loading all 16 members when 2 are sufficient
 - Produces a loading manifest: which members are active, which are deferred
 
 ### 3. Provider Cache Strategy

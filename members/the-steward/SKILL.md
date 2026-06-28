@@ -77,7 +77,7 @@ Structure member loading to maximize cache hits per provider:
 
 **Claude Code:**
 1. `CLAUDE.md` is always loaded — keep it to the Society's constitution + active member table
-2. Load member skills on demand via `/skill` — do not pre-load all 13 in CLAUDE.md
+2. Load member skills on demand via `/skill` — do not pre-load all 16 in CLAUDE.md
 3. The Steward's own skill is loaded when context management is needed, then deferred
 
 **OpenAI (GPT-4o, automatic prefix caching):**
@@ -178,7 +178,7 @@ capacity is critical.
 ## Red Flags
 
 - A session reaching 90% with no triage triggered
-- All 14 members loaded for a task that needs 2
+- All 16 members loaded for a task that needs 2
 - Gathered knowledge that exists only in the context window — one session end away from lost
 - A new session started without reading the previous session's handoff
 - Provider cache strategy ignored — paying full token cost on every turn for stable content
@@ -190,7 +190,7 @@ capacity is critical.
 |----------------|----------------------|
 | "We have plenty of context left" | You had plenty of context left when this session started. Now you are reading this rationalization at 85% capacity. Act before the gauge, not after. |
 | "I'll save it to memory later" | Later is after the context compresses. Compression is lossy. Save now while the knowledge is complete. |
-| "Loading all members is easier than routing" | 14 members × ~1000 tokens = 14,000 tokens on every task. That is 7% of a 200K window spent before a single word of work is done. Route intentionally. |
+| "Loading all members is easier than routing" | 16 members × ~1000 tokens = 16,000 tokens on every task. That is 8% of a 200K window spent before a single word of work is done. Route intentionally. |
 | "The provider will handle caching automatically" | Some do. None of them do it optimally without structure. A system prompt that puts volatile content before stable content defeats every cache the provider offers. |
 
 ## Verification

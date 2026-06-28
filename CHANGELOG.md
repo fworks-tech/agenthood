@@ -1,3 +1,15 @@
+# [3.3.0](https://github.com/fworks-tech/agenthood/compare/v3.2.0...v3.3.0) (2026-06-28)
+
+
+### Bug Fixes
+
+* correct vitest JSON field names (num prefix), remove duplicate detect block in run.ts ([d98c3eb](https://github.com/fworks-tech/agenthood/commit/d98c3ebc6688c403f7528403d46a27601b0efc9d))
+
+
+### Features
+
+* **core:** implement metrics collector, status --watch/--json/--drift, quality gates drift detection and config ([32cd8ee](https://github.com/fworks-tech/agenthood/commit/32cd8ee40368dd00d893b0b560a5b05ccb639e5d))
+
 # [3.2.0](https://github.com/fworks-tech/agenthood/compare/v3.1.0...v3.2.0) (2026-06-28)
 
 

@@ -41,7 +41,7 @@ The Oracle is the final arbiter of member naming, scope, and placement. Any new 
 
 ### Member versions
 
-Each member is versioned independently. The version is stored in the member's SKILL.md frontmatter and in `agenthood.lock` (when the `verify` and `rollback` commands are implemented).
+Each member is versioned independently. The version is stored in the member's SKILL.md frontmatter and in `agenthood.lock` (verified by the `verify` and `rollback` commands).
 
 | Change Type | Version Bump | Example |
 |-------------|-------------|---------|

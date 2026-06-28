@@ -8,14 +8,29 @@ if [ -z "${BASE_SHA:-}" ] || [ "$BASE_SHA" = "${HEAD_SHA:-}" ]; then
 fi
 
 CHANGED=$(git diff --name-only --diff-filter=ACM "$BASE_SHA" "$HEAD_SHA" 2>/dev/null)
-FULL_SUITE=false
-
-if echo "$CHANGED" | grep -qE '^(package\.json|package-lock\.json|tsconfig\.json|vitest\.config)'; then
-  echo "Critical config changed -- running full suite."
-  FULL_SUITE=true
-fi
-
 CORE_PATTERNS="src/core/ src/llm/ILLMProvider src/llm/types src/members/types src/agents/index src/index"
+
+run_full_suite() {
+  npx vitest run --exclude 'vscode-extension/**'
+  exit $?
+}
+
+check_full_suite_trigger() {
+  local file="$1"
+  case "$file" in
+    package.json|package-lock.json|tsconfig.json|vitest.config*) return 0 ;;
+  esac
+  case "$file" in
+    *.ts)
+      local cp
+      while IFS= read -r cp; do
+        [ -z "$cp" ] && continue
+        if echo "$file" | grep -qE "^${cp}"; then return 0; fi
+      done < <(echo "$CORE_PATTERNS" | tr ' ' '\n')
+      ;;
+  esac
+  return 1
+}
 
 TEST_FILES=""
 UNMATCHED_SOURCE=""
@@ -26,22 +41,15 @@ while IFS= read -r FILE; do
       echo >&2 "Skipping file with unsafe name: $FILE"
       continue ;;
   esac
+  if check_full_suite_trigger "$FILE"; then
+    echo "Full suite trigger ($FILE) -- running all tests."
+    run_full_suite
+  fi
   case "$FILE" in
     *.test.ts)
       TEST_FILES="$TEST_FILES $FILE"
       ;;
     *.ts)
-      while IFS= read -r CP; do
-        [ -z "$CP" ] && continue
-        if echo "$FILE" | grep -qE "^${CP}"; then
-          echo "Shared module changed ($FILE) -- running full suite."
-          FULL_SUITE=true
-          break
-        fi
-      done < <(echo "$CORE_PATTERNS" | tr ' ' '\n')
-      if [ "$FULL_SUITE" = true ]; then
-        break
-      fi
       BASENAME=$(basename "$FILE" .ts)
       FOUND=$(find tests -maxdepth 4 -name "${BASENAME}.test.ts" -type f 2>/dev/null | head -1)
       if [ -n "$FOUND" ]; then
@@ -53,15 +61,9 @@ while IFS= read -r FILE; do
   esac
 done < <(echo "$CHANGED")
 
-if [ "$FULL_SUITE" = true ]; then
-  npx vitest run --exclude 'vscode-extension/**'
-  exit $?
-fi
-
 if [ -n "$UNMATCHED_SOURCE" ]; then
   echo "::warning::Source files changed without matching tests:$UNMATCHED_SOURCE -- running full suite."
-  npx vitest run --exclude 'vscode-extension/**'
-  exit $?
+  run_full_suite
 fi
 
 if [ -z "$TEST_FILES" ]; then

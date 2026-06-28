@@ -102,9 +102,9 @@ jobs:
             echo "No review body available. Skipping blocking check."
             exit 0
           fi
-          # Only match [blocking] in the Summary table's Severity column (between | chars), not at line start
-          # where the Reviewer uses the same format for commentary rather than actual findings.
-          if ! grep -qE '\|\s*\[blocking\]\s*\|' /tmp/review_body.txt 2>/dev/null; then
+          # Only match [blocking] in table rows (lines starting with |), which guarantees we're looking
+          # at the Summary table's Severity column, not at commentary or code examples.
+          if ! grep -qE '^\s*\|.*\|\s*\[blocking\]\s*\|' /tmp/review_body.txt 2>/dev/null; then
             echo "No blocking findings."
             exit 0
           fi

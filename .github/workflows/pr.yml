@@ -236,6 +236,12 @@ jobs:
           TEST_FILES=""
           UNMATCHED_SOURCE=""
           while IFS= read -r FILE; do
+            # Reject file names with unsafe characters per H-02
+            case "$FILE" in
+              *[!a-zA-Z0-9_./-]*)
+                echo "::warning::Skipping file with unsafe name: $FILE"
+                continue ;;
+            esac
             case "$FILE" in
               *.test.ts)
                 TEST_FILES="$TEST_FILES $FILE"

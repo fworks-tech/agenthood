@@ -98,7 +98,7 @@ runs:
           fi
 
           if [ -s "$analysis_file" ]; then
-            grep -v "^Error running\|^Using \|^opencode-go\|^groq\|^ollama\|^All providers\|^$" "$analysis_file" || true
+            grep -v "^Error running\|^Using \|^opencode-go\|^groq\|^ollama\|^All providers\|^$" "$analysis_file" | grep -v -iE '(api[_-]?key|token|secret|password|credential)' || true
           fi
 
           if [ ! -s "$analysis_file" ] && [ ! -s "$error_file" ]; then

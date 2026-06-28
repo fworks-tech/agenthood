@@ -74,4 +74,4 @@ fi
 
 SORTED_TESTS=$(echo "$TEST_FILES" | tr ' ' '\n' | sort -u | tr '\n' ' ')
 echo "Running affected tests: $SORTED_TESTS"
-npx vitest run --exclude 'vscode-extension/**' $SORTED_TESTS
+npx vitest run --exclude 'vscode-extension/**' -- $SORTED_TESTS

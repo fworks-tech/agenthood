@@ -5,9 +5,10 @@ BASE_SHA="${RANGE%%...*}"
 HEAD_SHA="${RANGE#*...}"
 [ -z "$HEAD_SHA" ] && HEAD_SHA="$BASE_SHA"
 
-analysis_file="/tmp/${AGENT_NAME}_analysis.txt"
-error_file="/tmp/${AGENT_NAME}_errors.txt"
-body_file="/tmp/${AGENT_NAME}_body.md"
+TEMP_DIR="${RUNNER_TEMP:-/tmp}"
+analysis_file="${TEMP_DIR}/${AGENT_NAME}_analysis.txt"
+error_file="${TEMP_DIR}/${AGENT_NAME}_errors.txt"
+body_file="${TEMP_DIR}/${AGENT_NAME}_body.md"
 > "$error_file"
 
 validate_prerequisites() {
@@ -36,7 +37,7 @@ validate_prerequisites() {
     exit 1
   fi
   TASK="${PROMPT_TEMPLATE//%s/$SAFE_CHANGED}"
-  echo "$SAFE_CHANGED" > /tmp/${AGENT_NAME}_safe_changed.txt
+  echo "$SAFE_CHANGED" > ${TEMP_DIR}/${AGENT_NAME}_safe_changed.txt
 }
 
 stale_previous_comment() {
@@ -44,9 +45,9 @@ stale_previous_comment() {
   name_display=$(echo "$AGENT_NAME" | sed 's/-/ /g; s/\b\(.\)/\u\1/g')
   comment_id=$(gh api "repos/{owner}/{repo}/issues/$PR_NUMBER/comments" --jq ".[] | select(.body | startswith(\"## $name_display -- Analysis\")) | .id" 2>/dev/null | tail -1)
   [ -z "$comment_id" ] && return 0
-  gh api "repos/{owner}/{repo}/issues/comments/$comment_id" --jq -r '.body' > /tmp/${AGENT_NAME}_stale_body.txt 2>/dev/null || return 0
-  { echo "> **This analysis is outdated.** See the latest comment below for the current review."; echo ">"; cat /tmp/${AGENT_NAME}_stale_body.txt; } | jq -Rs '{body: .}' > /tmp/${AGENT_NAME}_stale_payload.json
-  gh api "repos/{owner}/{repo}/issues/comments/$comment_id" -X PATCH --input /tmp/${AGENT_NAME}_stale_payload.json > /dev/null 2>&1 || true
+  gh api "repos/{owner}/{repo}/issues/comments/$comment_id" --jq -r '.body' > ${TEMP_DIR}/${AGENT_NAME}_stale_body.txt 2>/dev/null || return 0
+  { echo "> **This analysis is outdated.** See the latest comment below for the current review."; echo ">"; cat ${TEMP_DIR}/${AGENT_NAME}_stale_body.txt; } | jq -Rs '{body: .}' > ${TEMP_DIR}/${AGENT_NAME}_stale_payload.json
+  gh api "repos/{owner}/{repo}/issues/comments/$comment_id" -X PATCH --input ${TEMP_DIR}/${AGENT_NAME}_stale_payload.json > /dev/null 2>&1 || true
 }
 
 build_comment_body() {
@@ -87,7 +88,7 @@ check_agenthood_decision() {
 }
 
 validate_prerequisites
-SAFE_CHANGED=$(cat /tmp/${AGENT_NAME}_safe_changed.txt)
+SAFE_CHANGED=$(cat ${TEMP_DIR}/${AGENT_NAME}_safe_changed.txt)
 echo "agent-analysis: running $AGENT_NAME on $(echo "$SAFE_CHANGED" | tr '\n' ' ')"
 
 npm ci && npm run build

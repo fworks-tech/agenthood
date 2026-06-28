@@ -118,7 +118,12 @@ runs:
           echo "::warning::${AGENT_NAME} CLI exited with code $rc — analysis may be incomplete"
         fi
 
-        if grep -qE '^\s*\[blocking\]' "$analysis_file" 2>/dev/null; then
-          echo "::error::${AGENT_NAME} found blocking findings — see PR comment for details"
-          exit 1
+        # Check structured decision block from the LLM
+        if grep -qE '<!--AGENTHOOD_DECISION:' "$analysis_file" 2>/dev/null; then
+          if grep -qE '<!--AGENTHOOD_DECISION:.*blocking=true' "$analysis_file" 2>/dev/null; then
+            echo "::error::${AGENT_NAME} found blocking findings — see PR comment for details"
+            exit 1
+          fi
+        else
+          echo "::warning::${AGENT_NAME} output missing structured decision block — see PR comment for manual review"
         fi

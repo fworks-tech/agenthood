@@ -62,7 +62,7 @@ jobs:
             exit 0
           fi
 
-          TASK=$(printf "review this git diff:\n%s\n" "$DIFF")
+          TASK=$(printf "review this git diff:\n%s\n\nEnd your report with: <!--AGENTHOOD_DECISION: blocking=true|false warnings=N-->" "$DIFF")
           node dist/cli.js run the-reviewer "$TASK" --provider opencode-go 2>&1 | grep -v "^Error running\|^Using \|^opencode-go\|^groq\|^ollama\|^All providers\|^$" > /tmp/review_body.txt
         env:
           GITHUB_TOKEN: ${{ github.token }}
@@ -102,12 +102,16 @@ jobs:
             echo "No review body available. Skipping blocking check."
             exit 0
           fi
-          # Only match [blocking] in table rows (lines starting with |), which guarantees we're looking
-          # at the Summary table's Severity column, not at commentary or code examples.
-          if ! grep -qE '^\s*\|.*\|\s*\[blocking\]\s*\|' /tmp/review_body.txt 2>/dev/null; then
-            echo "No blocking findings."
+          # Check structured decision block from the LLM
+          if grep -qE '<!--AGENTHOOD_DECISION:' /tmp/review_body.txt 2>/dev/null; then
+            if ! grep -qE '<!--AGENTHOOD_DECISION:.*blocking=true' /tmp/review_body.txt 2>/dev/null; then
+              echo "No blocking findings."
+              exit 0
+            fi
+            PR_NUMBER=$(gh pr view --json number --jq '.number' 2>/dev/null || echo "")
+            echo "::error::Blocking findings detected — see Reviewer comment on PR #${PR_NUMBER}."
+            exit 1
+          else
+            echo "::warning::Review output missing structured decision block — see comment for manual review"
             exit 0
           fi
-          PR_NUMBER=$(gh pr view --json number --jq '.number' 2>/dev/null || echo "")
-          echo "::error::Blocking findings detected — see Reviewer comment on PR #${PR_NUMBER}."
-          exit 1

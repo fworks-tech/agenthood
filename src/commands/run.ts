@@ -22,6 +22,7 @@ import { LongTermMemoryImpl } from "../memory/LongTermMemory.ts"
 import { EpisodicMemoryImpl } from "../memory/EpisodicMemory.ts"
 import { ProjectMemoryImpl } from "../memory/ProjectMemory.ts"
 import { DecisionLog } from "../memory/DecisionLog.ts"
+import { MetricsCollector } from "../memory/MetricsCollector.ts"
 import { LanceDBStore } from "../memory/VectorStore.ts"
 import { MemberOrchestrator } from "../reasoning/MemberOrchestrator.ts"
 import type { ExecutionContext } from "../core/ExecutionContext.ts"
@@ -212,7 +213,7 @@ export async function run(args: string[]): Promise<void> {
     }
   }
 
-  // Try Society member first (14 named members)
+  // Try Society member first
   if (memberRegistry.has(agentName)) {
     const spec = memberRegistry.get(agentName)
     const memberProvider = (config.provider ?? spec.preferredProvider) as ProviderName
@@ -232,11 +233,18 @@ export async function run(args: string[]): Promise<void> {
 
     const agent = new MemberAgent(spec, llm, loop, sReg)
 
+    const metricsCollector = new MetricsCollector(join(process.cwd(), '.agenthood', 'metrics'))
+    const startTime = performance.now()
+
     try {
       const result = await agent.run(task, context)
+      const duration = Math.round(performance.now() - startTime)
+      metricsCollector.record(agentName, true, duration)
       console.log(`\n\u2714 ${result.role} result:\n${result.output}\n`)
       return
     } catch (err) {
+      const duration = Math.round(performance.now() - startTime)
+      metricsCollector.record(agentName, false, duration)
       const msg = err instanceof Error ? err.message : String(err)
       console.error(`Error running member "${agentName}": ${msg}`)
       process.exit(1)

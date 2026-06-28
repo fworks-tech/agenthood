@@ -33,7 +33,7 @@ const COMMANDS: Record<string, (...args: string[]) => Promise<void>> = {
   setup: async () => setup(),
   verify: async (...args) => verify(args),
   rollback: async (...args) => rollback(args),
-  status: async () => status(),
+  status: async (...args) => status(args),
   workflow: async (...args) => workflow(args),
 };
 
@@ -100,11 +100,21 @@ Commands:
   check                   Run the Doorman's health check
   activate <member>       Activate a specific member skill
   deactivate <member>     Deactivate a member skill
-   run <member> "<task>"   Run a Society member (the-scribe, the-reviewer, …)
-                           Use --detect to auto-detect members for the task
-                           Use --provider <name> to override the LLM provider
-                           Sync PR body and post comment for new commits
+  run <member> "<task>"   Run a Society member (the-scribe, the-reviewer, …)
+                            Use --detect to auto-detect members for the task
+                            Use --provider <name> to override the LLM provider
   list                    List all members, their status, permission & provider
+  verify [member]         Validate member SKILL.md integrity and lockfile
+                            Use --strict for lane overlap checks
+                            Use --update-lock to update lockfile hash
+  rollback [member]       Restore member SKILL.md from lockfile
+                            Use --dry-run to preview without restoring
+  status                  Show project health and member metrics
+                            Use --watch to poll every 5 seconds
+                            Use --json for machine-readable output
+                            Use --drift to detect SKILL.md drift vs lockfile
+  workflow <name>         Execute a workflow (e.g. review-pr)
+  pr-sync                 Sync PR body and post comment for new commits
   oath                    Print the Society's oath
   eject                   Remove the Society from your project
 
@@ -114,6 +124,10 @@ Examples:
   npx agenthood init
   npx agenthood activate the-scribe
   npx agenthood check
+  npx agenthood verify
+  npx agenthood status --watch
+  npx agenthood rollback the-scribe --dry-run
+  npx agenthood workflow review-pr
   npx agenthood oath
 
 The Society maintains impeccable standards.

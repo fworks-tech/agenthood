@@ -50,6 +50,7 @@ export async function init(): Promise<void> {
     ['Society index', () => indexSociety(cwd)],
     ['Personalisation', () => setupPersonalisation(cwd)],
     ['Decision log', () => initDecisionLog(cwd)],
+    ['Member metrics', () => initMetrics(cwd)],
   ]
 
   for (const [label, step] of steps) {
@@ -281,6 +282,13 @@ async function initDecisionLog(cwd: string): Promise<void> {
   const decisionsDir = join(cwd, '.agenthood', 'decisions')
   if (!existsSync(decisionsDir)) {
     await mkdir(decisionsDir, { recursive: true })
+  }
+}
+
+async function initMetrics(cwd: string): Promise<void> {
+  const metricsDir = join(cwd, '.agenthood', 'metrics')
+  if (!existsSync(metricsDir)) {
+    await mkdir(metricsDir, { recursive: true })
   }
 }
 

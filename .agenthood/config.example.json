@@ -21,7 +21,9 @@
     "the-envoy",
     "the-sentinel",
     "the-warden",
-    "the-steward"
+    "the-steward",
+    "the-strategist",
+    "the-operator"
   ],
 
   "_comment_hooks": "Path where git hooks are installed. Use .husky for Husky-managed projects, .githooks for bare git hook directories.",
@@ -78,6 +80,14 @@
     "failureThreshold": 3,
     "cooldownMs": 60000,
     "probeEnabled": true
+  },
+
+  "_comment_qualityGates": "Optional: configure which quality gates are enabled. Each gate can be enabled or disabled independently.",
+  "qualityGates": {
+    "typescript": true,
+    "tests": true,
+    "impact": true,
+    "lint": true
   },
 
   "_comment_permissions": "Optional: permission profile for automated member actions. conservative = read-only; standard = read + safe writes; elevated = full write access.",

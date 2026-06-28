@@ -1,6 +1,7 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest'
 import { createTestContext } from '../../helpers/testContext.ts'
-import type { EvalResult, ExecutionContext, LongTermMemory } from '../../../src/core/types.ts'
+import type { EvalResult, LongTermMemory } from '../../../src/core/types.ts'
+import type { ExecutionContext } from '../../../src/core/ExecutionContext.ts'
 import type { ResidualMemory } from '../../../src/memory/ResidualMemory.ts'
 
 describe('EpisodeLearner', () => {

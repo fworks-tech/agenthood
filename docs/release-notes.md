@@ -5,6 +5,42 @@
 
 ---
 
+## v3.5.0 — June 28, 2026
+
+### 🐛 Bug Fixes
+
+- **Ci:** add explicit return 0 in decision function and guard call
+- **Ci:** add explicit return 0 in else branch for consistency
+- **Ci:** add explicit return 0 to check_agenthood_decision
+- **Ci:** address auditor findings — test-runner flag injection, npm ci, npm audit, temp paths
+- **Ci:** address auditor high and medium findings
+- **Ci:** address review findings — setup-node in action, smart tester, extract scripts, pin tools
+- **Ci:** address reviewer and warden findings
+- **Ci:** address warden stale-comment quoting, temp_dir casing, revert vscode npm ci
+- **Ci:** align blocking detection in reviewer.yml with line-start grep pattern
+- **Ci:** anchor blocking regex, ignore-scripts, extract helpers
+- **Ci:** anchor blocking=true grep to require closing -->
+- **Ci:** change AGENTHOOD_DECISION format to avoid false-positive true|false
+- **Ci:** export OPENCODE_API_KEY, add setup-node cache, smart test selection
+- **Ci:** fail workflows on blocking findings, restore api-key, fix registry paths, add execute permission
+- **Ci:** install commitlint packages locally for config resolution
+- **Ci:** match [blocking] in summary table cells not line start for reviewer
+- **Ci:** narrow stale-comment matching, remove awk guard
+- **Ci:** prevent set -e from killing script on CLI failure
+- **Ci:** resolve commitlint tsx resolution and librarian false-positive
+- **Ci:** resolve TASK unbound variable from subshell scoping and commitlint tsx resolution
+- **Ci:** restrict blocking check to table rows only
+- **Ci:** revert stale_previous_comment --arg in jq filter, add pipefail guard
+- **Ci:** tighten blocking detection to line-start grep, bump header-max-length to 150
+- **Ci:** use AGENTHOOD_DECISION for stale comment matching
+
+### ✨ Features
+
+- **Ci:** mark previous agent PR comments as outdated instead of deleting
+- **Ci:** use structured decision block from LLM for blocking detection
+
+---
+
 ## v3.4.0 — June 28, 2026
 
 ### 🐛 Bug Fixes

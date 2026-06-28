@@ -1,3 +1,39 @@
+# [3.5.0](https://github.com/fworks-tech/agenthood/compare/v3.4.0...v3.5.0) (2026-06-28)
+
+
+### Bug Fixes
+
+* **ci:** add explicit return 0 in decision function and guard call ([1eeabc6](https://github.com/fworks-tech/agenthood/commit/1eeabc633c38f2e861828a5df251f27c88daba7a))
+* **ci:** add explicit return 0 in else branch for consistency ([bb26af5](https://github.com/fworks-tech/agenthood/commit/bb26af582d423204f476035f868d1e16d4e8bfc6))
+* **ci:** add explicit return 0 to check_agenthood_decision ([bd3f78a](https://github.com/fworks-tech/agenthood/commit/bd3f78a8deb2d5f831267e2e7453bafb0522a913))
+* **ci:** address auditor findings — test-runner flag injection, npm ci, npm audit, temp paths ([67e9f3e](https://github.com/fworks-tech/agenthood/commit/67e9f3ed0c6c6bf921ee743f5a0873ab2fec1601))
+* **ci:** address auditor high and medium findings ([b2bb7ac](https://github.com/fworks-tech/agenthood/commit/b2bb7ace7a1f1f6dead99773d56aad569e18b840))
+* **ci:** address review findings — setup-node in action, smart tester, extract scripts, pin tools ([be12b18](https://github.com/fworks-tech/agenthood/commit/be12b188497ab3818fe1a559aede78b239efa309))
+* **ci:** address reviewer and warden findings ([ac10c87](https://github.com/fworks-tech/agenthood/commit/ac10c8762ee4ad908dc4d4ba31fa58fc097a381f))
+* **ci:** address warden stale-comment quoting, temp_dir casing, revert vscode npm ci ([d7ec7b2](https://github.com/fworks-tech/agenthood/commit/d7ec7b2428ee737a1993abf15c6b37d8b9e8fe34))
+* **ci:** align blocking detection in reviewer.yml with line-start grep pattern ([307c75e](https://github.com/fworks-tech/agenthood/commit/307c75e7fecc1f82f93c185b5f00e2077837c345))
+* **ci:** anchor blocking regex, ignore-scripts, extract helpers ([0969637](https://github.com/fworks-tech/agenthood/commit/09696373c7da1ef846e2c7a47b2eda3a3ffd3700))
+* **ci:** anchor blocking=true grep to require closing --> ([aae8c1f](https://github.com/fworks-tech/agenthood/commit/aae8c1f13eed640f43e6ed15796c4ba81f76237e))
+* **ci:** change AGENTHOOD_DECISION format to avoid false-positive true|false ([672e1dd](https://github.com/fworks-tech/agenthood/commit/672e1dd9256e14ba1ea53c3d5e66ceb026eb3c89))
+* **ci:** export OPENCODE_API_KEY, add setup-node cache, smart test selection ([d03f924](https://github.com/fworks-tech/agenthood/commit/d03f92425c2f86db41a42cf55d29fce1ea867e4b))
+* **ci:** fail workflows on blocking findings, restore api-key, fix registry paths, add execute permission ([b60e63e](https://github.com/fworks-tech/agenthood/commit/b60e63eec07a9eb67867bd9110c9abca11b4df14))
+* **ci:** install commitlint packages locally for config resolution ([0d3046f](https://github.com/fworks-tech/agenthood/commit/0d3046fd69dbf27a32d630b030c28a49c6dff07b))
+* **ci:** match [blocking] in summary table cells not line start for reviewer ([65851d8](https://github.com/fworks-tech/agenthood/commit/65851d85d167263ca1714a6c279501fb1df3af99))
+* **ci:** narrow stale-comment matching, remove awk guard ([7152e36](https://github.com/fworks-tech/agenthood/commit/7152e36c6c3133d5187ca4dd8cb9ee5b5d6a0a31))
+* **ci:** prevent set -e from killing script on CLI failure ([700f36d](https://github.com/fworks-tech/agenthood/commit/700f36d6076d83fb345e32b1dd2d6b885df1d46d))
+* **ci:** resolve commitlint tsx resolution and librarian false-positive ([5a2bd81](https://github.com/fworks-tech/agenthood/commit/5a2bd81b9efe3a33ca2988cd6d4cca86977da276))
+* **ci:** resolve TASK unbound variable from subshell scoping and commitlint tsx resolution ([07df150](https://github.com/fworks-tech/agenthood/commit/07df1509a3e0cb325abcfafbae0c7256726bca86))
+* **ci:** restrict blocking check to table rows only ([9b562f7](https://github.com/fworks-tech/agenthood/commit/9b562f7982877af08487df582dd31546c9160a39))
+* **ci:** revert stale_previous_comment --arg in jq filter, add pipefail guard ([1495f4a](https://github.com/fworks-tech/agenthood/commit/1495f4a5f84d6f40534e3c45849f1268869fb636))
+* **ci:** tighten blocking detection to line-start grep, bump header-max-length to 150 ([44d9db0](https://github.com/fworks-tech/agenthood/commit/44d9db00b34cf46c6a988e419928db462363fe2e))
+* **ci:** use AGENTHOOD_DECISION for stale comment matching ([563665c](https://github.com/fworks-tech/agenthood/commit/563665cf9f581c8599cd7edc860f3224d94415e9))
+
+
+### Features
+
+* **ci:** mark previous agent PR comments as outdated instead of deleting ([2c3b6fa](https://github.com/fworks-tech/agenthood/commit/2c3b6faa0b1190bc1dcab2bb6d375b3ce3e0cd0e))
+* **ci:** use structured decision block from LLM for blocking detection ([ab32887](https://github.com/fworks-tech/agenthood/commit/ab32887b11308048b34c06b37b56e569439d5df2))
+
 # [3.4.0](https://github.com/fworks-tech/agenthood/compare/v3.3.0...v3.4.0) (2026-06-28)
 
 

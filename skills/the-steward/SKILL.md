@@ -77,7 +77,7 @@ Structure member loading to maximize cache hits per provider:
 
 **Claude Code:**
 1. `CLAUDE.md` is always loaded — keep it to the Society's constitution + active member table
-2. Load member skills on demand via `/skill` — do not pre-load all 16 in CLAUDE.md
+2. Load member skills on demand via `/skill` — do not pre-load all 15 in CLAUDE.md
 3. The Steward's own skill is loaded when context management is needed, then deferred
 
 **OpenAI (GPT-4o, automatic prefix caching):**

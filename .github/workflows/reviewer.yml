@@ -91,3 +91,21 @@ jobs:
         shell: bash
         env:
           GITHUB_TOKEN: ${{ github.token }}
+
+      - name: Check for Blocking Findings
+        if: always()
+        shell: bash
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          if [ ! -f /tmp/review_body.txt ] || [ ! -s /tmp/review_body.txt ]; then
+            echo "No review body available. Skipping blocking check."
+            exit 0
+          fi
+          if ! grep -qF "[blocking]" /tmp/review_body.txt 2>/dev/null; then
+            echo "No blocking findings."
+            exit 0
+          fi
+          PR_NUMBER=$(gh pr view --json number --jq '.number' 2>/dev/null || echo "")
+          echo "::error::Blocking findings detected — see Reviewer comment on PR #${PR_NUMBER}."
+          exit 1

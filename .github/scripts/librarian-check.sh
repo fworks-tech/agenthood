@@ -30,8 +30,8 @@ check_member_registration() {
       if ! grep -q "$NAME" members/README.md; then
         echo "FAIL: $NAME added but not registered in members/README.md"; fail=1
       fi
-      if ! grep -q "$NAME" README.md; then
-        echo "FAIL: $NAME added but not registered in README.md"; fail=1
+      if ! grep -q "$NAME" STRUCTURE.md; then
+        echo "FAIL: $NAME added but not registered in STRUCTURE.md"; fail=1
       fi
     fi
   done < <(echo "$CHANGED")
@@ -86,8 +86,8 @@ check_conventions_sync() {
 }
 
 check_member_registration || FAILED=1
-check_registered '^\.github/workflows/[a-z-]+\.yml' 's|\.github/workflows/\(.*\)\.yml|\1|' README.md "workflow" || FAILED=1
-check_registered '^\.githooks/' 's|\.githooks/\(.*\)|\1|' README.md "hook" || FAILED=1
+check_registered '^\.github/workflows/[a-z-]+\.yml' 's|\.github/workflows/\(.*\)|\1|' STRUCTURE.md "workflow" || FAILED=1
+check_registered '^\.githooks/' 's|\.githooks/\(.*\)|\1|' STRUCTURE.md "hook" || FAILED=1
 check_all_members_indexed || FAILED=1
 check_conventions_sync || FAILED=1
 

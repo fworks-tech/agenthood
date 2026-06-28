@@ -56,6 +56,8 @@ Load skills from `members/` to activate specialized agents:
 - `the-sentinel` — Society document integrity, cross-member contradiction detection, structural drift
 - `the-warden` — code smell detection, complexity enforcement, architectural boundary violations
 - `the-steward` — context economy, member routing, provider cache strategy, session triage
+- `the-operator` — runtime health, deployment, incidents, rollback, monitoring
+- `the-strategist` — goal refinement, requirement discovery, ambiguity resolution
 
 ## Autonomous Runtime (agenthood run)
 

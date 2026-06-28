@@ -50,6 +50,8 @@ Every role a real software team needs — available as a skill file with impecca
 | 👁️ | [The Sentinel](members/the-sentinel/SKILL.md) | Integrity, cross-member contradiction detection |
 | ⚖️ | [The Warden](members/the-warden/SKILL.md) | Code health, complexity enforcement |
 | 🧭 | [The Steward](members/the-steward/SKILL.md) | Context economy, provider cache strategies |
+| 🎯 | [The Strategist](members/the-strategist/SKILL.md) | Goal refinement, requirement discovery |
+| 🩺 | [The Operator](members/the-operator/SKILL.md) | Runtime health, deployments, rollback |
 
 ---
 
@@ -101,7 +103,7 @@ For a full walkthrough — install, commands, CI pipeline, and next steps — se
 | v1.1.0 | VS Code modernization, Python runtime bootstrap | ✅ Shipped |
 | v1.2.0 | VS Code workspace observer event bus | ✅ Shipped |
 | v1.4.0 | [The Living Editor](https://github.com/fworks-tech/agenthood/milestone/4) — Doorman SCM, Auditor on-save, Reviewer Diagnostics | ✅ Shipped |
-| v1.5.0 | [Open Standard](https://github.com/fworks-tech/agenthood/milestone/6) — SKILL.md migration for all 14 members | ✅ Shipped |
+| v1.5.0 | [Open Standard](https://github.com/fworks-tech/agenthood/milestone/6) — SKILL.md migration for all 16 members | ✅ Shipped |
 | v1.6.x | [The Academy](https://github.com/fworks-tech/agenthood/milestone/12) — Level 1 articles, GitHub Pages, npm via OIDC | ✅ Shipped |
 | v2.0.0 | [Foundation](https://github.com/fworks-tech/agenthood/milestone/3) — TypeScript runtime: ILLMProvider, LLMRouter, ReActLoop, BaseAgent | ✅ Shipped |
 | v2.1.0 | Academy build system, GitHub Pages deployment, lazy provider SDK imports | ✅ Shipped |
@@ -274,7 +276,7 @@ agenthood/
 Structured learning path from "what is a prompt?" to "ship agents to production."
 
 - [Getting Started](docs/academy/getting-started.md) — install, first commit, CI, configuration
-- [Skills Reference](docs/academy/skills-reference.md) — all 14 members, their tools, and invocation
+- [Skills Reference](docs/academy/skills-reference.md) — all 16 members, their tools, and invocation
 - [Level 1: GenAI & RAG Basics](docs/academy/level-1-genai-rag-basics/) — LLMs, prompt engineering, RAG
 - [Level 2: AI Agent Essentials](docs/academy/level-2-agent-essentials/) — memory, planning, multi-agent systems
 - [Level 3: Advanced Agent Skills](docs/academy/level-3-advanced-skills/) — integration, performance, deployment

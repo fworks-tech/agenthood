@@ -1,6 +1,6 @@
 # The Members
 
-The Agenthood has fourteen members. Each is a specialist.
+The Agenthood has sixteen members. Each is a specialist.
 Each has a README describing their identity, responsibilities, and usage.
 Each has a skill file that your agent runtime loads to activate them.
 
@@ -21,6 +21,8 @@ Each has a skill file that your agent runtime loads to activate them.
 | [The Envoy](the-envoy/SKILL.md) | *One Society. Every runtime. No exceptions.* | `the-envoy/SKILL.md` |
 | [The Sentinel](the-sentinel/SKILL.md) | *The Society cannot enforce standards it no longer understands.* | `the-sentinel/SKILL.md` |
 | [The Warden](the-warden/SKILL.md) | *The chaos does not arrive all at once. I am here for the accumulation.* | `the-warden/SKILL.md` |
+| [The Strategist](the-strategist/SKILL.md) | *The right solution starts with the right problem.* | `the-strategist/SKILL.md` |
+| [The Operator](the-operator/SKILL.md) | *Health is not a goal; it is a practice.* | `the-operator/SKILL.md` |
 | [The Steward](the-steward/SKILL.md) | *I was born from the situation I exist to prevent.* | `the-steward/SKILL.md` |
 
 ---

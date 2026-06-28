@@ -13,6 +13,11 @@ interface VerifyResult {
   issues: string[]
 }
 
+interface Lockfile {
+  version: number
+  members: Record<string, { version: string; updatedAt: string }>
+}
+
 function parseFrontmatter(content: string): { frontmatter: Record<string, unknown> | null; body: string } {
   const match = content.match(/^---\n([\s\S]*?)\n---\n?/)
   if (!match) return { frontmatter: null, body: content }
@@ -31,7 +36,7 @@ function parseFrontmatter(content: string): { frontmatter: Record<string, unknow
   return { frontmatter, body: content.slice(match[0].length) }
 }
 
-function validateMember(membersDir: string, member: string): VerifyResult {
+function validateMember(membersDir: string, member: string, lockfile?: Lockfile): VerifyResult {
   const result: VerifyResult = { member, pass: true, issues: [] }
   const skillPath = join(membersDir, member, 'SKILL.md')
 
@@ -62,6 +67,14 @@ function validateMember(membersDir: string, member: string): VerifyResult {
   for (const pattern of PLACEHOLDER_PATTERNS) {
     if (pattern.test(body)) {
       result.issues.push(`Contains placeholder content matching "${pattern.source}"`)
+    }
+  }
+
+  if (lockfile && lockfile.members[member]) {
+    const currentHash = contentHash(content)
+    const lockedHash = lockfile.members[member].version
+    if (currentHash !== lockedHash) {
+      result.issues.push('Drift detected — SKILL.md hash does not match lockfile. Run `verify --update-lock` to update.')
     }
   }
 
@@ -101,6 +114,16 @@ function updateLockfile(cwd: string, membersDir: string, members: string[]): voi
   console.log(`\n  Lockfile written to ${lockPath}`)
 }
 
+function loadLockfile(cwd: string): Lockfile | undefined {
+  const lockPath = join(cwd, 'agenthood.lock')
+  if (!existsSync(lockPath)) return undefined
+  try {
+    return JSON.parse(readFileSync(lockPath, 'utf8')) as Lockfile
+  } catch {
+    return undefined
+  }
+}
+
 export async function verify(args: string[]): Promise<void> {
   const cwd = process.cwd()
   const membersDir = join(cwd, 'members')
@@ -123,7 +146,12 @@ export async function verify(args: string[]): Promise<void> {
         .filter((d) => d.isDirectory())
         .map((d) => d.name)
 
-  const results = membersToCheck.map((m) => validateMember(membersDir, m))
+  const lockfile = loadLockfile(cwd)
+  if (!lockfile) {
+    console.log('\n  No lockfile found — drift detection unavailable. Run `verify --update-lock` to create one.\n')
+  }
+
+  const results = membersToCheck.map((m) => validateMember(membersDir, m, lockfile))
   printResults(results)
 
   const hasAllPassed = results.every((r) => r.pass)

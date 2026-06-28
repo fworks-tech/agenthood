@@ -17,13 +17,26 @@ export interface GateSet {
   message: string
 }
 
+interface QualityGatesConfig {
+  typescript?: boolean
+  tests?: boolean
+  impact?: boolean
+  lint?: boolean
+}
+
 export class QualityGates {
+  private config: QualityGatesConfig
+
+  constructor(config?: QualityGatesConfig) {
+    this.config = config ?? { typescript: true, tests: true, impact: true, lint: true }
+  }
+
   check(cwd: string = process.cwd()): GateResult[] {
     const results: GateResult[] = []
-    results.push(this.checkTypeScript(cwd))
-    results.push(this.checkTests(cwd))
-    results.push(this.checkImpact(cwd))
-    results.push(this.checkLint(cwd))
+    if (this.config.typescript !== false) results.push(this.checkTypeScript(cwd))
+    if (this.config.tests !== false) results.push(this.checkTests(cwd))
+    if (this.config.impact !== false) results.push(this.checkImpact(cwd))
+    if (this.config.lint !== false) results.push(this.checkLint(cwd))
     return results
   }
 

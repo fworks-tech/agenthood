@@ -94,11 +94,10 @@ echo "agent-analysis: running $AGENT_NAME on $(echo "$SAFE_CHANGED" | tr '\n' ' 
 
 npm ci && npm run build
 
+rc=0
 node dist/cli.js run "$AGENT_NAME" "$TASK" --provider opencode-go \
   1> "$analysis_file" \
-  2>> "$error_file"
-
-rc=$?
+  2>> "$error_file" || rc=$?
 
 build_comment_body
 

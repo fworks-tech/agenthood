@@ -75,7 +75,7 @@ jobs:
         run: |
           PR_NUMBER=$(gh pr view --json number --jq '.number' 2>/dev/null || echo "")
           [ -z "$PR_NUMBER" ] && exit 0
-          COMMENT_ID=$(gh api "repos/{owner}/{repo}/issues/$PR_NUMBER/comments" --jq '.[] | select((.body | contains("the-reviewer result:")) and (startswith("> **This analysis is outdated.**") | not)) | .id' 2>/dev/null | tail -1 || true)
+          COMMENT_ID=$(gh api "repos/{owner}/{repo}/issues/$PR_NUMBER/comments" --jq '.[] | select((.body | contains("<!--AGENTHOOD_DECISION:")) and (startswith("> **This analysis is outdated.**") | not)) | .id' 2>/dev/null | tail -1 || true)
           [ -z "$COMMENT_ID" ] && exit 0
           gh api "repos/{owner}/{repo}/issues/comments/$COMMENT_ID" --jq -r '.body' > ${RUNNER_TEMP:-/tmp}/reviewer_stale_body.txt 2>/dev/null || exit 0
           { echo "> **This analysis is outdated.** See the latest comment below for the current review."; echo ">"; cat ${RUNNER_TEMP:-/tmp}/reviewer_stale_body.txt; } | jq -Rs '{body: .}' > ${RUNNER_TEMP:-/tmp}/reviewer_stale_payload.json

@@ -25,7 +25,7 @@ jobs:
           node-version: "24"
 
       - name: Install dependencies
-        run: cd vscode-extension && npm ci
+        run: cd vscode-extension && npm install
 
       - run: cd vscode-extension && npm audit --audit-level=high || echo "::warning::vscode-extension npm audit found vulnerabilities"
 

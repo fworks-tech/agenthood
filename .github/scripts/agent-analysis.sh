@@ -39,6 +39,16 @@ validate_prerequisites() {
   echo "$SAFE_CHANGED"
 }
 
+stale_previous_comment() {
+  local name_display comment_id old_body
+  name_display=$(echo "$AGENT_NAME" | sed 's/-/ /g; s/\b\(.\)/\u\1/g')
+  comment_id=$(gh api "repos/{owner}/{repo}/issues/$PR_NUMBER/comments" --jq ".[] | select(.body | startswith(\"## $name_display -- Analysis\")) | .id" 2>/dev/null | tail -1)
+  [ -z "$comment_id" ] && return 0
+  gh api "repos/{owner}/{repo}/issues/comments/$comment_id" --jq -r '.body' > /tmp/${AGENT_NAME}_stale_body.txt 2>/dev/null || return 0
+  { echo "> **This analysis is outdated.** See the latest comment below for the current review."; echo ">"; cat /tmp/${AGENT_NAME}_stale_body.txt; } | jq -Rs '{body: .}' > /tmp/${AGENT_NAME}_stale_payload.json
+  gh api "repos/{owner}/{repo}/issues/comments/$comment_id" -X PATCH --input /tmp/${AGENT_NAME}_stale_payload.json > /dev/null 2>&1 || true
+}
+
 build_comment_body() {
   NAME_DISPLAY=$(echo "$AGENT_NAME" | sed 's/-/ /g; s/\b\(.\)/\u\1/g')
   {
@@ -90,6 +100,7 @@ rc=$?
 build_comment_body
 
 if [ -s "$body_file" ]; then
+  stale_previous_comment
   gh pr comment "$PR_NUMBER" --body-file "$body_file"
 fi
 

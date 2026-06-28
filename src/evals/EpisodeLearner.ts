@@ -1,4 +1,5 @@
-import type { EvalResult, ExecutionContext, LongTermMemory } from "../core/types.ts"
+import type { EvalResult, LongTermMemory } from "../core/types.ts"
+import type { ExecutionContext } from "../core/ExecutionContext.ts"
 import type { ResidualMemory } from "../memory/ResidualMemory.ts"
 
 export interface LearningOutcome {

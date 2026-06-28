@@ -14,6 +14,10 @@ inputs:
   range:
     description: Git diff range (base...head). E.g. main...HEAD
     required: true
+  api-key:
+    description: OPENCODE_API_KEY for agent analysis
+    required: false
+    default: ""
 
 runs:
   using: composite
@@ -25,12 +29,16 @@ runs:
     - shell: bash
       env:
         RANGE: ${{ inputs.range }}
+        OPENCODE_API_KEY: ${{ inputs.api-key }}
+        GH_TOKEN: ${{ github.token }}
       run: |
         AGENT_NAME="${{ inputs.agent-name }}"
         PR_NUMBER="${{ inputs.pr-number }}"
         PROMPT_TEMPLATE="${{ inputs.prompt-template }}"
 
-        # Parse range into base and head SHAs
+        # Parse range (format: base...head) into base and head SHAs
+        # Uses longest suffix removal (%%) to get everything before the last `...`,
+        # and shortest prefix removal (#) to get everything after the first `...`.
         BASE_SHA="${RANGE%%...*}"
         HEAD_SHA="${RANGE#*...}"
         [ -z "$HEAD_SHA" ] && HEAD_SHA="$BASE_SHA"
@@ -103,4 +111,14 @@ runs:
 
         if [ -s "$body_file" ]; then
           gh pr comment "$PR_NUMBER" --body-file "$body_file"
+        fi
+
+        # Warn on CLI failure, but only fail the step for blocking findings
+        if [ "$rc" -ne 0 ]; then
+          echo "::warning::${AGENT_NAME} CLI exited with code $rc — analysis may be incomplete"
+        fi
+
+        if grep -qF "[blocking]" "$analysis_file" 2>/dev/null; then
+          echo "::error::${AGENT_NAME} found blocking findings — see PR comment for details"
+          exit 1
         fi

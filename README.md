@@ -78,6 +78,10 @@ npx agenthood list                          # see available agents
 npx agenthood run the-scribe "write a commit message for the current diff"
 npx agenthood run the-reviewer "review the changes in the last commit"
 npx agenthood run the-architect "plan the implementation for issue #42"
+npx agenthood verify                    # validate member SKILL.md integrity
+npx agenthood status --watch            # live project health monitoring
+npx agenthood rollback the-scribe       # restore SKILL.md from lockfile
+npx agenthood workflow review-pr        # execute the review-pr workflow
 ```
 
 Set one of these in a `.env` file in your project root (loaded automatically by the runtime):
@@ -224,7 +228,7 @@ agenthood/
 │
 ├── src/                             ← Node.js CLI + TypeScript runtime
 │   ├── cli.ts                       ← Entry point
-│   ├── commands/                    ← CLI commands (init, check, run, list, pr-sync, setup, oath, eject, activate, deactivate)
+│   ├── commands/                    ← CLI commands (init, check, run, list, verify, rollback, status, workflow, pr-sync, setup, oath, eject, activate, deactivate)
 │   ├── agents/                      ← BaseAgent + 4 specialized agents
 │   ├── llm/                         ← ILLMProvider, LLMRouter, 4 providers
 │   ├── skills/                      ← ISkill, SkillRegistry

@@ -11,8 +11,8 @@ Shows how many Society members are active in your project.
 Click to open the member list.
 
 ```
-🏛️ 14/14   ← all members active
-🏛️ 3/14    ← partial activation
+🏛️ 16/16   ← all members active
+🏛️ 3/16    ← partial activation
 ```
 
 ### 🎛️ Command Palette
@@ -104,7 +104,7 @@ npm run package  # Creates .vsix file
 - Ensure you have `.gitmessage` or `commitlint.config.ts` in your workspace
 - Verify Agenthood is initialized: `npx agenthood init`
 
-### Status bar shows 0/14 members
+### Status bar shows 0/16 members
 - Check that member skill files exist in `.agenthood/skills/` or `.claude/skills/`
 - Run `npx agenthood list` to verify setup
 
@@ -120,7 +120,7 @@ The TypeScript runtime is accessible via the integrated terminal:
 
 ```bash
 npm run build
-npx agenthood list               # list all 14 members
+npx agenthood list               # list all 16 members
 npx agenthood run the-scribe "..."   # invoke a member
 ```
 

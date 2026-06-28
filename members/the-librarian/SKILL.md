@@ -144,7 +144,7 @@ These files define how the Society works. They age like code — quietly and bad
 
 | File | Purpose | Update when |
 |------|---------|-------------|
-| `AGENTS.md` | Registry of all 14 members — runtimes read this | A member is added, removed, or renamed |
+| `AGENTS.md` | Registry of all members — runtimes read this | A member is added, removed, or renamed |
 | `CLAUDE.md` | Claude Code guidance — architecture, commands, conventions | `src/` architecture changes, new CLI commands, new conventions or hooks |
 | `CONTRIBUTING.md` | Contribution guide — branch, commit, PR workflow | CLI commands change, hooks change, conventions change |
 | `INITIATION.md` | Onboarding ceremony — how an adopter joins the Society | `npx agenthood init` flow changes, new commands, new required steps |

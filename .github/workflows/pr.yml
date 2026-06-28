@@ -25,19 +25,18 @@ jobs:
     if: github.event_name == 'pull_request'
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
         with:
           fetch-depth: 0
-      - uses: actions/setup-node@v4
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020
         with:
           node-version: "24"
-      - name: Install commitlint
-        run: npm install --save-dev --save-exact tsx@4.19.0 @commitlint/cli@19.5.0 @commitlint/config-conventional@19.5.0 @commitlint/types@19.5.0
       - name: The Doorman — validate commits in PR range
         env:
           NODE_OPTIONS: "--import tsx"
         run: |
-          npx commitlint \
+          npx --package tsx@4.19.0 --package @commitlint/cli@19.5.0 --package @commitlint/config-conventional@19.5.0 --package @commitlint/types@19.5.0 \
+            commitlint \
             --config conventions/commitlint.config.ts \
             --from ${{ github.event.pull_request.base.sha }} \
             --to ${{ github.event.pull_request.head.sha }} \
@@ -50,7 +49,7 @@ jobs:
     name: The Auditor — Secret Scanning
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
         with:
           fetch-depth: 0
       - name: Warn if private repo without license
@@ -93,7 +92,7 @@ jobs:
     if: github.event_name == 'pull_request'
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/labeler@v5
+      - uses: actions/labeler@8558fd74291d67161a8a78ce36a881fa63b766a9
         with:
           repo-token: ${{ secrets.GITHUB_TOKEN }}
 
@@ -105,7 +104,7 @@ jobs:
     if: github.event_name == 'pull_request'
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
         with:
           fetch-depth: 0
       - name: The Warden — enforce file size limits
@@ -152,7 +151,7 @@ jobs:
     if: github.event_name == 'pull_request'
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
         with:
           fetch-depth: 0
       - name: The Librarian — verify docs reflect changed files
@@ -180,7 +179,7 @@ jobs:
     name: The Sentinel — Member File Structure
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
       - name: The Sentinel — run all member structure checks
         shell: bash
         run: .github/scripts/sentinel-check.sh
@@ -200,84 +199,18 @@ jobs:
     name: The Tester — Test Suite
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
         with:
           fetch-depth: 0
-      - uses: actions/setup-node@v4
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020
         with:
           node-version: "24"
           cache: npm
       - run: npm ci
+      - run: npm audit --audit-level=high || echo "::warning::npm audit found vulnerabilities"
       - name: The Tester — run affected tests
         shell: bash
         env:
           BASE_SHA: ${{ github.event.pull_request.base.sha }}
           HEAD_SHA: ${{ github.event.pull_request.head.sha }}
-        run: |
-          if [ -z "$BASE_SHA" ] || [ "$BASE_SHA" = "$HEAD_SHA" ]; then
-            echo "No PR range available — running full suite."
-            npx vitest run --exclude 'vscode-extension/**'
-            exit $?
-          fi
-
-          CHANGED=$(git diff --name-only --diff-filter=ACM "$BASE_SHA" "$HEAD_SHA" 2>/dev/null)
-
-          # Always run full suite if critical config changed
-          if echo "$CHANGED" | grep -qE '^(package\.json|package-lock\.json|tsconfig\.json|vitest\.config)'; then
-            echo "Critical config changed — running full suite."
-            npx vitest run --exclude 'vscode-extension/**'
-            exit $?
-          fi
-
-          # Shared/core module paths that affect downstream tests
-          CORE_PATTERNS="src/core/ src/llm/ILLMProvider src/llm/types src/members/types src/agents/index src/index"
-
-          # Map changed source files to test files by basename
-          TEST_FILES=""
-          UNMATCHED_SOURCE=""
-          while IFS= read -r FILE; do
-            # Reject file names with unsafe characters per H-02
-            case "$FILE" in
-              *[!a-zA-Z0-9_./-]*)
-                echo "::warning::Skipping file with unsafe name: $FILE"
-                continue ;;
-            esac
-            case "$FILE" in
-              *.test.ts)
-                TEST_FILES="$TEST_FILES $FILE"
-                ;;
-              *.ts)
-                while IFS= read -r CP; do
-                  [ -z "$CP" ] && continue
-                  if echo "$FILE" | grep -qE "^${CP}"; then
-                    echo "Shared module changed ($FILE) — running full suite."
-                    npx vitest run --exclude 'vscode-extension/**'
-                    exit $?
-                  fi
-                done < <(echo "$CORE_PATTERNS" | tr ' ' '\n')
-                BASENAME=$(basename "$FILE" .ts)
-                FOUND=$(find tests -maxdepth 4 -name "${BASENAME}.test.ts" -type f 2>/dev/null | head -1)
-                if [ -n "$FOUND" ]; then
-                  TEST_FILES="$TEST_FILES $FOUND"
-                else
-                  UNMATCHED_SOURCE="$UNMATCHED_SOURCE $FILE"
-                fi
-                ;;
-            esac
-          done < <(echo "$CHANGED")
-
-          if [ -n "$UNMATCHED_SOURCE" ]; then
-            echo "::warning::Source files changed without matching tests:$UNMATCHED_SOURCE — running full suite."
-            npx vitest run --exclude 'vscode-extension/**'
-            exit $?
-          fi
-
-          if [ -z "$TEST_FILES" ]; then
-            echo "No affected tests — only docs, workflows, or config changed. Skipping."
-            echo "Changed: $CHANGED"
-            exit 0
-          fi
-
-          SORTED_TESTS=$(echo "$TEST_FILES" | tr ' ' '\n' | sort -u | tr '\n' ' ')
-          echo "Running affected tests: $SORTED_TESTS"
-          npx vitest run --exclude 'vscode-extension/**' $SORTED_TESTS
+        run: .github/scripts/test-runner.sh

@@ -16,7 +16,7 @@ jobs:
     name: Verify Skills.sh listing
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
       - name: Check Skills.sh badge resolves
         run: |
           STATUS=$(curl -s -o /dev/null -w "%{http_code}" https://skills.sh/b/fworks-tech/agenthood)
@@ -30,7 +30,7 @@ jobs:
     name: Validate SkillsMP schema
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
       - name: Validate SKILL.md frontmatter against SkillsMP schema
         shell: bash
         run: .github/scripts/validate-skill-md.sh

@@ -2,7 +2,7 @@
 set -euo pipefail
 
 FAILED=0
-REQUIRED_SECTIONS="## Overview ## When to Use ## Process ## Red Flags ## Rationalizations ## Verification"
+REQUIRED_SECTIONS=("## Overview" "## When to Use" "## Process" "## Red Flags" "## Rationalizations" "## Verification")
 INDEXES="AGENTS.md members/README.md README.md"
 
 check_readme_for_member() {
@@ -15,7 +15,7 @@ check_sections_for_member() {
   local name="$1" dir="$2" section fail=0
   local skill="${dir}SKILL.md"
   [ ! -f "$skill" ] && return 0
-  for section in $REQUIRED_SECTIONS; do
+  for section in "${REQUIRED_SECTIONS[@]}"; do
     ! grep -qF "$section" "$skill" && echo "FAIL [$name]: SKILL.md missing '$section'" && fail=1
   done
   return $fail

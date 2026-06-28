@@ -1,4 +1,6 @@
-const pr = context.payload.workflow_run.pull_requests[0];
+const prList = context.payload.workflow_run?.pull_requests;
+if (!prList || prList.length === 0) return;
+const pr = prList[0];
 const owner = context.repo.owner;
 const repo = context.repo.repo;
 const sha = pr.head.sha;

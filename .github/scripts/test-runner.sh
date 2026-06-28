@@ -72,6 +72,6 @@ if [ -z "$TEST_FILES" ]; then
   exit 0
 fi
 
-SORTED_TESTS=$(echo "$TEST_FILES" | tr ' ' '\n' | sort -u | tr '\n' ' ')
-echo "Running affected tests: $SORTED_TESTS"
-npx vitest run --exclude 'vscode-extension/**' -- $SORTED_TESTS
+readarray -t SORTED_TESTS < <(echo "$TEST_FILES" | tr ' ' '\n' | sort -u | sed '/^$/d')
+echo "Running affected tests: ${SORTED_TESTS[*]}"
+npx vitest run --exclude 'vscode-extension/**' -- "${SORTED_TESTS[@]}"

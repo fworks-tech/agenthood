@@ -31,11 +31,11 @@ A RACI (Responsible / Accountable / Consulted / Informed) matrix documenting all
 | **The Sentinel** | Society integrity | Member consistency, contradiction detection, drift | Oracle (template), Warden (code quality) | All | Steward |
 | **The Warden** | Code health | Smell detection, architectural decay, complexity | Sentinel (member structure), Auditor (security) | Reviewer, Architect | Sentinel |
 | **The Steward** | Context economy | Member routing, cache strategy, session triage | Envoy (provider limits), Oracle (member load) | All | — |
-| *The Strategist* | Requirement discovery | Problem definition, success criteria, prioritization | Oracle (prior art), Architect (feasibility) | Architect, Herald | — |
+| **The Strategist** | Requirement discovery | Problem definition, success criteria, prioritization | Oracle (prior art), Architect (feasibility) | Architect, Herald | — |
 | *The Mediator* | Workflow orchestration | Sequencing, handoffs, conflict resolution | Steward (member routing), Architect (task structure) | All | Steward |
-| *The Operator* | Runtime health | Deployment, incidents, rollback, monitoring | Debugger (failures), Herald (releases) | All | — |
+| **The Operator** | Runtime health | Deployment, incidents, rollback, monitoring | Debugger (failures), Herald (releases) | All | — |
 
-*Italic rows = planned for M6.*
+*Italic rows = planned but not yet shipped. Strategist and Operator shipped in M6 (PR #288).*
 
 ## Lane Boundaries
 

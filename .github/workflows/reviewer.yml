@@ -62,7 +62,7 @@ jobs:
             exit 0
           fi
 
-          TASK=$(printf "review this git diff. Be concise — use bullet points, keep under 40 lines:\n%s\n\nEnd your report with: <!--AGENTHOOD_DECISION: blocking=true|false warnings=N-->" "$DIFF")
+          TASK=$(printf "review this git diff. Be concise — use bullet points, keep under 40 lines:\n%s\n\nEnd your report with: <!--AGENTHOOD_DECISION: blocking=true warnings=N--> or <!--AGENTHOOD_DECISION: blocking=false warnings=N-->" "$DIFF")
           node dist/cli.js run the-reviewer "$TASK" --provider opencode-go 2>&1 | grep -v "^Error running\|^Using \|^opencode-go\|^groq\|^ollama\|^All providers\|^$" > /tmp/review_body.txt
         env:
           GITHUB_TOKEN: ${{ github.token }}
@@ -117,7 +117,7 @@ jobs:
           fi
           # Check structured decision block from the LLM
           if grep -qE '<!--AGENTHOOD_DECISION:' /tmp/review_body.txt 2>/dev/null; then
-            if ! grep -qE '<!--AGENTHOOD_DECISION:.*blocking=true' /tmp/review_body.txt 2>/dev/null; then
+            if ! grep -qE '<!--AGENTHOOD_DECISION:.*blocking=true[[:space:]]' /tmp/review_body.txt 2>/dev/null; then
               echo "No blocking findings."
               exit 0
             fi

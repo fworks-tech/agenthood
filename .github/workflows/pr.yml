@@ -1,4 +1,4 @@
-name: Society -- PR Standards
+name: Society — PR Standards
 
 on:
   pull_request:
@@ -18,10 +18,10 @@ permissions:
 
 jobs:
   # ──────────────────────────────────────────────
-  # The Doorman -- commit message validation
+  # The Doorman — commit message validation
   # ──────────────────────────────────────────────
   commitlint:
-    name: The Doorman -- Commit Message Validation
+    name: The Doorman — Commit Message Validation
     if: github.event_name == 'pull_request'
     runs-on: ubuntu-latest
     steps:
@@ -33,7 +33,7 @@ jobs:
           node-version: "24"
       - name: Install commitlint
         run: npm install --save-dev tsx @commitlint/cli @commitlint/config-conventional @commitlint/types
-      - name: The Doorman -- validate commits in PR range
+      - name: The Doorman — validate commits in PR range
         env:
           NODE_OPTIONS: "--import tsx"
         run: |
@@ -44,15 +44,19 @@ jobs:
             --verbose
 
   # ──────────────────────────────────────────────
-  # The Auditor -- Gitleaks secret scanning
+  # The Auditor — Gitleaks secret scanning
   # ──────────────────────────────────────────────
   gitleaks:
-    name: The Auditor -- Secret Scanning
+    name: The Auditor — Secret Scanning
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
         with:
           fetch-depth: 0
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "24"
+          cache: npm
       - name: Warn if private repo without license
         if: github.event.repository.private == true
         run: |
@@ -65,18 +69,18 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           GITLEAKS_LICENSE: ${{ secrets.GITLEAKS_LICENSE || '' }}
-      - name: The Auditor -- post findings to PR
+      - name: The Auditor — post findings to PR
         if: failure() && github.event_name == 'pull_request'
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
           gh pr comment ${{ github.event.pull_request.number }} \
-            --body "## The Auditor -- Secret Scan :warning:
+            --body "## The Auditor — Secret Scan :warning:
 
           Potential secrets or configuration issues were detected. Review the [workflow run](${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}) for details.
 
           *-- The Auditor, Agenthood*"
-      - name: The Auditor -- agent analysis
+      - name: The Auditor — agent analysis
         continue-on-error: true
         uses: ./.github/actions/agent-analysis
         with:
@@ -89,10 +93,10 @@ jobs:
           github-token: ${{ github.token }}
 
   # ──────────────────────────────────────────────
-  # The Scribe -- auto-label PR by changed files
+  # The Scribe — auto-label PR by changed files
   # ──────────────────────────────────────────────
   labeler:
-    name: Society -- PR Labeler
+    name: Society — PR Labeler
     if: github.event_name == 'pull_request'
     runs-on: ubuntu-latest
     steps:
@@ -101,17 +105,21 @@ jobs:
           repo-token: ${{ secrets.GITHUB_TOKEN }}
 
   # ──────────────────────────────────────────────
-  # The Warden -- file size enforcement
+  # The Warden — file size enforcement
   # ──────────────────────────────────────────────
   filesize:
-    name: The Warden -- File Size Enforcement
+    name: The Warden — File Size Enforcement
     if: github.event_name == 'pull_request'
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
         with:
           fetch-depth: 0
-      - name: The Warden -- enforce file size limits
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "24"
+          cache: npm
+      - name: The Warden — enforce file size limits
         shell: bash
         run: |
           failed=0
@@ -125,10 +133,10 @@ jobs:
             esac
             lines=$(wc -l < "$file" | tr -d ' ')
             if [ "$lines" -gt 500 ]; then
-              echo "FAIL: $file -- $lines lines (limit: 500)"
+              echo "FAIL: $file — $lines lines (limit: 500)"
               failed=1
             elif [ "$lines" -gt 300 ]; then
-              echo "WARN: $file -- $lines lines (approaching limit of 500)"
+              echo "WARN: $file — $lines lines (approaching limit of 500)"
             fi
           done
           if [ "$failed" -eq 1 ]; then
@@ -138,7 +146,7 @@ jobs:
             exit 1
           fi
           echo "The Warden: all changed files within size limits."
-      - name: The Warden -- agent analysis
+      - name: The Warden — agent analysis
         continue-on-error: true
         uses: ./.github/actions/agent-analysis
         with:
@@ -151,17 +159,17 @@ jobs:
           github-token: ${{ github.token }}
 
   # ──────────────────────────────────────────────
-  # The Librarian -- documentation sync check
+  # The Librarian — documentation sync check
   # ──────────────────────────────────────────────
   librarian:
-    name: The Librarian -- Documentation Sync
+    name: The Librarian — Documentation Sync
     if: github.event_name == 'pull_request'
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
         with:
           fetch-depth: 0
-      - name: The Librarian -- verify docs reflect changed files
+      - name: The Librarian — verify docs reflect changed files
         shell: bash
         run: |
           FAILED=0
@@ -248,7 +256,7 @@ jobs:
 
           CHANGELOG_CHANGED=$(echo "$CHANGED" | grep "^CHANGELOG\.md" || true)
           if [ -n "$CHANGELOG_CHANGED" ]; then
-            echo "WARN: CHANGELOG.md modified manually -- it is managed by semantic-release"
+            echo "WARN: CHANGELOG.md modified manually — it is managed by semantic-release"
           fi
 
           if [ "$FAILED" -eq 1 ]; then
@@ -257,26 +265,30 @@ jobs:
             exit 1
           fi
           echo "The Librarian: documentation is consistent with the changes."
-      - name: The Librarian -- post doc sync report to PR
+      - name: The Librarian — post doc sync report to PR
         if: failure() && github.event_name == 'pull_request'
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
           gh pr comment ${{ github.event.pull_request.number }} \
-            --body "## The Librarian -- Documentation Check :warning:
+            --body "## The Librarian — Documentation Check :warning:
 
           Documentation may be out of sync with code changes. Review the [workflow run](${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}) for details.
 
           *-- The Librarian, Agenthood*"
 
   # ──────────────────────────────────────────────
-  # The Sentinel -- member file structure
+  # The Sentinel — member file structure
   # ──────────────────────────────────────────────
   sentinel:
-    name: The Sentinel -- Member File Structure
+    name: The Sentinel — Member File Structure
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "24"
+          cache: npm
       - name: Check member README.md presence
         shell: bash
         run: |
@@ -362,7 +374,7 @@ jobs:
           done
           [ "$failed" -eq 1 ] && exit 1
           echo "No orphan skills/ directories."
-      - name: The Sentinel -- agent analysis
+      - name: The Sentinel — agent analysis
         continue-on-error: true
         uses: ./.github/actions/agent-analysis
         with:
@@ -375,17 +387,61 @@ jobs:
           github-token: ${{ github.token }}
 
   # ──────────────────────────────────────────────
-  # The Tester -- test suite
+  # The Tester — test suite
   # ──────────────────────────────────────────────
   tests:
-    name: The Tester -- Test Suite
+    name: The Tester — Test Suite
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
       - uses: actions/setup-node@v4
         with:
           node-version: "24"
           cache: npm
       - run: npm ci
-      - name: The Tester -- run test suite
-        run: npm test
+      - name: The Tester — run affected tests
+        shell: bash
+        run: |
+          BASE_SHA="${{ github.event.pull_request.base.sha }}"
+          HEAD_SHA="${{ github.event.pull_request.head.sha }}"
+
+          if [ -z "$BASE_SHA" ] || [ "$BASE_SHA" = "$HEAD_SHA" ]; then
+            echo "No PR range available — running full suite."
+            npx vitest run --exclude 'vscode-extension/**'
+            exit $?
+          fi
+
+          CHANGED=$(git diff --name-only --diff-filter=ACM "$BASE_SHA" "$HEAD_SHA" 2>/dev/null)
+
+          # Always run full suite if critical config changed
+          if echo "$CHANGED" | grep -qE '^(package\.json|package-lock\.json|tsconfig\.json|vitest\.config)'; then
+            echo "Critical config changed — running full suite."
+            npx vitest run --exclude 'vscode-extension/**'
+            exit $?
+          fi
+
+          # Map changed source files to test files by basename
+          TEST_FILES=""
+          for FILE in $CHANGED; do
+            case "$FILE" in
+              *.test.ts)
+                TEST_FILES="$TEST_FILES $FILE"
+                ;;
+              *.ts)
+                BASENAME=$(basename "$FILE" .ts)
+                FOUND=$(find tests -maxdepth 4 -name "${BASENAME}.test.ts" -type f 2>/dev/null | head -1)
+                [ -n "$FOUND" ] && TEST_FILES="$TEST_FILES $FOUND"
+                ;;
+            esac
+          done
+
+          if [ -z "$TEST_FILES" ]; then
+            echo "No affected tests found (only docs, workflows, or untested source changed). Skipping."
+            echo "Changed files: $(echo "$CHANGED" | tr '\n' ' ')"
+            exit 0
+          fi
+
+          echo "Running affected tests: $(echo "$TEST_FILES" | tr ' ' '\n' | sort -u | tr '\n' ' ')"
+          npx vitest run $(echo "$TEST_FILES" | tr ' ' '\n' | sort -u | tr '\n' ' ')

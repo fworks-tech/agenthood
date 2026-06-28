@@ -31,11 +31,12 @@ jobs:
       - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020
         with:
           node-version: "24"
+          cache: npm
+      - run: npm ci --ignore-scripts --no-audit
       - name: The Doorman — validate commits in PR range
         env:
           NODE_OPTIONS: "--import tsx"
         run: |
-          npm install --no-save --no-audit --no-fund tsx@4.19.0
           npx --package @commitlint/cli@19.5.0 --package @commitlint/config-conventional@19.5.0 --package @commitlint/types@19.5.0 \
             commitlint \
             --config conventions/commitlint.config.ts \

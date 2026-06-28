@@ -28,7 +28,6 @@ describe('status command', () => {
     const output = log.mock.calls.flat().join(' ')
     expect(output).toContain('Members:     0')
     expect(output).toContain('Decisions:   0')
-    expect(output).toContain('Checkpoints: 0')
     expect(output).toContain('Lockfile:    absent')
     expect(output).toContain('Memory:      not initialized')
   })
@@ -36,7 +35,7 @@ describe('status command', () => {
   it('shows member count from members directory', async () => {
     vi.mocked(existsSync).mockImplementation((path) => {
       const p = path as string
-      return p.includes('members') || p.includes('decisions') || p.includes('checkpoints') || p.includes('lock')
+      return p.includes('members') || p.includes('decisions') || p.includes('lock')
     })
     vi.mocked(readdirSync).mockImplementation((path) => {
       const p = path as string

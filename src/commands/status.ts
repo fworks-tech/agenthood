@@ -14,11 +14,6 @@ export async function status(): Promise<void> {
     ? readdirSync(decisionsDir).filter((f) => f.endsWith('.json')).length
     : 0
 
-  const checkpointsDir = join(cwd, '.agenthood', 'checkpoints')
-  const checkpointCount = existsSync(checkpointsDir)
-    ? readdirSync(checkpointsDir).filter((f) => f.endsWith('.json')).length
-    : 0
-
   const lockPath = join(cwd, 'agenthood.lock')
   let lockStatus = 'absent'
   if (existsSync(lockPath)) {
@@ -36,7 +31,6 @@ export async function status(): Promise<void> {
   console.log('\n  Agenthood Status\n')
   console.log(`  Members:     ${memberCount}`)
   console.log(`  Decisions:   ${decisionCount}`)
-  console.log(`  Checkpoints: ${checkpointCount}`)
   console.log(`  Lockfile:    ${lockStatus}`)
   console.log(`  Memory:      ${memoryInit ? 'initialized' : 'not initialized'}`)
   console.log()

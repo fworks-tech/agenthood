@@ -1,20 +1,51 @@
 import { DiffImpactAnalyzer } from '../DiffImpactAnalyzer.js'
-import { QualityGates } from '../../core/QualityGates.js'
+import { QualityGates } from '../QualityGates.js'
+import { WorkflowEngine } from '../WorkflowEngine.js'
+import type { ExecutionContext } from '../../core/ExecutionContext.js'
+import type { IProtocol } from '../protocols/IProtocol.js'
 import type { WorkflowDefinition, WorkflowStep } from '../types.js'
-import type { AgentProtocol } from '../protocols/AgentProtocol.js'
 
-export function createReviewPrWorkflow(): WorkflowDefinition {
-  const cwd = process.cwd()
+class ImpactProtocol implements IProtocol<unknown, unknown> {
+  name = 'impact-protocol'
+  config = { retryPolicy: { maxRetries: 0, backoffMs: 0 }, timeoutMs: 30000 }
+
+  async execute(): Promise<unknown> {
+    return new DiffImpactAnalyzer().analyze()
+  }
+
+  onFailure(_error: Error, _attempt: number): 'retry' | 'abort' | 'escalate' {
+    return 'abort'
+  }
+}
+
+class QualityGatesProtocol implements IProtocol<unknown, unknown> {
+  name = 'gates-protocol'
+  config = { retryPolicy: { maxRetries: 0, backoffMs: 0 }, timeoutMs: 120000 }
+
+  async execute(): Promise<unknown> {
+    return new QualityGates().check()
+  }
+
+  onFailure(_error: Error, _attempt: number): 'retry' | 'abort' | 'escalate' {
+    return 'abort'
+  }
+}
+
+export function createReviewPrWorkflow(): { definition: WorkflowDefinition; protocols: IProtocol<unknown, unknown>[] } {
+  const impactProtocol = new ImpactProtocol()
+  const gatesProtocol = new QualityGatesProtocol()
 
   const steps: WorkflowStep[] = [
     {
       name: 'analyze-impact',
       type: 'tool',
+      protocol: impactProtocol,
       task: 'Analyze git diff impact',
     },
     {
       name: 'quality-gates',
       type: 'tool',
+      protocol: gatesProtocol,
       task: 'Run quality checks',
     },
     {
@@ -31,18 +62,16 @@ export function createReviewPrWorkflow(): WorkflowDefinition {
   ]
 
   return {
-    name: 'review-pr',
-    description: 'Full PR review workflow: impact analysis, quality gates, code review, and human approval',
-    steps,
+    definition: {
+      name: 'review-pr',
+      description: 'Full PR review workflow: impact analysis, quality gates, code review, and human approval',
+      steps,
+    },
+    protocols: [impactProtocol, gatesProtocol],
   }
 }
 
-export async function executeReviewPrWorkflow(): Promise<string> {
-  const analyzer = new DiffImpactAnalyzer()
-  const gates = new QualityGates()
-
-  const impact = analyzer.analyze()
-
+function formatReport(impact: ReturnType<DiffImpactAnalyzer['analyze']>, gates: ReturnType<QualityGates['check']>): string {
   const lines: string[] = []
   lines.push('## Impact Analysis')
   lines.push('')
@@ -56,9 +85,8 @@ export async function executeReviewPrWorkflow(): Promise<string> {
   lines.push('## Quality Gates')
   lines.push('')
 
-  const gateResults = gates.check()
   let allGatesPass = true
-  for (const gate of gateResults) {
+  for (const gate of gates) {
     const icon = gate.pass ? 'PASS' : 'FAIL'
     lines.push(`- [${icon}] ${gate.name}: ${gate.detail}`)
     if (!gate.pass) allGatesPass = false
@@ -74,4 +102,27 @@ export async function executeReviewPrWorkflow(): Promise<string> {
   }
 
   return lines.join('\n')
+}
+
+export async function executeReviewPrWorkflow(): Promise<string> {
+  const engine = new WorkflowEngine()
+  const { definition: workflow, protocols } = createReviewPrWorkflow()
+  for (const p of protocols) engine.registerProtocol(p.name, p)
+
+  const context: ExecutionContext = {
+    executionId: 'review-pr',
+    project: { localPath: process.cwd(), name: 'project' },
+    memory: {} as any,
+    llm: {} as any,
+    prompts: {} as any,
+    tracer: { startSpan: () => {}, endSpan: () => {} },
+    artifacts: [],
+  }
+
+  const wfContext = await engine.execute(workflow, context)
+
+  const impact = wfContext.stepResults.get('analyze-impact') as ReturnType<DiffImpactAnalyzer['analyze']>
+  const gates = wfContext.stepResults.get('quality-gates') as ReturnType<QualityGates['check']>
+
+  return formatReport(impact, gates)
 }

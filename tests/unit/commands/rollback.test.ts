@@ -21,25 +21,16 @@ vi.mock('node:child_process', async (importOriginal) => {
 import { existsSync, readFileSync } from 'node:fs'
 import { execSync } from 'node:child_process'
 import { rollback } from '../../../src/commands/rollback.js'
-
-function computeHash(content: string): string {
-  let hash = 0
-  for (let i = 0; i < content.length; i++) {
-    const char = content.charCodeAt(i)
-    hash = ((hash << 5) - hash) + char
-    hash |= 0
-  }
-  return Math.abs(hash).toString(16).padStart(8, '0')
-}
+import { contentHash } from '../../../src/utils/hash.js'
 
 const LOCKED_CONTENT = 'locked content'
-const LOCKED_HASH = computeHash(LOCKED_CONTENT)
+const LOCKED_HASH = contentHash(LOCKED_CONTENT)
 
 const VALID_LOCK = JSON.stringify({
   version: 1,
   members: {
     'the-test': {
-      version: `sha256:${LOCKED_HASH}`,
+      version: LOCKED_HASH,
       updatedAt: '2026-06-27T12:00:00.000Z',
     },
   },

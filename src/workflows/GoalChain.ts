@@ -22,6 +22,19 @@ export interface SubGoal {
 
 const GOALS_INDEX_KEY = 'goals:index'
 
+function isGoal(value: unknown): value is Goal {
+  if (typeof value !== 'object' || value === null) return false
+  const g = value as Record<string, unknown>
+  return (
+    typeof g.id === 'string' &&
+    typeof g.description === 'string' &&
+    Array.isArray(g.subGoals) &&
+    ['pending', 'in_progress', 'blocked', 'completed'].includes(g.status as string) &&
+    typeof g.createdAt === 'string' &&
+    typeof g.updatedAt === 'string'
+  )
+}
+
 export class GoalChain {
   private memory: LongTermMemory
   private goals: Goal[] = []
@@ -108,10 +121,9 @@ export class GoalChain {
     if (existing) return existing
 
     const raw = await this.memory.retrieve(`goals:${goalId}`)
-    if (raw) {
-      const goal = raw as Goal
-      this.goals.push(goal)
-      return goal
+    if (raw && isGoal(raw)) {
+      this.goals.push(raw)
+      return raw
     }
     return undefined
   }
@@ -122,7 +134,7 @@ export class GoalChain {
 
   private async updateIndex(goalId: string, _action: 'add' | 'remove'): Promise<void> {
     const raw = await this.memory.retrieve(GOALS_INDEX_KEY)
-    const index: string[] = raw ? (raw as string[]) : []
+    const index: string[] = raw && Array.isArray(raw) ? (raw as string[]) : []
     if (!index.includes(goalId)) {
       index.push(goalId)
       await this.memory.store(GOALS_INDEX_KEY, index)

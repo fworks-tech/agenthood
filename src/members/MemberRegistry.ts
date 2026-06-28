@@ -215,16 +215,20 @@ export class MemberRegistry {
     const base = ['file.read', 'file.list', 'file.search', 'code.grep', 'memory.read', 'memory.write', 'tasks.read', 'tasks.write', 'think']
     if (permission === 'restricted') return base
 
-    const standard = [
+    if (permission === 'standard') {
+      return [
+        ...base,
+        'file.write', 'file.edit',
+        'git.status', 'git.diff', 'git.log', 'git.branch',
+        'terminal.run',
+      ]
+    }
+
+    return [
       ...base,
       'file.write', 'file.edit',
       'git.status', 'git.diff', 'git.log', 'git.branch',
       'terminal.run',
-    ]
-    if (permission === 'standard') return standard
-
-    return [
-      ...standard,
       'file.delete',
       'git.commit', 'git.push', 'git.tag',
       'code.symbols', 'code.analysis', 'code.diagnostics',

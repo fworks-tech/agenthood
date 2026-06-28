@@ -33,7 +33,8 @@ export class DecisionLog {
   }
 
   async record(entry: DecisionEntry): Promise<void> {
-    const filePath = join(this.decisionsDir, `${entry.id}.json`)
+    const safeId = this.sanitizeId(entry.id)
+    const filePath = join(this.decisionsDir, `${safeId}.json`)
     this.ensureDir()
     writeFileSync(filePath, JSON.stringify(entry, null, 2), 'utf8')
     this.cache.set(entry.id, entry)
@@ -63,14 +64,15 @@ export class DecisionLog {
   }
 
   async get(id: string): Promise<DecisionEntry | undefined> {
-    if (this.cache.has(id)) return this.cache.get(id)
+    const safeId = this.sanitizeId(id)
+    if (this.cache.has(safeId)) return this.cache.get(safeId)
 
-    const filePath = join(this.decisionsDir, `${id}.json`)
+    const filePath = join(this.decisionsDir, `${safeId}.json`)
     if (!existsSync(filePath)) return undefined
 
     const raw = readFileSync(filePath, 'utf8')
     const entry = JSON.parse(raw) as DecisionEntry
-    this.cache.set(id, entry)
+    this.cache.set(safeId, entry)
     return entry
   }
 
@@ -110,6 +112,14 @@ export class DecisionLog {
         // skip corrupt files
       }
     }
+  }
+
+  private sanitizeId(id: string): string {
+    const safe = id.replace(/[^a-zA-Z0-9_-]/g, '')
+    if (safe !== id) {
+      throw new Error(`Invalid decision id: "${id}" — must match [a-zA-Z0-9_-]+`)
+    }
+    return safe
   }
 
   private ensureDir(): void {

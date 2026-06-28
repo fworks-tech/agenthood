@@ -1,8 +1,8 @@
 import { execSync } from 'node:child_process'
 import { existsSync, readFileSync } from 'node:fs'
 import { join } from 'node:path'
-import { DiffImpactAnalyzer } from '../workflows/DiffImpactAnalyzer.js'
-import type { ImpactAnalysis } from '../workflows/DiffImpactAnalyzer.js'
+import { DiffImpactAnalyzer } from './DiffImpactAnalyzer.js'
+import type { ImpactAnalysis } from './DiffImpactAnalyzer.js'
 
 export interface GateResult {
   name: string
@@ -29,7 +29,7 @@ export class QualityGates {
 
   checkTypeScript(cwd: string): GateResult {
     try {
-      execSync('npx tsc --noEmit', { cwd, encoding: 'utf-8', stdio: 'pipe', timeout: 60000 })
+      execSync('npx tsc --noEmit', { cwd, encoding: 'utf-8', stdio: 'pipe', timeout: 60000, maxBuffer: 10 * 1024 * 1024 })
       return { name: 'TypeScript', pass: true, detail: 'Compiles without errors' }
     } catch (e) {
       const output = (e as { stdout?: string }).stdout || 'unknown error'
@@ -40,11 +40,12 @@ export class QualityGates {
 
   checkTests(cwd: string): GateResult {
     try {
-      const output = execSync('npx vitest run --reporter=json 2>&1', { cwd, encoding: 'utf-8', stdio: 'pipe', timeout: 120000 })
+      const output = execSync('npx vitest run --reporter=json 2>&1', { cwd, encoding: 'utf-8', stdio: 'pipe', timeout: 120000, maxBuffer: 10 * 1024 * 1024 })
       const parsed = JSON.parse(output)
-      const total = parsed.totalTests || 0
-      const passed = parsed.passedTests || 0
-      const failed = parsed.failedTests || 0
+      if (typeof parsed !== 'object' || parsed === null) throw new Error('Invalid test output')
+      const total = typeof parsed.totalTests === 'number' ? parsed.totalTests : 0
+      const failed = typeof parsed.failedTests === 'number' ? parsed.failedTests : 0
+      const passed = typeof parsed.passedTests === 'number' ? parsed.passedTests : 0
       return {
         name: 'Tests',
         pass: failed === 0,

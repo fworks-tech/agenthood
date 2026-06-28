@@ -14,6 +14,7 @@ export async function workflow(args: string[]): Promise<void> {
       console.error(`  - ${key}`)
     }
     process.exit(1)
+    return
   }
 
   const executor = WORKFLOWS[name]

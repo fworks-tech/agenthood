@@ -1,6 +1,7 @@
 import { existsSync, readFileSync, readdirSync, writeFileSync } from 'node:fs'
 import { join } from 'node:path'
 import { MEMBER_NAMES } from '../members.js'
+import { contentHash } from '../utils/hash.js'
 
 const REQUIRED_SECTIONS = ['Overview', 'When to Use', 'Process', 'Red Flags', 'Rationalizations', 'Verification']
 
@@ -30,71 +31,45 @@ function parseFrontmatter(content: string): { frontmatter: Record<string, unknow
   return { frontmatter, body: content.slice(match[0].length) }
 }
 
-export async function verify(args: string[]): Promise<void> {
-  const cwd = process.cwd()
-  const membersDir = join(cwd, 'members')
-  const flags = new Set(args.filter((a) => a.startsWith('--')))
-  const positionals = args.filter((a) => !a.startsWith('--'))
+function validateMember(membersDir: string, member: string): VerifyResult {
+  const result: VerifyResult = { member, pass: true, issues: [] }
+  const skillPath = join(membersDir, member, 'SKILL.md')
 
-  const isStrict = flags.has('--strict')
-  const updateLock = flags.has('--update-lock')
-  const targetMember = positionals[0]
-
-  const membersToCheck = targetMember
-    ? [targetMember]
-    : readdirSync(membersDir, { withFileTypes: true })
-        .filter((d) => d.isDirectory())
-        .map((d) => d.name)
-
-  let allPassed = true
-  const results: VerifyResult[] = []
-
-  for (const member of membersToCheck) {
-    const skillPath = join(membersDir, member, 'SKILL.md')
-    const result: VerifyResult = { member, pass: true, issues: [] }
-
-    if (!existsSync(skillPath)) {
-      result.pass = false
-      result.issues.push('SKILL.md not found')
-      results.push(result)
-      allPassed = false
-      continue
-    }
-
-    const content = readFileSync(skillPath, 'utf8')
-    const { frontmatter, body } = parseFrontmatter(content)
-
-    // Check frontmatter
-    if (!frontmatter) {
-      result.issues.push('Missing YAML frontmatter')
-    } else {
-      if (!frontmatter.name) result.issues.push('Frontmatter missing "name"')
-      if (!frontmatter.description) result.issues.push('Frontmatter missing "description"')
-      if (!frontmatter.license) result.issues.push('Frontmatter missing "license"')
-    }
-
-    // Check required sections
-    for (const section of REQUIRED_SECTIONS) {
-      const sectionRegex = new RegExp(`## ${section}`, 'i')
-      if (!sectionRegex.test(body)) {
-        result.issues.push(`Missing required section: "${section}"`)
-      }
-    }
-
-    // Check for placeholder content
-    for (const pattern of PLACEHOLDER_PATTERNS) {
-      if (pattern.test(body)) {
-        result.issues.push(`Contains placeholder content matching "${pattern.source}"`)
-      }
-    }
-
-    if (result.issues.length > 0) result.pass = false
-    if (!result.pass) allPassed = false
-
-    results.push(result)
+  if (!existsSync(skillPath)) {
+    result.pass = false
+    result.issues.push('SKILL.md not found')
+    return result
   }
 
-  // Print results
+  const content = readFileSync(skillPath, 'utf8')
+  const { frontmatter, body } = parseFrontmatter(content)
+
+  if (!frontmatter) {
+    result.issues.push('Missing YAML frontmatter')
+  } else {
+    if (!frontmatter.name) result.issues.push('Frontmatter missing "name"')
+    if (!frontmatter.description) result.issues.push('Frontmatter missing "description"')
+    if (!frontmatter.license) result.issues.push('Frontmatter missing "license"')
+  }
+
+  for (const section of REQUIRED_SECTIONS) {
+    const sectionRegex = new RegExp(`## ${section}`, 'i')
+    if (!sectionRegex.test(body)) {
+      result.issues.push(`Missing required section: "${section}"`)
+    }
+  }
+
+  for (const pattern of PLACEHOLDER_PATTERNS) {
+    if (pattern.test(body)) {
+      result.issues.push(`Contains placeholder content matching "${pattern.source}"`)
+    }
+  }
+
+  if (result.issues.length > 0) result.pass = false
+  return result
+}
+
+function printResults(results: VerifyResult[]): void {
   for (const r of results) {
     if (r.pass) {
       console.log(`  \u2713 ${r.member}`)
@@ -105,42 +80,65 @@ export async function verify(args: string[]): Promise<void> {
       }
     }
   }
+}
 
-  // Update lockfile if requested
-  if (updateLock && allPassed) {
-    const lock: Record<string, unknown> = { version: 1, members: {} }
-    for (const member of membersToCheck) {
-      const skillPath = join(membersDir, member, 'SKILL.md')
-      if (existsSync(skillPath)) {
-        const content = readFileSync(skillPath, 'utf8')
-        const hash = simpleHash(content)
-        ;(lock.members as Record<string, unknown>)[member] = {
-          version: `sha256:${hash}`,
-          updatedAt: new Date().toISOString(),
-        }
+function updateLockfile(cwd: string, membersDir: string, members: string[]): void {
+  const lock: Record<string, unknown> = { version: 1, members: {} }
+  for (const member of members) {
+    const skillPath = join(membersDir, member, 'SKILL.md')
+    if (existsSync(skillPath)) {
+      const content = readFileSync(skillPath, 'utf8')
+      const hash = contentHash(content)
+      ;(lock.members as Record<string, unknown>)[member] = {
+        version: hash,
+        updatedAt: new Date().toISOString(),
       }
     }
-
-    const lockPath = join(cwd, 'agenthood.lock')
-    writeFileSync(lockPath, JSON.stringify(lock, null, 2) + '\n', 'utf8')
-    console.log(`\n  Lockfile written to ${lockPath}`)
   }
 
-  if (isStrict && allPassed) {
+  const lockPath = join(cwd, 'agenthood.lock')
+  writeFileSync(lockPath, JSON.stringify(lock, null, 2) + '\n', 'utf8')
+  console.log(`\n  Lockfile written to ${lockPath}`)
+}
+
+export async function verify(args: string[]): Promise<void> {
+  const cwd = process.cwd()
+  const membersDir = join(cwd, 'members')
+  const flags = new Set(args.filter((a) => a.startsWith('--')))
+  const positionals = args.filter((a) => !a.startsWith('--'))
+
+  const isStrict = flags.has('--strict')
+  const updateLock = flags.has('--update-lock')
+  const targetMember = positionals[0]
+
+  if (targetMember && !/^[a-z0-9][a-z0-9_-]*$/.test(targetMember)) {
+    console.error(`Invalid member name: "${targetMember}"`)
+    process.exit(1)
+    return
+  }
+
+  const membersToCheck = targetMember
+    ? [targetMember]
+    : readdirSync(membersDir, { withFileTypes: true })
+        .filter((d) => d.isDirectory())
+        .map((d) => d.name)
+
+  const results = membersToCheck.map((m) => validateMember(membersDir, m))
+  printResults(results)
+
+  const hasAllPassed = results.every((r) => r.pass)
+
+  if (updateLock && hasAllPassed) {
+    updateLockfile(cwd, membersDir, membersToCheck)
+  }
+
+  if (isStrict && hasAllPassed) {
     console.log('\n  Strict mode: no lane overlap checks implemented yet.')
   }
 
-  if (!allPassed) {
+  if (!hasAllPassed) {
     process.exit(1)
   }
 }
 
-function simpleHash(content: string): string {
-  let hash = 0
-  for (let i = 0; i < content.length; i++) {
-    const char = content.charCodeAt(i)
-    hash = ((hash << 5) - hash) + char
-    hash |= 0
-  }
-  return Math.abs(hash).toString(16).padStart(8, '0')
-}
+

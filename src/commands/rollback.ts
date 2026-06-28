@@ -1,10 +1,45 @@
 import { existsSync, readFileSync } from 'node:fs'
 import { join } from 'node:path'
 import { execSync } from 'node:child_process'
+import { contentHash } from '../utils/hash.js'
 
 interface Lockfile {
   version: number
   members: Record<string, { version: string; updatedAt: string }>
+}
+
+function findRevision(cwd: string, skillPath: string, lockedHash: string): string | null {
+  const gitCmd = `git log --all --pretty=format:"%H" -- "${skillPath}"`
+  let commits: string[]
+  try {
+    const output = execSync(gitCmd, { cwd, encoding: 'utf-8', stdio: 'pipe' })
+    commits = output.trim().split('\n').filter(Boolean)
+  } catch {
+    return null
+  }
+
+  for (const commit of commits) {
+    const content = execSync(`git show ${commit}:"${skillPath}"`, { cwd, encoding: 'utf-8', stdio: 'pipe' })
+    const hash = contentHash(content)
+    if (hash === lockedHash) return commit
+  }
+  return null
+}
+
+function restoreMember(cwd: string, skillPath: string, member: string, commit: string, isDryRun: boolean): boolean {
+  if (isDryRun) {
+    console.log(`  ~ ${member} — would restore from ${commit.slice(0, 12)}`)
+    return true
+  }
+
+  try {
+    execSync(`git checkout ${commit} -- "${skillPath}"`, { cwd, encoding: 'utf-8', stdio: 'pipe' })
+    console.log(`  \u2713 ${member} — restored from ${commit.slice(0, 12)}`)
+    return true
+  } catch {
+    console.error(`  \u2717 ${member} — failed to restore from ${commit.slice(0, 12)}`)
+    return false
+  }
 }
 
 export async function rollback(args: string[]): Promise<void> {
@@ -14,11 +49,18 @@ export async function rollback(args: string[]): Promise<void> {
 
   const isDryRun = flags.has('--dry-run')
   const targetMember = positionals[0]
-  const lockPath = join(cwd, 'agenthood.lock')
 
+  if (targetMember && !/^[a-z0-9][a-z0-9_-]*$/.test(targetMember)) {
+    console.error(`Invalid member name: "${targetMember}"`)
+    process.exit(1)
+    return
+  }
+
+  const lockPath = join(cwd, 'agenthood.lock')
   if (!existsSync(lockPath)) {
     console.error('Lockfile not found. Run `agenthood verify --update-lock` first.')
     process.exit(1)
+    return
   }
 
   let lock: Lockfile
@@ -37,64 +79,26 @@ export async function rollback(args: string[]): Promise<void> {
   }
 
   const membersToRollback = targetMember ? [targetMember] : Object.keys(lock.members)
-
-  let foundAny = false
+  let hasRestoredAny = false
 
   for (const member of membersToRollback) {
     const skillPath = join('members', member, 'SKILL.md')
-    const lockedHash = lock.members[member].version.replace('sha256:', '')
+    const lockedHash = lock.members[member].version
 
-    const gitCmd = `git log --all --pretty=format:"%H" -- "${skillPath}"`
-    let commits: string[]
-    try {
-      const output = execSync(gitCmd, { cwd, encoding: 'utf-8', stdio: 'pipe' })
-      commits = output.trim().split('\n').filter(Boolean)
-    } catch {
-      console.error(`  No git history found for ${member}/SKILL.md`)
-      continue
-    }
-
-    let restoreCommit: string | null = null
-    for (const commit of commits) {
-      const content = execSync(`git show ${commit}:"${skillPath}"`, { cwd, encoding: 'utf-8', stdio: 'pipe' })
-      const hash = simpleHash(content)
-      if (hash === lockedHash) {
-        restoreCommit = commit
-        break
-      }
-    }
-
-    if (!restoreCommit) {
+    const commit = findRevision(cwd, skillPath, lockedHash)
+    if (!commit) {
       console.log(`  ? ${member} — no matching revision found in git history`)
       continue
     }
 
-    foundAny = true
-
-    if (isDryRun) {
-      console.log(`  ~ ${member} — would restore from ${restoreCommit.slice(0, 12)}`)
-    } else {
-      try {
-        execSync(`git checkout ${restoreCommit} -- "${skillPath}"`, { cwd, encoding: 'utf-8', stdio: 'pipe' })
-        console.log(`  \u2713 ${member} — restored from ${restoreCommit.slice(0, 12)}`)
-      } catch {
-        console.error(`  \u2717 ${member} — failed to restore from ${restoreCommit.slice(0, 12)}`)
-      }
-    }
+    hasRestoredAny = true
+    restoreMember(cwd, skillPath, member, commit, isDryRun)
   }
 
-  if (!foundAny) {
+  if (!hasRestoredAny) {
     console.error('No members could be restored.')
     process.exit(1)
   }
 }
 
-function simpleHash(content: string): string {
-  let hash = 0
-  for (let i = 0; i < content.length; i++) {
-    const char = content.charCodeAt(i)
-    hash = ((hash << 5) - hash) + char
-    hash |= 0
-  }
-  return Math.abs(hash).toString(16).padStart(8, '0')
-}
+

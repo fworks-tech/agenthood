@@ -29,6 +29,7 @@ const config: UserConfig = {
       "chore",
     ]],
     "type-case": [2, "always", "lower-case"],
+    "header-max-length": [2, "always", 150],
     "subject-max-length": [2, "always", 150],
     "subject-empty": [2, "never"],
     "subject-full-stop": [2, "never", "."],

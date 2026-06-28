@@ -118,7 +118,7 @@ runs:
           echo "::warning::${AGENT_NAME} CLI exited with code $rc — analysis may be incomplete"
         fi
 
-        if grep -qF "[blocking]" "$analysis_file" 2>/dev/null; then
+        if grep -qE '^\s*\[blocking\]' "$analysis_file" 2>/dev/null; then
           echo "::error::${AGENT_NAME} found blocking findings — see PR comment for details"
           exit 1
         fi

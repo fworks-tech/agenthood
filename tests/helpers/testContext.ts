@@ -21,6 +21,7 @@ export function createTestContext(overrides?: Partial<ExecutionContext>): Execut
       episodic: {
         record: async () => {},
         recall: async () => [],
+        getEpisode: async () => ({ episode: 'mock episode', outcome: 'mock outcome', timestamp: new Date().toISOString() }),
       },
       project: {
         getConventions: async () => [],

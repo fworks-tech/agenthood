@@ -43,6 +43,7 @@ export interface LongTermMemory {
 export interface EpisodicMemory {
   record(episode: string, outcome: string): Promise<void>
   recall(query: string): Promise<string[]>
+  getEpisode(id: string): Promise<{ episode: string; outcome: string; timestamp: string } | null>
 }
 
 export interface ProjectMemory {
@@ -77,4 +78,15 @@ export type DecisionLogEntry = {
   alternatives: Array<{ option: string; reason: string }>
   outcome: string
   tags: string[]
+}
+
+export interface EvalResult {
+  episodeId: string
+  scores: Record<string, number>
+  durationMs?: number
+  metadata?: {
+    member?: string
+    skill?: string
+    task?: string
+  }
 }

@@ -2,6 +2,8 @@ import { existsSync, readFileSync, readdirSync, writeFileSync } from 'node:fs'
 import { join } from 'node:path'
 import { MEMBER_NAMES } from '../members.js'
 import { contentHash } from '../utils/hash.js'
+import { loadLockfile } from '../utils/lockfile.js'
+import type { Lockfile } from '../utils/lockfile.js'
 
 const REQUIRED_SECTIONS = ['Overview', 'When to Use', 'Process', 'Red Flags', 'Rationalizations', 'Verification']
 
@@ -11,11 +13,6 @@ interface VerifyResult {
   member: string
   pass: boolean
   issues: string[]
-}
-
-interface Lockfile {
-  version: number
-  members: Record<string, { version: string; updatedAt: string }>
 }
 
 function parseFrontmatter(content: string): { frontmatter: Record<string, unknown> | null; body: string } {
@@ -112,16 +109,6 @@ function updateLockfile(cwd: string, membersDir: string, members: string[]): voi
   const lockPath = join(cwd, 'agenthood.lock')
   writeFileSync(lockPath, JSON.stringify(lock, null, 2) + '\n', 'utf8')
   console.log(`\n  Lockfile written to ${lockPath}`)
-}
-
-function loadLockfile(cwd: string): Lockfile | undefined {
-  const lockPath = join(cwd, 'agenthood.lock')
-  if (!existsSync(lockPath)) return undefined
-  try {
-    return JSON.parse(readFileSync(lockPath, 'utf8')) as Lockfile
-  } catch {
-    return undefined
-  }
 }
 
 export async function verify(args: string[]): Promise<void> {

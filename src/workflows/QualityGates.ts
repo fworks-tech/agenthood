@@ -17,7 +17,7 @@ export interface GateSet {
   message: string
 }
 
-interface QualityGatesConfig {
+export interface QualityGatesConfig {
   typescript?: boolean
   tests?: boolean
   impact?: boolean
@@ -29,6 +29,23 @@ export class QualityGates {
 
   constructor(config?: QualityGatesConfig) {
     this.config = config ?? { typescript: true, tests: true, impact: true, lint: true }
+  }
+
+  static fromConfig(cwd?: string): QualityGates {
+    const configPath = join(cwd ?? process.cwd(), '.agenthood', 'config.json')
+    if (!existsSync(configPath)) return new QualityGates()
+    try {
+      const raw = JSON.parse(readFileSync(configPath, 'utf8'))
+      if (!raw.qualityGates || typeof raw.qualityGates !== 'object') return new QualityGates()
+      return new QualityGates({
+        typescript: raw.qualityGates.typescript !== false,
+        tests: raw.qualityGates.tests !== false,
+        impact: raw.qualityGates.impact !== false,
+        lint: raw.qualityGates.lint !== false,
+      })
+    } catch {
+      return new QualityGates()
+    }
   }
 
   check(cwd: string = process.cwd()): GateResult[] {

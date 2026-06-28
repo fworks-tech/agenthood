@@ -23,7 +23,7 @@ class QualityGatesProtocol implements IProtocol<unknown, unknown> {
   config = { retryPolicy: { maxRetries: 0, backoffMs: 0 }, timeoutMs: 120000 }
 
   async execute(): Promise<unknown> {
-    return new QualityGates().check()
+    return QualityGates.fromConfig().check()
   }
 
   onFailure(_error: Error, _attempt: number): 'retry' | 'abort' | 'escalate' {

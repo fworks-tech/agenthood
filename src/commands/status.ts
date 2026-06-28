@@ -2,6 +2,7 @@ import { existsSync, readFileSync, readdirSync } from 'node:fs'
 import { join } from 'node:path'
 import { MetricsCollector } from '../memory/MetricsCollector.js'
 import { contentHash } from '../utils/hash.js'
+import { loadLockfile } from '../utils/lockfile.js'
 
 function formatDuration(ms: number): string {
   if (ms < 1000) return `${ms}ms`
@@ -59,17 +60,9 @@ export async function status(args: string[] = []): Promise<void> {
 
   if (isDrift) {
     const membersDir = join(cwd, 'members')
-    const lockPath = join(cwd, 'agenthood.lock')
-    if (!existsSync(lockPath)) {
+    const lock = loadLockfile(cwd)
+    if (!lock) {
       console.log('\n  No lockfile found. Run `agenthood verify --update-lock` first.\n')
-      process.exit(0)
-      return
-    }
-    let lock: { members: Record<string, { version: string }> }
-    try {
-      lock = JSON.parse(readFileSync(lockPath, 'utf8'))
-    } catch {
-      console.log('\n  Invalid lockfile.\n')
       process.exit(0)
       return
     }

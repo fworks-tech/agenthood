@@ -1,6 +1,6 @@
 # Custom Toolkits
 
-> *The Society's 16 skills are a starting point. Your domain has skills the Society has not written yet.*
+> *The Society's skills are a starting point. Your domain has skills the Society has not written yet.*
 
 ---
 

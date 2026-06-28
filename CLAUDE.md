@@ -65,7 +65,7 @@ The CLI's production dependencies include `@anthropic-ai/sdk`, `groq-sdk`, `open
 
 ### Members (`members/`)
 
-16 specialized agent skills, each a Markdown file (`members/<name>/SKILL.md`). They are **agent-agnostic** — designed to work with Claude Code, GitHub Copilot, OpenAI Codex, CodeBuddy, and others. Key members:
+specialized agent skills, each a Markdown file (`members/<name>/SKILL.md`). They are **agent-agnostic** — designed to work with Claude Code, GitHub Copilot, OpenAI Codex, CodeBuddy, and others. Key members:
 - **the-scribe** — N+1 commit pattern, PR "no and" test, changelog generation, Conventional Commits enforcement
 - **the-architect** — Interview mode to 95% confidence, spec-first development, task decomposition, stacked branch planning
 - **the-reviewer** — Five-axis review (Correctness, Readability, Architecture, Security, Performance), test-first review, change sizing

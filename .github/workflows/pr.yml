@@ -214,7 +214,7 @@ jobs:
         with:
           node-version: "24"
           cache: npm
-      - run: npm ci
+      - run: npm ci --ignore-scripts
       - run: npm audit --audit-level=high || echo "::warning::npm audit found vulnerabilities"
       - name: The Tester — run affected tests
         shell: bash

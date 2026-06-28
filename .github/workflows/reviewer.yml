@@ -117,7 +117,7 @@ jobs:
           fi
           # Check structured decision block from the LLM
           if grep -qE '<!--AGENTHOOD_DECISION:' /tmp/review_body.txt 2>/dev/null; then
-            if ! grep -qE '<!--AGENTHOOD_DECISION:.*blocking=true[[:space:]].*-->' /tmp/review_body.txt 2>/dev/null; then
+            if ! grep -qE '<!--AGENTHOOD_DECISION:.*blocking=true.*-->' /tmp/review_body.txt 2>/dev/null; then
               echo "No blocking findings."
               exit 0
             fi

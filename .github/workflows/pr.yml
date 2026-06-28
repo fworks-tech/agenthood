@@ -80,7 +80,7 @@ jobs:
         uses: ./.github/actions/agent-analysis
         with:
           agent-name: the-auditor
-          prompt-template: "audit these changed files for security concerns, secrets, and dependency risks:\n%s\n"
+          prompt-template: "audit these changed files for security concerns, secrets, and dependency risks:\n%s\n\nEnd your report with: <!--AGENTHOOD_DECISION: blocking=true|false warnings=N-->"
           pr-number: ${{ github.event.pull_request.number }}
           range: ${{ github.event.pull_request.base.sha }}...${{ github.event.pull_request.head.sha }}
           api-key: ${{ secrets.OPENCODE_API_KEY }}
@@ -139,7 +139,7 @@ jobs:
         uses: ./.github/actions/agent-analysis
         with:
           agent-name: the-warden
-          prompt-template: "analyze these changed files for code smells, complexity issues, and architectural decay:\n%s\n"
+          prompt-template: "analyze these changed files for code smells, complexity issues, and architectural decay:\n%s\n\nEnd your report with: <!--AGENTHOOD_DECISION: blocking=true|false warnings=N-->"
           pr-number: ${{ github.event.pull_request.number }}
           range: ${{ github.event.pull_request.base.sha }}...${{ github.event.pull_request.head.sha }}
           api-key: ${{ secrets.OPENCODE_API_KEY }}
@@ -188,7 +188,7 @@ jobs:
         uses: ./.github/actions/agent-analysis
         with:
           agent-name: the-sentinel
-          prompt-template: "analyze these changed member files for structural drift and consistency issues:\n%s\n"
+          prompt-template: "analyze these changed member files for structural drift and consistency issues:\n%s\n\nEnd your report with: <!--AGENTHOOD_DECISION: blocking=true|false warnings=N-->"
           pr-number: ${{ github.event.pull_request.number }}
           range: ${{ github.event.pull_request.base.sha }}...${{ github.event.pull_request.head.sha }}
           api-key: ${{ secrets.OPENCODE_API_KEY }}

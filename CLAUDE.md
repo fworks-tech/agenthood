@@ -42,7 +42,7 @@ Agenthood is a **multi-agent AI framework** distributed as an npm package + VS C
 | Layer | Directory | Purpose |
 |---|---|---|
 | 1 — Conventions | `conventions/` | Commit templates, commitlint rules |
-| 2 — Members | `members/` | 14 Markdown-based AI agent skills |
+| 2 — Members | `members/` | 16 Markdown-based AI agent skills |
 | 3 — Rituals | `rituals/` | Scheduled automations (morning-briefing, watchman, etc.) |
 | 4 — Portals | `portals/` | External connectors (GitHub, Linear, Jira, Slack, Sentry) |
 | 5 — Agentic Workflows | `agentic-workflows/` | Manual prompt templates (triage, review PR, diagnose CI) |
@@ -65,11 +65,13 @@ The CLI's production dependencies include `@anthropic-ai/sdk`, `groq-sdk`, `open
 
 ### Members (`members/`)
 
-14 specialized agent skills, each a Markdown file (`members/<name>/SKILL.md`). They are **agent-agnostic** — designed to work with Claude Code, GitHub Copilot, OpenAI Codex, CodeBuddy, and others. Key members:
+16 specialized agent skills, each a Markdown file (`members/<name>/SKILL.md`). They are **agent-agnostic** — designed to work with Claude Code, GitHub Copilot, OpenAI Codex, CodeBuddy, and others. Key members:
 - **the-scribe** — N+1 commit pattern, PR "no and" test, changelog generation, Conventional Commits enforcement
 - **the-architect** — Interview mode to 95% confidence, spec-first development, task decomposition, stacked branch planning
 - **the-reviewer** — Five-axis review (Correctness, Readability, Architecture, Security, Performance), test-first review, change sizing
 - **the-doorman** — Commit/PR validation, health checks, branch protection, hook setup (POSIX + Husky)
+- **the-strategist** — Goal refinement, requirement discovery, ambiguity resolution
+- **the-operator** — Runtime health, deployment verification, rollback execution, incident triage
 - **the-steward** — Context gauge, minimal member routing, provider cache strategies, session triage at capacity thresholds
 - **the-envoy** — Provider detection (7 runtimes), skill translation, convention validation, bootstrap mode
 

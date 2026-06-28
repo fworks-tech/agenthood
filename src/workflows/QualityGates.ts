@@ -73,9 +73,9 @@ export class QualityGates {
       const output = execSync('npx vitest run --reporter=json 2>&1', { cwd, encoding: 'utf-8', stdio: 'pipe', timeout: 120000, maxBuffer: 10 * 1024 * 1024 })
       const parsed = JSON.parse(output)
       if (typeof parsed !== 'object' || parsed === null) throw new Error('Invalid test output')
-      const total = typeof parsed.totalTests === 'number' ? parsed.totalTests : 0
-      const failed = typeof parsed.failedTests === 'number' ? parsed.failedTests : 0
-      const passed = typeof parsed.passedTests === 'number' ? parsed.passedTests : 0
+      const total = typeof parsed.numTotalTests === 'number' ? parsed.numTotalTests : 0
+      const failed = typeof parsed.numFailedTests === 'number' ? parsed.numFailedTests : 0
+      const passed = typeof parsed.numPassedTests === 'number' ? parsed.numPassedTests : 0
       return {
         name: 'Tests',
         pass: failed === 0,

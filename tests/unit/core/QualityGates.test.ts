@@ -53,7 +53,7 @@ describe('QualityGates', () => {
   })
 
   it('checks tests passing', () => {
-    const mockOutput = JSON.stringify({ totalTests: 42, passedTests: 42, failedTests: 0 })
+    const mockOutput = JSON.stringify({ numTotalTests: 42, numPassedTests: 42, numFailedTests: 0 })
     vi.mocked(execSync)
       .mockReturnValueOnce('')         // tsc
       .mockReturnValueOnce(mockOutput) // vitest
@@ -67,7 +67,7 @@ describe('QualityGates', () => {
   })
 
   it('catches test failures', () => {
-    const mockOutput = JSON.stringify({ totalTests: 10, passedTests: 8, failedTests: 2 })
+    const mockOutput = JSON.stringify({ numTotalTests: 10, numPassedTests: 8, numFailedTests: 2 })
     vi.mocked(execSync)
       .mockReturnValueOnce('')
       .mockReturnValueOnce(mockOutput)
@@ -83,7 +83,7 @@ describe('QualityGates', () => {
   it('skips lint when no eslint config', () => {
     vi.mocked(execSync)
       .mockReturnValueOnce('')
-      .mockReturnValueOnce(JSON.stringify({ totalTests: 1, passedTests: 1, failedTests: 0 }))
+      .mockReturnValueOnce(JSON.stringify({ numTotalTests: 1, numPassedTests: 1, numFailedTests: 0 }))
       .mockImplementationOnce(() => { throw new Error('no branch') })
     vi.mocked(existsSync).mockReturnValue(false)
 
@@ -96,7 +96,7 @@ describe('QualityGates', () => {
   it('produces all four gate results', () => {
     vi.mocked(execSync)
       .mockReturnValueOnce('')
-      .mockReturnValueOnce(JSON.stringify({ totalTests: 0, passedTests: 0, failedTests: 0 }))
+      .mockReturnValueOnce(JSON.stringify({ numTotalTests: 0, numPassedTests: 0, numFailedTests: 0 }))
       .mockImplementationOnce(() => { throw new Error('no branch') })
     vi.mocked(existsSync).mockReturnValue(false)
 

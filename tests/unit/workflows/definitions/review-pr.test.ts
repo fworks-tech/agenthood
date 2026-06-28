@@ -43,7 +43,7 @@ describe('review-pr workflow', () => {
     calls.mockReturnValueOnce('M\tsrc/commands/foo.ts\n')
     // QualityGatesProtocol: tsc + vitest
     calls.mockReturnValueOnce('')
-    calls.mockReturnValueOnce(JSON.stringify({ totalTests: 5, passedTests: 5, failedTests: 0 }))
+    calls.mockReturnValueOnce(JSON.stringify({ numTotalTests: 5, numPassedTests: 5, numFailedTests: 0 }))
     vi.mocked(existsSync).mockReturnValue(false)
 
     const output = await executeReviewPrWorkflow()
@@ -58,7 +58,7 @@ describe('review-pr workflow', () => {
     calls.mockReturnValueOnce('100\t0\tsrc/core/types.ts\n')
     calls.mockReturnValueOnce('M\tsrc/core/types.ts\n')
     calls.mockReturnValueOnce('')
-    calls.mockReturnValueOnce(JSON.stringify({ totalTests: 5, passedTests: 3, failedTests: 2 }))
+    calls.mockReturnValueOnce(JSON.stringify({ numTotalTests: 5, numPassedTests: 3, numFailedTests: 2 }))
     vi.mocked(existsSync).mockReturnValue(false)
 
     const output = await executeReviewPrWorkflow()

@@ -190,7 +190,7 @@ capacity is critical.
 |----------------|----------------------|
 | "We have plenty of context left" | You had plenty of context left when this session started. Now you are reading this rationalization at 85% capacity. Act before the gauge, not after. |
 | "I'll save it to memory later" | Later is after the context compresses. Compression is lossy. Save now while the knowledge is complete. |
-| "Loading all members is easier than routing" | 16 members × ~1000 tokens = 16,000 tokens on every task. That is 8% of a 200K window spent before a single word of work is done. Route intentionally. |
+| "Loading all members is easier than routing" | Every loaded member consumes tokens. Load only what the task needs; route intentionally. |
 | "The provider will handle caching automatically" | Some do. None of them do it optimally without structure. A system prompt that puts volatile content before stable content defeats every cache the provider offers. |
 
 ## Verification

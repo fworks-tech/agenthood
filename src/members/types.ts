@@ -1,7 +1,7 @@
 /**
  * src/members/types.ts
  *
- * Types for the 14 Society members. Every member is described by a `MemberSpec`
+ * Types for the Society members. Every member is described by a `MemberSpec`
  * that captures the role, tool scope, permission profile, and preferred LLM
  * provider. Specs are derived from `architecture/agent-system.md` and
  * `architecture/provider-failover.md` and are the single source of truth for

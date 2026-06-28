@@ -1,7 +1,7 @@
 /**
  * src/members/MemberAgent.ts
  *
- * Concrete `BaseAgent` subclass for each of the 14 Society members.
+ * Concrete `BaseAgent` subclass for each Society member.
  * The system prompt is derived from the member's `SKILL.md` file at
  * runtime via `MemberRegistry`.
  */

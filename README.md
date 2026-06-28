@@ -4,7 +4,7 @@
 
 > A full AI engineering team as plain Markdown files.
 
-14 specialized AI agents — architect, reviewer, security expert, DevOps engineer, and more — each a single Markdown skill file any agent runtime can load into any project. No lock-in. No configuration. Just drop them in.
+16 specialized AI agents — architect, reviewer, security expert, DevOps engineer, strategist, operator, and more — each a single Markdown skill file any agent runtime can load into any project. No lock-in. No configuration. Just drop them in.
 
 They have opinions about your PR descriptions. They will not merge your branch if your commit says `fix stuff`. They are not polite about it.
 
@@ -167,9 +167,10 @@ agenthood/
 │   ├── commitlint.config.ts
 │   └── COMMIT_CONVENTION.md
 │
-├── members/                         ← 14 agent skill files
+├── members/                         ← 16 agent skill files
 │   ├── the-scribe/
 │   ├── the-architect/
+│   ├── the-strategist/
 │   ├── the-reviewer/
 │   ├── the-tester/
 │   ├── the-debugger/
@@ -177,6 +178,7 @@ agenthood/
 │   ├── the-herald/
 │   ├── the-librarian/
 │   ├── the-doorman/
+│   ├── the-operator/
 │   ├── the-oracle/
 │   ├── the-envoy/
 │   ├── the-sentinel/

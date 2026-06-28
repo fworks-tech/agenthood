@@ -74,7 +74,7 @@ npx agenthood run the-reviewer "review the changes against the spec in issue #12
 npx agenthood run the-architect "plan the OAuth2 integration"
 npx agenthood run the-auditor "run a security audit on the authentication module"
 
-# List all 14 available members
+# List all 16 available members
 npx agenthood list
 ```
 

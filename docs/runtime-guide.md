@@ -172,7 +172,7 @@ const results = await agenticRag.retrieve('how does failover work?', executionCo
 
 ### Member Detection
 
-`MemberOrchestrator` (Phase 1) detects which member(s) should handle a task based on keyword matching, changed file patterns, and task stage. It lives at `src/reasoning/MemberOrchestrator.ts` and supports all 14 members.
+`MemberOrchestrator` (Phase 1) detects which member(s) should handle a task based on keyword matching, changed file patterns, and task stage. It lives at `src/reasoning/MemberOrchestrator.ts` and supports all members.
 
 ```typescript
 import { MemberOrchestrator } from 'src/reasoning/MemberOrchestrator.ts'
@@ -209,7 +209,7 @@ All four tiers are wired into `createContext()` in `src/commands/run.ts` and ava
 
 ### Society Index
 
-`SocietyIndexer` indexes all 14 Society members, ADRs, and conventions into a `KnowledgeGraphStore` and optionally into `VectorStore`. It is run automatically during `agenthood init` and loaded by `agenthood run` at startup. The index persists to `.agenthood/society-graph.json`.
+`SocietyIndexer` indexes all Society members, ADRs, and conventions into a `KnowledgeGraphStore` and optionally into `VectorStore`. It is run automatically during `agenthood init` and loaded by `agenthood run` at startup. The index persists to `.agenthood/society-graph.json`.
 
 ### Personalisation Store
 

@@ -16,7 +16,7 @@ Building an agent comes down to four decisions: what role it plays, what skills 
 
 The gap between understanding agents and building them is exactly one working implementation. Engineers who skip this step can explain ReAct in a whiteboard session but cannot diagnose why their agent loops forever, why it calls the wrong tool, or why it returns a result that ignores the user's actual request.
 
-A working first agent teaches you every integration point at once: how the LLM provider is called, how skills are dispatched, how memory is read and written, how the loop decides to stop. Once you have built one, the Society's 14 members stop being abstractions — they are just `BaseAgent` subclasses with different roles and skill sets, which is exactly what ADR-004 prescribes.
+A working first agent teaches you every integration point at once: how the LLM provider is called, how skills are dispatched, how memory is read and written, how the loop decides to stop. Once you have built one, the Society's members stop being abstractions — they are just `BaseAgent` subclasses with different roles and skill sets, which is exactly what ADR-004 prescribes.
 
 ---
 

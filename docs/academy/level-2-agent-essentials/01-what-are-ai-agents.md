@@ -51,7 +51,7 @@ export class ReActLoop {
 }
 ```
 
-`BaseAgent` defines the contract — a role, a set of skills, and a `run()` entry point. `ReActLoop` implements the observe-reason-act cycle. The loop terminates when the agent's reasoning produces a completion signal rather than another action. ADR-004 explains why Agenthood uses 14 specialized `BaseAgent` subclasses instead of one general-purpose agent.
+`BaseAgent` defines the contract — a role, a set of skills, and a `run()` entry point. `ReActLoop` implements the observe-reason-act cycle. The loop terminates when the agent's reasoning produces a completion signal rather than another action. ADR-004 explains why Agenthood uses specialized `BaseAgent` subclasses instead of one general-purpose agent.
 
 ---
 
@@ -84,7 +84,7 @@ The `run()` call enters the ReAct loop. The agent reads the file, reasons about 
 
 ## Further reading
 
-- [ADR-004 — Specialized members over general agent](../../adr/ADR-004-specialized-members-over-general-agent.md) — why 14 specialists beat one generalist
+- [ADR-004 — Specialized members over general agent](../../adr/ADR-004-specialized-members-over-general-agent.md) — why specialists beat one generalist
 - [`src/agents/base/BaseAgent.ts`](../../../src/agents/base/BaseAgent.ts) — the base agent class (v2.0.0)
 - [ReAct: Synergizing Reasoning and Acting in Language Models](https://arxiv.org/abs/2210.03629) — the foundational ReAct paper
 

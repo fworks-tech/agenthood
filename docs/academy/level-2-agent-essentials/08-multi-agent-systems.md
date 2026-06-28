@@ -22,7 +22,7 @@ Peer-to-peer multi-agent systems have a hidden property: every agent is also a p
 
 The second problem is context leakage. In a peer-to-peer system, agents pass their full context to whoever they call. The Reviewer receives the Architect's planning context, the Tester's test context, and the Developer's implementation context — all merged into one opaque blob. The Reviewer cannot tell which context is relevant, so it reasons over all of it, and the irrelevant parts actively confuse it.
 
-The orchestrator pattern solves both. Each agent receives only the context the orchestrator explicitly assigns. The Reviewer gets the diff and the test results — not the Architect's planning notes. Failures are localized: if the Developer fails, the orchestrator retries or escalates; no other agent is affected. And the invocation graph is a linear log, not a tangled web. This is why ADR-005 chose orchestrator over peer-to-peer for the Society's 14 members.
+The orchestrator pattern solves both. Each agent receives only the context the orchestrator explicitly assigns. The Reviewer gets the diff and the test results — not the Architect's planning notes. Failures are localized: if the Developer fails, the orchestrator retries or escalates; no other agent is affected. And the invocation graph is a linear log, not a tangled web. This is why ADR-005 chose orchestrator over peer-to-peer for the Society's members.
 
 ---
 

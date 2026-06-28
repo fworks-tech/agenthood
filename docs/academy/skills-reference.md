@@ -1,6 +1,6 @@
 # Skills Reference
 
-> *Fourteen members. Fourteen specializations. Zero overlap.*
+> *Every member, a specialist. Zero overlap.*
 
 ---
 
@@ -155,4 +155,4 @@ npx agenthood run the-scribe "sync PR #42"
 
 ---
 
-*Fourteen members. One Society. Every member knows their lane.*
+*One Society. Every member knows their lane.*

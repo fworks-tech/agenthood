@@ -178,7 +178,7 @@ capacity is critical.
 ## Red Flags
 
 - A session reaching 90% with no triage triggered
-- All 16 members loaded for a task that needs 2
+- All members loaded for a task that needs 2
 - Gathered knowledge that exists only in the context window — one session end away from lost
 - A new session started without reading the previous session's handoff
 - Provider cache strategy ignored — paying full token cost on every turn for stable content

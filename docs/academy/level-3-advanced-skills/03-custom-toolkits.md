@@ -6,7 +6,7 @@
 
 ## What it is
 
-A custom skill is a tool you write that implements the Society's `ISkill` contract, so your agent can use it exactly like the built-in skills. The Society ships 14 members covering general software-engineering domains — commits, reviews, tests, security. Your domain has knowledge the Society has not encoded: the query that checks your internal status dashboard, the script that validates your data pipeline, the API that files a ticket in your custom issue tracker. Custom skills are how that knowledge becomes a first-class agent tool.
+A custom skill is a tool you write that implements the Society's `ISkill` contract, so your agent can use it exactly like the built-in skills. The Society ships members covering general software-engineering domains — commits, reviews, tests, security. Your domain has knowledge the Society has not encoded: the query that checks your internal status dashboard, the script that validates your data pipeline, the API that files a ticket in your custom issue tracker. Custom skills are how that knowledge becomes a first-class agent tool.
 
 The mechanism is discovery, not registration. You do not edit a config file or call a register function. You write a `.ts` file that implements `ISkill`, drop it into the skills directory, and restart. `SkillRegistry.discover()` finds it at startup, reads its metadata, and adds it to the agent's available tools. The skill is now indistinguishable from a built-in — the agent's reasoning loop can choose to call it the same way it chooses to call `ReadFileSkill`.
 

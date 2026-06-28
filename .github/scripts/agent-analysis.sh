@@ -36,7 +36,7 @@ validate_prerequisites() {
     exit 1
   fi
   TASK="${PROMPT_TEMPLATE//%s/$SAFE_CHANGED}"
-  echo "$SAFE_CHANGED"
+  echo "$SAFE_CHANGED" > /tmp/${AGENT_NAME}_safe_changed.txt
 }
 
 stale_previous_comment() {
@@ -86,7 +86,8 @@ check_agenthood_decision() {
   fi
 }
 
-SAFE_CHANGED=$(validate_prerequisites)
+validate_prerequisites
+SAFE_CHANGED=$(cat /tmp/${AGENT_NAME}_safe_changed.txt)
 echo "agent-analysis: running $AGENT_NAME on $(echo "$SAFE_CHANGED" | tr '\n' ' ')"
 
 npm ci && npm run build

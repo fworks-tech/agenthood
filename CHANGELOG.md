@@ -1,3 +1,16 @@
+# [3.4.0](https://github.com/fworks-tech/agenthood/compare/v3.3.0...v3.4.0) (2026-06-28)
+
+
+### Bug Fixes
+
+* **evals:** import ExecutionContext from correct module ([4176542](https://github.com/fworks-tech/agenthood/commit/4176542f9d62a1d8bb2fb1279eda5855dc7c2b16))
+* **evals:** import ExecutionContext from correct module in tests ([eeb9333](https://github.com/fworks-tech/agenthood/commit/eeb93336ff43f044778313c0dae1886d6af6ea34))
+
+
+### Features
+
+* **evals:** implement EpisodeLearner — update LongTermMemory and ResidualMemory from eval scores ([b881c53](https://github.com/fworks-tech/agenthood/commit/b881c5321740922ad453159c69b2bdd992c3a887)), closes [#119](https://github.com/fworks-tech/agenthood/issues/119)
+
 # [3.3.0](https://github.com/fworks-tech/agenthood/compare/v3.2.0...v3.3.0) (2026-06-28)
 
 

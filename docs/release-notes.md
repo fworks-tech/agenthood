@@ -5,6 +5,19 @@
 
 ---
 
+## v3.4.0 — June 28, 2026
+
+### 🐛 Bug Fixes
+
+- **Evals:** import ExecutionContext from correct module
+- **Evals:** import ExecutionContext from correct module in tests
+
+### ✨ Features
+
+- **Evals:** implement EpisodeLearner — update LongTermMemory and ResidualMemory from eval scores
+
+---
+
 ## v3.3.0 — June 28, 2026
 
 ### 🐛 Bug Fixes

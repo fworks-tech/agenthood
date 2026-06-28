@@ -50,7 +50,7 @@ Agenthood is a **multi-agent AI framework** distributed as an npm package + VS C
 | 7 — Runtime | `src/` | TypeScript CLI + autonomous runtime (`agenthood run`) |
 | 8 — Memory & RAG | `src/memory/`, `src/rag/` | Memory tiers, KnowledgeGraphStore, RAG pipeline, Tree-sitter, LanceDB |
 | 9 — Workflows | _not yet implemented_ | Multi-member orchestration (AgentStep, ParallelStep, HumanInLoop) — 📋 Planned |
-| 10 — Evals | _not yet implemented_ | EvalRunner, quality metrics, EpisodeLearner — 📋 Planned |
+| 10 — Evals | `src/evals/` | EpisodeLearner shipped; EvalRunner, quality metrics — 📋 Planned |
 
 ### CLI source (`src/`)
 

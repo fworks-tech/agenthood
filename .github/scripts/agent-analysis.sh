@@ -1,6 +1,5 @@
 #!/usr/bin/env bash
 set -euo pipefail
-set -x
 
 BASE_SHA="${RANGE%%...*}"
 HEAD_SHA="${RANGE#*...}"
@@ -44,7 +43,7 @@ validate_prerequisites() {
 stale_previous_comment() {
   local name_display comment_id
   name_display=$(echo "$AGENT_NAME" | sed 's/-/ /g; s/\b\(.\)/\u\1/g')
-  comment_id=$(gh api "repos/{owner}/{repo}/issues/$PR_NUMBER/comments" --jq --arg name "$name_display" '.[] | select(.body | startswith("## " + $name + " -- Analysis")) | .id' 2>/dev/null | tail -1)
+  comment_id=$(gh api "repos/{owner}/{repo}/issues/$PR_NUMBER/comments" --jq ".[] | select(.body | startswith(\"## $name_display -- Analysis\")) | .id" 2>/dev/null | tail -1 || true)
   [ -z "$comment_id" ] && return 0
   gh api "repos/{owner}/{repo}/issues/comments/$comment_id" --jq -r '.body' > ${temp_dir}/${AGENT_NAME}_stale_body.txt 2>/dev/null || return 0
   { echo "> **This analysis is outdated.** See the latest comment below for the current review."; echo ">"; cat ${temp_dir}/${AGENT_NAME}_stale_body.txt; } | jq -Rs '{body: .}' > ${temp_dir}/${AGENT_NAME}_stale_payload.json

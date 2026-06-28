@@ -86,6 +86,7 @@ check_agenthood_decision() {
     return 0
   else
     echo "::warning::${AGENT_NAME} output missing structured decision block -- see comment for manual review"
+    return 0
   fi
 }
 

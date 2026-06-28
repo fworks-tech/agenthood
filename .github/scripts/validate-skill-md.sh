@@ -7,7 +7,7 @@ for dir in members/*/; do
   [ "$name" = "README.md" ] && continue
   skill="${dir}SKILL.md"
   [ ! -f "$skill" ] && echo "FAIL [$name]: missing SKILL.md" && failed=1 && continue
-  fm=$(awk '/^---/{count++; if(count==2) exit} count==1' "$skill" || true)
+  fm=$(awk '/^---/{count++; if(count==2) exit} count==1' "$skill")
   if [ -z "$fm" ]; then
     echo "FAIL [$name]: SKILL.md missing or invalid frontmatter (no --- delimiters)" && failed=1 && continue
   fi

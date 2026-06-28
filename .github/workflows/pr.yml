@@ -82,6 +82,7 @@ jobs:
           prompt-template: "audit these changed files for security concerns, secrets, and dependency risks:\n%s\n\nEnd your report with: <!--AGENTHOOD_DECISION: blocking=true|false warnings=N-->"
           pr-number: ${{ github.event.pull_request.number }}
           range: ${{ github.event.pull_request.base.sha }}...${{ github.event.pull_request.head.sha }}
+          max-files: "15"
           api-key: ${{ secrets.OPENCODE_API_KEY }}
 
   # ──────────────────────────────────────────────
@@ -141,6 +142,7 @@ jobs:
           prompt-template: "analyze these changed files for code smells, complexity issues, and architectural decay:\n%s\n\nEnd your report with: <!--AGENTHOOD_DECISION: blocking=true|false warnings=N-->"
           pr-number: ${{ github.event.pull_request.number }}
           range: ${{ github.event.pull_request.base.sha }}...${{ github.event.pull_request.head.sha }}
+          max-files: "25"
           api-key: ${{ secrets.OPENCODE_API_KEY }}
 
   # ──────────────────────────────────────────────
@@ -190,6 +192,7 @@ jobs:
           prompt-template: "analyze these changed member files for structural drift and consistency issues:\n%s\n\nEnd your report with: <!--AGENTHOOD_DECISION: blocking=true|false warnings=N-->"
           pr-number: ${{ github.event.pull_request.number }}
           range: ${{ github.event.pull_request.base.sha }}...${{ github.event.pull_request.head.sha }}
+          max-files: "10"
           api-key: ${{ secrets.OPENCODE_API_KEY }}
 
   # ──────────────────────────────────────────────

@@ -12,19 +12,21 @@ check_readme_for_member() {
 }
 
 check_sections_for_member() {
-  local name="$1" dir="$2" section
+  local name="$1" dir="$2" section fail=0
   local skill="${dir}SKILL.md"
   [ ! -f "$skill" ] && return 0
   for section in $REQUIRED_SECTIONS; do
-    ! grep -qF "$section" "$skill" && echo "FAIL [$name]: SKILL.md missing '$section'" && return 1
+    ! grep -qF "$section" "$skill" && echo "FAIL [$name]: SKILL.md missing '$section'" && fail=1
   done
+  return $fail
 }
 
 check_registration_for_member() {
-  local name="$1" idx
+  local name="$1" idx fail=0
   for idx in $INDEXES; do
-    ! grep -q "$name" "$idx" && echo "FAIL [$name]: not registered in $idx" && return 1
+    ! grep -q "$name" "$idx" && echo "FAIL [$name]: not registered in $idx" && fail=1
   done
+  return $fail
 }
 
 check_sync_for_member() {

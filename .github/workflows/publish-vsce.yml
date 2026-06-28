@@ -23,6 +23,6 @@ jobs:
         run: cd vscode-extension && npm ci
 
       - name: Publish to Marketplace
-        run: cd vscode-extension && npx @vscode/vsce publish
+        run: cd vscode-extension && npx @vscode/vsce@2 publish
         env:
           VSCE_TOKEN: ${{ secrets.VSCE_TOKEN }}

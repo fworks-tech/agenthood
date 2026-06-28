@@ -55,7 +55,8 @@ check_conventions_docs_sync() {
   conventions_changed=$(echo "$CHANGED" | grep "^conventions/" || true)
   [ -z "$conventions_changed" ] && return 0
   docs_changed=$(echo "$CHANGED" | grep -E "^(AGENTS\.md|README\.md|INITIATION\.md|members/)" || true)
-  [ -z "$docs_changed" ] && echo "WARN: conventions/ changed but no doc files updated"
+  [ -z "$docs_changed" ] && { echo "WARN: conventions/ changed but no doc files updated"; return 0; }
+  return 0
 }
 
 check_docs_adr_sync() {
@@ -71,7 +72,8 @@ check_commands_spec_sync() {
   commands_changed=$(echo "$CHANGED" | grep "^src/commands/" || true)
   [ -z "$commands_changed" ] && return 0
   spec_updated=$(echo "$CHANGED" | grep -E "^(CONTRIBUTING\.md|CLAUDE\.md)" || true)
-  [ -z "$spec_updated" ] && echo "WARN: src/commands/ changed but CONTRIBUTING.md nor CLAUDE.md was updated"
+  [ -z "$spec_updated" ] && { echo "WARN: src/commands/ changed but CONTRIBUTING.md nor CLAUDE.md was updated"; return 0; }
+  return 0
 }
 
 check_hooks_contributing_sync() {
@@ -79,7 +81,8 @@ check_hooks_contributing_sync() {
   conventions_or_hooks=$(echo "$CHANGED" | grep -E "^(conventions/|\.githooks/)" || true)
   [ -z "$conventions_or_hooks" ] && return 0
   contributing_updated=$(echo "$CHANGED" | grep "^CONTRIBUTING\.md" || true)
-  [ -z "$contributing_updated" ] && echo "WARN: conventions/ or .githooks/ changed but CONTRIBUTING.md was not updated"
+  [ -z "$contributing_updated" ] && { echo "WARN: conventions/ or .githooks/ changed but CONTRIBUTING.md was not updated"; return 0; }
+  return 0
 }
 
 check_changelog_disclaimer() {

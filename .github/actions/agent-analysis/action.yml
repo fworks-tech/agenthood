@@ -14,6 +14,10 @@ inputs:
   range:
     description: Git diff range (base...head). E.g. main...HEAD
     required: true
+  max-files:
+    description: Maximum number of changed files to include in the analysis prompt
+    required: false
+    default: "15"
   api-key:
     description: OPENCODE_API_KEY for agent analysis
     required: false
@@ -32,6 +36,7 @@ runs:
         PR_NUMBER: ${{ inputs.pr-number }}
         PROMPT_TEMPLATE: ${{ inputs.prompt-template }}
         RANGE: ${{ inputs.range }}
+        MAX_FILES: ${{ inputs.max-files }}
         OPENCODE_API_KEY: ${{ inputs.api-key }}
         GH_TOKEN: ${{ github.token }}
       run: .github/scripts/agent-analysis.sh

@@ -116,6 +116,7 @@ For a full walkthrough — install, commands, CI pipeline, and next steps — se
 | v2.4.0 | [Intelligence](https://github.com/fworks-tech/agenthood/milestone/5) — Security, 5-tier memory, RAG foundation, LanceDB vector store | ✅ Shipped (Phase 0) |
 | v2.5.0 | RAG Pipeline + Consumers — ChunkStrategy, Indexer, Retriever, TreeSitterParser, SocietyIndexer, Memory Tiers, PersonalisationStore | ✅ Shipped (Phase 1) |
 | v3.0.0 | [M5 — Intelligence](https://github.com/fworks-tech/agenthood/milestone/7) — HierarchicalChunkStrategy, AgenticRAG (skip/vector/graph/both), MemberOrchestrator Phase 1, governance docs (RACI + release policy) | ✅ Shipped |
+| v3.1.0 | [M6 — The Full Society](https://github.com/fworks-tech/agenthood/milestone/8) — OracleAgent, StrategistAgent, OperatorAgent, DecisionLog, IProtocol, WorkflowCheckpoint, GoalChain, DiffImpactAnalyzer, QualityGates, verify/rollback/status/workflow CLI commands, MetricsCollector | ✅ Shipped |
 
 ---
 
@@ -126,7 +127,7 @@ Agenthood is agent-agnostic. The skill files work with:
 - [Claude Code](https://claude.ai/code) — via `.claude/skills/`
 - [GitHub Copilot](https://github.com/features/copilot) — via `.github/copilot-instructions.md`
 
-The TypeScript runtime (`agenthood run`) supports Groq (default, free tier at [console.groq.com](https://console.groq.com)), Anthropic, OpenAI, and Ollama for fully offline execution.
+The TypeScript runtime (`agenthood run`) supports Groq (default, free tier at [console.groq.com](https://console.groq.com)), Anthropic, OpenAI, OpenCode, and Ollama for fully offline execution.
 
 ---
 
@@ -141,7 +142,8 @@ The framework runs on five core principles adapted from production AI agent syst
 | Agent mode vs Ask mode | [operating-modes.md](architecture/operating-modes.md) |
 | Multi-LLM support & automatic failover | [provider-failover.md](architecture/provider-failover.md) |
 | Tool registry, scoping & safety caps | [built-in-tools.md](architecture/built-in-tools.md) |
-| Agent memory tiers | [memory](src/memory/) — ResidualMemory, ShortTermMemory, LongTermMemory, EpisodicMemory, ProjectMemory, InMemoryStore, PersonalisationStore, LanceDBStore |
+| Agent memory tiers | [memory](src/memory/) — ResidualMemory, ShortTermMemory, LongTermMemory, EpisodicMemory, ProjectMemory, DecisionLog, MetricsCollector, InMemoryStore, PersonalisationStore, LanceDBStore |
+| Workflow engine & quality gates | [workflows](src/workflows/) — WorkflowEngine, QualityGates, DiffImpactAnalyzer, WorkflowCheckpoint, GoalChain |
 | Service-agnostic RAG (graph, vector, agentic) | [rag](src/rag/) — KnowledgeGraphStore, FixedSizeChunkStrategy + MarkdownHierarchicalChunkStrategy, Indexer, Retriever, AgenticRAG, TreeSitterParser, ProjectIngestion |
 
 ---
@@ -229,16 +231,18 @@ agenthood/
 ├── src/                             ← Node.js CLI + TypeScript runtime
 │   ├── cli.ts                       ← Entry point
 │   ├── commands/                    ← CLI commands (init, check, run, list, verify, rollback, status, workflow, pr-sync, setup, oath, eject, activate, deactivate)
-│   ├── agents/                      ← BaseAgent + 4 specialized agents
+│   ├── agents/                      ← BaseAgent + AgentRegistry (Oracle, Strategist, Operator + Developer, Architect, Reviewer, QA)
 │   ├── llm/                         ← ILLMProvider, LLMRouter, 4 providers
 │   ├── skills/                      ← ISkill, SkillRegistry
 │   ├── core/                        ← SafetyGuard, ConcurrencyQueue, RiskManager, SchemaValidator
 │   ├── reasoning/                   ← ReActLoop, ThinkingBudget
+│   ├── workflows/                   ← WorkflowEngine, QualityGates, DiffImpactAnalyzer, WorkflowCheckpoint, GoalChain
 │   ├── memory/                      ← ResidualMemory, IMemoryStore, VectorStore (LanceDB), ShortTermMemory, LongTermMemory, EpisodicMemory, ProjectMemory, PersonalisationStore
 │   ├── memory/stores/               ← InMemoryStore
 │   ├── rag/                         ← KnowledgeGraphStore, ChunkStrategy, Indexer, Retriever
 │   ├── rag/parsers/                 ← TreeSitterParser (AST code structure extraction)
 │   ├── project/                     ← SocietyIndexer, ProjectIngestion
+│   ├── utils/                       ← contentHash (SHA-256), loadLockfile, Lockfile type
 │   ├── members/                     ← MemberRegistry, MemberAgent
 │   └── prompts/                     ← Templates, PromptBuilder, PromptRegistry
 │

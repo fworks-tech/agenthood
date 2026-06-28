@@ -5,6 +5,28 @@
 
 ---
 
+## v3.2.0 — June 28, 2026
+
+### 🐛 Bug Fixes
+
+- address all review findings across 7 phase branches
+- remove hardcoded member count from steward readme (maintenance trap)
+- steward pre-load count should be 15 (16 members - 1 for steward itself)
+- sync skills/ directory with members/ for ci compliance
+- use 16 not 15 for steward pre-load count (matches registry)
+
+### ✨ Features
+
+- **Phase:** phase 0 - decision log, postmortem, auto-discover #280 #114
+- **Phase:** phase 1 - protocol interfaces and workflow engine #116
+- **Phase:** phase 2 - workflow checkpoint and goal chain #118
+- **Phase:** phase 3 - oracle, strategist, and operator agents #277 #278
+- **Phase:** phase 4 - verify, rollback, and status commands #276 #281
+- **Phase:** phase 5 - diff impact analyzer and quality gates #282
+- **Phase:** phase 6 - review-pr workflow end-to-end
+
+---
+
 ## v3.1.0 — June 27, 2026
 
 ### 🐛 Bug Fixes

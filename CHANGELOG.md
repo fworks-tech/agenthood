@@ -1,3 +1,25 @@
+# [3.2.0](https://github.com/fworks-tech/agenthood/compare/v3.1.0...v3.2.0) (2026-06-28)
+
+
+### Bug Fixes
+
+* address all review findings across 7 phase branches ([926b8c8](https://github.com/fworks-tech/agenthood/commit/926b8c82e1e5cc775de60f2714781b1f224444cb))
+* remove hardcoded member count from steward readme (maintenance trap) ([4c25127](https://github.com/fworks-tech/agenthood/commit/4c25127dcf3945a52f36d2d022c275e908f16811))
+* steward pre-load count should be 15 (16 members - 1 for steward itself) ([a48435d](https://github.com/fworks-tech/agenthood/commit/a48435d558dc862178195def1438ab697989073b))
+* sync skills/ directory with members/ for ci compliance ([2e4a655](https://github.com/fworks-tech/agenthood/commit/2e4a655b64abf42dfa82ae00b0a170de450b06e4))
+* use 16 not 15 for steward pre-load count (matches registry) ([efa5e9b](https://github.com/fworks-tech/agenthood/commit/efa5e9b19938cb71af4f4d3181a37db1c676626a))
+
+
+### Features
+
+* **phase:** phase 0 - decision log, postmortem, auto-discover ([950ed85](https://github.com/fworks-tech/agenthood/commit/950ed85abbac27723279815caee73294562210db)), closes [#279](https://github.com/fworks-tech/agenthood/issues/279) [#280](https://github.com/fworks-tech/agenthood/issues/280) [#114](https://github.com/fworks-tech/agenthood/issues/114)
+* **phase:** phase 1 - protocol interfaces and workflow engine ([5c700e8](https://github.com/fworks-tech/agenthood/commit/5c700e8f67b1dec01a08d64e4e17336b30033112)), closes [#116](https://github.com/fworks-tech/agenthood/issues/116) [#116](https://github.com/fworks-tech/agenthood/issues/116)
+* **phase:** phase 2 - workflow checkpoint and goal chain ([f3160ba](https://github.com/fworks-tech/agenthood/commit/f3160ba6528db8726fd7b73019b2c02a5bfe786d)), closes [#117](https://github.com/fworks-tech/agenthood/issues/117) [#118](https://github.com/fworks-tech/agenthood/issues/118)
+* **phase:** phase 3 - oracle, strategist, and operator agents ([a886be1](https://github.com/fworks-tech/agenthood/commit/a886be1c80177d69b24d4cbb7a11e937ff0fa292)), closes [#113](https://github.com/fworks-tech/agenthood/issues/113) [#277](https://github.com/fworks-tech/agenthood/issues/277) [#278](https://github.com/fworks-tech/agenthood/issues/278)
+* **phase:** phase 4 - verify, rollback, and status commands ([ce1c560](https://github.com/fworks-tech/agenthood/commit/ce1c560be64b80599e476301121d3c3cf4e078cb)), closes [#275](https://github.com/fworks-tech/agenthood/issues/275) [#276](https://github.com/fworks-tech/agenthood/issues/276) [#281](https://github.com/fworks-tech/agenthood/issues/281)
+* **phase:** phase 5 - diff impact analyzer and quality gates ([26fc8a1](https://github.com/fworks-tech/agenthood/commit/26fc8a12178c1c7fe4ad60c748b073a2ec6c04e2)), closes [#115](https://github.com/fworks-tech/agenthood/issues/115) [#282](https://github.com/fworks-tech/agenthood/issues/282)
+* **phase:** phase 6 - review-pr workflow end-to-end ([ea0debf](https://github.com/fworks-tech/agenthood/commit/ea0debf5ae053480229e1e9cdbe7d3b00668173e))
+
 # [3.1.0](https://github.com/fworks-tech/agenthood/compare/v3.0.0...v3.1.0) (2026-06-27)
 
 

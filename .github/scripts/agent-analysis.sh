@@ -86,6 +86,7 @@ check_agenthood_decision() {
   else
     echo "::warning::${AGENT_NAME} output missing structured decision block -- see comment for manual review"
   fi
+  return 0
 }
 
 validate_prerequisites

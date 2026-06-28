@@ -42,7 +42,7 @@ Agenthood is a **multi-agent AI framework** distributed as an npm package + VS C
 | Layer | Directory | Purpose |
 |---|---|---|
 | 1 — Conventions | `conventions/` | Commit templates, commitlint rules |
-| 2 — Members | `members/` | 16 Markdown-based AI agent skills |
+| 2 — Members | `members/` | Markdown-based AI agent skills |
 | 3 — Rituals | `rituals/` | Scheduled automations (morning-briefing, watchman, etc.) |
 | 4 — Portals | `portals/` | External connectors (GitHub, Linear, Jira, Slack, Sentry) |
 | 5 — Agentic Workflows | `agentic-workflows/` | Manual prompt templates (triage, review PR, diagnose CI) |

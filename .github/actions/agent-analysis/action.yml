@@ -29,6 +29,10 @@ inputs:
 runs:
   using: composite
   steps:
+    - uses: actions/setup-node@v4
+      with:
+        node-version: "24"
+        cache: npm
     - shell: bash
       run: |
         AGENT_NAME="${{ inputs.agent-name }}"
@@ -56,9 +60,22 @@ runs:
         fi
 
         CHANGED=$(echo "$CHANGED" | head -10)
-        TASK=$(printf "$PROMPT_TEMPLATE" "$CHANGED")
 
-        echo "agent-analysis: running $AGENT_NAME on $(echo "$CHANGED" | tr '\n' ' ')"
+        # Sanitize file names: reject names with shell-special or non-printable characters
+        SAFE_CHANGED=$(echo "$CHANGED" | grep -v '[^-_./a-zA-Z0-9]' || true)
+        if [ -z "$SAFE_CHANGED" ]; then
+          echo "::warning::All changed file names contain special characters — skipping agent analysis."
+          exit 0
+        fi
+
+        # Validate prompt template contains %s before substitution
+        if [[ "$PROMPT_TEMPLATE" != *%s* ]]; then
+          echo "::error::prompt-template must contain %%s placeholder"
+          exit 1
+        fi
+        TASK="${PROMPT_TEMPLATE//%s/$SAFE_CHANGED}"
+
+        echo "agent-analysis: running $AGENT_NAME on $(echo "$SAFE_CHANGED" | tr '\n' ' ')"
 
         npm ci && npm run build
 
@@ -76,7 +93,7 @@ runs:
           if [ -s "$error_file" ]; then
             echo "> **Note:** The analysis encountered issues:"
             echo ">"
-            sed 's/^/> /' "$error_file"
+            grep -v -iE '(api[_-]?key|token|secret|password|credential)' "$error_file" | sed 's/^/> /' || true
             echo ""
           fi
 

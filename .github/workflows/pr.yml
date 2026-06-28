@@ -32,7 +32,7 @@ jobs:
         with:
           node-version: "24"
       - name: Install commitlint
-        run: npm install --save-dev tsx @commitlint/cli @commitlint/config-conventional @commitlint/types
+        run: npm install --save-dev --save-exact tsx@4.19.0 @commitlint/cli@19.5.0 @commitlint/config-conventional@19.5.0 @commitlint/types@19.5.0
       - name: The Doorman — validate commits in PR range
         env:
           NODE_OPTIONS: "--import tsx"
@@ -53,10 +53,6 @@ jobs:
       - uses: actions/checkout@v4
         with:
           fetch-depth: 0
-      - uses: actions/setup-node@v4
-        with:
-          node-version: "24"
-          cache: npm
       - name: Warn if private repo without license
         if: github.event.repository.private == true
         run: |
@@ -115,10 +111,6 @@ jobs:
       - uses: actions/checkout@v4
         with:
           fetch-depth: 0
-      - uses: actions/setup-node@v4
-        with:
-          node-version: "24"
-          cache: npm
       - name: The Warden — enforce file size limits
         shell: bash
         run: |
@@ -171,100 +163,7 @@ jobs:
           fetch-depth: 0
       - name: The Librarian — verify docs reflect changed files
         shell: bash
-        run: |
-          FAILED=0
-          BASE_SHA=${{ github.event.pull_request.base.sha }}
-          HEAD_SHA=${{ github.event.pull_request.head.sha }}
-          CHANGED=$(git diff --name-only --diff-filter=ACM "$BASE_SHA" "$HEAD_SHA" 2>/dev/null)
-
-          for FILE in $CHANGED; do
-            if echo "$FILE" | grep -qE "^members/the-[a-z-]+/"; then
-              NAME=$(echo "$FILE" | sed 's|members/\(the-[a-z-]*\)/.*|\1|')
-              if ! grep -q "$NAME" AGENTS.md; then
-                echo "FAIL: $NAME added but not registered in AGENTS.md"; FAILED=1
-              fi
-              if ! grep -q "$NAME" members/README.md; then
-                echo "FAIL: $NAME added but not registered in members/README.md"; FAILED=1
-              fi
-              if ! grep -q "$NAME" README.md; then
-                echo "FAIL: $NAME added but not registered in README.md"; FAILED=1
-              fi
-            fi
-          done
-
-          CONVENTIONS_CHANGED=$(echo "$CHANGED" | grep "^conventions/" || true)
-          if [ -n "$CONVENTIONS_CHANGED" ]; then
-            DOCS_CHANGED=$(echo "$CHANGED" | grep -E "^(AGENTS\.md|README\.md|INITIATION\.md|members/)" || true)
-            if [ -z "$DOCS_CHANGED" ]; then
-              echo "WARN: conventions/ changed but no doc files updated"
-            fi
-          fi
-
-          for FILE in $CHANGED; do
-            if echo "$FILE" | grep -qE "^\.github/workflows/[a-z-]+\.yml"; then
-              WORKFLOW=$(basename "$FILE" .yml)
-              if ! grep -qF "$WORKFLOW.yml" README.md; then
-                echo "FAIL: $WORKFLOW.yml added but not listed in README.md"
-                FAILED=1
-              fi
-            fi
-          done
-
-          for FILE in $CHANGED; do
-            if echo "$FILE" | grep -qE "^\.githooks/"; then
-              HOOK=$(basename "$FILE")
-              if ! grep -qF "$HOOK" README.md; then
-                echo "FAIL: $HOOK added to .githooks/ but not listed in README.md"
-                FAILED=1
-              fi
-            fi
-          done
-
-          for MEMBER_DIR in members/*/; do
-            NAME=$(basename "$MEMBER_DIR")
-            [ "$NAME" = "README.md" ] && continue
-            if ! grep -q "$NAME" AGENTS.md; then
-              echo "FAIL: $NAME exists in members/ but not in AGENTS.md"
-              FAILED=1
-            fi
-          done
-
-          DOCS_DIR_CHANGED=$(echo "$CHANGED" | grep "^docs/" || true)
-          if [ -n "$DOCS_DIR_CHANGED" ]; then
-            ADR_COUNT=$(find docs/adr -name "*.md" 2>/dev/null | wc -l)
-            if [ "$ADR_COUNT" -eq 0 ]; then
-              echo "FAIL: docs/ changed but docs/adr/ has no ADRs"
-              FAILED=1
-            fi
-          fi
-
-          COMMANDS_CHANGED=$(echo "$CHANGED" | grep "^src/commands/" || true)
-          if [ -n "$COMMANDS_CHANGED" ]; then
-            SPEC_UPDATED=$(echo "$CHANGED" | grep -E "^(CONTRIBUTING\.md|CLAUDE\.md)" || true)
-            if [ -z "$SPEC_UPDATED" ]; then
-              echo "WARN: src/commands/ changed but CONTRIBUTING.md nor CLAUDE.md was updated"
-            fi
-          fi
-
-          CONVENTIONS_OR_HOOKS=$(echo "$CHANGED" | grep -E "^(conventions/|\.githooks/)" || true)
-          if [ -n "$CONVENTIONS_OR_HOOKS" ]; then
-            CONTRIBUTING_UPDATED=$(echo "$CHANGED" | grep "^CONTRIBUTING\.md" || true)
-            if [ -z "$CONTRIBUTING_UPDATED" ]; then
-              echo "WARN: conventions/ or .githooks/ changed but CONTRIBUTING.md was not updated"
-            fi
-          fi
-
-          CHANGELOG_CHANGED=$(echo "$CHANGED" | grep "^CHANGELOG\.md" || true)
-          if [ -n "$CHANGELOG_CHANGED" ]; then
-            echo "WARN: CHANGELOG.md modified manually — it is managed by semantic-release"
-          fi
-
-          if [ "$FAILED" -eq 1 ]; then
-            echo ""
-            echo "The Librarian: documentation is out of sync with the code."
-            exit 1
-          fi
-          echo "The Librarian: documentation is consistent with the changes."
+        run: .github/scripts/librarian-check.sh "${{ github.event.pull_request.base.sha }}" "${{ github.event.pull_request.head.sha }}"
       - name: The Librarian — post doc sync report to PR
         if: failure() && github.event_name == 'pull_request'
         env:
@@ -285,10 +184,6 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
-        with:
-          node-version: "24"
-          cache: npm
       - name: Check member README.md presence
         shell: bash
         run: |
@@ -304,19 +199,7 @@ jobs:
           echo "All members have README.md"
       - name: Validate SKILL.md exists and has frontmatter
         shell: bash
-        run: |
-          failed=0
-          for dir in members/*/; do
-            name=$(basename "$dir")
-            [ "$name" = "README.md" ] && continue
-            skill="${dir}SKILL.md"
-            [ ! -f "$skill" ] && echo "FAIL [$name]: missing SKILL.md" && failed=1 && continue
-            fm=$(awk '/^---/{count++; if(count==2) exit} count==1' "$skill")
-            ! echo "$fm" | grep -q "^name:" && echo "FAIL [$name]: SKILL.md missing 'name:'" && failed=1
-            ! echo "$fm" | grep -q "^description:" && echo "FAIL [$name]: SKILL.md missing 'description:'" && failed=1
-          done
-          [ "$failed" -eq 1 ] && exit 1
-          echo "All SKILL.md files have valid frontmatter"
+        run: .github/scripts/validate-skill-md.sh
       - name: Validate SKILL.md required sections
         shell: bash
         run: |
@@ -422,26 +305,48 @@ jobs:
             exit $?
           fi
 
+          # Shared/core module paths that affect downstream tests
+          CORE_PATTERNS="src/core/ src/llm/ILLMProvider src/llm/types src/members/types src/agents/index src/index"
+
           # Map changed source files to test files by basename
           TEST_FILES=""
+          UNMATCHED_SOURCE=""
           for FILE in $CHANGED; do
             case "$FILE" in
               *.test.ts)
                 TEST_FILES="$TEST_FILES $FILE"
                 ;;
               *.ts)
+                # Check if shared/core module → escalate to full suite
+                for CP in $CORE_PATTERNS; do
+                  if echo "$FILE" | grep -qE "^${CP}"; then
+                    echo "Shared module changed ($FILE) — running full suite."
+                    npx vitest run --exclude 'vscode-extension/**'
+                    exit $?
+                  fi
+                done
                 BASENAME=$(basename "$FILE" .ts)
                 FOUND=$(find tests -maxdepth 4 -name "${BASENAME}.test.ts" -type f 2>/dev/null | head -1)
-                [ -n "$FOUND" ] && TEST_FILES="$TEST_FILES $FOUND"
+                if [ -n "$FOUND" ]; then
+                  TEST_FILES="$TEST_FILES $FOUND"
+                else
+                  UNMATCHED_SOURCE="$UNMATCHED_SOURCE $FILE"
+                fi
                 ;;
             esac
           done
 
+          if [ -n "$UNMATCHED_SOURCE" ]; then
+            echo "::warning::Source files changed without matching tests:$UNMATCHED_SOURCE — running full suite."
+            npx vitest run --exclude 'vscode-extension/**'
+            exit $?
+          fi
+
           if [ -z "$TEST_FILES" ]; then
-            echo "No affected tests found (only docs, workflows, or untested source changed). Skipping."
-            echo "Changed files: $(echo "$CHANGED" | tr '\n' ' ')"
+            echo "No affected tests — only docs, workflows, or config changed. Skipping."
+            echo "Changed: $(echo "$CHANGED" | tr '\n' ' ')"
             exit 0
           fi
 
           echo "Running affected tests: $(echo "$TEST_FILES" | tr ' ' '\n' | sort -u | tr '\n' ' ')"
-          npx vitest run $(echo "$TEST_FILES" | tr ' ' '\n' | sort -u | tr '\n' ' ')
+          npx vitest run --exclude 'vscode-extension/**' $(echo "$TEST_FILES" | tr ' ' '\n' | sort -u | tr '\n' ' ')

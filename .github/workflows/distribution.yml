@@ -33,20 +33,7 @@ jobs:
       - uses: actions/checkout@v4
       - name: Validate SKILL.md frontmatter against SkillsMP schema
         shell: bash
-        run: |
-          failed=0
-          for dir in members/*/; do
-            name=$(basename "$dir")
-            [ "$name" = "README.md" ] && continue
-            skill="${dir}SKILL.md"
-            [ ! -f "$skill" ] && echo "FAIL [$name]: missing SKILL.md" && failed=1 && continue
-            fm=$(awk '/^---/{count++; if(count==2) exit} count==1' "$skill")
-            ! echo "$fm" | grep -q "^name:" && echo "FAIL [$name]: missing 'name:'" && failed=1
-            ! echo "$fm" | grep -q "^description:" && echo "FAIL [$name]: missing 'description:'" && failed=1
-            ! echo "$fm" | grep -q "^license:" && echo "FAIL [$name]: missing 'license:'" && failed=1
-          done
-          [ "$failed" -eq 1 ] && exit 1
-          echo "All members pass SkillsMP frontmatter requirements"
+        run: .github/scripts/validate-skill-md.sh
 
   traction:
     name: Update traction badges

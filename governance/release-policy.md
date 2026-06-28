@@ -107,7 +107,7 @@ supersedes: the-manuscript
 
 ## Compliance
 
-- All SKILL.md changes are validated by `npx agenthood verify` (when implemented in M6)
+- All SKILL.md changes are validated by `npx agenthood verify`
 - All member behavior changes are logged to the Decision Log
 - The Sentinel audits member files for drift on every `init` and periodically via scheduled run
 - CI enforces that no SKILL.md changes ship without a passing `verify`

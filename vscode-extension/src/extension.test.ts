@@ -3,7 +3,7 @@ import { AGENTHOOD_MEMBERS } from './members.js';
 
 suite('AGENTHOOD_MEMBERS', () => {
   test('has correct length', () => {
-    assert.equal(AGENTHOOD_MEMBERS.length, 14);
+    assert.equal(AGENTHOOD_MEMBERS.length, 16);
   });
 
   test('contains expected members', () => {

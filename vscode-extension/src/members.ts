@@ -13,4 +13,6 @@ export const AGENTHOOD_MEMBERS = [
   'the-sentinel',
   'the-warden',
   'the-steward',
+  'the-strategist',
+  'the-operator',
 ];

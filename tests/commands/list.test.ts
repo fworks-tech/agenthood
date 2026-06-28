@@ -22,14 +22,14 @@ describe('list command', () => {
     vi.restoreAllMocks()
   })
 
-  it('lists all 14 members', async () => {
+  it('lists all members', async () => {
     const { list } = await import('../../src/commands/list.js')
     await list()
     const members = [
       'the-scribe', 'the-architect', 'the-reviewer', 'the-tester',
       'the-debugger', 'the-auditor', 'the-herald', 'the-librarian',
       'the-doorman', 'the-oracle', 'the-envoy', 'the-sentinel',
-      'the-warden', 'the-steward',
+      'the-warden', 'the-steward', 'the-strategist', 'the-operator',
     ]
     for (const m of members) {
       expect(output).toContain(m)

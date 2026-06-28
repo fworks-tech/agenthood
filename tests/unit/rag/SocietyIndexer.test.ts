@@ -63,7 +63,7 @@ describe('SocietyIndexer', () => {
     })
   })
 
-  it('indexes all 14 members as member nodes', async () => {
+  it('indexes all members as member nodes', async () => {
     await indexer.index({ entities: ['member'] })
     const nodes = knowledgeGraph.search('')
     const members = nodes.filter((n) => n.type === 'member')

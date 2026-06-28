@@ -77,9 +77,9 @@ jobs:
           [ -z "$PR_NUMBER" ] && exit 0
           COMMENT_ID=$(gh api "repos/{owner}/{repo}/issues/$PR_NUMBER/comments" --jq '.[] | select(.body | contains("the-reviewer result:") and (startswith("> **This analysis is outdated.**") | not)) | .id' 2>/dev/null | tail -1)
           [ -z "$COMMENT_ID" ] && exit 0
-          gh api "repos/{owner}/{repo}/issues/comments/$COMMENT_ID" --jq -r '.body' > /tmp/reviewer_stale_body.txt 2>/dev/null || exit 0
-          { echo "> **This analysis is outdated.** See the latest comment below for the current review."; echo ">"; cat /tmp/reviewer_stale_body.txt; } | jq -Rs '{body: .}' > /tmp/reviewer_stale_payload.json
-          gh api "repos/{owner}/{repo}/issues/comments/$COMMENT_ID" -X PATCH --input /tmp/reviewer_stale_payload.json > /dev/null 2>&1 || true
+          gh api "repos/{owner}/{repo}/issues/comments/$COMMENT_ID" --jq -r '.body' > ${RUNNER_TEMP:-/tmp}/reviewer_stale_body.txt 2>/dev/null || exit 0
+          { echo "> **This analysis is outdated.** See the latest comment below for the current review."; echo ">"; cat ${RUNNER_TEMP:-/tmp}/reviewer_stale_body.txt; } | jq -Rs '{body: .}' > ${RUNNER_TEMP:-/tmp}/reviewer_stale_payload.json
+          gh api "repos/{owner}/{repo}/issues/comments/$COMMENT_ID" -X PATCH --input ${RUNNER_TEMP:-/tmp}/reviewer_stale_payload.json > /dev/null 2>&1 || true
 
       - name: Post Review Comment
         run: |

@@ -1,4 +1,4 @@
-name: The Reviewer -- Commit Review
+name: The Reviewer — Commit Review
 
 on:
   push:
@@ -41,7 +41,7 @@ jobs:
           fi
 
           PR_NUMBER=$(gh pr view --json number --jq '.number' 2>/dev/null) || {
-            echo "::warning::gh pr view failed -- branch may have no open PR"
+            echo "::warning::gh pr view failed — branch may have no open PR"
             PR_NUMBER=""
           }
 

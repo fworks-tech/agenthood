@@ -1,11 +1,11 @@
-name: The Herald -- CI Summary
+name: The Herald — CI Summary
 
 on:
   workflow_run:
     workflows:
-      - Society -- PR Standards
-      - The Envoy -- VS Code Extension Build and Test
-      - The Reviewer -- Commit Review
+      - Society — PR Standards
+      - The Envoy — VS Code Extension Build and Test
+      - The Reviewer — Commit Review
     types:
       - completed
 
@@ -64,7 +64,7 @@ jobs:
               `**${verdict}**`,
               '',
               '---',
-              '<sub>The Herald -- CI Summary</sub>',
+              '<sub>The Herald — CI Summary</sub>',
             ].join('\n');
 
             const { data: comments } = await github.rest.issues.listComments({

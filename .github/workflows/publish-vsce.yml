@@ -1,4 +1,4 @@
-name: The Envoy -- VS Code Extension Publish
+name: The Envoy — VS Code Extension Publish
 
 on:
   release:

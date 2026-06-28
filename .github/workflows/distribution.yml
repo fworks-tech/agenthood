@@ -1,4 +1,4 @@
-name: The Envoy -- Distribution
+name: The Envoy — Distribution
 
 on:
   push:
@@ -21,7 +21,7 @@ jobs:
         run: |
           STATUS=$(curl -s -o /dev/null -w "%{http_code}" https://skills.sh/b/fworks-tech/agenthood)
           if [ "$STATUS" -ne 200 ]; then
-            echo "::warning::Skills.sh badge returned HTTP $STATUS -- listing may be stale"
+            echo "::warning::Skills.sh badge returned HTTP $STATUS — listing may be stale"
           else
             echo "Skills.sh badge resolves OK (HTTP $STATUS)"
           fi

@@ -5,7 +5,7 @@
 
 ## Context
 
-With 16 specialized members, a coordination pattern was needed. Two main
+With many specialized members, a coordination pattern was needed. Two main
 options were available: peer-to-peer (members invoke each other directly)
 or orchestrator-driven (a central controller routes tasks to members, which
 operate independently and return results).

@@ -173,7 +173,7 @@ agenthood/
 │   ├── commitlint.config.ts
 │   └── COMMIT_CONVENTION.md
 │
-├── members/                         ← 16 agent skill files
+├── members/                         ← agent skill files
 │   ├── the-scribe/
 │   ├── the-architect/
 │   ├── the-strategist/

@@ -1,13 +1,13 @@
 # Agent System
 
-> *The Society is not one agent. It is sixteen specialists who know when to call each other.*
+> *The Society is not one agent. It is specialists who know when to call each other.*
 
 ---
 
 ## Overview
 
 The Agenthood uses a **multi-agent architecture** where a central Orchestrator
-coordinates sixteen specialized members. No member tries to do everything.
+coordinates all specialized members. No member tries to do everything.
 Each receives only the tools and context relevant to their specialty.
 
 This design avoids the failure mode of monolithic agents: an agent given every

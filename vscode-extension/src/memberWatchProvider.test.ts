@@ -68,7 +68,7 @@ suite('MemberWatchProvider — pure helpers', () => {
     assert.strictEqual(item.contextValue, 'member-not-installed');
   });
 
-  test('all 16 members have a display name mapping', () => {
+  test('all members have a display name mapping', () => {
     for (const member of AGENTHOOD_MEMBERS) {
       const item = new MemberItem(member, 'watching');
       assert.ok(item.label, `${member} should have a display name`);

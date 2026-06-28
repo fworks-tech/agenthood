@@ -65,6 +65,7 @@ check_docs_adr_sync() {
   [ -z "$docs_dir_changed" ] && return 0
   adr_count=$(find docs/adr -name "*.md" 2>/dev/null | wc -l)
   [ "$adr_count" -eq 0 ] && echo "FAIL: docs/ changed but docs/adr/ has no ADRs" && return 1
+  return 0
 }
 
 check_commands_spec_sync() {

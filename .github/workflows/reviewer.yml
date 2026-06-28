@@ -62,7 +62,7 @@ jobs:
             exit 0
           fi
 
-          TASK=$(printf "review this git diff:\n%s\n\nEnd your report with: <!--AGENTHOOD_DECISION: blocking=true|false warnings=N-->" "$DIFF")
+          TASK=$(printf "review this git diff. Be concise — use bullet points, keep under 40 lines:\n%s\n\nEnd your report with: <!--AGENTHOOD_DECISION: blocking=true|false warnings=N-->" "$DIFF")
           node dist/cli.js run the-reviewer "$TASK" --provider opencode-go 2>&1 | grep -v "^Error running\|^Using \|^opencode-go\|^groq\|^ollama\|^All providers\|^$" > /tmp/review_body.txt
         env:
           GITHUB_TOKEN: ${{ github.token }}
@@ -75,7 +75,7 @@ jobs:
         run: |
           PR_NUMBER=$(gh pr view --json number --jq '.number' 2>/dev/null || echo "")
           [ -z "$PR_NUMBER" ] && exit 0
-          COMMENT_ID=$(gh api "repos/{owner}/{repo}/issues/$PR_NUMBER/comments" --jq '.[] | select(.body | contains("the-reviewer result:") and (startswith("> **This analysis is outdated.**") | not)) | .id' 2>/dev/null | tail -1)
+          COMMENT_ID=$(gh api "repos/{owner}/{repo}/issues/$PR_NUMBER/comments" --jq '.[] | select((.body | contains("the-reviewer result:") or contains("## The Reviewer")) and (startswith("> **This analysis is outdated.**") | not)) | .id' 2>/dev/null | tail -1 || true)
           [ -z "$COMMENT_ID" ] && exit 0
           gh api "repos/{owner}/{repo}/issues/comments/$COMMENT_ID" --jq -r '.body' > ${RUNNER_TEMP:-/tmp}/reviewer_stale_body.txt 2>/dev/null || exit 0
           { echo "> **This analysis is outdated.** See the latest comment below for the current review."; echo ">"; cat ${RUNNER_TEMP:-/tmp}/reviewer_stale_body.txt; } | jq -Rs '{body: .}' > ${RUNNER_TEMP:-/tmp}/reviewer_stale_payload.json

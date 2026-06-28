@@ -83,10 +83,7 @@ jobs:
           agent-name: the-auditor
           prompt-template: "audit these changed files for security concerns, secrets, and dependency risks:\n%s\n"
           pr-number: ${{ github.event.pull_request.number }}
-          base-sha: ${{ github.event.pull_request.base.sha }}
-          head-sha: ${{ github.event.pull_request.head.sha }}
-          api-key: ${{ secrets.OPENCODE_API_KEY }}
-          github-token: ${{ github.token }}
+          range: ${{ github.event.pull_request.base.sha }}...${{ github.event.pull_request.head.sha }}
 
   # ──────────────────────────────────────────────
   # The Scribe — auto-label PR by changed files
@@ -113,12 +110,12 @@ jobs:
           fetch-depth: 0
       - name: The Warden — enforce file size limits
         shell: bash
+        env:
+          BASE_SHA: ${{ github.event.pull_request.base.sha }}
+          HEAD_SHA: ${{ github.event.pull_request.head.sha }}
         run: |
           failed=0
-          base_sha=${{ github.event.pull_request.base.sha }}
-          head_sha=${{ github.event.pull_request.head.sha }}
-          changed=$(git diff --name-only --diff-filter=ACM "$base_sha" "$head_sha" 2>/dev/null)
-          for file in $changed; do
+          while IFS= read -r file; do
             [ -f "$file" ] || continue
             case "$file" in
               package-lock.json|yarn.lock|pnpm-lock.yaml) continue ;;
@@ -130,7 +127,7 @@ jobs:
             elif [ "$lines" -gt 300 ]; then
               echo "WARN: $file — $lines lines (approaching limit of 500)"
             fi
-          done
+          done < <(git diff --name-only --diff-filter=ACM "$BASE_SHA" "$HEAD_SHA" 2>/dev/null)
           if [ "$failed" -eq 1 ]; then
             echo ""
             echo "The Warden: one or more files exceed the 500-line limit."
@@ -145,10 +142,7 @@ jobs:
           agent-name: the-warden
           prompt-template: "analyze these changed files for code smells, complexity issues, and architectural decay:\n%s\n"
           pr-number: ${{ github.event.pull_request.number }}
-          base-sha: ${{ github.event.pull_request.base.sha }}
-          head-sha: ${{ github.event.pull_request.head.sha }}
-          api-key: ${{ secrets.OPENCODE_API_KEY }}
-          github-token: ${{ github.token }}
+          range: ${{ github.event.pull_request.base.sha }}...${{ github.event.pull_request.head.sha }}
 
   # ──────────────────────────────────────────────
   # The Librarian — documentation sync check
@@ -163,7 +157,10 @@ jobs:
           fetch-depth: 0
       - name: The Librarian — verify docs reflect changed files
         shell: bash
-        run: .github/scripts/librarian-check.sh "${{ github.event.pull_request.base.sha }}" "${{ github.event.pull_request.head.sha }}"
+        env:
+          BASE_SHA: ${{ github.event.pull_request.base.sha }}
+          HEAD_SHA: ${{ github.event.pull_request.head.sha }}
+        run: .github/scripts/librarian-check.sh
       - name: The Librarian — post doc sync report to PR
         if: failure() && github.event_name == 'pull_request'
         env:
@@ -184,79 +181,9 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - name: Check member README.md presence
+      - name: The Sentinel — run all member structure checks
         shell: bash
-        run: |
-          failed=0
-          for dir in members/*/; do
-            name=$(basename "$dir")
-            [ "$name" = "README.md" ] && continue
-            if [ ! -f "${dir}README.md" ]; then
-              echo "FAIL [$name]: missing README.md"; failed=1
-            fi
-          done
-          [ "$failed" -eq 1 ] && exit 1
-          echo "All members have README.md"
-      - name: Validate SKILL.md exists and has frontmatter
-        shell: bash
-        run: .github/scripts/validate-skill-md.sh
-      - name: Validate SKILL.md required sections
-        shell: bash
-        run: |
-          failed=0
-          sections="## Overview ## When to Use ## Process ## Red Flags ## Rationalizations ## Verification"
-          for dir in members/*/; do
-            name=$(basename "$dir")
-            [ "$name" = "README.md" ] && continue
-            skill="${dir}SKILL.md"
-            [ ! -f "$skill" ] && continue
-            for section in $sections; do
-              ! grep -qF "$section" "$skill" && echo "FAIL [$name]: SKILL.md missing '$section'" && failed=1
-            done
-          done
-          [ "$failed" -eq 1 ] && exit 1
-          echo "All SKILL.md files have required sections"
-      - name: Cross-check member registration in index files
-        shell: bash
-        run: |
-          failed=0
-          indexes="AGENTS.md members/README.md README.md"
-          for dir in members/*/; do
-            name=$(basename "$dir")
-            [ "$name" = "README.md" ] && continue
-            for idx in $indexes; do
-              ! grep -q "$name" "$idx" && echo "FAIL [$name]: not registered in $idx" && failed=1
-            done
-          done
-          [ "$failed" -eq 1 ] && exit 1
-          echo "All members registered in all index files"
-      - name: Verify skills/ reflect members/
-        shell: bash
-        run: |
-          failed=0
-          for dir in members/*/; do
-            name=$(basename "$dir")
-            [ "$name" = "README.md" ] && continue
-            member_file="members/$name/SKILL.md"
-            skill_file="skills/$name/SKILL.md"
-            if [ ! -f "$skill_file" ]; then
-              echo "FAIL [$name]: missing $skill_file"; failed=1
-            elif ! cmp -s "$member_file" "$skill_file"; then
-              echo "FAIL [$name]: $skill_file differs from $member_file"; failed=1
-            fi
-          done
-          [ "$failed" -eq 1 ] && exit 1
-          echo "All skills/ files match members/ content."
-      - name: Check for orphan files in skills/
-        shell: bash
-        run: |
-          failed=0
-          for dir in skills/*/; do
-            name=$(basename "$dir")
-            [ ! -d "members/$name" ] && echo "FAIL [skills/$name]: orphan directory" && failed=1
-          done
-          [ "$failed" -eq 1 ] && exit 1
-          echo "No orphan skills/ directories."
+        run: .github/scripts/sentinel-check.sh
       - name: The Sentinel — agent analysis
         continue-on-error: true
         uses: ./.github/actions/agent-analysis
@@ -264,10 +191,7 @@ jobs:
           agent-name: the-sentinel
           prompt-template: "analyze these changed member files for structural drift and consistency issues:\n%s\n"
           pr-number: ${{ github.event.pull_request.number }}
-          base-sha: ${{ github.event.pull_request.base.sha }}
-          head-sha: ${{ github.event.pull_request.head.sha }}
-          api-key: ${{ secrets.OPENCODE_API_KEY }}
-          github-token: ${{ github.token }}
+          range: ${{ github.event.pull_request.base.sha }}...${{ github.event.pull_request.head.sha }}
 
   # ──────────────────────────────────────────────
   # The Tester — test suite
@@ -286,10 +210,10 @@ jobs:
       - run: npm ci
       - name: The Tester — run affected tests
         shell: bash
+        env:
+          BASE_SHA: ${{ github.event.pull_request.base.sha }}
+          HEAD_SHA: ${{ github.event.pull_request.head.sha }}
         run: |
-          BASE_SHA="${{ github.event.pull_request.base.sha }}"
-          HEAD_SHA="${{ github.event.pull_request.head.sha }}"
-
           if [ -z "$BASE_SHA" ] || [ "$BASE_SHA" = "$HEAD_SHA" ]; then
             echo "No PR range available — running full suite."
             npx vitest run --exclude 'vscode-extension/**'
@@ -311,20 +235,20 @@ jobs:
           # Map changed source files to test files by basename
           TEST_FILES=""
           UNMATCHED_SOURCE=""
-          for FILE in $CHANGED; do
+          while IFS= read -r FILE; do
             case "$FILE" in
               *.test.ts)
                 TEST_FILES="$TEST_FILES $FILE"
                 ;;
               *.ts)
-                # Check if shared/core module → escalate to full suite
-                for CP in $CORE_PATTERNS; do
+                while IFS= read -r CP; do
+                  [ -z "$CP" ] && continue
                   if echo "$FILE" | grep -qE "^${CP}"; then
                     echo "Shared module changed ($FILE) — running full suite."
                     npx vitest run --exclude 'vscode-extension/**'
                     exit $?
                   fi
-                done
+                done < <(echo "$CORE_PATTERNS" | tr ' ' '\n')
                 BASENAME=$(basename "$FILE" .ts)
                 FOUND=$(find tests -maxdepth 4 -name "${BASENAME}.test.ts" -type f 2>/dev/null | head -1)
                 if [ -n "$FOUND" ]; then
@@ -334,7 +258,7 @@ jobs:
                 fi
                 ;;
             esac
-          done
+          done < <(echo "$CHANGED")
 
           if [ -n "$UNMATCHED_SOURCE" ]; then
             echo "::warning::Source files changed without matching tests:$UNMATCHED_SOURCE — running full suite."
@@ -344,9 +268,10 @@ jobs:
 
           if [ -z "$TEST_FILES" ]; then
             echo "No affected tests — only docs, workflows, or config changed. Skipping."
-            echo "Changed: $(echo "$CHANGED" | tr '\n' ' ')"
+            echo "Changed: $CHANGED"
             exit 0
           fi
 
-          echo "Running affected tests: $(echo "$TEST_FILES" | tr ' ' '\n' | sort -u | tr '\n' ' ')"
-          npx vitest run --exclude 'vscode-extension/**' $(echo "$TEST_FILES" | tr ' ' '\n' | sort -u | tr '\n' ' ')
+          SORTED_TESTS=$(echo "$TEST_FILES" | tr ' ' '\n' | sort -u | tr '\n' ' ')
+          echo "Running affected tests: $SORTED_TESTS"
+          npx vitest run --exclude 'vscode-extension/**' $SORTED_TESTS

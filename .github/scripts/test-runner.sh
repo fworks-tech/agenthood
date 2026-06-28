@@ -32,6 +32,17 @@ check_full_suite_trigger() {
   return 1
 }
 
+find_matching_test() {
+  local file="$1" basename found
+  basename=$(basename "$file" .ts)
+  found=$(find tests -maxdepth 4 -name "${basename}.test.ts" -type f 2>/dev/null | head -1)
+  if [ -n "$found" ]; then
+    TEST_FILES="$TEST_FILES $found"
+  else
+    UNMATCHED_SOURCE="$UNMATCHED_SOURCE $file"
+  fi
+}
+
 TEST_FILES=""
 UNMATCHED_SOURCE=""
 
@@ -50,13 +61,7 @@ while IFS= read -r FILE; do
       TEST_FILES="$TEST_FILES $FILE"
       ;;
     *.ts)
-      BASENAME=$(basename "$FILE" .ts)
-      FOUND=$(find tests -maxdepth 4 -name "${BASENAME}.test.ts" -type f 2>/dev/null | head -1)
-      if [ -n "$FOUND" ]; then
-        TEST_FILES="$TEST_FILES $FOUND"
-      else
-        UNMATCHED_SOURCE="$UNMATCHED_SOURCE $FILE"
-      fi
+      find_matching_test "$FILE"
       ;;
   esac
 done < <(echo "$CHANGED")

@@ -79,7 +79,7 @@ build_comment_body() {
 
 check_agenthood_decision() {
   if grep -qE '<!--AGENTHOOD_DECISION:' "$analysis_file" 2>/dev/null; then
-    if grep -qE '<!--AGENTHOOD_DECISION:.*blocking=true[[:space:]].*-->' "$analysis_file" 2>/dev/null; then
+    if grep -qE '<!--AGENTHOOD_DECISION:.*blocking=true.*-->' "$analysis_file" 2>/dev/null; then
       echo "::error::${AGENT_NAME} found blocking findings -- see PR comment for details"
       return 1
     fi

@@ -19,20 +19,26 @@ check_registered() {
   return $fail
 }
 
+check_single_registration() {
+  local name="$1" fail=0
+  if ! grep -q "$name" AGENTS.md; then
+    echo "FAIL: $name added but not registered in AGENTS.md"; fail=1
+  fi
+  if ! grep -q "$name" members/README.md; then
+    echo "FAIL: $name added but not registered in members/README.md"; fail=1
+  fi
+  if ! grep -q "$name" STRUCTURE.md; then
+    echo "FAIL: $name added but not registered in STRUCTURE.md"; fail=1
+  fi
+  return $fail
+}
+
 check_member_registration() {
   local fail=0
   while IFS= read -r FILE; do
     if echo "$FILE" | grep -qE "^members/the-[a-z-]+/"; then
       NAME=$(echo "$FILE" | sed 's|members/\(the-[a-z-]*\)/.*|\1|')
-      if ! grep -q "$NAME" AGENTS.md; then
-        echo "FAIL: $NAME added but not registered in AGENTS.md"; fail=1
-      fi
-      if ! grep -q "$NAME" members/README.md; then
-        echo "FAIL: $NAME added but not registered in members/README.md"; fail=1
-      fi
-      if ! grep -q "$NAME" STRUCTURE.md; then
-        echo "FAIL: $NAME added but not registered in STRUCTURE.md"; fail=1
-      fi
+      check_single_registration "$NAME" || fail=1
     fi
   done < <(echo "$CHANGED")
   return $fail

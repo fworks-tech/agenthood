@@ -1,6 +1,5 @@
 import { existsSync, readFileSync, readdirSync, writeFileSync } from 'node:fs'
 import { join } from 'node:path'
-import { MEMBER_NAMES } from '../members.js'
 import { contentHash } from '../utils/hash.js'
 import { loadLockfile } from '../utils/lockfile.js'
 import type { Lockfile } from '../utils/lockfile.js'

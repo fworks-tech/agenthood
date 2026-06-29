@@ -1,4 +1,4 @@
-import type { IMemoryStore, MemoryEntry, RetentionPolicy } from '../IMemoryStore.js'
+import type { IMemoryStore, RetentionPolicy } from '../IMemoryStore.js'
 
 interface StoreEntry<T> {
   key: string

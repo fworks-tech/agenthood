@@ -147,7 +147,7 @@ export class OpenCodeProvider implements ILLMProvider {
     this.model = model
   }
 
-  async embed(text: string): Promise<number[]> {
+  async embed(_text: string): Promise<number[]> {
     throw new UnsupportedOperationError("embed", "OpenCode")
   }
 }

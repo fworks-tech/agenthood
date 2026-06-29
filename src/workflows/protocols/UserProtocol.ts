@@ -25,7 +25,7 @@ export class UserProtocol implements IProtocol<UserProtocolInput, UserProtocolOu
     this.config = { ...DEFAULT_CONFIG, ...config }
   }
 
-  async execute(input: UserProtocolInput, context: ExecutionContext): Promise<UserProtocolOutput> {
+  async execute(input: UserProtocolInput, _context: ExecutionContext): Promise<UserProtocolOutput> {
     const msg = input.options?.length
       ? `${input.message}\n\nOptions:\n${input.options.map((o, i) => `${i + 1}. ${o}`).join('\n')}`
       : input.message

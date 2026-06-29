@@ -112,8 +112,11 @@ export async function executeReviewPrWorkflow(): Promise<string> {
   const context: ExecutionContext = {
     executionId: 'review-pr',
     project: { localPath: process.cwd(), name: 'project' },
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     memory: {} as any,
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     llm: {} as any,
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     prompts: {} as any,
     tracer: { startSpan: () => {}, endSpan: () => {} },
     artifacts: [],

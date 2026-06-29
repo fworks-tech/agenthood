@@ -6,7 +6,6 @@ import type { IVectorStore, VectorRecord } from "../memory/VectorStore.ts"
 import type { ChunkStrategy, HierarchicalChunkStrategy, ParentChunk } from "./ChunkStrategy.ts"
 import { FixedSizeChunkStrategy } from "./ChunkStrategy.ts"
 import { TreeSitterParser, languageFromFile } from "./parsers/TreeSitterParser.ts"
-import type { CodeEntity } from "./parsers/TreeSitterParser.ts"
 
 export interface IndexOptions {
   chunkStrategy?: ChunkStrategy

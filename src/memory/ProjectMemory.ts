@@ -1,7 +1,6 @@
-import { existsSync, readFileSync, readdirSync } from "node:fs"
+import { existsSync, readdirSync } from "node:fs"
 import { join } from "node:path"
 import type { KnowledgeGraphStore } from "../rag/KnowledgeGraphStore.ts"
-import type { GraphNode } from "../rag/KnowledgeGraphStore.ts"
 import type { Convention } from "../core/types.js"
 
 export class ProjectMemoryImpl {

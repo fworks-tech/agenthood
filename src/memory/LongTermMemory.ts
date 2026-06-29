@@ -1,4 +1,4 @@
-import type { IVectorStore, VectorRecord } from "./VectorStore.ts"
+import type { IVectorStore } from "./VectorStore.ts"
 
 export class LongTermMemoryImpl {
   private vectorStore: IVectorStore

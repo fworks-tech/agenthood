@@ -75,7 +75,6 @@ export class QualityGates {
       if (typeof parsed !== 'object' || parsed === null) throw new Error('Invalid test output')
       const total = typeof parsed.numTotalTests === 'number' ? parsed.numTotalTests : 0
       const failed = typeof parsed.numFailedTests === 'number' ? parsed.numFailedTests : 0
-      const passed = typeof parsed.numPassedTests === 'number' ? parsed.numPassedTests : 0
       return {
         name: 'Tests',
         pass: failed === 0,

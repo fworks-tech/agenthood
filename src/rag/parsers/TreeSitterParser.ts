@@ -60,6 +60,7 @@ export class TreeSitterParser implements IParser {
 
   private init(): void {
     try {
+      // eslint-disable-next-line @typescript-eslint/no-require-imports
       const Parser = require('tree-sitter') as typeof import('tree-sitter')
       const parser = new Parser()
       const languages: Array<[SupportedLanguage, string]> = [
@@ -69,6 +70,7 @@ export class TreeSitterParser implements IParser {
       ]
       for (const [lang, mod] of languages) {
         try {
+          // eslint-disable-next-line @typescript-eslint/no-require-imports
           const langModule = require(mod) as LanguageModule
           parser.setLanguage(langModule)
           this.parsers.set(lang, parser)
@@ -88,8 +90,10 @@ export class TreeSitterParser implements IParser {
     }
 
     try {
+      // eslint-disable-next-line @typescript-eslint/no-require-imports
       const Parser = require('tree-sitter') as typeof import('tree-sitter')
       const parser = new Parser()
+      // eslint-disable-next-line @typescript-eslint/no-require-imports
       const langModule = require(
         language === 'typescript' ? 'tree-sitter-typescript'
         : language === 'python' ? 'tree-sitter-python'
@@ -184,7 +188,7 @@ export class TreeSitterParser implements IParser {
     return nameChild ? nameChild.text : `anonymous_${node.type}`
   }
 
-  private extractDependencies(node: TreeSitterNode, source: string): string[] {
+  private extractDependencies(node: TreeSitterNode, _source: string): string[] {
     const deps: string[] = []
     if (node.type === 'import_statement' || node.type === 'import_declaration') {
       for (const child of node.children) {
@@ -217,8 +221,6 @@ export class TreeSitterParser implements IParser {
     const classRe = /^(?:export\s+)?(?:abstract\s+)?class\s+(\w+)/
     const interfaceRe = /^(?:export\s+)?interface\s+(\w+)/
     const typeRe = /^(?:export\s+)?type\s+(\w+)/
-    const methodRe = /^\s*(?:async\s+)?(\w+)\s*\([^)]*\)\s*{/
-
     for (let i = 0; i < lines.length; i++) {
       const line = lines[i]
 

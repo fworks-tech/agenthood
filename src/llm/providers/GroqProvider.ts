@@ -14,7 +14,7 @@ export class GroqProvider implements ILLMProvider {
     this.model =
       config.model ??
       process.env.GROQ_DEFAULT_MODEL ??
-      "llama-3.1-70b-versatile";
+      "llama-3.3-70b-versatile";
   }
 
   async complete(request: LLMRequest): Promise<LLMResponse> {

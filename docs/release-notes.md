@@ -5,6 +5,14 @@
 
 ---
 
+## v3.5.2 — June 29, 2026
+
+### 🐛 Bug Fixes
+
+- **Ollama:** read baseUrl from config before falling back to env
+
+---
+
 ## v3.5.1 — June 29, 2026
 
 ### 🐛 Bug Fixes

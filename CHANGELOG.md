@@ -1,3 +1,10 @@
+## [3.5.2](https://github.com/fworks-tech/agenthood/compare/v3.5.1...v3.5.2) (2026-06-29)
+
+
+### Bug Fixes
+
+* **ollama:** read baseUrl from config before falling back to env ([75ecd2b](https://github.com/fworks-tech/agenthood/commit/75ecd2bf24210c5f9fcbd1176070c4a6eca8ec66))
+
 ## [3.5.1](https://github.com/fworks-tech/agenthood/compare/v3.5.0...v3.5.1) (2026-06-29)
 
 

@@ -1,7 +1,7 @@
-import { existsSync, readFileSync, readdirSync, statSync } from "node:fs"
-import { extname, join, relative } from "node:path"
+import { existsSync, readFileSync, readdirSync } from "node:fs"
+import { join } from "node:path"
 import type { ILLMProvider } from "../llm/ILLMProvider.ts"
-import type { IVectorStore, VectorRecord } from "../memory/VectorStore.ts"
+import type { IVectorStore } from "../memory/VectorStore.ts"
 import type { KnowledgeGraphStore } from "../rag/KnowledgeGraphStore.ts"
 import type { GraphEdge, GraphNode } from "../rag/KnowledgeGraphStore.ts"
 

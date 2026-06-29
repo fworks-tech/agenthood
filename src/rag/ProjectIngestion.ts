@@ -1,10 +1,9 @@
-import { readFileSync } from "node:fs"
-import { readdirSync, statSync } from "node:fs"
+import { readFileSync, readdirSync, statSync } from "node:fs"
 import { extname, join, relative } from "node:path"
 import type { Indexer } from "./Indexer.ts"
-import type { KnowledgeGraphStore, GraphEdge, GraphNode } from "./KnowledgeGraphStore.ts"
+import type { KnowledgeGraphStore, GraphNode } from "./KnowledgeGraphStore.ts"
 import { TreeSitterParser, languageFromFile } from "./parsers/TreeSitterParser.ts"
-import type { CodeEntity, SupportedLanguage } from "./parsers/TreeSitterParser.ts"
+import type { CodeEntity } from "./parsers/TreeSitterParser.ts"
 
 export class ProjectIngestion {
   private parser: TreeSitterParser

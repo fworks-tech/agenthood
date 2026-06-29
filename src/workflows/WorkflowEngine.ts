@@ -61,7 +61,7 @@ export class WorkflowEngine {
     return wfContext
   }
 
-  private async executeStep(step: WorkflowStep, context: ExecutionContext, wfContext: WorkflowContext): Promise<unknown> {
+  private async executeStep(step: WorkflowStep, context: ExecutionContext, _wfContext: WorkflowContext): Promise<unknown> {
     const protocol = step.protocol ?? this.resolveProtocol(step)
 
     if (!protocol) {

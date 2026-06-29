@@ -100,7 +100,7 @@ export class MarkdownHierarchicalChunkStrategy implements HierarchicalChunkStrat
 
     for (let i = 0; i < sections.length; i++) {
       const section = sections[i]
-      const safePath = metadata.filePath.replace(/[\/\\]/g, '_')
+      const safePath = metadata.filePath.replace(/[/\\]/g, '_')
       const parentId = `parent_${i}_${safePath}`
       const parentStartLine = metadata.startLine + section.headerLine
       const parentEndLine = metadata.startLine + section.endLine
@@ -209,7 +209,7 @@ export class CodeHierarchicalChunkStrategy implements HierarchicalChunkStrategy 
     const children: ChildChunk[] = []
 
     // Treat entire file as a single parent section
-    const safePath = metadata.filePath.replace(/[\/\\]/g, '_')
+    const safePath = metadata.filePath.replace(/[/\\]/g, '_')
     const parentId = `code_parent_${safePath}`
     const parentMeta = { filePath: metadata.filePath, startLine: metadata.startLine, endLine: metadata.endLine }
 
@@ -248,11 +248,9 @@ export class CodeHierarchicalChunkStrategy implements HierarchicalChunkStrategy 
     return { parents, children }
   }
 
-  private splitCodeBlocks(lines: string[], filePath: string): Array<{ text: string; startLine: number; endLine: number }> {
-    const ext = filePath.split('.').pop()?.toLowerCase()
+  private splitCodeBlocks(lines: string[], _filePath: string): Array<{ text: string; startLine: number; endLine: number }> {
     const blocks: Array<{ text: string; startLine: number; endLine: number }> = []
 
-    let currentStart = 0
     let inBlock = false
     let blockStart = 0
 
@@ -261,7 +259,7 @@ export class CodeHierarchicalChunkStrategy implements HierarchicalChunkStrategy 
       const trimmed = line.trim()
 
       // Detect top-level declarations based on language
-      const isTopLevelDecl = this.isTopLevelDeclaration(trimmed, ext)
+      const isTopLevelDecl = this.isTopLevelDeclaration(trimmed)
 
       if (isTopLevelDecl) {
         if (inBlock) {
@@ -296,7 +294,7 @@ export class CodeHierarchicalChunkStrategy implements HierarchicalChunkStrategy 
     return blocks
   }
 
-  private isTopLevelDeclaration(trimmed: string, ext?: string): boolean {
+  private isTopLevelDeclaration(trimmed: string): boolean {
     const keywords = ['class ', 'function ', 'async function', 'export ', 'interface ',
       'type ', 'const ', 'let ', 'var ', 'def ', 'async def', 'func ',
       'impl ', 'struct ', 'enum ', 'trait ']

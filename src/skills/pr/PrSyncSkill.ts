@@ -13,10 +13,6 @@ import {
   formatPlainComment,
 } from '../../commands/prSyncHelpers.ts'
 
-function run(cmd: string): string {
-  return execSync(cmd, { encoding: 'utf-8', stdio: 'pipe' }).trim()
-}
-
 export class PrSyncSkill implements ISkill {
   name = 'pr_sync'
   description = 'Sync a GitHub pull request body with new commits and post a reviewer comment. Detects new commits since the last sync marker, updates the PR description, and generates a summary comment.'
@@ -29,7 +25,7 @@ export class PrSyncSkill implements ISkill {
     required: ['prNumber'],
   }
 
-  async execute(input: unknown, context: ExecutionContext): Promise<SkillResult> {
+  async execute(input: unknown, _context: ExecutionContext): Promise<SkillResult> {
     const { prNumber, dryRun } = input as { prNumber: number; dryRun?: boolean }
 
     try {

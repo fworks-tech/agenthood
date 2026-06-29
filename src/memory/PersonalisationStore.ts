@@ -1,4 +1,4 @@
-import { existsSync, readFileSync, writeFileSync } from "node:fs"
+import { existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs"
 import { dirname } from "node:path"
 import type { ResidualMemory } from "./ResidualMemory.ts"
 import type { TraceSignal } from "./ResidualMemory.ts"
@@ -100,7 +100,6 @@ export class PersonalisationStore {
   save(filePath: string): void {
     const dir = dirname(filePath)
     if (!existsSync(dir)) {
-      const { mkdirSync } = require("node:fs") as typeof import("node:fs")
       mkdirSync(dir, { recursive: true })
     }
     writeFileSync(

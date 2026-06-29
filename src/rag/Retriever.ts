@@ -1,7 +1,7 @@
 import { readFileSync, existsSync } from "node:fs"
 import { join } from "node:path"
 import type { ILLMProvider } from "../llm/ILLMProvider.ts"
-import type { IVectorStore, VectorSearchResult } from "../memory/VectorStore.ts"
+import type { IVectorStore } from "../memory/VectorStore.ts"
 import type { IGraphStore } from "./KnowledgeGraphStore.ts"
 import type { ParentChunk } from "./ChunkStrategy.ts"
 

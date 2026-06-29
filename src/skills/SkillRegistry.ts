@@ -1,5 +1,5 @@
-import { readdirSync, statSync, watch as fsWatch } from 'node:fs'
-import { join, relative } from 'node:path'
+import { readdirSync, watch as fsWatch } from 'node:fs'
+import { join } from 'node:path'
 import { pathToFileURL } from 'node:url'
 import type { ISkill } from './ISkill.js'
 import type { ToolSchema } from '../llm/types.js'

@@ -61,7 +61,7 @@ which superseded the earlier Python/DeepAgents runtime approach.
 
 | Component | Implemented in | Status |
 |-----------|----------------|--------|
-| Society members (skill files) | `members/<name>/SKILL.md` | ✅ Shipped (v1.5.0) |
+| Society members (skill files) | `docs/members/<name>/SKILL.md` | ✅ Shipped (v1.5.0) |
 | TS runtime: `ILLMProvider`, `LLMRouter`, `ReActLoop`, `BaseAgent` | `src/llm/`, `src/reasoning/`, `src/agents/` | ✅ Shipped |
 | `MemberRegistry` — wires members to TS `run` | `src/members/MemberRegistry.ts` | ✅ v2.0.0 |
 | `ProviderFailover` — circuit breaker + classification | `src/llm/ProviderFailover.ts` | ✅ v2.0.0 |
@@ -72,6 +72,6 @@ which superseded the earlier Python/DeepAgents runtime approach.
 | Memory tiers (IMemoryStore, ResidualMemory, InMemoryStore, VectorStore, ShortTerm, LongTerm, Episodic, Project, PersonalisationStore) | `src/memory/` | ✅ Shipped |
 | RAG — KnowledgeGraphStore, FixedSizeChunkStrategy + MarkdownHierarchicalChunkStrategy, Indexer, Retriever, AgenticRAG, TreeSitterParser | `src/rag/` | ✅ Shipped |
 | Society index (members, ADRs, conventions) | `src/project/SocietyIndexer.ts` | ✅ Shipped |
-| Governance docs (RACI + release policy) | `governance/` | ✅ v2.6.0 |
+| Governance docs (RACI + release policy) | `../governance/` | ✅ v2.6.0 |
 
 The TS CLI is the single supported runtime for `agenthood run`.

@@ -15,7 +15,7 @@ import type { MemberSpec, PermissionProfile, ProviderName, MemberCategory } from
 const __filename = fileURLToPath(import.meta.url)
 const __dirname = dirname(__filename)
 const SOCIETY_ROOT = join(__dirname, '..', '..')
-const MEMBERS_DIR = join(SOCIETY_ROOT, 'members')
+const MEMBERS_DIR = join(SOCIETY_ROOT, 'docs', 'members')
 
 export class MemberNotFoundError extends Error {
   constructor(name: string) {

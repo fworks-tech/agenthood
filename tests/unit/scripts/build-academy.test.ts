@@ -105,7 +105,7 @@ describe('rewriteLink', () => {
 
     it('returns GitHub URL for relative path without .md', () => {
       const result = rewriteLink(
-        '../../rituals/',
+        '../../docs/rituals/',
         'academy/level-3-advanced-skills',
         false,
       )

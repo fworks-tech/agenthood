@@ -43,7 +43,7 @@ export class SocietyIndexer {
   }
 
   private indexMembers(): void {
-    const membersDir = join(this.basePath, "members")
+    const membersDir = join(this.basePath, "docs", "members")
     if (!existsSync(membersDir)) return
 
     let entries: string[]
@@ -159,7 +159,7 @@ export class SocietyIndexer {
   }
 
   private indexConventions(): void {
-    const convDir = join(this.basePath, "conventions")
+    const convDir = join(this.basePath, "docs", "conventions")
     if (!existsSync(convDir)) return
 
     let files: string[]

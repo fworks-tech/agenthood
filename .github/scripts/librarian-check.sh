@@ -24,8 +24,8 @@ check_single_registration() {
   if ! grep -q "$name" AGENTS.md; then
     echo "FAIL: $name added but not registered in AGENTS.md"; fail=1
   fi
-  if ! grep -q "$name" members/README.md; then
-    echo "FAIL: $name added but not registered in members/README.md"; fail=1
+  if ! grep -q "$name" docs/members/README.md; then
+    echo "FAIL: $name added but not registered in docs/members/README.md"; fail=1
   fi
   if ! grep -q "$name" STRUCTURE.md; then
     echo "FAIL: $name added but not registered in STRUCTURE.md"; fail=1
@@ -36,8 +36,8 @@ check_single_registration() {
 check_member_registration() {
   local fail=0
   while IFS= read -r FILE; do
-    if echo "$FILE" | grep -qE "^members/the-[a-z-]+/"; then
-      NAME=$(echo "$FILE" | sed 's|members/\(the-[a-z-]*\)/.*|\1|')
+    if echo "$FILE" | grep -qE "^docs/members/the-[a-z-]+/"; then
+      NAME=$(echo "$FILE" | sed 's|docs/members/\(the-[a-z-]*\)/.*|\1|')
       check_single_registration "$NAME" || fail=1
     fi
   done < <(echo "$CHANGED")
@@ -46,11 +46,11 @@ check_member_registration() {
 
 check_all_members_indexed() {
   local fail=0
-  for MEMBER_DIR in members/*/; do
+  for MEMBER_DIR in docs/members/*/; do
     NAME=$(basename "$MEMBER_DIR")
     [ "$NAME" = "README.md" ] && continue
     if ! grep -q "$NAME" AGENTS.md; then
-      echo "FAIL: $NAME exists in members/ but not in AGENTS.md"; fail=1
+      echo "FAIL: $NAME exists in docs/members/ but not in AGENTS.md"; fail=1
     fi
   done
   return $fail
@@ -58,10 +58,10 @@ check_all_members_indexed() {
 
 check_conventions_docs_sync() {
   local conventions_changed docs_changed
-  conventions_changed=$(echo "$CHANGED" | grep "^conventions/" || true)
+  conventions_changed=$(echo "$CHANGED" | grep "^docs/conventions/" || true)
   [ -z "$conventions_changed" ] && return 0
-  docs_changed=$(echo "$CHANGED" | grep -E "^(AGENTS\.md|README\.md|INITIATION\.md|members/)" || true)
-  [ -z "$docs_changed" ] && { echo "WARN: conventions/ changed but no doc files updated"; return 0; }
+  docs_changed=$(echo "$CHANGED" | grep -E "^(AGENTS\.md|README\.md|INITIATION\.md|docs/members/)" || true)
+  [ -z "$docs_changed" ] && { echo "WARN: docs/conventions/ changed but no doc files updated"; return 0; }
   return 0
 }
 
@@ -85,10 +85,10 @@ check_commands_spec_sync() {
 
 check_hooks_contributing_sync() {
   local conventions_or_hooks contributing_updated
-  conventions_or_hooks=$(echo "$CHANGED" | grep -E "^(conventions/|\.githooks/)" || true)
+  conventions_or_hooks=$(echo "$CHANGED" | grep -E "^(docs/conventions/|\.githooks/)" || true)
   [ -z "$conventions_or_hooks" ] && return 0
   contributing_updated=$(echo "$CHANGED" | grep "^CONTRIBUTING\.md" || true)
-  [ -z "$contributing_updated" ] && { echo "WARN: conventions/ or .githooks/ changed but CONTRIBUTING.md was not updated"; return 0; }
+  [ -z "$contributing_updated" ] && { echo "WARN: docs/conventions/ or .githooks/ changed but CONTRIBUTING.md was not updated"; return 0; }
   return 0
 }
 

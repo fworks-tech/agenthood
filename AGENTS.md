@@ -40,7 +40,7 @@ to understand the Society's standards before taking any action in a repository.
 
 ## The Members
 
-Load skills from `members/` to activate specialized agents:
+Load skills from `docs/members/` to activate specialized agents:
 
 - `the-scribe` — commit messages, PR descriptions, changelogs
 - `the-architect` — spec-driven development, planning, ADRs

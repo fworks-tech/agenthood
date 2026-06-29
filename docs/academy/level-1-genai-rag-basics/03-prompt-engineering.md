@@ -30,7 +30,7 @@ Production prompt engineering prevents context degradation. It ensures the model
 
 ## How Agenthood implements it
 
-Agenthood implements prompt engineering through the `PromptBuilder` utility and the strict Markdown templates defining its members (`members/*/*.md`). 
+Agenthood implements prompt engineering through the `PromptBuilder` utility and the strict Markdown templates defining its members (`docs/members/*/*.md`). 
 
 The `PromptBuilder` is implemented at `src/prompts/PromptBuilder.ts` (shipped in v2.0.0):
 
@@ -53,7 +53,7 @@ You can view the Society's mastery of prompt engineering by reading any of the m
 
 ```bash
 # Read The Reviewer's strict prompt instructions
-cat members/the-reviewer/SKILL.md
+cat docs/members/the-reviewer/SKILL.md
 ```
 
 Or programmatically (future milestone):

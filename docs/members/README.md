@@ -43,11 +43,11 @@ When a member's behaviour changes, **only `SKILL.md` needs to be updated** — t
 
 **Claude Code:**
 ```bash
-cp -r agenthood/members/ yourproject/.claude/skills/
+cp -r agenthood/docs/members/ yourproject/.claude/skills/
 ```
 
 **Agent-agnostic (AGENTS.md):**
-Reference `members/` in your project's `AGENTS.md` to make all runtimes aware.
+Reference `docs/members/` in your project's `AGENTS.md` to make all runtimes aware.
 
 **Via `npx agenthood init`:**
 The initiation ceremony copies selected member skills into the correct directory

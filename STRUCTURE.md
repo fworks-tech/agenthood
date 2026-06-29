@@ -4,12 +4,12 @@ agenthood/
 ├── AGENTS.md                        ← Agent registry (agent-agnostic)
 ├── oath.md                          ← The oath
 │
-├── conventions/                     ← Rules every agent follows
+├── docs/conventions/                     ← Rules every agent follows
 │   ├── .gitmessage
 │   ├── commitlint.config.ts
 │   └── COMMIT_CONVENTION.md
 │
-├── members/                         ← agent skill files
+├── docs/members/                         ← agent skill files
 │   ├── the-scribe/
 │   ├── the-architect/
 │   ├── the-strategist/
@@ -27,27 +27,27 @@ agenthood/
 │   ├── the-warden/
 │   └── the-steward/
 │
-├── rituals/                         ← Scheduled automations
+├── docs/rituals/                         ← Scheduled automations
 │   ├── morning-briefing.md
 │   ├── the-inspection.md
 │   ├── the-watchman.md
 │   └── evening-report.md
 │
-├── portals/                         ← External system connectors
+├── docs/portals/                         ← External system connectors
 │   ├── github.md
 │   ├── linear.md
 │   ├── jira.md
 │   ├── slack.md
 │   └── sentry.md
 │
-├── agentic-workflows/               ← Multi-step workflow templates
+├── docs/agentic-workflows/               ← Multi-step workflow templates
 │   ├── README.md
 │   ├── triage-issues.agent.md
 │   ├── review-pr.agent.md
 │   ├── diagnose-ci-failure.agent.md
 │   └── sync-docs.agent.md
 │
-├── architecture/                    ← Agent system design docs
+├── docs/architecture/                    ← Agent system design docs
 │   ├── README.md
 │   ├── agent-system.md
 │   ├── built-in-tools.md
@@ -55,7 +55,7 @@ agenthood/
 │   ├── operating-modes.md
 │   └── provider-failover.md
 │
-├── governance/          ← RACI member map, release policy
+├── docs/governance/          ← RACI member map, release policy
 ├── docs/                ← Documentation
 │   ├── adr/                         ← Architecture Decision Records
 │   ├── academy/                     ← Agenthood Academy articles

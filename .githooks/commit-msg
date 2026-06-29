@@ -24,7 +24,7 @@ if [ -z "$TYPE" ]; then
   echo "│  Your type: '$RAW_TYPE'"
   echo "│  Allowed: feat | fix | docs | test | refactor | ci | chore │"
   echo "│                                                             │"
-  echo "│  See conventions/COMMIT_CONVENTION.md                      │"
+  echo "│  See docs/conventions/COMMIT_CONVENTION.md                 │"
   echo "└─────────────────────────────────────────────────────────────┘"
   exit 1
 fi

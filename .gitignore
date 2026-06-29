@@ -30,5 +30,5 @@ skills-lock.json
 .github/copilot/
 .copilot/skills/
 
-# Provider-specific agent definitions (generated from members/)
+# Provider-specific agent definitions (generated from docs/members/)
 .opencode/

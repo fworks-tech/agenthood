@@ -5,7 +5,7 @@
  * Every command imports from here — never define these lists again.
  *
  * Member specs (tools, permissions, providers) are maintained in MemberRegistry
- * at `src/members/MemberRegistry.ts`, derived from the architecture docs.
+ * at `src/members/MemberRegistry.ts`, derived from the docs/architecture docs.
  */
 
 import { existsSync } from 'node:fs';

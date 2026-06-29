@@ -42,7 +42,7 @@ jobs:
             @commitlint/config-conventional@19.5.0 \
             @commitlint/types@19.5.0
           npx commitlint \
-            --config conventions/commitlint.config.ts \
+            --config docs/conventions/commitlint.config.ts \
             --from ${{ github.event.pull_request.base.sha }} \
             --to ${{ github.event.pull_request.head.sha }} \
             --verbose

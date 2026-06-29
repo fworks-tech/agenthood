@@ -4,7 +4,7 @@
  * Priority queue manager for the Society. Ensures work is prioritised, slots
  * are respected, and no request starves.
  *
- * Implements architecture/concurrency-and-queues.md:
+ * Implements docs/architecture/concurrency-and-queues.md:
  * - Priority levels: USER (2), SCHEDULED (1), BACKGROUND (0)
  * - Configurable slots (default 3, max 10)
  * - Queue depth cap = 10× slots

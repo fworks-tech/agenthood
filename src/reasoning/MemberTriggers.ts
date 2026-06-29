@@ -75,21 +75,21 @@ export const MEMBER_TRIGGERS: MemberTrigger[] = [
   {
     name: 'the-oracle',
     keywords: ['member', 'agenthood', 'society', 'convention', 'layer', 'skill', 'the-scribe'],
-    filePatterns: ['members/**/*', 'AGENTS.md', 'conventions/**/*', '.opencode/**/*'],
+    filePatterns: ['docs/members/**/*', 'AGENTS.md', 'docs/conventions/**/*', '.opencode/**/*'],
     contexts: ['working_on_agenthood', 'agenthood_question'],
     stages: [],
   },
   {
     name: 'the-envoy',
     keywords: ['translate', 'provider', 'cursor', 'copilot', 'codex', 'bootstrap', 'skill format'],
-    filePatterns: ['members/**/*.md', 'skills/**/*.md'],
+    filePatterns: ['docs/members/**/*.md', 'skills/**/*.md'],
     contexts: ['provider_migration', 'new_provider'],
     stages: [],
   },
   {
     name: 'the-sentinel',
     keywords: ['drift', 'consistency', 'contradiction', 'member file', 'structural'],
-    filePatterns: ['members/**/*.md', 'conventions/**/*'],
+    filePatterns: ['docs/members/**/*.md', 'docs/conventions/**/*'],
     contexts: ['member_audit', 'drift_check'],
     stages: ['audit'],
   },
@@ -117,7 +117,7 @@ export const MEMBER_TRIGGERS: MemberTrigger[] = [
   {
     name: 'the-operator',
     keywords: ['rollback', 'deploy', 'incident', 'runtime health', 'monitor', 'drift', 'lockfile', 'verify', 'unhealthy'],
-    filePatterns: ['members/**/*.md', 'agenthood.lock'],
+    filePatterns: ['docs/members/**/*.md', 'agenthood.lock'],
     contexts: ['deploy_failure', 'health_check', 'drift_detected', 'post_rollback'],
     stages: ['deploy'],
   },

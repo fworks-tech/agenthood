@@ -36,22 +36,22 @@ Every role a real software team needs — available as a skill file with impecca
 
 | | Agent | Role |
 |---|-------|------|
-| ✍️ | [The Scribe](members/the-scribe/SKILL.md) | Commits, PRs, changelogs |
-| 🏗️ | [The Architect](members/the-architect/SKILL.md) | System design, ADRs, tech decisions |
-| 🔍 | [The Reviewer](members/the-reviewer/SKILL.md) | Code review, standards enforcement |
-| 🧪 | [The Tester](members/the-tester/SKILL.md) | TDD, coverage, edge cases |
-| 🐛 | [The Debugger](members/the-debugger/SKILL.md) | Error triage, root cause analysis |
-| 🔒 | [The Auditor](members/the-auditor/SKILL.md) | Security, vulnerability scanning, dependency audit |
-| 📦 | [The Herald](members/the-herald/SKILL.md) | Releases, versioning, changelogs |
-| 📝 | [The Librarian](members/the-librarian/SKILL.md) | Documentation, API references |
-| 🚪 | [The Doorman](members/the-doorman/SKILL.md) | Validation, branch protection, health checks |
-| 🔮 | [The Oracle](members/the-oracle/SKILL.md) | Institutional knowledge, authoring templates |
-| 🌐 | [The Envoy](members/the-envoy/SKILL.md) | Cross-provider translation, convention validation |
-| 👁️ | [The Sentinel](members/the-sentinel/SKILL.md) | Integrity, cross-member contradiction detection |
-| ⚖️ | [The Warden](members/the-warden/SKILL.md) | Code health, complexity enforcement |
-| 🧭 | [The Steward](members/the-steward/SKILL.md) | Context economy, provider cache strategies |
-| 🎯 | [The Strategist](members/the-strategist/SKILL.md) | Goal refinement, requirement discovery |
-| 🩺 | [The Operator](members/the-operator/SKILL.md) | Runtime health, deployments, rollback |
+| ✍️ | [The Scribe](docs/members/the-scribe/SKILL.md) | Commits, PRs, changelogs |
+| 🏗️ | [The Architect](docs/members/the-architect/SKILL.md) | System design, ADRs, tech decisions |
+| 🔍 | [The Reviewer](docs/members/the-reviewer/SKILL.md) | Code review, standards enforcement |
+| 🧪 | [The Tester](docs/members/the-tester/SKILL.md) | TDD, coverage, edge cases |
+| 🐛 | [The Debugger](docs/members/the-debugger/SKILL.md) | Error triage, root cause analysis |
+| 🔒 | [The Auditor](docs/members/the-auditor/SKILL.md) | Security, vulnerability scanning, dependency audit |
+| 📦 | [The Herald](docs/members/the-herald/SKILL.md) | Releases, versioning, changelogs |
+| 📝 | [The Librarian](docs/members/the-librarian/SKILL.md) | Documentation, API references |
+| 🚪 | [The Doorman](docs/members/the-doorman/SKILL.md) | Validation, branch protection, health checks |
+| 🔮 | [The Oracle](docs/members/the-oracle/SKILL.md) | Institutional knowledge, authoring templates |
+| 🌐 | [The Envoy](docs/members/the-envoy/SKILL.md) | Cross-provider translation, convention validation |
+| 👁️ | [The Sentinel](docs/members/the-sentinel/SKILL.md) | Integrity, cross-member contradiction detection |
+| ⚖️ | [The Warden](docs/members/the-warden/SKILL.md) | Code health, complexity enforcement |
+| 🧭 | [The Steward](docs/members/the-steward/SKILL.md) | Context economy, provider cache strategies |
+| 🎯 | [The Strategist](docs/members/the-strategist/SKILL.md) | Goal refinement, requirement discovery |
+| 🩺 | [The Operator](docs/members/the-operator/SKILL.md) | Runtime health, deployments, rollback |
 
 ---
 
@@ -118,15 +118,15 @@ The TypeScript runtime (`agenthood run`) supports Groq (default, free tier at [c
 
 ## Architecture
 
-The framework runs on five core principles adapted from production AI agent systems. See the [architecture docs](architecture/README.md) for details on how agents coordinate, prioritize, fail over, and stay safe.
+The framework runs on five core principles adapted from production AI agent systems. See the [architecture docs](docs/architecture/README.md) for details on how agents coordinate, prioritize, fail over, and stay safe.
 
 | Principle | Document |
 |-----------|---------|
-| Multi-agent orchestration & agent roles | [agent-system.md](architecture/agent-system.md) |
-| Priority queues & concurrency slots | [concurrency-and-queues.md](architecture/concurrency-and-queues.md) |
-| Agent mode vs Ask mode | [operating-modes.md](architecture/operating-modes.md) |
-| Multi-LLM support & automatic failover | [provider-failover.md](architecture/provider-failover.md) |
-| Tool registry, scoping & safety caps | [built-in-tools.md](architecture/built-in-tools.md) |
+| Multi-agent orchestration & agent roles | [agent-system.md](docs/architecture/agent-system.md) |
+| Priority queues & concurrency slots | [concurrency-and-queues.md](docs/architecture/concurrency-and-queues.md) |
+| Agent mode vs Ask mode | [operating-modes.md](docs/architecture/operating-modes.md) |
+| Multi-LLM support & automatic failover | [provider-failover.md](docs/architecture/provider-failover.md) |
+| Tool registry, scoping & safety caps | [built-in-tools.md](docs/architecture/built-in-tools.md) |
 | Agent memory tiers | [memory](src/memory/) — ResidualMemory, ShortTermMemory, LongTermMemory, EpisodicMemory, ProjectMemory, DecisionLog, MetricsCollector, InMemoryStore, PersonalisationStore, LanceDBStore |
 | Workflow engine & quality gates | [workflows](src/workflows/) — WorkflowEngine, QualityGates, DiffImpactAnalyzer, WorkflowCheckpoint, GoalChain |
 | Service-agnostic RAG (graph, vector, agentic) | [rag](src/rag/) — KnowledgeGraphStore, FixedSizeChunkStrategy + MarkdownHierarchicalChunkStrategy, Indexer, Retriever, AgenticRAG, TreeSitterParser, ProjectIngestion |

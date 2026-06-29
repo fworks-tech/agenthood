@@ -47,7 +47,7 @@ Read the commit message and validate against `commitlint.config.ts`:
 **On validation failure**, provide:
 1. Exactly which rule failed
 2. A corrected version of the message as a suggestion
-3. Reference to `conventions/COMMIT_CONVENTION.md`
+3. Reference to `docs/conventions/COMMIT_CONVENTION.md`
 
 ### PR Title Validation
 
@@ -172,7 +172,7 @@ This activates `.githooks/` (commit-msg, pre-commit, prepare-commit-msg, pre-pus
 2. **commitlint** — commit message linting
    ```bash
    npm install --save-dev @commitlint/cli @commitlint/config-conventional
-   cp agenthood/conventions/commitlint.config.ts ./commitlint.config.ts
+   cp agenthood/docs/conventions/commitlint.config.ts ./commitlint.config.ts
    ```
 
 3. **commit-msg hook**
@@ -187,7 +187,7 @@ This activates `.githooks/` (commit-msg, pre-commit, prepare-commit-msg, pre-pus
 
 5. **`.gitmessage`**
    ```bash
-   cp agenthood/conventions/.gitmessage ./.gitmessage
+   cp agenthood/docs/conventions/.gitmessage ./.gitmessage
    git config commit.template .gitmessage
    ```
 
@@ -196,7 +196,7 @@ This activates `.githooks/` (commit-msg, pre-commit, prepare-commit-msg, pre-pus
 ### What The Doorman Says
 
 When a commit fails type validation:
-> *"'update' is not a valid commit type. Did you mean 'feat', 'fix', or 'chore'? See conventions/COMMIT_CONVENTION.md."*
+> *"'update' is not a valid commit type. Did you mean 'feat', 'fix', or 'chore'? See docs/conventions/COMMIT_CONVENTION.md."*
 
 When a commit fails subject validation:
 > *"'fix stuff' is not a commit message. It is a confession. Try again."*

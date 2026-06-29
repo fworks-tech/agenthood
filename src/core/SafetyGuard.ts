@@ -5,8 +5,8 @@
  * event, and session duration is counted and capped. Loop detection prevents
  * runaway edits to the same file.
  *
- * Implements architecture/built-in-tools.md safety caps and
- * architecture/operating-modes.md permission profiles.
+ * Implements docs/architecture/built-in-tools.md safety caps and
+ * docs/architecture/operating-modes.md permission profiles.
  */
 
 import type { PermissionProfile } from '../members/types.ts'

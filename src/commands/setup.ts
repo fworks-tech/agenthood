@@ -22,7 +22,7 @@ export async function setup(): Promise<void> {
   const steps: Array<[string, () => void]> = [
     ['git hooks path → .githooks/', activateHooksPath],
     ['hooks made executable', makeHooksExecutable],
-    ['commit template → conventions/.gitmessage', setCommitTemplate],
+    ['commit template → docs/conventions/.gitmessage', setCommitTemplate],
   ]
 
   for (const [label, step] of steps) {
@@ -61,7 +61,7 @@ function makeHooksExecutable(): void {
 }
 
 function setCommitTemplate(): void {
-  execSync('git config commit.template conventions/.gitmessage', {
+  execSync('git config commit.template docs/conventions/.gitmessage', {
     cwd: REPO_ROOT,
     stdio: 'pipe',
   })

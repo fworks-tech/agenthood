@@ -2,7 +2,7 @@
 set -euo pipefail
 
 failed=0
-for dir in members/*/; do
+for dir in docs/members/*/; do
   name=$(basename "$dir")
   [ "$name" = "README.md" ] && continue
   skill="${dir}SKILL.md"

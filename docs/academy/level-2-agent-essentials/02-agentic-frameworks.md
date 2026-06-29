@@ -58,13 +58,13 @@ Compare the two approaches on the same task — writing a commit message from a 
 agenthood run the-scribe "write a commit message for the current diff"
 ```
 
-The Society member produces a Conventional Commit message with no hidden prompt assembly. The skill file (`members/the-scribe/SKILL.md`) is the prompt — readable, versioned, and editable.
+The Society member produces a Conventional Commit message with no hidden prompt assembly. The skill file (`docs/members/the-scribe/SKILL.md`) is the prompt — readable, versioned, and editable.
 
 ---
 
 ## Further reading
 
 - [ADR-008](../../adr/ADR-008-typescript-runtime-over-python.md) — the decision to go TypeScript-native
-- [architecture/agent-system.md](../../../architecture/agent-system.md) — system design
+- [architecture/agent-system.md](../../architecture/agent-system.md) — system design
 
 

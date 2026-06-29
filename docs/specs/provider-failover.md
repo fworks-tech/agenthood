@@ -2,7 +2,7 @@
 
 **Status:** Implemented (v2.0.0)  
 **Issue:** #161  
-**Architecture Doc:** [architecture/provider-failover.md](../../architecture/provider-failover.md)
+**Architecture Doc:** [architecture/provider-failover.md](../architecture/provider-failover.md)
 
 ---
 
@@ -368,7 +368,7 @@ These metrics can be logged to `.agenthood/logs/failover-metrics.json` or emitte
 
 ## References
 
-- **Architecture Doc:** [architecture/provider-failover.md](../../architecture/provider-failover.md)
+- **Architecture Doc:** [architecture/provider-failover.md](../architecture/provider-failover.md)
 - **Issue:** #161 — Implement ProviderFailover for resilience
 - **Pattern:** [Circuit Breaker Pattern (Martin Fowler)](https://martinfowler.com/bliki/CircuitBreaker.html)
 - **Related ADRs:** 

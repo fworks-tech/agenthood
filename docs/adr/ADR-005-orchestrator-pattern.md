@@ -38,12 +38,12 @@ routing guidance.
 
 **New risk:** Without an automated orchestrator, long workflows rely on the
 developer remembering the correct sequence. The Steward's routing table and
-the `agentic-workflows/` templates mitigate this.
+the `docs/agentic-workflows/` templates mitigate this.
 
 ## References
 
-- [members/the-steward/SKILL.md](https://github.com/fworks-tech/agenthood/blob/main/members/the-steward/SKILL.md) — routing guidance
-- [agentic-workflows/](https://github.com/fworks-tech/agenthood/tree/main/agentic-workflows/) — multi-step workflow templates
-- [architecture/agent-system.md](https://github.com/fworks-tech/agenthood/blob/main/architecture/agent-system.md) — system design
-- [architecture/concurrency-and-queues.md](https://github.com/fworks-tech/agenthood/blob/main/architecture/concurrency-and-queues.md) — queue design
+- [members/the-steward/SKILL.md](https://github.com/fworks-tech/agenthood/blob/main/docs/members/the-steward/SKILL.md) — routing guidance
+- [agentic-workflows/](https://github.com/fworks-tech/agenthood/tree/main/docs/agentic-workflows/) — multi-step workflow templates
+- [architecture/agent-system.md](https://github.com/fworks-tech/agenthood/blob/main/docs/architecture/agent-system.md) — system design
+- [architecture/concurrency-and-queues.md](https://github.com/fworks-tech/agenthood/blob/main/docs/architecture/concurrency-and-queues.md) — queue design
 - [ADR-008](ADR-008-typescript-runtime-over-python.md) — TypeScript runtime over Python

@@ -5,6 +5,15 @@
 
 ---
 
+## v3.5.1 — June 29, 2026
+
+### 🐛 Bug Fixes
+
+- align 3 remaining stale doc references
+- update all project-wide references after moving doc dirs to docs/
+
+---
+
 ## v3.5.0 — June 28, 2026
 
 ### 🐛 Bug Fixes

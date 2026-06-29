@@ -1,3 +1,11 @@
+## [3.5.1](https://github.com/fworks-tech/agenthood/compare/v3.5.0...v3.5.1) (2026-06-29)
+
+
+### Bug Fixes
+
+* align 3 remaining stale doc references ([4213b4c](https://github.com/fworks-tech/agenthood/commit/4213b4c80c334264d8e941ac9fa3fdb476e19e6a))
+* update all project-wide references after moving doc dirs to docs/ ([83cc7c5](https://github.com/fworks-tech/agenthood/commit/83cc7c5c9281890748af102bcdcaf6142b8fee06))
+
 # [3.5.0](https://github.com/fworks-tech/agenthood/compare/v3.4.0...v3.5.0) (2026-06-28)
 
 

@@ -39,7 +39,7 @@ skill:
 
 skills:
   - changed-files:
-    - any-glob-to-any-file: 'members/**'
+    - any-glob-to-any-file: 'docs/members/**'
 
 vscode-extension:
   - changed-files:
@@ -62,4 +62,4 @@ infra:
       - 'tsconfig.*.json'
       - '.gitignore'
       - '.nvmrc'
-      - 'conventions/**'
+      - 'docs/conventions/**'

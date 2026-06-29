@@ -147,7 +147,7 @@ this repo (`src/`), per [ADR-008](../docs/adr/ADR-008-typescript-runtime-over-py
 
 | This doc | Implemented as | Status |
 |----------|----------------|--------|
-| Members (skill files) | `members/<name>/SKILL.md` | ✅ Shipped |
+| Members (skill files) | `docs/members/<name>/SKILL.md` | ✅ Shipped |
 | Member subagent specs (tools, permissions) | `src/members/MemberRegistry.ts` | ✅ v2.0.0 |
 | Tool scoping per member | `MemberSpec.tools` in `MemberRegistry` | ✅ v2.0.0 |
 | Permission profiles | `MemberSpec.permissions` in `MemberRegistry` | ✅ v2.0.0 |
@@ -164,5 +164,5 @@ this repo (`src/`), per [ADR-008](../docs/adr/ADR-008-typescript-runtime-over-py
 | Orchestrator (event bus, multi-step handoff) | `src/orchestrator/` | 📋 Planned — Phase 3 |
 | Member → Member direct handoff (today) | `SubagentTaskSkill` | ✅ Shipped (no bus) |
 
-The Markdown skill files in `members/` are never modified — each is parsed at runtime
+The Markdown skill files in `docs/members/` are never modified — each is parsed at runtime
 by `MemberRegistry` and used as the system prompt for the corresponding `BaseAgent`.

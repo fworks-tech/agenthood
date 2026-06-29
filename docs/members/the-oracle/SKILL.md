@@ -42,7 +42,7 @@ Apply the naming convention:
 **Step 2 — Directory and file structure**
 
 ```
-members/the-<name>/
+docs/members/the-<name>/
 ├── README.md          ← Identity card (no frontmatter)
 └── SKILL.md           ← Adopter-facing skill file (YAML frontmatter + body)
 ```
@@ -146,7 +146,7 @@ When a new member is added, update all of these:
 
 | File | Change |
 |------|--------|
-| `members/README.md` | Add row to member table; update member count |
+| `docs/members/README.md` | Add row to member table; update member count |
 | `AGENTS.md` | Add bullet to `## The Members` list |
 | `README.md` (root) | Add row to member table; add `the-<name>/` to structure tree |
 | `C:/Users/<user>/.claude/CLAUDE.md` | Add trigger row to Active Member Skills table if the member should be globally active |
@@ -192,16 +192,16 @@ When asked which layer a new addition belongs to:
 
 | If it is... | It belongs in... |
 |-------------|-----------------|
-| A specialist agent behavior activated on demand | `members/` — Layer 2 |
-| A scheduled, recurring automation | `rituals/` — Layer 3 |
-| A connector to an external system (GitHub, Linear, Slack) | `portals/` — Layer 4 |
-| A multi-step GitHub Agentic Workflow | `agentic-workflows/` — Layer 5 |
+| A specialist agent behavior activated on demand | `docs/members/` — Layer 2 |
+| A scheduled, recurring automation | `docs/rituals/` — Layer 3 |
+| A connector to an external system (GitHub, Linear, Slack) | `docs/portals/` — Layer 4 |
+| A multi-step GitHub Agentic Workflow | `docs/agentic-workflows/` — Layer 5 |
 | A reusable GitHub Actions CI workflow | `.github/workflows/` — Layer 6 |
-| A formatting rule, commit standard, or lint config | `conventions/` — Layer 1 |
+| A formatting rule, commit standard, or lint config | `docs/conventions/` — Layer 1 |
 
 ## Red Flags
 
-- Spending tokens exploring `members/` to understand format when The Oracle is available
+- Spending tokens exploring `docs/members/` to understand format when The Oracle is available
 - Proposing a name without checking against existing members for overlap
 - Adding a new member without updating all four registration files
 - Writing a member whose specialty overlaps with an existing member's lane

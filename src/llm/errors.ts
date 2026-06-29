@@ -2,7 +2,7 @@
  * src/llm/errors.ts
  *
  * Error hierarchy for LLM provider operations. Each error corresponds to
- * a failure classification from architecture/provider-failover.md.
+ * a failure classification from docs/architecture/provider-failover.md.
  */
 
 export class UnsupportedOperationError extends Error {

@@ -1,13 +1,13 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest'
 
 const mockFiles: Record<string, string> = {
-  'members/the-scribe/SKILL.md': '# The Scribe\nWrites commit messages.',
-  'members/the-architect/SKILL.md': '# The Architect\nPlans implementations.',
+  'docs/members/the-scribe/SKILL.md': '# The Scribe\nWrites commit messages.',
+  'docs/members/the-architect/SKILL.md': '# The Architect\nPlans implementations.',
   'docs/adr/ADR-008-typescript-runtime.md': '# ADR-008: TypeScript Runtime\n\nSupersedes: ADR-006, ADR-007\n\nDecision: Use TypeScript.',
   'docs/adr/ADR-009-groq-provider.md': '# ADR-009: Groq Provider\n\nDecision: Use Groq. See ADR-008.',
   'docs/adr/ADR-006-python-runtime.md': '# ADR-006: Python Runtime\n\nSuperseded by ADR-008.',
-  'conventions/COMMIT_CONVENTION.md': '# Commit Convention\nfeat: new feature\nfix: bug fix',
-  'conventions/.gitmessage': '# subject\n\n# body',
+  'docs/conventions/COMMIT_CONVENTION.md': '# Commit Convention\nfeat: new feature\nfix: bug fix',
+  'docs/conventions/.gitmessage': '# subject\n\n# body',
 }
 
 vi.mock('node:fs', async (importOriginal) => {
@@ -23,7 +23,7 @@ vi.mock('node:fs', async (importOriginal) => {
     }),
     readdirSync: vi.fn().mockImplementation((path: string, options?: { withFileTypes?: boolean }) => {
       const relPath = path.replace(/\\/g, '/').replace(/^.*?\/base\//, '').replace(/\/$/, '')
-      if (relPath === 'members') {
+      if (relPath === 'docs/members') {
         const names = ['the-scribe', 'the-architect']
         if (options?.withFileTypes) {
           return names.map((name) => ({ name, isDirectory: () => true, isFile: () => false }))
@@ -31,7 +31,7 @@ vi.mock('node:fs', async (importOriginal) => {
         return names
       }
       if (relPath === 'docs/adr') return ['ADR-008-typescript-runtime.md', 'ADR-009-groq-provider.md', 'ADR-006-python-runtime.md']
-      if (relPath === 'conventions') return ['COMMIT_CONVENTION.md', '.gitmessage']
+      if (relPath === 'docs/conventions') return ['COMMIT_CONVENTION.md', '.gitmessage']
       return []
     }),
     readFileSync: vi.fn().mockImplementation((path: string) => {

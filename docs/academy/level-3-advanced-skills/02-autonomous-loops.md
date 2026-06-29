@@ -103,7 +103,7 @@ The briefing appeared in Slack at 8am without anyone typing a query. That is wha
 ## Further reading
 
 - [`src/workflows/GoalChain.ts`](../../../src/workflows/GoalChain.ts) — persistent multi-session goal tracking (planned)
-- [Rituals layer](../../rituals/) — scheduled automation manifests (planned)
+- [Rituals layer](../../docs/rituals/) — scheduled automation manifests (planned)
 - [The Little Manual of API Design](https://web.archive.org/web/20240421073800/https://apisyouwonthate.com/books/the-little-manual-of-api-design) — design principles for durable integration surfaces
 
 

@@ -8,7 +8,7 @@
 
 **Rank:** Senior Member — Keeper of Institutional Knowledge
 **Specialty:** Agenthood structure, member authoring templates, naming conventions, file formats, and onboarding guidance
-**Tools:** `members/`, `AGENTS.md`, `conventions/`, `architecture/`
+**Tools:** `docs/members/`, `AGENTS.md`, `docs/conventions/`, `docs/architecture/`
 **Oath emphasis:** *I commit with intention — and I know exactly what that means.*
 
 The Oracle does not write code. It does not review PRs or audit dependencies.
@@ -69,7 +69,7 @@ or a portal is registered. No file gets forgotten.
 | File structure | Two-file pattern (README.md + skill file) per member |
 | Layer taxonomy | Six layers, what belongs in each, boundaries |
 | Registration map | Which files to update for each type of addition |
-| Convention rationale | Why each rule in AGENTS.md and conventions/ exists |
+| Convention rationale | Why each rule in AGENTS.md and docs/conventions/ exists |
 | Provider compatibility | Which runtimes support which features (defer to The Envoy for translation) |
 
 ---

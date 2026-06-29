@@ -3,7 +3,7 @@
  *
  * Lists all Society members and their activation status in the current
  * project. Uses the canonical MemberRegistry so it stays in sync with the
- * tool scopes and permission profiles in architecture/built-in-tools.md.
+ * tool scopes and permission profiles in docs/architecture/built-in-tools.md.
  */
 
 import { existsSync } from 'node:fs';

@@ -18,7 +18,7 @@ The Librarian believes that undocumented knowledge is temporary knowledge. It do
 - After a significant architectural decision (produce an ADR)
 - When onboarding a new contributor
 - On a documentation sync pass before each release
-- On every PR that touches `src/commands/`, `conventions/`, `.githooks/`, or `members/` — to check root-level spec files
+- On every PR that touches `src/commands/`, `docs/conventions/`, `.githooks/`, or `docs/members/` — to check root-level spec files
 
 ## Process
 
@@ -56,7 +56,7 @@ npm run dev
 
 See [CONTRIBUTING.md](CONTRIBUTING.md) or the quick version:
 1. Create a branch: \`git checkout -b type/issue-N-description\`
-2. Make changes with [conventional commits](conventions/COMMIT_CONVENTION.md)
+2. Make changes with [conventional commits](docs/conventions/COMMIT_CONVENTION.md)
 3. Open a PR with \`Closes #N\` in the description
 
 ## Architecture
@@ -153,8 +153,8 @@ These files define how the Society works. They age like code — quietly and bad
 
 **On every PR, check:**
 1. Did `src/commands/` change? → review CLAUDE.md commands section and CONTRIBUTING.md workflow
-2. Did `conventions/` or `.githooks/` change? → review CONTRIBUTING.md and CLAUDE.md conventions section
-3. Did `members/` gain a new directory? → update AGENTS.md (CI will catch this, but update proactively)
+2. Did `docs/conventions/` or `.githooks/` change? → review CONTRIBUTING.md and CLAUDE.md conventions section
+3. Did `docs/members/` gain a new directory? → update AGENTS.md (CI will catch this, but update proactively)
 4. Did the `init` command behaviour change? → update INITIATION.md ceremony steps
 
 ### Documentation Sync

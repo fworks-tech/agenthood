@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest'
-import config from '../conventions/commitlint.config.ts'
+import config from '../docs/conventions/commitlint.config.ts'
 const rule = config.plugins![0].rules['no-vague-subject'] as (ctx: { subject?: string }) => [boolean, string]
 
 const BANNED = ['wip', 'fix stuff', 'update', 'changes', 'misc', 'asdf', 'temp', 'cleanup', 'test123']

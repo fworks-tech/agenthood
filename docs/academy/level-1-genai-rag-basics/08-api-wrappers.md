@@ -81,7 +81,7 @@ const response = await chain.complete({ messages: [...] })
 - [ADR-005 — Orchestrator pattern](../../adr/ADR-005-orchestrator-pattern.md)
 - [`src/llm/ILLMProvider.ts`](../../../src/llm/ILLMProvider.ts) — source implementation
 - [`src/llm/ProviderFailover.ts`](../../../src/llm/ProviderFailover.ts) — failover chain
-- [architecture/provider-failover.md](../../../architecture/provider-failover.md) — architecture doc
+- [architecture/provider-failover.md](../../architecture/provider-failover.md) — architecture doc
 - [Martin Fowler: Gateway Pattern](https://martinfowler.com/articles/gateway-pattern.html) — the architectural basis for API wrappers
 
 

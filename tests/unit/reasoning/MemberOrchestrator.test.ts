@@ -82,10 +82,10 @@ describe('MemberOrchestrator', () => {
     expect(members).toContain('the-herald')
   })
 
-  it('detects the-oracle when files in members/ changed', () => {
+  it('detects the-oracle when files in docs/members/ changed', () => {
     const context: DetectionContext = {
       userMessage: 'what does the-scribe do',
-      changedFiles: ['members/the-scribe/SKILL.md'],
+      changedFiles: ['docs/members/the-scribe/SKILL.md'],
     }
 
     const results = orchestrator.detectMembers(context)

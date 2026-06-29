@@ -3,7 +3,7 @@ set -euo pipefail
 
 FAILED=0
 REQUIRED_SECTIONS=("## Overview" "## When to Use" "## Process" "## Red Flags" "## Rationalizations" "## Verification")
-INDEXES="AGENTS.md members/README.md README.md"
+INDEXES="AGENTS.md docs/members/README.md README.md"
 
 check_readme_for_member() {
   local name="$1" dir="$2"
@@ -31,7 +31,7 @@ check_registration_for_member() {
 
 check_sync_for_member() {
   local name="$1"
-  local member_file="members/$name/SKILL.md"
+  local member_file="docs/members/$name/SKILL.md"
   local skill_file="skills/$name/SKILL.md"
   if [ ! -f "$skill_file" ]; then
     echo "FAIL [$name]: missing $skill_file"; return 1
@@ -44,13 +44,13 @@ check_no_orphan_skills() {
   local fail=0 name
   for dir in skills/*/; do
     name=$(basename "$dir")
-    [ ! -d "members/$name" ] && echo "FAIL [skills/$name]: orphan directory" && fail=1
+    [ ! -d "docs/members/$name" ] && echo "FAIL [skills/$name]: orphan directory" && fail=1
   done
   [ "$fail" -eq 1 ] && return 1
   echo "No orphan skills/ directories."
 }
 
-for dir in members/*/; do
+for dir in docs/members/*/; do
   name=$(basename "$dir")
   [ "$name" = "README.md" ] && continue
   check_readme_for_member "$name" "$dir" || FAILED=1

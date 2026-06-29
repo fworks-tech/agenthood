@@ -3,8 +3,8 @@
  *
  * Types for the Society members. Every member is described by a `MemberSpec`
  * that captures the role, tool scope, permission profile, and preferred LLM
- * provider. Specs are derived from `architecture/agent-system.md` and
- * `architecture/provider-failover.md` and are the single source of truth for
+ * provider. Specs are derived from `docs/architecture/agent-system.md` and
+ * `docs/architecture/provider-failover.md` and are the single source of truth for
  * what each member is allowed to do in the TypeScript runtime.
  */
 

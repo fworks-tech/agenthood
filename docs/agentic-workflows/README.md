@@ -51,7 +51,7 @@ This decision is documented in [ADR-001](../docs/adr/ADR-001-markdown-skills-ove
 
 1. Open your AI coding assistant (Claude Code, OpenAI Codex CLI, etc.)
 2. Load the relevant Society member skill — e.g., for PR review, load
-   `members/the-reviewer/SKILL.md`
+   `docs/members/the-reviewer/SKILL.md`
 3. Paste the template's **Steps** section as your prompt
 4. Add context: the issue body, PR diff, CI log, or merge commit as applicable
 5. The member will follow the steps and produce the appropriate output
@@ -63,7 +63,7 @@ This decision is documented in [ADR-001](../docs/adr/ADR-001-markdown-skills-ove
 
 A new issue was just opened: [paste issue URL or body]
 
-Please follow the triage steps from the agentic-workflows/triage-issues.agent.md template.
+Please follow the triage steps from the triage-issues.agent.md template.
 ```
 
 ---

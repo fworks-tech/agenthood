@@ -4,7 +4,7 @@
  * Provider failover with circuit breaker, failure classification, probe
  * recovery, and per-member provider preferences.
  *
- * Implements architecture/provider-failover.md:
+ * Implements docs/architecture/provider-failover.md:
  * - Failure classification (401/402/429/408/503/404)
  * - Three-state circuit breaker (CLOSED → OPEN → HALF_OPEN → CLOSED)
  * - Probe recovery 30s before cooldown expiry

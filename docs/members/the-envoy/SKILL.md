@@ -44,30 +44,30 @@ The conventions travel. The provider is an implementation detail.
 
 ### Skill Translation
 
-For each member in `members/`, translate to the target provider's format:
+For each member in `docs/members/`, translate to the target provider's format:
 
 **Claude Code** (identity — no transformation):
-- Source: `members/the-<name>/SKILL.md`
+- Source: `docs/members/the-<name>/SKILL.md`
 - Target: `.claude/skills/the-<name>.md`
 - Format: Preserve YAML frontmatter and body exactly
 
 **CodeBuddy** (identity — same format):
-- Source: `members/the-<name>/SKILL.md`
+- Source: `docs/members/the-<name>/SKILL.md`
 - Target: `.codebuddy/skills/the-<name>.md`
 - Format: Preserve as-is
 
 **GitHub Copilot**:
-- Source: `members/the-<name>/SKILL.md`
+- Source: `docs/members/the-<name>/SKILL.md`
 - Target: `.github/agents/the-<name>.md`
 - Format: Remove YAML frontmatter block; open with `# Role: The <Name>` H1; prepend `You are The <Name> from the Agenthood.`
 
 **Cursor**:
-- Source: `members/the-<name>/SKILL.md`
+- Source: `docs/members/the-<name>/SKILL.md`
 - Target: `.cursor/rules/the-<name>.md`
 - Format: Remove frontmatter block; body is preserved as-is
 
 **Windsurf**:
-- Source: `members/the-<name>/SKILL.md`
+- Source: `docs/members/the-<name>/SKILL.md`
 - Target: `.windsurf/rules/the-<name>.md`
 - Format: Remove frontmatter block; body is preserved as-is
 
@@ -157,7 +157,7 @@ Full provider onboarding in one pass:
 
 ### Cross-Provider Registry
 
-When `/envoy registry` is called, scan `members/` and the project's provider config
+When `/envoy registry` is called, scan `docs/members/` and the project's provider config
 directories to produce a live matrix: which members are translated, which are pending,
 and which providers have gaps.
 
@@ -165,7 +165,7 @@ and which providers have gaps.
 
 - A project using multiple AI providers where skills are installed for only one
 - Provider config directories present but `AGENTS.md` not referenced from them
-- Translated skill files that have drifted from the canonical `members/` source
+- Translated skill files that have drifted from the canonical `docs/members/` source
 - An `ENVOY_REPORT.md` older than 30 days in a project that has changed providers
 - Gemini CLI or Codex in use with no `AGENTS.md` (conventions are invisible to the agent)
 - The Envoy's own translations not checked into version control alongside the project

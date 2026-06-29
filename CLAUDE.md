@@ -41,11 +41,11 @@ Agenthood is a **multi-agent AI framework** distributed as an npm package + VS C
 
 | Layer | Directory | Purpose |
 |---|---|---|
-| 1 — Conventions | `conventions/` | Commit templates, commitlint rules |
-| 2 — Members | `members/` | Markdown-based AI agent skills |
-| 3 — Rituals | `rituals/` | Scheduled automations (morning-briefing, watchman, etc.) |
-| 4 — Portals | `portals/` | External connectors (GitHub, Linear, Jira, Slack, Sentry) |
-| 5 — Agentic Workflows | `agentic-workflows/` | Manual prompt templates (triage, review PR, diagnose CI) |
+| 1 — Conventions | `docs/conventions/` | Commit templates, commitlint rules |
+| 2 — Members | `docs/members/` | Markdown-based AI agent skills |
+| 3 — Rituals | `docs/rituals/` | Scheduled automations (morning-briefing, watchman, etc.) |
+| 4 — Portals | `docs/portals/` | External connectors (GitHub, Linear, Jira, Slack, Sentry) |
+| 5 — Agentic Workflows | `docs/agentic-workflows/` | Manual prompt templates (triage, review PR, diagnose CI) |
 | 6 — CI | `.github/workflows/` | GitHub Actions enforcing every layer |
 | 7 — Runtime | `src/` | TypeScript CLI + autonomous runtime (`agenthood run`) |
 | 8 — Memory & RAG | `src/memory/`, `src/rag/` | Memory tiers, KnowledgeGraphStore, RAG pipeline, Tree-sitter, LanceDB |
@@ -63,9 +63,9 @@ Entry point is `src/cli.ts` — it parses args and dispatches to `src/commands/<
 
 The CLI's production dependencies include `@anthropic-ai/sdk`, `groq-sdk`, `openai` (LLM providers), `@lancedb/lancedb` (vector store), `ajv` (schema validation), and `tree-sitter` (code parsing). The CLI also uses Node.js built-ins (`fs`, `path`, `child_process`, `readline`, `parseArgs`).
 
-### Members (`members/`)
+### Members (`docs/members/`)
 
-specialized agent skills, each a Markdown file (`members/<name>/SKILL.md`). They are **agent-agnostic** — designed to work with Claude Code, GitHub Copilot, OpenAI Codex, CodeBuddy, and others. Key members:
+specialized agent skills, each a Markdown file (`docs/members/<name>/SKILL.md`). They are **agent-agnostic** — designed to work with Claude Code, GitHub Copilot, OpenAI Codex, CodeBuddy, and others. Key members:
 - **the-scribe** — N+1 commit pattern, PR "no and" test, changelog generation, Conventional Commits enforcement
 - **the-architect** — Interview mode to 95% confidence, spec-first development, task decomposition, stacked branch planning
 - **the-reviewer** — Five-axis review (Correctness, Readability, Architecture, Security, Performance), test-first review, change sizing
@@ -90,7 +90,7 @@ Commit quality is enforced at three points simultaneously (ADR-003):
 2. **`.githooks/pre-commit`** — Blocks commits to main, audits secrets, checks file sizes
 3. **`.github/workflows/pr.yml`** — CI re-validates all PR standards (commit messages, tests, file sizes, docs, member structure, secrets)
 
-Banned commit subjects include: `wip`, `fix stuff`, `update`, `changes`, `stuff`, `misc`, `temp`, `test`, `asdf`. The custom rule lives in `conventions/commitlint.config.ts` and is tested in `tests/commitlint.test.ts`.
+Banned commit subjects include: `wip`, `fix stuff`, `update`, `changes`, `stuff`, `misc`, `temp`, `test`, `asdf`. The custom rule lives in `docs/conventions/commitlint.config.ts` and is tested in `tests/commitlint.test.ts`.
 
 ### VS Code extension (`vscode-extension/`)
 
@@ -104,7 +104,7 @@ Managed by `semantic-release` (config in `.releaserc.json`). Releases cut from `
 
 - **ESM throughout** — `"type": "module"` in package.json; use `import`/`export`, not `require`
 - **Strict TypeScript** — `tsconfig.json` has strict mode; run `npm run typecheck` before committing
-- **Member directories** follow the pattern `members/the-<name>/SKILL.md`
+- **Member directories** follow the pattern `docs/members/the-<name>/SKILL.md`
 - **Tests mirror source** — `tests/commands/` mirrors `src/commands/`
 - **All install operations are idempotent** — safe to run `init`, `setup`, `activate` multiple times
 - **ADRs live in `docs/adr/`** — add one for significant architectural decisions

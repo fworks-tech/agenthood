@@ -49,6 +49,6 @@ each member's identity and instructions.
 
 ## References
 
-- [members/the-envoy/SKILL.md](https://github.com/fworks-tech/agenthood/blob/main/members/the-envoy/SKILL.md) — cross-provider translation layer
-- [architecture/agent-system.md](https://github.com/fworks-tech/agenthood/blob/main/architecture/agent-system.md) — agent system design
+- [members/the-envoy/SKILL.md](https://github.com/fworks-tech/agenthood/blob/main/docs/members/the-envoy/SKILL.md) — cross-provider translation layer
+- [architecture/agent-system.md](https://github.com/fworks-tech/agenthood/blob/main/docs/architecture/agent-system.md) — agent system design
 - [ADR-008](ADR-008-typescript-runtime-over-python.md) — TypeScript runtime over Python

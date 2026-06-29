@@ -1,5 +1,5 @@
 #!/bin/sh
-# The Scribe — inject commit message template from conventions/.gitmessage
+# The Scribe — inject commit message template from docs/conventions/.gitmessage
 # Skips: -m flag, merges, amends, squashes
 
 MSG_FILE="$1"
@@ -10,7 +10,7 @@ if [ -n "$MSG_SOURCE" ]; then
   exit 0
 fi
 
-TEMPLATE="conventions/.gitmessage"
+TEMPLATE="docs/conventions/.gitmessage"
 if [ -f "$TEMPLATE" ]; then
   printf '\n' >> "$MSG_FILE"
   cat "$TEMPLATE" >> "$MSG_FILE"

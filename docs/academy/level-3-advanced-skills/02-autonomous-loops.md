@@ -52,7 +52,7 @@ const result = await migration.advance();
 Rituals are scheduled automations — a YAML manifest that binds a schedule to a member:
 
 ```yaml
-# rituals/morning-briefing.yml
+# docs/rituals/morning-briefing.yml
 schedule: '0 8 * * *'      # 8am daily
 member: the-herald
 task: 'summarize overnight CI runs, open PRs, and stale issues'
@@ -60,7 +60,7 @@ output: slack:#engineering
 ```
 
 ```yaml
-# rituals/watchman.yml
+# docs/rituals/watchman.yml
 trigger: on_test_failure
 member: the-debugger
 task: 'read the failing test, propose a fix, post to #engineering'

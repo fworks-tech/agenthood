@@ -47,7 +47,7 @@ This is planned for a future milestone (see `src/portals/` — directory does no
 
 ## Adding a Connector
 
-1. Create a new `portals/[service].md` file using the template below
+1. Create a new `[service].md` file using the template below
 2. Configure the MCP server in your agent runtime's settings
 3. Add the connector to `AGENTS.md` so all members know it exists
 4. Update the table above

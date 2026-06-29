@@ -17,7 +17,7 @@ export class OllamaProvider implements ILLMProvider {
   private model: string
 
   constructor(config: LLMConfig) {
-    this.baseUrl = process.env.OLLAMA_HOST ?? 'http://localhost:11434'
+    this.baseUrl = config.baseUrl ?? process.env.OLLAMA_HOST ?? 'http://localhost:11434'
     this.model = config.model ?? 'llama3.2'
   }
 

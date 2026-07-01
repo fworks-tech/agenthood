@@ -1,17 +1,17 @@
 import { readdirSync, watch as fsWatch } from 'node:fs'
 import { join } from 'node:path'
 import { pathToFileURL } from 'node:url'
-import type { ISkill } from './ISkill.js'
+import type { ITool } from './ITool.js'
 import type { ToolSchema } from '../llm/types.js'
 
-export class SkillNotFoundError extends Error {
-  constructor(skillName: string) {
-    super(`Skill not found: "${skillName}"`)
-    this.name = 'SkillNotFoundError'
+export class ToolNotFoundError extends Error {
+  constructor(toolName: string) {
+    super(`Tool not found: "${toolName}"`)
+    this.name = 'ToolNotFoundError'
   }
 }
 
-function isSkillShape(module: unknown): module is ISkill {
+function isToolShape(module: unknown): module is ITool {
   if (typeof module !== 'object' || module === null) return false
   const s = module as Record<string, unknown>
   return (
@@ -22,45 +22,45 @@ function isSkillShape(module: unknown): module is ISkill {
   )
 }
 
-export class SkillRegistry {
-  private skills = new Map<string, ISkill>()
+export class ToolRegistry {
+  private tools = new Map<string, ITool>()
   private watchers = new Set<() => void>()
   private discoveredDirs = new Set<string>()
 
-  register(skill: ISkill): void {
-    this.skills.set(skill.name, skill)
+  register(tool: ITool): void {
+    this.tools.set(tool.name, tool)
   }
 
-  get(name: string): ISkill {
-    const skill = this.skills.get(name)
-    if (!skill) {
-      throw new SkillNotFoundError(name)
+  get(name: string): ITool {
+    const tool = this.tools.get(name)
+    if (!tool) {
+      throw new ToolNotFoundError(name)
     }
-    return skill
+    return tool
   }
 
   getSchemas(): ToolSchema[] {
     const schemas: ToolSchema[] = []
-    for (const skill of this.skills.values()) {
+    for (const tool of this.tools.values()) {
       schemas.push({
-        name: skill.name,
-        description: skill.description,
-        inputSchema: skill.inputSchema,
+        name: tool.name,
+        description: tool.description,
+        inputSchema: tool.inputSchema,
       })
     }
     return schemas
   }
 
   has(name: string): boolean {
-    return this.skills.has(name)
+    return this.tools.has(name)
   }
 
-  list(): ISkill[] {
-    return Array.from(this.skills.values())
+  list(): ITool[] {
+    return Array.from(this.tools.values())
   }
 
-  async discover(dir: string): Promise<ISkill[]> {
-    const found: ISkill[] = []
+  async discover(dir: string): Promise<ITool[]> {
+    const found: ITool[] = []
     const entries = readdirSync(dir, { withFileTypes: true })
 
     const files: string[] = []
@@ -79,7 +79,7 @@ export class SkillRegistry {
         const mod = await import(pathToFileURL(filePath).href)
         for (const key of Object.keys(mod)) {
           const exported = mod[key]
-          if (isSkillShape(exported)) {
+          if (isToolShape(exported)) {
             this.register(exported)
             found.push(exported)
           }

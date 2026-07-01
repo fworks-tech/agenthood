@@ -1,7 +1,7 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest'
 import { ReviewerAgent } from '../../../src/agents/ReviewerAgent.ts'
 import { ReActLoop } from '../../../src/reasoning/ReActLoop.ts'
-import { SkillRegistry } from '../../../src/skills/SkillRegistry.ts'
+import { ToolRegistry } from '../../../src/tools/ToolRegistry.ts'
 import { createTestContext } from '../../helpers/testContext.ts'
 import type { ILLMProvider } from '../../../src/llm/ILLMProvider.ts'
 
@@ -21,11 +21,11 @@ function createMockLLM(): ILLMProvider {
 describe('ReviewerAgent', () => {
   let agent: ReviewerAgent
   let llm: ILLMProvider
-  let skillRegistry: SkillRegistry
+  let skillRegistry: ToolRegistry
 
   beforeEach(() => {
     llm = createMockLLM()
-    skillRegistry = new SkillRegistry()
+    skillRegistry = new ToolRegistry()
     const loop = new ReActLoop(llm, skillRegistry)
     agent = new ReviewerAgent(llm, loop, skillRegistry)
   })

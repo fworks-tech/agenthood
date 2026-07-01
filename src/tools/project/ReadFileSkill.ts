@@ -1,10 +1,10 @@
 import { readFile, lstat, realpath } from 'node:fs/promises'
 import { resolve } from 'node:path'
-import type { ISkill } from '../ISkill.js'
-import type { SkillResult } from '../ISkill.js'
+import type { ITool } from '../ITool.js'
+import type { ToolResult } from '../ITool.js'
 import type { ExecutionContext } from '../../core/ExecutionContext.js'
 
-export class ReadFileSkill implements ISkill {
+export class ReadFileSkill implements ITool {
   name = 'read_file'
   description = 'Read the contents of a file at the given path'
   inputSchema = {
@@ -15,7 +15,7 @@ export class ReadFileSkill implements ISkill {
     required: ['path'],
   }
 
-  async execute(input: unknown, context: ExecutionContext): Promise<SkillResult> {
+  async execute(input: unknown, context: ExecutionContext): Promise<ToolResult> {
     const { path } = input as { path: string }
     const resolvedPath = resolve(context.project.localPath, path)
 

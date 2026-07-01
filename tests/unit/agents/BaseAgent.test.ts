@@ -1,12 +1,12 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest'
 import { BaseAgent } from '../../../src/agents/base/BaseAgent.ts'
 import { ReActLoop } from '../../../src/reasoning/ReActLoop.ts'
-import { SkillRegistry } from '../../../src/skills/SkillRegistry.ts'
+import { ToolRegistry } from '../../../src/tools/ToolRegistry.ts'
 import { createTestContext } from '../../helpers/testContext.ts'
 import type { ILLMProvider } from '../../../src/llm/ILLMProvider.ts'
 import type { LongTermMemory } from '../../../src/core/types.ts'
 import type { ExecutionContext } from '../../../src/core/ExecutionContext.ts'
-import type { ISkill } from '../../../src/skills/ISkill.ts'
+import type { ITool } from '../../../src/tools/ITool.ts'
 import type { ResidualMemory } from '../../../src/memory/ResidualMemory.ts'
 import type { EpisodeLearner } from '../../../src/evals/EpisodeLearner.ts'
 
@@ -25,7 +25,7 @@ function createMockLLM(): ILLMProvider {
 
 class TestAgent extends BaseAgent {
   role = 'test-agent'
-  protected skills: ISkill[] = []
+  protected tools: ITool[] = []
 
   protected async getSystemPrompt(): Promise<string> {
     return 'test system prompt'
@@ -34,7 +34,7 @@ class TestAgent extends BaseAgent {
 
 describe('BaseAgent', () => {
   let llm: ILLMProvider
-  let skillRegistry: SkillRegistry
+  let toolRegistry: ToolRegistry
   let loop: ReActLoop
   let mockLongTerm: LongTermMemory
   let mockResidual: ResidualMemory
@@ -42,8 +42,8 @@ describe('BaseAgent', () => {
 
   beforeEach(() => {
     llm = createMockLLM()
-    skillRegistry = new SkillRegistry()
-    loop = new ReActLoop(llm, skillRegistry)
+    toolRegistry = new ToolRegistry()
+    loop = new ReActLoop(llm, toolRegistry)
 
     mockLongTerm = {
       store: vi.fn(),
@@ -65,7 +65,7 @@ describe('BaseAgent', () => {
   })
 
   it('calls EpisodeLearner.learn() after run() completes when injected', async () => {
-    const agent = new TestAgent(llm, loop, skillRegistry, mockResidual, mockLearner)
+    const agent = new TestAgent(llm, loop, toolRegistry, mockResidual, mockLearner)
     const context = createTestContext({
       memory: {
         ...createTestContext().memory,
@@ -90,7 +90,7 @@ describe('BaseAgent', () => {
       }),
     }
 
-    const agent = new TestAgent(llm, loop, skillRegistry, mockResidual, slowLearner)
+    const agent = new TestAgent(llm, loop, toolRegistry, mockResidual, slowLearner)
     const context = createTestContext({
       memory: {
         ...createTestContext().memory,
@@ -110,7 +110,7 @@ describe('BaseAgent', () => {
   })
 
   it('works without EpisodeLearner injected', async () => {
-    const agent = new TestAgent(llm, loop, skillRegistry)
+    const agent = new TestAgent(llm, loop, toolRegistry)
     const context = createTestContext({
       memory: {
         ...createTestContext().memory,
@@ -128,7 +128,7 @@ describe('BaseAgent', () => {
       learn: vi.fn().mockRejectedValue(new Error('eval failed')),
     }
 
-    const agent = new TestAgent(llm, loop, skillRegistry, mockResidual, brokenLearner)
+    const agent = new TestAgent(llm, loop, toolRegistry, mockResidual, brokenLearner)
     const context = createTestContext({
       memory: {
         ...createTestContext().memory,

@@ -1,10 +1,10 @@
-import type { ISkill, SkillResult } from '../ISkill.js'
+import type { ITool, ToolResult } from '../ITool.js'
 import type { ExecutionContext } from '../../core/ExecutionContext.js'
 import type { JSONSchema } from '../../llm/types.js'
 
 export type RetrievalStrategy = 'skip' | 'vector' | 'graph' | 'both'
 
-export class RetrievalClassifier implements ISkill {
+export class RetrievalClassifier implements ITool {
   name = 'decide_retrieval'
   description = 'Classify query to decide retrieval strategy: skip | vector | graph | both'
 
@@ -16,7 +16,7 @@ export class RetrievalClassifier implements ISkill {
     required: ['query'],
   }
 
-  async execute(input: unknown, context: ExecutionContext): Promise<SkillResult> {
+  async execute(input: unknown, context: ExecutionContext): Promise<ToolResult> {
     const { query } = input as { query: string }
     const decision = this.classify(query, context)
 

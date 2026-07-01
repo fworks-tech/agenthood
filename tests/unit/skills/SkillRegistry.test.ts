@@ -2,11 +2,11 @@ import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest'
 import { mkdirSync, writeFileSync, rmSync, mkdtempSync } from 'node:fs'
 import { join } from 'node:path'
 import { tmpdir } from 'node:os'
-import { SkillRegistry, SkillNotFoundError } from '../../../src/skills/SkillRegistry.js'
-import type { ISkill } from '../../../src/skills/ISkill.js'
+import { ToolRegistry, ToolNotFoundError } from '../../../src/tools/ToolRegistry.js'
+import type { ITool } from '../../../src/tools/ITool.js'
 import type { ExecutionContext } from '../../../src/core/ExecutionContext.js'
 
-function createMockSkill(name: string): ISkill {
+function createMockSkill(name: string): ITool {
   return {
     name,
     description: `Mock skill ${name}`,
@@ -15,21 +15,21 @@ function createMockSkill(name: string): ISkill {
   }
 }
 
-describe('SkillRegistry', () => {
+describe('ToolRegistry', () => {
   it('register and get return the same skill', () => {
-    const reg = new SkillRegistry()
+    const reg = new ToolRegistry()
     const skill = createMockSkill('test_skill')
     reg.register(skill)
     expect(reg.get('test_skill')).toBe(skill)
   })
 
-  it('get throws SkillNotFoundError for unknown skill', () => {
-    const reg = new SkillRegistry()
-    expect(() => reg.get('nonexistent')).toThrow(SkillNotFoundError)
+  it('get throws ToolNotFoundError for unknown skill', () => {
+    const reg = new ToolRegistry()
+    expect(() => reg.get('nonexistent')).toThrow(ToolNotFoundError)
   })
 
   it('getSchemas returns correct ToolSchema[] shape', () => {
-    const reg = new SkillRegistry()
+    const reg = new ToolRegistry()
     reg.register(createMockSkill('skill_a'))
     reg.register(createMockSkill('skill_b'))
     const schemas = reg.getSchemas()
@@ -40,7 +40,7 @@ describe('SkillRegistry', () => {
   })
 
   it('list returns all registered skills in order', () => {
-    const reg = new SkillRegistry()
+    const reg = new ToolRegistry()
     const a = createMockSkill('a')
     const b = createMockSkill('b')
     reg.register(a)
@@ -49,14 +49,14 @@ describe('SkillRegistry', () => {
   })
 
   it('has returns true for registered skill', () => {
-    const reg = new SkillRegistry()
+    const reg = new ToolRegistry()
     reg.register(createMockSkill('existing'))
     expect(reg.has('existing')).toBe(true)
     expect(reg.has('missing')).toBe(false)
   })
 
   it('register is idempotent — re-registering overwrites silently', () => {
-    const reg = new SkillRegistry()
+    const reg = new ToolRegistry()
     reg.register(createMockSkill('dup'))
     reg.register(createMockSkill('dup'))
     expect(reg.list()).toHaveLength(1)
@@ -83,7 +83,7 @@ describe('SkillRegistry', () => {
         }
       `
       writeFileSync(join(tmpDir, 'test-skill.js'), skillCode)
-      const reg = new SkillRegistry()
+      const reg = new ToolRegistry()
       const found = await reg.discover(tmpDir)
       expect(found).toHaveLength(1)
       expect(found[0].name).toBe('discovered_skill')
@@ -101,21 +101,21 @@ describe('SkillRegistry', () => {
         }
       `
       writeFileSync(join(tmpDir, 'nested', 'nested-skill.js'), skillCode)
-      const reg = new SkillRegistry()
+      const reg = new ToolRegistry()
       const found = await reg.discover(tmpDir)
       expect(found).toHaveLength(1)
       expect(found[0].name).toBe('nested_skill')
     })
 
     it('handles empty directory gracefully', async () => {
-      const reg = new SkillRegistry()
+      const reg = new ToolRegistry()
       const found = await reg.discover(tmpDir)
       expect(found).toHaveLength(0)
     })
 
     it('handles directory with no skill files gracefully', async () => {
       writeFileSync(join(tmpDir, 'not-a-skill.js'), 'export const x = 42')
-      const reg = new SkillRegistry()
+      const reg = new ToolRegistry()
       const found = await reg.discover(tmpDir)
       expect(found).toHaveLength(0)
     })
@@ -136,7 +136,7 @@ describe('SkillRegistry', () => {
         }
       `
       writeFileSync(join(tmpDir, 'multi-skill.js'), skillCode)
-      const reg = new SkillRegistry()
+      const reg = new ToolRegistry()
       const found = await reg.discover(tmpDir)
       expect(found).toHaveLength(2)
       expect(found.map((f) => f.name).sort()).toEqual(['skill_a', 'skill_b'])
@@ -153,7 +153,7 @@ describe('SkillRegistry', () => {
         }
       `
       writeFileSync(join(tmpDir, '.hidden', 'hidden.js'), skillCode)
-      const reg = new SkillRegistry()
+      const reg = new ToolRegistry()
       const found = await reg.discover(tmpDir)
       expect(found).toHaveLength(0)
     })
@@ -161,11 +161,11 @@ describe('SkillRegistry', () => {
 
   describe('watch', () => {
     let tmpDir: string
-    let reg: SkillRegistry
+    let reg: ToolRegistry
 
     beforeEach(() => {
       tmpDir = mkdtempSync(join(tmpdir(), 'skill-watch-'))
-      reg = new SkillRegistry()
+      reg = new ToolRegistry()
     })
 
     afterEach(() => {

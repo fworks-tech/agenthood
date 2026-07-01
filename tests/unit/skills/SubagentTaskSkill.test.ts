@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
-import { SubagentTaskSkill } from "../../../src/skills/core/SubagentTaskSkill.ts"
+import { SubagentTaskSkill } from "../../../src/tools/core/SubagentTaskSkill.ts"
 import {
   AgentRegistry,
   AgentNotFoundError,

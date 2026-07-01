@@ -40,6 +40,7 @@ export class ContextCompressor {
   async compress(
     messages: Message[],
     modelContextWindow?: number,
+    protectSkillContent = false,
   ): Promise<Message[]> {
     if (!messages || messages.length === 0) return []
 
@@ -60,6 +61,28 @@ export class ContextCompressor {
     const body = messages.slice(bodyStart, bodyEnd)
 
     if (body.length === 0) return messages
+
+    if (protectSkillContent) {
+      const protectedMsgs: Message[] = []
+      const compressible: Message[] = []
+      for (const m of body) {
+        if (m.role === 'tool' && typeof m.content === 'string' && m.content.startsWith('[SKILL_ACTIVATION]')) {
+          protectedMsgs.push(m)
+        } else {
+          compressible.push(m)
+        }
+      }
+      if (compressible.length === 0) {
+        return [...system, ...protectedMsgs, ...messages.slice(bodyEnd)]
+      }
+      const summary = this.summarize(compressible)
+      return [
+        ...system,
+        ...protectedMsgs,
+        { role: "assistant", content: `Summary of prior context: ${summary}` },
+        ...messages.slice(bodyEnd),
+      ]
+    }
 
     const preserve = messages.slice(bodyEnd)
     const summary = this.summarize(body)

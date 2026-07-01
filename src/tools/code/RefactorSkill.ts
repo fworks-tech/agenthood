@@ -1,9 +1,9 @@
 import { readFile, writeFile, lstat, realpath } from 'node:fs/promises'
 import { resolve } from 'node:path'
-import type { ISkill, SkillResult } from '../ISkill.js'
+import type { ITool, ToolResult } from '../ITool.js'
 import type { ExecutionContext } from '../../core/ExecutionContext.js'
 
-export class RefactorSkill implements ISkill {
+export class RefactorSkill implements ITool {
   name = 'refactor'
   description = 'Refactor code in a file for better structure, readability, or performance'
   inputSchema = {
@@ -15,7 +15,7 @@ export class RefactorSkill implements ISkill {
     required: ['path', 'goal'],
   }
 
-  async execute(input: unknown, context: ExecutionContext): Promise<SkillResult> {
+  async execute(input: unknown, context: ExecutionContext): Promise<ToolResult> {
     const { path, goal } = input as { path: string; goal: string }
     const resolvedPath = resolve(context.project.localPath, path)
 

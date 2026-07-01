@@ -5,7 +5,7 @@ import { join } from "node:path"
 import { PromptBuilder } from "../prompts/PromptBuilder.ts"
 import { PromptRegistry } from "../prompts/PromptRegistry.ts"
 import { LLMRouter } from "../llm/LLMRouter.ts"
-import { SkillRegistry } from "../skills/SkillRegistry.ts"
+import { ToolRegistry } from "../tools/ToolRegistry.ts"
 import { ReActLoop } from "../reasoning/ReActLoop.ts"
 import { AgentRegistry } from "../core/AgentRegistry.ts"
 import { DeveloperAgent } from "../agents/DeveloperAgent.ts"
@@ -24,9 +24,12 @@ import { DecisionLog } from "../memory/DecisionLog.ts"
 import { MetricsCollector } from "../memory/MetricsCollector.ts"
 import { LanceDBStore } from "../memory/VectorStore.ts"
 import { MemberOrchestrator } from "../reasoning/MemberOrchestrator.ts"
+import { SkillDiscovery } from "../skills/discovery/SkillDiscovery.ts"
+import { ActivateSkillTool } from "../skills/activation/ActivateSkillTool.ts"
 import type { ExecutionContext } from "../core/ExecutionContext.ts"
 import type { LLMConfig, ProviderEntry } from "../llm/types.ts"
 import type { ProviderName } from "../members/types.ts"
+import type { ISkillManifest } from "../skills/discovery/ISkillManifest.ts"
 
 const agentRegistry = new AgentRegistry()
 const memberRegistry = new MemberRegistry()
@@ -98,16 +101,43 @@ function parseFlags(args: string[]): { flags: string[]; positional: string[]; pr
   return { flags, positional, providerOverride, detect }
 }
 
+async function discoverSkills(): Promise<{ catalog: string; manifests: Map<string, ISkillManifest> }> {
+  const discovery = new SkillDiscovery()
+  const manifests = discovery.discover(process.cwd())
+  if (manifests.length === 0) return { catalog: '', manifests: new Map() }
+
+  const lines: string[] = ['', '<available_skills>']
+  const map = new Map<string, ISkillManifest>()
+  for (const m of manifests) {
+    map.set(m.name, m)
+    lines.push(`  <skill name="${m.name}">`)
+    lines.push(`    <description>${m.description}</description>`)
+    lines.push(`    <location>${m.location}</location>`)
+    lines.push('  </skill>')
+  }
+  lines.push('</available_skills>')
+  lines.push('')
+  lines.push('When a task matches a skill\'s description, call the activate_skill tool with the skill\'s name to load its full instructions.')
+  lines.push('')
+
+  return { catalog: lines.join('\n'), manifests: map }
+}
+
 async function createContext(projectPath: string, config: LLMConfig): Promise<ExecutionContext> {
   const llm = await LLMRouter.create(config)
-  const sReg = new SkillRegistry()
-  const loop = new ReActLoop(llm, sReg)
+  const tReg = new ToolRegistry()
+  const loop = new ReActLoop(llm, tReg)
 
-  const dev = new DeveloperAgent(llm, loop, sReg, agentRegistry)
+  const { catalog, manifests } = await discoverSkills()
+  if (manifests.size > 0) {
+    tReg.register(new ActivateSkillTool(manifests))
+  }
+
+  const dev = new DeveloperAgent(llm, loop, tReg, agentRegistry)
   agentRegistry.register(dev)
-  agentRegistry.register(new ArchitectAgent(llm, loop, sReg))
-  agentRegistry.register(new ReviewerAgent(llm, loop, sReg))
-  agentRegistry.register(new QAAgent(llm, loop, sReg))
+  agentRegistry.register(new ArchitectAgent(llm, loop, tReg))
+  agentRegistry.register(new ReviewerAgent(llm, loop, tReg))
+  agentRegistry.register(new QAAgent(llm, loop, tReg))
 
   // Load Society index (members, ADRs, conventions) if available
   const societyGraphPath = join(projectPath, '.agenthood', 'society-graph.json')
@@ -130,7 +160,7 @@ async function createContext(projectPath: string, config: LLMConfig): Promise<Ex
   }
 
   const oracleLlm = await LLMRouter.create(config)
-  const oracleReg = new SkillRegistry()
+  const oracleReg = new ToolRegistry()
   const oracleAgent = new OracleAgent(oracleLlm, new ReActLoop(oracleLlm, oracleReg), oracleReg, societyGraph)
 
   const ctx = {
@@ -151,6 +181,7 @@ async function createContext(projectPath: string, config: LLMConfig): Promise<Ex
     tracer: { startSpan: () => {}, endSpan: () => {} },
     artifacts: [],
     oracle: { ask: (q: string) => oracleAgent.ask(q, ctx) },
+    skillsCatalog: catalog || undefined,
   }
   return ctx
 }
@@ -201,7 +232,7 @@ export async function run(args: string[]): Promise<void> {
     const spec = memberRegistry.get(agentName)
     const memberProvider = (config.provider ?? spec.preferredProvider) as ProviderName
     const llm = await LLMRouter.createForMember(memberProvider, config)
-    const sReg = new SkillRegistry()
+    const sReg = new ToolRegistry()
     const loop = new ReActLoop(llm, sReg)
 
     const configPath = join(process.cwd(), '.agenthood', 'config.json')
@@ -214,7 +245,7 @@ export async function run(args: string[]): Promise<void> {
       // config not available — skip auto-discovery
     }
 
-    const agent = new MemberAgent(spec, llm, loop, sReg)
+    const agent = new MemberAgent(spec, llm, loop, sReg, agentRegistry)
 
     const metricsCollector = new MetricsCollector(join(process.cwd(), '.agenthood', 'metrics'))
     const startTime = performance.now()

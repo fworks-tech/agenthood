@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest'
-import { ExplainCodeSkill } from '../../../src/skills/code/ExplainCodeSkill.ts'
+import { ExplainCodeSkill } from '../../../src/tools/code/ExplainCodeSkill.ts'
 import { createTestContext } from '../../helpers/testContext.ts'
 import type { ExecutionContext } from '../../../src/core/ExecutionContext.ts'
 

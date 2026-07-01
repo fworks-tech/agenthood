@@ -2,8 +2,8 @@ import { execSync } from 'node:child_process'
 import { writeFileSync, unlinkSync } from 'node:fs'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
-import type { ISkill } from '../ISkill.ts'
-import type { SkillResult } from '../ISkill.ts'
+import type { ITool } from '../ITool.ts'
+import type { ToolResult } from '../ITool.ts'
 import type { ExecutionContext } from '../../core/ExecutionContext.ts'
 import {
   parseMarker,
@@ -13,7 +13,7 @@ import {
   formatPlainComment,
 } from '../../commands/prSyncHelpers.ts'
 
-export class PrSyncSkill implements ISkill {
+export class PrSyncSkill implements ITool {
   name = 'pr_sync'
   description = 'Sync a GitHub pull request body with new commits and post a reviewer comment. Detects new commits since the last sync marker, updates the PR description, and generates a summary comment.'
   inputSchema = {
@@ -25,7 +25,7 @@ export class PrSyncSkill implements ISkill {
     required: ['prNumber'],
   }
 
-  async execute(input: unknown, _context: ExecutionContext): Promise<SkillResult> {
+  async execute(input: unknown, _context: ExecutionContext): Promise<ToolResult> {
     const { prNumber, dryRun } = input as { prNumber: number; dryRun?: boolean }
 
     try {

@@ -1,30 +1,30 @@
 import { BaseAgent } from "./base/BaseAgent.ts"
-import { WriteCodeSkill } from "../skills/code/WriteCodeSkill.ts"
-import { RefactorSkill } from "../skills/code/RefactorSkill.ts"
-import { ExplainCodeSkill } from "../skills/code/ExplainCodeSkill.ts"
-import { SearchCodebaseSkill } from "../skills/code/SearchCodebaseSkill.ts"
-import { ReadFileSkill } from "../skills/project/ReadFileSkill.ts"
-import { WriteFileSkill } from "../skills/project/WriteFileSkill.ts"
-import { SubagentTaskSkill } from "../skills/core/SubagentTaskSkill.ts"
-import type { ISkill } from "../skills/ISkill.ts"
+import { WriteCodeSkill } from "../tools/code/WriteCodeSkill.ts"
+import { RefactorSkill } from "../tools/code/RefactorSkill.ts"
+import { ExplainCodeSkill } from "../tools/code/ExplainCodeSkill.ts"
+import { SearchCodebaseSkill } from "../tools/code/SearchCodebaseSkill.ts"
+import { ReadFileSkill } from "../tools/project/ReadFileSkill.ts"
+import { WriteFileSkill } from "../tools/project/WriteFileSkill.ts"
+import { SubagentTaskSkill } from "../tools/core/SubagentTaskSkill.ts"
+import type { ITool } from "../tools/ITool.ts"
 import type { ExecutionContext } from "../core/ExecutionContext.ts"
 import type { AgentRegistry } from "../core/AgentRegistry.ts"
 import type { ILLMProvider } from "../llm/ILLMProvider.ts"
 import type { ReActLoop } from "../reasoning/ReActLoop.ts"
-import type { SkillRegistry } from "../skills/SkillRegistry.ts"
+import type { ToolRegistry } from "../tools/ToolRegistry.ts"
 
 export class DeveloperAgent extends BaseAgent {
   role = "developer";
-  protected skills: ISkill[];
+  protected tools: ITool[];
 
   constructor(
     llm: ILLMProvider,
     reasoningLoop: ReActLoop,
-    skillRegistry: SkillRegistry,
+    toolRegistry: ToolRegistry,
     agentRegistry: AgentRegistry,
   ) {
-    super(llm, reasoningLoop, skillRegistry);
-    this.skills = [
+    super(llm, reasoningLoop, toolRegistry);
+    this.tools = [
       new WriteCodeSkill(),
       new RefactorSkill(),
       new ReadFileSkill(),

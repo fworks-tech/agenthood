@@ -1,14 +1,14 @@
 import { describe, it, expect, vi } from 'vitest'
 import { RiskManager } from '../../../src/core/RiskManager.js'
-import type { ISkill, SkillResult } from '../../../src/skills/ISkill.js'
+import type { ITool, ToolResult } from '../../../src/tools/ITool.js'
 import type { ExecutionContext } from '../../../src/core/ExecutionContext.js'
 
-function mockSkill(name: string): ISkill {
+function mockSkill(name: string): ITool {
   return {
     name,
     description: name,
     inputSchema: { type: 'object', properties: {} },
-    execute: vi.fn().mockResolvedValue({ success: true, output: 'ok' } as SkillResult),
+    execute: vi.fn().mockResolvedValue({ success: true, output: 'ok' } as ToolResult),
   }
 }
 
@@ -146,10 +146,10 @@ describe('RiskManager', () => {
       const violation = rm.validate(skill, { path: 'node_modules/x.js', content: '' })
 
       expect(violation).toHaveProperty('type')
-      expect(violation).toHaveProperty('skill')
+      expect(violation).toHaveProperty('tool')
       expect(violation).toHaveProperty('reason')
       expect(violation).toHaveProperty('input')
-      expect(violation!.skill).toBe('write_file')
+      expect(violation!.tool).toBe('write_file')
     })
   })
 

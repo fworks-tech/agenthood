@@ -1,10 +1,10 @@
 import { writeFile, mkdir, lstat, realpath } from 'node:fs/promises'
 import { resolve, dirname } from 'node:path'
-import type { ISkill } from '../ISkill.js'
-import type { SkillResult } from '../ISkill.js'
+import type { ITool } from '../ITool.js'
+import type { ToolResult } from '../ITool.js'
 import type { ExecutionContext } from '../../core/ExecutionContext.js'
 
-export class WriteFileSkill implements ISkill {
+export class WriteFileSkill implements ITool {
   name = 'write_file'
   description = 'Write content to a file, creating directories as needed'
   inputSchema = {
@@ -16,7 +16,7 @@ export class WriteFileSkill implements ISkill {
     required: ['path', 'content'],
   }
 
-  async execute(input: unknown, context: ExecutionContext): Promise<SkillResult> {
+  async execute(input: unknown, context: ExecutionContext): Promise<ToolResult> {
     const { path, content } = input as { path: string; content: string }
     const resolvedPath = resolve(context.project.localPath, path)
 

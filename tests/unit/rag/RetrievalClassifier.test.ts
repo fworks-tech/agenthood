@@ -1,7 +1,7 @@
 import { describe, it, expect, vi } from 'vitest'
-import { RetrievalClassifier } from '../../../src/skills/rag/RetrievalClassifier.js'
+import { RetrievalClassifier } from '../../../src/tools/rag/RetrievalClassifier.js'
 import type { ExecutionContext } from '../../../src/core/ExecutionContext.js'
-import type { RetrievalStrategy } from '../../../src/skills/rag/RetrievalClassifier.js'
+import type { RetrievalStrategy } from '../../../src/tools/rag/RetrievalClassifier.js'
 
 function mockContext(stmEntries: string[] = []): ExecutionContext {
   return {

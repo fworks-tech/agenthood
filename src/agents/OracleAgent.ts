@@ -1,23 +1,23 @@
 import { BaseAgent } from './base/BaseAgent.ts'
 import type { ILLMProvider } from '../llm/ILLMProvider.js'
 import type { ReActLoop } from '../reasoning/ReActLoop.js'
-import type { SkillRegistry } from '../skills/SkillRegistry.js'
+import type { ToolRegistry } from '../tools/ToolRegistry.js'
 import type { ExecutionContext } from '../core/ExecutionContext.js'
-import type { ISkill } from '../skills/ISkill.js'
+import type { ITool } from '../tools/ITool.js'
 import type { AgentResult } from './base/AgentResult.js'
 import { KnowledgeGraphStore } from '../rag/KnowledgeGraphStore.js'
 
 export class OracleAgent extends BaseAgent {
   role = 'the-oracle'
-  protected skills: ISkill[] = []
+  protected tools: ITool[] = []
 
   constructor(
     llm: ILLMProvider,
     reasoningLoop: ReActLoop,
-    skillRegistry: SkillRegistry,
+    toolRegistry: ToolRegistry,
     private knowledgeGraph?: KnowledgeGraphStore,
   ) {
-    super(llm, reasoningLoop, skillRegistry)
+    super(llm, reasoningLoop, toolRegistry)
   }
 
   async ask(question: string, context: ExecutionContext): Promise<string> {

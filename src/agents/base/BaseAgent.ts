@@ -1,16 +1,16 @@
 import type { ILLMProvider } from "../../llm/ILLMProvider.js";
-import type { ISkill } from "../../skills/ISkill.js";
+import type { ITool } from "../../tools/ITool.js";
 import type { ExecutionContext } from "../../core/ExecutionContext.js";
 import type { AgentResult } from "./AgentResult.js";
 import { ReActLoop } from "../../reasoning/ReActLoop.js";
-import { SkillRegistry } from "../../skills/SkillRegistry.js";
+import { ToolRegistry } from "../../tools/ToolRegistry.js";
 import type { ResidualMemory } from "../../memory/ResidualMemory.js";
 import type { EpisodeLearner } from "../../evals/EpisodeLearner.js";
 import type { EvalResult } from "../../core/types.js";
 
 export abstract class BaseAgent {
   abstract role: string;
-  protected abstract skills: ISkill[];
+  protected abstract tools: ITool[];
   protected abstract getSystemPrompt(
     context: ExecutionContext,
   ): Promise<string>;
@@ -18,15 +18,15 @@ export abstract class BaseAgent {
   constructor(
     readonly llm: ILLMProvider,
     protected reasoningLoop: ReActLoop,
-    protected skillRegistry: SkillRegistry,
+    protected toolRegistry: ToolRegistry,
     protected residualMemory?: ResidualMemory,
     protected episodeLearner?: EpisodeLearner,
   ) {}
 
   async run(input: string, context: ExecutionContext): Promise<AgentResult> {
-    for (const skill of this.skills) {
-      if (!this.skillRegistry.has(skill.name)) {
-        this.skillRegistry.register(skill);
+    for (const tool of this.tools) {
+      if (!this.toolRegistry.has(tool.name)) {
+        this.toolRegistry.register(tool);
       }
     }
 

@@ -82,23 +82,23 @@ async function loadConfig(providerOverride?: string): Promise<LLMConfig> {
   }
 }
 
-function parseFlags(args: string[]): { flags: string[]; positional: string[]; providerOverride?: string; detect: boolean } {
+function parseFlags(args: string[]): { flags: string[]; positional: string[]; providerOverride?: string; shouldDetect: boolean } {
   const flags: string[] = []
   const positional: string[] = []
   let providerOverride: string | undefined
-  let detect = false
+  let shouldDetect = false
 
   for (let i = 0; i < args.length; i++) {
     if (args[i] === '--provider' && i + 1 < args.length) {
       providerOverride = args[++i]
     } else if (args[i] === '--detect') {
-      detect = true
+      shouldDetect = true
     } else {
       positional.push(args[i])
     }
   }
 
-  return { flags, positional, providerOverride, detect }
+  return { flags, positional, providerOverride, shouldDetect }
 }
 
 async function discoverSkills(): Promise<{ catalog: string; manifests: Map<string, ISkillManifest> }> {
@@ -145,9 +145,9 @@ async function createContext(projectPath: string, config: LLMConfig): Promise<Ex
   if (existsSync(societyGraphPath)) {
     try {
       societyGraph.load(societyGraphPath)
-    } catch {
-      // corrupt or missing — proceed without
-    }
+  } catch (e) {
+    console.warn(`[run] society graph unavailable: ${(e as Error)?.message ?? e}`)
+  }
   }
 
   // Initialize vector store for persistent memory tiers
@@ -155,8 +155,8 @@ async function createContext(projectPath: string, config: LLMConfig): Promise<Ex
   const memoryPath = join(projectPath, '.agenthood', 'memory')
   try {
     await vectorStore.connect(memoryPath)
-  } catch {
-    // vector store unavailable — memory tiers will operate without persistence
+  } catch (e) {
+    console.warn(`[run] vector store unavailable: ${(e as Error)?.message ?? e}`)
   }
 
   const oracleLlm = await LLMRouter.create(config)
@@ -221,8 +221,8 @@ async function runSocietyMember(agentName: string, task: string, config: LLMConf
     if (raw.skills?.autoDiscover === true) {
       await sReg.discover(join(process.cwd(), 'src', 'skills'))
     }
-  } catch {
-    // config not available — skip auto-discovery
+  } catch (e) {
+    console.warn(`[run] skill auto-discovery config unavailable: ${(e as Error)?.message ?? e}`)
   }
 
   const agent = new MemberAgent(spec, llm, loop, sReg, agentRegistry)
@@ -257,7 +257,7 @@ async function runFallbackAgent(agentName: string, task: string, context: Execut
 }
 
 export async function run(args: string[]): Promise<void> {
-  const { positional, providerOverride, detect } = parseFlags(args)
+  const { positional, providerOverride, shouldDetect } = parseFlags(args)
   const [agentName, ...taskParts] = positional
 
   if (!agentName || taskParts.length === 0) {
@@ -280,7 +280,7 @@ export async function run(args: string[]): Promise<void> {
 
   const context = await createContext(process.cwd(), config)
 
-  if (detect) {
+  if (shouldDetect) {
     await runDetection(task)
   }
 

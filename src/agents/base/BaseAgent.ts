@@ -48,7 +48,9 @@ export abstract class BaseAgent {
       metadata: { member: this.role },
     };
 
-    this.episodeLearner?.learn(evalResult, context).catch(() => {});
+    this.episodeLearner?.learn(evalResult, context).catch((err) => {
+      console.error(`[BaseAgent] episode learner failed: ${err instanceof Error ? err.message : String(err)}`)
+    });
 
     return result;
   }

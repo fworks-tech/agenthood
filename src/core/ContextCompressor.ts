@@ -40,7 +40,7 @@ export class ContextCompressor {
   async compress(
     messages: Message[],
     modelContextWindow?: number,
-    protectSkillContent = false,
+    isSkillContentProtected = false,
   ): Promise<Message[]> {
     if (!messages || messages.length === 0) return []
 
@@ -62,7 +62,7 @@ export class ContextCompressor {
 
     if (body.length === 0) return messages
 
-    if (protectSkillContent) {
+    if (isSkillContentProtected) {
       const protectedMsgs: Message[] = []
       const compressible: Message[] = []
       for (const m of body) {

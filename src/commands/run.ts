@@ -82,8 +82,7 @@ async function loadConfig(providerOverride?: string): Promise<LLMConfig> {
   }
 }
 
-function parseFlags(args: string[]): { flags: string[]; positional: string[]; providerOverride?: string; shouldDetect: boolean } {
-  const flags: string[] = []
+function parseFlags(args: string[]): { positional: string[]; providerOverride?: string; shouldDetect: boolean } {
   const positional: string[] = []
   let providerOverride: string | undefined
   let shouldDetect = false
@@ -98,7 +97,7 @@ function parseFlags(args: string[]): { flags: string[]; positional: string[]; pr
     }
   }
 
-  return { flags, positional, providerOverride, shouldDetect }
+  return { positional, providerOverride, shouldDetect }
 }
 
 async function discoverSkills(): Promise<{ catalog: string; manifests: Map<string, ISkillManifest> }> {
@@ -145,9 +144,9 @@ async function createContext(projectPath: string, config: LLMConfig): Promise<Ex
   if (existsSync(societyGraphPath)) {
     try {
       societyGraph.load(societyGraphPath)
-  } catch (e) {
-    console.warn(`[run] society graph unavailable: ${(e as Error)?.message ?? e}`)
-  }
+    } catch (e) {
+      console.warn(`[run] society graph unavailable: ${(e as Error)?.message ?? e}`)
+    }
   }
 
   // Initialize vector store for persistent memory tiers

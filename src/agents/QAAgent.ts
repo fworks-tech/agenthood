@@ -1,4 +1,3 @@
-import { readFileSync, existsSync } from 'node:fs'
 import { join, dirname } from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { BaseAgent } from './base/BaseAgent.ts'
@@ -10,16 +9,11 @@ import type { ExecutionContext } from '../core/ExecutionContext.ts'
 import type { ILLMProvider } from '../llm/ILLMProvider.ts'
 import type { ReActLoop } from '../reasoning/ReActLoop.ts'
 import type { ToolRegistry } from '../tools/ToolRegistry.ts'
+import { loadMemberLore } from './memberLore.ts'
 
 const __filename = fileURLToPath(import.meta.url)
 const __dirname = dirname(__filename)
 const SKILL_PATH = join(__dirname, '..', '..', 'members', 'the-tester', 'SKILL.md')
-
-function loadMemberLore(): string {
-  if (!existsSync(SKILL_PATH)) return ''
-  const content = readFileSync(SKILL_PATH, 'utf-8')
-  return content.replace(/^---[\s\S]*?---\n*/, '').trim()
-}
 
 export class QAAgent extends BaseAgent {
   role = 'qa'
@@ -45,7 +39,7 @@ export class QAAgent extends BaseAgent {
       stack: JSON.stringify(stack ?? {}),
     })
 
-    const memberLore = loadMemberLore()
+    const memberLore = loadMemberLore(SKILL_PATH)
     return memberLore ? `${template.content}\n\n---\n\n${memberLore}` : template.content
   }
 }

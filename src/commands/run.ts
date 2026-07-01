@@ -186,14 +186,82 @@ async function createContext(projectPath: string, config: LLMConfig): Promise<Ex
   return ctx
 }
 
+function printUsage(): void {
+  console.error('Usage: agenthood run <agent> "<task description>"')
+  console.error('  --provider <name>   Override LLM provider (e.g. groq, anthropic, ollama)')
+  console.error('  --detect            Auto-detect members for this task')
+}
+
+async function runDetection(task: string): Promise<void> {
+  const orchestrator = new MemberOrchestrator()
+  const detected = orchestrator.detectMembers({
+    userMessage: task,
+    changedFiles: [],
+    currentStage: undefined,
+  })
+  if (detected.length > 0) {
+    console.log(`\n🎯 Detected members: ${detected.map((d) => `${d.member} (score: ${d.score})`).join(', ')}\n`)
+  } else {
+    console.log('\nNo members detected for this task.\n')
+  }
+}
+
+async function runSocietyMember(agentName: string, task: string, config: LLMConfig, context: ExecutionContext): Promise<boolean> {
+  if (!memberRegistry.has(agentName)) return false
+
+  const spec = memberRegistry.get(agentName)
+  const memberProvider = (config.provider ?? spec.preferredProvider) as ProviderName
+  const llm = await LLMRouter.createForMember(memberProvider, config)
+  const sReg = new ToolRegistry()
+  const loop = new ReActLoop(llm, sReg)
+
+  const configPath = join(process.cwd(), '.agenthood', 'config.json')
+  try {
+    const raw = JSON.parse(await readFile(configPath, 'utf8'))
+    if (raw.skills?.autoDiscover === true) {
+      await sReg.discover(join(process.cwd(), 'src', 'skills'))
+    }
+  } catch {
+    // config not available — skip auto-discovery
+  }
+
+  const agent = new MemberAgent(spec, llm, loop, sReg, agentRegistry)
+  const metricsCollector = new MetricsCollector(join(process.cwd(), '.agenthood', 'metrics'))
+  const startTime = performance.now()
+
+  try {
+    const result = await agent.run(task, context)
+    const duration = Math.round(performance.now() - startTime)
+    metricsCollector.record(agentName, true, duration)
+    console.log(`\n\u2714 ${result.role} result:\n${result.output}\n`)
+  } catch (err) {
+    const duration = Math.round(performance.now() - startTime)
+    metricsCollector.record(agentName, false, duration)
+    const msg = err instanceof Error ? err.message : String(err)
+    console.error(`Error running member "${agentName}": ${msg}`)
+    process.exit(1)
+  }
+  return true
+}
+
+async function runFallbackAgent(agentName: string, task: string, context: ExecutionContext): Promise<void> {
+  try {
+    const agent = agentRegistry.get(agentName)
+    const result = await agent.run(task, context)
+    console.log(`\n\u2714 ${result.role} result:\n${result.output}\n`)
+  } catch (err) {
+    const msg = err instanceof Error ? err.message : String(err)
+    console.error(`Error running agent "${agentName}": ${msg}`)
+    process.exit(1)
+  }
+}
+
 export async function run(args: string[]): Promise<void> {
   const { positional, providerOverride, detect } = parseFlags(args)
   const [agentName, ...taskParts] = positional
 
   if (!agentName || taskParts.length === 0) {
-    console.error('Usage: agenthood run <agent> "<task description>"')
-    console.error('  --provider <name>   Override LLM provider (e.g. groq, anthropic, ollama)')
-    console.error('  --detect            Auto-detect members for this task')
+    printUsage()
     process.exit(1)
   }
 
@@ -209,70 +277,15 @@ export async function run(args: string[]): Promise<void> {
     }
     throw err
   }
+
   const context = await createContext(process.cwd(), config)
 
-  // Run member detection if --detect flag is set
   if (detect) {
-    const orchestrator = new MemberOrchestrator()
-    const detected = orchestrator.detectMembers({
-      userMessage: task,
-      changedFiles: [],
-      currentStage: undefined,
-    })
-
-    if (detected.length > 0) {
-      console.log(`\n🎯 Detected members: ${detected.map((d) => `${d.member} (score: ${d.score})`).join(', ')}\n`)
-    } else {
-      console.log('\nNo members detected for this task.\n')
-    }
+    await runDetection(task)
   }
 
-  // Try Society member first
-  if (memberRegistry.has(agentName)) {
-    const spec = memberRegistry.get(agentName)
-    const memberProvider = (config.provider ?? spec.preferredProvider) as ProviderName
-    const llm = await LLMRouter.createForMember(memberProvider, config)
-    const sReg = new ToolRegistry()
-    const loop = new ReActLoop(llm, sReg)
-
-    const configPath = join(process.cwd(), '.agenthood', 'config.json')
-    try {
-      const raw = JSON.parse(await readFile(configPath, 'utf8'))
-      if (raw.skills?.autoDiscover === true) {
-        await sReg.discover(join(process.cwd(), 'src', 'skills'))
-      }
-    } catch {
-      // config not available — skip auto-discovery
-    }
-
-    const agent = new MemberAgent(spec, llm, loop, sReg, agentRegistry)
-
-    const metricsCollector = new MetricsCollector(join(process.cwd(), '.agenthood', 'metrics'))
-    const startTime = performance.now()
-
-    try {
-      const result = await agent.run(task, context)
-      const duration = Math.round(performance.now() - startTime)
-      metricsCollector.record(agentName, true, duration)
-      console.log(`\n\u2714 ${result.role} result:\n${result.output}\n`)
-      return
-    } catch (err) {
-      const duration = Math.round(performance.now() - startTime)
-      metricsCollector.record(agentName, false, duration)
-      const msg = err instanceof Error ? err.message : String(err)
-      console.error(`Error running member "${agentName}": ${msg}`)
-      process.exit(1)
-    }
-  }
-
-  // Fall back to generic template agents (developer, architect, reviewer, qa)
-  try {
-    const agent = agentRegistry.get(agentName)
-    const result = await agent.run(task, context)
-    console.log(`\n\u2714 ${result.role} result:\n${result.output}\n`)
-  } catch (err) {
-    const msg = err instanceof Error ? err.message : String(err)
-    console.error(`Error running agent "${agentName}": ${msg}`)
-    process.exit(1)
+  const handled = await runSocietyMember(agentName, task, config, context)
+  if (!handled) {
+    await runFallbackAgent(agentName, task, context)
   }
 }

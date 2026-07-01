@@ -5,6 +5,15 @@
 
 ---
 
+## v3.5.3 — July 1, 2026
+
+### 🐛 Bug Fixes
+
+- **Groq:** update default model from decommissioned llama-3.1-70b to llama-3.3-70b-versatile
+- **Groq:** update test expectation to match default model llama-3.3-70b-versatile
+
+---
+
 ## v3.5.2 — June 29, 2026
 
 ### 🐛 Bug Fixes

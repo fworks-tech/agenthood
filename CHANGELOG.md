@@ -1,3 +1,11 @@
+## [3.5.3](https://github.com/fworks-tech/agenthood/compare/v3.5.2...v3.5.3) (2026-07-01)
+
+
+### Bug Fixes
+
+* **groq:** update default model from decommissioned llama-3.1-70b to llama-3.3-70b-versatile ([483c54a](https://github.com/fworks-tech/agenthood/commit/483c54a0f25d7931ecb1b125286bbe6e67954899))
+* **groq:** update test expectation to match default model llama-3.3-70b-versatile ([0593405](https://github.com/fworks-tech/agenthood/commit/0593405dff591d555eaab99e2c9d661f80eb4ea6))
+
 ## [3.5.2](https://github.com/fworks-tech/agenthood/compare/v3.5.1...v3.5.2) (2026-06-29)
 
 

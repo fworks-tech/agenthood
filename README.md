@@ -101,7 +101,11 @@ For a full walkthrough — install, commands, CI pipeline, and next steps — se
 
 ## What's shipped
 
+### Runtime (TypeScript CLI)
 See the [CHANGELOG.md](CHANGELOG.md) for the full version history.
+
+### Playground (agenthood-site)
+[**Agenthood Studio**](https://agenthood.flabs.tech/studio/playground) — a browser-based chat interface for all 16 Society members. Features configurable provider backend (Anthropic, OpenAI, Groq, Ollama, OpenCode), SSE streaming, turnstile CAPTCHA, session-scoped config persistence, Upstash Redis rate limiting, and structured logging with field-level redaction. [Source](https://github.com/fworks-tech/agenthood-site)
 
 ---
 
@@ -113,6 +117,8 @@ Agenthood is agent-agnostic. The skill files work with:
 - [GitHub Copilot](https://github.com/features/copilot) — via `.github/copilot-instructions.md`
 
 The TypeScript runtime (`agenthood run`) supports Groq (default, free tier at [console.groq.com](https://console.groq.com)), Anthropic, OpenAI, OpenCode, and Ollama for fully offline execution.
+
+The [Agenthood Studio playground](https://agenthood.flabs.tech/studio/playground) exercises the same runtime through a browser UI — every chat request runs through `agenthood/dist/llm` with provider routing, failover, and streaming.
 
 ---
 

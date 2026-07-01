@@ -30,6 +30,8 @@ The runbook is the one teams skip and regret. What do you do when the agent star
 
 The v3.0.0 API layer (planned, tracked in the [M9 — Platform milestone](https://github.com/fworks-tech/agenthood/milestone/11) and the [M4 — Foundation milestone](https://github.com/fworks-tech/agenthood/milestone/3)) ships the production scaffold. The API is Express-based, with auth and rate limiting as composable middleware:
 
+> **Real-world example:** The [Agenthood Studio playground](https://agenthood.flabs.tech/studio/playground) implements these patterns today — server-side rate limiting with Upstash Redis (falling back to in-memory), Content-Security-Policy headers, SSRF-protected proxy for Ollama and self-hosted providers, structured logging with field-level redaction, turnstile CAPTCHA gating on the chat API, and model validation against a known set. See the [source](https://github.com/fworks-tech/agenthood-site) and [architecture ADR](https://github.com/fworks-tech/agenthood-site/blob/main/docs/adr/002-studio-architecture.md).
+
 ```typescript
 import { AgenthoodAPI, AuthMiddleware, RateLimitMiddleware } from 'agenthood';
 

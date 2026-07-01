@@ -1,5 +1,5 @@
-export type { ISkill } from "./ISkill.ts"
-export type { SkillResult } from "./ISkill.ts"
+export type { ITool } from "./ITool.ts"
+export type { ToolResult } from "./ITool.ts"
 
 export { SubagentTaskSkill } from "./core/SubagentTaskSkill.ts"
 export { PrSyncSkill } from "./pr/PrSyncSkill.ts"

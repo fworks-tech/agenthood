@@ -26,4 +26,5 @@ export interface ExecutionContext {
   tracer: Tracer
   artifacts: Artifact[]
   oracle?: { ask(question: string): Promise<string> }
+  skillsCatalog?: string
 }

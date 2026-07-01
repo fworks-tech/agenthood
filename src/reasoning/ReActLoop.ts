@@ -2,7 +2,7 @@ import type { ILLMProvider } from "../llm/ILLMProvider.ts"
 import type { ExecutionContext } from "../core/ExecutionContext.ts"
 import type { Message, ToolCall } from "../llm/types.ts"
 import { ContextCompressor } from "../core/ContextCompressor.ts"
-import { SkillRegistry, SkillNotFoundError } from "../skills/SkillRegistry.ts"
+import { ToolRegistry, ToolNotFoundError } from "../tools/ToolRegistry.ts"
 import { ThinkingBudget } from "./ThinkingBudget.ts"
 import { validateSchema, SchemaValidationError } from "../core/SchemaValidator.ts"
 
@@ -13,10 +13,14 @@ export class ToolLoopDetectedError extends Error {
   }
 }
 
+const SKILL_ACTIVATION_PREFIX = '[SKILL_ACTIVATION]'
+
 export class ReActLoop {
+  activatedSkills = new Set<string>()
+
   constructor(
     private llm: ILLMProvider,
-    private skillRegistry: SkillRegistry,
+    private skillRegistry: ToolRegistry,
     private budget: ThinkingBudget = new ThinkingBudget(),
     private compressor: ContextCompressor = new ContextCompressor(llm),
     private loopWindow = 5,
@@ -49,6 +53,7 @@ export class ReActLoop {
       request.messages = await this.compressor.compress(
         messages,
         modelContextWindow,
+        this.activatedSkills.size > 0,
       )
 
       const response = await this.llm.complete(request);
@@ -74,9 +79,14 @@ export class ReActLoop {
         if (recentCalls.length > this.loopWindow) recentCalls.shift()
 
         const result = await this.executeTool(toolCall, context);
+        const content = typeof result === 'string' ? result : JSON.stringify(result)
+        if (content.startsWith(SKILL_ACTIVATION_PREFIX)) {
+          const nameMatch = content.match(/<skill_content name="([^"]+)">/)
+          if (nameMatch) this.activatedSkills.add(nameMatch[1])
+        }
         messages.push({
           role: "tool",
-          content: JSON.stringify(result),
+          content,
           tool_call_id: toolCall.id,
           name: toolCall.name,
         });
@@ -111,8 +121,8 @@ export class ReActLoop {
       }
       return result.output;
     } catch (err) {
-      if (err instanceof SkillNotFoundError) {
-        return `Error: Skill not found: "${toolCall.name}"`;
+      if (err instanceof ToolNotFoundError) {
+        return `Error: Tool not found: "${toolCall.name}"`;
       }
       const msg = err instanceof Error ? err.message : String(err);
       return `Error: ${msg}`;

@@ -1,5 +1,5 @@
 import { describe, it, expect, beforeEach } from 'vitest'
-import { SearchCodebaseSkill } from '../../../src/skills/code/SearchCodebaseSkill.ts'
+import { SearchCodebaseSkill } from '../../../src/tools/code/SearchCodebaseSkill.ts'
 import { createTestContext } from '../../helpers/testContext.ts'
 import type { ExecutionContext } from '../../../src/core/ExecutionContext.ts'
 

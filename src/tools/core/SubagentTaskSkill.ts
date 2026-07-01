@@ -1,4 +1,4 @@
-import type { ISkill, SkillResult } from "../ISkill.ts"
+import type { ITool, ToolResult } from "../ITool.ts"
 import type { JSONSchema } from "../../llm/types.ts"
 import type { ExecutionContext } from "../../core/ExecutionContext.ts"
 import type { AgentRegistry } from "../../core/AgentRegistry.ts"
@@ -16,7 +16,7 @@ const inputSchema: JSONSchema = {
   required: ["role", "task"],
 };
 
-export class SubagentTaskSkill implements ISkill {
+export class SubagentTaskSkill implements ITool {
   name = "delegate_task";
   description =
     "Delegate a task to a specialized subagent. Use this for work that needs focused expertise or isolated context (e.g. code review, architecture planning, debugging). Returns the subagent output.";
@@ -27,7 +27,7 @@ export class SubagentTaskSkill implements ISkill {
   async execute(
     input: unknown,
     context: ExecutionContext,
-  ): Promise<SkillResult> {
+  ): Promise<ToolResult> {
     const { role, task } = input as { role: string; task: string };
 
     try {

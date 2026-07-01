@@ -1,7 +1,7 @@
-import type { ISkill, SkillResult } from '../ISkill.js'
+import type { ITool, ToolResult } from '../ITool.js'
 import type { ExecutionContext } from '../../core/ExecutionContext.js'
 
-export class ExplainCodeSkill implements ISkill {
+export class ExplainCodeSkill implements ITool {
   name = 'explain_code'
   description = 'Explain what a piece of code does in natural language'
   inputSchema = {
@@ -13,7 +13,7 @@ export class ExplainCodeSkill implements ISkill {
     required: ['code'],
   }
 
-  async execute(input: unknown, context: ExecutionContext): Promise<SkillResult> {
+  async execute(input: unknown, context: ExecutionContext): Promise<ToolResult> {
     const { code, language } = input as { code: string; language?: string }
 
     const languageHint = language ? ` ${language}` : ''

@@ -2,13 +2,13 @@ import { readFileSync, existsSync } from 'node:fs'
 import { join, dirname } from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { BaseAgent } from './base/BaseAgent.ts'
-import { ReadFileSkill } from '../skills/project/ReadFileSkill.ts'
-import { WriteFileSkill } from '../skills/project/WriteFileSkill.ts'
-import type { ISkill } from '../skills/ISkill.ts'
+import { ReadFileSkill } from '../tools/project/ReadFileSkill.ts'
+import { WriteFileSkill } from '../tools/project/WriteFileSkill.ts'
+import type { ITool } from '../tools/ITool.ts'
 import type { ExecutionContext } from '../core/ExecutionContext.ts'
 import type { ILLMProvider } from '../llm/ILLMProvider.ts'
 import type { ReActLoop } from '../reasoning/ReActLoop.ts'
-import type { SkillRegistry } from '../skills/SkillRegistry.ts'
+import type { ToolRegistry } from '../tools/ToolRegistry.ts'
 
 const __filename = fileURLToPath(import.meta.url)
 const __dirname = dirname(__filename)
@@ -22,11 +22,11 @@ function loadMemberLore(): string {
 
 export class ReviewerAgent extends BaseAgent {
   role = 'reviewer'
-  protected skills: ISkill[]
+  protected tools: ITool[]
 
-  constructor(llm: ILLMProvider, reasoningLoop: ReActLoop, skillRegistry: SkillRegistry) {
-    super(llm, reasoningLoop, skillRegistry)
-    this.skills = [
+  constructor(llm: ILLMProvider, reasoningLoop: ReActLoop, toolRegistry: ToolRegistry) {
+    super(llm, reasoningLoop, toolRegistry)
+    this.tools = [
       new ReadFileSkill(),
       new WriteFileSkill(),
     ]

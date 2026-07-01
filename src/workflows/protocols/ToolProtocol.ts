@@ -1,5 +1,5 @@
 import type { ExecutionContext } from '../../core/ExecutionContext.js'
-import type { ISkill } from '../../skills/ISkill.js'
+import type { ITool } from '../../tools/ITool.js'
 import { RiskManager } from '../../core/RiskManager.js'
 import type { IProtocol, ProtocolConfig, FailureAction } from './IProtocol.js'
 
@@ -9,7 +9,7 @@ const DEFAULT_CONFIG: ProtocolConfig = {
 }
 
 export interface ToolProtocolInput {
-  skill: ISkill
+  skill: ITool
   input: unknown
 }
 

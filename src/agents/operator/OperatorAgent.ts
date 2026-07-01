@@ -1,11 +1,11 @@
 import { BaseAgent } from '../base/BaseAgent.ts'
 import type { ExecutionContext } from '../../core/ExecutionContext.js'
-import type { ISkill } from '../../skills/ISkill.js'
+import type { ITool } from '../../tools/ITool.js'
 import type { AgentResult } from '../base/AgentResult.js'
 
 export class OperatorAgent extends BaseAgent {
   role = 'the-operator'
-  protected skills: ISkill[] = []
+  protected tools: ITool[] = []
 
   protected async getSystemPrompt(_context: ExecutionContext): Promise<string> {
     return 'You are the Operator, a Society Member that manages runtime health, deployment verification, rollback execution, incident triage, and monitoring. You do not debug — you triage. You do not design — you execute. Your output is consumed by The Debugger when escalation is needed.'

@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest'
-import { RefactorSkill } from '../../../src/skills/code/RefactorSkill.ts'
+import { RefactorSkill } from '../../../src/tools/code/RefactorSkill.ts'
 import { createTestContext } from '../../helpers/testContext.ts'
 import type { ExecutionContext } from '../../../src/core/ExecutionContext.ts'
 import * as fsPromises from 'node:fs/promises'

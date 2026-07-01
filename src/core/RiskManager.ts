@@ -1,4 +1,4 @@
-import type { ISkill } from '../skills/ISkill.js'
+import type { ITool } from '../tools/ITool.js'
 
 /** Per-tool constraints that define acceptable execution boundaries. */
 export interface RiskPolicy {
@@ -17,7 +17,7 @@ export interface RiskPolicy {
 /** A structured record of a policy violation — returned instead of thrown so callers can audit decisions. */
 export interface RiskViolation {
   type: 'path' | 'host' | 'timeout' | 'filesize'
-  skill: string
+  tool: string
   reason: string
   input: unknown
 }
@@ -92,18 +92,18 @@ export class RiskManager {
    *
    * @returns A RiskViolation if the input violates policy, or null if allowed
    */
-  validate(skill: ISkill, input: unknown): RiskViolation | null {
-    const skillName = skill.name.toLowerCase()
+  validate(tool: ITool, input: unknown): RiskViolation | null {
+    const toolName = tool.name.toLowerCase()
     const inputObj = input as Record<string, unknown> || {}
 
-    if (skillName.includes('write') || skillName.includes('refactor')) {
+    if (toolName.includes('write') || toolName.includes('refactor')) {
       const filePath = String(inputObj.path || inputObj.filePath || '')
       if (filePath) {
         for (const blocked of this.policy.blockedPaths) {
           if (matchesGlob(blocked, filePath)) {
             return {
               type: 'path',
-              skill: skill.name,
+              tool: tool.name,
               reason: `Path "${filePath}" is blocked by pattern "${blocked}"`,
               input,
             }
@@ -114,18 +114,18 @@ export class RiskManager {
         if (!allowed) {
           return {
             type: 'path',
-            skill: skill.name,
+            tool: tool.name,
             reason: `Path "${filePath}" is not in allowed paths: ${this.policy.allowedPaths.join(', ')}`,
             input,
           }
         }
 
-        if (skillName.includes('write') && skillName !== 'writefile') {
+        if (toolName.includes('write') && toolName !== 'writefile') {
           const content = String(inputObj.content || '')
           if (content.length > this.policy.maxFileSizeBytes) {
             return {
               type: 'filesize',
-              skill: skill.name,
+              tool: tool.name,
               reason: `Content size ${content.length} bytes exceeds max ${this.policy.maxFileSizeBytes} bytes`,
               input,
             }
@@ -134,14 +134,14 @@ export class RiskManager {
       }
     }
 
-    if (skillName.includes('web')) {
+    if (toolName.includes('web')) {
       const url = String(inputObj.url || inputObj.host || '')
       if (url) {
         const host = extractHost(url)
         if (host && !this.policy.allowedHosts.some((h) => matchesGlob(h, host))) {
           return {
             type: 'host',
-            skill: skill.name,
+            tool: tool.name,
             reason: `Host "${host}" is not in allowed hosts: ${this.policy.allowedHosts.join(', ')}`,
             input,
           }

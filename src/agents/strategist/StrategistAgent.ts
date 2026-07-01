@@ -1,11 +1,11 @@
 import { BaseAgent } from '../base/BaseAgent.ts'
 import type { ExecutionContext } from '../../core/ExecutionContext.js'
-import type { ISkill } from '../../skills/ISkill.js'
+import type { ITool } from '../../tools/ITool.js'
 import type { AgentResult } from '../base/AgentResult.js'
 
 export class StrategistAgent extends BaseAgent {
   role = 'the-strategist'
-  protected skills: ISkill[] = []
+  protected tools: ITool[] = []
 
   protected async getSystemPrompt(_context: ExecutionContext): Promise<string> {
     return 'You are the Strategist, a Society Member that translates ambiguous goals into structured problem statements. You never write code, run commands, or edit files. Your output is consumed by The Architect.'

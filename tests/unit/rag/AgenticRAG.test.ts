@@ -1,7 +1,7 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest'
 import { AgenticRAG } from '../../../src/rag/AgenticRAG.js'
 import type { AgenticRetrievalResult, AgenticRAGOptions } from '../../../src/rag/AgenticRAG.js'
-import { RetrievalClassifier } from '../../../src/skills/rag/RetrievalClassifier.js'
+import { RetrievalClassifier } from '../../../src/tools/rag/RetrievalClassifier.js'
 import type { ExecutionContext } from '../../../src/core/ExecutionContext.js'
 
 function mockEmbedder() {

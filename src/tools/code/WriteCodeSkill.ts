@@ -1,8 +1,8 @@
-import type { ISkill } from '../ISkill.js'
-import type { SkillResult } from '../ISkill.js'
+import type { ITool } from '../ITool.js'
+import type { ToolResult } from '../ITool.js'
 import type { ExecutionContext } from '../../core/ExecutionContext.js'
 
-export class WriteCodeSkill implements ISkill {
+export class WriteCodeSkill implements ITool {
   name = 'write_code'
   description = 'Write code for a given specification following project conventions'
   inputSchema = {
@@ -15,7 +15,7 @@ export class WriteCodeSkill implements ISkill {
     required: ['spec', 'targetFile', 'language'],
   }
 
-  async execute(input: unknown, context: ExecutionContext): Promise<SkillResult> {
+  async execute(input: unknown, context: ExecutionContext): Promise<ToolResult> {
     const { spec, targetFile, language } = input as {
       spec: string
       targetFile: string

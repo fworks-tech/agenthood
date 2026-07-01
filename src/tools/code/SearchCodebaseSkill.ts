@@ -1,6 +1,6 @@
 import { readdirSync, readFileSync, statSync } from 'node:fs'
 import { join, relative } from 'node:path'
-import type { ISkill, SkillResult } from '../ISkill.js'
+import type { ITool, ToolResult } from '../ITool.js'
 import type { ExecutionContext } from '../../core/ExecutionContext.js'
 
 const IGNORED_DIRS = new Set(['node_modules', '.git', 'dist', '.next', 'coverage', '.cache'])
@@ -62,7 +62,7 @@ function collectMatches(
   }
 }
 
-export class SearchCodebaseSkill implements ISkill {
+export class SearchCodebaseSkill implements ITool {
   name = 'search_codebase'
   description = 'Search the codebase for files matching a query (filename or content)'
   inputSchema = {
@@ -73,7 +73,7 @@ export class SearchCodebaseSkill implements ISkill {
     required: ['query'],
   }
 
-  async execute(input: unknown, context: ExecutionContext): Promise<SkillResult> {
+  async execute(input: unknown, context: ExecutionContext): Promise<ToolResult> {
     const { query } = input as { query: string }
 
     if (!query || query.trim() === '') {

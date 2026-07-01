@@ -366,9 +366,9 @@ describe("GroqProvider", () => {
       expect((provider as any).model).toBe("env-model");
     });
 
-    it("defaults to llama-3.1-70b-versatile if no model specified", () => {
+    it("defaults to llama-3.3-70b-versatile if no model specified", () => {
       const provider = new GroqProvider({});
-      expect((provider as any).model).toBe("llama-3.1-70b-versatile");
+      expect((provider as any).model).toBe("llama-3.3-70b-versatile");
     });
   });
 });

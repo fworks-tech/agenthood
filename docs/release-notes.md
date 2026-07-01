@@ -5,6 +5,20 @@
 
 ---
 
+## v3.6.0 — July 1, 2026
+
+### 🐛 Bug Fixes
+
+- **Core:** address Warden findings — extract memberLore, refactor run.ts, deduplicate constants, add injection guards
+- **Core:** address Warden findings round 3 — indentation, dead code, boolean naming, nesting, unused dep
+- **Core:** address Warden/Auditor/Reviewer findings round 2
+
+### ✨ Features
+
+- **Core:** rename src/skills to src/tools, add skill discovery infrastructure
+
+---
+
 ## v3.5.3 — July 1, 2026
 
 ### 🐛 Bug Fixes

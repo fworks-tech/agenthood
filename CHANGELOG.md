@@ -1,3 +1,17 @@
+# [3.6.0](https://github.com/fworks-tech/agenthood/compare/v3.5.3...v3.6.0) (2026-07-01)
+
+
+### Bug Fixes
+
+* **core:** address Warden findings — extract memberLore, refactor run.ts, deduplicate constants, add injection guards ([1fda655](https://github.com/fworks-tech/agenthood/commit/1fda6553c7a8769a58ea9c5d967e6d646ba1d6fd))
+* **core:** address Warden findings round 3 — indentation, dead code, boolean naming, nesting, unused dep ([00b5279](https://github.com/fworks-tech/agenthood/commit/00b52793e25cbdfd8cd71bbd40d609bfe95753d0))
+* **core:** address Warden/Auditor/Reviewer findings round 2 ([b5923ed](https://github.com/fworks-tech/agenthood/commit/b5923edee17c538f671a5b51f1b60516696744c7))
+
+
+### Features
+
+* **core:** rename src/skills to src/tools, add skill discovery infrastructure ([e4eed6b](https://github.com/fworks-tech/agenthood/commit/e4eed6bffb1329adb20ab31c1233a2db1fe41738))
+
 ## [3.5.3](https://github.com/fworks-tech/agenthood/compare/v3.5.2...v3.5.3) (2026-07-01)
 
 

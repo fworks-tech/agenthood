@@ -53,24 +53,17 @@ export class MemberAgent extends BaseAgent {
 
   private buildTools(): ITool[] {
     const tools: ITool[] = []
+    const seen = new Set<string>()
 
     for (const toolName of this.spec.tools) {
-      const Ctor = TOOL_MAP[toolName]
-      if (Ctor) {
-        try {
-          const instance = new Ctor() as ITool
-          if (!tools.some((t) => t.name === instance.name)) {
-            tools.push(instance)
-          }
-        } catch {
-          // skip tools that fail to instantiate
-        }
-      }
+      this.addTool(toolName, tools, seen)
     }
 
-    if (this.agentRegistry && !tools.some((t) => t.name === 'delegate_task')) {
+    if (this.agentRegistry && !seen.has('delegate_task')) {
       try {
-        tools.push(new SubagentTaskSkill(this.agentRegistry))
+        const tool = new SubagentTaskSkill(this.agentRegistry)
+        tools.push(tool)
+        seen.add(tool.name)
       } catch {
         // delegation not available
       }
@@ -81,6 +74,24 @@ export class MemberAgent extends BaseAgent {
     }
 
     return tools
+  }
+
+  private addTool(toolName: string, tools: ITool[], seen: Set<string>): void {
+    try {
+      const instance = this.instantiateTool(toolName)
+      if (instance && !seen.has(instance.name)) {
+        tools.push(instance)
+        seen.add(instance.name)
+      }
+    } catch {
+      // skip tools that fail to instantiate
+    }
+  }
+
+  private instantiateTool(toolName: string): ITool | null {
+    const Ctor = TOOL_MAP[toolName]
+    if (!Ctor) return null
+    return new Ctor() as ITool
   }
 
   protected async getSystemPrompt(context: ExecutionContext): Promise<string> {

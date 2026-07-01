@@ -50,6 +50,6 @@ export abstract class BaseAgent {
 
     this.episodeLearner?.learn(evalResult, context).catch(() => {});
 
-    return result
+    return result;
   }
 }

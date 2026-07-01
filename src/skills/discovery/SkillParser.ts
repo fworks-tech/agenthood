@@ -2,13 +2,6 @@ import { readFileSync, existsSync, readdirSync } from 'node:fs'
 import { join } from 'node:path'
 import type { ISkillManifest } from './ISkillManifest.ts'
 
-export class SkillParserError extends Error {
-  constructor(message: string) {
-    super(message)
-    this.name = 'SkillParserError'
-  }
-}
-
 export interface ParsedSkill {
   name: string
   description: string

@@ -2,7 +2,7 @@ import type { ITool, ToolResult } from '../../tools/ITool.ts'
 import type { ExecutionContext } from '../../core/ExecutionContext.ts'
 import type { ISkillManifest } from '../discovery/ISkillManifest.ts'
 
-const SKILL_ACTIVATION_PREFIX = '[SKILL_ACTIVATION]'
+export const SKILL_ACTIVATION_PREFIX = '[SKILL_ACTIVATION]'
 
 export class ActivateSkillTool implements ITool {
   name = 'activate_skill'
@@ -47,12 +47,4 @@ Relative paths in this skill are relative to the skill directory.${resourcesBloc
     return { success: true, output }
   }
 
-  static isSkillActivation(content: string): boolean {
-    return content.startsWith(SKILL_ACTIVATION_PREFIX)
-  }
-
-  static getSkillName(content: string): string | null {
-    const match = content.match(/<skill_content name="([^"]+)">/)
-    return match ? match[1] : null
-  }
 }

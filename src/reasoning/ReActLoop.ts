@@ -5,6 +5,7 @@ import { ContextCompressor } from "../core/ContextCompressor.ts"
 import { ToolRegistry, ToolNotFoundError } from "../tools/ToolRegistry.ts"
 import { ThinkingBudget } from "./ThinkingBudget.ts"
 import { validateSchema, SchemaValidationError } from "../core/SchemaValidator.ts"
+import { SKILL_ACTIVATION_PREFIX } from "../skills/activation/ActivateSkillTool.ts"
 
 export class ToolLoopDetectedError extends Error {
   constructor(toolName: string, count: number) {
@@ -12,8 +13,6 @@ export class ToolLoopDetectedError extends Error {
     this.name = 'ToolLoopDetectedError'
   }
 }
-
-const SKILL_ACTIVATION_PREFIX = '[SKILL_ACTIVATION]'
 
 export class ReActLoop {
   activatedSkills = new Set<string>()

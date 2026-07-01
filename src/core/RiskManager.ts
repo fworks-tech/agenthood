@@ -96,57 +96,48 @@ export class RiskManager {
     const toolName = tool.name.toLowerCase()
     const inputObj = input as Record<string, unknown> || {}
 
-    if (toolName.includes('write') || toolName.includes('refactor')) {
-      const filePath = String(inputObj.path || inputObj.filePath || '')
-      if (filePath) {
-        for (const blocked of this.policy.blockedPaths) {
-          if (matchesGlob(blocked, filePath)) {
-            return {
-              type: 'path',
-              tool: tool.name,
-              reason: `Path "${filePath}" is blocked by pattern "${blocked}"`,
-              input,
-            }
-          }
-        }
+    const pathViolation = this.validatePath(tool, toolName, inputObj, input)
+    if (pathViolation) return pathViolation
 
-        const allowed = this.policy.allowedPaths.some((p) => matchesGlob(p, filePath))
-        if (!allowed) {
-          return {
-            type: 'path',
-            tool: tool.name,
-            reason: `Path "${filePath}" is not in allowed paths: ${this.policy.allowedPaths.join(', ')}`,
-            input,
-          }
-        }
+    return this.validateWeb(tool, toolName, inputObj, input)
+  }
 
-        if (toolName.includes('write') && toolName !== 'writefile') {
-          const content = String(inputObj.content || '')
-          if (content.length > this.policy.maxFileSizeBytes) {
-            return {
-              type: 'filesize',
-              tool: tool.name,
-              reason: `Content size ${content.length} bytes exceeds max ${this.policy.maxFileSizeBytes} bytes`,
-              input,
-            }
-          }
-        }
+  private validatePath(tool: ITool, toolName: string, inputObj: Record<string, unknown>, input: unknown): RiskViolation | null {
+    if (!toolName.includes('write') && !toolName.includes('refactor')) return null
+
+    const filePath = String(inputObj.path || inputObj.filePath || '')
+    if (!filePath) return null
+
+    for (const blocked of this.policy.blockedPaths) {
+      if (matchesGlob(blocked, filePath)) {
+        return { type: 'path', tool: tool.name, reason: `Path "${filePath}" is blocked by pattern "${blocked}"`, input }
       }
     }
 
-    if (toolName.includes('web')) {
-      const url = String(inputObj.url || inputObj.host || '')
-      if (url) {
-        const host = extractHost(url)
-        if (host && !this.policy.allowedHosts.some((h) => matchesGlob(h, host))) {
-          return {
-            type: 'host',
-            tool: tool.name,
-            reason: `Host "${host}" is not in allowed hosts: ${this.policy.allowedHosts.join(', ')}`,
-            input,
-          }
-        }
+    const allowed = this.policy.allowedPaths.some((p) => matchesGlob(p, filePath))
+    if (!allowed) {
+      return { type: 'path', tool: tool.name, reason: `Path "${filePath}" is not in allowed paths: ${this.policy.allowedPaths.join(', ')}`, input }
+    }
+
+    if (toolName.includes('write') && toolName !== 'writefile') {
+      const content = String(inputObj.content || '')
+      if (content.length > this.policy.maxFileSizeBytes) {
+        return { type: 'filesize', tool: tool.name, reason: `Content size ${content.length} bytes exceeds max ${this.policy.maxFileSizeBytes} bytes`, input }
       }
+    }
+
+    return null
+  }
+
+  private validateWeb(tool: ITool, toolName: string, inputObj: Record<string, unknown>, input: unknown): RiskViolation | null {
+    if (!toolName.includes('web')) return null
+
+    const url = String(inputObj.url || inputObj.host || '')
+    if (!url) return null
+
+    const host = extractHost(url)
+    if (host && !this.policy.allowedHosts.some((h) => matchesGlob(h, host))) {
+      return { type: 'host', tool: tool.name, reason: `Host "${host}" is not in allowed hosts: ${this.policy.allowedHosts.join(', ')}`, input }
     }
 
     return null

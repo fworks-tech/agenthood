@@ -28,7 +28,7 @@ Adopters can override the provider via `.agenthood/config.json`:
 
 | Option | Pros | Cons | Why Rejected |
 |--------|------|------|-------------|
-| OpenAI (`gpt-4o-mini`) | Most widely known; extensive docs | No free tier; requires billing account | Fails the zero-cost-to-start requirement |
+| OpenAI (`gpt-5.4-mini`) | Most widely known; extensive docs | No free tier; requires billing account | Fails the zero-cost-to-start requirement |
 | Anthropic (`claude-haiku-4-5`) | Best Society alignment; multimodal | No free tier | Same as OpenAI |
 | Google Gemini (`gemini-flash`) | Free tier available; fast | API surface differs from OpenAI; more adapter code | Groq free tier is faster |
 | Groq (chosen) | Free tier; OpenAI-compatible API; fastest inference | Smaller model selection; rate limits on free tier | — |

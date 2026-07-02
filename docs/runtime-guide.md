@@ -19,13 +19,13 @@ The runtime supports automatic provider failover when a provider fails (rate lim
     },
     {
       "name": "anthropic",
-      "model": "claude-sonnet-4-6",
-      "models": ["claude-sonnet-4-6", "claude-haiku-3-5"],
+      "model": "claude-sonnet-5",
+      "models": ["claude-sonnet-5", "claude-haiku-4-5"],
       "priority": 3
     },
     {
       "name": "groq",
-      "model": "llama-3.1-70b-versatile",
+      "model": "llama-3.3-70b-versatile",
       "priority": 4
     },
     {

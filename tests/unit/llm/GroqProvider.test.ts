@@ -16,47 +16,37 @@ vi.mock("groq-sdk", () => {
   };
 });
 
+function mockResponse(overrides: Record<string, unknown> = {}) {
+  return {
+    choices: [{ message: { content: "response", tool_calls: undefined } }],
+    usage: { prompt_tokens: 1, completion_tokens: 1, total_tokens: 2 },
+    model: "test-model",
+    ...overrides,
+  };
+}
+
 describe("GroqProvider", () => {
   let provider: GroqProvider;
 
   beforeEach(() => {
-    // Reset environment
     delete process.env.GROQ_API_KEY;
     delete process.env.GROQ_DEFAULT_MODEL;
-
-    // Reset mocks
     mockCreate.mockReset();
-
-    // Create provider with test config
     provider = new GroqProvider({ apiKey: "test-key", model: "test-model" });
   });
 
   describe("complete()", () => {
     it("returns LLMResponse with content and usage", async () => {
-      const mockResponse = {
-        choices: [
-          {
-            message: {
-              content: "Hello, world!",
-              tool_calls: undefined,
-            },
-          },
-        ],
-        usage: {
-          prompt_tokens: 10,
-          completion_tokens: 5,
-          total_tokens: 15,
-        },
-        model: "test-model",
-      };
+      mockCreate.mockResolvedValue(
+        mockResponse({
+          choices: [{ message: { content: "Hello, world!", tool_calls: undefined } }],
+          usage: { prompt_tokens: 10, completion_tokens: 5, total_tokens: 15 },
+        }),
+      );
 
-      mockCreate.mockResolvedValue(mockResponse);
-
-      const request: LLMRequest = {
+      const response = await provider.complete({
         messages: [{ role: "user", content: "Hello" }],
-      };
-
-      const response = await provider.complete(request);
+      });
 
       expect(response.content).toBe("Hello, world!");
       expect(response.usage.promptTokens).toBe(10);
@@ -67,91 +57,44 @@ describe("GroqProvider", () => {
     });
 
     it("maps tool calls from Groq format to internal format", async () => {
-      const mockResponse = {
-        choices: [
-          {
-            message: {
-              content: "Using tools",
-              tool_calls: [
-                {
-                  id: "call_123",
-                  function: {
-                    name: "search",
-                    arguments: '{"query":"test"}',
-                  },
-                },
-                {
-                  id: "call_456",
-                  function: {
-                    name: "write_file",
-                    arguments: '{"path":"test.ts","content":"code"}',
-                  },
-                },
-              ],
+      mockCreate.mockResolvedValue(
+        mockResponse({
+          choices: [
+            {
+              message: {
+                content: "Using tools",
+                tool_calls: [
+                  { id: "call_123", function: { name: "search", arguments: '{"query":"test"}' } },
+                  { id: "call_456", function: { name: "write_file", arguments: '{"path":"test.ts","content":"code"}' } },
+                ],
+              },
             },
-          },
-        ],
-        usage: {
-          prompt_tokens: 20,
-          completion_tokens: 10,
-          total_tokens: 30,
-        },
-        model: "test-model",
-      };
+          ],
+          usage: { prompt_tokens: 20, completion_tokens: 10, total_tokens: 30 },
+        }),
+      );
 
-      mockCreate.mockResolvedValue(mockResponse);
-
-      const request: LLMRequest = {
+      const response = await provider.complete({
         messages: [{ role: "user", content: "Use tools" }],
-        tools: [
-          {
-            name: "search",
-            description: "Search for code",
-            inputSchema: { type: "object", properties: {}, required: [] },
-          },
-        ],
-      };
-
-      const response = await provider.complete(request);
+        tools: [{ name: "search", description: "Search for code", inputSchema: { type: "object", properties: {}, required: [] } }],
+      });
 
       expect(response.toolCalls).toHaveLength(2);
-      expect(response.toolCalls?.[0]).toEqual({
-        id: "call_123",
-        name: "search",
-        args: { query: "test" },
-      });
-      expect(response.toolCalls?.[1]).toEqual({
-        id: "call_456",
-        name: "write_file",
-        args: { path: "test.ts", content: "code" },
-      });
+      expect(response.toolCalls?.[0]).toEqual({ id: "call_123", name: "search", args: { query: "test" } });
+      expect(response.toolCalls?.[1]).toEqual({ id: "call_456", name: "write_file", args: { path: "test.ts", content: "code" } });
     });
 
     it("handles empty content from API", async () => {
-      const mockResponse = {
-        choices: [
-          {
-            message: {
-              content: null,
-              tool_calls: undefined,
-            },
-          },
-        ],
-        usage: {
-          prompt_tokens: 5,
-          completion_tokens: 0,
-          total_tokens: 5,
-        },
-        model: "test-model",
-      };
+      mockCreate.mockResolvedValue(
+        mockResponse({
+          choices: [{ message: { content: null, tool_calls: undefined } }],
+          usage: { prompt_tokens: 5, completion_tokens: 0, total_tokens: 5 },
+        }),
+      );
 
-      mockCreate.mockResolvedValue(mockResponse);
-
-      const request: LLMRequest = {
+      const response = await provider.complete({
         messages: [{ role: "user", content: "Test" }],
-      };
-
-      const response = await provider.complete(request);
+      });
 
       expect(response.content).toBe("");
     });
@@ -159,33 +102,17 @@ describe("GroqProvider", () => {
     it("throws error with helpful message on API failure", async () => {
       mockCreate.mockRejectedValue(new Error("API rate limit exceeded"));
 
-      const request: LLMRequest = {
-        messages: [{ role: "user", content: "Test" }],
-      };
-
-      await expect(provider.complete(request)).rejects.toThrow(
-        "GroqProvider.complete() failed: API rate limit exceeded",
-      );
+      await expect(
+        provider.complete({ messages: [{ role: "user", content: "Test" }] }),
+      ).rejects.toThrow("GroqProvider.complete() failed: API rate limit exceeded");
     });
 
     it("passes all request parameters to Groq SDK", async () => {
-      const mockResponse = {
-        choices: [{ message: { content: "response" } }],
-        usage: { prompt_tokens: 1, completion_tokens: 1, total_tokens: 2 },
-        model: "test-model",
-      };
-
-      mockCreate.mockResolvedValue(mockResponse);
+      mockCreate.mockResolvedValue(mockResponse());
 
       const request: LLMRequest = {
         messages: [{ role: "user", content: "Test" }],
-        tools: [
-          {
-            name: "test_tool",
-            description: "A test",
-            inputSchema: { type: "object", properties: {}, required: [] },
-          },
-        ],
+        tools: [{ name: "test_tool", description: "A test", inputSchema: { type: "object", properties: {}, required: [] } }],
         temperature: 0.7,
         maxTokens: 1000,
         top_p: 0.9,
@@ -357,18 +284,18 @@ describe("GroqProvider", () => {
 
     it("uses config.model if provided", () => {
       const provider = new GroqProvider({ model: "custom-model" });
-      expect((provider as any).model).toBe("custom-model");
+      expect(provider.model).toBe("custom-model");
     });
 
     it("falls back to GROQ_DEFAULT_MODEL env var", () => {
       process.env.GROQ_DEFAULT_MODEL = "env-model";
       const provider = new GroqProvider({});
-      expect((provider as any).model).toBe("env-model");
+      expect(provider.model).toBe("env-model");
     });
 
     it("defaults to llama-3.3-70b-versatile if no model specified", () => {
       const provider = new GroqProvider({});
-      expect((provider as any).model).toBe("llama-3.3-70b-versatile");
+      expect(provider.model).toBe("llama-3.3-70b-versatile");
     });
   });
 });

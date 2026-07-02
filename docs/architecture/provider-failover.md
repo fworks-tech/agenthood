@@ -21,9 +21,9 @@ in [`src/llm/providers/`](../src/llm/providers/). Any member can run on any prov
 
 | Provider | Default model | Notes |
 |----------|---------------|-------|
-| **Anthropic** | Claude Sonnet 4.6 | Primary for most members; precise, detailed reasoning |
-| **Groq** | llama-3.1-70b-versatile | Default when no provider is configured; free tier |
-| **OpenAI** | GPT-4o | Broad general capability; fallback for Anthropic |
+| **Anthropic** | Claude Sonnet 5 | Primary for most members; precise, detailed reasoning |
+| **Groq** | llama-3.3-70b-versatile | Default when no provider is configured; free tier |
+| **OpenAI** | GPT-5.4 | Broad general capability; fallback for Anthropic |
 | **Ollama** | Local model (configurable) | Air-gapped / offline use; default for the Doorman |
 
 All providers use a unified `ILLMProvider` interface

@@ -5,6 +5,19 @@
 
 ---
 
+## v3.7.0 — July 2, 2026
+
+### 🐛 Bug Fixes
+
+- **Ci:** update Sentinel to warn on clear-named skills, remove bridge directories
+- **Skills:** add bridge docs/members/ dirs for clear-named skills
+
+### ✨ Features
+
+- **Skills:** add clear-named skill mirrors and shared reference checklists
+
+---
+
 ## v3.6.0 — July 1, 2026
 
 ### 🐛 Bug Fixes

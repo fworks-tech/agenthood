@@ -1,3 +1,16 @@
+# [3.7.0](https://github.com/fworks-tech/agenthood/compare/v3.6.0...v3.7.0) (2026-07-02)
+
+
+### Bug Fixes
+
+* **ci:** update Sentinel to warn on clear-named skills, remove bridge directories ([e76a7d5](https://github.com/fworks-tech/agenthood/commit/e76a7d575a7a041cbc0e7aac973cd453a3e9fb98))
+* **skills:** add bridge docs/members/ dirs for clear-named skills ([ddc45d0](https://github.com/fworks-tech/agenthood/commit/ddc45d0a47bcb2de53b019dbcf13ea4defd29ee5))
+
+
+### Features
+
+* **skills:** add clear-named skill mirrors and shared reference checklists ([a1da6ad](https://github.com/fworks-tech/agenthood/commit/a1da6adc217f161799480439375b39eaeec31094)), closes [#346](https://github.com/fworks-tech/agenthood/issues/346)
+
 # [3.6.0](https://github.com/fworks-tech/agenthood/compare/v3.5.3...v3.6.0) (2026-07-01)
 
 

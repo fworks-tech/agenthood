@@ -36,7 +36,7 @@ const router = new LLMRouter({
   rules: [
     { match: { complexity: 'low',  task: /commit|format|summarize/i }, provider: 'groq',    model: 'llama-3.1-8b-instant' },
     { match: { complexity: 'high', task: /debug|architect|review/i   }, provider: 'groq',    model: 'llama-3.3-70b-versatile' },
-    { match: { complexity: 'high', task: /security|audit/i           }, provider: 'openai',  model: 'gpt-4o' },
+    { match: { complexity: 'high', task: /security|audit/i           }, provider: 'openai',  model: 'gpt-5.4' },
   ],
 });
 
@@ -51,7 +51,7 @@ const costEstimator = new CostEstimator({
   pricing: {
     'groq:llama-3.1-8b-instant':    { input: 0.05,  output: 0.08  },  // per 1M tokens
     'groq:llama-3.3-70b-versatile': { input: 0.59,  output: 0.99  },
-    'openai:gpt-4o':                { input: 2.50,  output: 10.00 },
+    'openai:gpt-5.4':                { input: 2.50,  output: 15.00 },
   },
 });
 
@@ -98,7 +98,7 @@ When a provider fails, the failover chain fires:
 [route] task: code review → complexity: high → groq:llama-3.3-70b-versatile
 [act]   llm.complete(...)
 [fail]  groq: 503 Service Unavailable
-[retry] failover → openai:gpt-4o
+[retry] failover → openai:gpt-5.4
 [act]   llm.complete(...)
 [see]   "Approved — 0 blockers, 2 nits"
 [cost]  input: 1840 tokens, output: 92 tokens, total: $0.00550

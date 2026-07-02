@@ -40,7 +40,7 @@ export class OpenAIProvider implements ILLMProvider {
       apiKey: config.apiKey ?? process.env.OPENAI_API_KEY,
       baseURL: config.baseUrl,
     });
-    this.model = config.model ?? "gpt-4o";
+    this.model = config.model ?? "gpt-5.4";
   }
 
   async complete(request: LLMRequest): Promise<LLMResponse> {

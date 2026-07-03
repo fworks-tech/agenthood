@@ -1,0 +1,74 @@
+{
+  "version": "1",
+  "runtime": "agenthood/agents",
+  "members": [
+    "the-scribe",
+    "the-architect",
+    "the-reviewer",
+    "the-tester",
+    "the-debugger",
+    "the-auditor",
+    "the-herald",
+    "the-librarian",
+    "the-doorman",
+    "the-oracle",
+    "the-envoy",
+    "the-sentinel",
+    "the-warden",
+    "the-steward",
+    "the-strategist",
+    "the-operator"
+  ],
+  "hooks": {
+    "hooksPath": ".husky"
+  },
+  "conventions": {
+    "commitTemplate": ".gitmessage",
+    "commitlintConfig": "commitlint.config.ts"
+  },
+  "providers": [
+    {
+      "name": "opencode",
+      "model": "deepseek-v4-flash",
+      "priority": 1
+    },
+    {
+      "name": "opencode-go",
+      "model": "deepseek-v4-flash",
+      "priority": 2
+    },
+    {
+      "name": "anthropic",
+      "model": "claude-sonnet-5",
+      "priority": 3
+    },
+    {
+      "name": "groq",
+      "model": "llama-3.3-70b-versatile",
+      "priority": 4
+    },
+    {
+      "name": "ollama",
+      "model": "llama3.2",
+      "priority": 5
+    }
+  ],
+  "failover": {
+    "failureThreshold": 3,
+    "cooldownMs": 60000,
+    "probeEnabled": true
+  },
+  "qualityGates": {
+    "typescript": true,
+    "tests": true,
+    "impact": true,
+    "lint": true
+  },
+  "permissions": {
+    "profile": "standard",
+    "overrides": {
+      "the-auditor": "conservative",
+      "the-herald": "elevated"
+    }
+  }
+}

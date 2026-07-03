@@ -15,7 +15,14 @@ dist/
 vscode-extension/.vscode-test/
 
 # Agenthood runtime artifacts
-.agenthood/*
+.agenthood/memory/
+.agenthood/decisions/
+.agenthood/metrics/
+.agenthood/residual.json
+.agenthood/society-graph.json
+.agenthood/preferences.json
+.agenthood/skills/
+!.agenthood/config.json
 !.agenthood/config.example.json
 .claude/scheduled_tasks.lock
 

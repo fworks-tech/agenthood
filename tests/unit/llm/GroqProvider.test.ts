@@ -5,14 +5,25 @@ import type { LLMRequest } from "../../../src/llm/types.ts"
 // Mock the Groq SDK
 const mockCreate = vi.fn();
 vi.mock("groq-sdk", () => {
+  class APIError extends Error {
+    status: number | undefined;
+    headers: Record<string, string> | undefined;
+    error: unknown;
+    constructor(status: number | undefined, message: string) {
+      super(message);
+      this.status = status;
+    }
+  }
   return {
     default: class MockGroq {
+      static APIError = APIError;
       chat = {
         completions: {
           create: mockCreate,
         },
       };
     },
+    APIError,
   };
 });
 
@@ -104,7 +115,7 @@ describe("GroqProvider", () => {
 
       await expect(
         provider.complete({ messages: [{ role: "user", content: "Test" }] }),
-      ).rejects.toThrow("GroqProvider.complete() failed: API rate limit exceeded");
+      ).rejects.toThrow("API rate limit exceeded");
     });
 
     it("passes all request parameters to Groq SDK", async () => {

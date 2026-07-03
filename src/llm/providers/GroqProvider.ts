@@ -1,7 +1,15 @@
 import Groq from "groq-sdk";
 import type { ILLMProvider } from "../ILLMProvider.ts"
 import type { LLMRequest, LLMResponse, LLMChunk, LLMConfig } from "../types.ts"
-import { UnsupportedOperationError } from "../errors.ts"
+import {
+  AuthError,
+  RateLimitedError,
+  TimeoutError,
+  ServiceUnavailableError,
+  ModelNotFoundError,
+  UnsupportedOperationError,
+} from "../errors.ts"
+import { createStreamGenerator } from "./stream-utils.ts"
 
 function validateMessages(messages: LLMRequest["messages"]): Groq.Chat.Completions.ChatCompletionMessageParam[] {
   if (!Array.isArray(messages)) {
@@ -30,20 +38,36 @@ function validateTools(
   return tools as unknown as Groq.Chat.Completions.ChatCompletionTool[];
 }
 
-function parseToolCalls(toolCalls: Groq.Chat.Completions.ChatCompletionMessage["tool_calls"]) {
-  return toolCalls?.map((tc) => {
-    try {
-      return {
-        id: tc.id,
-        name: tc.function.name,
-        args: JSON.parse(tc.function.arguments),
-      };
-    } catch (parseErr) {
-      throw new Error(
-        `Invalid tool call JSON from Groq for ${tc.function.name}: ${parseErr instanceof Error ? parseErr.message : String(parseErr)}`,
-      );
+function parseToolCall(tc: NonNullable<Groq.Chat.Completions.ChatCompletionMessage["tool_calls"]>[number]) {
+  try {
+    return {
+      id: tc.id,
+      name: tc.function.name,
+      args: JSON.parse(tc.function.arguments),
+    };
+  } catch (parseErr) {
+    throw new Error(
+      `Invalid tool call JSON from Groq for ${tc.function.name}: ${parseErr instanceof Error ? parseErr.message : String(parseErr)}`,
+    );
+  }
+}
+
+function mapGroqError(err: unknown, model: string): Error {
+  if (err instanceof Groq.APIError) {
+    const status = err.status
+    if (status === 401) return new AuthError("Groq")
+    if (status === 429) {
+      const retryAfter = parseInt(String((err as any).headers?.["retry-after"] ?? "60"), 10)
+      return new RateLimitedError("Groq", retryAfter)
     }
-  });
+    if (status === 408 || status === 504) return new TimeoutError("Groq")
+    if (status === 404) return new ModelNotFoundError("Groq", model)
+    if (status >= 500) return new ServiceUnavailableError("Groq")
+  }
+  if (err instanceof Error && (err.name === "AbortError" || err.message?.includes("timeout") || err.message?.includes("timed out"))) {
+    return new TimeoutError("Groq")
+  }
+  return err instanceof Error ? err : new Error(String(err))
 }
 
 function parseUsage(usage: { prompt_tokens?: number; completion_tokens?: number; total_tokens?: number } | undefined) {
@@ -88,7 +112,7 @@ export class GroqProvider implements ILLMProvider {
         throw new Error("Groq API returned empty choices array");
       }
 
-      const toolCalls = parseToolCalls(choice.message.tool_calls);
+      const toolCalls = choice.message.tool_calls?.map(parseToolCall);
       const result: LLMResponse = {
         content: choice.message.content ?? "",
         toolCalls,
@@ -105,7 +129,7 @@ export class GroqProvider implements ILLMProvider {
       console.error(
         `[GroqProvider] complete() failed duration=${Date.now() - startTime}ms error=${msg}`,
       );
-      throw new Error(`GroqProvider.complete() failed: ${msg}`);
+      throw mapGroqError(err, this._model);
     }
   }
 
@@ -119,15 +143,10 @@ export class GroqProvider implements ILLMProvider {
       stream: true,
     });
 
-    async function* generate(): AsyncGenerator<LLMChunk> {
-      for await (const chunk of stream as unknown as AsyncIterable<Groq.Chat.Completions.ChatCompletionChunk>) {
-        const delta = chunk.choices[0]?.delta?.content ?? "";
-        yield { delta, done: false };
-      }
-      yield { delta: "", done: true };
-    }
-
-    return generate();
+    return createStreamGenerator(
+      stream as unknown as AsyncIterable<Groq.Chat.Completions.ChatCompletionChunk>,
+      (chunk) => chunk.choices[0]?.delta?.content ?? "",
+    );
   }
 
   private buildCommonParams(request: LLMRequest) {

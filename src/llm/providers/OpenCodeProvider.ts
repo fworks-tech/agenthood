@@ -5,32 +5,11 @@ import type {
   LLMResponse,
   LLMChunk,
   LLMConfig,
-  ToolCall,
 } from "../types.ts"
 import { UnsupportedOperationError } from "../errors.ts"
-
-function parseToolCall(
-  tc: OpenAI.Chat.ChatCompletionMessageToolCall,
-): ToolCall {
-  if (tc.type === "function") {
-    try {
-      return {
-        id: tc.id,
-        name: tc.function.name,
-        args: JSON.parse(tc.function.arguments),
-      };
-    } catch (parseErr) {
-      throw new Error(
-        `Invalid tool call JSON from OpenCode for ${tc.function.name}: ${parseErr instanceof Error ? parseErr.message : String(parseErr)}`,
-      );
-    }
-  }
-  return {
-    id: tc.id,
-    name: tc.custom.name,
-    args: tc.custom.input,
-  };
-}
+import { createStreamGenerator } from "./stream-utils.ts"
+import { validateMessages, parseToolCall } from "./validation.ts"
+import { mapProviderError } from "./provider-errors.ts"
 
 function toOpenAIMessages(
   messages: LLMRequest["messages"],
@@ -41,7 +20,6 @@ function toOpenAIMessages(
       content: msg.content,
     }
 
-    // Convert toolCalls (camelCase) -> tool_calls (snake_case) for OpenAI SDK
     if (msg.toolCalls && msg.toolCalls.length > 0) {
       base.tool_calls = msg.toolCalls.map((tc) => ({
         id: tc.id,
@@ -53,12 +31,10 @@ function toOpenAIMessages(
       }))
     }
 
-    // Pass through tool_call_id for tool result messages
     if (msg.tool_call_id) {
       base.tool_call_id = msg.tool_call_id
     }
 
-    // Pass through name
     if (msg.name) {
       base.name = msg.name
     }
@@ -81,6 +57,8 @@ export class OpenCodeProvider implements ILLMProvider {
 
   async complete(request: LLMRequest): Promise<LLMResponse> {
     try {
+      validateMessages(request.messages);
+
       const openaiTools = request.tools?.map((t) => ({
         type: "function" as const,
         function: {
@@ -101,7 +79,9 @@ export class OpenCodeProvider implements ILLMProvider {
 
       const choice = response.choices[0];
       const message = choice.message;
-      const toolCalls = message.tool_calls?.map(parseToolCall);
+      const toolCalls = message.tool_calls?.map(
+        (tc) => parseToolCall(tc as any, "OpenCode"),
+      );
 
       return {
         content: message.content ?? "",
@@ -115,11 +95,13 @@ export class OpenCodeProvider implements ILLMProvider {
       };
     } catch (err) {
       const msg = err instanceof Error ? err.message : String(err);
-      throw new Error(`OpenCodeProvider.complete() failed: ${msg}`);
+      throw mapProviderError(err, "OpenCode", this.model);
     }
   }
 
   async stream(request: LLMRequest): Promise<AsyncGenerator<LLMChunk>> {
+    validateMessages(request.messages);
+
     const stream = await this.client.chat.completions.create({
       model: this.model,
       messages: toOpenAIMessages(request.messages),
@@ -128,15 +110,10 @@ export class OpenCodeProvider implements ILLMProvider {
       stream: true,
     });
 
-    async function* generate(): AsyncGenerator<LLMChunk> {
-      for await (const chunk of stream as unknown as AsyncIterable<OpenAI.Chat.ChatCompletionChunk>) {
-        const delta = chunk.choices[0]?.delta?.content ?? "";
-        yield { delta, done: false };
-      }
-      yield { delta: "", done: true };
-    }
-
-    return generate();
+    return createStreamGenerator(
+      stream as unknown as AsyncIterable<OpenAI.Chat.ChatCompletionChunk>,
+      (chunk) => chunk.choices[0]?.delta?.content ?? "",
+    );
   }
 
   getContextWindow(): number {

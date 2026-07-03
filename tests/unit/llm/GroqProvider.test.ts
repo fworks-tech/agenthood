@@ -75,8 +75,8 @@ describe("GroqProvider", () => {
               message: {
                 content: "Using tools",
                 tool_calls: [
-                  { id: "call_123", function: { name: "search", arguments: '{"query":"test"}' } },
-                  { id: "call_456", function: { name: "write_file", arguments: '{"path":"test.ts","content":"code"}' } },
+                  { id: "call_123", type: "function", function: { name: "search", arguments: '{"query":"test"}' } },
+                  { id: "call_456", type: "function", function: { name: "write_file", arguments: '{"path":"test.ts","content":"code"}' } },
                 ],
               },
             },
@@ -216,6 +216,7 @@ describe("GroqProvider", () => {
               tool_calls: [
                 {
                   id: "call_1",
+                  type: "function",
                   function: {
                     name: "test_tool",
                     arguments: "invalid json {",

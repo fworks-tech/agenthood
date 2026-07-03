@@ -1,3 +1,15 @@
+# [3.8.0](https://github.com/fworks-tech/agenthood/compare/v3.7.0...v3.8.0) (2026-07-03)
+
+
+### Bug Fixes
+
+* **ci:** track .agenthood/config.json for CI agent analysis ([a94f29d](https://github.com/fworks-tech/agenthood/commit/a94f29df72f1becafbdc9d25ae6d6928e5ec51f0))
+
+
+### Features
+
+* **skills:** add 16 platform integration skills (CLI-focused) ([8723cc0](https://github.com/fworks-tech/agenthood/commit/8723cc0f7cf8d26d7231a6e61fb97e3f66451f43)), closes [#348](https://github.com/fworks-tech/agenthood/issues/348)
+
 # [3.7.0](https://github.com/fworks-tech/agenthood/compare/v3.6.0...v3.7.0) (2026-07-02)
 
 

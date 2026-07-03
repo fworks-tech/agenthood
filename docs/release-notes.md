@@ -5,6 +5,18 @@
 
 ---
 
+## v3.8.0 — July 3, 2026
+
+### 🐛 Bug Fixes
+
+- **Ci:** track .agenthood/config.json for CI agent analysis
+
+### ✨ Features
+
+- **Skills:** add 16 platform integration skills (CLI-focused)
+
+---
+
 ## v3.7.0 — July 2, 2026
 
 ### 🐛 Bug Fixes

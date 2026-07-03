@@ -37,7 +37,7 @@ export class GroqProvider implements ILLMProvider {
       }
 
       const toolCalls = choice.message.tool_calls?.map(
-        (tc) => parseToolCall(tc as any, "Groq"),
+        (tc) => parseToolCall(tc, "Groq"),
       );
       const result: LLMResponse = {
         content: choice.message.content ?? "",

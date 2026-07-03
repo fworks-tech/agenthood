@@ -39,7 +39,7 @@ export class OpenAIProvider implements ILLMProvider {
       const choice = response.choices[0];
       const message = choice.message;
       const toolCalls = message.tool_calls?.map(
-        (tc) => parseToolCall(tc as any, "OpenAI"),
+        (tc) => parseToolCall(tc, "OpenAI"),
       );
 
       return {

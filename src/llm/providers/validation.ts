@@ -30,23 +30,26 @@ export function validateTools<T>(
 }
 
 export function parseToolCall(
-  tc: { id: string; type: string; function: { name: string; arguments: string } },
+  tc: { id: string; type: string; function?: { name: string; arguments: string }; custom?: { name: string; input: unknown } },
   providerName: string,
 ): ToolCall {
-  if (tc.type !== "function") {
-    throw new Error(`Unknown tool call type: ${tc.type}`);
+  if (tc.type === "function" && tc.function) {
+    try {
+      return {
+        id: tc.id,
+        name: tc.function.name,
+        args: JSON.parse(tc.function.arguments),
+      };
+    } catch (parseErr) {
+      throw new Error(
+        `Invalid tool call JSON from ${providerName} for ${tc.function.name}: ${parseErr instanceof Error ? parseErr.message : String(parseErr)}`,
+      );
+    }
   }
-  try {
-    return {
-      id: tc.id,
-      name: tc.function.name,
-      args: JSON.parse(tc.function.arguments),
-    };
-  } catch (parseErr) {
-    throw new Error(
-      `Invalid tool call JSON from ${providerName} for ${tc.function.name}: ${parseErr instanceof Error ? parseErr.message : String(parseErr)}`,
-    );
+  if (tc.custom) {
+    return { id: tc.id, name: tc.custom.name, args: tc.custom.input };
   }
+  throw new Error(`Unknown tool call type: ${tc.type}`);
 }
 
 export function parseUsage(usage: {

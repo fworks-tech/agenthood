@@ -207,4 +207,126 @@ describe('EpisodeLearner', () => {
     await expect(learner.learn(evalResult, context)).resolves.toBeUndefined()
     expect(mockLongTerm.store).toHaveBeenCalledOnce()
   })
+
+  it('uses existing pattern key when matcher finds a semantic match', async () => {
+    const { SemanticPatternMatcher } = await import('../../../src/evals/SemanticPatternMatcher.js')
+    const { EpisodeLearner } = await import('../../../src/evals/EpisodeLearner.js')
+    const { hashPattern } = await import('../../../src/utils/hash.js')
+
+    const mockVecStore = {
+      connect: vi.fn(),
+      add: vi.fn(),
+      search: vi.fn(),
+      delete: vi.fn(),
+      stats: vi.fn(),
+      getById: vi.fn(),
+      getByKeyPrefix: vi.fn().mockResolvedValue([
+        {
+          id: 'pattern:existing',
+          vector: [1, 0, 0],
+          content: JSON.stringify({
+            pattern: 'learned:architect:write-code:implemented auth middleware',
+            score: 0.9,
+            member: 'architect',
+            skill: 'write-code',
+          }),
+          metadata: {},
+          createdAt: new Date(),
+        },
+      ]),
+    }
+
+    const matcher = new SemanticPatternMatcher(mockVecStore, 0.85)
+    await matcher.initialize()
+
+    const learner = new EpisodeLearner(mockResidual, matcher)
+
+    context = createTestContext({
+      memory: {
+        ...createTestContext().memory,
+        longTerm: mockLongTerm,
+        episodic: {
+          record: vi.fn(),
+          recall: vi.fn(),
+          getEpisode: vi.fn().mockResolvedValue({
+            episode: 'implemented auth middleware',
+            outcome: 'success',
+            timestamp: new Date().toISOString(),
+          }),
+        },
+      },
+    })
+
+    const evalResult: EvalResult = {
+      episodeId: 'ep-semantic-1',
+      scores: { faithfulness: 0.95 },
+      metadata: { member: 'architect', skill: 'write-code' },
+    }
+
+    await learner.learn(evalResult, context)
+
+    expect(mockLongTerm.store).toHaveBeenCalledOnce()
+    const [key] = vi.mocked(mockLongTerm.store).mock.calls[0]
+    expect(key).toBe(`learnings/${hashPattern('learned:architect:write-code:implemented auth middleware')}`)
+  })
+
+  it('falls back to hash-based matching and adds pattern when matcher finds no match', async () => {
+    const { SemanticPatternMatcher } = await import('../../../src/evals/SemanticPatternMatcher.js')
+    const { EpisodeLearner } = await import('../../../src/evals/EpisodeLearner.js')
+
+    const mockVecStore = {
+      connect: vi.fn(),
+      add: vi.fn(),
+      search: vi.fn(),
+      delete: vi.fn(),
+      stats: vi.fn(),
+      getById: vi.fn(),
+      getByKeyPrefix: vi.fn().mockResolvedValue([
+        {
+          id: 'pattern:unrelated',
+          vector: [1, 0, 0],
+          content: JSON.stringify({
+            pattern: 'learned:other:skill:completely different episode',
+            score: 0.9,
+            member: 'other',
+            skill: 'skill',
+          }),
+          metadata: {},
+          createdAt: new Date(),
+        },
+      ]),
+    }
+
+    const matcher = new SemanticPatternMatcher(mockVecStore, 0.85)
+    await matcher.initialize()
+
+    const learner = new EpisodeLearner(mockResidual, matcher)
+
+    context = createTestContext({
+      memory: {
+        ...createTestContext().memory,
+        longTerm: mockLongTerm,
+        episodic: {
+          record: vi.fn(),
+          recall: vi.fn(),
+          getEpisode: vi.fn().mockResolvedValue({
+            episode: 'brand new episode topic',
+            outcome: 'success',
+            timestamp: new Date().toISOString(),
+          }),
+        },
+      },
+    })
+
+    const evalResult: EvalResult = {
+      episodeId: 'ep-semantic-2',
+      scores: { relevance: 0.92 },
+      metadata: { member: 'developer', skill: 'test' },
+    }
+
+    await learner.learn(evalResult, context)
+
+    expect(mockLongTerm.store).toHaveBeenCalledOnce()
+    expect(mockVecStore.add).toHaveBeenCalledOnce()
+  })
 })

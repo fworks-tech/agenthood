@@ -1,2 +1,5 @@
-export { EpisodeLearner } from "./EpisodeLearner.ts"
-export type { LearningOutcome } from "./EpisodeLearner.ts"
+export { EpisodeLearner } from "./EpisodeLearner.js"
+export type { LearningOutcome } from "./EpisodeLearner.js"
+export { SemanticPatternMatcher } from "./SemanticPatternMatcher.js"
+export type { StoredPattern, MatchResult } from "./SemanticPatternMatcher.js"
+export { hashPattern } from "../utils/hash.js"

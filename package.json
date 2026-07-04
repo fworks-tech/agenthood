@@ -87,16 +87,16 @@
     "node": ">=22.14.0"
   },
   "dependencies": {
-    "@anthropic-ai/sdk": "^0.105.0",
-    "@lancedb/lancedb": "^0.30.0",
+    "@anthropic-ai/sdk": "0.105.0",
+    "@lancedb/lancedb": "0.30.0",
     "ajv": "^8.20.0",
     "dotenv": "^17.4.2",
     "groq-sdk": "1.2.1",
     "openai": "^6.44.0",
-    "tree-sitter": "^0.21.1",
-    "tree-sitter-go": "^0.23.2",
-    "tree-sitter-python": "^0.23.2",
-    "tree-sitter-typescript": "^0.23.2"
+    "tree-sitter": "0.21.1",
+    "tree-sitter-go": "0.23.2",
+    "tree-sitter-python": "0.23.2",
+    "tree-sitter-typescript": "0.23.2"
   },
   "allowScripts": {
     "esbuild@0.28.1": true

@@ -1,3 +1,12 @@
+## [3.8.1](https://github.com/fworks-tech/agenthood/compare/v3.8.0...v3.8.1) (2026-07-04)
+
+
+### Bug Fixes
+
+* **groq:** add error mapping, shared stream utils, and OpenAIProvider validation ([25b9a46](https://github.com/fworks-tech/agenthood/commit/25b9a4666fb5741d5c355e5427bbdaaa1a1edde0))
+* **groq:** resolve all Auditor, Warden, and Reviewer findings in GroqProvider ([b459223](https://github.com/fworks-tech/agenthood/commit/b4592235f1ebafbcf14bbc8e7d42e5c8f077eb4f)), closes [#324](https://github.com/fworks-tech/agenthood/issues/324)
+* **providers:** restore custom tool call handling in shared parseToolCall ([e38812b](https://github.com/fworks-tech/agenthood/commit/e38812bafc462e2d465cdc8aa8924445aaa90f55)), closes [#350](https://github.com/fworks-tech/agenthood/issues/350)
+
 # [3.8.0](https://github.com/fworks-tech/agenthood/compare/v3.7.0...v3.8.0) (2026-07-03)
 
 

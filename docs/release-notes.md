@@ -5,6 +5,16 @@
 
 ---
 
+## v3.8.1 — July 4, 2026
+
+### 🐛 Bug Fixes
+
+- **Groq:** add error mapping, shared stream utils, and OpenAIProvider validation
+- **Groq:** resolve all Auditor, Warden, and Reviewer findings in GroqProvider
+- **Providers:** restore custom tool call handling in shared parseToolCall
+
+---
+
 ## v3.8.0 — July 3, 2026
 
 ### 🐛 Bug Fixes

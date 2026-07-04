@@ -89,6 +89,7 @@ agenthood/
 │   ├── reviewer.yml                 ← The Reviewer — LLM commit review on every push
 │   ├── herald.yml                   ← The Herald — CI summary comment on PRs
 │   ├── semantic-release.yml         ← The Herald — automated release + npm publish
+│   ├── commitlint.yml               ← The Doorman — standalone commitlint CI for target projects
 │   ├── vscode-extension.yml         ← The Envoy — build and test VS Code extension
 │   ├── publish-vsce.yml             ← The Envoy — publish VSIX to Marketplace
 │   └── distribution.yml             ← The Envoy — Skills.sh, SkillsMP, traction badges

@@ -12,14 +12,15 @@ interface CheckResult {
 }
 
 export async function check(): Promise<void> {
-  const results = collectConventionResults();
+  const results: CheckResult[] = [];
+  collectConfigChecks(results);
   collectMemoryResults(results);
+  collectRagChecks(results);
   printReport(results);
 }
 
-function collectConventionResults(): CheckResult[] {
+function collectConfigChecks(results: CheckResult[]): void {
   const cwd = process.cwd();
-  const results: CheckResult[] = [];
 
   const file = (label: string, path: string) =>
     results.push({ label, passed: existsSync(join(cwd, path)) });
@@ -52,12 +53,16 @@ function collectConventionResults(): CheckResult[] {
   file('AGENTS.md present', 'AGENTS.md');
 
   collectApiKeyResult(cwd, results);
+}
+
+function collectRagChecks(results: CheckResult[]): void {
+  const cwd = process.cwd();
+  const file = (label: string, path: string) =>
+    results.push({ label, passed: existsSync(join(cwd, path)) });
 
   file('LanceDB vector store initialized', '.agenthood/memory');
   file('Residual memory traces found', '.agenthood/residual.json');
   file('Knowledge graph found', '.agenthood/society-graph.json');
-
-  return results;
 }
 
 function collectMemoryResults(results: CheckResult[]): void {

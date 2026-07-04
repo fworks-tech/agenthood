@@ -1,4 +1,4 @@
-import type { EvalResult, LongTermMemory } from "../core/types.ts"
+import type { EvalResult } from "../core/types.ts"
 import type { ExecutionContext } from "../core/ExecutionContext.ts"
 import type { ResidualMemory } from "../memory/ResidualMemory.ts"
 import type { SemanticPatternMatcher } from "./SemanticPatternMatcher.ts"
@@ -47,10 +47,11 @@ export class EpisodeLearner {
     const skill = evalResult.metadata?.skill ?? "unknown"
     const avgScore = this.averageScore(evalResult.scores)
 
+    const data = { episode: episode.episode, score: avgScore, member, skill }
     if (avgScore >= HIGH_SCORE_THRESHOLD) {
-      await this.handleHighScore(episode, avgScore, member, skill, context.memory.longTerm, context)
+      await this.storeOutcome('learned', data, context)
     } else if (avgScore < LOW_SCORE_THRESHOLD) {
-      await this.handleLowScore(episode, avgScore, member, skill, context.memory.longTerm, context)
+      await this.storeOutcome('antipattern', data, context)
     } else {
       context.tracer.endSpan("episode-learner", {
         action: "skip",
@@ -66,59 +67,34 @@ export class EpisodeLearner {
     return values.reduce((a, b) => a + b, 0) / values.length
   }
 
-  private async handleHighScore(
-    episode: { episode: string; outcome: string; timestamp: string },
-    score: number,
-    member: string,
-    skill: string,
-    longTerm: LongTermMemory,
-    context?: ExecutionContext,
+  private async storeOutcome(
+    kind: 'learned' | 'antipattern',
+    data: { episode: string; score: number; member: string; skill: string },
+    context: ExecutionContext,
   ): Promise<void> {
-    const pattern = `learned:${member}:${skill}:${episode.episode}`
-    const outcome: LearningOutcome = { pattern, score, member, skill }
+    const isLearned = kind === 'learned'
+    const prefix = isLearned ? 'learned' : 'antipattern'
+    const storeKey = isLearned ? 'learnings' : 'antipatterns'
+    const pattern = `${prefix}:${data.member}:${data.skill}:${data.episode}`
+    const outcome: LearningOutcome = {
+      pattern,
+      score: isLearned ? data.score : 1 - data.score,
+      member: data.member,
+      skill: data.skill,
+    }
+    const longTerm = context.memory.longTerm
 
-    if (this.matcher && context?.llm) {
-      const matched = await this.matcher.match(episode.episode, context.llm)
+    if (this.matcher && context.llm) {
+      const matched = await this.matcher.match(data.episode, context.llm)
       if (matched) {
-        const key = `learnings/${hashPattern(matched.outcome.pattern)}`
-        await longTerm.store(key, outcome)
-        this.residualMemory?.record(matched.outcome.pattern, score)
+        await longTerm.store(`${storeKey}/${hashPattern(matched.outcome.pattern)}`, outcome)
+        this.residualMemory?.record(matched.outcome.pattern, isLearned ? data.score : -data.score)
         return
       }
       await this.matcher.addPattern(outcome, context.llm)
     }
 
-    const key = `learnings/${hashPattern(pattern)}`
-    await longTerm.store(key, outcome)
-
-    this.residualMemory?.record(pattern, score)
-  }
-
-  private async handleLowScore(
-    episode: { episode: string; outcome: string; timestamp: string },
-    score: number,
-    member: string,
-    skill: string,
-    longTerm: LongTermMemory,
-    context?: ExecutionContext,
-  ): Promise<void> {
-    const pattern = `antipattern:${member}:${skill}:${episode.episode}`
-    const outcome: LearningOutcome = { pattern, score: 1 - score, member, skill }
-
-    if (this.matcher && context?.llm) {
-      const matched = await this.matcher.match(episode.episode, context.llm)
-      if (matched) {
-        const key = `antipatterns/${hashPattern(matched.outcome.pattern)}`
-        await longTerm.store(key, outcome)
-        this.residualMemory?.record(matched.outcome.pattern, -score)
-        return
-      }
-      await this.matcher.addPattern(outcome, context.llm)
-    }
-
-    const key = `antipatterns/${hashPattern(pattern)}`
-    await longTerm.store(key, outcome)
-
-    this.residualMemory?.record(pattern, -score)
+    await longTerm.store(`${storeKey}/${hashPattern(pattern)}`, outcome)
+    this.residualMemory?.record(pattern, isLearned ? data.score : -data.score)
   }
 }

@@ -297,7 +297,7 @@ async function indexSociety(cwd: string): Promise<void> {
   const vectorStore = new LanceDBStore(1536)
   const memoryPath = join(cwd, '.agenthood', 'memory')
   if (existsSync(memoryPath)) {
-    try { await vectorStore.connect(memoryPath) } catch {}
+    try { await vectorStore.connect(memoryPath) } catch { console.warn('[init] vector store unavailable for seeding') }
   }
 
   let embedder: ILLMProvider | undefined
@@ -306,7 +306,7 @@ async function indexSociety(cwd: string): Promise<void> {
     if (existsSync(configPath)) {
       embedder = await LLMRouter.create(JSON.parse(readFileSync(configPath, 'utf8')) as LLMConfig)
     }
-  } catch {}
+  } catch { console.warn('[init] embedder not available — skipping vector seeding') }
 
   const indexer = new SocietyIndexer({
     basePath,

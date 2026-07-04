@@ -1,3 +1,10 @@
+# [3.9.0](https://github.com/fworks-tech/agenthood/compare/v3.8.2...v3.9.0) (2026-07-04)
+
+
+### Features
+
+* fix vector store crash, seed during init, add semantic pattern matcher ([a79a0ef](https://github.com/fworks-tech/agenthood/commit/a79a0ef50eaed385c1f6d7db95e4bee361c1aa07)), closes [#354](https://github.com/fworks-tech/agenthood/issues/354) [#312](https://github.com/fworks-tech/agenthood/issues/312) [#354](https://github.com/fworks-tech/agenthood/issues/354) [#312](https://github.com/fworks-tech/agenthood/issues/312)
+
 ## [3.8.2](https://github.com/fworks-tech/agenthood/compare/v3.8.1...v3.8.2) (2026-07-04)
 
 

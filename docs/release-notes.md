@@ -5,6 +5,14 @@
 
 ---
 
+## v3.9.0 — July 4, 2026
+
+### ✨ Features
+
+- fix vector store crash, seed during init, add semantic pattern matcher #312 #354 #312
+
+---
+
 ## v3.8.2 — July 4, 2026
 
 ### 🐛 Bug Fixes

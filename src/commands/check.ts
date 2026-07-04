@@ -6,7 +6,8 @@
  */
 
 import { existsSync, readFileSync } from 'node:fs';
-import { join } from 'node:path';
+import { join, dirname } from 'node:path';
+import { fileURLToPath } from 'node:url';
 import { execSync } from 'node:child_process';
 import { MEMBER_NAMES, resolveSkillsDir } from '../members.js';
 import { validateApiKeys } from '../llm/validateApiKeys.js';
@@ -21,9 +22,13 @@ interface CheckResult {
 export async function check(): Promise<void> {
   const cwd = process.cwd();
   const results: CheckResult[] = [];
+  const PKG_ROOT = join(dirname(fileURLToPath(import.meta.url)), '..', '..');
 
   const file = (label: string, path: string) =>
     results.push({ label, pass: existsSync(join(cwd, path)) });
+
+  const pkgFile = (label: string, relPath: string) =>
+    results.push({ label, pass: existsSync(join(PKG_ROOT, relPath)) });
 
   const cmd = (label: string, command: string) => {
     try {
@@ -106,15 +111,15 @@ export async function check(): Promise<void> {
   file('Knowledge graph found', '.agenthood/society-graph.json');
 
   // Memory tiers
-  file('ShortTermMemory available', 'src/memory/ShortTermMemory.ts');
-  file('LongTermMemory available', 'src/memory/LongTermMemory.ts');
-  file('EpisodicMemory available', 'src/memory/EpisodicMemory.ts');
-  file('ProjectMemory available', 'src/memory/ProjectMemory.ts');
+  pkgFile('ShortTermMemory available', 'dist/memory/ShortTermMemory.js');
+  pkgFile('LongTermMemory available', 'dist/memory/LongTermMemory.js');
+  pkgFile('EpisodicMemory available', 'dist/memory/EpisodicMemory.js');
+  pkgFile('ProjectMemory available', 'dist/memory/ProjectMemory.js');
 
   // RAG pipeline
-  file('RAG Indexer available', 'src/rag/Indexer.ts');
-  file('RAG Retriever available', 'src/rag/Retriever.ts');
-  file('Chunk strategy configured', 'src/rag/ChunkStrategy.ts');
+  pkgFile('RAG Indexer available', 'dist/rag/Indexer.js');
+  pkgFile('RAG Retriever available', 'dist/rag/Retriever.js');
+  pkgFile('Chunk strategy configured', 'dist/rag/ChunkStrategy.js');
 
   // Report
   const passing = results.filter((r) => r.pass).length;

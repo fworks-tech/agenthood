@@ -124,11 +124,11 @@ function prompt(question: string): Promise<string> {
 
 async function installConventions(cwd: string): Promise<void> {
   await safeCopy(
-    join(SOCIETY_ROOT, 'conventions', '.gitmessage'),
+    join(SOCIETY_ROOT, 'docs', 'conventions', '.gitmessage'),
     join(cwd, '.gitmessage'),
   )
   await safeCopy(
-    join(SOCIETY_ROOT, 'conventions', 'commitlint.config.ts'),
+    join(SOCIETY_ROOT, 'docs', 'conventions', 'commitlint.config.ts'),
     join(cwd, 'commitlint.config.ts'),
   )
 }
@@ -162,7 +162,7 @@ async function installGitHubTemplates(cwd: string): Promise<void> {
   await safeWrite(join(issueTemplateDir, 'bug_report.md'), BUG_TEMPLATE)
   await safeWrite(join(issueTemplateDir, 'feature_request.md'), FEATURE_TEMPLATE)
   await safeCopy(
-    join(SOCIETY_ROOT, 'conventions', 'COMMIT_CONVENTION.md'),
+    join(SOCIETY_ROOT, 'docs', 'conventions', 'COMMIT_CONVENTION.md'),
     join(githubDir, 'COMMIT_CONVENTION.md'),
   )
 }
@@ -190,7 +190,7 @@ async function installSkills(cwd: string, runtime: Runtime, members: string[]): 
   await mkdir(skillsDest, { recursive: true })
 
   for (const member of members) {
-    const src = join(SOCIETY_ROOT, 'members', member, 'SKILL.md')
+    const src = join(SOCIETY_ROOT, 'docs', 'members', member, 'SKILL.md')
     if (!existsSync(src)) continue
     const destDir = join(skillsDest, member)
     await mkdir(destDir, { recursive: true })

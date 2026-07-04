@@ -85,14 +85,14 @@ agenthood/
 ├── .github/                          ← CI and contribution automation
 │   ├── actions/agent-analysis/        ← Shared composite action for LLM agent checks in CI
 │   └── workflows/                     ← CI enforcement
-│   ├── pr.yml                       ← The Doorman, Auditor, Scribe, Warden, Librarian, Sentinel, Tester — PR standards (7 checks merged)
-│   ├── reviewer.yml                 ← The Reviewer — LLM commit review on every push
-│   ├── herald.yml                   ← The Herald — CI summary comment on PRs
-│   ├── semantic-release.yml         ← The Herald — automated release + npm publish
 │   ├── commitlint.yml               ← The Doorman — standalone commitlint CI for target projects
-│   ├── vscode-extension.yml         ← The Envoy — build and test VS Code extension
+│   ├── distribution.yml             ← The Envoy — Skills.sh, SkillsMP, traction badges
+│   ├── herald.yml                   ← The Herald — CI summary comment on PRs
+│   ├── pr.yml                       ← The Doorman, Auditor, Scribe, Warden, Librarian, Sentinel, Tester — PR standards (7 checks merged)
 │   ├── publish-vsce.yml             ← The Envoy — publish VSIX to Marketplace
-│   └── distribution.yml             ← The Envoy — Skills.sh, SkillsMP, traction badges
+│   ├── reviewer.yml                 ← The Reviewer — LLM commit review on every push
+│   ├── semantic-release.yml         ← The Herald — automated release + npm publish
+│   └── vscode-extension.yml         ← The Envoy — build and test VS Code extension
 │
 ├── .githooks/                       ← Local git hook enforcement
 │   ├── commit-msg                   ← Validates commit message format

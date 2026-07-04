@@ -128,7 +128,7 @@ The minimal config created by `init` looks like:
   "version": "1",
   "runtime": "claude-code",
   "members": ["the-scribe", "the-architect", "the-reviewer", "..."],
-  "hooks": { "hooksPath": ".husky" },
+  "hooks": { "hooksPath": ".githooks" },
   "conventions": {
     "commitTemplate": ".gitmessage",
     "commitlintConfig": "commitlint.config.ts"

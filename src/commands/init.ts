@@ -21,6 +21,7 @@ import { KnowledgeGraphStore } from '../rag/KnowledgeGraphStore.js'
 import { PersonalisationStore } from '../memory/PersonalisationStore.js'
 import { LanceDBStore } from '../memory/VectorStore.js'
 import { ResidualMemory } from '../memory/ResidualMemory.js'
+import { PR_TEMPLATE, BUG_TEMPLATE, FEATURE_TEMPLATE } from '../templates/index.js'
 
 const __dirname = dirname(fileURLToPath(import.meta.url))
 const SOCIETY_ROOT = join(__dirname, '..', '..')
@@ -39,7 +40,7 @@ export async function init(): Promise<void> {
 
   const steps: Array<[string, () => Promise<void>]> = [
     ['Conventions', () => installConventions(cwd)],
-    ['Git hooks (Husky)', () => installHooks(cwd)],
+    ['Git hooks', () => installHooks(cwd)],
     ['GitHub templates', () => installGitHubTemplates(cwd)],
     ['CI workflows', () => installWorkflows(cwd)],
     ['Member skills', () => installSkills(cwd, runtime, members)],
@@ -134,21 +135,22 @@ async function installConventions(cwd: string): Promise<void> {
 }
 
 async function installHooks(cwd: string): Promise<void> {
-  execSync('npm install --save-dev husky @commitlint/cli @commitlint/config-conventional', {
+  execSync('npm install --save-dev @commitlint/cli @commitlint/config-conventional', {
     cwd,
     stdio: 'pipe',
   })
-  execSync('npx husky init', { cwd, stdio: 'pipe' })
 
-  const huskyDir = join(cwd, '.husky')
+  const hooksDir = join(cwd, '.githooks')
+  await mkdir(hooksDir, { recursive: true })
   await safeWrite(
-    join(huskyDir, 'commit-msg'),
+    join(hooksDir, 'commit-msg'),
     'npx --no -- commitlint --edit $1\n',
   )
   await safeWrite(
-    join(huskyDir, 'pre-push'),
+    join(hooksDir, 'pre-push'),
     '# Run tests before push\nnpm test\n',
   )
+  execSync('git config core.hooksPath .githooks', { cwd, stdio: 'pipe' })
 }
 
 async function installGitHubTemplates(cwd: string): Promise<void> {
@@ -227,7 +229,7 @@ async function scaffoldConfig(cwd: string, runtime: Runtime, members: string[]):
       version: '1',
       runtime,
       members,
-      hooks: { hooksPath: '.husky' },
+      hooks: { hooksPath: '.githooks' },
       conventions: { commitTemplate: '.gitmessage', commitlintConfig: 'commitlint.config.ts' },
     }
     await writeFile(configPath, JSON.stringify(config, null, 2) + '\n', 'utf8')
@@ -317,73 +319,4 @@ async function safeWrite(dest: string, content: string): Promise<void> {
   await writeFile(dest, content, 'utf8')
 }
 
-const PR_TEMPLATE = `## What changed
 
-## Why
-
-## How to test
-
-1.
-2.
-
-## Screenshots (if UI change)
-
-Closes #
-`
-
-const BUG_TEMPLATE = `---
-name: Bug report
-about: Something is broken
-labels: bug
----
-
-## Summary
-
-What went wrong?
-
-## Steps to Reproduce
-
-1.
-2.
-3.
-
-## Expected Behavior
-
-## Actual Behavior
-
-## Environment
-
-- OS:
-- Browser/Runtime:
-- Version:
-
-## Related
-
--
-`
-
-const FEATURE_TEMPLATE = `---
-name: Feature request
-about: A new capability or improvement
-labels: feature
----
-
-## Problem
-
-What user need or pain does this address?
-
-## Proposed Solution
-
-What should be built?
-
-## Acceptance Criteria
-
-- [ ]
-- [ ]
-
-## Out of Scope
-
-## Related
-
--
-`

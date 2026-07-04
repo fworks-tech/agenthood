@@ -20,7 +20,7 @@
     "the-operator"
   ],
   "hooks": {
-    "hooksPath": ".husky"
+    "hooksPath": ".githooks"
   },
   "conventions": {
     "commitTemplate": ".gitmessage",

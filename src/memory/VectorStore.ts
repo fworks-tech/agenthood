@@ -22,6 +22,7 @@ export interface IVectorStore {
   delete(filter: Record<string, unknown>): Promise<number>
   stats(): Promise<{ totalVectors: number; dimension: number; totalEntries: number; oldestEntry: Date | null }>
   getById(id: string): Promise<VectorRecord | null>
+  getByKeyPrefix(prefix: string, limit?: number): Promise<VectorRecord[]>
 }
 
 interface LanceRow {
@@ -180,6 +181,25 @@ export class LanceDBStore implements IVectorStore, IMemoryStore<VectorRecord> {
   async getById(id: string): Promise<VectorRecord | null> {
     const result = await this.get(id)
     return result ?? null
+  }
+
+  async getByKeyPrefix(prefix: string, limit = 100): Promise<VectorRecord[]> {
+    if (!this.table) {
+      throw new Error('LanceDBStore: not connected. Call connect() first.')
+    }
+    const escaped = prefix.replace(/'/g, "''")
+    const rows = await this.table
+      .vectorSearch(new Float32Array(this.dimension))
+      .limit(limit)
+      .filter(`id LIKE '${escaped}%'`)
+      .toArray()
+    return (rows as unknown as LanceRow[]).map((row) => ({
+      id: row.id,
+      vector: Array.from(row.vector),
+      content: row.content,
+      metadata: JSON.parse(row.metadata),
+      createdAt: new Date(row.created_at),
+    }))
   }
 
   async prune(policy: RetentionPolicy): Promise<number> {

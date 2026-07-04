@@ -11,7 +11,7 @@ concurrency:
 
 permissions:
   contents: read
-  pull-requests: write
+  pull-requests: read
 
 jobs:
   commitlint:
@@ -25,12 +25,12 @@ jobs:
         with:
           node-version: "24"
           cache: npm
-      - run: npm ci --ignore-scripts --no-audit
+      - run: npm ci --ignore-scripts
       - name: The Doorman — validate commits in PR range
         env:
           NODE_OPTIONS: "--import tsx"
         run: |
-          npm install --no-save --ignore-scripts --no-audit \
+          npm install --no-save --ignore-scripts \
             @commitlint/cli@19.5.0 \
             @commitlint/config-conventional@19.5.0 \
             @commitlint/types@19.5.0

@@ -22,6 +22,7 @@ import { PersonalisationStore } from '../memory/PersonalisationStore.js'
 import { LanceDBStore } from '../memory/VectorStore.js'
 import { ResidualMemory } from '../memory/ResidualMemory.js'
 import { PR_TEMPLATE, BUG_TEMPLATE, FEATURE_TEMPLATE } from '../templates/index.js'
+import { stripConfig } from '../utils/stripConfig.js'
 
 const __dirname = dirname(fileURLToPath(import.meta.url))
 const SOCIETY_ROOT = join(__dirname, '..', '..')
@@ -135,7 +136,7 @@ async function installConventions(cwd: string): Promise<void> {
 }
 
 async function installHooks(cwd: string): Promise<void> {
-  execSync('npm install --save-dev @commitlint/cli @commitlint/config-conventional', {
+  execSync('npm install --save-dev @commitlint/cli@19.5.0 @commitlint/config-conventional@19.5.0', {
     cwd,
     stdio: 'pipe',
   })
@@ -216,13 +217,7 @@ async function scaffoldConfig(cwd: string, runtime: Runtime, members: string[]):
   const examplePath = join(dirname(fileURLToPath(import.meta.url)), '../../.agenthood/config.example.json')
   if (existsSync(examplePath)) {
     const raw = JSON.parse(await readFile(examplePath, 'utf8'))
-    const strip = (obj: Record<string, unknown>): Record<string, unknown> =>
-      Object.fromEntries(
-        Object.entries(obj)
-          .filter(([k]) => !k.startsWith('_comment'))
-          .map(([k, v]) => [k, v && typeof v === 'object' && !Array.isArray(v) ? strip(v as Record<string, unknown>) : v]),
-      )
-    const config = { ...strip(raw), runtime, members }
+    const config = { ...stripConfig(raw), runtime, members }
     await writeFile(configPath, JSON.stringify(config, null, 2) + '\n', 'utf8')
   } else {
     const config = {

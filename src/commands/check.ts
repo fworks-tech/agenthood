@@ -12,20 +12,17 @@ interface CheckResult {
 }
 
 export async function check(): Promise<void> {
-  const results = collectResults();
+  const results = collectConventionResults();
+  collectMemoryResults(results);
   printReport(results);
 }
 
-function collectResults(): CheckResult[] {
+function collectConventionResults(): CheckResult[] {
   const cwd = process.cwd();
   const results: CheckResult[] = [];
-  const PKG_ROOT = join(dirname(fileURLToPath(import.meta.url)), '..', '..');
 
   const file = (label: string, path: string) =>
     results.push({ label, passed: existsSync(join(cwd, path)) });
-
-  const pkgFile = (label: string, relPath: string) =>
-    results.push({ label, passed: existsSync(join(PKG_ROOT, relPath)) });
 
   const cmd = (label: string, command: string) => {
     try {
@@ -39,16 +36,10 @@ function collectResults(): CheckResult[] {
   file('.gitmessage configured', '.gitmessage');
   file('commitlint.config.ts present', 'commitlint.config.ts');
 
-  const usesGithooks = existsSync(join(cwd, '.githooks'));
-  if (usesGithooks) {
-    file('.githooks/commit-msg present', '.githooks/commit-msg');
-    file('.githooks/pre-commit present', '.githooks/pre-commit');
-    file('.githooks/pre-push present', '.githooks/pre-push');
-    cmd('core.hooksPath set to .githooks', 'git config --get core.hooksPath');
-  } else {
-    file('Husky commit-msg hook active', '.husky/commit-msg');
-    file('Husky pre-push hook active', '.husky/pre-push');
-  }
+  file('.githooks/commit-msg present', '.githooks/commit-msg');
+  file('.githooks/pre-commit present', '.githooks/pre-commit');
+  file('.githooks/pre-push present', '.githooks/pre-push');
+  cmd('core.hooksPath set to .githooks', 'git config --get core.hooksPath');
 
   file('.github/pull_request_template.md present', '.github/pull_request_template.md');
   file('.github/ISSUE_TEMPLATE/bug_report.md present', '.github/ISSUE_TEMPLATE/bug_report.md');
@@ -66,6 +57,15 @@ function collectResults(): CheckResult[] {
   file('Residual memory traces found', '.agenthood/residual.json');
   file('Knowledge graph found', '.agenthood/society-graph.json');
 
+  return results;
+}
+
+function collectMemoryResults(results: CheckResult[]): void {
+  const PKG_ROOT = join(dirname(fileURLToPath(import.meta.url)), '..', '..');
+
+  const pkgFile = (label: string, relPath: string) =>
+    results.push({ label, passed: existsSync(join(PKG_ROOT, relPath)) });
+
   pkgFile('ShortTermMemory available', 'dist/memory/ShortTermMemory.js');
   pkgFile('LongTermMemory available', 'dist/memory/LongTermMemory.js');
   pkgFile('EpisodicMemory available', 'dist/memory/EpisodicMemory.js');
@@ -74,8 +74,6 @@ function collectResults(): CheckResult[] {
   pkgFile('RAG Indexer available', 'dist/rag/Indexer.js');
   pkgFile('RAG Retriever available', 'dist/rag/Retriever.js');
   pkgFile('Chunk strategy configured', 'dist/rag/ChunkStrategy.js');
-
-  return results;
 }
 
 function collectSkillsCount(cwd: string, results: CheckResult[]): void {
@@ -98,8 +96,8 @@ function collectApiKeyResult(cwd: string, results: CheckResult[]): void {
   try {
     const parsed = JSON.parse(readFileSync(configPath, 'utf8')) as Record<string, unknown>;
     rawConfig = parsed;
-    const p = parsed.provider;
-    provider = typeof p === 'string' ? p : (p as Record<string, unknown> | undefined)?.name as string | undefined;
+    const raw = parsed.provider;
+    provider = typeof raw === 'string' ? raw : (raw as Record<string, unknown> | undefined)?.name as string | undefined;
   } catch {
     return;
   }

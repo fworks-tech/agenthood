@@ -26,9 +26,9 @@
     "the-operator"
   ],
 
-  "_comment_hooks": "Path where git hooks are installed. Use .husky for Husky-managed projects, .githooks for bare git hook directories.",
+  "_comment_hooks": "Path where git hooks are installed. .githooks is a bare git hook directory managed via core.hooksPath.",
   "hooks": {
-    "hooksPath": ".husky"
+    "hooksPath": ".githooks"
   },
 
   "_comment_conventions": "Paths to the commit template and commitlint config files in your project root.",

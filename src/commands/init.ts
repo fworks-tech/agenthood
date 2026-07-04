@@ -10,7 +10,7 @@
  */
 
 import { copyFile, mkdir, readFile, writeFile } from 'node:fs/promises'
-import { existsSync } from 'node:fs'
+import { existsSync, readFileSync } from 'node:fs'
 import { join, dirname } from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { execSync } from 'node:child_process'
@@ -23,6 +23,9 @@ import { LanceDBStore } from '../memory/VectorStore.js'
 import { ResidualMemory } from '../memory/ResidualMemory.js'
 import { PR_TEMPLATE, BUG_TEMPLATE, FEATURE_TEMPLATE } from '../templates/index.js'
 import { stripConfig } from '../utils/stripConfig.js'
+import type { ILLMProvider } from '../llm/ILLMProvider.js'
+import { LLMRouter } from '../llm/LLMRouter.js'
+import type { LLMConfig } from '../llm/types.js'
 
 const __dirname = dirname(fileURLToPath(import.meta.url))
 const SOCIETY_ROOT = join(__dirname, '..', '..')
@@ -259,13 +262,8 @@ async function promptPreference(key: string, label: string, options: string[]): 
 }
 
 async function initVectorStore(cwd: string): Promise<void> {
-  const memoryPath = join(cwd, '.agenthood', 'memory')
-  try {
-    const store = new LanceDBStore(1536)
-    await store.connect(memoryPath)
-  } catch {
-    await mkdir(memoryPath, { recursive: true })
-  }
+  const store = new LanceDBStore(1536)
+  await store.connect(join(cwd, '.agenthood', 'memory'))
 }
 
 async function initResidualMemory(cwd: string): Promise<void> {
@@ -295,9 +293,26 @@ async function indexSociety(cwd: string): Promise<void> {
   const basePath = join(sourceRoot, '..', '..')
 
   const kg = new KnowledgeGraphStore()
+
+  const vectorStore = new LanceDBStore(1536)
+  const memoryPath = join(cwd, '.agenthood', 'memory')
+  if (existsSync(memoryPath)) {
+    try { await vectorStore.connect(memoryPath) } catch {}
+  }
+
+  let embedder: ILLMProvider | undefined
+  try {
+    const configPath = join(cwd, '.agenthood', 'config.json')
+    if (existsSync(configPath)) {
+      embedder = await LLMRouter.create(JSON.parse(readFileSync(configPath, 'utf8')) as LLMConfig)
+    }
+  } catch {}
+
   const indexer = new SocietyIndexer({
     basePath,
     knowledgeGraph: kg,
+    vectorStore,
+    embedder,
   })
 
   await indexer.index()

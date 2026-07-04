@@ -5,6 +5,7 @@ import { execSync } from 'node:child_process';
 import { MEMBER_NAMES, resolveSkillsDir } from '../members.js';
 import { validateApiKeys } from '../llm/validateApiKeys.js';
 import type { LLMConfig } from '../llm/types.js';
+import { LanceDBStore } from '../memory/VectorStore.js';
 
 interface CheckResult {
   label: string;
@@ -15,7 +16,7 @@ export async function check(): Promise<void> {
   const results: CheckResult[] = [];
   collectConfigChecks(results);
   collectMemoryResults(results);
-  collectRagChecks(results);
+  await collectRagChecks(results);
   printReport(results);
 }
 
@@ -55,12 +56,26 @@ function collectConfigChecks(results: CheckResult[]): void {
   collectApiKeyResult(cwd, results);
 }
 
-function collectRagChecks(results: CheckResult[]): void {
+async function verifyTableReady(path: string): Promise<boolean> {
+  try {
+    const store = new LanceDBStore(1536)
+    await store.connect(path)
+    await store.stats()
+    return true
+  } catch {
+    return false
+  }
+}
+
+async function collectRagChecks(results: CheckResult[]): Promise<void> {
   const cwd = process.cwd();
   const file = (label: string, path: string) =>
     results.push({ label, passed: existsSync(join(cwd, path)) });
 
-  file('LanceDB vector store initialized', '.agenthood/memory');
+  results.push({
+    label: 'LanceDB vector store initialized',
+    passed: await verifyTableReady(join(cwd, '.agenthood', 'memory')),
+  });
   file('Residual memory traces found', '.agenthood/residual.json');
   file('Knowledge graph found', '.agenthood/society-graph.json');
 }

@@ -210,7 +210,8 @@ describe('EpisodeLearner', () => {
 
   it('uses existing pattern key when matcher finds a semantic match', async () => {
     const { SemanticPatternMatcher } = await import('../../../src/evals/SemanticPatternMatcher.js')
-    const { EpisodeLearner, hashPattern } = await import('../../../src/evals/EpisodeLearner.js')
+    const { EpisodeLearner } = await import('../../../src/evals/EpisodeLearner.js')
+    const { hashPattern } = await import('../../../src/utils/hash.js')
 
     const mockVecStore = {
       connect: vi.fn(),

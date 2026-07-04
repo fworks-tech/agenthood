@@ -3,6 +3,7 @@ import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest'
 const mockTable = vi.hoisted(() => {
   const mockAdd = vi.fn()
   const mockVectorSearch = vi.fn()
+  const mockQuery = vi.fn()
   const mockDelete = vi.fn()
   const mockCountRows = vi.fn()
   const mockOpenTable = vi.fn()
@@ -24,9 +25,31 @@ const mockTable = vi.hoisted(() => {
     }
   }
 
+  class MockQuery {
+    private _limit = 0
+    private _filter = ''
+    private _orderBy: unknown = null
+    limit(n: number) {
+      this._limit = n
+      return this
+    }
+    filter(f: string) {
+      this._filter = f
+      return this
+    }
+    orderBy(ordering: unknown) {
+      this._orderBy = ordering
+      return this
+    }
+    toArray() {
+      return mockQuery(this._limit, this._filter, this._orderBy)
+    }
+  }
+
   return {
     mockAdd,
     mockVectorSearch,
+    mockQuery,
     mockDelete,
     mockCountRows,
     mockOpenTable,
@@ -37,6 +60,9 @@ const mockTable = vi.hoisted(() => {
       countRows = mockCountRows
       vectorSearch(_vec: Float32Array) {
         return new MockVectorQuery()
+      }
+      query() {
+        return new MockQuery()
       }
     },
   }
@@ -216,13 +242,12 @@ describe('LanceDBStore', () => {
     })
 
     it('get returns record by id', async () => {
-      mockTable.mockVectorSearch.mockResolvedValue([{
+      mockTable.mockQuery.mockResolvedValue([{
         id: 'vec-1',
         vector: new Float32Array([0.1, 0.2, 0.3]),
         content: 'test content',
         metadata: '{"type":"test"}',
         created_at: '2026-01-01T00:00:00.000Z',
-        _distance: 0.0,
       }])
 
       const s = new LanceDBStore(3)
@@ -235,7 +260,7 @@ describe('LanceDBStore', () => {
     })
 
     it('get returns undefined for missing id', async () => {
-      mockTable.mockVectorSearch.mockResolvedValue([])
+      mockTable.mockQuery.mockResolvedValue([])
 
       const s = new LanceDBStore(3)
       await s.connect('/tmp/test-lancedb')
@@ -244,7 +269,7 @@ describe('LanceDBStore', () => {
     })
 
     it('has returns true when record exists', async () => {
-      mockTable.mockVectorSearch.mockResolvedValue([{
+      mockTable.mockQuery.mockResolvedValue([{
         id: 'vec-1',
         vector: new Float32Array([0.1, 0.2, 0.3]),
         content: 'test',
@@ -259,7 +284,7 @@ describe('LanceDBStore', () => {
     })
 
     it('has returns false when record missing', async () => {
-      mockTable.mockVectorSearch.mockResolvedValue([])
+      mockTable.mockQuery.mockResolvedValue([])
 
       const s = new LanceDBStore(3)
       await s.connect('/tmp/test-lancedb')
@@ -302,6 +327,34 @@ describe('LanceDBStore', () => {
       await s.connect('/tmp/test-lancedb')
       await s.delete("it's")
       expect(mockTable.mockDelete).toHaveBeenCalledWith("id = 'it''s'")
+    })
+
+    it('prune removes oldest records when maxSize exceeded', async () => {
+      mockTable.mockCountRows.mockResolvedValue(10)
+      mockTable.mockQuery.mockResolvedValue([
+        { id: 'old-1', vector: new Float32Array([0, 0, 0]), content: '', metadata: '{}', created_at: '2024-01-01T00:00:00.000Z' },
+        { id: 'old-2', vector: new Float32Array([0, 0, 0]), content: '', metadata: '{}', created_at: '2024-02-01T00:00:00.000Z' },
+        { id: 'old-3', vector: new Float32Array([0, 0, 0]), content: '', metadata: '{}', created_at: '2024-03-01T00:00:00.000Z' },
+      ])
+      mockTable.mockDelete.mockResolvedValue({ numDeletedRows: 3, version: 1 })
+
+      const s = new LanceDBStore(3)
+      await s.connect('/tmp/test-lancedb')
+      const count = await s.prune({ maxSize: 7 })
+
+      expect(count).toBe(3)
+      expect(mockTable.mockDelete).toHaveBeenCalledWith("id IN ('old-1','old-2','old-3')")
+    })
+
+    it('prune does nothing when within maxSize', async () => {
+      mockTable.mockCountRows.mockResolvedValue(5)
+
+      const s = new LanceDBStore(3)
+      await s.connect('/tmp/test-lancedb')
+      const count = await s.prune({ maxSize: 10 })
+
+      expect(count).toBe(0)
+      expect(mockTable.mockQuery).not.toHaveBeenCalled()
     })
 
     it('throws on get without connect', async () => {

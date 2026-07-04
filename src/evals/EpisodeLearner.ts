@@ -1,23 +1,14 @@
-import type { EvalResult } from "../core/types.ts"
-import type { ExecutionContext } from "../core/ExecutionContext.ts"
-import type { ResidualMemory } from "../memory/ResidualMemory.ts"
-import type { SemanticPatternMatcher } from "./SemanticPatternMatcher.ts"
+import type { EvalResult } from "../core/types.js"
+import type { ExecutionContext } from "../core/ExecutionContext.js"
+import type { ResidualMemory } from "../memory/ResidualMemory.js"
+import type { SemanticPatternMatcher } from "./SemanticPatternMatcher.js"
+import { hashPattern } from "../utils/hash.js"
 
 export interface LearningOutcome {
   pattern: string
   score: number
   member: string
   skill: string
-}
-
-export function hashPattern(pattern: string): string {
-  let hash = 0
-  for (let i = 0; i < pattern.length; i++) {
-    const char = pattern.charCodeAt(i)
-    hash = ((hash << 5) - hash) + char
-    hash |= 0
-  }
-  return Math.abs(hash).toString(36)
 }
 
 const HIGH_SCORE_THRESHOLD = 0.8
@@ -84,17 +75,24 @@ export class EpisodeLearner {
     }
     const longTerm = context.memory.longTerm
 
+    let resolvedKey: string
+    let residualPattern: string
     if (this.matcher && context.llm) {
       const matched = await this.matcher.match(data.episode, context.llm)
       if (matched) {
-        await longTerm.store(`${storeKey}/${hashPattern(matched.outcome.pattern)}`, outcome)
-        this.residualMemory?.record(matched.outcome.pattern, isLearned ? data.score : -data.score)
-        return
+        resolvedKey = `${storeKey}/${hashPattern(matched.outcome.pattern)}`
+        residualPattern = matched.outcome.pattern
+      } else {
+        await this.matcher.addPattern(outcome, context.llm)
+        resolvedKey = `${storeKey}/${hashPattern(pattern)}`
+        residualPattern = pattern
       }
-      await this.matcher.addPattern(outcome, context.llm)
+    } else {
+      resolvedKey = `${storeKey}/${hashPattern(pattern)}`
+      residualPattern = pattern
     }
 
-    await longTerm.store(`${storeKey}/${hashPattern(pattern)}`, outcome)
-    this.residualMemory?.record(pattern, isLearned ? data.score : -data.score)
+    await longTerm.store(resolvedKey, outcome)
+    this.residualMemory?.record(residualPattern, isLearned ? data.score : -data.score)
   }
 }

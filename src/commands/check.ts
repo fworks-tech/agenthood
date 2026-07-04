@@ -1,11 +1,11 @@
 import { existsSync, readFileSync } from 'node:fs';
 import { join, dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { execSync } from 'node:child_process';
 import { MEMBER_NAMES, resolveSkillsDir } from '../members.js';
 import { validateApiKeys } from '../llm/validateApiKeys.js';
 import type { LLMConfig } from '../llm/types.js';
-import { LanceDBStore } from '../memory/VectorStore.js';
+import { safeExec } from '../utils/exec.js';
+import { verifyTableReady } from '../init/store.js';
 
 interface CheckResult {
   label: string;
@@ -28,7 +28,7 @@ function collectConfigChecks(results: CheckResult[]): void {
 
   const cmd = (label: string, command: string) => {
     try {
-      execSync(command, { cwd, stdio: 'pipe' });
+      safeExec(command, { cwd });
       results.push({ label, passed: true });
     } catch {
       results.push({ label, passed: false });
@@ -54,17 +54,6 @@ function collectConfigChecks(results: CheckResult[]): void {
   file('AGENTS.md present', 'AGENTS.md');
 
   collectApiKeyResult(cwd, results);
-}
-
-async function verifyTableReady(path: string): Promise<boolean> {
-  try {
-    const store = new LanceDBStore(1536)
-    await store.connect(path)
-    await store.stats()
-    return true
-  } catch {
-    return false
-  }
 }
 
 async function collectRagChecks(results: CheckResult[]): Promise<void> {

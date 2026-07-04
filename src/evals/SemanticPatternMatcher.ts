@@ -1,17 +1,8 @@
 import type { IVectorStore } from '../memory/VectorStore.js'
 import type { ILLMProvider } from '../llm/ILLMProvider.js'
 import { cosineSimilarity } from '../utils/cosineSimilarity.js'
+import { hashPattern } from '../utils/hash.js'
 import type { LearningOutcome } from './EpisodeLearner.js'
-
-function hashPattern(pattern: string): string {
-  let hash = 0
-  for (let i = 0; i < pattern.length; i++) {
-    const char = pattern.charCodeAt(i)
-    hash = ((hash << 5) - hash) + char
-    hash |= 0
-  }
-  return Math.abs(hash).toString(36)
-}
 
 export interface StoredPattern {
   outcome: LearningOutcome
@@ -34,6 +25,19 @@ export class SemanticPatternMatcher {
     this.threshold = threshold
   }
 
+  private async embedWithRetry(text: string, embedder: ILLMProvider, attempts = 2): Promise<number[]> {
+    let lastErr: unknown
+    for (let i = 1; i <= attempts; i++) {
+      try {
+        return await embedder.embed(text)
+      } catch (err) {
+        lastErr = err
+        if (i < attempts) await new Promise((r) => setTimeout(r, i * 300))
+      }
+    }
+    throw lastErr
+  }
+
   async initialize(): Promise<void> {
     try {
       const records = await this.vectorStore.getByKeyPrefix('pattern:')
@@ -41,13 +45,14 @@ export class SemanticPatternMatcher {
         outcome: JSON.parse(r.content) as LearningOutcome,
         embedding: r.vector,
       }))
-    } catch {
+    } catch (err) {
+      console.warn('[SemanticPatternMatcher] failed to load patterns:', err)
       this.patterns = []
     }
   }
 
   async match(episodeText: string, embedder: ILLMProvider): Promise<MatchResult | null> {
-    const embedding = await embedder.embed(episodeText)
+    const embedding = await this.embedWithRetry(episodeText, embedder)
     let best: MatchResult | null = null
 
     for (const sp of this.patterns) {
@@ -62,7 +67,7 @@ export class SemanticPatternMatcher {
 
   async addPattern(outcome: LearningOutcome, embedder: ILLMProvider): Promise<void> {
     const patternKey = `pattern:${hashPattern(outcome.pattern)}`
-    const embedding = await embedder.embed(outcome.pattern)
+    const embedding = await this.embedWithRetry(outcome.pattern, embedder)
 
     await this.vectorStore.add([{
       id: patternKey,

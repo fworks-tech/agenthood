@@ -5,6 +5,17 @@
 
 ---
 
+## v3.8.2 — July 4, 2026
+
+### 🐛 Bug Fixes
+
+- add root commitlint.config.ts for repo CI
+- **Init:** resolve 11 failing health checks by correcting source paths and workflow
+- pin commitlint versions, tighten CI perms, split check, extract stripConfig
+- **Struct:** sort workflow entries alphabetically in STRUCTURE.md
+
+---
+
 ## v3.8.1 — July 4, 2026
 
 ### 🐛 Bug Fixes

@@ -1,3 +1,13 @@
+## [3.8.2](https://github.com/fworks-tech/agenthood/compare/v3.8.1...v3.8.2) (2026-07-04)
+
+
+### Bug Fixes
+
+* add root commitlint.config.ts for repo CI ([0c69c21](https://github.com/fworks-tech/agenthood/commit/0c69c211be63ba6f6c77f5f83e7ab447dafaa720))
+* **init:** resolve 11 failing health checks by correcting source paths and workflow ([203099b](https://github.com/fworks-tech/agenthood/commit/203099b84735aa9e3ef3c52de2f52b2d75dacd91)), closes [#14](https://github.com/fworks-tech/agenthood/issues/14)
+* pin commitlint versions, tighten CI perms, split check, extract stripConfig ([dd773a3](https://github.com/fworks-tech/agenthood/commit/dd773a3eb37bee8b452262cff51da1c52c14132c))
+* **struct:** sort workflow entries alphabetically in STRUCTURE.md ([84bb06d](https://github.com/fworks-tech/agenthood/commit/84bb06db7801cf974fe62c5c9a27a0a7d2058910))
+
 ## [3.8.1](https://github.com/fworks-tech/agenthood/compare/v3.8.0...v3.8.1) (2026-07-04)
 
 

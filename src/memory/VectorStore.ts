@@ -1,4 +1,5 @@
 import * as lancedb from '@lancedb/lancedb'
+import { Field, FixedSizeList, Float32, Schema, Utf8 } from 'apache-arrow'
 import type { IMemoryStore, RetentionPolicy } from './IMemoryStore.js'
 
 export interface VectorRecord {
@@ -58,7 +59,16 @@ export class LanceDBStore implements IVectorStore, IMemoryStore<VectorRecord> {
     try {
       this.table = await this.db.openTable(this.tableName)
     } catch {
-      this.table = await this.db.createTable(this.tableName, [])
+      this.table = await this.db.createEmptyTable(
+        this.tableName,
+        new Schema([
+          new Field('id', new Utf8(), false),
+          new Field('vector', new FixedSizeList(this.dimension, new Field('item', new Float32())), true),
+          new Field('content', new Utf8(), true),
+          new Field('metadata', new Utf8(), true),
+          new Field('created_at', new Utf8(), true),
+        ]),
+      )
     }
   }
 

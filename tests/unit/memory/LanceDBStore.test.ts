@@ -6,7 +6,7 @@ const mockTable = vi.hoisted(() => {
   const mockDelete = vi.fn()
   const mockCountRows = vi.fn()
   const mockOpenTable = vi.fn()
-  const mockCreateTable = vi.fn()
+  const mockCreateEmptyTable = vi.fn()
 
   class MockVectorQuery {
     private _limit = 0
@@ -30,7 +30,7 @@ const mockTable = vi.hoisted(() => {
     mockDelete,
     mockCountRows,
     mockOpenTable,
-    mockCreateTable,
+    mockCreateEmptyTable,
     MockTable: class MockTable {
       add = mockAdd
       delete = mockDelete
@@ -45,7 +45,7 @@ const mockTable = vi.hoisted(() => {
 vi.mock('@lancedb/lancedb', () => ({
   connect: vi.fn().mockResolvedValue({
     openTable: mockTable.mockOpenTable,
-    createTable: mockTable.mockCreateTable,
+    createEmptyTable: mockTable.mockCreateEmptyTable,
   }),
 }))
 
@@ -68,7 +68,7 @@ describe('LanceDBStore', () => {
   beforeEach(async () => {
     vi.clearAllMocks()
     mockTable.mockOpenTable.mockRejectedValue(new Error('table not found'))
-    mockTable.mockCreateTable.mockResolvedValue(new mockTable.MockTable())
+    mockTable.mockCreateEmptyTable.mockResolvedValue(new mockTable.MockTable())
   })
 
   afterEach(() => {
@@ -78,7 +78,7 @@ describe('LanceDBStore', () => {
   it('connects and creates table when none exists', async () => {
     const s = new LanceDBStore(3)
     await s.connect('/tmp/test-lancedb')
-    expect(mockTable.mockCreateTable).toHaveBeenCalledWith('vectors', [])
+    expect(mockTable.mockCreateEmptyTable).toHaveBeenCalledWith('vectors', expect.anything())
   })
 
   it('opens existing table when one exists', async () => {
@@ -88,7 +88,7 @@ describe('LanceDBStore', () => {
     await s.connect('/tmp/test-lancedb')
 
     expect(mockTable.mockOpenTable).toHaveBeenCalledWith('vectors')
-    expect(mockTable.mockCreateTable).not.toHaveBeenCalled()
+    expect(mockTable.mockCreateEmptyTable).not.toHaveBeenCalled()
   })
 
   it('adds records to the table', async () => {

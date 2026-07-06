@@ -136,6 +136,6 @@ Zero tolerance for 'fix stuff' commits.
 }
 
 main().catch((err) => {
-  console.error('The Society encountered an unexpected error:', err);
+  console.error('The Society encountered an unexpected error:', err instanceof Error ? err.message : String(err));
   process.exit(1);
 });

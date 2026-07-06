@@ -81,8 +81,8 @@ npx agenthood list
 The runtime loads each member's `SKILL.md` file at execution time.
 The files are read-only — the runtime never modifies them.
 
-See [ADR-008](../docs/adr/ADR-008-typescript-runtime-over-python.md) and
-[ADR-009](../docs/adr/ADR-009-groq-as-default-llm-provider.md) for design decisions.
+See [ADR-008](../adr/ADR-008-typescript-runtime-over-python.md) and
+[ADR-009](../adr/ADR-009-groq-as-default-llm-provider.md) for design decisions.
 
 ---
 

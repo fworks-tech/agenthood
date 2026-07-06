@@ -142,8 +142,8 @@ All failed → AllProvidersFailedError with concatenated error messages
 ## References
 
 - [ProviderFailover.ts](../../src/llm/ProviderFailover.ts) — implementation
-- [docs/specs/provider-failover.md](../../docs/specs/provider-failover.md) — full spec with acceptance criteria
+- [docs/specs/provider-failover.md](../../specs/provider-failover.md) — full spec with acceptance criteria
 - [ADR-008](ADR-008-typescript-runtime-over-python.md) — TypeScript runtime
 - [ADR-009](ADR-009-groq-as-default-llm-provider.md) — default LLM provider
 - [ADR-011](ADR-011-rate-limiter-and-state-store.md) — rate limiting (companion resilience layer)
-- [Academy: Agent Workflows](../../docs/academy/level-2-agent-essentials/04-agent-workflows.md) — original ADR-012 stub reference
+- [Academy: Agent Workflows](../../academy/level-2-agent-essentials/04-agent-workflows.md) — original ADR-012 stub reference

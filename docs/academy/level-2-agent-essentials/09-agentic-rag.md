@@ -28,7 +28,7 @@ Agentic RAG solves both. The agent skips retrieval when the answer is in context
 
 ## How Agenthood implements it
 
-The foundation is `KnowledgeGraphStore` in `src/rag/`. The `AgenticRAG` class and `RetrievalClassifier` are implemented at `src/rag/AgenticRAG.ts` and `src/skills/rag/RetrievalClassifier.ts` (shipped in v2.6.0).
+The foundation is `KnowledgeGraphStore` in `src/rag/`. The `AgenticRAG` class and `RetrievalClassifier` are implemented at `src/rag/AgenticRAG.ts` and `src/tools/rag/RetrievalClassifier.ts` (shipped in v2.6.0).
 
 ```typescript
 import { AgenticRAG, RetrievalClassifier } from 'agenthood';

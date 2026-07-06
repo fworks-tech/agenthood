@@ -84,4 +84,4 @@ Both layers use in-memory state. The circuit breaker states and rate limiter win
 - [ADR-008](ADR-008-typescript-runtime-over-python.md) — TypeScript runtime constraint
 - [ADR-009](ADR-009-groq-as-default-llm-provider.md) — default LLM provider
 - [ADR-010](ADR-010-lancedb-for-vector-storage.md) — vector store (contrast with rate limiter state store)
-- [Academy: Action Planning](../../docs/academy/level-2-agent-essentials/10-action-planning.md) — original ADR-011 stub reference
+- [Academy: Action Planning](../../academy/level-2-agent-essentials/10-action-planning.md) — original ADR-011 stub reference

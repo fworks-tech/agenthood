@@ -12,7 +12,7 @@ The M5 milestone ("Intelligence") delivered four features that close the gap bet
 |-----------|------|--------|
 | `MarkdownHierarchicalChunkStrategy` | `src/rag/ChunkStrategy.ts` | v2.6.0 |
 | `AgenticRAG` | `src/rag/AgenticRAG.ts` | v2.6.0 |
-| `RetrievalClassifier` | `src/skills/rag/RetrievalClassifier.ts` | v2.6.0 |
+| `RetrievalClassifier` | `src/tools/rag/RetrievalClassifier.ts` | v2.6.0 |
 | `MemberOrchestrator` (Phase 1) | `src/reasoning/MemberOrchestrator.ts` | v2.6.0 |
 
 ---

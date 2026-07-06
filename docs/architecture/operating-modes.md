@@ -107,10 +107,12 @@ In both modes, context is assembled from the same 10 sources before a member act
 3. Hybrid search results (vector + keyword)
 4. Web search results (if tool available)
 5. Codebase architectural understanding
-6. Project rules (`.agenthood/rules.md`)
-7. Persistent memory (`.agenthood/memory.json`)
+6. Persistent memory (`.agenthood/memory/` — LanceDB vector store, `.agenthood/society-graph.json` — knowledge graph)
+7. Residual memory traces (`.agenthood/residual.json`)
 8. Active member skills
 9. Conversation history
 10. Question classification result
 
 The difference between modes is not *what* is known — it is *what* is done with that knowledge.
+
+See the [Runtime Guide](../runtime-guide.md) for detailed path references and storage layout.

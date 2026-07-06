@@ -78,8 +78,8 @@ jobs:
             --jq '.[] | select(.body | contains("<!--AGENTHOOD_DECISION:") and (startswith("> **This analysis is outdated.**") | not)) | .id' \
             2>/dev/null | tail -1) || exit 0
           [ -z "$COMMENT_ID" ] && exit 0
-          OLD_BODY=$(gh api "repos/{owner}/{repo}/issues/comments/$COMMENT_ID" --jq '.body' 2>/dev/null) || exit 0
-          STALE_BODY="> **This analysis is outdated.** See the latest comment below for the current review.\n>\n${OLD_BODY}"
+          OLD_BODY=$(gh api "repos/{owner}/{repo}/issues/comments/$COMMENT_ID" --jq -r '.body' 2>/dev/null) || exit 0
+          STALE_BODY=$'> **This analysis is outdated.** See the latest comment below for the current review.\n>\n'"${OLD_BODY}"
           jq -n --arg body "$STALE_BODY" '{body: $body}' | \
             gh api "repos/{owner}/{repo}/issues/comments/$COMMENT_ID" -X PATCH --input - > /dev/null 2>&1 || true
 

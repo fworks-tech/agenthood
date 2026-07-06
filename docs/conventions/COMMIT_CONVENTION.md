@@ -1,7 +1,7 @@
 # Commit Convention
 
 The Agenthood follows the [Conventional Commits](https://www.conventionalcommits.org/) specification.
-Enforced locally by Husky + commitlint, and in CI by the Doorman workflow.
+Enforced locally by Husky + commitlint, and in CI by the [Doorman workflow](../../.github/workflows/pr.yml).
 
 ## Format
 

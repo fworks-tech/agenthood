@@ -32,21 +32,22 @@ In production, agents must take action. But blindly allowing an LLM to execute c
 
 ## How Agenthood implements it
 
-Agenthood implements this via the `ISkill` interface, managed by the `SkillRegistry`, and executed within a `ReActLoop`.
+Agenthood implements this via the `ISkillManifest` interface, managed by the `SkillDiscovery`, and executed within a `ReActLoop`.
 
-This allows members of the Society to seamlessly utilize tools. The interface is in `src/skills/ISkill.ts` (shipped in v2.0.0):
+This allows members of the Society to seamlessly utilize tools. The interface is in `src/skills/discovery/ISkillManifest.ts` (shipped in v2.0.0):
 
 ```typescript
-export interface ISkill {
+export interface ISkillManifest {
   name: string;
   description: string;
   schema: JSONSchema;
   execute(args: any): Promise<string>;
 }
 
-export class SkillRegistry {
-  register(skill: ISkill): void;
-  getAvailableTools(): ToolDefinition[];
+export class SkillDiscovery {
+  discover(projectDir: string): ISkillManifest[];
+  get(name: string): ISkillManifest | undefined;
+  list(): ISkillManifest[];
 }
 ```
 
@@ -77,7 +78,8 @@ await loop.run("Read the package.json and summarize dependencies.");
 
 ## Further reading
 
-- [`src/skills/ISkill.ts`](../../../src/skills/ISkill.ts) — source implementation (shipped in v2.0.0)
+- [`src/skills/discovery/ISkillManifest.ts`](../../../src/skills/discovery/ISkillManifest.ts) — the skill contract (shipped in v2.0.0)
+- [`src/skills/discovery/SkillDiscovery.ts`](../../../src/skills/discovery/SkillDiscovery.ts) — dynamic skill discovery
 - [ReAct: Synergizing Reasoning and Acting in Language Models](https://arxiv.org/abs/2210.03629) — the foundational paper on tool use
 
 

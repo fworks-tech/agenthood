@@ -56,7 +56,7 @@ Response
 ## Runtime Layer (v2.0.0)
 
 The architecture documented here is implemented as a TypeScript CLI in this repo
-(`src/`), driven by [ADR-008](../docs/adr/ADR-008-typescript-runtime-over-python.md),
+(`src/`), driven by [ADR-008](../adr/ADR-008-typescript-runtime-over-python.md),
 which superseded the earlier Python/DeepAgents runtime approach.
 
 | Component | Implemented in | Status |

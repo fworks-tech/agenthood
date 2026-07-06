@@ -26,10 +26,10 @@ The discovery model also matters for team scaling. When a new engineer joins, th
 
 ## How Agenthood implements it
 
-The `ISkill` interface and `SkillRegistry` live in `src/skills/` (shipped in v2.0.0). Here is a complete `ISkill` implementation — a custom skill that checks an internal deploy dashboard:
+The `ISkillManifest` interface and `SkillDiscovery` live in `src/skills/discovery/` (shipped in v2.0.0). Here is a complete skill implementation — a custom tool that checks an internal deploy dashboard:
 
 ```typescript
-import { ISkill, SkillResult, SkillContext } from 'agenthood';
+import { ISkillManifest, SkillResult, SkillContext } from 'agenthood';
 
 interface DeployStatusInput {
   service: string;
@@ -44,7 +44,7 @@ interface DeployStatusOutput {
   lastDeploy: string;
 }
 
-export class DeployStatusSkill implements ISkill<DeployStatusInput, DeployStatusOutput> {
+export class DeployStatusSkill implements ISkillManifest<DeployStatusInput, DeployStatusOutput> {
   name = 'deploy_status';
   description = 'Check the deployment status and health of a service in a given environment. Use when the user asks whether a service is deployed, healthy, or running a specific version.';
   inputSchema = {
@@ -76,13 +76,13 @@ export class DeployStatusSkill implements ISkill<DeployStatusInput, DeployStatus
 }
 ```
 
-Discovery is automatic — drop this file in `src/skills/` (or your project's skills directory) and `SkillRegistry.discover()` finds it on the next startup:
+Discovery is automatic — drop this file in your project's skills directory and `SkillDiscovery.discover()` finds it on the next startup:
 
 ```typescript
-import { SkillRegistry } from 'agenthood';
+import { SkillDiscovery } from 'agenthood';
 
-const registry = new SkillRegistry();
-await registry.discover('./src/skills');   // scans for ISkill implementations
+const discovery = new SkillDiscovery();
+await discovery.discover('./src/skills');   // scans for skill manifests
 
 // The custom skill is now available alongside the built-ins
 const skill = registry.get('deploy_status');
@@ -118,8 +118,8 @@ The skill was not registered. It was discovered. The agent chose to call it base
 
 ## Further reading
 
-- [`src/skills/ISkill.ts`](../../../src/skills/ISkill.ts) — the skill contract every custom skill implements (v2.0.0)
-- [`src/skills/SkillRegistry.ts`](../../../src/skills/SkillRegistry.ts) — dynamic discovery via `SkillRegistry.discover()` (v2.0.0)
+- [`src/skills/discovery/ISkillManifest.ts`](../../../src/skills/discovery/ISkillManifest.ts) — the skill contract every custom skill implements (v2.0.0)
+- [`src/skills/discovery/SkillDiscovery.ts`](../../../src/skills/discovery/SkillDiscovery.ts) — dynamic discovery via `SkillDiscovery.discover()` (v2.0.0)
 - [JSON Schema](https://json-schema.org/) — the input validation standard `inputSchema` uses
 
 

@@ -18,7 +18,7 @@ Nine articles. The foundation. Start here.
 | 6 | [RAG Fundamentals](06-rag-fundamentals.md) | `Retriever`, `Indexer`, `AgenticRAG` |
 | 7 | [Vector Databases](07-vector-databases.md) | `VectorStore` (LanceDB), ADR-010 |
 | 8 | [API Wrappers](08-api-wrappers.md) | `ILLMProvider` as abstraction pattern |
-| 9 | [Tool Integration](09-tool-integration.md) | `ISkill`, `SkillRegistry`, `ReActLoop` |
+| 9 | [Tool Integration](09-tool-integration.md) | `ISkillManifest`, `SkillDiscovery`, `ReActLoop` |
 
 ---
 

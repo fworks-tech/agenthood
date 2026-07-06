@@ -151,6 +151,7 @@ npx agenthood run the-scribe "sync PR #42"
 ## Related
 
 - [Getting Started](getting-started.md) — install and first workflow
+- [Built-in Tools](../architecture/built-in-tools.md) — canonical tool registry with scoping
 - [Online docs](https://agenthood.flabs.tech/) — hosted documentation site
 
 ---

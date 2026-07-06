@@ -143,7 +143,7 @@ Memory is backed by a tiered store: LanceDB for vector storage (`.agenthood/memo
 ## Runtime Implementation
 
 The architecture described in this document is implemented as a TypeScript CLI in
-this repo (`src/`), per [ADR-008](../docs/adr/ADR-008-typescript-runtime-over-python.md).
+this repo (`src/`), per [ADR-008](../adr/ADR-008-typescript-runtime-over-python.md).
 
 | This doc | Implemented as | Status |
 |----------|----------------|--------|

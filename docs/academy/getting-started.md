@@ -103,13 +103,15 @@ The Society reads from `.agenthood/config.json`, scaffolded by `init`:
 ```json
 {
   "version": "1",
-  "runtime": "claude-code",
+  "runtime": "agenthood/agents",
   "members": ["the-scribe", "the-architect", "the-reviewer", "..."],
-  "hooks": { "hooksPath": ".husky" },
+  "hooks": { "hooksPath": ".githooks" },
   "conventions": {
     "commitTemplate": ".gitmessage",
     "commitlintConfig": "commitlint.config.ts"
-  }
+  },
+  "providers": [{ "name": "groq", "model": "llama-3.3-70b-versatile", "priority": 1 }],
+  "qualityGates": { "typescript": true, "tests": true, "lint": true }
 }
 ```
 

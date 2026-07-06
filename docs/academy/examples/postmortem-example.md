@@ -59,7 +59,7 @@ See [Decision Log entry](.agenthood/decisions/dec-20260615-vector-permissions.js
 
 - Issue [#270](https://github.com/fworks-tech/agenthood/issues/270) — Deploy script permission regression
 - Issue [#267](https://github.com/fworks-tech/agenthood/issues/267) — Add permission validation to health check
-- [ADR-010](https://github.com/fworks-tech/agenthood/docs/adr/ADR-010-lancedb-vector-store.md) — LanceDB as vector store
+- [ADR-010](https://github.com/fworks-tech/agenthood/docs/adr/ADR-010-lancedb-for-vector-storage.md) — LanceDB as vector store
 
 ---
 

@@ -32,7 +32,7 @@ These dependencies are not yet stable enough to prescribe for all adopters.
 The template approach gives you the same structured process — with full
 control over when and how it runs.
 
-This decision is documented in [ADR-001](../docs/adr/ADR-001-markdown-skills-over-code-agents.md).
+This decision is documented in [ADR-001](../adr/ADR-001-markdown-skills-over-code-agents.md).
 
 ---
 

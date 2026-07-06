@@ -17,6 +17,11 @@ validate_prerequisites() {
     exit 0
   fi
 
+  if [ -z "$PR_NUMBER" ]; then
+    echo "::notice::No pull request context -- skipping $AGENT_NAME agent analysis."
+    exit 0
+  fi
+
   CHANGED=$(git diff --name-only --diff-filter=ACM "$BASE_SHA" "$HEAD_SHA" 2>/dev/null || echo "")
   if [ -z "$CHANGED" ]; then
     echo "No files changed. Skipping agent analysis."
@@ -94,7 +99,18 @@ validate_prerequisites
 SAFE_CHANGED=$(cat ${temp_dir}/${AGENT_NAME}_safe_changed.txt)
 echo "agent-analysis: running $AGENT_NAME on $(echo "$SAFE_CHANGED" | tr '\n' ' ')"
 
-npm ci && npm run build
+NEEDS_BUILD=false
+while IFS= read -r file; do
+  case "$file" in
+    *.md|*.yml|*.yaml|*.json|*.sh) ;;
+    *) NEEDS_BUILD=true; break ;;
+  esac
+done <<< "$SAFE_CHANGED"
+
+npm ci
+if [ "$NEEDS_BUILD" = true ]; then
+  npm run build
+fi
 
 rc=0
 node dist/cli.js run "$AGENT_NAME" "$TASK" --provider opencode-go \

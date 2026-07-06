@@ -73,13 +73,15 @@ jobs:
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
-          PR_NUMBER=$(gh pr view --json number --jq '.number' 2>/dev/null || echo "")
-          [ -z "$PR_NUMBER" ] && exit 0
-          COMMENT_ID=$(gh api "repos/{owner}/{repo}/issues/$PR_NUMBER/comments" --jq '.[] | select((.body | contains("<!--AGENTHOOD_DECISION:")) and (startswith("> **This analysis is outdated.**") | not)) | .id' 2>/dev/null | tail -1 || true)
+          PR_NUMBER=$(gh pr view --json number --jq '.number' 2>/dev/null) || exit 0
+          COMMENT_ID=$(gh api "repos/{owner}/{repo}/issues/$PR_NUMBER/comments" \
+            --jq '.[] | select(.body | contains("<!--AGENTHOOD_DECISION:") and (startswith("> **This analysis is outdated.**") | not)) | .id' \
+            2>/dev/null | tail -1) || exit 0
           [ -z "$COMMENT_ID" ] && exit 0
-          gh api "repos/{owner}/{repo}/issues/comments/$COMMENT_ID" --jq -r '.body' > ${RUNNER_TEMP:-/tmp}/reviewer_stale_body.txt 2>/dev/null || exit 0
-          { echo "> **This analysis is outdated.** See the latest comment below for the current review."; echo ">"; cat ${RUNNER_TEMP:-/tmp}/reviewer_stale_body.txt; } | jq -Rs '{body: .}' > ${RUNNER_TEMP:-/tmp}/reviewer_stale_payload.json
-          gh api "repos/{owner}/{repo}/issues/comments/$COMMENT_ID" -X PATCH --input ${RUNNER_TEMP:-/tmp}/reviewer_stale_payload.json > /dev/null 2>&1 || true
+          OLD_BODY=$(gh api "repos/{owner}/{repo}/issues/comments/$COMMENT_ID" --jq '.body' 2>/dev/null) || exit 0
+          STALE_BODY="> **This analysis is outdated.** See the latest comment below for the current review.\n>\n${OLD_BODY}"
+          jq -n --arg body "$STALE_BODY" '{body: $body}' | \
+            gh api "repos/{owner}/{repo}/issues/comments/$COMMENT_ID" -X PATCH --input - > /dev/null 2>&1 || true
 
       - name: Post Review Comment
         run: |

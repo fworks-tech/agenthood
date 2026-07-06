@@ -5,6 +5,14 @@
 
 ---
 
+## v3.9.1 — July 6, 2026
+
+### 🐛 Bug Fixes
+
+- **Security:** sanitize error logging and pin dep versions
+
+---
+
 ## v3.9.0 — July 4, 2026
 
 ### ✨ Features

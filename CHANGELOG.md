@@ -1,3 +1,10 @@
+## [3.9.1](https://github.com/fworks-tech/agenthood/compare/v3.9.0...v3.9.1) (2026-07-06)
+
+
+### Bug Fixes
+
+* **security:** sanitize error logging and pin dep versions ([f49c1b5](https://github.com/fworks-tech/agenthood/commit/f49c1b5694b2c5739136b5e69ebbf1c5ecedfcd5))
+
 # [3.9.0](https://github.com/fworks-tech/agenthood/compare/v3.8.2...v3.9.0) (2026-07-04)
 
 

@@ -12,6 +12,10 @@ interface CheckResult {
   passed: boolean;
 }
 
+function pushFileCheck(results: CheckResult[], basePath: string, label: string, relPath: string): void {
+  results.push({ label, passed: existsSync(join(basePath, relPath)) });
+}
+
 export async function check(): Promise<void> {
   const results: CheckResult[] = [];
   collectConfigChecks(results);
@@ -23,8 +27,7 @@ export async function check(): Promise<void> {
 function collectConfigChecks(results: CheckResult[]): void {
   const cwd = process.cwd();
 
-  const file = (label: string, path: string) =>
-    results.push({ label, passed: existsSync(join(cwd, path)) });
+  const file = (label: string, path: string) => pushFileCheck(results, cwd, label, path);
 
   const cmd = (label: string, command: string) => {
     try {
@@ -58,8 +61,7 @@ function collectConfigChecks(results: CheckResult[]): void {
 
 async function collectRagChecks(results: CheckResult[]): Promise<void> {
   const cwd = process.cwd();
-  const file = (label: string, path: string) =>
-    results.push({ label, passed: existsSync(join(cwd, path)) });
+  const file = (label: string, path: string) => pushFileCheck(results, cwd, label, path);
 
   results.push({
     label: 'LanceDB vector store initialized',
@@ -72,8 +74,7 @@ async function collectRagChecks(results: CheckResult[]): Promise<void> {
 function collectMemoryResults(results: CheckResult[]): void {
   const PKG_ROOT = join(dirname(fileURLToPath(import.meta.url)), '..', '..');
 
-  const pkgFile = (label: string, relPath: string) =>
-    results.push({ label, passed: existsSync(join(PKG_ROOT, relPath)) });
+  const pkgFile = (label: string, relPath: string) => pushFileCheck(results, PKG_ROOT, label, relPath);
 
   pkgFile('ShortTermMemory available', 'dist/memory/ShortTermMemory.js');
   pkgFile('LongTermMemory available', 'dist/memory/LongTermMemory.js');

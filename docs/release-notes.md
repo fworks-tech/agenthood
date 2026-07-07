@@ -5,6 +5,15 @@
 
 ---
 
+## v3.10.0 — July 7, 2026
+
+### ✨ Features
+
+- add The Mailman — 17th Society member for delivery and cross-posting
+- **Init:** strip junk files from init (#360)
+
+---
+
 ## v3.9.1 — July 6, 2026
 
 ### 🐛 Bug Fixes

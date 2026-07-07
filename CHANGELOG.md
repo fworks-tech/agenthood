@@ -1,3 +1,11 @@
+# [3.10.0](https://github.com/fworks-tech/agenthood/compare/v3.9.1...v3.10.0) (2026-07-07)
+
+
+### Features
+
+* add The Mailman — 17th Society member for delivery and cross-posting ([c9c0e3f](https://github.com/fworks-tech/agenthood/commit/c9c0e3fc8dcf25c55fc464edb336c716b8557b98))
+* **init:** strip junk files from init ([#360](https://github.com/fworks-tech/agenthood/issues/360)) ([7600ecc](https://github.com/fworks-tech/agenthood/commit/7600ecc11ee71bf91a07c5529ba54bb5f78095d6))
+
 ## [3.9.1](https://github.com/fworks-tech/agenthood/compare/v3.9.0...v3.9.1) (2026-07-06)
 
 

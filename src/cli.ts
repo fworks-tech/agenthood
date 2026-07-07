@@ -31,6 +31,7 @@ const COMMANDS: Record<string, (...args: string[]) => Promise<void>> = {
   oath: async () => oath(),
   eject: async () => eject(),
   setup: async () => setup(),
+  run: async (...args) => run(args),
   verify: async (...args) => verify(args),
   rollback: async (...args) => rollback(args),
   status: async (...args) => status(args),

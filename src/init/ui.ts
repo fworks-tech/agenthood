@@ -1,8 +1,5 @@
 import { createInterface } from 'node:readline'
-import { existsSync } from 'node:fs'
-import { join } from 'node:path'
 import { ALL_MEMBERS } from '../members.js'
-import { PersonalisationStore } from '../memory/PersonalisationStore.js'
 
 const RUNTIMES = ['claude-code', 'copilot', 'gemini-cli', 'other'] as const
 type Runtime = (typeof RUNTIMES)[number]
@@ -15,19 +12,6 @@ function prompt(question: string): Promise<string> {
       resolve(answer)
     })
   })
-}
-
-async function promptPreference(key: string, label: string, options: string[]): Promise<string | null> {
-  console.log(`\n  ${label}?`)
-  options.forEach((o, i) => console.log(`    ${i + 1}. ${o}`))
-  const answer = await prompt(`  Select (1-${options.length}) or press Enter to skip: `)
-  const index = parseInt(answer, 10) - 1
-  if (index >= 0 && index < options.length) {
-    console.log(`    → ${options[index]}\n`)
-    return options[index]
-  }
-  console.log()
-  return null
 }
 
 export async function promptRuntime(): Promise<Runtime> {
@@ -70,18 +54,4 @@ export async function promptMembers(): Promise<string[]> {
 
   console.log(`  → ${selected.join(', ')}\n`)
   return selected
-}
-
-export async function setupPersonalisation(cwd: string): Promise<void> {
-  const prefsPath = join(cwd, '.agenthood', 'preferences.json')
-  if (existsSync(prefsPath)) return
-
-  const store = new PersonalisationStore()
-  const style = await promptPreference('style', 'coding style', ['concise', 'verbose', 'balanced'])
-  if (style) store.set('style', style, 'explicit')
-  const depth = await promptPreference('depth', 'analysis depth', ['high', 'medium', 'low'])
-  if (depth) store.set('depth', depth, 'explicit')
-  const domain = await promptPreference('domain', 'primary domain', ['web', 'data', 'devops', 'general'])
-  if (domain) store.set('domain', domain, 'explicit')
-  store.save(prefsPath)
 }

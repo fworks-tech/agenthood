@@ -59,6 +59,7 @@ Load skills from `docs/members/` to activate specialized agents:
 - `the-operator` — runtime health, deployment, incidents, rollback, monitoring
 - `the-strategist` — goal refinement, requirement discovery, ambiguity resolution
 - `the-mailman` — message delivery, content scheduling, notification dispatch, cross-posting
+- `the-inspector` — visual-reasoning benchmarking, pixel-level analysis, multi-panel correspondence
 
 ## Autonomous Runtime (agenthood run)
 

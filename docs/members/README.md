@@ -24,6 +24,7 @@ Each has a skill file that your agent runtime loads to activate them.
 | [The Strategist](the-strategist/SKILL.md) | *The right solution starts with the right problem.* | `the-strategist/SKILL.md` |
 | [The Operator](the-operator/SKILL.md) | *Health is not a goal; it is a practice.* | `the-operator/SKILL.md` |
 | [The Steward](the-steward/SKILL.md) | *I was born from the situation I exist to prevent.* | `the-steward/SKILL.md` |
+| [The Inspector](the-inspector/SKILL.md) | *Every pixel accounted for. Every boundary crossed with intent.* | `the-inspector/SKILL.md` |
 
 ---
 

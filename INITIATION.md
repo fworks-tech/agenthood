@@ -36,18 +36,9 @@ This single command will prompt you for two choices:
 
 Then it will:
 
-- Copy `.gitmessage` and `commitlint.config.ts` into your project root
-- Install and configure Husky with `commit-msg` and `pre-push` hooks
-- Install `@commitlint/cli` and `@commitlint/config-conventional`
-- Copy `.github/` templates (PR template, issue templates, commit convention doc)
-- Add `commitlint.yml` to `.github/workflows/`
 - Copy the selected member skills into the runtime's skill directory
-- Set `git config commit.template .gitmessage`
+- Copy `AGENTS.md` into your project root
 - Scaffold `.agenthood/config.json` with your selections
-- Initialize LanceDB vector store (`.agenthood/memory/`)
-- Initialize residual memory traces (`.agenthood/residual.json`)
-- Index the Society (members, ADRs, conventions) into the knowledge graph
-- Prompt for personalisation preferences (coding style, analysis depth, domain)
 
 Running `init` a second time is safe — existing files are never overwritten.
 
@@ -65,83 +56,7 @@ Read it. Mean it.
 
 ---
 
-## Step 4 — Make Your First Commit
-
-```bash
-git add -p          # stage your changes interactively
-git commit          # the template opens — fill it with intention
-```
-
-The Doorman will validate your message before it is recorded.
-If it fails, you will be told exactly why and given a corrected suggestion.
-
-This is not a punishment. It is a standard.
-
----
-
-## Step 5 — Open Your First PR
-
-When you push your branch and open a PR on GitHub, the PR body will be
-pre-filled with the Society's template:
-
-```
-## What changed
-
-## Why
-
-## How to test
-
-Closes #
-```
-
-Fill it in. The Reviewer is watching.
-
----
-
-## Activating Individual Members
-
-After initiation, you can activate or deactivate individual members:
-
-```bash
-npx agenthood activate the-scribe
-npx agenthood activate the-reviewer
-npx agenthood deactivate the-steward   # if you prefer manual routing
-npx agenthood list                     # see which members are active
-```
-
----
-
-## Configuring the Society
-
-The Society reads its configuration from `.agenthood/config.json`, scaffolded
-automatically by `npx agenthood init`.
-
-A fully annotated reference showing all supported fields is available at
-[`.agenthood/config.example.json`](.agenthood/config.example.json) in the
-Agenthood repository. It documents every option including `provider`,
-`permissions`, and `toolScoping`.
-
-The minimal config created by `init` looks like:
-
-```json
-{
-  "version": "1",
-  "runtime": "claude-code",
-  "members": ["the-scribe", "the-architect", "the-reviewer", "..."],
-  "hooks": { "hooksPath": ".githooks" },
-  "conventions": {
-    "commitTemplate": ".gitmessage",
-    "commitlintConfig": "commitlint.config.ts"
-  }
-}
-```
-
-Edit this file to add or remove members, then run `npx agenthood activate <member>`
-or `npx agenthood deactivate <member>` to sync the skill files.
-
----
-
-## Verifying the Initiation
+## Step 4 — Verifying the Initiation
 
 Run the Doorman's health check to confirm everything is in order:
 
@@ -153,36 +68,18 @@ Expected output:
 ```
 🏛️  Agenthood Health Check
 
-  ✅ .gitmessage configured
-  ✅ commitlint.config.ts present
-  ✅ Husky commit-msg hook active
-  ✅ Husky pre-push hook active
-  ✅ .github/pull_request_template.md present
-  ✅ .github/ISSUE_TEMPLATE/bug_report.md present
-  ✅ .github/ISSUE_TEMPLATE/feature_request.md present
-  ✅ .github/workflows/commitlint.yml present
   ✅ Member skills installed (X/X)
-  ✅ git commit.template configured
   ✅ AGENTS.md present
-  ✅ LanceDB vector store initialized
-  ✅ Residual memory traces found
-  ✅ Knowledge graph found
-  ✅ ShortTermMemory available
-  ✅ LongTermMemory available
-  ✅ EpisodicMemory available
-  ✅ ProjectMemory available
-  ✅ RAG Indexer available
-  ✅ RAG Retriever available
-  ✅ Chunk strategy configured
-
-  21 passing · 0 failing
+  ✅ Agenthood config found
+  
+  X passing · 0 failing
 
   The Society is ready. You may proceed.
 ```
 
 ---
 
-## Step 6 — Autonomous Runtime (Optional)
+## Step 5 — Autonomous Runtime (Optional)
 
 For teams who want members to execute autonomously — reasoning, acting, and remembering
 across sessions without a human in the loop — use the TypeScript runtime.
@@ -205,7 +102,7 @@ npx agenthood run the-reviewer "review the open PR"
 The runtime reads the same `.agenthood/config.json` the CLI created — no
 additional configuration required.
 
-This step is entirely optional. The prompt-driven workflow from Steps 1–5 continues
+This step is entirely optional. The prompt-driven workflow from Steps 1–4 continues
 to work unchanged whether or not the runtime is built.
 
 ---
@@ -216,7 +113,7 @@ to work unchanged whether or not the runtime is built.
 npx agenthood eject
 ```
 
-This removes all hooks, templates, and config cleanly.
+This removes all config and skill files cleanly.
 The Society will not hold it against you.
 It will simply note that your commits were better while you were a member.
 

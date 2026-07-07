@@ -2,25 +2,21 @@ import { existsSync, readFileSync } from 'node:fs';
 import { join, dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { MEMBER_NAMES, resolveSkillsDir } from '../members.js';
-import { validateApiKeys } from '../llm/validateApiKeys.js';
-import type { LLMConfig } from '../llm/types.js';
-import { safeExec } from '../utils/exec.js';
-import { verifyTableReady } from '../init/store.js';
 
 interface CheckResult {
   label: string;
-  passed: boolean;
+  isPassed: boolean;
 }
 
 function pushFileCheck(results: CheckResult[], basePath: string, label: string, relPath: string): void {
-  results.push({ label, passed: existsSync(join(basePath, relPath)) });
+  results.push({ label, isPassed: existsSync(join(basePath, relPath)) });
 }
 
 export async function check(): Promise<void> {
   const results: CheckResult[] = [];
   collectConfigChecks(results);
   collectMemoryResults(results);
-  await collectRagChecks(results);
+  collectRagChecks(results);
   printReport(results);
 }
 
@@ -29,46 +25,16 @@ function collectConfigChecks(results: CheckResult[]): void {
 
   const file = (label: string, path: string) => pushFileCheck(results, cwd, label, path);
 
-  const cmd = (label: string, command: string) => {
-    try {
-      safeExec(command, { cwd });
-      results.push({ label, passed: true });
-    } catch {
-      results.push({ label, passed: false });
-    }
-  };
-
-  file('.gitmessage configured', '.gitmessage');
-  file('commitlint.config.ts present', 'commitlint.config.ts');
-
-  file('.githooks/commit-msg present', '.githooks/commit-msg');
-  file('.githooks/pre-commit present', '.githooks/pre-commit');
-  file('.githooks/pre-push present', '.githooks/pre-push');
-  cmd('core.hooksPath set to .githooks', 'git config --get core.hooksPath');
-
-  file('.github/pull_request_template.md present', '.github/pull_request_template.md');
-  file('.github/ISSUE_TEMPLATE/bug_report.md present', '.github/ISSUE_TEMPLATE/bug_report.md');
-  file('.github/ISSUE_TEMPLATE/feature_request.md present', '.github/ISSUE_TEMPLATE/feature_request.md');
-  file('.github/workflows/commitlint.yml present', '.github/workflows/commitlint.yml');
-
   collectSkillsCount(cwd, results);
-
-  cmd('git commit.template configured', 'git config --get commit.template');
   file('AGENTS.md present', 'AGENTS.md');
-
   collectApiKeyResult(cwd, results);
 }
 
-async function collectRagChecks(results: CheckResult[]): Promise<void> {
+function collectRagChecks(results: CheckResult[]): void {
   const cwd = process.cwd();
   const file = (label: string, path: string) => pushFileCheck(results, cwd, label, path);
 
-  results.push({
-    label: 'LanceDB vector store initialized',
-    passed: await verifyTableReady(join(cwd, '.agenthood', 'memory')),
-  });
-  file('Residual memory traces found', '.agenthood/residual.json');
-  file('Knowledge graph found', '.agenthood/society-graph.json');
+  file('Agenthood config found', '.agenthood/config.json');
 }
 
 function collectMemoryResults(results: CheckResult[]): void {
@@ -93,7 +59,7 @@ function collectSkillsCount(cwd: string, results: CheckResult[]): void {
   ).length;
   results.push({
     label: `Member skills installed (${installedCount}/${MEMBER_NAMES.length})`,
-    passed: installedCount === MEMBER_NAMES.length,
+    isPassed: installedCount === MEMBER_NAMES.length,
   });
 }
 
@@ -114,22 +80,26 @@ function collectApiKeyResult(cwd: string, results: CheckResult[]): void {
 
   if (!provider || !rawConfig) return;
 
-  try {
-    validateApiKeys(rawConfig as LLMConfig);
-    results.push({ label: `LLM API key configured (${provider})`, passed: true });
-  } catch {
-    results.push({ label: `LLM API key configured (${provider})`, passed: false });
+  const envVar = provider === 'groq' ? 'GROQ_API_KEY'
+    : provider === 'openai' ? 'OPENAI_API_KEY'
+    : provider === 'anthropic' ? 'ANTHROPIC_API_KEY'
+    : null;
+
+  if (envVar && !process.env[envVar]) {
+    results.push({ label: `LLM API key configured (${provider})`, isPassed: false });
+  } else {
+    results.push({ label: `LLM API key configured (${provider})`, isPassed: true });
   }
 }
 
 function printReport(results: CheckResult[]): void {
-  const passing = results.filter((r) => r.passed).length;
-  const failing = results.filter((r) => !r.passed).length;
+  const passing = results.filter((r) => r.isPassed).length;
+  const failing = results.filter((r) => !r.isPassed).length;
 
   console.log('\n🏛️  Agenthood Health Check\n');
 
   for (const r of results) {
-    console.log(`  ${r.passed ? '✅' : '❌'} ${r.label}`);
+    console.log(`  ${r.isPassed ? '✅' : '❌'} ${r.label}`);
   }
 
   console.log(`\n  ${passing} passing · ${failing} failing\n`);

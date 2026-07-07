@@ -17,7 +17,8 @@
     "the-warden",
     "the-steward",
     "the-strategist",
-    "the-operator"
+    "the-operator",
+    "the-mailman"
   ],
   "hooks": {
     "hooksPath": ".githooks"

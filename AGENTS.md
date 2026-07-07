@@ -58,6 +58,7 @@ Load skills from `docs/members/` to activate specialized agents:
 - `the-steward` — context economy, member routing, provider cache strategy, session triage
 - `the-operator` — runtime health, deployment, incidents, rollback, monitoring
 - `the-strategist` — goal refinement, requirement discovery, ambiguity resolution
+- `the-mailman` — message delivery, content scheduling, notification dispatch, cross-posting
 
 ## Autonomous Runtime (agenthood run)
 

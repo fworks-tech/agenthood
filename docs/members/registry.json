@@ -128,6 +128,14 @@
       "role": "runtime health, deployment, incidents, rollback, monitoring",
       "stage": ["deploy"],
       "priority": 15
+    },
+    {
+      "name": "the-mailman",
+      "displayName": "The Mailman",
+      "tagline": "Neither snow nor rain nor API rate limits shall stay this courier from the swift completion of their rounds.",
+      "role": "message delivery, content scheduling, notification dispatch, cross-posting",
+      "stage": ["deliver"],
+      "priority": 16
     }
   ]
 }

@@ -162,6 +162,14 @@ const rawSpecs: RawSpec[] = [
     permissionProfile: 'restricted',
     preferredProvider: 'anthropic',
   },
+  {
+    name: 'the-mailman',
+    description: 'Manages message delivery, content scheduling, notification dispatch, and cross-posting across channels',
+    tagline: 'Delivery and cross-posting',
+    category: 'lifecycle',
+    permissionProfile: 'standard',
+    preferredProvider: 'anthropic',
+  },
 ]
 
 export class MemberRegistry {

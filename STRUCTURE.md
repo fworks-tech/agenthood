@@ -19,6 +19,7 @@ agenthood/
 │   ├── the-auditor/
 │   ├── the-herald/
 │   ├── the-inspector/
+│   ├── the-mailman/
 │   ├── the-librarian/
 │   ├── the-doorman/
 │   ├── the-operator/

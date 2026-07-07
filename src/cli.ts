@@ -7,7 +7,7 @@
  */
 
 import 'dotenv/config'
-import { parseArgs } from 'node:util';
+
 import { ALL_MEMBERS } from './members.js';
 import { init } from './commands/init.js';
 import { check } from './commands/check.js';
@@ -40,28 +40,15 @@ const COMMANDS: Record<string, (...args: string[]) => Promise<void>> = {
 };
 
 async function main(): Promise<void> {
-  const { positionals, values } = parseArgs({
-    allowPositionals: true,
-    args: process.argv.slice(2),
-    options: {
-      detect: { type: 'boolean', default: false },
-      provider: { type: 'string', default: undefined },
-    },
-  });
+  const rawArgs = process.argv.slice(2);
 
-  const [command, ...args] = positionals;
+  const cmdIndex = rawArgs.findIndex((a) => !a.startsWith('-'));
+  const command = cmdIndex >= 0 ? rawArgs[cmdIndex] : undefined;
+  const args = rawArgs.filter((_, i) => i !== cmdIndex);
 
   if (!command || command === 'help') {
     printHelp();
     process.exit(0);
-  }
-
-  if (command === 'run') {
-    const forwarded: string[] = [...args]
-    if (values.detect) forwarded.push('--detect')
-    if (values.provider) forwarded.push('--provider', values.provider)
-    await run(forwarded);
-    return;
   }
 
   if (command === 'pr-sync') {

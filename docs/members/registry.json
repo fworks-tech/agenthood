@@ -136,6 +136,14 @@
       "role": "message delivery, content scheduling, notification dispatch, cross-posting",
       "stage": ["deliver"],
       "priority": 16
+    },
+    {
+      "name": "the-inspector",
+      "displayName": "The Inspector",
+      "tagline": "Every pixel accounted for. Every boundary crossed with intent.",
+      "role": "visual-reasoning benchmarking, pixel-level analysis, multi-panel correspondence",
+      "stage": ["test"],
+      "priority": 17
     }
   ]
 }

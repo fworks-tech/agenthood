@@ -148,18 +148,15 @@ When writing `.githooks/commit-msg` without npm/node:
 - `git show ":$FILE"` reads staged (index) content, not working tree — correct for pre-commit secret scanning
 - NUL-delimited file iteration for filenames with spaces: `git diff --cached --name-only -z | while IFS= read -r -d '' FILE`
 
-For the Agenthood repo itself (no npm): run `./setup.sh` — activates all hooks in one command.
+For the Agenthood repo itself: run `make setup` — runs the CLI setup command which initializes the runtime configuration.
 
 ### Setup Mode
 
-**For the Agenthood repo itself (no npm):** Run `./setup.sh` — activates all hooks in one command.
+**For the Agenthood repo itself:** Run `make setup` — runs `node dist/cli.js setup` which prompts for runtime and member configuration.
 
 ```bash
-./setup.sh
-# or: make setup
+make setup
 ```
-
-This activates `.githooks/` (commit-msg, pre-commit, prepare-commit-msg, pre-push) and sets the commit template. All hooks are pure POSIX shell — no npm or node required.
 
 **For other projects using Agenthood conventions** (npm-based stack):
 
@@ -191,7 +188,7 @@ This activates `.githooks/` (commit-msg, pre-commit, prepare-commit-msg, pre-pus
    git config commit.template .gitmessage
    ```
 
-6. **CI workflow** — copy `.github/workflows/commitlint.yml` to the target repository's `.github/workflows/`
+6. **CI workflow** — add commitlint validation to your CI. See the `commitlint` job in `.github/workflows/pr.yml` for an example of running commitlint against PR commits.
 
 ### What The Doorman Says
 

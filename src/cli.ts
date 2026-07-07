@@ -35,6 +35,8 @@ const COMMANDS: Record<string, (...args: string[]) => Promise<void>> = {
   rollback: async (...args) => rollback(args),
   status: async (...args) => status(args),
   workflow: async (...args) => workflow(args),
+  activate: async (...args) => activate(args[0]),
+  deactivate: async (...args) => deactivate(args[0]),
 };
 
 async function main(): Promise<void> {
@@ -52,16 +54,6 @@ async function main(): Promise<void> {
   if (!command || command === 'help') {
     printHelp();
     process.exit(0);
-  }
-
-  if (command === 'activate') {
-    await activate(args[0]);
-    return;
-  }
-
-  if (command === 'deactivate') {
-    await deactivate(args[0]);
-    return;
   }
 
   if (command === 'run') {
@@ -87,8 +79,7 @@ async function main(): Promise<void> {
   await handler(...args);
 }
 
-function printHelp(): void {
-  console.log(`
+const HELP_TEXT = `
 🏛️  Agenthood — The Society's CLI
 
 Usage:
@@ -132,7 +123,10 @@ Examples:
 
 The Society maintains impeccable standards.
 Zero tolerance for 'fix stuff' commits.
-`);
+`;
+
+function printHelp(): void {
+  console.log(HELP_TEXT);
 }
 
 main().catch((err) => {

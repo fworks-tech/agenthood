@@ -84,6 +84,18 @@
 
 ---
 
+## Analysis
+
+### The Inspector
+
+> *Every pixel accounted for. Every boundary crossed with intent.*
+
+**Specialty:** Visual-reasoning benchmarking, pixel ranking, cross-panel mapping, graph-cut classification, confidence calibration
+**Tools:** `image_load`, `pixel_rank`, `coordinate_map`, `cut_classify`, `confidence_score`
+**Runtime:** `npx agenthood run the-inspector "rank the 4 darkest pixels in panel (a) and map them to panel (c)"`
+
+---
+
 ## Knowledge
 
 ### The Librarian

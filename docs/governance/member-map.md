@@ -34,8 +34,9 @@ A RACI (Responsible / Accountable / Consulted / Informed) matrix documenting all
 | **The Strategist** | Requirement discovery | Problem definition, success criteria, prioritization | Oracle (prior art), Architect (feasibility) | Architect, Herald | — |
 | *The Mediator* | Workflow orchestration | Sequencing, handoffs, conflict resolution | Steward (member routing), Architect (task structure) | All | Steward |
 | **The Operator** | Runtime health | Deployment, incidents, rollback, monitoring | Debugger (failures), Herald (releases) | All | — |
+| **The Inspector** | Visual-reasoning benchmarking | Pixel ranking, cross-panel mapping, graph-cut classification, confidence calibration | Tester (benchmark design), Oracle (naming conventions) | Reviewer, Sentinel | Steward |
 
-*Italic rows = planned but not yet shipped. Strategist and Operator shipped in M6 (PR #288).*
+*Italic rows = planned but not yet shipped. Strategist and Operator shipped in M6 (PR #288). Inspector shipped in M7.*
 
 ## Lane Boundaries
 

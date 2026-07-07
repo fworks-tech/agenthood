@@ -170,6 +170,14 @@ const rawSpecs: RawSpec[] = [
     permissionProfile: 'standard',
     preferredProvider: 'anthropic',
   },
+  {
+    name: 'the-inspector',
+    description: 'Solves and generates challenging visual-reasoning benchmarks: pixel ranking, cross-panel mapping, graph-cut classification, and confidence estimation',
+    tagline: 'Pixel-level visual reasoning',
+    category: 'validation',
+    permissionProfile: 'standard',
+    preferredProvider: 'anthropic',
+  },
 ]
 
 export class MemberRegistry {

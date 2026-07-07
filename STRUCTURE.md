@@ -18,6 +18,8 @@ agenthood/
 │   ├── the-debugger/
 │   ├── the-auditor/
 │   ├── the-herald/
+│   ├── the-inspector/
+│   ├── the-mailman/
 │   ├── the-librarian/
 │   ├── the-doorman/
 │   ├── the-operator/
@@ -63,6 +65,8 @@ agenthood/
 │
 ├── .agenthood/                      ← Agenthood configuration template
 │   └── config.example.json
+│
+├── skills/                           ← Runtime skill directory (flat copy of member SKILL.md files + integration skills)
 │
 ├── src/                             ← Node.js CLI + TypeScript runtime
 │   ├── cli.ts                       ← Entry point

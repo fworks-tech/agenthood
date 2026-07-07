@@ -53,6 +53,7 @@ Every role a real software team needs — available as a skill file with impecca
 | 🎯 | [The Strategist](docs/members/the-strategist/SKILL.md) | Goal refinement, requirement discovery |
 | 🩺 | [The Operator](docs/members/the-operator/SKILL.md) | Runtime health, deployments, rollback |
 | 👁️ | [The Inspector](docs/members/the-inspector/SKILL.md) | Visual-reasoning benchmarking, pixel analysis |
+| 📬 | [The Mailman](docs/members/the-mailman/SKILL.md) | Message delivery, scheduling, cross-posting |
 
 ---
 

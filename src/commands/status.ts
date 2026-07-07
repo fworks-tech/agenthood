@@ -1,7 +1,7 @@
 import { existsSync, readFileSync, readdirSync } from 'node:fs'
 import { join } from 'node:path'
-import { MetricsCollector } from '../memory/MetricsCollector.js'
 import type { MetricsEntry } from '../memory/MetricsCollector.js'
+import { collectMemberMetrics } from './collectMetrics.js'
 import { contentHash } from '../utils/hash.js'
 import { loadLockfile } from '../utils/lockfile.js'
 import { resolveSkillsDir } from '../members.js'
@@ -118,14 +118,13 @@ export async function status(args: string[] = []): Promise<void> {
   }
 
   const isMemoryInitialized = existsSync(join(cwd, '.agenthood', 'memory'))
-  const collector = new MetricsCollector(join(cwd, '.agenthood', 'metrics'))
-  const allStats = collector.getAllStats()
+  const allStats = collectMemberMetrics(join(cwd, '.agenthood', 'metrics'))
 
   const display = isJson ? printJson : printPlain
 
   if (isWatch) {
     const interval = setInterval(() => {
-      const stats = new MetricsCollector(join(cwd, '.agenthood', 'metrics')).getAllStats()
+      const stats = collectMemberMetrics(join(cwd, '.agenthood', 'metrics'))
       display(memberCount, decisionCount, lockStatus, isMemoryInitialized, stats)
     }, 5000)
     display(memberCount, decisionCount, lockStatus, isMemoryInitialized, allStats)

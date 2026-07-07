@@ -1,3 +1,17 @@
+# [3.11.0](https://github.com/fworks-tech/agenthood/compare/v3.10.0...v3.11.0) (2026-07-07)
+
+
+### Bug Fixes
+
+* **cli:** add missing run command to COMMANDS map ([d6caf41](https://github.com/fworks-tech/agenthood/commit/d6caf410dd7ac63c5058aefb08917cf7cf3618ef))
+* **cli:** fix flag parsing and status member count ([de9c34c](https://github.com/fworks-tech/agenthood/commit/de9c34c32a717f1992e046875ef89faf1c69c8b0)), closes [#367](https://github.com/fworks-tech/agenthood/issues/367)
+* **status:** remove readMetrics duplication, restore MetricsCollector with centralized usage ([34c2b17](https://github.com/fworks-tech/agenthood/commit/34c2b17283072d0eac69e0f2c0c282f2afd3361f))
+
+
+### Features
+
+* **commands:** add adapter for MetricsCollector to isolate infrastructure dependency ([1c07da0](https://github.com/fworks-tech/agenthood/commit/1c07da0b741af8bf9190787316a7a1a6a467daa2))
+
 # [3.10.0](https://github.com/fworks-tech/agenthood/compare/v3.9.1...v3.10.0) (2026-07-07)
 
 

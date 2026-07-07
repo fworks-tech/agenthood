@@ -5,6 +5,20 @@
 
 ---
 
+## v3.11.0 — July 7, 2026
+
+### 🐛 Bug Fixes
+
+- **Cli:** add missing run command to COMMANDS map
+- **Cli:** fix flag parsing and status member count
+- **Status:** remove readMetrics duplication, restore MetricsCollector with centralized usage
+
+### ✨ Features
+
+- **Commands:** add adapter for MetricsCollector to isolate infrastructure dependency
+
+---
+
 ## v3.10.0 — July 7, 2026
 
 ### ✨ Features

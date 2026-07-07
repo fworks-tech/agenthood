@@ -66,6 +66,8 @@ agenthood/
 ├── .agenthood/                      ← Agenthood configuration template
 │   └── config.example.json
 │
+├── skills/                           ← Runtime skill directory (flat copy of member SKILL.md files + integration skills)
+│
 ├── src/                             ← Node.js CLI + TypeScript runtime
 │   ├── cli.ts                       ← Entry point
 │   ├── commands/                    ← CLI commands (init, check, run, list, verify, rollback, status, workflow, pr-sync, setup, oath, eject, activate, deactivate)

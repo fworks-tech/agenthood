@@ -3,14 +3,17 @@ import { existsSync } from 'node:fs'
 import { join, dirname } from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { stripConfig } from '../utils/stripConfig.js'
+import type { Runtime } from '../members.js'
 
 const __dirname = dirname(fileURLToPath(import.meta.url))
 const SOCIETY_ROOT = join(__dirname, '..', '..')
 
-type Runtime = 'claude-code' | 'copilot' | 'gemini-cli' | 'other'
-
 async function safeCopy(src: string, dest: string): Promise<void> {
-  if (!existsSync(src) || existsSync(dest)) return
+  if (!existsSync(src)) {
+    console.warn(`[agenthood] source not found, skipping: ${src}`)
+    return
+  }
+  if (existsSync(dest)) return
   await copyFile(src, dest)
 }
 

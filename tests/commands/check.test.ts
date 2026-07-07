@@ -44,9 +44,7 @@ describe('check command', () => {
   })
 
   it('reports API key check as passing when key is in environment', async () => {
-    vi.mocked(existsSync).mockImplementation((p) =>
-      () => true
-    )
+    vi.mocked(existsSync).mockImplementation(() => true)
     vi.mocked(readFileSync).mockReturnValue('{"provider":"groq"}')
     process.env.GROQ_API_KEY = 'test-key'
     const { check } = await import('../../src/commands/check.js')

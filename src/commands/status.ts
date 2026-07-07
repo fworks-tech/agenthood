@@ -1,9 +1,52 @@
 import { existsSync, readFileSync, readdirSync } from 'node:fs'
 import { join } from 'node:path'
-import { MetricsCollector } from '../memory/MetricsCollector.js'
 import { contentHash } from '../utils/hash.js'
 import { loadLockfile } from '../utils/lockfile.js'
 import { resolveSkillsDir } from '../members.js'
+
+interface MemberMetrics {
+  invocations: number
+  successes: number
+  failures: number
+  totalDurationMs: number
+  lastRun: string | null
+}
+
+interface MetricsEntry {
+  member: string
+  metrics: MemberMetrics
+}
+
+function readMetrics(metricsDir: string): MetricsEntry[] {
+  if (!existsSync(metricsDir)) return []
+  try {
+    const files = readdirSync(metricsDir).filter((f) => f.endsWith('.json'))
+    return files
+      .map((file) => {
+        const member = file.replace(/\.json$/, '')
+        const path = join(metricsDir, file)
+        try {
+          const data = JSON.parse(readFileSync(path, 'utf8'))
+          return {
+            member,
+            metrics: {
+              invocations: data.invocations ?? 0,
+              successes: data.successes ?? 0,
+              failures: data.failures ?? 0,
+              totalDurationMs: data.totalDurationMs ?? 0,
+              lastRun: data.lastRun ?? null,
+            },
+          }
+        } catch {
+          return null
+        }
+      })
+      .filter((e): e is MetricsEntry => e !== null)
+      .sort((a, b) => b.metrics.invocations - a.metrics.invocations)
+  } catch {
+    return []
+  }
+}
 
 function formatDuration(ms: number): string {
   if (ms < 1000) return `${ms}ms`
@@ -16,23 +59,21 @@ function formatPct(rate: number | null): string {
   return `${(rate * 100).toFixed(0)}%`
 }
 
-function printPlain(memberCount: number, decisionCount: number, lockStatus: string, memoryInit: boolean, metricsDir: string): void {
+function printPlain(memberCount: number, decisionCount: number, lockStatus: string, memoryInit: boolean, entries: MetricsEntry[]): void {
   console.log('\n  Agenthood Status\n')
   console.log(`  Members:     ${memberCount}`)
   console.log(`  Decisions:   ${decisionCount}`)
   console.log(`  Lockfile:    ${lockStatus}`)
   console.log(`  Memory:      ${memoryInit ? 'initialized' : 'not initialized'}\n`)
 
-  const collector = new MetricsCollector(metricsDir)
-  const allStats = collector.getAllStats()
-  if (allStats.length > 0) {
+  if (entries.length > 0) {
     console.log('  Member Metrics:\n')
     console.log(`  ${'Member'.padEnd(20)} ${'Runs'.padEnd(6)} ${'Success'.padEnd(8)} ${'Avg Duration'.padEnd(14)} Last Run`)
     console.log(`  ${''.padEnd(20, '-')} ${''.padEnd(6, '-')} ${''.padEnd(8, '-')} ${''.padEnd(14, '-')} ${''.padEnd(24, '-')}`)
-    for (const entry of allStats) {
-      const avgDur = formatDuration(collector.getAverageDuration(entry.member) ?? 0)
+    for (const entry of entries) {
+      const avgDur = formatDuration(entry.metrics.invocations > 0 ? Math.round(entry.metrics.totalDurationMs / entry.metrics.invocations) : 0)
       const lastRun = entry.metrics.lastRun ? new Date(entry.metrics.lastRun).toLocaleDateString() : '—'
-      const successRate = formatPct(collector.getSuccessRate(entry.member))
+      const successRate = formatPct(entry.metrics.invocations > 0 ? entry.metrics.successes / entry.metrics.invocations : null)
       const name = entry.member.length > 18 ? entry.member.slice(0, 18) + '…' : entry.member
       console.log(`  ${name.padEnd(20)} ${String(entry.metrics.invocations).padEnd(6)} ${successRate.padEnd(8)} ${avgDur.padEnd(14)} ${lastRun}`)
     }
@@ -40,14 +81,13 @@ function printPlain(memberCount: number, decisionCount: number, lockStatus: stri
   }
 }
 
-function printJson(memberCount: number, decisionCount: number, lockStatus: string, memoryInit: boolean, metricsDir: string): void {
-  const collector = new MetricsCollector(metricsDir)
+function printJson(memberCount: number, decisionCount: number, lockStatus: string, memoryInit: boolean, entries: MetricsEntry[]): void {
   const output = {
     members: memberCount,
     decisions: decisionCount,
     lockfile: lockStatus,
     memory: memoryInit,
-    metrics: collector.getAllStats(),
+    metrics: entries,
   }
   console.log(JSON.stringify(output, null, 2))
 }
@@ -128,13 +168,13 @@ export async function status(args: string[] = []): Promise<void> {
 
   if (isWatch) {
     const interval = setInterval(() => {
-      display(memberCount, decisionCount, lockStatus, memoryInit, metricsDir)
+      display(memberCount, decisionCount, lockStatus, memoryInit, readMetrics(metricsDir))
     }, 5000)
-    display(memberCount, decisionCount, lockStatus, memoryInit, metricsDir)
+    display(memberCount, decisionCount, lockStatus, memoryInit, readMetrics(metricsDir))
     process.on('SIGINT', () => { clearInterval(interval); process.exit(0) })
     process.on('SIGTERM', () => { clearInterval(interval); process.exit(0) })
     return
   }
 
-  display(memberCount, decisionCount, lockStatus, memoryInit, metricsDir)
+  display(memberCount, decisionCount, lockStatus, memoryInit, readMetrics(metricsDir))
 }

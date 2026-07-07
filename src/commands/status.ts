@@ -3,6 +3,7 @@ import { join } from 'node:path'
 import { MetricsCollector } from '../memory/MetricsCollector.js'
 import { contentHash } from '../utils/hash.js'
 import { loadLockfile } from '../utils/lockfile.js'
+import { resolveSkillsDir } from '../members.js'
 
 function formatDuration(ms: number): string {
   if (ms < 1000) return `${ms}ms`
@@ -59,7 +60,7 @@ export async function status(args: string[] = []): Promise<void> {
   const isDrift = flags.has('--drift')
 
   if (isDrift) {
-    const membersDir = join(cwd, 'members')
+    const skillsBase = resolveSkillsDir(cwd)
     const lock = loadLockfile(cwd)
     if (!lock) {
       console.log('\n  No lockfile found. Run `agenthood verify --update-lock` first.\n')
@@ -67,9 +68,9 @@ export async function status(args: string[] = []): Promise<void> {
       return
     }
     const driftFound: string[] = []
-    const members = readdirSync(membersDir, { withFileTypes: true }).filter((d) => d.isDirectory()).map((d) => d.name)
+    const members = readdirSync(skillsBase, { withFileTypes: true }).filter((d) => d.isDirectory()).map((d) => d.name)
     for (const member of members) {
-      const skillPath = join(membersDir, member, 'SKILL.md')
+      const skillPath = join(skillsBase, member, `${member}.md`)
       if (!existsSync(skillPath)) continue
       const content = readFileSync(skillPath, 'utf8')
       const currentHash = contentHash(content)
@@ -91,10 +92,16 @@ export async function status(args: string[] = []): Promise<void> {
     return
   }
 
-  const membersDir = join(cwd, 'members')
-  const memberCount = existsSync(membersDir)
-    ? readdirSync(membersDir, { withFileTypes: true }).filter((d) => d.isDirectory()).length
-    : 0
+  const configPath = join(cwd, '.agenthood', 'config.json')
+  let memberCount = 0
+  if (existsSync(configPath)) {
+    try {
+      const config = JSON.parse(readFileSync(configPath, 'utf8'))
+      memberCount = Array.isArray(config.members) ? config.members.length : 0
+    } catch {
+      memberCount = 0
+    }
+  }
 
   const decisionsDir = join(cwd, '.agenthood', 'decisions')
   const decisionCount = existsSync(decisionsDir)

@@ -45,15 +45,15 @@ describe('status command', () => {
     expect(output).toContain('Memory:      not initialized')
   })
 
-  it('shows member count from members directory', async () => {
+  it('shows member count from config', async () => {
     vi.mocked(existsSync).mockImplementation((path) => {
       const p = path as string
-      return p.includes('members') || p.includes('decisions') || p.includes('lock')
+      return p.includes('config.json') || p.includes('lock')
     })
-    vi.mocked(readdirSync).mockImplementation((path) => {
+    vi.mocked(readFileSync).mockImplementation((path) => {
       const p = path as string
-      if (p.includes('members')) return [{ name: 'the-scribe', isDirectory: () => true }, { name: 'the-architect', isDirectory: () => true }] as any
-      return []
+      if (p.includes('config.json')) return JSON.stringify({ version: '1', members: ['the-scribe', 'the-architect'] })
+      return ''
     })
 
     const log = vi.spyOn(console, 'log').mockImplementation(() => {})
@@ -123,14 +123,18 @@ describe('status command', () => {
   it('reports no drift with --drift when lockfile matches', async () => {
     vi.mocked(existsSync).mockImplementation((path) => {
       const p = path as string
-      return p.includes('lock') || p.includes('members')
+      return p.includes('lock') || p.includes('.agenthood')
     })
     vi.mocked(readdirSync).mockImplementation((path) => {
       const p = path as string
-      if (p.includes('members')) return [{ name: 'the-scribe', isDirectory: () => true }] as any
+      if (p.includes('skills')) return [{ name: 'the-scribe', isDirectory: () => true }] as any
       return []
     })
-    vi.mocked(readFileSync).mockReturnValue(JSON.stringify({ version: 1, members: { 'the-scribe': { version: 'abc123' } } }))
+    vi.mocked(readFileSync).mockImplementation((path) => {
+      const p = path as string
+      if (p.includes('the-scribe.md')) return 'some content'
+      return JSON.stringify({ version: 1, members: { 'the-scribe': { version: 'abc123' } } })
+    })
 
     const log = vi.spyOn(console, 'log').mockImplementation(() => {})
     const exit = vi.spyOn(process, 'exit').mockImplementation(() => undefined as never)
@@ -145,14 +149,18 @@ describe('status command', () => {
   it('reports drift when lockfile hash differs', async () => {
     vi.mocked(existsSync).mockImplementation((path) => {
       const p = path as string
-      return p.includes('lock') || p.includes('members')
+      return p.includes('lock') || p.includes('.agenthood')
     })
     vi.mocked(readdirSync).mockImplementation((path) => {
       const p = path as string
-      if (p.includes('members')) return [{ name: 'the-scribe', isDirectory: () => true }] as any
+      if (p.includes('skills')) return [{ name: 'the-scribe', isDirectory: () => true }] as any
       return []
     })
-    vi.mocked(readFileSync).mockReturnValue(JSON.stringify({ version: 1, members: { 'the-scribe': { version: 'def456' } } }))
+    vi.mocked(readFileSync).mockImplementation((path) => {
+      const p = path as string
+      if (p.includes('the-scribe.md')) return 'some content'
+      return JSON.stringify({ version: 1, members: { 'the-scribe': { version: 'def456' } } })
+    })
 
     const log = vi.spyOn(console, 'log').mockImplementation(() => {})
     const exit = vi.spyOn(process, 'exit').mockImplementation(() => undefined as never)

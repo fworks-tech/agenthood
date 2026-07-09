@@ -41,6 +41,7 @@
   },
   "files": [
     "dist",
+    "skills",
     "docs/members",
     "docs/conventions",
     "docs/portals",

@@ -30,7 +30,7 @@ export async function installSkills(cwd: string, runtime: Runtime, members: stri
   await mkdir(skillsDest, { recursive: true })
 
   for (const member of members) {
-    const src = join(SOCIETY_ROOT, 'docs', 'members', member, 'SKILL.md')
+    const src = join(SOCIETY_ROOT, 'skills', member, 'SKILL.md')
     if (!existsSync(src)) continue
     const destDir = join(skillsDest, member)
     await mkdir(destDir, { recursive: true })

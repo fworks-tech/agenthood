@@ -13,7 +13,7 @@ check_readme_for_member() {
 
 check_sections_for_member() {
   local name="$1" dir="$2" section fail=0
-  local skill="${dir}SKILL.md"
+  local skill="skills/$name/SKILL.md"
   [ ! -f "$skill" ] && return 0
   for section in "${REQUIRED_SECTIONS[@]}"; do
     ! grep -qF "$section" "$skill" && echo "FAIL [$name]: SKILL.md missing '$section'" && fail=1
@@ -33,10 +33,11 @@ check_sync_for_member() {
   local name="$1"
   local member_file="docs/members/$name/SKILL.md"
   local skill_file="skills/$name/SKILL.md"
+  if [ -f "$member_file" ]; then
+    echo "FAIL [$name]: duplicate $member_file must not exist (skills/ is canonical)"; return 1
+  fi
   if [ ! -f "$skill_file" ]; then
-    echo "FAIL [$name]: missing $skill_file"; return 1
-  elif ! cmp -s "$member_file" "$skill_file"; then
-    echo "FAIL [$name]: $skill_file differs from $member_file"; return 1
+    echo "FAIL [$name]: missing canonical $skill_file"; return 1
   fi
 }
 

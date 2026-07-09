@@ -8,6 +8,13 @@ import type { GraphEdge, GraphNode } from "../rag/KnowledgeGraphStore.ts"
 
 export type IndexableEntity = "member" | "adr" | "convention"
 
+interface AdrNode {
+  id: string
+  label: string
+  content: string
+  supersedes?: string
+}
+
 export interface SocietyIndexOptions {
   basePath: string
   knowledgeGraph: KnowledgeGraphStore
@@ -94,14 +101,19 @@ export class SocietyIndexer {
       return
     }
 
-    const adrNodes = new Map<string, { id: string; label: string; content: string; supersedes?: string }>()
+    const adrNodes = this.parseADRFiles(adrDir, files)
+    this.resolveSupersedesEdges(adrNodes)
+    this.indexADRReferences(adrDir, files, adrNodes)
+  }
+
+  private parseADRFiles(adrDir: string, files: string[]): Map<string, AdrNode> {
+    const adrNodes = new Map<string, AdrNode>()
 
     for (const file of files) {
       const content = readFileSync(join(adrDir, file), "utf8")
       const id = `adr:${file.replace(/\.md$/, "")}`
       const titleMatch = content.match(/^#\s+(.+)/m)
       const label = titleMatch ? titleMatch[1].trim() : file
-
       const supersedes = this.findSupersedes(content)
 
       this.addNodeSafe({
@@ -115,51 +127,49 @@ export class SocietyIndexer {
       this.maybeEmbed(id, content)
     }
 
-    for (const [, node] of adrNodes) {
-      if (node.supersedes) {
-        const refMatch = node.supersedes.match(/ADR-(\d+)/i)
-        if (refMatch) {
-          const num = refMatch[1].padStart(3, "0")
-          const targetId = [...adrNodes.keys()].find((id) =>
-            id === `adr:ADR-${num}` || id.includes(`ADR-${num}`),
-          )
-          if (targetId) {
-            this.addEdgeSafe({
-              id: `edge:${node.id}-supersedes-${targetId}`,
-              source: node.id,
-              target: targetId,
-              relation: "supersedes",
-            })
-          }
-        }
-      }
-    }
+    return adrNodes
+  }
 
-    for (const file of files) {
-      const content = readFileSync(join(adrDir, file), "utf8")
-      this.indexADRLinks(file, content, adrNodes)
+  private resolveSupersedesEdges(adrNodes: Map<string, AdrNode>): void {
+    for (const node of adrNodes.values()) {
+      if (!node.supersedes) continue
+
+      const targetId = this.resolveAdrId(node.supersedes, adrNodes)
+      if (!targetId) continue
+
+      this.addEdgeSafe({
+        id: `edge:${node.id}-supersedes-${targetId}`,
+        source: node.id,
+        target: targetId,
+        relation: "supersedes",
+      })
     }
   }
 
-  private indexADRLinks(currentFile: string, content: string, adrNodes: Map<string, { id: string; label: string }>): void {
-    const currentId = `adr:${currentFile.replace(/\.md$/, "")}`
-    const refs = content.match(/ADR-\d+/gi) || []
+  private indexADRReferences(adrDir: string, files: string[], adrNodes: Map<string, AdrNode>): void {
+    for (const file of files) {
+      const content = readFileSync(join(adrDir, file), "utf8")
+      const currentId = `adr:${file.replace(/\.md$/, "")}`
 
-    for (const ref of refs) {
-      const num = ref.replace("ADR-", "").padStart(3, "0")
-      const targetId = [...adrNodes.keys()].find((id) =>
-        id === `adr:ADR-${num}` || id.includes(`ADR-${num}`),
-      )
-
-      if (targetId && targetId !== currentId) {
-        this.addEdgeSafe({
-          id: `edge:${currentId}-references-${targetId}`,
-          source: currentId,
-          target: targetId,
-          relation: "references",
-        })
+      for (const ref of content.match(/ADR-\d+/gi) || []) {
+        const targetId = this.resolveAdrId(ref, adrNodes)
+        if (targetId && targetId !== currentId) {
+          this.addEdgeSafe({
+            id: `edge:${currentId}-references-${targetId}`,
+            source: currentId,
+            target: targetId,
+            relation: "references",
+          })
+        }
       }
     }
+  }
+
+  private resolveAdrId(ref: string, adrNodes: Map<string, AdrNode>): string | undefined {
+    const refMatch = ref.match(/ADR-(\d+)/i)
+    if (!refMatch) return undefined
+    const num = refMatch[1].padStart(3, "0")
+    return [...adrNodes.keys()].find((id) => id === `adr:ADR-${num}` || id.includes(`ADR-${num}`))
   }
 
   private indexConventions(): void {
@@ -233,11 +243,11 @@ export class SocietyIndexer {
         metadata: { source: id, indexedAt: new Date().toISOString() },
         content: content.slice(0, 4000),
         createdAt: new Date(),
-      }]).catch(() => {
-        // embedding failure is non-critical
+      }]).catch((err) => {
+        console.warn(`[SocietyIndexer] embedding store failed for ${id}:`, err)
       })
-    }).catch(() => {
-      // embedding failure is non-critical
+    }).catch((err) => {
+      console.warn(`[SocietyIndexer] embedding failed for ${id}:`, err)
     })
   }
 

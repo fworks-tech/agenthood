@@ -40,17 +40,17 @@ export class SocietyIndexer {
     const entities = options?.entities ?? ["member", "adr", "convention"]
 
     if (entities.includes("member")) {
-      this.indexMembers()
+      await this.indexMembers()
     }
     if (entities.includes("adr")) {
-      this.indexADRs()
+      await this.indexADRs()
     }
     if (entities.includes("convention")) {
-      this.indexConventions()
+      await this.indexConventions()
     }
   }
 
-  private indexMembers(): void {
+  private async indexMembers(): Promise<void> {
     const membersDir = join(this.basePath, "skills")
     if (!existsSync(membersDir)) return
 
@@ -66,6 +66,7 @@ export class SocietyIndexer {
     // Only index the 18 canonical Society members; `skills/` also holds
     // non-member integration skills (aws, docker, github, ...) that are not members.
     const memberEntries = entries.filter((name) => MEMBER_NAMES.includes(name))
+    const embedPromises: Promise<void>[] = []
 
     for (const memberName of memberEntries) {
       const skillPath = join(membersDir, memberName, "SKILL.md")
@@ -86,11 +87,13 @@ export class SocietyIndexer {
         metadata: { source: skillPath, indexedAt: new Date().toISOString() },
       })
 
-      this.maybeEmbed(id, content)
+      embedPromises.push(this.maybeEmbed(id, content))
     }
+
+    await Promise.allSettled(embedPromises)
   }
 
-  private indexADRs(): void {
+  private async indexADRs(): Promise<void> {
     const adrDir = join(this.basePath, "docs", "adr")
     if (!existsSync(adrDir)) return
 
@@ -101,13 +104,15 @@ export class SocietyIndexer {
       return
     }
 
-    const adrNodes = this.parseADRFiles(adrDir, files)
+    const { nodes: adrNodes, embedPromises } = this.parseADRFiles(adrDir, files)
     this.resolveSupersedesEdges(adrNodes)
     this.indexADRReferences(adrDir, files, adrNodes)
+    await Promise.allSettled(embedPromises)
   }
 
-  private parseADRFiles(adrDir: string, files: string[]): Map<string, AdrNode> {
+  private parseADRFiles(adrDir: string, files: string[]): { nodes: Map<string, AdrNode>; embedPromises: Promise<void>[] } {
     const adrNodes = new Map<string, AdrNode>()
+    const embedPromises: Promise<void>[] = []
 
     for (const file of files) {
       const content = readFileSync(join(adrDir, file), "utf8")
@@ -124,10 +129,10 @@ export class SocietyIndexer {
       })
 
       adrNodes.set(id, { id, label, content, supersedes })
-      this.maybeEmbed(id, content)
+      embedPromises.push(this.maybeEmbed(id, content))
     }
 
-    return adrNodes
+    return { nodes: adrNodes, embedPromises }
   }
 
   private resolveSupersedesEdges(adrNodes: Map<string, AdrNode>): void {
@@ -172,7 +177,7 @@ export class SocietyIndexer {
     return [...adrNodes.keys()].find((id) => id === `adr:ADR-${num}` || id.includes(`ADR-${num}`))
   }
 
-  private indexConventions(): void {
+  private async indexConventions(): Promise<void> {
     const convDir = join(this.basePath, "docs", "conventions")
     if (!existsSync(convDir)) return
 
@@ -182,6 +187,8 @@ export class SocietyIndexer {
     } catch {
       return
     }
+
+    const embedPromises: Promise<void>[] = []
 
     for (const file of files) {
       const content = readFileSync(join(convDir, file), "utf8")
@@ -195,27 +202,15 @@ export class SocietyIndexer {
         metadata: { source: file, indexedAt: new Date().toISOString() },
       })
 
-      this.maybeEmbed(id, content)
+      embedPromises.push(this.maybeEmbed(id, content))
     }
+
+    await Promise.allSettled(embedPromises)
   }
 
   private findSupersedes(content: string): string | undefined {
-    const lines = content.split("\n")
-    for (const line of lines) {
-      const trimmed = line.trim().toLowerCase()
-      if (trimmed.startsWith("superseded by") || trimmed.startsWith("supersedes")) {
-        const match = line.match(/ADR-\d+/i)
-        if (match) return match[0]
-      }
-    }
-
-    const supersedesSection = content.match(/##\s+Supersedes\s*\n([^#]+)/i)
-    if (supersedesSection) {
-      const match = supersedesSection[1].match(/ADR-\d+/i)
-      if (match) return match[0]
-    }
-
-    return undefined
+    const match = content.match(/supersed(?:ed by|es).*?(ADR-\d+)/is)
+    return match ? match[1] : undefined
   }
 
   private addNodeSafe(node: GraphNode): void {
@@ -234,21 +229,20 @@ export class SocietyIndexer {
     }
   }
 
-  private maybeEmbed(id: string, content: string): void {
+  private async maybeEmbed(id: string, content: string): Promise<void> {
     if (!this.vectorStore || !this.embedder) return
-    this.embedder.embed(content.slice(0, 8000)).then((vector) => {
-      this.vectorStore!.add([{
+    try {
+      const vector = await this.embedder.embed(content.slice(0, 8000))
+      await this.vectorStore.add([{
         id: `${id}::content`,
         vector,
         metadata: { source: id, indexedAt: new Date().toISOString() },
         content: content.slice(0, 4000),
         createdAt: new Date(),
-      }]).catch((err) => {
-        console.warn(`[SocietyIndexer] embedding store failed for ${id}:`, err)
-      })
-    }).catch((err) => {
+      }])
+    } catch (err) {
       console.warn(`[SocietyIndexer] embedding failed for ${id}:`, err)
-    })
+    }
   }
 
   stats(): { nodeCount: number; edgeCount: number } {

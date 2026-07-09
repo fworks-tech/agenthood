@@ -209,7 +209,7 @@ export class SocietyIndexer {
   }
 
   private findSupersedes(content: string): string | undefined {
-    const match = content.match(/supersed(?:ed by|es).*?(ADR-\d+)/is)
+    const match = content.match(/supersed(?:ed by|es)[^#]*?(ADR-\d+)/is)
     return match ? match[1] : undefined
   }
 

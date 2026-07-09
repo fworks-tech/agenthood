@@ -77,27 +77,26 @@ export class MemberRegistry {
     'memory.write', 'tasks.read', 'tasks.write', 'think',
   ]
 
-  private static readonly restrictedTools = [...MemberRegistry.toolBase]
-  private static readonly standardTools = [
-    ...MemberRegistry.restrictedTools,
-    'file.write', 'file.edit',
-    'git.status', 'git.diff', 'git.log', 'git.branch',
-    'terminal.run',
-  ]
-  private static readonly trustedTools = [
-    ...MemberRegistry.standardTools,
-    'file.delete',
-    'git.commit', 'git.push', 'git.tag',
-    'code.symbols', 'code.analysis', 'code.diagnostics',
-    'search.web', 'search.vector', 'search.hybrid',
-    'debug.stacktrace', 'debug.variables', 'debug.evaluate', 'debug.control',
-  ]
-
-  private static readonly toolsByProfile: Record<PermissionProfile, string[]> = {
-    restricted: MemberRegistry.restrictedTools,
-    standard: MemberRegistry.standardTools,
-    trusted: MemberRegistry.trustedTools,
-  }
+  // Tiers are computed in a single closure so the spread order is fixed by
+  // const sequencing rather than by class-field declaration order.
+  private static readonly toolsByProfile: Record<PermissionProfile, string[]> = (() => {
+    const restricted = [...MemberRegistry.toolBase]
+    const standard = [
+      ...restricted,
+      'file.write', 'file.edit',
+      'git.status', 'git.diff', 'git.log', 'git.branch',
+      'terminal.run',
+    ]
+    const trusted = [
+      ...standard,
+      'file.delete',
+      'git.commit', 'git.push', 'git.tag',
+      'code.symbols', 'code.analysis', 'code.diagnostics',
+      'search.web', 'search.vector', 'search.hybrid',
+      'debug.stacktrace', 'debug.variables', 'debug.evaluate', 'debug.control',
+    ]
+    return { restricted, standard, trusted }
+  })()
 
   private defaultTools(permission: PermissionProfile): string[] {
     return MemberRegistry.toolsByProfile[permission]

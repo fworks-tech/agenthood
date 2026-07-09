@@ -5,6 +5,18 @@
 
 ---
 
+## v3.11.1 — July 9, 2026
+
+### 🐛 Bug Fixes
+
+- **Ci:** point member structure checks at canonical skills/ source
+- **Members:** make skills/ the single source of truth for member SKILL.md
+- **Members:** make tool tier construction order-independent
+- **Project:** scope supersedes regex to its section
+- **Security:** replace execSync postinstall eval and drop esbuild allowScripts
+
+---
+
 ## v3.11.0 — July 7, 2026
 
 ### 🐛 Bug Fixes

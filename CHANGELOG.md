@@ -1,3 +1,14 @@
+## [3.11.1](https://github.com/fworks-tech/agenthood/compare/v3.11.0...v3.11.1) (2026-07-09)
+
+
+### Bug Fixes
+
+* **ci:** point member structure checks at canonical skills/ source ([65cff2b](https://github.com/fworks-tech/agenthood/commit/65cff2b92edb085d41c3ab0c86649e847859ebfc)), closes [#366](https://github.com/fworks-tech/agenthood/issues/366)
+* **members:** make skills/ the single source of truth for member SKILL.md ([7946b16](https://github.com/fworks-tech/agenthood/commit/7946b16ec353f6abbe45a2a897e00db24c28d3de)), closes [#366](https://github.com/fworks-tech/agenthood/issues/366)
+* **members:** make tool tier construction order-independent ([0f033da](https://github.com/fworks-tech/agenthood/commit/0f033da92e7d2fd451d0910409e9d405d7925104))
+* **project:** scope supersedes regex to its section ([8e91073](https://github.com/fworks-tech/agenthood/commit/8e91073bb1880ebc45ea275be4032a1330eca2a1))
+* **security:** replace execSync postinstall eval and drop esbuild allowScripts ([fa193ad](https://github.com/fworks-tech/agenthood/commit/fa193ad93e987bacafe2a754b8afbace4108d6ca))
+
 # [3.11.0](https://github.com/fworks-tech/agenthood/compare/v3.10.0...v3.11.0) (2026-07-07)
 
 

@@ -5,6 +5,18 @@
 
 ---
 
+## v3.12.0 — July 9, 2026
+
+### 🐛 Bug Fixes
+
+- **Pr:** address reviewer and warden findings on PR #371
+
+### ✨ Features
+
+- **Llm:** add OpenRouter provider
+
+---
+
 ## v3.11.1 — July 9, 2026
 
 ### 🐛 Bug Fixes

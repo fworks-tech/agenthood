@@ -1,3 +1,15 @@
+# [3.12.0](https://github.com/fworks-tech/agenthood/compare/v3.11.1...v3.12.0) (2026-07-09)
+
+
+### Bug Fixes
+
+* **pr:** address reviewer and warden findings on PR [#371](https://github.com/fworks-tech/agenthood/issues/371) ([3174c4e](https://github.com/fworks-tech/agenthood/commit/3174c4e2060ea09be7969890bb39c0a49bc75262))
+
+
+### Features
+
+* **llm:** add OpenRouter provider ([27c51f1](https://github.com/fworks-tech/agenthood/commit/27c51f1030e16b8a7283e6dc5882bd7d67d9beee))
+
 ## [3.11.1](https://github.com/fworks-tech/agenthood/compare/v3.11.0...v3.11.1) (2026-07-09)
 
 

@@ -227,21 +227,21 @@ export class MemberRegistry {
     return this.list().filter((s) => s.category === category)
   }
 
-  private defaultTools(permission: PermissionProfile): string[] {
-    const base = ['file.read', 'file.list', 'file.search', 'code.grep', 'memory.read', 'memory.write', 'tasks.read', 'tasks.write', 'think']
-    if (permission === 'restricted') return base
+  private static readonly toolBase = [
+    'file.read', 'file.list', 'file.search', 'code.grep', 'memory.read',
+    'memory.write', 'tasks.read', 'tasks.write', 'think',
+  ]
 
-    if (permission === 'standard') {
-      return [
-        ...base,
-        'file.write', 'file.edit',
-        'git.status', 'git.diff', 'git.log', 'git.branch',
-        'terminal.run',
-      ]
-    }
-
-    return [
-      ...base,
+  private static readonly toolsByProfile: Record<PermissionProfile, string[]> = {
+    restricted: [...MemberRegistry.toolBase],
+    standard: [
+      ...MemberRegistry.toolBase,
+      'file.write', 'file.edit',
+      'git.status', 'git.diff', 'git.log', 'git.branch',
+      'terminal.run',
+    ],
+    trusted: [
+      ...MemberRegistry.toolBase,
       'file.write', 'file.edit',
       'git.status', 'git.diff', 'git.log', 'git.branch',
       'terminal.run',
@@ -250,6 +250,10 @@ export class MemberRegistry {
       'code.symbols', 'code.analysis', 'code.diagnostics',
       'search.web', 'search.vector', 'search.hybrid',
       'debug.stacktrace', 'debug.variables', 'debug.evaluate', 'debug.control',
-    ]
+    ],
+  }
+
+  private defaultTools(permission: PermissionProfile): string[] {
+    return MemberRegistry.toolsByProfile[permission]
   }
 }

@@ -80,11 +80,13 @@ function collectApiKeyResult(cwd: string, results: CheckResult[]): void {
 
   if (!provider || !rawConfig) return;
 
-  const envVar = provider === 'groq' ? 'GROQ_API_KEY'
-    : provider === 'openai' ? 'OPENAI_API_KEY'
-    : provider === 'anthropic' ? 'ANTHROPIC_API_KEY'
-    : provider === 'openrouter' ? 'OPENROUTER_API_KEY'
-    : null;
+  const PROVIDER_KEYS: Record<string, string> = {
+    groq: 'GROQ_API_KEY',
+    openai: 'OPENAI_API_KEY',
+    anthropic: 'ANTHROPIC_API_KEY',
+    openrouter: 'OPENROUTER_API_KEY',
+  }
+  const envVar = PROVIDER_KEYS[provider] ?? null;
 
   if (envVar && !process.env[envVar]) {
     results.push({ label: `LLM API key configured (${provider})`, isPassed: false });

@@ -48,7 +48,7 @@ response types. Member skills are written once and run on any provider via `LLMR
 
 Additional providers (DeepSeek, Qwen) may be added in future releases.
 When added, they will be slotted into the failover chain behind the
-six supported providers.
+seven supported providers.
 
 ---
 

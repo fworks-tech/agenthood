@@ -184,36 +184,8 @@ export class LLMRouter {
     config: LLMConfig,
   ): Promise<ILLMProvider> {
     LLMRouter.config = config
-
-    const fallbackOrder: ProviderName[] = ['groq', 'openai', 'ollama']
-    const providers = new Map<string, ILLMProvider>()
-
-    for (const name of [preferredProvider, ...fallbackOrder]) {
-      if (!providers.has(name) && name in LLMRouter.providerFactories) {
-        const inst = await LLMRouter.getOrInit(name)
-        if (inst) providers.set(name, inst)
-      }
-    }
-
-    const providers_arr: ILLMProvider[] = []
-    const names: string[] = []
-    for (const name of [preferredProvider, ...fallbackOrder]) {
-      const p = providers.get(name)
-      if (p) {
-        providers_arr.push(p)
-        names.push(name)
-      }
-    }
-
-    return new ProviderChain(
-      providers_arr,
-      names,
-      {
-        failureThreshold: config.failureThreshold,
-        cooldownMs: config.cooldownMs,
-        probeEnabled: config.probeEnabled,
-      },
-    )
+    const order: ProviderName[] = [preferredProvider, 'groq', 'openai', 'ollama']
+    return LLMRouter.buildProviderChain(order, config)
   }
 
   private static entryToConfig(entry: ProviderEntry, base: LLMConfig): LLMConfig {
@@ -309,25 +281,32 @@ export class LLMRouter {
    */
   private static async buildDefaultChain(config?: LLMConfig): Promise<ILLMProvider> {
     const fallbackOrder: ProviderName[] = ['groq', 'openai', 'ollama']
+    return LLMRouter.buildProviderChain(fallbackOrder, config)
+  }
+
+  private static async buildProviderChain(
+    order: ProviderName[],
+    config?: LLMConfig,
+  ): Promise<ILLMProvider> {
     const providers = new Map<string, ILLMProvider>()
 
-    for (const name of fallbackOrder) {
+    for (const name of order) {
       if (!providers.has(name) && name in LLMRouter.providerFactories) {
         const inst = await LLMRouter.getOrInit(name)
         if (inst) providers.set(name, inst)
       }
     }
 
-    const providers_arr: ILLMProvider[] = []
+    const providersList: ILLMProvider[] = []
     const names: string[] = []
-    for (const name of fallbackOrder) {
+    for (const name of order) {
       const p = providers.get(name)
       if (p) {
-        providers_arr.push(p)
+        providersList.push(p)
         names.push(name)
       }
     }
 
-    return new ProviderChain(providers_arr, names, LLMRouter.buildChainConfig(config ?? {}))
+    return new ProviderChain(providersList, names, LLMRouter.buildChainConfig(config ?? {}))
   }
 }

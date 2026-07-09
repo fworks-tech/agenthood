@@ -83,6 +83,7 @@ function collectApiKeyResult(cwd: string, results: CheckResult[]): void {
   const envVar = provider === 'groq' ? 'GROQ_API_KEY'
     : provider === 'openai' ? 'OPENAI_API_KEY'
     : provider === 'anthropic' ? 'ANTHROPIC_API_KEY'
+    : provider === 'openrouter' ? 'OPENROUTER_API_KEY'
     : null;
 
   if (envVar && !process.env[envVar]) {

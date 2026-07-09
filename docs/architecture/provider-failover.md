@@ -21,11 +21,12 @@ in [`src/llm/providers/`](../src/llm/providers/). Any member can run on any prov
 
 | Provider | Default model | Notes |
 |----------|---------------|-------|
-| **OpenCode Go** | deepseek-v4-flash | Subscription at `api.opencode.ai/zen/go/v1` |
+| **OpenCode Go** (preferred) | deepseek-v4-flash | Subscription at `api.opencode.ai/zen/go/v1` |
 | **OpenCode Zen** | deepseek-v4-flash | Pay-as-you-go at `api.opencode.ai/zen/v1` |
 | **Anthropic** | Claude Sonnet 5 | Primary for most members; precise, detailed reasoning |
 | **Groq** | llama-3.3-70b-versatile | Default when no provider is configured; free tier |
 | **OpenAI** | GPT-5.4 | Broad general capability; fallback for Anthropic |
+| **OpenRouter** | openai/gpt-4o-mini | OpenAI-compatible at `api.openrouter.ai/api/v1`; routes to many models |
 | **Ollama** | Local model (configurable) | Air-gapped / offline use; default for the Doorman |
 
 All providers use a unified `ILLMProvider` interface
@@ -42,7 +43,8 @@ response types. Member skills are written once and run on any provider via `LLMR
 | Groq | ✅ Shipped | `src/llm/providers/GroqProvider.ts` |
 | Ollama | ✅ Shipped | `src/llm/providers/OllamaProvider.ts` (local, no API key) |
 | OpenCode Zen | ✅ Shipped | `src/llm/providers/OpenCodeProvider.ts` — pay-as-you-go at `api.opencode.ai/zen/v1` |
-| OpenCode Go | ✅ Shipped | `src/llm/providers/OpenCodeGoProvider.ts` — subscription at `api.opencode.ai/zen/go/v1` |
+| OpenCode Go | ✅ Shipped (preferred) | `src/llm/providers/OpenCodeGoProvider.ts` — subscription at `api.opencode.ai/zen/go/v1` |
+| OpenRouter | ✅ Shipped | `src/llm/providers/OpenRouterProvider.ts` — OpenAI-compatible at `api.openrouter.ai/api/v1` |
 
 Additional providers (DeepSeek, Qwen) may be added in future releases.
 When added, they will be slotted into the failover chain behind the

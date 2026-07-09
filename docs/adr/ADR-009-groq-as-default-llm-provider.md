@@ -48,6 +48,10 @@ Adopters can override the provider via `.agenthood/config.json`:
 - If Groq discontinues the free tier, the default must be updated; `ILLMProvider`
   abstraction ensures this is a single-file change
 
+**Note:** OpenRouter is also supported as an OpenAI-compatible provider
+(`src/llm/providers/OpenRouterProvider.ts`, `api.openrouter.ai/api/v1`), giving access
+to many models behind one key — it does not change this default-provider decision.
+
 ## References
 
 - [ADR-008](ADR-008-typescript-runtime-over-python.md) — TypeScript runtime this provider ships with

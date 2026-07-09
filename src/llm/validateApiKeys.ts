@@ -4,6 +4,7 @@ const PROVIDER_KEYS: Record<string, { envVar: string; signupUrl: string }> = {
   groq: { envVar: 'GROQ_API_KEY', signupUrl: 'https://console.groq.com' },
   openai: { envVar: 'OPENAI_API_KEY', signupUrl: 'https://platform.openai.com/api-keys' },
   anthropic: { envVar: 'ANTHROPIC_API_KEY', signupUrl: 'https://console.anthropic.com' },
+  openrouter: { envVar: 'OPENROUTER_API_KEY', signupUrl: 'https://openrouter.ai/keys' },
 }
 
 export class MissingApiKeyError extends Error {

@@ -187,7 +187,7 @@ async function createContext(projectPath: string, config: LLMConfig): Promise<Ex
 
 function printUsage(): void {
   console.error('Usage: agenthood run <agent> "<task description>"')
-  console.error('  --provider <name>   Override LLM provider (e.g. groq, anthropic, ollama)')
+  console.error('  --provider <name>   Override LLM provider (e.g. groq, anthropic, ollama, openrouter)')
   console.error('  --detect            Auto-detect members for this task')
 }
 

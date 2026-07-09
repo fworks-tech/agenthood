@@ -58,7 +58,7 @@
     "dev": "node --watch src/cli.ts",
     "start": "node dist/cli.js",
     "prepublishOnly": "npm run build",
-    "postinstall": "node -e \"if(!process.env.AGENTHOOD_AUTO_SETUP){process.exit(0)}const{existsSync}=require('fs');if(existsSync('dist/cli.js')){require('child_process').execSync('node dist/cli.js setup',{stdio:'inherit'})}\"",
+    "postinstall": "node scripts/postinstall.mjs",
     "test": "vitest run --exclude 'vscode-extension/**'",
     "lint": "eslint src/",
     "typecheck": "tsc --noEmit"
@@ -98,8 +98,5 @@
     "tree-sitter-go": "0.23.2",
     "tree-sitter-python": "0.23.2",
     "tree-sitter-typescript": "0.23.2"
-  },
-  "allowScripts": {
-    "esbuild@0.28.1": true
   }
 }

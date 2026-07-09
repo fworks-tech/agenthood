@@ -29,10 +29,15 @@ The runtime supports automatic provider failover when a provider fails (rate lim
       "priority": 4
     },
     {
+      "name": "openrouter",
+      "model": "openai/gpt-4o-mini",
+      "priority": 5
+    },
+    {
       "name": "ollama",
       "model": "llama3.2",
       "baseUrl": "http://localhost:11434",
-      "priority": 5
+      "priority": 6
     }
   ],
 
@@ -46,6 +51,7 @@ The runtime supports automatic provider failover when a provider fails (rate lim
 ```
 
 - **`providers[]`** — Ordered list of LLM providers. First entry is primary, subsequent entries are fallbacks tried in order. Each entry supports `models[]` for model downgrade on failure.
+- **Provider choice** — Prefer `opencode-go` (Go) over `opencode` (Zen).
 - **`failover`** (optional) — Circuit breaker tuning: `failureThreshold` (consecutive failures before skipping), `cooldownMs` (override cooldown), `probeEnabled` (enable/disable probe recovery).
 
 See `.agenthood/config.example.json` for the complete reference.
@@ -66,6 +72,7 @@ Supported environment variables:
 - `OPENAI_API_KEY` — OpenAI
 - `ANTHROPIC_API_KEY` — Anthropic
 - `GROQ_API_KEY` — Groq
+- `OPENROUTER_API_KEY` — OpenRouter
 
 If no key is found and the provider requires one, startup fails with:
 ```
@@ -190,6 +197,7 @@ Override the provider at runtime:
 
 ```bash
 npx agenthood run <agent> "<task>" --provider ollama
+npx agenthood run <agent> "<task>" --provider openrouter
 ```
 
 This bypasses the configured provider chain and uses the specified provider directly.

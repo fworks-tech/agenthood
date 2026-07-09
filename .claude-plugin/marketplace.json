@@ -15,22 +15,22 @@
       "source": "./",
       "strict": false,
       "skills": [
-        "./docs/members/the-scribe",
-        "./docs/members/the-architect",
-        "./docs/members/the-strategist",
-        "./docs/members/the-tester",
-        "./docs/members/the-debugger",
-        "./docs/members/the-reviewer",
-        "./docs/members/the-auditor",
-        "./docs/members/the-operator",
-        "./docs/members/the-doorman",
-        "./docs/members/the-sentinel",
-        "./docs/members/the-warden",
-        "./docs/members/the-librarian",
-        "./docs/members/the-oracle",
-        "./docs/members/the-herald",
-        "./docs/members/the-envoy",
-        "./docs/members/the-steward"
+        "./skills/the-scribe",
+        "./skills/the-architect",
+        "./skills/the-strategist",
+        "./skills/the-tester",
+        "./skills/the-debugger",
+        "./skills/the-reviewer",
+        "./skills/the-auditor",
+        "./skills/the-operator",
+        "./skills/the-doorman",
+        "./skills/the-sentinel",
+        "./skills/the-warden",
+        "./skills/the-librarian",
+        "./skills/the-oracle",
+        "./skills/the-herald",
+        "./skills/the-envoy",
+        "./skills/the-steward"
       ]
     },
     {
@@ -39,11 +39,11 @@
       "source": "./",
       "strict": false,
       "skills": [
-        "./docs/members/the-scribe",
-        "./docs/members/the-architect",
-        "./docs/members/the-strategist",
-        "./docs/members/the-tester",
-        "./docs/members/the-debugger"
+        "./skills/the-scribe",
+        "./skills/the-architect",
+        "./skills/the-strategist",
+        "./skills/the-tester",
+        "./skills/the-debugger"
       ]
     },
     {
@@ -52,11 +52,11 @@
       "source": "./",
       "strict": false,
       "skills": [
-        "./docs/members/the-reviewer",
-        "./docs/members/the-auditor",
-        "./docs/members/the-doorman",
-        "./docs/members/the-sentinel",
-        "./docs/members/the-warden"
+        "./skills/the-reviewer",
+        "./skills/the-auditor",
+        "./skills/the-doorman",
+        "./skills/the-sentinel",
+        "./skills/the-warden"
       ]
     },
     {
@@ -65,8 +65,8 @@
       "source": "./",
       "strict": false,
       "skills": [
-        "./docs/members/the-librarian",
-        "./docs/members/the-oracle"
+        "./skills/the-librarian",
+        "./skills/the-oracle"
       ]
     },
     {
@@ -75,10 +75,10 @@
       "source": "./",
       "strict": false,
       "skills": [
-        "./docs/members/the-herald",
-        "./docs/members/the-envoy",
-        "./docs/members/the-operator",
-        "./docs/members/the-steward"
+        "./skills/the-herald",
+        "./skills/the-envoy",
+        "./skills/the-operator",
+        "./skills/the-steward"
       ]
     }
   ]

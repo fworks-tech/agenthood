@@ -36,24 +36,24 @@ Every role a real software team needs — available as a skill file with impecca
 
 | | Agent | Role |
 |---|-------|------|
-| ✍️ | [The Scribe](docs/members/the-scribe/SKILL.md) | Commits, PRs, changelogs |
-| 🏗️ | [The Architect](docs/members/the-architect/SKILL.md) | System design, ADRs, tech decisions |
-| 🔍 | [The Reviewer](docs/members/the-reviewer/SKILL.md) | Code review, standards enforcement |
-| 🧪 | [The Tester](docs/members/the-tester/SKILL.md) | TDD, coverage, edge cases |
-| 🐛 | [The Debugger](docs/members/the-debugger/SKILL.md) | Error triage, root cause analysis |
-| 🔒 | [The Auditor](docs/members/the-auditor/SKILL.md) | Security, vulnerability scanning, dependency audit |
-| 📦 | [The Herald](docs/members/the-herald/SKILL.md) | Releases, versioning, changelogs |
-| 📝 | [The Librarian](docs/members/the-librarian/SKILL.md) | Documentation, API references |
-| 🚪 | [The Doorman](docs/members/the-doorman/SKILL.md) | Validation, branch protection, health checks |
-| 🔮 | [The Oracle](docs/members/the-oracle/SKILL.md) | Institutional knowledge, authoring templates |
-| 🌐 | [The Envoy](docs/members/the-envoy/SKILL.md) | Cross-provider translation, convention validation |
-| 👁️ | [The Sentinel](docs/members/the-sentinel/SKILL.md) | Integrity, cross-member contradiction detection |
-| ⚖️ | [The Warden](docs/members/the-warden/SKILL.md) | Code health, complexity enforcement |
-| 🧭 | [The Steward](docs/members/the-steward/SKILL.md) | Context economy, provider cache strategies |
-| 🎯 | [The Strategist](docs/members/the-strategist/SKILL.md) | Goal refinement, requirement discovery |
-| 🩺 | [The Operator](docs/members/the-operator/SKILL.md) | Runtime health, deployments, rollback |
-| 👁️ | [The Inspector](docs/members/the-inspector/SKILL.md) | Visual-reasoning benchmarking, pixel analysis |
-| 📬 | [The Mailman](docs/members/the-mailman/SKILL.md) | Message delivery, scheduling, cross-posting |
+| ✍️ | [The Scribe](skills/the-scribe/SKILL.md) | Commits, PRs, changelogs |
+| 🏗️ | [The Architect](skills/the-architect/SKILL.md) | System design, ADRs, tech decisions |
+| 🔍 | [The Reviewer](skills/the-reviewer/SKILL.md) | Code review, standards enforcement |
+| 🧪 | [The Tester](skills/the-tester/SKILL.md) | TDD, coverage, edge cases |
+| 🐛 | [The Debugger](skills/the-debugger/SKILL.md) | Error triage, root cause analysis |
+| 🔒 | [The Auditor](skills/the-auditor/SKILL.md) | Security, vulnerability scanning, dependency audit |
+| 📦 | [The Herald](skills/the-herald/SKILL.md) | Releases, versioning, changelogs |
+| 📝 | [The Librarian](skills/the-librarian/SKILL.md) | Documentation, API references |
+| 🚪 | [The Doorman](skills/the-doorman/SKILL.md) | Validation, branch protection, health checks |
+| 🔮 | [The Oracle](skills/the-oracle/SKILL.md) | Institutional knowledge, authoring templates |
+| 🌐 | [The Envoy](skills/the-envoy/SKILL.md) | Cross-provider translation, convention validation |
+| 👁️ | [The Sentinel](skills/the-sentinel/SKILL.md) | Integrity, cross-member contradiction detection |
+| ⚖️ | [The Warden](skills/the-warden/SKILL.md) | Code health, complexity enforcement |
+| 🧭 | [The Steward](skills/the-steward/SKILL.md) | Context economy, provider cache strategies |
+| 🎯 | [The Strategist](skills/the-strategist/SKILL.md) | Goal refinement, requirement discovery |
+| 🩺 | [The Operator](skills/the-operator/SKILL.md) | Runtime health, deployments, rollback |
+| 👁️ | [The Inspector](skills/the-inspector/SKILL.md) | Visual-reasoning benchmarking, pixel analysis |
+| 📬 | [The Mailman](skills/the-mailman/SKILL.md) | Message delivery, scheduling, cross-posting |
 
 ---
 

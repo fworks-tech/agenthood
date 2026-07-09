@@ -82,7 +82,7 @@ export const MEMBER_TRIGGERS: MemberTrigger[] = [
   {
     name: 'the-envoy',
     keywords: ['translate', 'provider', 'cursor', 'copilot', 'codex', 'bootstrap', 'skill format'],
-    filePatterns: ['docs/members/**/*.md', 'skills/**/*.md'],
+    filePatterns: ['skills/**/*.md'],
     contexts: ['provider_migration', 'new_provider'],
     stages: [],
   },

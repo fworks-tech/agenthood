@@ -1,5 +1,6 @@
 import { existsSync, readFileSync, readdirSync } from "node:fs"
 import { join } from "node:path"
+import { MEMBER_NAMES } from "../members.ts"
 import type { ILLMProvider } from "../llm/ILLMProvider.ts"
 import type { IVectorStore } from "../memory/VectorStore.ts"
 import type { KnowledgeGraphStore } from "../rag/KnowledgeGraphStore.ts"
@@ -43,7 +44,7 @@ export class SocietyIndexer {
   }
 
   private indexMembers(): void {
-    const membersDir = join(this.basePath, "docs", "members")
+    const membersDir = join(this.basePath, "skills")
     if (!existsSync(membersDir)) return
 
     let entries: string[]
@@ -55,8 +56,11 @@ export class SocietyIndexer {
       return
     }
 
-    for (const memberName of entries) {
-      if (memberName.startsWith(".")) continue
+    // Only index the 18 canonical Society members; `skills/` also holds
+    // non-member integration skills (aws, docker, github, ...) that are not members.
+    const memberEntries = entries.filter((name) => MEMBER_NAMES.includes(name))
+
+    for (const memberName of memberEntries) {
       const skillPath = join(membersDir, memberName, "SKILL.md")
       if (!existsSync(skillPath)) continue
 

@@ -42,7 +42,7 @@ Apply the naming convention:
 **Step 2 — Directory and file structure**
 
 ```
-docs/members/the-<name>/
+skills/the-<name>/
 ├── README.md          ← Identity card (no frontmatter)
 └── SKILL.md           ← Adopter-facing skill file (YAML frontmatter + body)
 ```
@@ -192,7 +192,7 @@ When asked which layer a new addition belongs to:
 
 | If it is... | It belongs in... |
 |-------------|-----------------|
-| A specialist agent behavior activated on demand | `docs/members/` — Layer 2 |
+| A specialist agent behavior activated on demand | `skills/` — Layer 2 |
 | A scheduled, recurring automation | `docs/rituals/` — Layer 3 |
 | A connector to an external system (GitHub, Linear, Slack) | `docs/portals/` — Layer 4 |
 | A multi-step GitHub Agentic Workflow | `docs/agentic-workflows/` — Layer 5 |
@@ -201,7 +201,7 @@ When asked which layer a new addition belongs to:
 
 ## Red Flags
 
-- Spending tokens exploring `docs/members/` to understand format when The Oracle is available
+- Spending tokens exploring `skills/` to understand format when The Oracle is available
 - Proposing a name without checking against existing members for overlap
 - Adding a new member without updating all four registration files
 - Writing a member whose specialty overlaps with an existing member's lane

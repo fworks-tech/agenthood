@@ -61,7 +61,7 @@ which superseded the earlier Python/DeepAgents runtime approach.
 
 | Component | Implemented in | Status |
 |-----------|----------------|--------|
-| Society members (skill files) | `docs/members/<name>/SKILL.md` | ✅ Shipped (v1.5.0) |
+| Society members (skill files) | `skills/<name>/SKILL.md` | ✅ Shipped (v1.5.0) |
 | TS runtime: `ILLMProvider`, `LLMRouter`, `ReActLoop`, `BaseAgent` | `src/llm/`, `src/reasoning/`, `src/agents/` | ✅ Shipped |
 | `MemberRegistry` — wires members to TS `run` | `src/members/MemberRegistry.ts` | ✅ v2.0.0 |
 | `ProviderFailover` — circuit breaker + classification | `src/llm/ProviderFailover.ts` | ✅ v2.0.0 |

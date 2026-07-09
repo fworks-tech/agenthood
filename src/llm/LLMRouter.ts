@@ -13,7 +13,7 @@
 
 import type { ILLMProvider } from './ILLMProvider.js'
 import type { LLMConfig, LLMRequest, ComplexityTier, ProviderEntry } from './types.js'
-import type { ProviderName } from '../members/types.ts'
+import type { ProviderName } from '../members/types.js'
 import { ProviderChain } from './ProviderFailover.js'
 
 type ProviderFactory = (config: LLMConfig) => Promise<ILLMProvider>
@@ -208,6 +208,15 @@ export class LLMRouter {
    *
    * When strategy is 'static' (default), delegates to create().
    */
+  private static tierProviders: Record<ComplexityTier, (config: LLMConfig) => Promise<ILLMProvider>> = {
+    low: (c) => LLMRouter.resolveSingle('groq', c),
+    medium: (c) => {
+      const preferred = c.provider && c.provider in LLMRouter.providerFactories ? c.provider : undefined
+      return LLMRouter.resolveSingle(preferred ?? 'groq', c)
+    },
+    high: (c) => LLMRouter.resolveSingle('anthropic', c),
+  }
+
   static async route(request: LLMRequest, config: LLMConfig): Promise<ILLMProvider> {
     LLMRouter.config = config
 
@@ -220,25 +229,17 @@ export class LLMRouter {
     const scorer = new ComplexityScorer()
     const tier = scorer.score(request)
 
-    const configuredProvider = config.provider
+    const resolve = LLMRouter.tierProviders[tier]
+    return resolve(config)
+  }
 
-    switch (tier) {
-      case 'low':
-        return (await LLMRouter.getOrInit('groq')) ?? await LLMRouter.buildDefaultChain(config)
-
-      case 'medium':
-        if (configuredProvider && configuredProvider in LLMRouter.providerFactories) {
-          return (await LLMRouter.getOrInit(configuredProvider)) ?? await LLMRouter.buildDefaultChain(config)
-        }
-        return (await LLMRouter.getOrInit('groq')) ?? await LLMRouter.buildDefaultChain(config)
-
-      case 'high':
-        return (
-          (await LLMRouter.getOrInit('anthropic')) ??
-          (configuredProvider ? await LLMRouter.getOrInit(configuredProvider) : null) ??
-          await LLMRouter.buildDefaultChain(config)
-        )
-    }
+  private static async resolveSingle(name: string, config: LLMConfig): Promise<ILLMProvider> {
+    const preferred = config.provider && config.provider in LLMRouter.providerFactories ? config.provider : undefined
+    return (
+      (await LLMRouter.getOrInit(name)) ??
+      (preferred ? await LLMRouter.getOrInit(preferred) : null) ??
+      await LLMRouter.buildDefaultChain(config)
+    )
   }
 
   /**

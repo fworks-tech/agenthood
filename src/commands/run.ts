@@ -27,6 +27,7 @@ import { MemberOrchestrator } from "../reasoning/MemberOrchestrator.ts"
 import { SkillDiscovery } from "../skills/discovery/SkillDiscovery.ts"
 import { ActivateSkillTool } from "../skills/activation/ActivateSkillTool.ts"
 import type { ExecutionContext } from "../core/ExecutionContext.ts"
+import type { ILLMProvider } from "../llm/ILLMProvider.ts"
 import type { LLMConfig, ProviderEntry } from "../llm/types.ts"
 import type { ProviderName } from "../members/types.ts"
 import type { ISkillManifest } from "../skills/discovery/ISkillManifest.ts"
@@ -124,57 +125,21 @@ async function discoverSkills(): Promise<{ catalog: string; manifests: Map<strin
 
 async function createContext(projectPath: string, config: LLMConfig): Promise<ExecutionContext> {
   const llm = await LLMRouter.create(config)
-  const tReg = new ToolRegistry()
-  const loop = new ReActLoop(llm, tReg)
-
+  const societyGraph = loadSocietyGraph(projectPath)
+  const vectorStore = await connectVectorStore(projectPath)
   const { catalog, manifests } = await discoverSkills()
-  if (manifests.size > 0) {
-    tReg.register(new ActivateSkillTool(manifests))
-  }
 
-  const dev = new DeveloperAgent(llm, loop, tReg, agentRegistry)
-  agentRegistry.register(dev)
-  agentRegistry.register(new ArchitectAgent(llm, loop, tReg))
-  agentRegistry.register(new ReviewerAgent(llm, loop, tReg))
-  agentRegistry.register(new QAAgent(llm, loop, tReg))
+  setupAgents(llm, manifests)
+  const oracleAgent = setupOracle(llm, societyGraph)
+  const memory = buildMemoryTiers(llm, vectorStore, societyGraph, projectPath)
 
-  // Load Society index (members, ADRs, conventions) if available
-  const societyGraphPath = join(projectPath, '.agenthood', 'society-graph.json')
-  const societyGraph = new KnowledgeGraphStore()
-  if (existsSync(societyGraphPath)) {
-    try {
-      societyGraph.load(societyGraphPath)
-    } catch (e) {
-      console.warn(`[run] society graph unavailable: ${(e as Error)?.message ?? e}`)
-    }
-  }
-
-  // Initialize vector store for persistent memory tiers
-  const vectorStore = new LanceDBStore(1536)
-  const memoryPath = join(projectPath, '.agenthood', 'memory')
-  try {
-    await vectorStore.connect(memoryPath)
-  } catch (e) {
-    console.warn(`[run] vector store unavailable: ${(e as Error)?.message ?? e}`)
-  }
-
-  const oracleLlm = await LLMRouter.create(config)
-  const oracleReg = new ToolRegistry()
-  const oracleAgent = new OracleAgent(oracleLlm, new ReActLoop(oracleLlm, oracleReg), oracleReg, societyGraph)
-
-  const ctx = {
+  const ctx: ExecutionContext = {
     executionId: randomUUID(),
     project: {
       localPath: projectPath,
       name: projectPath.split(/[/\\]/).pop() ?? "project",
     },
-    memory: {
-      shortTerm: new ShortTermMemoryImpl(20),
-      longTerm: new LongTermMemoryImpl(vectorStore),
-      episodic: new EpisodicMemoryImpl(vectorStore, llm),
-      project: new ProjectMemoryImpl(projectPath, societyGraph),
-      decisions: new DecisionLog({ decisionsDir: join(projectPath, '.agenthood', 'decisions') }),
-    },
+    memory,
     llm,
     prompts: new PromptBuilder(new PromptRegistry()),
     tracer: { startSpan: () => {}, endSpan: () => {} },
@@ -183,6 +148,64 @@ async function createContext(projectPath: string, config: LLMConfig): Promise<Ex
     skillsCatalog: catalog || undefined,
   }
   return ctx
+}
+
+function loadSocietyGraph(projectPath: string): KnowledgeGraphStore {
+  const graph = new KnowledgeGraphStore()
+  const graphPath = join(projectPath, '.agenthood', 'society-graph.json')
+  if (existsSync(graphPath)) {
+    try {
+      graph.load(graphPath)
+    } catch (e) {
+      console.warn(`[run] society graph unavailable: ${(e as Error)?.message ?? e}`)
+    }
+  }
+  return graph
+}
+
+async function connectVectorStore(projectPath: string): Promise<LanceDBStore> {
+  const vectorStore = new LanceDBStore(1536)
+  const memoryPath = join(projectPath, '.agenthood', 'memory')
+  try {
+    await vectorStore.connect(memoryPath)
+  } catch (e) {
+    console.warn(`[run] vector store unavailable: ${(e as Error)?.message ?? e}`)
+  }
+  return vectorStore
+}
+
+function setupAgents(llm: ILLMProvider, skillManifests: Map<string, ISkillManifest>): void {
+  const tReg = new ToolRegistry()
+  const loop = new ReActLoop(llm, tReg)
+
+  if (skillManifests.size > 0) {
+    tReg.register(new ActivateSkillTool(skillManifests))
+  }
+
+  agentRegistry.register(new DeveloperAgent(llm, loop, tReg, agentRegistry))
+  agentRegistry.register(new ArchitectAgent(llm, loop, tReg))
+  agentRegistry.register(new ReviewerAgent(llm, loop, tReg))
+  agentRegistry.register(new QAAgent(llm, loop, tReg))
+}
+
+function setupOracle(llm: ILLMProvider, societyGraph: KnowledgeGraphStore): OracleAgent {
+  const oracleReg = new ToolRegistry()
+  return new OracleAgent(llm, new ReActLoop(llm, oracleReg), oracleReg, societyGraph)
+}
+
+function buildMemoryTiers(
+  llm: ILLMProvider,
+  vectorStore: LanceDBStore,
+  societyGraph: KnowledgeGraphStore,
+  projectPath: string,
+): ExecutionContext['memory'] {
+  return {
+    shortTerm: new ShortTermMemoryImpl(20),
+    longTerm: new LongTermMemoryImpl(vectorStore),
+    episodic: new EpisodicMemoryImpl(vectorStore, llm),
+    project: new ProjectMemoryImpl(projectPath, societyGraph),
+    decisions: new DecisionLog({ decisionsDir: join(projectPath, '.agenthood', 'decisions') }),
+  }
 }
 
 function printUsage(): void {

@@ -21,13 +21,13 @@ check_registered() {
 
 check_single_registration() {
   local name="$1" fail=0
-  if ! grep -q "$name" AGENTS.md; then
+  if ! grep -qw "$name" AGENTS.md; then
     echo "FAIL: $name added but not registered in AGENTS.md"; fail=1
   fi
-  if ! grep -q "$name" docs/members/README.md; then
+  if ! grep -qw "$name" docs/members/README.md; then
     echo "FAIL: $name added but not registered in docs/members/README.md"; fail=1
   fi
-  if ! grep -q "$name" STRUCTURE.md; then
+  if ! grep -qw "$name" STRUCTURE.md; then
     echo "FAIL: $name added but not registered in STRUCTURE.md"; fail=1
   fi
   return $fail

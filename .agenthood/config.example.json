@@ -91,22 +91,5 @@
     "tests": true,
     "impact": true,
     "lint": true
-  },
-
-  "_comment_permissions": "Optional: permission profile for automated member actions. conservative = read-only; standard = read + safe writes; elevated = full write access.",
-  "permissions": {
-    "profile": "standard",
-    "_comment_overrides": "Per-member overrides. Key is member name, value is one of: conservative | standard | elevated",
-    "overrides": {
-      "the-auditor": "conservative",
-      "the-herald": "elevated"
-    }
-  },
-
-  "_comment_toolScoping": "Optional: restrict which MCP tools each member can call. Omit to allow all available tools.",
-  "toolScoping": {
-    "_comment_example": "Each key is a member name. Value is a list of allowed tool name patterns (supports * wildcard).",
-    "the-herald": ["github.*", "slack.post", "slack.thread"],
-    "the-debugger": ["sentry.*", "github.issues.*", "github.pr.comment"]
   }
 }

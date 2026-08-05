@@ -44,6 +44,7 @@ Load skills from `skills/` to activate specialized agents:
 
 - `the-scribe` — commit messages, PR descriptions, changelogs
 - `the-architect` — spec-driven development, planning, ADRs
+- `the-builder` — coding, implementation, refactoring, test updates, local validation
 - `the-reviewer` — code review, quality gates
 - `the-tester` — TDD, test generation, coverage
 - `the-debugger` — error triage, root cause analysis

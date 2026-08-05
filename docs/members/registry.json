@@ -26,6 +26,14 @@
       "priority": 2
     },
     {
+      "name": "the-builder",
+      "displayName": "The Builder",
+      "tagline": "Builds the smallest verified change",
+      "role": "coding, implementation, refactoring, test updates, local validation",
+      "stage": ["implement"],
+      "priority": 18
+    },
+    {
       "name": "the-reviewer",
       "displayName": "The Reviewer",
       "tagline": "Five axes. No mercy. All respect.",

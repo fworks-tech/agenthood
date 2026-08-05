@@ -25,8 +25,8 @@
     "the-steward",
     "the-strategist",
     "the-operator",
-    "the-inspector",
-    "the-mailman"
+    "the-mailman",
+    "the-inspector"
   ],
 
   "_comment_hooks": "Path where git hooks are installed. .githooks is a bare git hook directory managed via core.hooksPath.",

@@ -9,7 +9,7 @@ agenthood/
 │   ├── commitlint.config.ts
 │   └── COMMIT_CONVENTION.md
 │
-├── docs/members/                         ← agent skill files
+├── docs/members/                         ← Member identity cards (README per member)
 │   ├── the-scribe/
 │   ├── the-architect/
 │   ├── the-builder/
@@ -67,7 +67,7 @@ agenthood/
 ├── .agenthood/                      ← Agenthood configuration template
 │   └── config.example.json
 │
-├── skills/                           ← Runtime skill directory (flat copy of member SKILL.md files + integration skills)
+├── skills/                           ← Canonical skill files (skills/<name>/SKILL.md) + integration skills
 │
 ├── src/                             ← Node.js CLI + TypeScript runtime
 │   ├── cli.ts                       ← Entry point

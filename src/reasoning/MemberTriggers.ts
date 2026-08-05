@@ -25,7 +25,7 @@ export const MEMBER_TRIGGERS: MemberTrigger[] = [
   },
   {
     name: 'the-builder',
-    keywords: ['implement', 'implementation', 'refactor', 'code change', 'patch', 'wire up', 'write code'],
+    keywords: ['implement', 'refactor', 'code change', 'wire up', 'write code'],
     filePatterns: ['src/**/*.ts', 'src/**/*.js'],
     contexts: ['implementation_ready', 'spec_received', 'task_ready'],
     stages: ['implement'],

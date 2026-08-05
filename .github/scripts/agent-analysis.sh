@@ -1,6 +1,8 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
+source "$(dirname "$0")/decision-gate.sh"
+
 RANGE="${RANGE:-}"
 if [ -z "$RANGE" ]; then
   echo "::error::RANGE env var required (format: base...head)"
@@ -86,19 +88,6 @@ build_comment_body() {
   } > "$body_file"
 }
 
-check_agenthood_decision() {
-  if grep -qE '<!--AGENTHOOD_DECISION: blocking=(true|false) warnings=[0-9]+-->' "$analysis_file" 2>/dev/null; then
-    if grep -qE '<!--AGENTHOOD_DECISION:.*blocking=true.*-->' "$analysis_file" 2>/dev/null; then
-      echo "::error::${AGENT_NAME} found blocking findings -- see PR comment for details"
-      return 1
-    fi
-    return 0
-  else
-    echo "::error::${AGENT_NAME} output missing structured decision block (expected: blocking=true|false warnings=N)"
-    return 1
-  fi
-}
-
 validate_prerequisites
 SAFE_CHANGED=$(cat ${temp_dir}/${AGENT_NAME}_safe_changed.txt)
 echo "agent-analysis: running $AGENT_NAME on $(echo "$SAFE_CHANGED" | tr '\n' ' ')"
@@ -122,6 +111,6 @@ if [ "$rc" -ne 0 ]; then
   echo "::warning::${AGENT_NAME} CLI exited with code $rc -- analysis may be incomplete"
 fi
 
-if ! check_agenthood_decision; then
+if ! check_decision_gate "$analysis_file" "$AGENT_NAME"; then
   exit 1
 fi

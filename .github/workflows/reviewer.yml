@@ -51,7 +51,7 @@ jobs:
           fi
 
           if [ "${{ github.event.before }}" = "0000000000000000000000000000000000000000" ]; then
-            RANGE="HEAD"
+            RANGE="$(git hash-object -t tree /dev/null)"
           else
             RANGE="${{ github.event.before }}..${{ github.event.after }}"
           fi

@@ -5,6 +5,27 @@
 
 ---
 
+## v3.13.0 — August 5, 2026
+
+### 🐛 Bug Fixes
+
+- **Ci:** always build before agent analysis runs
+- **Docs:** point member skill references to skills canonical home
+- **Docs:** update member counts and skill links after canonicalization
+- **Marketplace:** add new members to agenthood-all bundle and update counts
+- **Marketplace:** align copy with 19 members
+- **Members:** satisfy sentinel and librarian checks for the-builder
+- **Runtime:** route skill file changes to oracle and sentinel triggers
+- **Runtime:** watch skills dir for operator drift and test sentinel pattern
+
+### ✨ Features
+
+- **Members:** add builder member
+- **Members:** bring the-builder to full society standards
+- **Runtime:** add the-builder to member triggers
+
+---
+
 ## v3.12.0 — July 9, 2026
 
 ### 🐛 Bug Fixes

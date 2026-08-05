@@ -1,3 +1,24 @@
+# [3.13.0](https://github.com/fworks-tech/agenthood/compare/v3.12.0...v3.13.0) (2026-08-05)
+
+
+### Bug Fixes
+
+* **ci:** always build before agent analysis runs ([d5f806a](https://github.com/fworks-tech/agenthood/commit/d5f806a8fb25ecbef24326bcff8fa6a1d9bf8fc5))
+* **docs:** point member skill references to skills canonical home ([3b43411](https://github.com/fworks-tech/agenthood/commit/3b43411ea340c359bfef5221e43cec884d012995))
+* **docs:** update member counts and skill links after canonicalization ([760e55f](https://github.com/fworks-tech/agenthood/commit/760e55f9a1c4394ef0dcb39e9ec14f37ee0fd930))
+* **marketplace:** add new members to agenthood-all bundle and update counts ([23acbd2](https://github.com/fworks-tech/agenthood/commit/23acbd2af08b19164dbccff79eedd6f62e87d092))
+* **marketplace:** align copy with 19 members ([af96478](https://github.com/fworks-tech/agenthood/commit/af9647827a0836bd98f2e970ec23b70e57fd8ff0))
+* **members:** satisfy sentinel and librarian checks for the-builder ([ec0ed5d](https://github.com/fworks-tech/agenthood/commit/ec0ed5d2e37241e1d198621adf94e82717dac3ad))
+* **runtime:** route skill file changes to oracle and sentinel triggers ([a304a8b](https://github.com/fworks-tech/agenthood/commit/a304a8bcfda2805deedaea5ccf3d33db56233eef))
+* **runtime:** watch skills dir for operator drift and test sentinel pattern ([697e339](https://github.com/fworks-tech/agenthood/commit/697e3394fa6cfafe0184333aaf803b0dd056db21))
+
+
+### Features
+
+* **members:** add builder member ([449a81c](https://github.com/fworks-tech/agenthood/commit/449a81ca344f9c45562e8826ebf2f8c82ef3e049))
+* **members:** bring the-builder to full society standards ([3a67f51](https://github.com/fworks-tech/agenthood/commit/3a67f51422014562d7c2e860e144468defd6672a))
+* **runtime:** add the-builder to member triggers ([fa9b2a9](https://github.com/fworks-tech/agenthood/commit/fa9b2a905149c29e6f70f1f482dd6a86f41d2524))
+
 # [3.12.0](https://github.com/fworks-tech/agenthood/compare/v3.11.1...v3.12.0) (2026-07-09)
 
 

@@ -99,18 +99,8 @@ validate_prerequisites
 SAFE_CHANGED=$(cat ${temp_dir}/${AGENT_NAME}_safe_changed.txt)
 echo "agent-analysis: running $AGENT_NAME on $(echo "$SAFE_CHANGED" | tr '\n' ' ')"
 
-NEEDS_BUILD=false
-while IFS= read -r file; do
-  case "$file" in
-    *.md|*.yml|*.yaml|*.json|*.sh) ;;
-    *) NEEDS_BUILD=true; break ;;
-  esac
-done <<< "$SAFE_CHANGED"
-
 npm ci
-if [ "$NEEDS_BUILD" = true ]; then
-  npm run build
-fi
+npm run build
 
 rc=0
 node dist/cli.js run "$AGENT_NAME" "$TASK" --provider opencode-go \

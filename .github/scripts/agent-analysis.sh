@@ -98,7 +98,7 @@ validate_prerequisites
 SAFE_CHANGED=$(cat ${temp_dir}/${AGENT_NAME}_safe_changed.txt)
 echo "agent-analysis: running $AGENT_NAME on $(echo "$SAFE_CHANGED" | tr '\n' ' ')"
 
-npm ci
+npm ci --ignore-scripts
 npm run build
 
 rc=0

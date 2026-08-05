@@ -124,7 +124,7 @@ export const MEMBER_TRIGGERS: MemberTrigger[] = [
   {
     name: 'the-operator',
     keywords: ['rollback', 'deploy', 'incident', 'runtime health', 'monitor', 'drift', 'lockfile', 'verify', 'unhealthy'],
-    filePatterns: ['docs/members/**/*.md', 'agenthood.lock'],
+    filePatterns: ['docs/members/**/*.md', 'skills/**/*.md', 'agenthood.lock'],
     contexts: ['deploy_failure', 'health_check', 'drift_detected', 'post_rollback'],
     stages: ['deploy'],
   },

@@ -110,6 +110,18 @@ describe('MemberOrchestrator', () => {
     expect(members).toContain('the-oracle')
   })
 
+  it('detects the-sentinel when skill files changed', () => {
+    const context: DetectionContext = {
+      userMessage: 'check member file consistency',
+      changedFiles: ['skills/the-scribe/SKILL.md'],
+    }
+
+    const results = orchestrator.detectMembers(context)
+    const members = results.map((r) => r.member)
+
+    expect(members).toContain('the-sentinel')
+  })
+
   it('returns empty for unrelated tasks below threshold', () => {
     const context: DetectionContext = {
       userMessage: 'hello world',

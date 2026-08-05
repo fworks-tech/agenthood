@@ -83,15 +83,15 @@ build_comment_body() {
 }
 
 check_agenthood_decision() {
-  if grep -qE '<!--AGENTHOOD_DECISION:' "$analysis_file" 2>/dev/null; then
+  if grep -qE '<!--AGENTHOOD_DECISION: blocking=(true|false) warnings=[0-9]+-->' "$analysis_file" 2>/dev/null; then
     if grep -qE '<!--AGENTHOOD_DECISION:.*blocking=true.*-->' "$analysis_file" 2>/dev/null; then
       echo "::error::${AGENT_NAME} found blocking findings -- see PR comment for details"
       return 1
     fi
     return 0
   else
-    echo "::warning::${AGENT_NAME} output missing structured decision block -- see comment for manual review"
-    return 0
+    echo "::error::${AGENT_NAME} output missing structured decision block (expected: blocking=true|false warnings=N)"
+    return 1
   fi
 }
 

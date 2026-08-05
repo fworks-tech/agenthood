@@ -12,6 +12,7 @@ agenthood/
 ├── docs/members/                         ← agent skill files
 │   ├── the-scribe/
 │   ├── the-architect/
+│   ├── the-builder/
 │   ├── the-strategist/
 │   ├── the-reviewer/
 │   ├── the-tester/

@@ -4,6 +4,7 @@
   "members": [
     "the-scribe",
     "the-architect",
+    "the-builder",
     "the-reviewer",
     "the-tester",
     "the-debugger",
@@ -18,7 +19,8 @@
     "the-steward",
     "the-strategist",
     "the-operator",
-    "the-mailman"
+    "the-mailman",
+    "the-inspector"
   ],
   "hooks": {
     "hooksPath": ".githooks"

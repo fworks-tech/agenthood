@@ -1,6 +1,11 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
+RANGE="${RANGE:-}"
+if [ -z "$RANGE" ]; then
+  echo "::error::RANGE env var required (format: base...head)"
+  exit 1
+fi
 BASE_SHA="${RANGE%%...*}"
 HEAD_SHA="${RANGE#*...}"
 [ -z "$HEAD_SHA" ] && HEAD_SHA="$BASE_SHA"

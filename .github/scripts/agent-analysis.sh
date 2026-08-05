@@ -2,6 +2,7 @@
 set -euo pipefail
 
 source "$(dirname "$0")/decision-gate.sh"
+source "$(dirname "$0")/stale-comment.sh"
 
 RANGE="${RANGE:-}"
 if [ -z "$RANGE" ]; then
@@ -55,12 +56,7 @@ validate_prerequisites() {
 }
 
 stale_previous_comment() {
-  local comment_id
-  comment_id=$(gh api "repos/{owner}/{repo}/issues/$PR_NUMBER/comments" --jq ".[] | select(.body | startswith(\"## $NAME_DISPLAY -- Analysis\")) | .id" 2>/dev/null | tail -1 || true)
-  [ -z "$comment_id" ] && return 0
-  gh api "repos/{owner}/{repo}/issues/comments/$comment_id" --jq -r '.body' > ${temp_dir}/${AGENT_NAME}_stale_body.txt 2>/dev/null || return 0
-  { echo "> **This analysis is outdated.** See the latest comment below for the current review."; echo ">"; cat ${temp_dir}/${AGENT_NAME}_stale_body.txt; } | jq -Rs '{body: .}' > ${temp_dir}/${AGENT_NAME}_stale_payload.json
-  gh api "repos/{owner}/{repo}/issues/comments/$comment_id" -X PATCH --input ${temp_dir}/${AGENT_NAME}_stale_payload.json > /dev/null 2>&1 || true
+  mark_previous_comment_outdated ".[] | select(.body | startswith(\"## $NAME_DISPLAY -- Analysis\")) | .id" "$PR_NUMBER" "$temp_dir"
 }
 
 build_comment_body() {

@@ -51,6 +51,7 @@ check_member_registration() {
 check_all_members_indexed() {
   local fail=0
   for MEMBER_DIR in docs/members/*/; do
+    [ -d "$MEMBER_DIR" ] || continue
     NAME=$(basename "$MEMBER_DIR")
     [ "$NAME" = "README.md" ] && continue
     if ! grep -q "$NAME" AGENTS.md; then

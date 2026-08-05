@@ -2,4 +2,4 @@
 
 > *"Health is not a goal; it is a practice."*
 
-See [SKILL.md](./SKILL.md) for full process, red flags, and verification.
+See [SKILL.md](../../skills/the-operator/SKILL.md) for full process, red flags, and verification.

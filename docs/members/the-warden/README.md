@@ -79,4 +79,4 @@ Thresholds can be overridden per project in `.warden.config.json`.
 
 ## Skill File
 
-→ [`SKILL.md`](SKILL.md) — load this into your agent runtime
+→ [`SKILL.md`](../../skills/the-warden/SKILL.md) — load this into your agent runtime

@@ -82,4 +82,4 @@ Reviews coverage reports and identifies:
 
 ## Skill File
 
-→ [`SKILL.md`](SKILL.md) — load this into your agent runtime
+→ [`SKILL.md`](../../skills/the-tester/SKILL.md) — load this into your agent runtime

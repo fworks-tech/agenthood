@@ -8,25 +8,25 @@ Each has a skill file that your agent runtime loads to activate them.
 
 | Member | Tagline | Skill File |
 |--------|---------|-----------|
-| [The Scribe](the-scribe/SKILL.md) | *Turns your diff into prose worth reading* | `the-scribe/SKILL.md` |
-| [The Architect](the-architect/SKILL.md) | *No code before the blueprint* | `the-architect/SKILL.md` |
-| [The Builder](the-builder/SKILL.md) | *Builds the smallest verified change* | `the-builder/SKILL.md` |
-| [The Reviewer](the-reviewer/SKILL.md) | *Five axes. No mercy. All respect.* | `the-reviewer/SKILL.md` |
-| [The Tester](the-tester/SKILL.md) | *Red. Green. Refactor. Repeat.* | `the-tester/SKILL.md` |
-| [The Debugger](the-debugger/SKILL.md) | *Five steps to every root cause. No guessing allowed.* | `the-debugger/SKILL.md` |
-| [The Auditor](the-auditor/SKILL.md) | *Reads everything. Trusts nothing.* | `the-auditor/SKILL.md` |
-| [The Herald](the-herald/SKILL.md) | *Announces with ceremony. Ships with precision.* | `the-herald/SKILL.md` |
-| [The Librarian](the-librarian/SKILL.md) | *Every decision, recorded for posterity.* | `the-librarian/SKILL.md` |
-| [The Doorman](the-doorman/SKILL.md) | *Nothing gets in without proper credentials.* | `the-doorman/SKILL.md` |
-| [The Oracle](the-oracle/SKILL.md) | *Ask me anything about the Society. I have read every scroll.* | `the-oracle/SKILL.md` |
-| [The Envoy](the-envoy/SKILL.md) | *One Society. Every runtime. No exceptions.* | `the-envoy/SKILL.md` |
-| [The Sentinel](the-sentinel/SKILL.md) | *The Society cannot enforce standards it no longer understands.* | `the-sentinel/SKILL.md` |
-| [The Warden](the-warden/SKILL.md) | *The chaos does not arrive all at once. I am here for the accumulation.* | `the-warden/SKILL.md` |
-| [The Strategist](the-strategist/SKILL.md) | *The right solution starts with the right problem.* | `the-strategist/SKILL.md` |
-| [The Operator](the-operator/SKILL.md) | *Health is not a goal; it is a practice.* | `the-operator/SKILL.md` |
-| [The Steward](the-steward/SKILL.md) | *I was born from the situation I exist to prevent.* | `the-steward/SKILL.md` |
-| [The Inspector](the-inspector/SKILL.md) | *Every pixel accounted for. Every boundary crossed with intent.* | `the-inspector/SKILL.md` |
-| [The Mailman](the-mailman/SKILL.md) | *Neither snow nor rain nor API rate limits shall stay this courier from the swift completion of their rounds.* | `the-mailman/SKILL.md` |
+| [The Scribe](../../skills/the-scribe/SKILL.md) | *Turns your diff into prose worth reading* | `skills/the-scribe/SKILL.md` |
+| [The Architect](../../skills/the-architect/SKILL.md) | *No code before the blueprint* | `skills/the-architect/SKILL.md` |
+| [The Builder](../../skills/the-builder/SKILL.md) | *Builds the smallest verified change* | `skills/the-builder/SKILL.md` |
+| [The Reviewer](../../skills/the-reviewer/SKILL.md) | *Five axes. No mercy. All respect.* | `skills/the-reviewer/SKILL.md` |
+| [The Tester](../../skills/the-tester/SKILL.md) | *Red. Green. Refactor. Repeat.* | `skills/the-tester/SKILL.md` |
+| [The Debugger](../../skills/the-debugger/SKILL.md) | *Five steps to every root cause. No guessing allowed.* | `skills/the-debugger/SKILL.md` |
+| [The Auditor](../../skills/the-auditor/SKILL.md) | *Reads everything. Trusts nothing.* | `skills/the-auditor/SKILL.md` |
+| [The Herald](../../skills/the-herald/SKILL.md) | *Announces with ceremony. Ships with precision.* | `skills/the-herald/SKILL.md` |
+| [The Librarian](../../skills/the-librarian/SKILL.md) | *Every decision, recorded for posterity.* | `skills/the-librarian/SKILL.md` |
+| [The Doorman](../../skills/the-doorman/SKILL.md) | *Nothing gets in without proper credentials.* | `skills/the-doorman/SKILL.md` |
+| [The Oracle](../../skills/the-oracle/SKILL.md) | *Ask me anything about the Society. I have read every scroll.* | `skills/the-oracle/SKILL.md` |
+| [The Envoy](../../skills/the-envoy/SKILL.md) | *One Society. Every runtime. No exceptions.* | `skills/the-envoy/SKILL.md` |
+| [The Sentinel](../../skills/the-sentinel/SKILL.md) | *The Society cannot enforce standards it no longer understands.* | `skills/the-sentinel/SKILL.md` |
+| [The Warden](../../skills/the-warden/SKILL.md) | *The chaos does not arrive all at once. I am here for the accumulation.* | `skills/the-warden/SKILL.md` |
+| [The Strategist](../../skills/the-strategist/SKILL.md) | *The right solution starts with the right problem.* | `skills/the-strategist/SKILL.md` |
+| [The Operator](../../skills/the-operator/SKILL.md) | *Health is not a goal; it is a practice.* | `skills/the-operator/SKILL.md` |
+| [The Steward](../../skills/the-steward/SKILL.md) | *I was born from the situation I exist to prevent.* | `skills/the-steward/SKILL.md` |
+| [The Inspector](../../skills/the-inspector/SKILL.md) | *Every pixel accounted for. Every boundary crossed with intent.* | `skills/the-inspector/SKILL.md` |
+| [The Mailman](../../skills/the-mailman/SKILL.md) | *Neither snow nor rain nor API rate limits shall stay this courier from the swift completion of their rounds.* | `skills/the-mailman/SKILL.md` |
 
 ---
 

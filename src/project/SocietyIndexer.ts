@@ -63,7 +63,7 @@ export class SocietyIndexer {
       return
     }
 
-    // Only index the 18 canonical Society members; `skills/` also holds
+    // Only index the 19 canonical Society members; `skills/` also holds
     // non-member integration skills (aws, docker, github, ...) that are not members.
     const memberEntries = entries.filter((name) => MEMBER_NAMES.includes(name))
     const embedPromises: Promise<void>[] = []

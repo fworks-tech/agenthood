@@ -104,8 +104,10 @@ Produce a table showing each member's domain boundary:
 
 | Member | Lane | Owned Decisions |
 |--------|------|-----------------|
+| The Strategist | Goal refinement | Problem statements, success criteria, ranked priorities |
 | The Scribe | Written communication | Commit messages, PR descriptions, changelogs |
 | The Architect | Design & planning | Specs, ADRs, task decomposition, branch scope |
+| The Builder | Implementation | Smallest verified change, local validation, review handoff |
 | The Reviewer | Code quality | Review criteria, approval gates |
 | The Tester | Test coverage | TDD process, coverage targets, test types |
 | The Debugger | Error recovery | Root cause protocol, investigation steps |
@@ -118,6 +120,9 @@ Produce a table showing each member's domain boundary:
 | The Sentinel | Society integrity | Member consistency, contradiction detection, drift |
 | The Warden | Code health | Smell detection, architectural decay, complexity |
 | The Steward | Context economy | Member routing, cache strategy, session triage |
+| The Operator | Runtime health | Deployment, incidents, rollback, monitoring |
+| The Inspector | Visual verification | Pixel-level analysis, multi-panel correspondence |
+| The Mailman | Delivery | Message dispatch, content scheduling, cross-posting |
 
 Flag any two members whose Owned Decisions columns overlap.
 

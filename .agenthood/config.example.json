@@ -10,6 +10,7 @@
   "members": [
     "the-scribe",
     "the-architect",
+    "the-builder",
     "the-reviewer",
     "the-tester",
     "the-debugger",
@@ -23,7 +24,9 @@
     "the-warden",
     "the-steward",
     "the-strategist",
-    "the-operator"
+    "the-operator",
+    "the-inspector",
+    "the-mailman"
   ],
 
   "_comment_hooks": "Path where git hooks are installed. .githooks is a bare git hook directory managed via core.hooksPath.",

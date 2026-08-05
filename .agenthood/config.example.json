@@ -3,7 +3,7 @@
 
   "version": "1",
 
-  "_comment_runtime": "Your AI coding assistant. One of: claude-code | copilot | gemini-cli | other",
+  "_comment_runtime": "Your AI coding assistant. One of: claude-code | copilot | gemini-cli | agenthood/agents | other",
   "runtime": "claude-code",
 
   "_comment_members": "Which Society members to activate. Skills are installed into the runtime's skills directory.",

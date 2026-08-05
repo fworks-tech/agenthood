@@ -5,7 +5,8 @@ BASE_SHA="${RANGE%%...*}"
 HEAD_SHA="${RANGE#*...}"
 [ -z "$HEAD_SHA" ] && HEAD_SHA="$BASE_SHA"
 
-temp_dir="${RUNNER_TEMP:-/tmp}"
+temp_dir="$(mktemp -d "${RUNNER_TEMP:-/tmp}/agent-analysis.XXXXXX")"
+trap 'rm -rf "$temp_dir"' EXIT
 analysis_file="${temp_dir}/${AGENT_NAME}_analysis.txt"
 error_file="${temp_dir}/${AGENT_NAME}_errors.txt"
 body_file="${temp_dir}/${AGENT_NAME}_body.md"

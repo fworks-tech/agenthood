@@ -10,6 +10,7 @@ trap 'rm -rf "$temp_dir"' EXIT
 analysis_file="${temp_dir}/${AGENT_NAME}_analysis.txt"
 error_file="${temp_dir}/${AGENT_NAME}_errors.txt"
 body_file="${temp_dir}/${AGENT_NAME}_body.md"
+NAME_DISPLAY=$(echo "$AGENT_NAME" | sed 's/-/ /g; s/\b\(.\)/\u\1/g')
 > "$error_file"
 
 validate_prerequisites() {
@@ -47,9 +48,8 @@ validate_prerequisites() {
 }
 
 stale_previous_comment() {
-  local name_display comment_id
-  name_display=$(echo "$AGENT_NAME" | sed 's/-/ /g; s/\b\(.\)/\u\1/g')
-  comment_id=$(gh api "repos/{owner}/{repo}/issues/$PR_NUMBER/comments" --jq ".[] | select(.body | startswith(\"## $name_display -- Analysis\")) | .id" 2>/dev/null | tail -1 || true)
+  local comment_id
+  comment_id=$(gh api "repos/{owner}/{repo}/issues/$PR_NUMBER/comments" --jq ".[] | select(.body | startswith(\"## $NAME_DISPLAY -- Analysis\")) | .id" 2>/dev/null | tail -1 || true)
   [ -z "$comment_id" ] && return 0
   gh api "repos/{owner}/{repo}/issues/comments/$comment_id" --jq -r '.body' > ${temp_dir}/${AGENT_NAME}_stale_body.txt 2>/dev/null || return 0
   { echo "> **This analysis is outdated.** See the latest comment below for the current review."; echo ">"; cat ${temp_dir}/${AGENT_NAME}_stale_body.txt; } | jq -Rs '{body: .}' > ${temp_dir}/${AGENT_NAME}_stale_payload.json
@@ -57,10 +57,8 @@ stale_previous_comment() {
 }
 
 build_comment_body() {
-  local name_display
-  name_display=$(echo "$AGENT_NAME" | sed 's/-/ /g; s/\b\(.\)/\u\1/g')
   {
-    echo "## $name_display -- Analysis"
+    echo "## $NAME_DISPLAY -- Analysis"
     echo ""
 
     if [ -s "$error_file" ]; then

@@ -40,6 +40,10 @@ check_member_registration() {
       NAME=$(echo "$FILE" | sed 's|docs/members/\(the-[a-z-]*\)/.*|\1|')
       check_single_registration "$NAME" || fail=1
     fi
+    if echo "$FILE" | grep -qE "^skills/the-[a-z-]+/"; then
+      NAME=$(echo "$FILE" | sed 's|skills/\(the-[a-z-]*\)/.*|\1|')
+      check_single_registration "$NAME" || fail=1
+    fi
   done < <(echo "$CHANGED")
   return $fail
 }
@@ -51,6 +55,16 @@ check_all_members_indexed() {
     [ "$NAME" = "README.md" ] && continue
     if ! grep -q "$NAME" AGENTS.md; then
       echo "FAIL: $NAME exists in docs/members/ but not in AGENTS.md"; fail=1
+    fi
+  done
+  for SKILL_DIR in skills/the-*/; do
+    [ -d "$SKILL_DIR" ] || continue
+    NAME=$(basename "$SKILL_DIR")
+    if [ ! -d "docs/members/$NAME" ]; then
+      echo "FAIL: $NAME exists in skills/ but has no identity card in docs/members/"; fail=1
+    fi
+    if ! grep -q "$NAME" AGENTS.md; then
+      echo "FAIL: $NAME exists in skills/ but not in AGENTS.md"; fail=1
     fi
   done
   return $fail

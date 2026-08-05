@@ -43,5 +43,5 @@ to any specialist.
 ## References
 
 - [members/README.md](https://github.com/fworks-tech/agenthood/blob/main/docs/members/README.md) — full member registry
-- [members/the-steward/SKILL.md](https://github.com/fworks-tech/agenthood/blob/main/docs/members/the-steward/SKILL.md) — routing member
+- [skills/the-steward/SKILL.md](https://github.com/fworks-tech/agenthood/blob/main/skills/the-steward/SKILL.md) — routing member
 - [architecture/agent-system.md](https://github.com/fworks-tech/agenthood/blob/main/docs/architecture/agent-system.md) — system design

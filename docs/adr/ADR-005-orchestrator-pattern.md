@@ -42,7 +42,7 @@ the `docs/agentic-workflows/` templates mitigate this.
 
 ## References
 
-- [members/the-steward/SKILL.md](https://github.com/fworks-tech/agenthood/blob/main/docs/members/the-steward/SKILL.md) — routing guidance
+- [skills/the-steward/SKILL.md](https://github.com/fworks-tech/agenthood/blob/main/skills/the-steward/SKILL.md) — routing guidance
 - [agentic-workflows/](https://github.com/fworks-tech/agenthood/tree/main/docs/agentic-workflows/) — multi-step workflow templates
 - [architecture/agent-system.md](https://github.com/fworks-tech/agenthood/blob/main/docs/architecture/agent-system.md) — system design
 - [architecture/concurrency-and-queues.md](https://github.com/fworks-tech/agenthood/blob/main/docs/architecture/concurrency-and-queues.md) — queue design

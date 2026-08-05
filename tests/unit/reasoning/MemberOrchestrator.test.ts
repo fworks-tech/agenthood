@@ -27,6 +27,22 @@ describe('MemberOrchestrator', () => {
     expect(members).toContain('the-architect')
   })
 
+  it('detects the-builder for implementation tasks', () => {
+    const context: DetectionContext = {
+      userMessage: 'implement the rate limiter for the API endpoint',
+    }
+
+    const results = orchestrator.detectMembers(context)
+    const members = results.map((r) => r.member)
+
+    expect(members).toContain('the-builder')
+  })
+
+  it('routes implement-stage tasks to the-builder', () => {
+    const stageMembers = orchestrator.getForStage('implement')
+    expect(stageMembers).toContain('the-builder')
+  })
+
   it('detects the-tester when tests are mentioned', () => {
     const context: DetectionContext = {
       userMessage: 'write unit tests for the auth module',

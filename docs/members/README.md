@@ -10,6 +10,7 @@ Each has a skill file that your agent runtime loads to activate them.
 |--------|---------|-----------|
 | [The Scribe](the-scribe/SKILL.md) | *Turns your diff into prose worth reading* | `the-scribe/SKILL.md` |
 | [The Architect](the-architect/SKILL.md) | *No code before the blueprint* | `the-architect/SKILL.md` |
+| [The Builder](the-builder/SKILL.md) | *Builds the smallest verified change* | `the-builder/SKILL.md` |
 | [The Reviewer](the-reviewer/SKILL.md) | *Five axes. No mercy. All respect.* | `the-reviewer/SKILL.md` |
 | [The Tester](the-tester/SKILL.md) | *Red. Green. Refactor. Repeat.* | `the-tester/SKILL.md` |
 | [The Debugger](the-debugger/SKILL.md) | *Five steps to every root cause. No guessing allowed.* | `the-debugger/SKILL.md` |

@@ -38,6 +38,7 @@ Every role a real software team needs — available as a skill file with impecca
 |---|-------|------|
 | ✍️ | [The Scribe](skills/the-scribe/SKILL.md) | Commits, PRs, changelogs |
 | 🏗️ | [The Architect](skills/the-architect/SKILL.md) | System design, ADRs, tech decisions |
+| 🛠️ | [The Builder](skills/the-builder/SKILL.md) | Coding, implementation, refactoring, validation |
 | 🔍 | [The Reviewer](skills/the-reviewer/SKILL.md) | Code review, standards enforcement |
 | 🧪 | [The Tester](skills/the-tester/SKILL.md) | TDD, coverage, edge cases |
 | 🐛 | [The Debugger](skills/the-debugger/SKILL.md) | Error triage, root cause analysis |
@@ -107,7 +108,7 @@ For a full walkthrough — install, commands, CI pipeline, and next steps — se
 See the [CHANGELOG.md](CHANGELOG.md) for the full version history.
 
 ### Playground (agenthood-site)
-[**Agenthood Studio**](https://agenthood.flabs.tech/studio/playground) — a browser-based chat interface for all 16 Society members. Features configurable provider backend (Anthropic, OpenAI, Groq, Ollama, OpenCode), SSE streaming, turnstile CAPTCHA, session-scoped config persistence, Upstash Redis rate limiting, and structured logging with field-level redaction. [Source](https://github.com/fworks-tech/agenthood-site)
+[**Agenthood Studio**](https://agenthood.flabs.tech/studio/playground) — a browser-based chat interface for all 19 Society members. Features configurable provider backend (Anthropic, OpenAI, Groq, Ollama, OpenCode), SSE streaming, turnstile CAPTCHA, session-scoped config persistence, Upstash Redis rate limiting, and structured logging with field-level redaction. [Source](https://github.com/fworks-tech/agenthood-site)
 
 ---
 

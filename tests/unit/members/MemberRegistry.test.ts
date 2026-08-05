@@ -4,13 +4,13 @@ import { MemberRegistry, MemberNotFoundError } from '../../../src/members/Member
 describe('MemberRegistry', () => {
   const registry = new MemberRegistry()
 
-  it('has exactly 18 members', () => {
-    expect(registry.list()).toHaveLength(18)
+  it('has exactly 19 members', () => {
+    expect(registry.list()).toHaveLength(19)
   })
 
   it('returns correct spec for each known member', () => {
     const names = [
-      'the-scribe', 'the-architect', 'the-reviewer', 'the-tester',
+      'the-scribe', 'the-architect', 'the-builder', 'the-reviewer', 'the-tester',
       'the-debugger', 'the-auditor', 'the-herald', 'the-librarian',
       'the-doorman', 'the-oracle', 'the-envoy', 'the-sentinel',
       'the-warden', 'the-steward', 'the-strategist', 'the-operator', 'the-inspector', 'the-mailman',
@@ -49,13 +49,13 @@ describe('MemberRegistry', () => {
     expect(knowledge.length).toBeGreaterThanOrEqual(1)
     expect(lifecycle.length).toBeGreaterThanOrEqual(1)
 
-    // Total should be 18 (16 original + the-inspector + the-mailman)
-    expect(engineering.length + validation.length + knowledge.length + lifecycle.length).toBe(18)
+    // Total should be 19 (16 original + the-inspector + the-mailman + the-builder)
+    expect(engineering.length + validation.length + knowledge.length + lifecycle.length).toBe(19)
   })
 
   it('permission profiles match architecture docs', () => {
     const restricted = ['the-reviewer', 'the-auditor', 'the-doorman', 'the-oracle', 'the-envoy', 'the-sentinel', 'the-warden', 'the-steward']
-    const standard = ['the-scribe', 'the-architect', 'the-tester', 'the-debugger', 'the-herald', 'the-librarian', 'the-inspector']
+    const standard = ['the-scribe', 'the-architect', 'the-builder', 'the-tester', 'the-debugger', 'the-herald', 'the-librarian', 'the-inspector']
 
     for (const name of restricted) {
       expect(registry.get(name).permissionProfile).toBe('restricted')

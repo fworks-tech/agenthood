@@ -27,6 +27,14 @@ export const rawSpecs: RawSpec[] = [
     preferredProvider: 'anthropic',
   },
   {
+    name: 'the-builder',
+    description: 'Turns concrete requirements into the smallest verified code change',
+    tagline: 'Coding and implementation',
+    category: 'engineering',
+    permissionProfile: 'standard',
+    preferredProvider: 'anthropic',
+  },
+  {
     name: 'the-reviewer',
     description: 'Conducts five-axis code review: correctness, security, performance, maintainability, test coverage',
     tagline: 'Five-axis code review',

@@ -56,7 +56,9 @@ jobs:
             RANGE="${{ github.event.before }}..${{ github.event.after }}"
           fi
 
-          DIFF=$(git diff "$RANGE" | head -c 100000)
+          # Cap at ~100KB of complete lines so TASK stays under the kernel
+          # per-argument limit (MAX_ARG_STRLEN=128KB) without splitting a line.
+          DIFF=$(git diff "$RANGE" | LC_ALL=C awk '{ bytes += length($0) + 1; if (bytes > 100000) exit; print }')
           if [ -z "$DIFF" ]; then
             echo "No new changes to review."
             exit 0

@@ -18,7 +18,7 @@ The Librarian believes that undocumented knowledge is temporary knowledge. It do
 - After a significant architectural decision (produce an ADR)
 - When onboarding a new contributor
 - On a documentation sync pass before each release
-- On every PR that touches `src/commands/`, `docs/conventions/`, `.githooks/`, or `docs/members/` — to check root-level spec files
+- On every PR that touches `src/commands/`, `docs/conventions/`, `.githooks/`, `skills/`, or `docs/members/` — to check root-level spec files
 
 ## Process
 
@@ -154,8 +154,9 @@ These files define how the Society works. They age like code — quietly and bad
 **On every PR, check:**
 1. Did `src/commands/` change? → review CLAUDE.md commands section and CONTRIBUTING.md workflow
 2. Did `docs/conventions/` or `.githooks/` change? → review CONTRIBUTING.md and CLAUDE.md conventions section
-3. Did `docs/members/` gain a new directory? → update AGENTS.md (CI will catch this, but update proactively)
-4. Did the `init` command behaviour change? → update INITIATION.md ceremony steps
+3. Did `skills/` gain a new member directory? → add a `docs/members/the-<name>/README.md` identity card and update AGENTS.md (CI will catch this, but update proactively)
+4. Did `docs/members/` gain a new directory? → update AGENTS.md (CI will catch this, but update proactively)
+5. Did the `init` command behaviour change? → update INITIATION.md ceremony steps
 
 ### Documentation Sync
 

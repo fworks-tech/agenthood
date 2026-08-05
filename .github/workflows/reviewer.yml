@@ -74,14 +74,8 @@ jobs:
           GH_TOKEN: ${{ github.token }}
         run: |
           PR_NUMBER=$(gh pr view --json number --jq '.number' 2>/dev/null) || exit 0
-          COMMENT_ID=$(gh api "repos/{owner}/{repo}/issues/$PR_NUMBER/comments" \
-            --jq '.[] | select(.body | contains("<!--AGENTHOOD_DECISION:") and (startswith("> **This analysis is outdated.**") | not)) | .id' \
-            2>/dev/null | tail -1) || exit 0
-          [ -z "$COMMENT_ID" ] && exit 0
-          OLD_BODY=$(gh api "repos/{owner}/{repo}/issues/comments/$COMMENT_ID" --jq -r '.body' 2>/dev/null) || exit 0
-          STALE_BODY=$'> **This analysis is outdated.** See the latest comment below for the current review.\n>\n'"${OLD_BODY}"
-          jq -n --arg body "$STALE_BODY" '{body: $body}' | \
-            gh api "repos/{owner}/{repo}/issues/comments/$COMMENT_ID" -X PATCH --input - > /dev/null 2>&1 || true
+          source .github/scripts/stale-comment.sh
+          mark_previous_comment_outdated '.[] | select(.body | contains("<!--AGENTHOOD_DECISION:") and (startswith("> **This analysis is outdated.**") | not)) | .id' "$PR_NUMBER" "${RUNNER_TEMP:-/tmp}"
 
       - name: Post Review Comment
         run: |

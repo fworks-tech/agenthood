@@ -85,7 +85,7 @@ npx agenthood run the-architect "plan the implementation for issue #42"
 ```
 
 The runtime reads `.agenthood/config.json` (written by `npx agenthood init`) and respects
-the same `members`, `permissions`, and `toolScoping` configuration. The default LLM
+the same `members` configuration. The default LLM
 provider is Groq (free tier). See [ADR-008](docs/adr/ADR-008-typescript-runtime-over-python.md)
 and [ADR-009](docs/adr/ADR-009-groq-as-default-llm-provider.md) for design decisions.
 

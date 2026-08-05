@@ -66,12 +66,5 @@
     "tests": true,
     "impact": true,
     "lint": true
-  },
-  "permissions": {
-    "profile": "standard",
-    "overrides": {
-      "the-auditor": "conservative",
-      "the-herald": "elevated"
-    }
   }
 }

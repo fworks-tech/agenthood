@@ -1,3 +1,11 @@
+## [3.13.1](https://github.com/fworks-tech/agenthood/compare/v3.13.0...v3.13.1) (2026-08-06)
+
+
+### Bug Fixes
+
+* **ci:** fail agent analysis on missing or malformed decision block ([4de9962](https://github.com/fworks-tech/agenthood/commit/4de9962c7eff00226fa7d88c80e7afa699489305))
+* **ci:** isolate agent analysis temp files per run ([5524fd0](https://github.com/fworks-tech/agenthood/commit/5524fd0671892f426f3de59f56ef8559a5cfcc5e))
+
 # [3.13.0](https://github.com/fworks-tech/agenthood/compare/v3.12.0...v3.13.0) (2026-08-05)
 
 

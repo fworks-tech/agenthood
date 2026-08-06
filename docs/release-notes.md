@@ -5,6 +5,15 @@
 
 ---
 
+## v3.13.1 — August 6, 2026
+
+### 🐛 Bug Fixes
+
+- **Ci:** fail agent analysis on missing or malformed decision block
+- **Ci:** isolate agent analysis temp files per run
+
+---
+
 ## v3.13.0 — August 5, 2026
 
 ### 🐛 Bug Fixes

@@ -5,6 +5,20 @@
 
 ---
 
+## v3.13.2 — August 6, 2026
+
+### 🐛 Bug Fixes
+
+- **Ci:** byte-truncate review diff to stay within argument limits
+- **Ci:** guard member dir glob in librarian check
+- **Ci:** ignore lifecycle scripts in agent analysis install
+- **Ci:** mark truncated diffs in review prompt
+- **Ci:** require RANGE env in agent analysis script
+- **Ci:** review first push of a branch against empty tree
+- **Ci:** truncate review diff at line boundaries
+
+---
+
 ## v3.13.1 — August 6, 2026
 
 ### 🐛 Bug Fixes

@@ -1,3 +1,16 @@
+## [3.13.2](https://github.com/fworks-tech/agenthood/compare/v3.13.1...v3.13.2) (2026-08-06)
+
+
+### Bug Fixes
+
+* **ci:** byte-truncate review diff to stay within argument limits ([73fd46c](https://github.com/fworks-tech/agenthood/commit/73fd46c8b39d8b985c41247a38e5da08b7cc13eb))
+* **ci:** guard member dir glob in librarian check ([728a5a5](https://github.com/fworks-tech/agenthood/commit/728a5a5daabcf0af5df1e537e2552b5f6cebd5ee))
+* **ci:** ignore lifecycle scripts in agent analysis install ([b09547e](https://github.com/fworks-tech/agenthood/commit/b09547e0dcbf00b5598d44eaa30f826cf4f7297e))
+* **ci:** mark truncated diffs in review prompt ([a680a70](https://github.com/fworks-tech/agenthood/commit/a680a7057b4cb6e3cf990ffbf9021895efb4ac05))
+* **ci:** require RANGE env in agent analysis script ([79364aa](https://github.com/fworks-tech/agenthood/commit/79364aa069af586008dd6c4feb9dfb977f619838))
+* **ci:** review first push of a branch against empty tree ([0135cff](https://github.com/fworks-tech/agenthood/commit/0135cff20f8200e24a2600709dfff025e83e1e66))
+* **ci:** truncate review diff at line boundaries ([de4b2d3](https://github.com/fworks-tech/agenthood/commit/de4b2d3e2e4078d63e7f8f3f8cf56648774c700d))
+
 ## [3.13.1](https://github.com/fworks-tech/agenthood/compare/v3.13.0...v3.13.1) (2026-08-06)
 
 

@@ -58,7 +58,8 @@ jobs:
 
           # Cap at ~100KB of complete lines so TASK stays under the kernel
           # per-argument limit (MAX_ARG_STRLEN=128KB) without splitting a line.
-          DIFF=$(git diff "$RANGE" | LC_ALL=C awk '{ bytes += length($0) + 1; if (bytes > 100000) exit; print }')
+          # A marker line is appended so the reviewer knows the diff was cut.
+          DIFF=$(git diff "$RANGE" | LC_ALL=C awk '{ bytes += length($0) + 1; if (bytes > 100000) { print "(diff truncated at ~100KB)"; exit } print }')
           if [ -z "$DIFF" ]; then
             echo "No new changes to review."
             exit 0

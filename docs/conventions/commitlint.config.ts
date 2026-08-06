@@ -4,6 +4,7 @@ const VAGUE_SUBJECTS = ["wip", "fix stuff", "update", "changes", "misc", "asdf",
 
 const config: UserConfig = {
   extends: ["@commitlint/config-conventional"],
+  ignores: [(message) => /dependabot\[bot\]/.test(message)],
   plugins: [
     {
       rules: {

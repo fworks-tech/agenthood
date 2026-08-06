@@ -85,8 +85,9 @@ npx agenthood run the-architect "plan the implementation for issue #42"
 ```
 
 The runtime reads `.agenthood/config.json` (written by `npx agenthood init`) and respects
-the same `members` configuration. The default LLM
-provider is Groq (free tier). See [ADR-008](docs/adr/ADR-008-typescript-runtime-over-python.md)
+the same `members` configuration. The default LLM provider follows the `providers` list
+in the config (currently opencode, with Groq among the fallbacks). See
+[ADR-008](docs/adr/ADR-008-typescript-runtime-over-python.md)
 and [ADR-009](docs/adr/ADR-009-groq-as-default-llm-provider.md) for design decisions.
 
 > **ADR-008** supersedes the earlier Python/DeepAgents runtime approach.

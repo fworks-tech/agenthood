@@ -7,6 +7,7 @@ import type {
   LLMConfig,
 } from "../types.ts"
 import { UnsupportedOperationError } from "../errors.ts"
+import { MissingApiKeyError } from "../validateApiKeys.ts"
 import { createStreamGenerator } from "./stream-utils.ts"
 import { validateMessages, parseToolCall } from "./validation.ts"
 import { mapProviderError } from "./provider-errors.ts"
@@ -48,8 +49,12 @@ export class OpenCodeProvider implements ILLMProvider {
   private model: string;
 
   constructor(config: LLMConfig) {
+    const apiKey = config.apiKey ?? process.env.OPENCODE_API_KEY
+    if (!apiKey) {
+      throw new MissingApiKeyError("opencode", "OPENCODE_API_KEY", "https://opencode.ai")
+    }
     this.client = new OpenAI({
-      apiKey: config.apiKey ?? process.env.OPENCODE_API_KEY ?? "",
+      apiKey,
       baseURL: config.baseUrl ?? "https://opencode.ai/zen/v1",
     });
     this.model = config.model ?? "deepseek-v4-flash";

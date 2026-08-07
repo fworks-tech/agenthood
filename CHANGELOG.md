@@ -1,3 +1,12 @@
+## [3.13.3](https://github.com/fworks-tech/agenthood/compare/v3.13.2...v3.13.3) (2026-08-07)
+
+
+### Bug Fixes
+
+* **lint:** resolve lint errors and add ci gates ([eb8bec8](https://github.com/fworks-tech/agenthood/commit/eb8bec87e12a8edfad1bfafb45dae078e3e3db6a))
+* **llm:** clamp retry-after to 300 seconds ([d6f94c6](https://github.com/fworks-tech/agenthood/commit/d6f94c67960e5af358a6056560b7f48067a57862))
+* **llm:** guard NaN retry-after header in rate limit errors ([061e28b](https://github.com/fworks-tech/agenthood/commit/061e28b41abe5ce2a081836a4771700785a41d65))
+
 ## [3.13.2](https://github.com/fworks-tech/agenthood/compare/v3.13.1...v3.13.2) (2026-08-06)
 
 

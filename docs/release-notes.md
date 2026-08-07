@@ -5,6 +5,16 @@
 
 ---
 
+## v3.13.3 — August 7, 2026
+
+### 🐛 Bug Fixes
+
+- **Lint:** resolve lint errors and add ci gates
+- **Llm:** clamp retry-after to 300 seconds
+- **Llm:** guard NaN retry-after header in rate limit errors
+
+---
+
 ## v3.13.2 — August 6, 2026
 
 ### 🐛 Bug Fixes

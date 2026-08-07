@@ -6,6 +6,8 @@ import {
   ModelNotFoundError,
 } from "../errors.ts"
 
+const MAX_RETRY_AFTER = 300;
+
 export function mapProviderError(
   err: unknown,
   providerName: string,
@@ -17,7 +19,7 @@ export function mapProviderError(
     if (status === 401) return new AuthError(providerName);
     if (status === 429) {
       const parsedRetryAfter = parseInt(String(httpErr.headers?.["retry-after"] ?? "60"), 10);
-      const retryAfter = Number.isNaN(parsedRetryAfter) ? 60 : parsedRetryAfter;
+      const retryAfter = Number.isNaN(parsedRetryAfter) ? 60 : Math.min(parsedRetryAfter, MAX_RETRY_AFTER);
       return new RateLimitedError(providerName, retryAfter);
     }
     if (status === 408 || status === 504) return new TimeoutError(providerName);

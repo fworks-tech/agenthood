@@ -253,3 +253,5 @@ jobs:
         run: npm run lint
       - name: The Warden — typecheck
         run: npm run typecheck
+      - name: The Warden — build
+        run: npm run build

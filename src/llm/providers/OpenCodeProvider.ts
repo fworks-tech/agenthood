@@ -94,7 +94,6 @@ export class OpenCodeProvider implements ILLMProvider {
         model: response.model,
       };
     } catch (err) {
-      const msg = err instanceof Error ? err.message : String(err);
       throw mapProviderError(err, "OpenCode", this.model);
     }
   }

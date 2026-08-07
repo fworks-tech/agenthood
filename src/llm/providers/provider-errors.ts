@@ -11,11 +11,12 @@ export function mapProviderError(
   providerName: string,
   model: string,
 ): Error {
-  if (err instanceof Error && typeof (err as any).status === "number") {
-    const status = (err as any).status;
+  const httpErr = err as Error & { status?: number; headers?: Record<string, string | undefined> }
+  if (err instanceof Error && typeof httpErr.status === "number") {
+    const status = httpErr.status;
     if (status === 401) return new AuthError(providerName);
     if (status === 429) {
-      const retryAfter = parseInt(String((err as any).headers?.["retry-after"] ?? "60"), 10);
+      const retryAfter = parseInt(String(httpErr.headers?.["retry-after"] ?? "60"), 10);
       return new RateLimitedError(providerName, retryAfter);
     }
     if (status === 408 || status === 504) return new TimeoutError(providerName);

@@ -132,15 +132,23 @@ export class ContextCompressor {
   /**
    * Drop tool messages whose assistant tool_calls predecessor was removed,
    * keeping the sequence valid for providers that require the pairing.
+   * Accepts parallel calls: each tool message is checked against the most
+   * recent assistant message that declares its tool_call_id, not just the
+   * immediate predecessor.
    */
   private ensureValidToolSequence(msgs: Message[]): Message[] {
     const result: Message[] = []
     for (const m of msgs) {
       if (m.role === "tool") {
-        const prev = result[result.length - 1]
-        const valid =
-          prev?.role === "assistant" &&
-          (prev.toolCalls ?? []).some((tc) => tc.id === m.tool_call_id)
+        let valid = false
+        for (let i = result.length - 1; i >= 0; i--) {
+          const prev = result[i]
+          if (prev.role === "assistant") {
+            valid = (prev.toolCalls ?? []).some((tc) => tc.id === m.tool_call_id)
+            break
+          }
+          if (prev.role === "user" || prev.role === "system") break
+        }
         if (!valid) continue
       }
       result.push(m)

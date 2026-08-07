@@ -149,12 +149,37 @@ describe('ContextCompressor', () => {
       { role: 'user', content: 'long message '.repeat(30) + '2' },
     ]
     const result = await compressor.compress(messages, 200, true)
-    for (const m of result) {
+    result.forEach((m, i) => {
       if (m.role === 'tool') {
-        const prev = result[result.indexOf(m) - 1]
+        const prev = result[i - 1]
         expect(prev.role).toBe('assistant')
         expect((prev.toolCalls ?? []).some(tc => tc.id === m.tool_call_id)).toBe(true)
       }
-    }
+    })
+  })
+
+  it('keeps all parallel tool results paired with their tool_calls', async () => {
+    const compressor = new ContextCompressor(stubProvider(200), 0.8)
+    const messages: Message[] = [
+      { role: 'system', content: 'You are a helpful assistant.' },
+      { role: 'user', content: 'long message '.repeat(30) + '1' },
+      { role: 'assistant', content: 'running', toolCalls: [
+        { id: 'tc1', name: 'read', args: {} },
+        { id: 'tc2', name: 'search', args: {} },
+      ] },
+      { role: 'tool', content: '[SKILL_ACTIVATION] first result', tool_call_id: 'tc1', name: 'read' },
+      { role: 'tool', content: '[SKILL_ACTIVATION] second result', tool_call_id: 'tc2', name: 'search' },
+      { role: 'user', content: 'long message '.repeat(30) + '2' },
+    ]
+    const result = await compressor.compress(messages, 200, true)
+    const first = result.find(m => m.content === '[SKILL_ACTIVATION] first result')
+    const second = result.find(m => m.content === '[SKILL_ACTIVATION] second result')
+    expect(first).toBeDefined()
+    expect(second).toBeDefined()
+    const firstIdx = result.indexOf(first!)
+    const secondIdx = result.indexOf(second!)
+    expect(result[firstIdx - 1].role).toBe('assistant')
+    expect((result[firstIdx - 1].toolCalls ?? []).some(tc => tc.id === 'tc1')).toBe(true)
+    expect(result[secondIdx - 1].content).toBe('[SKILL_ACTIVATION] first result')
   })
 })

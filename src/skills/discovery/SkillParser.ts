@@ -1,4 +1,4 @@
-import { readFileSync, existsSync, readdirSync } from 'node:fs'
+import { readFileSync, statSync, existsSync, readdirSync } from 'node:fs'
 import { join } from 'node:path'
 import type { ISkillManifest } from './ISkillManifest.ts'
 
@@ -8,9 +8,19 @@ export interface ParsedSkill {
   body: string
 }
 
+export const MAX_SKILL_FILE_BYTES = 1024 * 1024
+
 export class SkillParser {
   parse(filePath: string): ParsedSkill | null {
     if (!existsSync(filePath)) return null
+
+    let size: number
+    try {
+      size = statSync(filePath).size
+    } catch {
+      return null
+    }
+    if (size > MAX_SKILL_FILE_BYTES) return null
 
     const content = readFileSync(filePath, 'utf-8')
     const match = content.match(/^---\n([\s\S]*?)\n---\n?([\s\S]*)$/)

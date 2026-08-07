@@ -10,9 +10,16 @@ const MAX_DEPTH = 6
 export class SkillDiscovery {
   private parser = new SkillParser()
   private manifests = new Map<string, ISkillManifest>()
+  private discovered = false
+  private readonly defaultProjectDir: string
+
+  constructor(projectDir: string = process.cwd()) {
+    this.defaultProjectDir = projectDir
+  }
 
   discover(projectDir: string): ISkillManifest[] {
     this.manifests.clear()
+    this.discovered = true
 
     const scopePaths = [
       { path: join(homedir(), '.agents', 'skills'), scope: 'user' },
@@ -37,11 +44,19 @@ export class SkillDiscovery {
     return Array.from(this.manifests.values())
   }
 
+  private ensureDiscovered(): void {
+    if (!this.discovered) {
+      this.discover(this.defaultProjectDir)
+    }
+  }
+
   get(name: string): ISkillManifest | undefined {
+    this.ensureDiscovered()
     return this.manifests.get(name)
   }
 
   list(): ISkillManifest[] {
+    this.ensureDiscovered()
     return Array.from(this.manifests.values())
   }
 
@@ -52,7 +67,8 @@ export class SkillDiscovery {
     let entries: string[]
     try {
       entries = readdirSync(dir)
-    } catch {
+    } catch (err) {
+      console.warn(`[SkillDiscovery] cannot read ${dir}: ${(err as Error)?.message ?? err}`)
       return []
     }
 
@@ -63,7 +79,8 @@ export class SkillDiscovery {
       let stat
       try {
         stat = statSync(fullPath)
-      } catch {
+      } catch (err) {
+        console.warn(`[SkillDiscovery] cannot stat ${fullPath}: ${(err as Error)?.message ?? err}`)
         continue
       }
 

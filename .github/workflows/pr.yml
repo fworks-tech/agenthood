@@ -37,10 +37,6 @@ jobs:
         env:
           NODE_OPTIONS: "--import tsx"
         run: |
-          npm install --no-save --ignore-scripts --no-audit \
-            @commitlint/cli@19.5.0 \
-            @commitlint/config-conventional@19.5.0 \
-            @commitlint/types@19.5.0
           npx commitlint \
             --config docs/conventions/commitlint.config.ts \
             --from ${{ github.event.pull_request.base.sha }} \

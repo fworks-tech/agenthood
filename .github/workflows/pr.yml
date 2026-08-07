@@ -222,3 +222,23 @@ jobs:
           BASE_SHA: ${{ github.event.pull_request.base.sha }}
           HEAD_SHA: ${{ github.event.pull_request.head.sha }}
         run: .github/scripts/test-runner.sh
+
+  # ──────────────────────────────────────────────
+  # The Warden — lint and typecheck gates
+  # ──────────────────────────────────────────────
+  lint-typecheck:
+    name: The Warden — Lint & Typecheck
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020
+        with:
+          node-version: "24"
+          cache: npm
+      - run: npm ci --ignore-scripts
+      - name: The Warden — lint
+        run: npm run lint
+      - name: The Warden — typecheck
+        run: npm run typecheck

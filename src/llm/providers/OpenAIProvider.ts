@@ -49,7 +49,6 @@ export class OpenAIProvider implements ILLMProvider {
         model: response.model,
       };
     } catch (err) {
-      const msg = err instanceof Error ? err.message : String(err);
       throw mapProviderError(err, "OpenAI", this.model);
     }
   }

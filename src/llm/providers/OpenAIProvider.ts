@@ -57,18 +57,22 @@ export class OpenAIProvider implements ILLMProvider {
   }
 
   async stream(request: LLMRequest): Promise<AsyncGenerator<LLMChunk>> {
-    const stream = await this.client.chat.completions.create({
-      model: this.model,
-      messages: validateMessages<OpenAI.Chat.ChatCompletionMessageParam[]>(request.messages),
-      temperature: request.temperature,
-      max_tokens: request.maxTokens,
-      stream: true,
-    });
+    try {
+      const stream = await this.client.chat.completions.create({
+        model: this.model,
+        messages: validateMessages<OpenAI.Chat.ChatCompletionMessageParam[]>(request.messages),
+        temperature: request.temperature,
+        max_tokens: request.maxTokens,
+        stream: true,
+      });
 
-    return createStreamGenerator(
-      stream as unknown as AsyncIterable<OpenAI.Chat.ChatCompletionChunk>,
-      (chunk) => chunk.choices[0]?.delta?.content ?? "",
-    );
+      return createStreamGenerator(
+        stream as unknown as AsyncIterable<OpenAI.Chat.ChatCompletionChunk>,
+        (chunk) => chunk.choices[0]?.delta?.content ?? "",
+      );
+    } catch (err) {
+      throw mapProviderError(err, "OpenAI", this.model);
+    }
   }
 
   getContextWindow(): number {

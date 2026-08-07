@@ -107,18 +107,22 @@ export class OpenCodeProvider implements ILLMProvider {
   async stream(request: LLMRequest): Promise<AsyncGenerator<LLMChunk>> {
     validateMessages(request.messages);
 
-    const stream = await this.client.chat.completions.create({
-      model: this.model,
-      messages: toOpenAIMessages(request.messages),
-      temperature: request.temperature,
-      max_tokens: request.maxTokens,
-      stream: true,
-    });
+    try {
+      const stream = await this.client.chat.completions.create({
+        model: this.model,
+        messages: toOpenAIMessages(request.messages),
+        temperature: request.temperature,
+        max_tokens: request.maxTokens,
+        stream: true,
+      });
 
-    return createStreamGenerator(
-      stream as unknown as AsyncIterable<OpenAI.Chat.ChatCompletionChunk>,
-      (chunk) => chunk.choices[0]?.delta?.content ?? "",
-    );
+      return createStreamGenerator(
+        stream as unknown as AsyncIterable<OpenAI.Chat.ChatCompletionChunk>,
+        (chunk) => chunk.choices[0]?.delta?.content ?? "",
+      );
+    } catch (err) {
+      throw mapProviderError(err, "OpenCode", this.model);
+    }
   }
 
   getContextWindow(): number {

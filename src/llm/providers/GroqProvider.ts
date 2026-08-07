@@ -65,15 +65,19 @@ export class GroqProvider implements ILLMProvider {
       `[GroqProvider] stream() model=${this.model} messages=${request.messages.length}`,
     );
 
-    const stream = await this.client.chat.completions.create({
-      ...this.buildCommonParams(request),
-      stream: true,
-    });
+    try {
+      const stream = await this.client.chat.completions.create({
+        ...this.buildCommonParams(request),
+        stream: true,
+      });
 
-    return createStreamGenerator(
-      stream as unknown as AsyncIterable<Groq.Chat.Completions.ChatCompletionChunk>,
-      (chunk) => chunk.choices[0]?.delta?.content ?? "",
-    );
+      return createStreamGenerator(
+        stream as unknown as AsyncIterable<Groq.Chat.Completions.ChatCompletionChunk>,
+        (chunk) => chunk.choices[0]?.delta?.content ?? "",
+      );
+    } catch (err) {
+      throw mapProviderError(err, "Groq", this.model);
+    }
   }
 
   private buildCommonParams(request: LLMRequest) {

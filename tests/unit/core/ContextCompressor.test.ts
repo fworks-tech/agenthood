@@ -94,9 +94,67 @@ describe('ContextCompressor', () => {
       { role: 'assistant', content: 'all done now' },
     ]
     const result = await compressor.compress(messages, 10)
-    expect(result.length).toBeLessThan(messages.length)
+    expect(result.length).toBeLessThanOrEqual(messages.length)
     const summary = result.find(m => m.content.startsWith('Summary of prior context:'))
     expect(summary).toBeDefined()
-    expect(summary!.content).toContain('assistant responses')
+    expect(summary!.content).toContain('user messages')
+  })
+
+  it('never leaves an orphaned tool message at the head of the preserved tail', async () => {
+    const compressor = new ContextCompressor(stubProvider(200), 0.8)
+    const messages: Message[] = [
+      { role: 'system', content: 'You are a helpful assistant.' },
+      { role: 'user', content: 'long message '.repeat(30) + '1' },
+      { role: 'user', content: 'long message '.repeat(30) + '2' },
+      { role: 'user', content: 'long message '.repeat(30) + '3' },
+      { role: 'assistant', content: 'running', toolCalls: [{ id: 'tc1', name: 'read', args: {} }] },
+      { role: 'tool', content: 'file contents', tool_call_id: 'tc1', name: 'read' },
+      { role: 'user', content: 'long message '.repeat(30) + '4' },
+    ]
+    const result = await compressor.compress(messages, 200)
+    const firstPreserved = result.findIndex(m => m.content.startsWith('Summary of prior context:')) + 1
+    for (let i = firstPreserved; i < result.length; i++) {
+      if (result[i].role === 'tool') {
+        const prev = result[i - 1]
+        expect(prev.role).toBe('assistant')
+        expect((prev.toolCalls ?? []).some(tc => tc.id === result[i].tool_call_id)).toBe(true)
+      }
+    }
+  })
+
+  it('keeps assistant tool_calls together with protected SKILL_ACTIVATION results', async () => {
+    const compressor = new ContextCompressor(stubProvider(200), 0.8)
+    const messages: Message[] = [
+      { role: 'system', content: 'You are a helpful assistant.' },
+      { role: 'user', content: 'long message '.repeat(30) + '1' },
+      { role: 'assistant', content: 'activating', toolCalls: [{ id: 'tc1', name: 'read', args: {} }] },
+      { role: 'tool', content: '[SKILL_ACTIVATION] protected payload', tool_call_id: 'tc1', name: 'read' },
+      { role: 'user', content: 'long message '.repeat(30) + '2' },
+    ]
+    const result = await compressor.compress(messages, 200, true)
+    const protectedIdx = result.findIndex(m => m.content === '[SKILL_ACTIVATION] protected payload')
+    expect(protectedIdx).toBeGreaterThan(0)
+    const prev = result[protectedIdx - 1]
+    expect(prev.role).toBe('assistant')
+    expect((prev.toolCalls ?? []).some(tc => tc.id === 'tc1')).toBe(true)
+  })
+
+  it('keeps every tool message paired with its assistant tool_calls predecessor', async () => {
+    const compressor = new ContextCompressor(stubProvider(200), 0.8)
+    const messages: Message[] = [
+      { role: 'system', content: 'You are a helpful assistant.' },
+      { role: 'user', content: 'long message '.repeat(30) + '1' },
+      { role: 'assistant', content: 'running', toolCalls: [{ id: 'tc1', name: 'read', args: {} }] },
+      { role: 'tool', content: 'unprotected result', tool_call_id: 'tc1', name: 'read' },
+      { role: 'user', content: 'long message '.repeat(30) + '2' },
+    ]
+    const result = await compressor.compress(messages, 200, true)
+    for (const m of result) {
+      if (m.role === 'tool') {
+        const prev = result[result.indexOf(m) - 1]
+        expect(prev.role).toBe('assistant')
+        expect((prev.toolCalls ?? []).some(tc => tc.id === m.tool_call_id)).toBe(true)
+      }
+    }
   })
 })

@@ -57,31 +57,32 @@ export class ContextCompressor {
 
     const preserveLast = 3
     const bodyStart = systemIndex >= 0 ? systemIndex + 1 : 0
-    const bodyEnd = messages.length - preserveLast
+    let bodyEnd = messages.length - preserveLast
+    // Never cut inside a tool turn: a preserved tail starting with a tool
+    // message would orphan it from its assistant tool_calls predecessor.
+    while (bodyEnd > bodyStart && messages[bodyEnd]?.role === "tool") {
+      bodyEnd--
+    }
     const body = messages.slice(bodyStart, bodyEnd)
 
     if (body.length === 0) return messages
 
     if (isSkillContentProtected) {
-      const protectedMsgs: Message[] = []
-      const compressible: Message[] = []
-      for (const m of body) {
-        if (m.role === 'tool' && typeof m.content === 'string' && m.content.startsWith('[SKILL_ACTIVATION]')) {
-          protectedMsgs.push(m)
-        } else {
-          compressible.push(m)
-        }
-      }
+      const { protectedMsgs, compressible } = this.partitionProtected(body)
       if (compressible.length === 0) {
-        return [...system, ...protectedMsgs, ...messages.slice(bodyEnd)]
+        return this.ensureValidToolSequence([
+          ...system,
+          ...protectedMsgs,
+          ...messages.slice(bodyEnd),
+        ])
       }
       const summary = this.summarize(compressible)
-      return [
+      return this.ensureValidToolSequence([
         ...system,
         ...protectedMsgs,
         { role: "assistant", content: `Summary of prior context: ${summary}` },
         ...messages.slice(bodyEnd),
-      ]
+      ])
     }
 
     const preserve = messages.slice(bodyEnd)
@@ -92,6 +93,59 @@ export class ContextCompressor {
       { role: "assistant", content: `Summary of prior context: ${summary}` },
       ...preserve,
     ]
+  }
+
+  /**
+   * Split the compressible body into whole assistant-tool turns. A turn is
+   * protected when any of its tool results carries SKILL_ACTIVATION content,
+   * so the assistant tool_calls message travels with its results.
+   */
+  private partitionProtected(
+    body: Message[],
+  ): { protectedMsgs: Message[]; compressible: Message[] } {
+    const protectedMsgs: Message[] = []
+    const compressible: Message[] = []
+    let i = 0
+    while (i < body.length) {
+      const m = body[i]
+      if (m.role === "assistant" && m.toolCalls && m.toolCalls.length > 0) {
+        let j = i + 1
+        while (j < body.length && body[j].role === "tool") j++
+        const turn = body.slice(i, j)
+        const hasProtected = turn.some(
+          (t) =>
+            t.role === "tool" &&
+            typeof t.content === "string" &&
+            t.content.startsWith("[SKILL_ACTIVATION]"),
+        )
+        if (hasProtected) protectedMsgs.push(...turn)
+        else compressible.push(...turn)
+        i = j
+      } else {
+        compressible.push(m)
+        i++
+      }
+    }
+    return { protectedMsgs, compressible }
+  }
+
+  /**
+   * Drop tool messages whose assistant tool_calls predecessor was removed,
+   * keeping the sequence valid for providers that require the pairing.
+   */
+  private ensureValidToolSequence(msgs: Message[]): Message[] {
+    const result: Message[] = []
+    for (const m of msgs) {
+      if (m.role === "tool") {
+        const prev = result[result.length - 1]
+        const valid =
+          prev?.role === "assistant" &&
+          (prev.toolCalls ?? []).some((tc) => tc.id === m.tool_call_id)
+        if (!valid) continue
+      }
+      result.push(m)
+    }
+    return result
   }
 
   /**

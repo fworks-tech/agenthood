@@ -7,6 +7,31 @@ import {
 } from "../errors.ts"
 
 const MAX_RETRY_AFTER = 300;
+const TIMEOUT_ERROR_NAMES = new Set([
+  "TimeoutError",
+  "AbortError",
+  "ETIMEDOUT",
+  "ESOCKETTIMEDOUT",
+  "EAI_AGAIN",
+]);
+
+function hasTimeoutName(err: Error): boolean {
+  return TIMEOUT_ERROR_NAMES.has(err.name);
+}
+
+function hasTimeoutCause(err: Error): boolean {
+  let cause: unknown = (err as Error & { cause?: unknown }).cause;
+  while (cause instanceof Error) {
+    if (TIMEOUT_ERROR_NAMES.has(cause.name)) return true;
+    cause = (cause as Error & { cause?: unknown }).cause;
+  }
+  return false;
+}
+
+function isTimeoutError(err: Error): boolean {
+  if (hasTimeoutName(err) || hasTimeoutCause(err)) return true;
+  return err.message?.includes("timeout") || err.message?.includes("timed out") || false;
+}
 
 export function mapProviderError(
   err: unknown,
@@ -26,7 +51,7 @@ export function mapProviderError(
     if (status === 404) return new ModelNotFoundError(providerName, model);
     if (status >= 500) return new ServiceUnavailableError(providerName);
   }
-  if (err instanceof Error && (err.name === "AbortError" || err.message?.includes("timeout") || err.message?.includes("timed out"))) {
+  if (err instanceof Error && isTimeoutError(err)) {
     return new TimeoutError(providerName);
   }
   return err instanceof Error ? err : new Error(String(err))

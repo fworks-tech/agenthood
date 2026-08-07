@@ -77,6 +77,50 @@ describe('mapProviderError', () => {
     expect(mapProviderError(new Error('request timeout'), 'openai', 'gpt-5.4')).toBeInstanceOf(TimeoutError)
   })
 
+  it('maps errors named ETIMEDOUT or ESOCKETTIMEDOUT to TimeoutError', () => {
+    const etimedout = new Error('connect failed')
+    etimedout.name = 'ETIMEDOUT'
+    const esockettimedout = new Error('socket closed')
+    esockettimedout.name = 'ESOCKETTIMEDOUT'
+    expect(mapProviderError(etimedout, 'openai', 'gpt-5.4')).toBeInstanceOf(TimeoutError)
+    expect(mapProviderError(esockettimedout, 'openai', 'gpt-5.4')).toBeInstanceOf(TimeoutError)
+  })
+
+  it('maps an error named TimeoutError to TimeoutError', () => {
+    const timeout = new Error('some SDK message')
+    timeout.name = 'TimeoutError'
+    expect(mapProviderError(timeout, 'openai', 'gpt-5.4')).toBeInstanceOf(TimeoutError)
+  })
+
+  it('follows the cause chain to detect timeouts', () => {
+    const outer = new Error('upstream request failed')
+    outer.cause = new Error('socket hang up')
+    ;(outer.cause as Error).name = 'ETIMEDOUT'
+    expect(mapProviderError(outer, 'openai', 'gpt-5.4')).toBeInstanceOf(TimeoutError)
+  })
+
+  it('follows nested cause chains to detect timeouts', () => {
+    const innermost = new Error('origin error')
+    innermost.name = 'TimeoutError'
+    const middle = new Error('middle error')
+    middle.cause = innermost
+    const outer = new Error('outer error')
+    outer.cause = middle
+    expect(mapProviderError(outer, 'openai', 'gpt-5.4')).toBeInstanceOf(TimeoutError)
+  })
+
+  it('does not treat unrelated error names as timeouts', () => {
+    const err = new Error('connection reset by peer')
+    err.name = 'ECONNRESET'
+    expect(mapProviderError(err, 'openai', 'gpt-5.4')).toBe(err)
+  })
+
+  it('does not treat non-timeout causes as timeouts', () => {
+    const outer = new Error('upstream request failed')
+    outer.cause = new Error('boom')
+    expect(mapProviderError(outer, 'openai', 'gpt-5.4')).toBe(outer)
+  })
+
   it('returns the original error for non-http failures', () => {
     const original = new Error('boom')
     expect(mapProviderError(original, 'openai', 'gpt-5.4')).toBe(original)

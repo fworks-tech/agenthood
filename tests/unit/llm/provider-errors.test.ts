@@ -99,6 +99,24 @@ describe('mapProviderError', () => {
     expect(mapProviderError(outer, 'openai', 'gpt-5.4')).toBeInstanceOf(TimeoutError)
   })
 
+  it('detects realistic fetch timeout causes by message', () => {
+    const cause = new Error('connect ETIMEDOUT 10.0.0.1:443')
+    const outer = new Error('fetch failed')
+    outer.name = 'TypeError'
+    outer.cause = cause
+    expect(mapProviderError(outer, 'openai', 'gpt-5.4')).toBeInstanceOf(TimeoutError)
+  })
+
+  it('detects nested cause messages containing timeout', () => {
+    const inner = new Error('connection timed out')
+    const middle = new Error('undici request failed')
+    middle.cause = inner
+    const outer = new Error('fetch failed')
+    outer.name = 'TypeError'
+    outer.cause = middle
+    expect(mapProviderError(outer, 'openai', 'gpt-5.4')).toBeInstanceOf(TimeoutError)
+  })
+
   it('follows nested cause chains to detect timeouts', () => {
     const innermost = new Error('origin error')
     innermost.name = 'TimeoutError'

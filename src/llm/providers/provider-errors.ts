@@ -23,6 +23,7 @@ function hasTimeoutCause(err: Error): boolean {
   let cause: unknown = (err as Error & { cause?: unknown }).cause;
   while (cause instanceof Error) {
     if (TIMEOUT_ERROR_NAMES.has(cause.name)) return true;
+    if (cause.message?.includes("timeout") || cause.message?.includes("timed out") || cause.message?.includes("ETIMEDOUT")) return true;
     cause = (cause as Error & { cause?: unknown }).cause;
   }
   return false;
@@ -30,7 +31,7 @@ function hasTimeoutCause(err: Error): boolean {
 
 function isTimeoutError(err: Error): boolean {
   if (hasTimeoutName(err) || hasTimeoutCause(err)) return true;
-  return err.message?.includes("timeout") || err.message?.includes("timed out") || false;
+  return Boolean(err.message?.includes("timeout") || err.message?.includes("timed out"));
 }
 
 export function mapProviderError(

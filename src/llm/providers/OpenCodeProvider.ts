@@ -11,6 +11,7 @@ import { MissingApiKeyError } from "../validateApiKeys.ts"
 import { createStreamGenerator } from "./stream-utils.ts"
 import { validateMessages, parseToolCall } from "./validation.ts"
 import { mapProviderError } from "./provider-errors.ts"
+import { DEFAULT_CONTEXT_WINDOW, OPENCODE_DEFAULT_MODEL } from "./constants.ts"
 
 function toOpenAIMessages(
   messages: LLMRequest["messages"],
@@ -57,7 +58,7 @@ export class OpenCodeProvider implements ILLMProvider {
       apiKey,
       baseURL: config.baseUrl ?? "https://opencode.ai/zen/v1",
     });
-    this.model = config.model ?? "deepseek-v4-flash";
+    this.model = config.model ?? OPENCODE_DEFAULT_MODEL;
   }
 
   async complete(request: LLMRequest): Promise<LLMResponse> {
@@ -121,7 +122,7 @@ export class OpenCodeProvider implements ILLMProvider {
   }
 
   getContextWindow(): number {
-    return 128000
+    return DEFAULT_CONTEXT_WINDOW
   }
 
   setModel(model: string): void {

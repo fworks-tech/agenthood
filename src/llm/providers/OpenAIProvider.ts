@@ -9,17 +9,20 @@ import type {
 import { createStreamGenerator } from "./stream-utils.ts"
 import { validateMessages, validateTools, parseToolCall, parseUsage } from "./validation.ts"
 import { mapProviderError } from "./provider-errors.ts"
+import { DEFAULT_CONTEXT_WINDOW, OPENAI_DEFAULT_MODEL, OPENAI_EMBEDDING_MODEL } from "./constants.ts"
 
 export class OpenAIProvider implements ILLMProvider {
   private client: OpenAI;
   private model: string;
+  private embeddingModel: string;
 
   constructor(config: LLMConfig) {
     this.client = new OpenAI({
       apiKey: config.apiKey ?? process.env.OPENAI_API_KEY,
       baseURL: config.baseUrl,
     });
-    this.model = config.model ?? "gpt-5.4";
+    this.model = config.model ?? OPENAI_DEFAULT_MODEL;
+    this.embeddingModel = config.embeddingModel ?? OPENAI_EMBEDDING_MODEL;
   }
 
   async complete(request: LLMRequest): Promise<LLMResponse> {
@@ -69,7 +72,7 @@ export class OpenAIProvider implements ILLMProvider {
   }
 
   getContextWindow(): number {
-    return 128000
+    return DEFAULT_CONTEXT_WINDOW
   }
 
   setModel(model: string): void {
@@ -79,7 +82,7 @@ export class OpenAIProvider implements ILLMProvider {
   async embed(text: string): Promise<number[]> {
     try {
       const response = await this.client.embeddings.create({
-        model: "text-embedding-ada-002",
+        model: this.embeddingModel,
         input: text,
       });
       return response.data[0].embedding;

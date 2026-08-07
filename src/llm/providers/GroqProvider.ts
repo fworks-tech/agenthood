@@ -5,6 +5,7 @@ import { UnsupportedOperationError } from "../errors.ts"
 import { createStreamGenerator } from "./stream-utils.ts"
 import { validateMessages, validateTools, parseToolCall, parseUsage } from "./validation.ts"
 import { mapProviderError } from "./provider-errors.ts"
+import { DEFAULT_CONTEXT_WINDOW, GROQ_DEFAULT_MODEL } from "./constants.ts"
 
 export class GroqProvider implements ILLMProvider {
   private client: Groq;
@@ -17,7 +18,7 @@ export class GroqProvider implements ILLMProvider {
     this.model =
       config.model ??
       process.env.GROQ_DEFAULT_MODEL ??
-      "llama-3.3-70b-versatile";
+      GROQ_DEFAULT_MODEL;
   }
 
   async complete(request: LLMRequest): Promise<LLMResponse> {
@@ -90,7 +91,7 @@ export class GroqProvider implements ILLMProvider {
   }
 
   getContextWindow(): number {
-    return 128000;
+    return DEFAULT_CONTEXT_WINDOW;
   }
 
   setModel(model: string): void {

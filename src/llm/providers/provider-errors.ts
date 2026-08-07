@@ -16,7 +16,8 @@ export function mapProviderError(
     const status = httpErr.status;
     if (status === 401) return new AuthError(providerName);
     if (status === 429) {
-      const retryAfter = parseInt(String(httpErr.headers?.["retry-after"] ?? "60"), 10);
+      const parsedRetryAfter = parseInt(String(httpErr.headers?.["retry-after"] ?? "60"), 10);
+      const retryAfter = Number.isNaN(parsedRetryAfter) ? 60 : parsedRetryAfter;
       return new RateLimitedError(providerName, retryAfter);
     }
     if (status === 408 || status === 504) return new TimeoutError(providerName);

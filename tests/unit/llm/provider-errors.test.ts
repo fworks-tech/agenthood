@@ -38,7 +38,9 @@ describe('mapProviderError', () => {
 
   it('maps 5xx to ServiceUnavailableError', () => {
     expect(mapProviderError(httpError(500), 'openai', 'gpt-5.4')).toBeInstanceOf(ServiceUnavailableError)
+    expect(mapProviderError(httpError(502), 'openai', 'gpt-5.4')).toBeInstanceOf(ServiceUnavailableError)
     expect(mapProviderError(httpError(503), 'openai', 'gpt-5.4')).toBeInstanceOf(ServiceUnavailableError)
+    expect(mapProviderError(httpError(599), 'openai', 'gpt-5.4')).toBeInstanceOf(ServiceUnavailableError)
   })
 
   it('maps 429 with numeric retry-after to RateLimitedError preserving the value', () => {
@@ -57,11 +59,22 @@ describe('mapProviderError', () => {
     expect((result as RateLimitedError).retryAfter).toBe(60)
   })
 
+  it('clamps oversized retry-after values to 300 seconds', () => {
+    const result = mapProviderError(httpError(429, { 'retry-after': '999999999999' }), 'groq', 'llama-3.3')
+    expect((result as RateLimitedError).retryAfter).toBe(300)
+  })
+
+  it('truncates fractional retry-after values', () => {
+    const result = mapProviderError(httpError(429, { 'retry-after': '15.5' }), 'groq', 'llama-3.3')
+    expect((result as RateLimitedError).retryAfter).toBe(15)
+  })
+
   it('maps abort and timeout-message errors to TimeoutError', () => {
     const abort = new Error('aborted')
     abort.name = 'AbortError'
     expect(mapProviderError(abort, 'openai', 'gpt-5.4')).toBeInstanceOf(TimeoutError)
     expect(mapProviderError(new Error('request timed out'), 'openai', 'gpt-5.4')).toBeInstanceOf(TimeoutError)
+    expect(mapProviderError(new Error('request timeout'), 'openai', 'gpt-5.4')).toBeInstanceOf(TimeoutError)
   })
 
   it('returns the original error for non-http failures', () => {

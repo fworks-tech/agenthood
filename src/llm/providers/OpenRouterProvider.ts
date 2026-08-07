@@ -6,74 +6,54 @@ import type {
   LLMChunk,
   LLMConfig,
 } from "../types.ts"
-import { createStreamGenerator } from "./stream-utils.ts"
-import { validateMessages, validateTools, parseToolCall, parseUsage } from "./validation.ts"
-import { mapProviderError } from "./provider-errors.ts"
+import { validateMessages, validateTools } from "./validation.ts"
+import { createChatCompletionsHandler } from "./chat-completions.ts"
+import type { ChatCompletionsHandler, ChatCompletionsClient } from "./chat-completions.ts"
+import { OPENROUTER_DEFAULT_MODEL, OPENROUTER_CONTEXT_WINDOW, OPENROUTER_EMBEDDING_MODEL } from "./constants.ts"
 
 export class OpenRouterProvider implements ILLMProvider {
   private client: OpenAI;
   private model: string;
+  private chat: ChatCompletionsHandler;
 
   constructor(config: LLMConfig) {
     this.client = new OpenAI({
       apiKey: config.apiKey ?? process.env.OPENROUTER_API_KEY,
       baseURL: config.baseUrl ?? "https://openrouter.ai/api/v1",
     });
-    this.model = config.model ?? "openai/gpt-4o-mini";
+    this.model = config.model ?? OPENROUTER_DEFAULT_MODEL;
+    this.chat = createChatCompletionsHandler(
+      this.client.chat.completions as unknown as ChatCompletionsClient,
+      "OpenRouter",
+      () => this.model,
+    );
   }
 
   async complete(request: LLMRequest): Promise<LLMResponse> {
-    try {
-      const response = await this.client.chat.completions.create({
-        model: this.model,
-        messages: validateMessages<OpenAI.Chat.ChatCompletionMessageParam[]>(request.messages),
-        tools: validateTools<OpenAI.Chat.ChatCompletionTool[]>(request.tools),
-        temperature: request.temperature,
-        max_tokens: request.maxTokens,
-        top_p: request.top_p,
-        frequency_penalty: request.frequency_penalty,
-        presence_penalty: request.presence_penalty,
-        stop: request.stop ?? undefined,
-      });
-
-      const choice = response.choices[0];
-      const message = choice.message;
-      const toolCalls = message.tool_calls?.map(
-        (tc) => parseToolCall(tc, "OpenRouter"),
-      );
-
-      return {
-        content: message.content ?? "",
-        toolCalls,
-        usage: parseUsage(response.usage),
-        model: response.model,
-      };
-    } catch (err) {
-      throw mapProviderError(err, "OpenRouter", this.model);
-    }
+    return this.chat.complete({
+      model: this.model,
+      messages: validateMessages<OpenAI.Chat.ChatCompletionMessageParam[]>(request.messages),
+      tools: validateTools<OpenAI.Chat.ChatCompletionTool[]>(request.tools),
+      temperature: request.temperature,
+      max_tokens: request.maxTokens,
+      top_p: request.top_p,
+      frequency_penalty: request.frequency_penalty,
+      presence_penalty: request.presence_penalty,
+      stop: request.stop ?? undefined,
+    })
   }
 
   async stream(request: LLMRequest): Promise<AsyncGenerator<LLMChunk>> {
-    try {
-      const stream = await this.client.chat.completions.create({
-        model: this.model,
-        messages: validateMessages<OpenAI.Chat.ChatCompletionMessageParam[]>(request.messages),
-        temperature: request.temperature,
-        max_tokens: request.maxTokens,
-        stream: true,
-      });
-
-      return createStreamGenerator(
-        stream as unknown as AsyncIterable<OpenAI.Chat.ChatCompletionChunk>,
-        (chunk) => chunk.choices[0]?.delta?.content ?? "",
-      );
-    } catch (err) {
-      throw mapProviderError(err, "OpenRouter", this.model);
-    }
+    return this.chat.stream({
+      model: this.model,
+      messages: validateMessages<OpenAI.Chat.ChatCompletionMessageParam[]>(request.messages),
+      temperature: request.temperature,
+      max_tokens: request.maxTokens,
+    })
   }
 
   getContextWindow(): number {
-    return 200000;
+    return OPENROUTER_CONTEXT_WINDOW;
   }
 
   setModel(model: string): void {
@@ -83,7 +63,7 @@ export class OpenRouterProvider implements ILLMProvider {
   async embed(text: string): Promise<number[]> {
     try {
       const response = await this.client.embeddings.create({
-        model: "openai/text-embedding-3-small",
+        model: OPENROUTER_EMBEDDING_MODEL,
         input: text,
       });
       return response.data[0].embedding;

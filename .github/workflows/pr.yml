@@ -77,6 +77,8 @@ jobs:
 
           *-- The Auditor, Agenthood*"
       - name: The Auditor — agent analysis
+        # Sends changed-file names to an external LLM provider.
+        # Data handling and opt-out: docs/governance/agent-analysis-data.md
         uses: ./.github/actions/agent-analysis
         with:
           agent-name: the-auditor
@@ -137,6 +139,8 @@ jobs:
           fi
           echo "The Warden: all changed files within size limits."
       - name: The Warden — agent analysis
+        # Sends changed-file names to an external LLM provider.
+        # Data handling and opt-out: docs/governance/agent-analysis-data.md
         uses: ./.github/actions/agent-analysis
         with:
           agent-name: the-warden
@@ -187,6 +191,8 @@ jobs:
         shell: bash
         run: .github/scripts/sentinel-check.sh
       - name: The Sentinel — agent analysis
+        # Sends changed-file names to an external LLM provider.
+        # Data handling and opt-out: docs/governance/agent-analysis-data.md
         uses: ./.github/actions/agent-analysis
         with:
           agent-name: the-sentinel

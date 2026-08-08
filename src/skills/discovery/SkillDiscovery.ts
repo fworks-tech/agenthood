@@ -101,9 +101,7 @@ export class SkillDiscovery {
     if (existsSync(skillMdPath)) {
       const parsed = this.parser.parse(skillMdPath)
       if (!parsed) return []
-      const manifest = this.parser.parseManifest(skillMdPath, fullPath, parsed.body)
-      manifest.name = parsed.name || entry
-      manifest.description = parsed.description
+      const manifest = this.parser.parseManifest(skillMdPath, fullPath, parsed.body, parsed.name || entry, parsed.description)
       return [manifest]
     }
     return this.scanDir(fullPath, depth + 1)

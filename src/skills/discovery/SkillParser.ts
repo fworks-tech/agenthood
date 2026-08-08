@@ -50,7 +50,7 @@ export class SkillParser {
     return { frontmatter, body: match[2].trim() }
   }
 
-  parseManifest(filePath: string, directory: string, body: string): ISkillManifest {
+  parseManifest(filePath: string, directory: string, body: string, name = '', description = ''): ISkillManifest {
     const resources: string[] = []
     try {
       for (const entry of readdirSync(directory, { withFileTypes: true })) {
@@ -67,8 +67,8 @@ export class SkillParser {
     }
 
     return {
-      name: '',
-      description: '',
+      name,
+      description,
       location: filePath,
       directory,
       body,

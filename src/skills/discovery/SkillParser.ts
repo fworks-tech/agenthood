@@ -67,6 +67,15 @@ export class SkillParser {
     }
   }
 
+  /**
+   * Minimal frontmatter parser — flat key:value pairs only.
+   *
+   * **Limitations** (by design — SKILL.md frontmatter is intentionally simple):
+   * - No YAML lists, nested objects, or multiline values
+   * - No quoted-string handling (colons inside quoted values work; unquoted
+   *   colons are treated as the key/value separator)
+   * - No type coercion beyond true/false → boolean and digit strings → number
+   */
   private parseYaml(raw: string): Record<string, unknown> | null {
     const result: Record<string, unknown> = {}
     for (const line of raw.split('\n')) {

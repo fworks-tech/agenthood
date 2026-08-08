@@ -14,6 +14,7 @@ import { OPENROUTER_DEFAULT_MODEL, OPENROUTER_CONTEXT_WINDOW, OPENROUTER_EMBEDDI
 export class OpenRouterProvider implements ILLMProvider {
   private client: OpenAI;
   private model: string;
+  private embeddingModel: string;
   private chat: ChatCompletionsHandler;
 
   constructor(config: LLMConfig) {
@@ -22,6 +23,7 @@ export class OpenRouterProvider implements ILLMProvider {
       baseURL: config.baseUrl ?? "https://openrouter.ai/api/v1",
     });
     this.model = config.model ?? OPENROUTER_DEFAULT_MODEL;
+    this.embeddingModel = config.embeddingModel ?? OPENROUTER_EMBEDDING_MODEL;
     this.chat = createChatCompletionsHandler(
       this.client.chat.completions as unknown as ChatCompletionsClient,
       "OpenRouter",
@@ -48,7 +50,7 @@ export class OpenRouterProvider implements ILLMProvider {
   async embed(text: string): Promise<number[]> {
     try {
       const response = await this.client.embeddings.create({
-        model: OPENROUTER_EMBEDDING_MODEL,
+        model: this.embeddingModel,
         input: text,
       });
       return response.data[0].embedding;

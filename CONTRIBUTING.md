@@ -41,6 +41,10 @@ Verify zero type errors before committing:
 npx tsc --noEmit
 ```
 
+### Shared utilities
+
+- `SkillParser.parseRaw(content)` — shared frontmatter parser used by `SkillParser.parse()` and `verify.ts`.
+
 ### Commit Process
 
 Follow [Conventional Commits](https://www.conventionalcommits.org/):

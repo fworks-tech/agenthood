@@ -1,3 +1,10 @@
+## [3.13.4](https://github.com/fworks-tech/agenthood/compare/v3.13.3...v3.13.4) (2026-08-08)
+
+
+### Bug Fixes
+
+* **ci:** enforce audit, declare commitlint, add build gate ([#386](https://github.com/fworks-tech/agenthood/issues/386)) ([dfb261f](https://github.com/fworks-tech/agenthood/commit/dfb261f98c1c711ce9f7892173acdb7e56ec2381))
+
 ## [3.13.3](https://github.com/fworks-tech/agenthood/compare/v3.13.2...v3.13.3) (2026-08-07)
 
 

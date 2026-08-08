@@ -5,6 +5,14 @@
 
 ---
 
+## v3.13.4 — August 8, 2026
+
+### 🐛 Bug Fixes
+
+- **Ci:** enforce audit, declare commitlint, add build gate (#386)
+
+---
+
 ## v3.13.3 — August 7, 2026
 
 ### 🐛 Bug Fixes

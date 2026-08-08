@@ -5,6 +5,14 @@
 
 ---
 
+## v3.13.5 — August 8, 2026
+
+### 🐛 Bug Fixes
+
+- **Rag:** cache a tree-sitter parser per language (#390)
+
+---
+
 ## v3.13.4 — August 8, 2026
 
 ### 🐛 Bug Fixes

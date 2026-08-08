@@ -1,3 +1,10 @@
+## [3.13.5](https://github.com/fworks-tech/agenthood/compare/v3.13.4...v3.13.5) (2026-08-08)
+
+
+### Bug Fixes
+
+* **rag:** cache a tree-sitter parser per language ([#390](https://github.com/fworks-tech/agenthood/issues/390)) ([9f7a9d1](https://github.com/fworks-tech/agenthood/commit/9f7a9d16ca3746da29ba70c24c15985ea0e906b4))
+
 ## [3.13.4](https://github.com/fworks-tech/agenthood/compare/v3.13.3...v3.13.4) (2026-08-08)
 
 

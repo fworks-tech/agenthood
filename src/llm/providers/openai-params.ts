@@ -1,22 +1,35 @@
-import type { LLMRequest } from "../types.ts"
+import type { LLMRequest, Message, ToolSchema } from "../types.ts"
 import { validateMessages, validateTools } from "./validation.ts"
 import type OpenAI from "openai"
+
+export interface ParamConverters {
+  /** Custom message converter (e.g., toOpenAIMessages for OpenCode). */
+  convertMessages?: (messages: Message[]) => unknown
+  /** Custom tool converter (e.g., inputSchema → parameters rename). */
+  convertTools?: (tools: ToolSchema[]) => unknown
+}
 
 /**
  * Shared complete() params for OpenAI-compatible providers.
  * OpenAI, OpenRouter, and Groq use buildCompleteParams directly.
  * OpenAI/OpenRouter use buildStreamParams for stream(); Groq passes
- * the full params to stream too. OpenCode diverges with custom
- * message/tool conversion and a smaller param set.
+ * the full params to stream too. OpenCode passes custom converters.
  */
 export function buildCompleteParams(
   request: LLMRequest,
   model: string,
+  converters?: ParamConverters,
 ): Record<string, unknown> {
+  const messages = converters?.convertMessages
+    ? converters.convertMessages(request.messages)
+    : validateMessages<OpenAI.Chat.ChatCompletionMessageParam[]>(request.messages)
+  const tools = converters?.convertTools && request.tools
+    ? converters.convertTools(request.tools)
+    : validateTools<OpenAI.Chat.ChatCompletionTool[]>(request.tools)
   return {
     model,
-    messages: validateMessages<OpenAI.Chat.ChatCompletionMessageParam[]>(request.messages),
-    tools: validateTools<OpenAI.Chat.ChatCompletionTool[]>(request.tools),
+    messages,
+    tools,
     temperature: request.temperature,
     max_tokens: request.maxTokens,
     top_p: request.top_p,
@@ -30,10 +43,14 @@ export function buildCompleteParams(
 export function buildStreamParams(
   request: LLMRequest,
   model: string,
+  converters?: Pick<ParamConverters, "convertMessages">,
 ): Record<string, unknown> {
+  const messages = converters?.convertMessages
+    ? converters.convertMessages(request.messages)
+    : validateMessages<OpenAI.Chat.ChatCompletionMessageParam[]>(request.messages)
   return {
     model,
-    messages: validateMessages<OpenAI.Chat.ChatCompletionMessageParam[]>(request.messages),
+    messages,
     temperature: request.temperature,
     max_tokens: request.maxTokens,
   }

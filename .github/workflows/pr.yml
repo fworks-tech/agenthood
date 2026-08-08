@@ -77,6 +77,7 @@ jobs:
 
           *-- The Auditor, Agenthood*"
       - name: The Auditor — agent analysis
+        if: github.event_name == 'pull_request'
         # Sends changed-file names to an external LLM provider.
         # Data handling and opt-out: docs/governance/agent-analysis-data.md
         uses: ./.github/actions/agent-analysis

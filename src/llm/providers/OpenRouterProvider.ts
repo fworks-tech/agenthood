@@ -6,9 +6,9 @@ import type {
   LLMChunk,
   LLMConfig,
 } from "../types.ts"
-import { validateMessages, validateTools } from "./validation.ts"
 import { createChatCompletionsHandler } from "./chat-completions.ts"
 import type { ChatCompletionsHandler, ChatCompletionsClient } from "./chat-completions.ts"
+import { buildCompleteParams, buildStreamParams } from "./openai-params.ts"
 import { OPENROUTER_DEFAULT_MODEL, OPENROUTER_CONTEXT_WINDOW, OPENROUTER_EMBEDDING_MODEL } from "./constants.ts"
 
 export class OpenRouterProvider implements ILLMProvider {
@@ -30,26 +30,11 @@ export class OpenRouterProvider implements ILLMProvider {
   }
 
   async complete(request: LLMRequest): Promise<LLMResponse> {
-    return this.chat.complete({
-      model: this.model,
-      messages: validateMessages<OpenAI.Chat.ChatCompletionMessageParam[]>(request.messages),
-      tools: validateTools<OpenAI.Chat.ChatCompletionTool[]>(request.tools),
-      temperature: request.temperature,
-      max_tokens: request.maxTokens,
-      top_p: request.top_p,
-      frequency_penalty: request.frequency_penalty,
-      presence_penalty: request.presence_penalty,
-      stop: request.stop ?? undefined,
-    })
+    return this.chat.complete(buildCompleteParams(request, this.model))
   }
 
   async stream(request: LLMRequest): Promise<AsyncGenerator<LLMChunk>> {
-    return this.chat.stream({
-      model: this.model,
-      messages: validateMessages<OpenAI.Chat.ChatCompletionMessageParam[]>(request.messages),
-      temperature: request.temperature,
-      max_tokens: request.maxTokens,
-    })
+    return this.chat.stream(buildStreamParams(request, this.model))
   }
 
   getContextWindow(): number {

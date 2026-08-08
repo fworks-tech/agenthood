@@ -3,6 +3,15 @@ import { parseToolCall, parseUsage } from "./validation.ts"
 import { mapProviderError } from "./provider-errors.ts"
 import { createStreamGenerator } from "./stream-utils.ts"
 
+/**
+ * Minimal interface over the SDK's chat.completions.create method.
+ *
+ * The OpenAI / Groq / OpenRouter SDKs expose overloaded create() signatures
+ * that don't satisfy a generic Record<string, unknown> interface.  At every
+ * call site the SDK client is double-cast (`as unknown as ChatCompletionsClient`)
+ * — this is safe because the handler only forwards the params object through
+ * to the SDK, which already validates them against its own overload.
+ */
 export interface ChatCompletionsClient {
   create(params: Record<string, unknown>): Promise<unknown>
 }

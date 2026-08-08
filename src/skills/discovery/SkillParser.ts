@@ -8,6 +8,11 @@ export interface ParsedSkill {
   body: string
 }
 
+export interface ParsedRaw {
+  frontmatter: Record<string, unknown> | null
+  body: string
+}
+
 export const MAX_SKILL_FILE_BYTES = 1024 * 1024
 
 export class SkillParser {
@@ -23,22 +28,26 @@ export class SkillParser {
     if (size > MAX_SKILL_FILE_BYTES) return null
 
     const content = readFileSync(filePath, 'utf-8')
-    const match = content.match(/^---\n([\s\S]*?)\n---\n?([\s\S]*)$/)
-
-    if (!match) return null
-
-    const raw = match[1]
-    const body = match[2].trim()
-    const frontmatter = this.parseYaml(raw)
-
-    if (!frontmatter) return null
-    if (!frontmatter.description) return null
+    const raw = this.parseRaw(content)
+    if (!raw.frontmatter) return null
+    if (!raw.frontmatter.description) return null
 
     return {
-      name: typeof frontmatter.name === 'string' ? frontmatter.name : filePath,
-      description: typeof frontmatter.description === 'string' ? frontmatter.description : '',
-      body,
+      name: typeof raw.frontmatter.name === 'string' ? raw.frontmatter.name : filePath,
+      description: typeof raw.frontmatter.description === 'string' ? raw.frontmatter.description : '',
+      body: raw.body,
     }
+  }
+
+  /**
+   * Extract raw frontmatter key-value pairs and body from a string.
+   * Shared with verify.ts to avoid duplicated parsing logic.
+   */
+  parseRaw(content: string): ParsedRaw {
+    const match = content.match(/^---\n([\s\S]*?)\n---\n?([\s\S]*)$/)
+    if (!match) return { frontmatter: null, body: content }
+    const frontmatter = this.parseYaml(match[1])
+    return { frontmatter, body: match[2].trim() }
   }
 
   parseManifest(filePath: string, directory: string, body: string): ISkillManifest {

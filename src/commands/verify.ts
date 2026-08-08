@@ -3,6 +3,7 @@ import { join } from 'node:path'
 import { contentHash } from '../utils/hash.js'
 import { loadLockfile } from '../utils/lockfile.js'
 import type { Lockfile } from '../utils/lockfile.js'
+import { SkillParser } from '../skills/discovery/SkillParser.ts'
 
 const REQUIRED_SECTIONS = ['Overview', 'When to Use', 'Process', 'Red Flags', 'Rationalizations', 'Verification']
 
@@ -12,24 +13,6 @@ interface VerifyResult {
   member: string
   pass: boolean
   issues: string[]
-}
-
-function parseFrontmatter(content: string): { frontmatter: Record<string, unknown> | null; body: string } {
-  const match = content.match(/^---\n([\s\S]*?)\n---\n?/)
-  if (!match) return { frontmatter: null, body: content }
-
-  const raw = match[1]
-  const frontmatter: Record<string, unknown> = {}
-  for (const line of raw.split('\n')) {
-    const colonIdx = line.indexOf(':')
-    if (colonIdx > 0) {
-      const key = line.slice(0, colonIdx).trim()
-      const value = line.slice(colonIdx + 1).trim()
-      frontmatter[key] = value
-    }
-  }
-
-  return { frontmatter, body: content.slice(match[0].length) }
 }
 
 function validateMember(membersDir: string, member: string, lockfile?: Lockfile): VerifyResult {
@@ -43,7 +26,7 @@ function validateMember(membersDir: string, member: string, lockfile?: Lockfile)
   }
 
   const content = readFileSync(skillPath, 'utf8')
-  const { frontmatter, body } = parseFrontmatter(content)
+  const { frontmatter, body } = new SkillParser().parseRaw(content)
 
   if (!frontmatter) {
     result.issues.push('Missing YAML frontmatter')

@@ -10,10 +10,10 @@ export interface ParamConverters {
 }
 
 /**
- * Shared complete() params for OpenAI-compatible providers.
- * OpenAI, OpenRouter, and Groq use buildCompleteParams directly.
- * OpenAI/OpenRouter use buildStreamParams for stream(); Groq passes
- * the full params to stream too. OpenCode passes custom converters.
+ * Shared complete() params for OpenAI-compatible providers, called by
+ * ChatCompletionsProvider. OpenAI/OpenRouter/Groq use buildCompleteParams
+ * for complete(); Groq also passes the full params to stream(). OpenCode
+ * passes custom converters.
  */
 export function buildCompleteParams(
   request: LLMRequest,

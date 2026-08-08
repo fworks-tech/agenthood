@@ -55,15 +55,13 @@ export class SkillParser {
     try {
       for (const entry of readdirSync(directory, { withFileTypes: true })) {
         if (entry.isDirectory() && (entry.name === 'references' || entry.name === 'scripts')) {
-          for (const sub of readdirSync(join(directory, entry.name), { withFileTypes: true })) {
-            if (sub.isFile()) {
-              resources.push(`${entry.name}/${sub.name}`)
-            }
-          }
+          resources.push(...this.collectResources(join(directory, entry.name), entry.name))
         }
       }
-    } catch {
-      // resources are best-effort
+    } catch (err) {
+      if (isNonEnoentError(err)) {
+        console.warn(`[SkillParser] error reading resource dirs in ${directory}:`, err)
+      }
     }
 
     return {
@@ -74,6 +72,22 @@ export class SkillParser {
       body,
       resources,
     }
+  }
+
+  private collectResources(dir: string, subdirName: string): string[] {
+    const resources: string[] = []
+    try {
+      for (const sub of readdirSync(dir, { withFileTypes: true })) {
+        if (sub.isFile()) {
+          resources.push(`${subdirName}/${sub.name}`)
+        }
+      }
+    } catch (err) {
+      if (isNonEnoentError(err)) {
+        console.warn(`[SkillParser] error reading ${dir}:`, err)
+      }
+    }
+    return resources
   }
 
   /**
@@ -104,4 +118,10 @@ export class SkillParser {
     }
     return Object.keys(result).length > 0 ? result : null
   }
+}
+
+function isNonEnoentError(err: unknown): boolean {
+  if (!(err instanceof Error)) return true
+  const code = (err as NodeJS.ErrnoException).code
+  return !code || code !== 'ENOENT'
 }

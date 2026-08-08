@@ -29,14 +29,14 @@ export function createChatCompletionsHandler(
 ): ChatCompletionsHandler {
   async function complete(params: Record<string, unknown>): Promise<LLMResponse> {
     try {
-      const response = (await client.create(params)) as OpenAI.Chat.Completion
+      const response = (await client.create(params)) as OpenAI.Chat.ChatCompletion
       const choice = response.choices?.[0]
       const message = choice?.message
       if (!message) {
         throw new Error(`${providerName} API returned empty choices array`)
       }
-      const toolCalls = message.tool_calls?.map((tc) =>
-        parseToolCall(tc as { id: string; type: string; function?: { name: string; arguments: string } }, providerName),
+      const toolCalls = message.tool_calls?.map((tc: { id: string; type: string; function?: { name: string; arguments: string } }) =>
+        parseToolCall(tc, providerName),
       )
       return {
         content: message.content ?? "",

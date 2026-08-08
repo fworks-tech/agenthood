@@ -75,8 +75,10 @@ describe("OpenCodeProvider stream error mapping", () => {
     );
   });
 
-  it("maps timeout messages to TimeoutError", async () => {
-    mockCreate.mockRejectedValue(new Error("request timed out"));
+  it("maps timeout-named errors to TimeoutError", async () => {
+    const err = new Error("connect failed") as Error & { code?: string };
+    err.name = "TimeoutError";
+    mockCreate.mockRejectedValue(err);
     const provider = new OpenCodeProvider({ apiKey: "key" });
 
     await expect(provider.stream({ messages: [{ role: "user", content: "hi" }] })).rejects.toThrow(

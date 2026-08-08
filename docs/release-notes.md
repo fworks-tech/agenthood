@@ -5,6 +5,14 @@
 
 ---
 
+## v3.13.6 — August 8, 2026
+
+### 🐛 Bug Fixes
+
+- **Packaging:** ship scripts/ so postinstall resolves (#392)
+
+---
+
 ## v3.13.5 — August 8, 2026
 
 ### 🐛 Bug Fixes

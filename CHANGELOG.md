@@ -1,3 +1,10 @@
+## [3.13.6](https://github.com/fworks-tech/agenthood/compare/v3.13.5...v3.13.6) (2026-08-08)
+
+
+### Bug Fixes
+
+* **packaging:** ship scripts/ so postinstall resolves ([#392](https://github.com/fworks-tech/agenthood/issues/392)) ([f298c4c](https://github.com/fworks-tech/agenthood/commit/f298c4ca24dc0fe0befb11e972ec684d3b4e324d))
+
 ## [3.13.5](https://github.com/fworks-tech/agenthood/compare/v3.13.4...v3.13.5) (2026-08-08)
 
 

@@ -13,6 +13,8 @@ cd agenthood
 npm install
 ```
 
+The postinstall script is a no-op unless `AGENTHOOD_AUTO_SETUP=1` is set. CI always runs `npm ci --ignore-scripts`.
+
 ### Build
 
 ```bash

@@ -15,11 +15,6 @@ import type { Message } from "../llm/types.ts"
 export class ContextCompressor {
   private defaultContextWindow: number
 
-  /**
-   * @param llm - Used to query provider‑specific context window sizes
-   * @param thresholdRatio - Fraction of context window that triggers compression (default 0.8)
-   * @param defaultContextWindow - Fallback window when the provider does not report one (default 8192)
-   */
   constructor(
     private llm: ILLMProvider,
     private thresholdRatio = 0.8,
@@ -28,15 +23,6 @@ export class ContextCompressor {
     this.defaultContextWindow = defaultContextWindow
   }
 
-  /**
-   * Compress messages if they exceed the context window threshold.
-   * Preserves the system prompt verbatim and the last 3 messages.
-   * The middle block is replaced by a heuristic summarisation.
-   *
-   * @param messages - The full conversation history
-   * @param modelContextWindow - Optional per‑model context window override
-   * @returns The original messages if under threshold, or a compressed list
-   */
   async compress(
     messages: Message[],
     modelContextWindow?: number,
@@ -44,68 +30,118 @@ export class ContextCompressor {
   ): Promise<Message[]> {
     if (!messages || messages.length === 0) return []
 
-    const contextWindow =
-      modelContextWindow ?? this.defaultContextWindow
+    const contextWindow = modelContextWindow ?? this.defaultContextWindow
     const threshold = Math.floor(contextWindow * this.thresholdRatio)
-    const totalTokens = this.estimateTokens(messages)
+    if (this.estimateTokens(messages) <= threshold) return messages
 
-    if (totalTokens <= threshold) return messages
-
-    const systemIndex = messages.findIndex((m) => m.role === "system")
-    const system: Message[] =
-      systemIndex >= 0 ? [messages[systemIndex]] : []
-
-    const preserveLast = 3
-    const bodyStart = systemIndex >= 0 ? systemIndex + 1 : 0
-    const bodyEnd = messages.length - preserveLast
-    const body = messages.slice(bodyStart, bodyEnd)
-
+    const { system, tail, body } = this.splitMessages(messages)
     if (body.length === 0) return messages
 
     if (isSkillContentProtected) {
-      const protectedMsgs: Message[] = []
-      const compressible: Message[] = []
-      for (const m of body) {
-        if (m.role === 'tool' && typeof m.content === 'string' && m.content.startsWith('[SKILL_ACTIVATION]')) {
-          protectedMsgs.push(m)
-        } else {
-          compressible.push(m)
-        }
-      }
-      if (compressible.length === 0) {
-        return [...system, ...protectedMsgs, ...messages.slice(bodyEnd)]
-      }
-      const summary = this.summarize(compressible)
-      return [
-        ...system,
-        ...protectedMsgs,
-        { role: "assistant", content: `Summary of prior context: ${summary}` },
-        ...messages.slice(bodyEnd),
-      ]
+      return this.compressProtected(system, body, tail)
     }
 
-    const preserve = messages.slice(bodyEnd)
     const summary = this.summarize(body)
-
-    return [
-      ...system,
-      { role: "assistant", content: `Summary of prior context: ${summary}` },
-      ...preserve,
-    ]
+    return [...system, summaryMessage(summary), ...tail]
   }
 
-  /**
-   * Build a human‑readable summary of a conversation segment.
-   * Counts turns, user messages, assistant responses, and tool uses.
-   */
+  // ── message splitting ────────────────────────────────────────────
+
+  private splitMessages(messages: Message[]) {
+    const systemIndex = messages.findIndex((m) => m.role === "system")
+    const system: Message[] = systemIndex >= 0 ? [messages[systemIndex]] : []
+    const bodyStart = systemIndex >= 0 ? systemIndex + 1 : 0
+
+    let bodyEnd = messages.length - 3
+    while (bodyEnd > bodyStart && messages[bodyEnd]?.role === "tool") bodyEnd--
+
+    return {
+      system,
+      body: messages.slice(bodyStart, bodyEnd),
+      tail: messages.slice(bodyEnd),
+    }
+  }
+
+  // ── protected path ───────────────────────────────────────────────
+
+  private async compressProtected(
+    system: Message[],
+    body: Message[],
+    tail: Message[],
+  ): Promise<Message[]> {
+    const { protectedMsgs, compressible } = this.partitionProtected(body)
+    if (compressible.length === 0) {
+      return this.ensureValidToolSequence([...system, ...protectedMsgs, ...tail])
+    }
+    const summary = this.summarize(compressible)
+    return this.ensureValidToolSequence([
+      ...system,
+      ...protectedMsgs,
+      summaryMessage(summary),
+      ...tail,
+    ])
+  }
+
+  private partitionProtected(body: Message[]) {
+    const protectedMsgs: Message[] = []
+    const compressible: Message[] = []
+    let i = 0
+    while (i < body.length) {
+      const { turn, end, isProtected } = this.classifyTurn(body, i)
+      if (isProtected) protectedMsgs.push(...turn)
+      else compressible.push(...turn)
+      i = end
+    }
+    return { protectedMsgs, compressible }
+  }
+
+  private classifyTurn(body: Message[], start: number) {
+    const m = body[start]
+    if (m.role !== "assistant" || !m.toolCalls || m.toolCalls.length === 0) {
+      return { turn: [m], end: start + 1, isProtected: false }
+    }
+    let j = start + 1
+    while (j < body.length && body[j].role === "tool") j++
+    const turn = body.slice(start, j)
+    const isProtected = turn.some(
+      (t) => t.role === "tool" && typeof t.content === "string" && t.content.startsWith("[SKILL_ACTIVATION]"),
+    )
+    return { turn, end: j, isProtected }
+  }
+
+  // ── tool-sequence validation ─────────────────────────────────────
+
+  private ensureValidToolSequence(msgs: Message[]): Message[] {
+    const result: Message[] = []
+    for (const m of msgs) {
+      if (m.role === "tool") {
+        if (!this.hasMatchingAssistant(result, m.tool_call_id)) continue
+      }
+      result.push(m)
+    }
+    return result
+  }
+
+  private hasMatchingAssistant(result: Message[], toolCallId?: string): boolean {
+    for (let i = result.length - 1; i >= 0; i--) {
+      const prev = result[i]
+      if (prev.role === "assistant") {
+        return (prev.toolCalls ?? []).some((tc) => tc.id === toolCallId)
+      }
+      if (prev.role === "user" || prev.role === "system") break
+    }
+    return false
+  }
+
+  // ── summarisation ────────────────────────────────────────────────
+
   private summarize(segment: Message[]): string {
     const totalTurns = segment.length
     const assistantMsgs = segment.filter((m) => m.role === "assistant").length
     const toolCalls = segment.filter((m) => m.role === "tool").length
     const userMsgs = segment.filter((m) => m.role === "user").length
 
-    const parts: string[] = []
-    parts.push(`${totalTurns} conversation turns`)
+    const parts: string[] = [`${totalTurns} conversation turns`]
     if (userMsgs > 0) parts.push(`${userMsgs} user messages`)
     if (assistantMsgs > 0) parts.push(`${assistantMsgs} assistant responses`)
     if (toolCalls > 0) parts.push(`${toolCalls} tool uses`)
@@ -113,10 +149,6 @@ export class ContextCompressor {
     return parts.join(", ") + "."
   }
 
-  /**
-   * Rough token estimation via character count divided by 4.
-   * Used only for threshold comparison — not billed or counted precisely.
-   */
   private estimateTokens(messages: Message[]): number {
     let total = 0
     for (const m of messages) {
@@ -124,4 +156,8 @@ export class ContextCompressor {
     }
     return total
   }
+}
+
+function summaryMessage(summary: string): Message {
+  return { role: "assistant", content: `Summary of prior context: ${summary}` }
 }

@@ -1,4 +1,4 @@
-import { readFileSync, existsSync, readdirSync } from 'node:fs'
+import { readFileSync, statSync, existsSync, readdirSync } from 'node:fs'
 import { join } from 'node:path'
 import type { ISkillManifest } from './ISkillManifest.ts'
 
@@ -8,48 +8,65 @@ export interface ParsedSkill {
   body: string
 }
 
+export interface ParsedRaw {
+  frontmatter: Record<string, unknown> | null
+  body: string
+}
+
+export const MAX_SKILL_FILE_BYTES = 1024 * 1024
+
 export class SkillParser {
   parse(filePath: string): ParsedSkill | null {
     if (!existsSync(filePath)) return null
 
+    let size: number
+    try {
+      size = statSync(filePath).size
+    } catch {
+      return null
+    }
+    if (size > MAX_SKILL_FILE_BYTES) return null
+
     const content = readFileSync(filePath, 'utf-8')
-    const match = content.match(/^---\n([\s\S]*?)\n---\n?([\s\S]*)$/)
-
-    if (!match) return null
-
-    const raw = match[1]
-    const body = match[2].trim()
-    const frontmatter = this.parseYaml(raw)
-
-    if (!frontmatter) return null
-    if (!frontmatter.description) return null
+    const raw = this.parseRaw(content)
+    if (!raw.frontmatter) return null
+    if (!raw.frontmatter.description) return null
 
     return {
-      name: typeof frontmatter.name === 'string' ? frontmatter.name : filePath,
-      description: typeof frontmatter.description === 'string' ? frontmatter.description : '',
-      body,
+      name: typeof raw.frontmatter.name === 'string' ? raw.frontmatter.name : filePath,
+      description: typeof raw.frontmatter.description === 'string' ? raw.frontmatter.description : '',
+      body: raw.body,
     }
   }
 
-  parseManifest(filePath: string, directory: string, body: string): ISkillManifest {
+  /**
+   * Extract raw frontmatter key-value pairs and body from a string.
+   * Shared with verify.ts to avoid duplicated parsing logic.
+   */
+  parseRaw(content: string): ParsedRaw {
+    const match = content.match(/^---\n([\s\S]*?)\n---\n?([\s\S]*)$/)
+    if (!match) return { frontmatter: null, body: content }
+    const frontmatter = this.parseYaml(match[1])
+    return { frontmatter, body: match[2].trim() }
+  }
+
+  parseManifest(filePath: string, directory: string, body: string, name = '', description = ''): ISkillManifest {
     const resources: string[] = []
     try {
       for (const entry of readdirSync(directory, { withFileTypes: true })) {
         if (entry.isDirectory() && (entry.name === 'references' || entry.name === 'scripts')) {
-          for (const sub of readdirSync(join(directory, entry.name), { withFileTypes: true })) {
-            if (sub.isFile()) {
-              resources.push(`${entry.name}/${sub.name}`)
-            }
-          }
+          resources.push(...this.collectResources(join(directory, entry.name), entry.name))
         }
       }
-    } catch {
-      // resources are best-effort
+    } catch (err) {
+      if (isNonEnoentError(err)) {
+        console.warn(`[SkillParser] error reading resource dirs in ${directory}:`, err)
+      }
     }
 
     return {
-      name: '',
-      description: '',
+      name,
+      description,
       location: filePath,
       directory,
       body,
@@ -57,6 +74,31 @@ export class SkillParser {
     }
   }
 
+  private collectResources(dir: string, subdirName: string): string[] {
+    const resources: string[] = []
+    try {
+      for (const sub of readdirSync(dir, { withFileTypes: true })) {
+        if (sub.isFile()) {
+          resources.push(`${subdirName}/${sub.name}`)
+        }
+      }
+    } catch (err) {
+      if (isNonEnoentError(err)) {
+        console.warn(`[SkillParser] error reading ${dir}:`, err)
+      }
+    }
+    return resources
+  }
+
+  /**
+   * Minimal frontmatter parser — flat key:value pairs only.
+   *
+   * **Limitations** (by design — SKILL.md frontmatter is intentionally simple):
+   * - No YAML lists, nested objects, or multiline values
+   * - No quoted-string handling (colons inside quoted values work; unquoted
+   *   colons are treated as the key/value separator)
+   * - No type coercion beyond true/false → boolean and digit strings → number
+   */
   private parseYaml(raw: string): Record<string, unknown> | null {
     const result: Record<string, unknown> = {}
     for (const line of raw.split('\n')) {
@@ -76,4 +118,10 @@ export class SkillParser {
     }
     return Object.keys(result).length > 0 ? result : null
   }
+}
+
+function isNonEnoentError(err: unknown): boolean {
+  if (!(err instanceof Error)) return true
+  const code = (err as NodeJS.ErrnoException).code
+  return !code || code !== 'ENOENT'
 }

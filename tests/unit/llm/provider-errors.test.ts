@@ -69,12 +69,77 @@ describe('mapProviderError', () => {
     expect((result as RateLimitedError).retryAfter).toBe(15)
   })
 
-  it('maps abort and timeout-message errors to TimeoutError', () => {
+  it('maps abort and TimeoutError-named errors to TimeoutError', () => {
     const abort = new Error('aborted')
     abort.name = 'AbortError'
     expect(mapProviderError(abort, 'openai', 'gpt-5.4')).toBeInstanceOf(TimeoutError)
-    expect(mapProviderError(new Error('request timed out'), 'openai', 'gpt-5.4')).toBeInstanceOf(TimeoutError)
-    expect(mapProviderError(new Error('request timeout'), 'openai', 'gpt-5.4')).toBeInstanceOf(TimeoutError)
+    const timeout = new Error('some SDK message')
+    timeout.name = 'TimeoutError'
+    expect(mapProviderError(timeout, 'openai', 'gpt-5.4')).toBeInstanceOf(TimeoutError)
+  })
+
+  it('maps errors with ETIMEDOUT/ESOCKETTIMEDOUT code to TimeoutError', () => {
+    const etimedout = new Error('connect failed') as Error & { code?: string }
+    etimedout.code = 'ETIMEDOUT'
+    const esockettimedout = new Error('socket closed') as Error & { code?: string }
+    esockettimedout.code = 'ESOCKETTIMEDOUT'
+    expect(mapProviderError(etimedout, 'openai', 'gpt-5.4')).toBeInstanceOf(TimeoutError)
+    expect(mapProviderError(esockettimedout, 'openai', 'gpt-5.4')).toBeInstanceOf(TimeoutError)
+  })
+
+  it('maps an error named TimeoutError to TimeoutError', () => {
+    const timeout = new Error('some SDK message')
+    timeout.name = 'TimeoutError'
+    expect(mapProviderError(timeout, 'openai', 'gpt-5.4')).toBeInstanceOf(TimeoutError)
+  })
+
+  it('follows the cause chain to detect timeouts', () => {
+    const outer = new Error('upstream request failed')
+    const cause = new Error('socket hang up') as Error & { code?: string }
+    cause.code = 'ETIMEDOUT'
+    outer.cause = cause
+    expect(mapProviderError(outer, 'openai', 'gpt-5.4')).toBeInstanceOf(TimeoutError)
+  })
+
+  it('detects realistic fetch timeout causes by code', () => {
+    const cause = new Error('connect failed') as Error & { code?: string }
+    cause.code = 'UND_ERR_CONNECT_TIMEOUT'
+    const outer = new Error('fetch failed')
+    outer.name = 'TypeError'
+    outer.cause = cause
+    expect(mapProviderError(outer, 'openai', 'gpt-5.4')).toBeInstanceOf(TimeoutError)
+  })
+
+  it('detects nested cause chains with timeout codes', () => {
+    const inner = new Error('origin error') as Error & { code?: string }
+    inner.code = 'EAI_AGAIN'
+    const middle = new Error('middle error')
+    middle.cause = inner
+    const outer = new Error('outer error')
+    outer.cause = middle
+    expect(mapProviderError(outer, 'openai', 'gpt-5.4')).toBeInstanceOf(TimeoutError)
+  })
+
+  it('follows nested cause chains to detect timeouts', () => {
+    const innermost = new Error('origin error')
+    innermost.name = 'TimeoutError'
+    const middle = new Error('middle error')
+    middle.cause = innermost
+    const outer = new Error('outer error')
+    outer.cause = middle
+    expect(mapProviderError(outer, 'openai', 'gpt-5.4')).toBeInstanceOf(TimeoutError)
+  })
+
+  it('does not treat unrelated error names as timeouts', () => {
+    const err = new Error('connection reset by peer')
+    err.name = 'ECONNRESET'
+    expect(mapProviderError(err, 'openai', 'gpt-5.4')).toBe(err)
+  })
+
+  it('does not treat non-timeout causes as timeouts', () => {
+    const outer = new Error('upstream request failed')
+    outer.cause = new Error('boom')
+    expect(mapProviderError(outer, 'openai', 'gpt-5.4')).toBe(outer)
   })
 
   it('returns the original error for non-http failures', () => {

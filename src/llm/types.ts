@@ -82,6 +82,7 @@ export interface ProviderEntry {
 export interface LLMConfig {
   provider?: string
   model?: string
+  embeddingModel?: string
   baseUrl?: string
   apiKey?: string
   routing?: RoutingConfig

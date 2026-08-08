@@ -37,10 +37,6 @@ jobs:
         env:
           NODE_OPTIONS: "--import tsx"
         run: |
-          npm install --no-save --ignore-scripts --no-audit \
-            @commitlint/cli@19.5.0 \
-            @commitlint/config-conventional@19.5.0 \
-            @commitlint/types@19.5.0
           npx commitlint \
             --config docs/conventions/commitlint.config.ts \
             --from ${{ github.event.pull_request.base.sha }} \
@@ -81,6 +77,9 @@ jobs:
 
           *-- The Auditor, Agenthood*"
       - name: The Auditor — agent analysis
+        if: github.event_name == 'pull_request'
+        # Sends changed-file names to an external LLM provider.
+        # Data handling and opt-out: docs/governance/agent-analysis-data.md
         uses: ./.github/actions/agent-analysis
         with:
           agent-name: the-auditor
@@ -141,6 +140,8 @@ jobs:
           fi
           echo "The Warden: all changed files within size limits."
       - name: The Warden — agent analysis
+        # Sends changed-file names to an external LLM provider.
+        # Data handling and opt-out: docs/governance/agent-analysis-data.md
         uses: ./.github/actions/agent-analysis
         with:
           agent-name: the-warden
@@ -191,6 +192,8 @@ jobs:
         shell: bash
         run: .github/scripts/sentinel-check.sh
       - name: The Sentinel — agent analysis
+        # Sends changed-file names to an external LLM provider.
+        # Data handling and opt-out: docs/governance/agent-analysis-data.md
         uses: ./.github/actions/agent-analysis
         with:
           agent-name: the-sentinel
@@ -215,7 +218,22 @@ jobs:
           node-version: "24"
           cache: npm
       - run: npm ci --ignore-scripts
-      - run: npm audit --audit-level=high || echo "::warning::npm audit found vulnerabilities"
+      - name: The Auditor — audit project dependencies
+        shell: bash
+        run: |
+          npm audit --audit-level=high --json > /tmp/npm-audit.json 2>/dev/null || true
+          real=$(node -e "
+            const a = JSON.parse(require('fs').readFileSync('/tmp/npm-audit.json', 'utf8'));
+            const bad = Object.values(a.vulnerabilities || {})
+              .filter(v => (v.nodes || []).some(n => !n.startsWith('node_modules/npm')));
+            for (const v of bad) console.log(v.name + ' [' + v.severity + '] ' + (v.nodes || []).join(', '));
+          ")
+          if [ -n "$real" ]; then
+            echo "The Auditor: unfixed vulnerabilities in project dependencies:"
+            echo "$real"
+            exit 1
+          fi
+          echo "The Auditor: no high-severity vulnerabilities outside npm's bundled dependencies."
       - name: The Tester — run affected tests
         shell: bash
         env:
@@ -242,3 +260,5 @@ jobs:
         run: npm run lint
       - name: The Warden — typecheck
         run: npm run typecheck
+      - name: The Warden — build
+        run: npm run build

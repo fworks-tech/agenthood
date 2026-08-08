@@ -10,9 +10,16 @@ const MAX_DEPTH = 6
 export class SkillDiscovery {
   private parser = new SkillParser()
   private manifests = new Map<string, ISkillManifest>()
+  private discovered = false
+  private readonly defaultProjectDir: string
+
+  constructor(projectDir: string = process.cwd()) {
+    this.defaultProjectDir = projectDir
+  }
 
   discover(projectDir: string): ISkillManifest[] {
     this.manifests.clear()
+    this.discovered = true
 
     const scopePaths = [
       { path: join(homedir(), '.agents', 'skills'), scope: 'user' },
@@ -37,11 +44,19 @@ export class SkillDiscovery {
     return Array.from(this.manifests.values())
   }
 
+  private ensureDiscovered(): void {
+    if (!this.discovered) {
+      this.discover(this.defaultProjectDir)
+    }
+  }
+
   get(name: string): ISkillManifest | undefined {
+    this.ensureDiscovered()
     return this.manifests.get(name)
   }
 
   list(): ISkillManifest[] {
+    this.ensureDiscovered()
     return Array.from(this.manifests.values())
   }
 
@@ -52,7 +67,8 @@ export class SkillDiscovery {
     let entries: string[]
     try {
       entries = readdirSync(dir)
-    } catch {
+    } catch (err) {
+      console.warn(`[SkillDiscovery] cannot read ${dir}: ${(err as Error)?.message ?? err}`)
       return []
     }
 
@@ -60,29 +76,34 @@ export class SkillDiscovery {
       if (IGNORED_DIRS.has(entry)) continue
       const fullPath = join(dir, entry)
 
-      let stat
-      try {
-        stat = statSync(fullPath)
-      } catch {
-        continue
-      }
+      const stat = this.statPath(fullPath)
+      if (!stat) continue
 
       if (stat.isDirectory()) {
-        const skillMdPath = join(fullPath, 'SKILL.md')
-        if (existsSync(skillMdPath)) {
-          const parsed = this.parser.parse(skillMdPath)
-          if (parsed) {
-            const manifest = this.parser.parseManifest(skillMdPath, fullPath, parsed.body)
-            manifest.name = parsed.name || entry
-            manifest.description = parsed.description
-            result.push(manifest)
-          }
-        } else {
-          result.push(...this.scanDir(fullPath, depth + 1))
-        }
+        result.push(...this.scanEntry(fullPath, entry, depth))
       }
     }
 
     return result
+  }
+
+  private statPath(fullPath: string): ReturnType<typeof statSync> | undefined {
+    try {
+      return statSync(fullPath)
+    } catch (err) {
+      console.warn(`[SkillDiscovery] cannot stat ${fullPath}: ${(err as Error)?.message ?? err}`)
+      return undefined
+    }
+  }
+
+  private scanEntry(fullPath: string, entry: string, depth: number): ISkillManifest[] {
+    const skillMdPath = join(fullPath, 'SKILL.md')
+    if (existsSync(skillMdPath)) {
+      const parsed = this.parser.parse(skillMdPath)
+      if (!parsed) return []
+      const manifest = this.parser.parseManifest(skillMdPath, fullPath, parsed.body, parsed.name || entry, parsed.description)
+      return [manifest]
+    }
+    return this.scanDir(fullPath, depth + 1)
   }
 }

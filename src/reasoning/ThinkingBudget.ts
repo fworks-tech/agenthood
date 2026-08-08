@@ -7,12 +7,12 @@ export class BudgetExceededError extends Error {
 
 export class ThinkingBudget {
   constructor(
-    private maxSteps: number = 20,
+    private maxSteps: number = 60,
     private maxTokens?: number
   ) {
     void this.maxTokens
-    if (maxSteps > 20) {
-      throw new Error('ThinkingBudget: maxSteps cannot exceed 20')
+    if (maxSteps > 60) {
+      throw new Error('ThinkingBudget: maxSteps cannot exceed 60')
     }
   }
 

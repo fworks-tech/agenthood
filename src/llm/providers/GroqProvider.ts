@@ -9,14 +9,18 @@ import { DEFAULT_CONTEXT_WINDOW, GROQ_DEFAULT_MODEL } from "./constants.ts"
 
 export class GroqProvider implements ILLMProvider {
   private client: Groq;
-  model: string;
+  private _model: string;
   private chat: ChatCompletionsHandler;
+
+  get model(): string {
+    return this._model;
+  }
 
   constructor(config: LLMConfig) {
     this.client = new Groq({
       apiKey: config.apiKey ?? process.env.GROQ_API_KEY ?? "",
     });
-    this.model =
+    this._model =
       config.model ??
       process.env.GROQ_DEFAULT_MODEL ??
       GROQ_DEFAULT_MODEL;
@@ -76,7 +80,7 @@ export class GroqProvider implements ILLMProvider {
   }
 
   setModel(model: string): void {
-    this.model = model;
+    this._model = model;
   }
 
   async embed(_text: string): Promise<number[]> {

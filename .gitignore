@@ -2,7 +2,6 @@
 node_modules/
 site/
 dist/node_modules/
-dist/
 
 # Local environment
 .env
@@ -10,6 +9,10 @@ dist/
 
 # Build output
 dist/
+
+# Debug / reproduction scratch files
+repro-*.ts
+*.sarif
 
 # VS Code Extension Testing
 vscode-extension/.vscode-test/

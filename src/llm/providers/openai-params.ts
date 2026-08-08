@@ -4,8 +4,9 @@ import type OpenAI from "openai"
 
 /**
  * Shared complete() params for OpenAI-compatible providers.
- * OpenAI and OpenRouter use this directly; Groq uses its own buildCommonParams
- * (which passes the same params to stream too). OpenCode diverges with custom
+ * OpenAI, OpenRouter, and Groq use buildCompleteParams directly.
+ * OpenAI/OpenRouter use buildStreamParams for stream(); Groq passes
+ * the full params to stream too. OpenCode diverges with custom
  * message/tool conversion and a smaller param set.
  */
 export function buildCompleteParams(
@@ -35,5 +36,21 @@ export function buildStreamParams(
     messages: validateMessages<OpenAI.Chat.ChatCompletionMessageParam[]>(request.messages),
     temperature: request.temperature,
     max_tokens: request.maxTokens,
+  }
+}
+
+/** Shared embed() logic for OpenAI-compatible providers. */
+export async function embedWith(
+  client: OpenAI,
+  model: string,
+  text: string,
+  providerName: string,
+): Promise<number[]> {
+  try {
+    const response = await client.embeddings.create({ model, input: text })
+    return response.data[0].embedding
+  } catch (err) {
+    const msg = err instanceof Error ? err.message : String(err)
+    throw new Error(`${providerName} embed failed: ${msg}`)
   }
 }

@@ -8,7 +8,7 @@ import type {
 } from "../types.ts"
 import { createChatCompletionsHandler } from "./chat-completions.ts"
 import type { ChatCompletionsHandler, ChatCompletionsClient } from "./chat-completions.ts"
-import { buildCompleteParams, buildStreamParams } from "./openai-params.ts"
+import { buildCompleteParams, buildStreamParams, embedWith } from "./openai-params.ts"
 import { DEFAULT_CONTEXT_WINDOW, OPENAI_DEFAULT_MODEL, OPENAI_EMBEDDING_MODEL } from "./constants.ts"
 
 export class OpenAIProvider implements ILLMProvider {
@@ -48,15 +48,6 @@ export class OpenAIProvider implements ILLMProvider {
   }
 
   async embed(text: string): Promise<number[]> {
-    try {
-      const response = await this.client.embeddings.create({
-        model: this.embeddingModel,
-        input: text,
-      });
-      return response.data[0].embedding;
-    } catch (err) {
-      const msg = err instanceof Error ? err.message : String(err);
-      throw new Error(`OpenAIProvider.embed() failed: ${msg}`);
-    }
+    return embedWith(this.client, this.embeddingModel, text, "OpenAI")
   }
 }

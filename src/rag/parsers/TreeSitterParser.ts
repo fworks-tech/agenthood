@@ -22,6 +22,21 @@ const LANGUAGE_MAP: Record<SupportedLanguage, string[]> = {
   go: ['.go'],
 }
 
+/** Grammar module name per supported language (require()d once in init()). */
+const GRAMMAR_MODULES: Record<Exclude<SupportedLanguage, 'javascript'>, string> = {
+  typescript: 'tree-sitter-typescript',
+  python: 'tree-sitter-python',
+  go: 'tree-sitter-go',
+}
+
+/**
+ * tree-sitter core is pinned at 0.21.x on purpose: the published
+ * tree-sitter-typescript grammar (latest 0.23.2) peers on `tree-sitter ^0.21.0`,
+ * while tree-sitter-python/go 0.25.0 require `^0.25.0` core — no single core
+ * version satisfies both. Upgrading core would break TypeScript parsing.
+ */
+const CORE_MODULE = 'tree-sitter'
+
 function extname(filePath: string): string {
   const dot = filePath.lastIndexOf('.')
   return dot >= 0 ? filePath.slice(dot).toLowerCase() : ''
@@ -48,10 +63,12 @@ interface TreeSitterTree {
   rootNode: TreeSitterNode
 }
 
-type LanguageModule = new () => { parser: unknown }
+interface TreeSitterParserInstance {
+  parse(source: string): TreeSitterTree
+}
 
 export class TreeSitterParser implements IParser {
-  private parsers: Map<SupportedLanguage, unknown> = new Map()
+  private parsers: Map<SupportedLanguage, TreeSitterParserInstance> = new Map()
   private ready = false
 
   constructor() {
@@ -59,50 +76,32 @@ export class TreeSitterParser implements IParser {
   }
 
   private init(): void {
-    try {
-      // eslint-disable-next-line @typescript-eslint/no-require-imports
-      const Parser = require('tree-sitter') as typeof import('tree-sitter')
-      const parser = new Parser()
-      const languages: Array<[SupportedLanguage, string]> = [
-        ['typescript', 'tree-sitter-typescript'],
-        ['python', 'tree-sitter-python'],
-        ['go', 'tree-sitter-go'],
-      ]
-      for (const [lang, mod] of languages) {
-        try {
-          // eslint-disable-next-line @typescript-eslint/no-require-imports
-          const langModule = require(mod) as LanguageModule
-          parser.setLanguage(langModule)
-          this.parsers.set(lang, parser)
-        } catch {
-          // language parser not available — skip
-        }
+    // eslint-disable-next-line @typescript-eslint/no-require-imports
+    const Parser = require(CORE_MODULE) as typeof import('tree-sitter')
+    for (const [lang, mod] of Object.entries(GRAMMAR_MODULES) as Array<[SupportedLanguage, string]>) {
+      try {
+        // eslint-disable-next-line @typescript-eslint/no-require-imports
+        const langModule = require(mod)
+        const parser = new Parser()
+        parser.setLanguage(langModule)
+        this.parsers.set(lang, parser)
+      } catch {
+        // language parser not available — skip
       }
-      this.ready = this.parsers.size > 0
-    } catch {
-      this.ready = false
     }
+    this.ready = this.parsers.size > 0
   }
 
   parse(source: string, language: SupportedLanguage, filePath: string): CodeEntity[] {
-    if (!this.ready || !this.parsers.has(language)) {
+    const parser = this.parsers.get(language)
+    if (!this.ready || !parser) {
       return this.fallbackParse(source, filePath)
     }
 
     try {
-      // eslint-disable-next-line @typescript-eslint/no-require-imports
-      const Parser = require('tree-sitter') as typeof import('tree-sitter')
-      const parser = new Parser()
-      // eslint-disable-next-line @typescript-eslint/no-require-imports
-      const langModule = require(
-        language === 'typescript' ? 'tree-sitter-typescript'
-        : language === 'python' ? 'tree-sitter-python'
-        : 'tree-sitter-go',
-      ) as LanguageModule
-      parser.setLanguage(langModule)
-      const tree: TreeSitterTree = parser.parse(source)
+      const tree = parser.parse(source)
       const entities: CodeEntity[] = []
-      this.walkTree(tree.rootNode, source, filePath, entities, new Set())
+      this.walkTree(tree.rootNode, filePath, entities, new Set())
       return entities
     } catch {
       return this.fallbackParse(source, filePath)
@@ -111,7 +110,6 @@ export class TreeSitterParser implements IParser {
 
   private walkTree(
     node: TreeSitterNode,
-    source: string,
     filePath: string,
     entities: CodeEntity[],
     seen: Set<string>,
@@ -127,13 +125,13 @@ export class TreeSitterParser implements IParser {
           startLine: node.startPosition.row + 1,
           endLine: node.endPosition.row + 1,
           filePath,
-          dependencies: this.extractDependencies(node, source),
+          dependencies: this.extractDependencies(node),
         })
       }
     }
 
     if (node.type === 'import_statement' || node.type === 'import_declaration') {
-      const deps = this.extractDependencies(node, source)
+      const deps = this.extractDependencies(node)
       if (deps.length > 0) {
         const key = `import:${deps[0]}`
         if (!seen.has(key)) {
@@ -151,7 +149,7 @@ export class TreeSitterParser implements IParser {
     }
 
     for (const child of node.namedChildren) {
-      this.walkTree(child, source, filePath, entities, seen)
+      this.walkTree(child, filePath, entities, seen)
     }
   }
 
@@ -188,7 +186,7 @@ export class TreeSitterParser implements IParser {
     return nameChild ? nameChild.text : `anonymous_${node.type}`
   }
 
-  private extractDependencies(node: TreeSitterNode, _source: string): string[] {
+  private extractDependencies(node: TreeSitterNode): string[] {
     const deps: string[] = []
     if (node.type === 'import_statement' || node.type === 'import_declaration') {
       for (const child of node.children) {
@@ -215,15 +213,10 @@ export class TreeSitterParser implements IParser {
   private fallbackParse(source: string, filePath: string): CodeEntity[] {
     const entities: CodeEntity[] = []
     const lines = source.split('\n')
-
     const importRe = /^(?:import\s+(?:\w+\s*,?\s*)?(?:{[^}]*}\s*)?from\s+['"]([^'"]+)['"]|const\s+\w+\s*=\s*require\s*\(\s*['"]([^'"]+)['"]\s*\))/
-    const funcRe = /^(?:export\s+)?(?:async\s+)?function\s+(\w+)/
-    const classRe = /^(?:export\s+)?(?:abstract\s+)?class\s+(\w+)/
-    const interfaceRe = /^(?:export\s+)?interface\s+(\w+)/
-    const typeRe = /^(?:export\s+)?type\s+(\w+)/
+
     for (let i = 0; i < lines.length; i++) {
       const line = lines[i]
-
       const importMatch = line.match(importRe)
       if (importMatch) {
         const dep = importMatch[1] || importMatch[2]
@@ -238,55 +231,9 @@ export class TreeSitterParser implements IParser {
         continue
       }
 
-      const funcMatch = line.match(funcRe)
-      if (funcMatch) {
-        entities.push({
-          type: 'function',
-          name: funcMatch[1],
-          startLine: i + 1,
-          endLine: this.findBlockEnd(lines, i),
-          filePath,
-          dependencies: [],
-        })
-        continue
-      }
-
-      const classMatch = line.match(classRe)
-      if (classMatch) {
-        entities.push({
-          type: 'class',
-          name: classMatch[1],
-          startLine: i + 1,
-          endLine: this.findBlockEnd(lines, i),
-          filePath,
-          dependencies: [],
-        })
-        continue
-      }
-
-      const interfaceMatch = line.match(interfaceRe)
-      if (interfaceMatch) {
-        entities.push({
-          type: 'interface',
-          name: interfaceMatch[1],
-          startLine: i + 1,
-          endLine: this.findBlockEnd(lines, i),
-          filePath,
-          dependencies: [],
-        })
-        continue
-      }
-
-      const typeMatch = line.match(typeRe)
-      if (typeMatch) {
-        entities.push({
-          type: 'type',
-          name: typeMatch[1],
-          startLine: i + 1,
-          endLine: i + 1,
-          filePath,
-          dependencies: [],
-        })
+      const declaration = this.matchDeclaration(line, i, lines, filePath)
+      if (declaration) {
+        entities.push(declaration)
         continue
       }
 
@@ -303,6 +250,34 @@ export class TreeSitterParser implements IParser {
     }
 
     return entities
+  }
+
+  private matchDeclaration(
+    line: string,
+    index: number,
+    lines: string[],
+    filePath: string,
+  ): CodeEntity | null {
+    const patterns: Array<[RegExp, CodeEntityType, boolean]> = [
+      [/^(?:export\s+)?(?:async\s+)?function\s+(\w+)/, 'function', true],
+      [/^(?:export\s+)?(?:abstract\s+)?class\s+(\w+)/, 'class', true],
+      [/^(?:export\s+)?interface\s+(\w+)/, 'interface', true],
+      [/^(?:export\s+)?type\s+(\w+)/, 'type', false],
+    ]
+    for (const [re, type, hasBlock] of patterns) {
+      const match = line.match(re)
+      if (!match) continue
+      const endLine = hasBlock ? this.findBlockEnd(lines, index) : index + 1
+      return {
+        type,
+        name: match[1],
+        startLine: index + 1,
+        endLine,
+        filePath,
+        dependencies: [],
+      }
+    }
+    return null
   }
 
   private findBlockEnd(lines: string[], start: number): number {

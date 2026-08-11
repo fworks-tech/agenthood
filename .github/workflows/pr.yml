@@ -271,48 +271,11 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
-        with:
-          fetch-depth: 0
       - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020
         with:
           node-version: "24"
           cache: npm
       - run: npm ci --ignore-scripts
-      - name: The Envoy — build
-        run: npm run build
-      - name: The Envoy — pack and verify tarball contents
+      - name: The Envoy — pack, scratch install, and CLI check
         shell: bash
-        run: |
-          mkdir -p /tmp/agenthood-pack
-          npm pack --pack-destination /tmp/agenthood-pack
-          TARBALL=$(ls /tmp/agenthood-pack/agenthood-*.tgz)
-          # regression gate for #391/#392: a missing postinstall breaks consumers' npm install
-          for required in \
-            "package/dist/cli.js" \
-            "package/scripts/postinstall.mjs" \
-            "package/AGENTS.md" \
-            "package/skills/the-scribe/SKILL.md" \
-            "package/docs/members/registry.json"; do
-            # grep must consume all input: -q exits on first match and the SIGPIPE
-            # race with tar intermittently false-fails the check (see PR #394 review)
-            if ! tar -tzf "$TARBALL" | grep -x "$required" >/dev/null; then
-              echo "The Envoy: tarball missing required file: $required"
-              tar -tzf "$TARBALL"
-              exit 1
-            fi
-          done
-          echo "The Envoy: tarball contains all required files."
-      - name: The Envoy — scratch install and CLI check
-        shell: bash
-        run: |
-          mkdir -p /tmp/agenthood-scratch
-          cd /tmp/agenthood-scratch
-          npm init -y >/dev/null
-          npm install /tmp/agenthood-pack/agenthood-*.tgz --no-audit --no-fund
-          OUTPUT=$(npx agenthood list)
-          if ! echo "$OUTPUT" | grep "The Society" >/dev/null; then
-            echo "The Envoy: CLI smoke check failed — expected member listing"
-            echo "$OUTPUT"
-            exit 1
-          fi
-          echo "The Envoy: published artifact installs and CLI runs."
+        run: .github/scripts/package-smoke.sh

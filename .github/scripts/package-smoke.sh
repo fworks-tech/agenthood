@@ -16,7 +16,11 @@ npm run build >/dev/null
 
 mkdir -p "$PACK_DIR"
 npm pack --pack-destination "$PACK_DIR" >/dev/null
-TARBALL=$(ls "$PACK_DIR"/agenthood-*.tgz)
+TARBALL=$(find "$PACK_DIR" -maxdepth 1 -name 'agenthood-*.tgz' -print -quit)
+if [ -z "$TARBALL" ]; then
+  echo "The Envoy: no tarball found in $PACK_DIR" >&2
+  exit 1
+fi
 
 echo "The Envoy: verifying tarball contents ($(basename "$TARBALL"))"
 # No grep -q here: -q closes the pipe on first match and the resulting
@@ -45,7 +49,12 @@ mkdir -p "$SCRATCH_DIR"
 pushd "$SCRATCH_DIR" >/dev/null
 npm init -y >/dev/null
 npm install "$TARBALL" --no-audit --no-fund >/dev/null
-OUTPUT=$(npx agenthood list 2>&1)
+# Direct bin path: npx could fall back to the registry if install failed
+if ! OUTPUT=$(./node_modules/.bin/agenthood list 2>&1); then
+  echo "The Envoy: CLI failed to run - expected member listing" >&2
+  echo "$OUTPUT"
+  exit 1
+fi
 if ! grep "The Society" >/dev/null <<<"$OUTPUT"; then
   echo "The Envoy: CLI smoke check failed - expected member listing" >&2
   echo "$OUTPUT"

@@ -286,14 +286,18 @@ jobs:
           mkdir -p /tmp/agenthood-pack
           npm pack --pack-destination /tmp/agenthood-pack
           TARBALL=$(ls /tmp/agenthood-pack/agenthood-*.tgz)
+          # regression gate for #391/#392: a missing postinstall breaks consumers' npm install
           for required in \
             "package/dist/cli.js" \
             "package/scripts/postinstall.mjs" \
             "package/AGENTS.md" \
             "package/skills/the-scribe/SKILL.md" \
             "package/docs/members/registry.json"; do
-            if ! tar -tzf "$TARBALL" | grep -qx "$required"; then
+            # grep must consume all input: -q exits on first match and the SIGPIPE
+            # race with tar intermittently false-fails the check (see PR #394 review)
+            if ! tar -tzf "$TARBALL" | grep -x "$required" >/dev/null; then
               echo "The Envoy: tarball missing required file: $required"
+              tar -tzf "$TARBALL"
               exit 1
             fi
           done
@@ -306,7 +310,7 @@ jobs:
           npm init -y >/dev/null
           npm install /tmp/agenthood-pack/agenthood-*.tgz --no-audit --no-fund
           OUTPUT=$(npx agenthood list)
-          if ! echo "$OUTPUT" | grep -q "The Society"; then
+          if ! echo "$OUTPUT" | grep "The Society" >/dev/null; then
             echo "The Envoy: CLI smoke check failed — expected member listing"
             echo "$OUTPUT"
             exit 1

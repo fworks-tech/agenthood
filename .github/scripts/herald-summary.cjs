@@ -30,15 +30,21 @@ function escapeCell(value) {
     .replace(/[\r\n]+/g, ' ');
 }
 
+const PAGE_SIZE = 100;
+
+function isLastPage(chunk, total, page, perPage) {
+  if (total !== undefined) return page * perPage >= total;
+  return chunk.length < perPage;
+}
+
 async function paginate(fetchPage) {
   const items = [];
   let page = 1;
   for (;;) {
     const { data } = await fetchPage(page);
     const chunk = Array.isArray(data) ? data : data.workflow_runs;
-    items.push(...chunk);
-    const total = data.total_count;
-    if (total !== undefined ? page * 100 >= total : chunk.length < 100) break;
+    items.push(...(chunk || []));
+    if (isLastPage(chunk || [], data.total_count, page, PAGE_SIZE)) break;
     page++;
   }
   return items;
@@ -46,7 +52,7 @@ async function paginate(fetchPage) {
 
 async function listWorkflowRunsForSha(github, owner, repo, sha) {
   const runs = await paginate((page) => github.rest.actions.listWorkflowRunsForRepo({
-    owner, repo, head_sha: sha, per_page: 100, page,
+    owner, repo, head_sha: sha, per_page: PAGE_SIZE, page,
   }));
   return runs.filter((run) => TRIGGER_WORKFLOWS.includes(run.name));
 }
@@ -92,7 +98,7 @@ function buildVerdictBody(sha, prNumber, runs) {
 
 async function listComments(github, owner, repo, prNumber) {
   return paginate((page) => github.rest.issues.listComments({
-    owner, repo, issue_number: prNumber, per_page: 100, page,
+    owner, repo, issue_number: prNumber, per_page: PAGE_SIZE, page,
   }));
 }
 

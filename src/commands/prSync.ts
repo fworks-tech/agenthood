@@ -101,11 +101,20 @@ function detectPR(options: PrSyncCliOptions): PRInfo | null {
   return null
 }
 
-/** Mirrors git check-ref-format (validated empirically): refnames are
- * untrusted input, and a malformed one would either compute a wrong range or
- * break rev-parse. Note: we intentionally do NOT require a slash — GitHub
- * allows onelevel branches like `main`. Leading dashes are safe downstream
- * because the ref is always prefixed with `origin/` (never parsed as a flag).
+const LOCK_SUFFIX_RE = /\.lock$/i
+
+/** Mirrors git check-ref-format: refnames are untrusted input, and a
+ * malformed one would either compute a wrong range or break rev-parse.
+ *
+ * Empirical references (git 2.55.0, `git check-ref-format <ref>`):
+ *   - `foo./bar` → valid (only the whole ref may not end with a dot)
+ *   - `feature/-lead` → valid (leading dashes are legal components; safe here
+ *     because the only call site always prefixes the ref with `origin/`)
+ *   - `foo.lock/bar`, `foo.Lock` → invalid (.lock is component-level and
+ *     matched case-insensitively, though the man page does not state case)
+ *
+ * We intentionally do NOT require a slash — GitHub allows onelevel branches
+ * like `main`.
  */
 export function isValidRefname(name: string): boolean {
   if (!name || name.length === 0) return false
@@ -117,7 +126,7 @@ export function isValidRefname(name: string): boolean {
   const components = name.split('/')
   if (components.some((c) => c.startsWith('.'))) return false
   // git rejects any component ending in .lock, case-insensitively
-  if (components.some((c) => /\.lock$/i.test(c))) return false
+  if (components.some((c) => LOCK_SUFFIX_RE.test(c))) return false
   return true
 }
 

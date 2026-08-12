@@ -12,6 +12,9 @@ describe('isValidRefname', () => {
     expect(isValidRefname('jira-123/some-branch')).toBe(true)
     expect(isValidRefname('foo./bar')).toBe(true)
     expect(isValidRefname('feature/-lead')).toBe(true)
+    // top-level dash is accepted as a refname; the origin/ prefix invariant
+    // guarantees it is never parsed as a flag downstream
+    expect(isValidRefname('-lead')).toBe(true)
   })
 
   it('rejects sequences git check-ref-format forbids', async () => {

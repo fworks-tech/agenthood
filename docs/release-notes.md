@@ -5,6 +5,19 @@
 
 ---
 
+## v3.16.0 — August 12, 2026
+
+### 🐛 Bug Fixes
+
+- **Ci:** harden doorman gate, extract audit check, and dedupe workflow boilerplate
+- **Ci:** run setup-env composite after checkout in pr.yml
+
+### ✨ Features
+
+- **Ci:** enforce PR descriptions link to an issue via doorman gate, closes [#N](https://github.com/fworks-tech/agenthood/issues/N) [#N](https://github.com/fworks-tech/agenthood/issues/N)
+
+---
+
 ## v3.15.0 — August 12, 2026
 
 ### 🐛 Bug Fixes

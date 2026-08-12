@@ -1,3 +1,16 @@
+# [3.16.0](https://github.com/fworks-tech/agenthood/compare/v3.15.0...v3.16.0) (2026-08-12)
+
+
+### Bug Fixes
+
+* **ci:** harden doorman gate, extract audit check, and dedupe workflow boilerplate ([882f10d](https://github.com/fworks-tech/agenthood/commit/882f10dd7ee2cb3fa9e12f4673ac1a12880c5094))
+* **ci:** run setup-env composite after checkout in pr.yml ([6737f33](https://github.com/fworks-tech/agenthood/commit/6737f3378700c81bba2cc38cdbe6af76a8b5330b))
+
+
+### Features
+
+* **ci:** enforce PR descriptions link to an issue via doorman gate ([24d5175](https://github.com/fworks-tech/agenthood/commit/24d51757bcb87f2647b928337ab5e7cbba06b480)), closes [#N](https://github.com/fworks-tech/agenthood/issues/N) [#N](https://github.com/fworks-tech/agenthood/issues/N)
+
 # [3.15.0](https://github.com/fworks-tech/agenthood/compare/v3.14.2...v3.15.0) (2026-08-12)
 
 

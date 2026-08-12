@@ -25,16 +25,17 @@ export class AllProvidersFailedError extends Error {
 
 /** HTTP status → fixed classification. 400 is permanent: retrying a malformed
  * request cannot succeed, so the chain must fail over immediately instead of
- * burning backoff retries. 5xx is handled separately (retryable unavailable). */
-const STATUS_CLASSIFICATIONS: Record<number, ClassifiedError> = {
-  400: { category: 'bad_request', retryable: false, retryAfter: 0, cooldownMs: 0, permanent: true },
-  401: { category: 'auth', retryable: false, retryAfter: 0, cooldownMs: 0, permanent: true },
-  402: { category: 'payment', retryable: false, retryAfter: 0, cooldownMs: 0, permanent: true },
-  408: { category: 'timeout', retryable: true, retryAfter: 30, cooldownMs: 30_000, permanent: false },
-  429: { category: 'rate_limited', retryable: true, retryAfter: 60, cooldownMs: 60_000, permanent: false },
-}
+ * burning backoff retries. 5xx is handled separately (retryable unavailable).
+ * Frozen: shared across calls, consumers must not mutate them. */
+const STATUS_CLASSIFICATIONS: Record<number, ClassifiedError> = Object.freeze({
+  400: Object.freeze({ category: 'bad_request', retryable: false, retryAfter: 0, cooldownMs: 0, permanent: true }),
+  401: Object.freeze({ category: 'auth', retryable: false, retryAfter: 0, cooldownMs: 0, permanent: true }),
+  402: Object.freeze({ category: 'payment', retryable: false, retryAfter: 0, cooldownMs: 0, permanent: true }),
+  408: Object.freeze({ category: 'timeout', retryable: true, retryAfter: 30, cooldownMs: 30_000, permanent: false }),
+  429: Object.freeze({ category: 'rate_limited', retryable: true, retryAfter: 60, cooldownMs: 60_000, permanent: false }),
+} as Record<number, ClassifiedError>)
 
-const UNKNOWN: ClassifiedError = { category: 'unknown', retryable: false, retryAfter: 0, cooldownMs: 0, permanent: false }
+const UNKNOWN: ClassifiedError = Object.freeze({ category: 'unknown', retryable: false, retryAfter: 0, cooldownMs: 0, permanent: false })
 
 /**
  * Classify an error into a structured category with retry/cooldown semantics.

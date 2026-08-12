@@ -36,11 +36,13 @@ jobs:
       - name: The Doorman — validate commits in PR range
         env:
           NODE_OPTIONS: "--import tsx"
+          BASE_SHA: ${{ github.event.pull_request.base.sha }}
+          HEAD_SHA: ${{ github.event.pull_request.head.sha }}
         run: |
           npx commitlint \
             --config docs/conventions/commitlint.config.ts \
-            --from ${{ github.event.pull_request.base.sha }} \
-            --to ${{ github.event.pull_request.head.sha }} \
+            --from "$BASE_SHA" \
+            --to "$HEAD_SHA" \
             --verbose
 
   # ──────────────────────────────────────────────

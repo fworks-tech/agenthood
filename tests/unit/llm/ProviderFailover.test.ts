@@ -2,14 +2,10 @@ import { describe, it, expect, vi } from 'vitest'
 import {
   ProviderChain,
   AllProvidersFailedError,
-  classifyError,
 } from '../../../src/llm/ProviderFailover.js'
 import {
   AuthError,
-  PaymentRequiredError,
-  RateLimitedError,
   TimeoutError,
-  ServiceUnavailableError,
   ModelNotFoundError,
 } from '../../../src/llm/errors.js'
 import type { ILLMProvider } from '../../../src/llm/ILLMProvider.js'

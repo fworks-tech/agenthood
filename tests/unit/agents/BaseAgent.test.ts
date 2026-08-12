@@ -139,4 +139,82 @@ describe('BaseAgent', () => {
     const result = await agent.run('test task', context)
     expect(result.role).toBe('test-agent')
   })
+
+  it('records one decision and one provenance entry per run', async () => {
+    const recordDecision = vi.fn().mockResolvedValue(undefined)
+    const trackProvenance = vi.fn().mockResolvedValue(undefined)
+    const context = createTestContext({
+      memory: {
+        ...createTestContext().memory,
+        longTerm: mockLongTerm,
+        decisions: {
+          ...createTestContext().memory.decisions,
+          record: recordDecision,
+        },
+        provenance: {
+          ...createTestContext().memory.provenance,
+          track: trackProvenance,
+        },
+      },
+    })
+
+    const agent = new TestAgent(llm, loop, toolRegistry)
+    await agent.run('test task', context)
+
+    expect(recordDecision).toHaveBeenCalledOnce()
+    const [entry] = recordDecision.mock.calls[0]
+    expect(entry).toMatchObject({
+      member: 'test-agent',
+      task: 'test task',
+      outcome: 'completed',
+      confidence: 1,
+      decisionMaker: 'test-agent',
+      tags: ['run'],
+    })
+
+    expect(trackProvenance).toHaveBeenCalledOnce()
+    const [prov] = trackProvenance.mock.calls[0]
+    expect(prov).toMatchObject({
+      entityId: context.executionId,
+      entityType: 'decision',
+      activityId: 'run:test-agent',
+      agentId: 'test-agent',
+      agentType: 'software_agent',
+      metadata: { success: true },
+    })
+  })
+
+  it('records a failed decision and rethrows the error', async () => {
+    const recordDecision = vi.fn().mockResolvedValue(undefined)
+    const trackProvenance = vi.fn().mockResolvedValue(undefined)
+    const failingLlm: ILLMProvider = {
+      ...llm,
+      complete: vi.fn().mockRejectedValue(new Error('provider exploded')),
+    }
+    const failingLoop = new ReActLoop(failingLlm, new ToolRegistry())
+    const agent = new TestAgent(failingLlm, failingLoop, new ToolRegistry())
+    const context = createTestContext({
+      memory: {
+        ...createTestContext().memory,
+        decisions: {
+          ...createTestContext().memory.decisions,
+          record: recordDecision,
+        },
+        provenance: {
+          ...createTestContext().memory.provenance,
+          track: trackProvenance,
+        },
+      },
+    })
+
+    await expect(agent.run('test task', context)).rejects.toThrow('provider exploded')
+
+    expect(recordDecision).toHaveBeenCalledOnce()
+    const [entry] = recordDecision.mock.calls[0]
+    expect(entry).toMatchObject({ outcome: 'failed', confidence: 0 })
+
+    expect(trackProvenance).toHaveBeenCalledOnce()
+    const [prov] = trackProvenance.mock.calls[0]
+    expect(prov.metadata).toMatchObject({ success: false })
+  })
 })

@@ -5,6 +5,18 @@
 
 ---
 
+## v3.14.1 — August 12, 2026
+
+### 🐛 Bug Fixes
+
+- **Ci:** anchor herald verdict updates to bot marker
+- **Ci:** drop eval from herald summary, add issues permission, escape names
+- **Ci:** grant actions read, dedupe herald concurrency, add script tests
+- **Ci:** herald checkout step, full markdown escaping, scoped trials, multi-PR
+- **Ci:** restore herald summary via inline github-script input
+
+---
+
 ## v3.14.0 — August 12, 2026
 
 ### 🐛 Bug Fixes

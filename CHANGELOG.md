@@ -1,3 +1,14 @@
+## [3.14.1](https://github.com/fworks-tech/agenthood/compare/v3.14.0...v3.14.1) (2026-08-12)
+
+
+### Bug Fixes
+
+* **ci:** anchor herald verdict updates to bot marker ([4774aec](https://github.com/fworks-tech/agenthood/commit/4774aec33c600f1cf89979a33ed0cf6bcd970d65))
+* **ci:** drop eval from herald summary, add issues permission, escape names ([08e9977](https://github.com/fworks-tech/agenthood/commit/08e9977765c628f2a6610e9ac329af5429299bfa))
+* **ci:** grant actions read, dedupe herald concurrency, add script tests ([a7ccd36](https://github.com/fworks-tech/agenthood/commit/a7ccd366d80d73487ceec8c841ced99b02a8b5b9))
+* **ci:** herald checkout step, full markdown escaping, scoped trials, multi-PR ([716e42c](https://github.com/fworks-tech/agenthood/commit/716e42cf1693a9d270036f3f0f9d4bfd14ca9d29))
+* **ci:** restore herald summary via inline github-script input ([e230a2d](https://github.com/fworks-tech/agenthood/commit/e230a2db045006cedbfbe31fad37de70331f5b4f))
+
 # [3.14.0](https://github.com/fworks-tech/agenthood/compare/v3.13.6...v3.14.0) (2026-08-12)
 
 

@@ -19,6 +19,11 @@ or understand why a rule exists, The Oracle is the first door you knock on.
 It exists so that future additions to the Agenthood cost one conversation, not ten.
 Every token spent researching structure is a token The Oracle will save next time.
 
+Its knowledge extends to the decision record: member runs persist decisions and
+provenance (`.agenthood/decisions/`, `.agenthood/provenance/` — ADR-015), so
+"how did the Society decide X before?" is answered from the log, not from
+memory.
+
 ---
 
 ## Responsibilities

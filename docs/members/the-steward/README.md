@@ -63,6 +63,11 @@ Works with project memory to ensure nothing important lives only in the context 
 Before capacity is exhausted: saves decisions, gathered knowledge, and open questions to
 the appropriate memory files so the next session starts informed.
 
+Every member run already persists its decision and provenance records
+(`.agenthood/decisions/`, `.agenthood/provenance/` — ADR-015); memory triage
+links the session handoff to those records so nothing lives only in the
+context window.
+
 ---
 
 ## The Steward Alert

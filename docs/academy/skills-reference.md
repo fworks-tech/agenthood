@@ -105,6 +105,7 @@
 **Specialty:** Documentation management, ADR creation, API references, knowledge management
 **Tools:** `read_file`, `write_file`, `search_codebase`, `explain_code`
 **Runtime:** `npx agenthood run the-librarian "document the API endpoints"`
+**Society memory:** every run writes a decision record (`.agenthood/decisions/`) + provenance entry (`.agenthood/provenance/`) — the audit trail the Librarian's postmortems link to
 
 ### The Oracle
 
@@ -113,6 +114,7 @@
 **Specialty:** Institutional knowledge, member authoring templates, naming guidance, convention rationale
 **Tools:** `read_file`, `write_file`, `search_codebase`, `explain_code`
 **Runtime:** `npx agenthood run the-oracle "what members should I activate for a library project?"`
+**Society memory:** past member decisions are searchable as precedent via `DecisionSearch` — the Oracle can answer "how did we decide X before?" from `.agenthood/decisions/`
 
 ---
 
@@ -141,6 +143,7 @@
 **Specialty:** Context economy, member routing, provider cache strategy, session triage
 **Tools:** `read_file`, `write_file`, `search_codebase`, `explain_code`
 **Runtime:** `npx agenthood run the-steward "optimize the agent configuration"`
+**Society memory:** the provenance store's hash chain gives the Steward a tamper-evident record of past sessions to triage against
 
 ---
 

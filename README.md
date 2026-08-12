@@ -136,7 +136,8 @@ The framework runs on five core principles adapted from production AI agent syst
 | Agent mode vs Ask mode | [operating-modes.md](docs/architecture/operating-modes.md) |
 | Multi-LLM support & automatic failover | [provider-failover.md](docs/architecture/provider-failover.md) |
 | Tool registry, scoping & safety caps | [built-in-tools.md](docs/architecture/built-in-tools.md) |
-| Agent memory tiers | [memory](src/memory/) — ResidualMemory, ShortTermMemory, LongTermMemory, EpisodicMemory, ProjectMemory, DecisionLog, MetricsCollector, InMemoryStore, PersonalisationStore, LanceDBStore |
+| Agent memory tiers | [memory](src/memory/) — ResidualMemory, ShortTermMemory, LongTermMemory, EpisodicMemory, ProjectMemory, DecisionLog, ProvenanceStore, DecisionSearch, GraphSnapshot, MetricsCollector, InMemoryStore, PersonalisationStore, LanceDBStore |
+| Decision intelligence & auditability | [decision-intelligence.md](docs/architecture/decision-intelligence.md) — per-run decision records, causal chains (CAUSED/INFLUENCED/PRECEDENT_FOR), tamper-evident provenance (SHA-256 hash chain), precedent search, society-graph snapshots |
 | Workflow engine & quality gates | [workflows](src/workflows/) — WorkflowEngine, QualityGates, DiffImpactAnalyzer, WorkflowCheckpoint, GoalChain |
 | Service-agnostic RAG (graph, vector, agentic) | [rag](src/rag/) — KnowledgeGraphStore, FixedSizeChunkStrategy + MarkdownHierarchicalChunkStrategy, Indexer, Retriever, AgenticRAG, TreeSitterParser, ProjectIngestion |
 

@@ -113,6 +113,14 @@ Generated at end of working session:
 - Review #{PR} from teammate
 ```
 
+### Decision-Aware Reporting
+
+Every `agenthood run` writes a decision + provenance entry to
+`.agenthood/decisions/` and `.agenthood/provenance/` (ADR-015). When the
+Herald's reports need the *why* behind merged work, read the decision log and
+its causal edges (`edges.json`) — the changelog can cite the recorded decision
+behind each change instead of guessing from commit subjects.
+
 ## Red Flags
 
 - A release with no changelog entry

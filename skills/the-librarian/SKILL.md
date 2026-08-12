@@ -174,11 +174,16 @@ After code changes, identify stale documentation:
 Postmortems are structured incident reports consumed by The Librarian to feed back into test cases, standards, and checklists. The template lives at `docs/templates/postmortem.md`.
 
 When a postmortem is finalized:
-1. Record the decision in the Decision Log (`.agenthood/decisions/`)
+1. Record the decision in the Decision Log (`.agenthood/decisions/`) — link it to the incident's provenance entry (`.agenthood/provenance/`)
 2. Extract test cases from the root cause and file them as issues for The Tester
 3. Extract standards gaps from the prevention section and file them for The Auditor
 4. Update relevant documentation (READMEs, runbooks, ADRs) to reflect lessons learned
 5. Link the postmortem from any documentation it updated
+
+The runtime already writes one decision and one provenance entry per member
+run (ADR-015); the Decision Log also supports causal links (`CAUSED`,
+`INFLUENCED`, `PRECEDENT_FOR`) so postmortem entries can point at the runs
+that preceded the incident.
 
 ## Documentation Principles
 

@@ -90,5 +90,12 @@ in the config (currently opencode, with Groq among the fallbacks). See
 [ADR-008](docs/adr/ADR-008-typescript-runtime-over-python.md)
 and [ADR-009](docs/adr/ADR-009-groq-as-default-llm-provider.md) for design decisions.
 
+Every `agenthood run` records one decision and one provenance entry (success or
+failure) — the audit trail in `.agenthood/decisions/` and
+`.agenthood/provenance/`, with tamper-evident hash-chain integrity and causal
+links between decisions. See
+[ADR-015](docs/adr/ADR-015-decision-intelligence-and-provenance.md) and
+[decision-intelligence.md](docs/architecture/decision-intelligence.md).
+
 > **ADR-008** supersedes the earlier Python/DeepAgents runtime approach.
 > The TypeScript CLI in this repo is the single supported runtime for `agenthood run`.

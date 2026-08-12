@@ -78,7 +78,7 @@ agenthood/
 │   ├── core/                        ← SafetyGuard, ConcurrencyQueue, RiskManager, SchemaValidator
 │   ├── reasoning/                   ← ReActLoop, ThinkingBudget
 │   ├── workflows/                   ← WorkflowEngine, QualityGates, DiffImpactAnalyzer, WorkflowCheckpoint, GoalChain
-│   ├── memory/                      ← ResidualMemory, IMemoryStore, VectorStore (LanceDB), ShortTermMemory, LongTermMemory, EpisodicMemory, ProjectMemory, PersonalisationStore
+│   ├── memory/                      ← ResidualMemory, IMemoryStore, VectorStore (LanceDB), ShortTermMemory, LongTermMemory, EpisodicMemory, ProjectMemory, PersonalisationStore, DecisionLog (causal chains), ProvenanceStore (hash chain), DecisionSearch, GraphSnapshot
 │   ├── memory/stores/               ← InMemoryStore
 │   ├── rag/                         ← KnowledgeGraphStore, ChunkStrategy, Indexer, Retriever
 │   ├── rag/parsers/                 ← TreeSitterParser (AST code structure extraction)

@@ -59,7 +59,7 @@
 
 <!-- Link to the corresponding Decision Log entry, if one exists. -->
 
-See [Decision Log entry](.agenthood/decisions/[id].json).
+See [Decision Log entry](.agenthood/decisions/[id].json) and its [provenance entry](.agenthood/provenance/[executionId].json). Run `ProvenanceStore.verifyChain()` to prove the trail is intact.
 
 ## Related
 

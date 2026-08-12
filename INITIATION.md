@@ -102,6 +102,11 @@ npx agenthood run the-reviewer "review the open PR"
 The runtime reads the same `.agenthood/config.json` the CLI created — no
 additional configuration required.
 
+Every run records a decision and provenance entry in `.agenthood/decisions/`
+and `.agenthood/provenance/` — a tamper-evident audit trail of what each member
+did and why, so the runtime is not a black box
+([ADR-015](docs/adr/ADR-015-decision-intelligence-and-provenance.md)).
+
 This step is entirely optional. The prompt-driven workflow from Steps 1–4 continues
 to work unchanged whether or not the runtime is built.
 

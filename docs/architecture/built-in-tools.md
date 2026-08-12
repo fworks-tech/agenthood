@@ -148,3 +148,9 @@ Every tool invocation is logged with:
 
 The audit log is stored in `.agenthood/audit.log` and rotated at 1,000 entries.
 The Auditor can query it. The human can always read it.
+
+Beyond tool invocations, the runtime records a decision and provenance entry
+per member run — the tamper-evident audit trail in `.agenthood/decisions/` and
+`.agenthood/provenance/` (SHA-256 hash chain, see
+[decision-intelligence.md](decision-intelligence.md)). `verifyChain()` proves
+the trail has not been modified or truncated.

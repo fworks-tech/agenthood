@@ -138,6 +138,14 @@ The Society remembers across sessions:
 
 Memory is backed by a tiered store: LanceDB for vector storage (`.agenthood/memory/`), ResidualMemory (`.agenthood/residual.json`), KnowledgeGraphStore (`.agenthood/society-graph.json`), and ShortTermMemory (in-memory ring buffer). Multiple namespaces — `shortTerm`, `longTerm`, `episodic`, `project` — keep concerns separated.
 
+On top of the tiers sit the decision and provenance records. Every member run
+writes one entry to the decision log (`.agenthood/decisions/`) and one to the
+provenance store (`.agenthood/provenance/`), linked by the run's
+`executionId`. Decisions connect with causal edges (`CAUSED`, `INFLUENCED`,
+`PRECEDENT_FOR`) in `edges.json`, and the provenance chain is tamper-evident
+(SHA-256 hash chain, `verifyChain()`). See
+[decision-intelligence.md](decision-intelligence.md).
+
 ---
 
 ## Runtime Implementation
@@ -158,6 +166,7 @@ this repo (`src/`), per [ADR-008](../adr/ADR-008-typescript-runtime-over-python.
 | Safety caps | `src/core/SafetyGuard.ts` | ✅ v2.0.0 |
 | Provider failover + circuit breaker | `src/llm/ProviderFailover.ts` | ✅ v2.0.0 |
 | Persistent memory (IMemoryStore, ResidualMemory, InMemoryStore, VectorStore, ShortTerm, LongTerm, Episodic, Project) | `src/memory/` | ✅ Shipped |
+| Decision intelligence (DecisionLog + causal chains, ProvenanceStore, DecisionSearch, GraphSnapshot) | `src/memory/` | ✅ ADR-015 |
 | RAG pipeline (ChunkStrategy (FixedSize + MarkdownHierarchical), Indexer, Retriever, AgenticRAG, TreeSitterParser, ProjectIngestion) | `src/rag/` | ✅ Shipped |
 | Society index (members, ADRs, conventions → KGS + VectorStore) | `src/project/SocietyIndexer.ts` | ✅ Shipped |
 | MemberOrchestrator Phase 1 — detection | `src/reasoning/MemberOrchestrator.ts` | ✅ v2.6.0 |

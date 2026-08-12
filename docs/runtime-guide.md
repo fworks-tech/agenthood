@@ -98,8 +98,46 @@ Pre-configured paths used by the runtime for memory persistence:
 | `.agenthood/memory/` | LanceDB vector store (embedded) | Vector embeddings, semantic search, metadata filtering |
 | `.agenthood/residual.json` | ResidualMemory | Decay-weighted trace signals from past agent runs |
 | `.agenthood/society-graph.json` | KnowledgeGraphStore | Bidirectional structural relationships between entities |
+| `.agenthood/decisions/` | DecisionLog | Per-run decision records + `edges.json` causal links |
+| `.agenthood/provenance/` | ProvenanceStore | Tamper-evident provenance entries (SHA-256 hash chain) |
+| `.agenthood/snapshots/` | GraphSnapshot | Versioned society-graph snapshots (`society-graph-<epoch-ms>.json`) |
 
 The `IMemoryStore` interface at `src/memory/IMemoryStore.ts` unifies all memory tiers with common operations (`set`, `get`, `delete`, `has`, `prune`, `stats`). The `InMemoryStore` provides a synchronous TTL/LRU store for in-process caching. `LanceDBStore` (in `src/memory/VectorStore.ts`) implements both `IVectorStore` (vector search) and `IMemoryStore<VectorRecord>` (key-value access by id).
+
+### Decision Intelligence & Provenance
+
+Every member run records exactly one decision and one provenance entry (on
+success **or** failure), linked by the run's `executionId`:
+
+```typescript
+import { DecisionLog, ProvenanceStore, DecisionSearch, GraphSnapshot } from 'src/memory'
+
+const decisions = new DecisionLog()                      // .agenthood/decisions/
+const provenance = new ProvenanceStore()                 // .agenthood/provenance/
+
+// Causal links between decisions (CAUSED | INFLUENCED | PRECEDENT_FOR)
+await decisions.addCausalRelationship('dec-001', 'dec-002', 'CAUSED')
+const chain = await decisions.traceDecisionChain('dec-002')   // ancestry
+const impact = await decisions.analyzeDecisionImpact('dec-001') // descendants
+
+// Provenance integrity — reads from disk, never the cache
+const result = await provenance.verifyChain()             // { valid: true } or broken entry
+await provenance.invalidate('exec-1', 'the-sentinel', 'source retracted') // tombstone
+
+// Precedent search (on-demand; embeds via ILLMProvider.embed() into LanceDB)
+const search = new DecisionSearch(vectorStore)
+await search.indexAll(decisions, llm)
+const hits = await search.search(decisions, 'storage choice', llm, 5)
+
+// Time travel — "what did the society know on this date?"
+const snapshotter = new GraphSnapshot()
+snapshotter.take(societyGraph)                            // after each member run
+const past = snapshotter.stateAt('2026-03-01T00:00:00.000Z')
+```
+
+See [decision-intelligence.md](architecture/decision-intelligence.md) for the
+full design and [ADR-015](adr/ADR-015-decision-intelligence-and-provenance.md)
+for the decision record.
 
 ### Residual Memory
 
@@ -204,7 +242,7 @@ This bypasses the configured provider chain and uses the specified provider dire
 
 ### Memory Tiers
 
-The runtime includes four specialized memory implementations accessed via `ExecutionContext.memory`:
+The runtime includes four specialized memory implementations accessed via `ExecutionContext.memory`, plus the decision and provenance stores:
 
 | Tier | Implementation | Backing | Purpose |
 |------|---------------|---------|---------|
@@ -212,8 +250,10 @@ The runtime includes four specialized memory implementations accessed via `Execu
 | LongTerm | `LongTermMemoryImpl` | LanceDB VectorStore | Persistent key-value storage across sessions |
 | Episodic | `EpisodicMemoryImpl` | LanceDB VectorStore + ILLMProvider | Episode recall with semantic search |
 | Project | `ProjectMemoryImpl` | KnowledgeGraphStore + filesystem | Project conventions and architectural decisions |
+| Decisions | `DecisionLog` | JSON files (`decisions/`) | Per-run decision records + causal edges |
+| Provenance | `ProvenanceStore` | JSON files (`provenance/`) | Tamper-evident audit entries (hash chain) |
 
-All four tiers are wired into `createContext()` in `src/commands/run.ts` and available to every agent via `context.memory`.
+All six are wired into `createContext()` in `src/commands/run.ts` and available to every agent via `context.memory`. `BaseAgent` records one decision and one provenance entry per run.
 
 ### Society Index
 

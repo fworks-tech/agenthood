@@ -49,6 +49,24 @@ The five tiers serve distinct purposes. **Short-term** holds the working context
 
 ADR-010 covers the vector store backing long-term and project memory (LanceDB, embedded, zero infrastructure).
 
+### Beyond the tiers: decision and provenance records
+
+On top of the five tiers sit the records that make the society accountable
+([ADR-015](../../adr/ADR-015-decision-intelligence-and-provenance.md)). Every
+member run writes:
+
+- a **decision entry** (`.agenthood/decisions/`) — what the member decided,
+  with confidence and causal links to related decisions (`CAUSED`,
+  `INFLUENCED`, `PRECEDENT_FOR`)
+- a **provenance entry** (`.agenthood/provenance/`) — who ran, what activity,
+  what source input, joined into a tamper-evident SHA-256 hash chain that
+  `verifyChain()` can prove unmodified
+
+This is the memory tier that answers *"why did the society do X?"* — decisions
+are traceable to their causes, searchable as precedent, and replayable via
+society-graph snapshots. The full design is in
+[decision-intelligence.md](../../architecture/decision-intelligence.md).
+
 ---
 
 ## Hands-on example

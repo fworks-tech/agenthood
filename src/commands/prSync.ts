@@ -108,10 +108,11 @@ function getCommitsSince(sinceSha: string | null, baseBranch: string): ParsedCom
     sinceSha = null
   }
   // baseRefName is GitHub-sourced; array args prevent injection, but a hostile
-  // refname would surface as confusing git errors — validate before use
-  if (!/^[A-Za-z0-9._/-]+$/.test(baseBranch)) {
-    console.warn(`Malformed base branch refname ignored: ${JSON.stringify(baseBranch)}`)
-    baseBranch = 'main'
+  // or malformed refname would compute a wrong commit range — fail loudly
+  // rather than silently falling back
+  if (!/^[A-Za-z0-9._/@-]+$/.test(baseBranch)) {
+    console.error(`PR sync failed: invalid base branch refname: ${JSON.stringify(baseBranch)}`)
+    process.exit(1)
   }
 
   let range: string | null = null

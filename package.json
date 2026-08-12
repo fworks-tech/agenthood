@@ -60,7 +60,7 @@
     "start": "node dist/cli.js",
     "prepublishOnly": "npm run build",
     "postinstall": "node scripts/postinstall.mjs",
-    "test": "vitest run --exclude 'vscode-extension/**'",
+    "test": "vitest run",
     "lint": "eslint src/",
     "typecheck": "tsc --noEmit"
   },

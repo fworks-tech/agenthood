@@ -18,10 +18,10 @@ permissions:
 
 jobs:
   # ──────────────────────────────────────────────
-  # The Doorman — commit message validation
+  # The Doorman — PR standards (commits + body)
   # ──────────────────────────────────────────────
   commitlint:
-    name: The Doorman — Commit Message Validation
+    name: The Doorman — PR Standards Validation
     if: github.event_name == 'pull_request'
     runs-on: ubuntu-latest
     steps:
@@ -44,6 +44,15 @@ jobs:
             --from "$BASE_SHA" \
             --to "$HEAD_SHA" \
             --verbose
+      - name: The Doorman — PR body must link to an issue
+        # Drafts and bot PRs (Dependabot/Renovate) skip the gate: drafts are
+        # WIP by definition and bots do not author Closes footers.
+        if: github.event.pull_request.draft == false && github.event.pull_request.user.type != 'Bot'
+        shell: bash
+        env:
+          GH_TOKEN: ${{ github.token }}
+          PR_NUMBER: ${{ github.event.pull_request.number }}
+        run: .github/scripts/pr-body-check.sh
 
   # ──────────────────────────────────────────────
   # The Auditor — Gitleaks secret scanning

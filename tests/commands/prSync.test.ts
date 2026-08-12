@@ -273,6 +273,13 @@ fix description`
     expect(output).toContain('1 new commit(s)')
     expect(output).toContain('PROPOSED BODY')
     expect(output).toContain('PROPOSED COMMENT')
+    // regression guard: merge-base must receive the origin/-prefixed ref
+    // (a refactor dropping the prefix would fail here)
+    const mergeBaseCalls = mockExecFileSync.mock.calls.filter(
+      (c: string[]) => c[0] === 'git' && c[1][0] === 'merge-base'
+    )
+    expect(mergeBaseCalls.length).toBeGreaterThan(0)
+    expect(mergeBaseCalls[0][1]).toEqual(['merge-base', 'HEAD', 'origin/main'])
   })
 
   it('exits cleanly when no new commits since last sync', async () => {

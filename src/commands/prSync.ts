@@ -105,8 +105,10 @@ const LOCK_SUFFIX_RE = /\.lock$/i
 
 /** Builds the remote ref for a base branch. The `origin/` prefix is a safety
  * invariant: it guarantees the ref is never parsed as a git option even when
- * the branch name itself starts with `-`. Keep all git/gh ref usages behind
- * this helper so the invariant cannot silently regress. */
+ * the branch name itself starts with `-`. Keep all git *ref* usages (merge
+ * base, ranges) behind this helper so the invariant cannot silently regress.
+ * gh invocations that take a bare branch name (e.g. `gh pr list --head`) do
+ * not use it — gh has no ref-vs-option ambiguity for positional/flag values. */
 function originRef(baseBranch: string): string {
   return `origin/${baseBranch}`
 }

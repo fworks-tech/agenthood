@@ -8,7 +8,7 @@ const { summarize, escapeCell, TRIGGER_WORKFLOWS } = require('../../../.github/s
 type Run = { name: string; status: string; conclusion: string | null }
 type RunsPage = { total_count: number; workflow_runs: Run[] }
 
-function mockGithub(runsForSha: (sha: string, page: number) => RunsPage, commentsForPage?: (page: number) => Array<{ id: number; body: string }>) {
+function mockGithub(runsForSha: (sha: string, page: number) => RunsPage, commentsForPage?: (page: number) => Array<{ id: number; body: string; user?: { login: string } }>) {
   const created: Array<{ issue_number: number; body: string }> = []
   return {
     created,
@@ -21,7 +21,7 @@ function mockGithub(runsForSha: (sha: string, page: number) => RunsPage, comment
         },
         issues: {
           listComments: vi.fn(async (args: { page: number }) => ({
-            data: commentsForPage ? commentsForPage(args.page) : [],
+            data: (commentsForPage ? commentsForPage(args.page) : []).map((c) => ({ ...c, user: c.user ?? { login: 'github-actions[bot]' } })),
           })),
           updateComment: vi.fn(async () => {}),
           createComment: vi.fn(async (args: { issue_number: number; body: string }) => {
@@ -123,10 +123,25 @@ describe('herald-summary', () => {
       ['Society — PR Standards', 'success'],
       ['The Reviewer — Commit Review', 'success'],
       ['The Envoy — VS Code Extension Build and Test', 'success'],
-    ]), () => [{ id: 42, body: "## :x: The Herald's Verdict\nold" }])
+    ]), () => [{ id: 42, body: '## :x: The Herald\'s Verdict\n<!-- agenthood-herald-verdict -->\nold' }])
     await summarize(contextFor([{ number: 1, sha: 'abc1234' }]), m.client)
     expect(m.client.rest.issues.updateComment).toHaveBeenCalledWith(expect.objectContaining({ comment_id: 42 }))
     expect(m.client.rest.issues.createComment).not.toHaveBeenCalled()
+  })
+
+  it('never overwrites a user comment that mentions the verdict', async () => {
+    const m = mockGithub(() => completedTriggers([
+      ['Society — PR Standards', 'success'],
+      ['The Reviewer — Commit Review', 'success'],
+      ['The Envoy — VS Code Extension Build and Test', 'success'],
+    ]), () => [{
+      id: 42,
+      body: "## :x: The Herald's Verdict\nsomeone is wrong about this",
+      user: { login: 'some-user' },
+    }])
+    await summarize(contextFor([{ number: 1, sha: 'abc1234' }]), m.client)
+    expect(m.client.rest.issues.updateComment).not.toHaveBeenCalled()
+    expect(m.client.rest.issues.createComment).toHaveBeenCalledTimes(1)
   })
 
   it('finds the existing verdict comment across comment pages', async () => {
@@ -138,7 +153,7 @@ describe('herald-summary', () => {
       ['The Envoy — VS Code Extension Build and Test', 'success'],
     ]), (page) => {
       if (page < 3) return Array.from({ length: 100 }, (_, i) => ({ id: page * 1000 + i, body: `comment ${page}-${i}` }))
-      if (page === 3) return [{ id: 9999, body: "## :white_check_mark: The Herald's Verdict\nexisting" }, ...Array.from({ length: 49 }, (_, i) => ({ id: 3000 + i, body: `comment 3-${i}` }))]
+      if (page === 3) return [{ id: 9999, body: '## :white_check_mark: The Herald\'s Verdict\n<!-- agenthood-herald-verdict -->\nexisting' }, ...Array.from({ length: 49 }, (_, i) => ({ id: 3000 + i, body: `comment 3-${i}` }))]
       return []
     })
     await summarize(contextFor([{ number: 1, sha: 'abc1234' }]), m.client)
@@ -161,8 +176,8 @@ describe('herald-summary', () => {
   })
 
   it('escapes markdown table metacharacters in names', () => {
-    expect(escapeCell('Evil ](https://evil.example) | `x` @user')).toBe(
-      'Evil \\](https://evil.example) \\| \\`x\\` \\@user',
+    expect(escapeCell('Evil ](https://evil.example) | `x` @user <b>')).toBe(
+      'Evil \\](https://evil.example) \\| \\`x\\` \\@user \\<b\\>',
     )
     expect(escapeCell('multi\nline\r\nname')).toBe('multi line name')
     expect(escapeCell('plain')).toBe('plain')

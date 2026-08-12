@@ -242,7 +242,7 @@ This bypasses the configured provider chain and uses the specified provider dire
 
 ### Memory Tiers
 
-The runtime includes four specialized memory implementations accessed via `ExecutionContext.memory`, plus the decision and provenance stores:
+The memory model has five tiers (see [Academy: Agent Memory](academy/level-2-agent-essentials/05-agent-memory.md)): short-term, long-term, episodic, project, and residual. Of these, four implementations are wired into `ExecutionContext.memory` — residual traces exist in-process via `ResidualMemory` but are not wired into `createContext()` — plus the decision and provenance stores:
 
 | Tier | Implementation | Backing | Purpose |
 |------|---------------|---------|---------|
@@ -250,10 +250,11 @@ The runtime includes four specialized memory implementations accessed via `Execu
 | LongTerm | `LongTermMemoryImpl` | LanceDB VectorStore | Persistent key-value storage across sessions |
 | Episodic | `EpisodicMemoryImpl` | LanceDB VectorStore + ILLMProvider | Episode recall with semantic search |
 | Project | `ProjectMemoryImpl` | KnowledgeGraphStore + filesystem | Project conventions and architectural decisions |
+| Residual | `ResidualMemory` | In-memory, optional JSON | Decay-weighted trace signals (not wired into `createContext`) |
 | Decisions | `DecisionLog` | JSON files (`decisions/`) | Per-run decision records + causal edges |
 | Provenance | `ProvenanceStore` | JSON files (`provenance/`) | Tamper-evident audit entries (hash chain) |
 
-All six are wired into `createContext()` in `src/commands/run.ts` and available to every agent via `context.memory`. `BaseAgent` records one decision and one provenance entry per run.
+All seven are available via `src/memory/`; the five store-backed ones are wired into `createContext()` in `src/commands/run.ts` and available to every agent via `context.memory`. `BaseAgent` records one decision and one provenance entry per run.
 
 ### Society Index
 

@@ -84,7 +84,7 @@ Expected output:
 For teams who want members to execute autonomously — reasoning, acting, and remembering
 across sessions without a human in the loop — use the TypeScript runtime.
 
-**Requirements:** Node.js 22.14+, `GROQ_API_KEY` (free at console.groq.com) or Ollama (offline)
+**Requirements:** Node.js 22.14+, `OPENCODE_API_KEY` (or a key for another provider — the default follows the `providers` list in `.agenthood/config.json`), or Ollama for offline execution
 
 ```bash
 # Build the runtime (once, after install)

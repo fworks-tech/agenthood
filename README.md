@@ -87,14 +87,14 @@ npx agenthood rollback the-scribe       # restore SKILL.md from lockfile
 npx agenthood workflow review-pr        # execute the review-pr workflow
 ```
 
-Set one of these in a `.env` file in your project root (loaded automatically by the runtime):
+Set one of these in a `.env` file in your project root (loaded automatically by the runtime). The default provider follows the `providers` list in `.agenthood/config.json` (opencode primary, Groq among the fallbacks) — set the keys for the providers you want available:
 
 | Variable | Provider | Free tier |
 |----------|----------|-----------|
-| `GROQ_API_KEY` | Groq (default) | [console.groq.com](https://console.groq.com) |
+| `OPENCODE_API_KEY` | OpenCode / OpenCodeGo (default) | [opencode.ai](https://opencode.ai) |
+| `GROQ_API_KEY` | Groq (fallback) | [console.groq.com](https://console.groq.com) |
 | `ANTHROPIC_API_KEY` | Anthropic | — |
 | `OPENAI_API_KEY` | OpenAI | — |
-| `OPENCODE_API_KEY` | OpenCode / OpenCodeGo | [opencode.ai](https://opencode.ai) |
 
 Or use Ollama for fully offline execution (no key required).
 
@@ -119,7 +119,7 @@ Agenthood is agent-agnostic. The skill files work with:
 - [Claude Code](https://claude.ai/code) — via `.claude/skills/`
 - [GitHub Copilot](https://github.com/features/copilot) — via `.github/copilot-instructions.md`
 
-The TypeScript runtime (`agenthood run`) supports Groq (default, free tier at [console.groq.com](https://console.groq.com)), Anthropic, OpenAI, OpenCode, and Ollama for fully offline execution.
+The TypeScript runtime (`agenthood run`) supports OpenCode (default, per `.agenthood/config.json`), Groq (free tier at [console.groq.com](https://console.groq.com)), Anthropic, OpenAI, and Ollama for fully offline execution.
 
 The [Agenthood Studio playground](https://agenthood.flabs.tech/studio/playground) exercises the same runtime through a browser UI — every chat request runs through `agenthood/dist/llm` with provider routing, failover, and streaming.
 

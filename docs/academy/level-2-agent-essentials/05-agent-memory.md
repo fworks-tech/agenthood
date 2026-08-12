@@ -26,14 +26,18 @@ This is why each memory tier needs an explicit lifecycle. Short-term memory is c
 
 ## How Agenthood implements it
 
-Agenthood's memory model is five tiers, each in `src/memory/`. The interface that unifies them is `IMemoryStore`:
+Agenthood's memory model is five tiers, each in `src/memory/`. The interface that unifies the key-value tiers is `IMemoryStore`:
 
 ```typescript
 export interface IMemoryStore<T> {
-  tier: 'short' | 'long' | 'episodic' | 'project' | 'residual';
-  add(entry: T): Promise<void>;
-  query(selector: MemorySelector): Promise<T[]>;
-  evict(policy: EvictionPolicy): Promise<number>;
+  set(key: string, value: T, ttlMs?: number): Promise<void>;
+  get(key: string): Promise<T | undefined>;
+  delete(key: string): Promise<number>;
+  has(key: string): Promise<boolean>;
+  clear(): Promise<void>;
+  size(): Promise<number>;
+  prune(policy: RetentionPolicy): Promise<number>;
+  stats(): Promise<{ totalEntries: number; oldestEntry: Date | null }>;
 }
 
 export const MEMORY_TIERS = {
@@ -72,7 +76,7 @@ society-graph snapshots. The full design is in
 ## Hands-on example
 
 ```bash
-agenthood run the-developer "fix the same bug we fixed in the billing service last week"
+agenthood run the-builder "fix the same bug we fixed in the billing service last week"
 ```
 
 The agent queries episodic memory for past billing-service fixes, retrieves the relevant trace, and applies the learned pattern. Without episodic memory, it would start from scratch:

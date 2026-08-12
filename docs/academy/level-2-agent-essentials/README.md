@@ -27,6 +27,6 @@ Eleven articles. The concepts where most people quit. Do not quit here.
 
 ## What Level 2 covers
 
-The gap between "knowing about agents" and "building agents that work." These eleven concepts are where production systems diverge from demos. Every one maps to an Agenthood component that handles it correctly — or a gap in the ecosystem that Agenthood was built to fill.
+The gap between "knowing about agents" and "building agents that work." These twelve concepts are where production systems diverge from demos. Every one maps to an Agenthood component that handles it correctly — or a gap in the ecosystem that Agenthood was built to fill.
 
 Finish Level 2, then go to [Level 3 — Advanced Agent Skills](../level-3-advanced-skills/README.md).

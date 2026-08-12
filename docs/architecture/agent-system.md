@@ -56,22 +56,27 @@ Each member is a subagent with:
 Full tool-scope definitions live in [`built-in-tools.md`](built-in-tools.md) and are
 implemented in [`src/members/MemberRegistry.ts`](../src/members/MemberRegistry.ts).
 
-| Member | Key Tools | Permission Profile |
-|--------|-----------|--------------------|
-| The Scribe | git.diff, git.log, git.commit, file.write | standard |
-| The Architect | file.write, file.delete, code.analysis, search.web | standard |
-| The Reviewer | file.read, code.symbols, code.diagnostics | restricted |
-| The Tester | file.write, terminal.run, code.grep | standard |
-| The Debugger | terminal.run, terminal.deep, debug.* | standard |
-| The Auditor | file.read, code.diagnostics, search.web | restricted |
-| The Herald | git.push, git.tag, file.write, search.web | standard |
-| The Librarian | file.write, search.web, search.hybrid | standard |
-| The Doorman | git.diff, git.log, code.diagnostics | restricted |
-| The Oracle | git.log, search.vector, search.hybrid | restricted |
-| The Sentinel | file.read, code.diagnostics | restricted |
-| The Warden | code.grep, code.diagnostics | restricted |
-| The Envoy | file.read, search.web, search.vector | restricted |
-| The Steward | memory.read, memory.write, tasks.* | restricted |
+| Member | Permission Profile | Key Tools |
+|--------|-------------------|-----------|
+| The Scribe | standard | file.write, file.edit, git.*, terminal.run |
+| The Architect | standard | file.write, file.edit, git.*, terminal.run |
+| The Builder | standard | file.write, file.edit, git.*, terminal.run |
+| The Reviewer | restricted | file.read, code.grep, memory.*, tasks.* |
+| The Tester | standard | file.write, file.edit, git.*, terminal.run |
+| The Debugger | standard | file.write, file.edit, git.*, terminal.run |
+| The Auditor | restricted | file.read, code.grep, memory.*, tasks.* |
+| The Herald | standard | file.write, file.edit, git.*, terminal.run |
+| The Librarian | standard | file.write, file.edit, git.*, terminal.run |
+| The Doorman | restricted | file.read, code.grep, memory.*, tasks.* |
+| The Oracle | restricted | file.read, code.grep, memory.*, tasks.* |
+| The Envoy | restricted | file.read, code.grep, memory.*, tasks.* |
+| The Sentinel | restricted | file.read, code.grep, memory.*, tasks.* |
+| The Warden | restricted | file.read, code.grep, memory.*, tasks.* |
+| The Strategist | restricted | file.read, code.grep, memory.*, tasks.* |
+| The Steward | restricted | file.read, code.grep, memory.*, tasks.* |
+| The Operator | restricted | file.read, code.grep, memory.*, tasks.* |
+| The Mailman | standard | file.write, file.edit, git.*, terminal.run |
+| The Inspector | standard | file.write, file.edit, git.*, terminal.run |
 
 ---
 

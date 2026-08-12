@@ -21,6 +21,8 @@ jobs:
     if: github.event.workflow_run.pull_requests[0] != null
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/github-script@60a0d83039c74a4aee543508d2ffcb1c3799cdea
+      - uses: actions/github-script@3a2844b7e9c422d3c10d287c895573f7108da1b3
         with:
-          script-path: .github/scripts/herald-summary.js
+          script: |
+            const fs = require('fs')
+            eval(fs.readFileSync('.github/scripts/herald-summary.js', 'utf8'))

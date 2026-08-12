@@ -26,14 +26,20 @@ npm run build
 Run the full non-vscode test suite:
 
 ```bash
-npx vitest run --exclude 'vscode-extension/**'
+npm test
 ```
+
+(vscode-extension tests are excluded via `vitest.config.ts` — they run inside a real VS Code instance with `cd vscode-extension && npm test`.)
 
 Run a specific test file:
 
 ```bash
 npx vitest run tests/unit/llm/ProviderFailover.test.ts
 ```
+
+### CLI commands
+
+Commands are auto-registered: each file in `src/commands/` exports a `command: CommandDescriptor` (`name`, optional `aliases`, `description`, `handler(args)`). Adding a command means adding a file with a descriptor — `src/cli.ts` never changes. Helper modules in that directory simply export no descriptor. See `src/commands/types.ts`.
 
 ### TypeScript
 

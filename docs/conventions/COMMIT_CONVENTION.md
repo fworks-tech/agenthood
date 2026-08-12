@@ -24,13 +24,15 @@ Enforced locally by Husky + commitlint, and in CI by the [Doorman workflow](../.
 | `refactor` | Code change that is neither a fix nor a feature |
 | `ci` | CI/CD pipeline changes |
 | `chore` | Build process, dependency updates, config |
+| `revert` | Reverting a previous commit |
 
 ## Rules
 
 - **Subject** is imperative, lowercase, ≤150 chars, no trailing period
 - **Body** explains *why*, not what — optional but encouraged
 - **Footer** links to issues: `Closes #42` or `Fixes #42`
-- **Breaking changes** use `!` after type: `feat!: remove legacy auth`
+- **Breaking changes** use `!` after type or scope: `feat!: remove legacy auth` or `feat(auth)!: drop v1 tokens`
+- **Reverts** keep the conventional shape: `revert: feat(auth): add OAuth2 login`
 
 ## Examples
 

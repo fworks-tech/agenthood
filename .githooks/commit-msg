@@ -1,6 +1,6 @@
 #!/bin/sh
 # The Doorman — commit message validation
-# Enforces Conventional Commits: type(scope): subject
+# Enforces Conventional Commits: type(scope)!: subject
 
 MSG_FILE="$1"
 
@@ -13,7 +13,9 @@ if [ -z "$MSG" ]; then
 fi
 
 # ── Check 1: Type ────────────────────────────────────────────────────────────
-TYPE=$(echo "$MSG" | grep -oE "^(feat|fix|docs|test|refactor|ci|chore)(\([^)]+\))?:")
+# Types mirror docs/conventions/commitlint.config.ts; ! marks breaking changes;
+# revert: is conventional (type=revert, subject=original subject).
+TYPE=$(echo "$MSG" | grep -oE "^(feat|fix|docs|test|refactor|ci|chore|revert)(\([^)]+\))?(!)?:")
 if [ -z "$TYPE" ]; then
   RAW_TYPE=$(echo "$MSG" | grep -oE "^[a-zA-Z]+")
   echo ""
@@ -22,7 +24,8 @@ if [ -z "$TYPE" ]; then
   echo "├─────────────────────────────────────────────────────────────┤"
   echo "│  Rule: Invalid or missing type                              │"
   echo "│  Your type: '$RAW_TYPE'"
-  echo "│  Allowed: feat | fix | docs | test | refactor | ci | chore │"
+  echo "│  Allowed: feat | fix | docs | test | refactor | ci | chore | revert │"
+  echo "│  Breaking changes: append ! after type or scope (feat!: ...) │"
   echo "│                                                             │"
   echo "│  See docs/conventions/COMMIT_CONVENTION.md                 │"
   echo "└─────────────────────────────────────────────────────────────┘"
@@ -30,8 +33,8 @@ if [ -z "$TYPE" ]; then
 fi
 
 # ── Extract subject ───────────────────────────────────────────────────────────
-# Handle both scoped (feat(scope): subject) and plain (feat: subject)
-SUBJECT=$(echo "$MSG" | sed 's/^[a-z]*([^)]*): //' | sed 's/^[a-z]*: //')
+# Handles feat(scope):, feat(scope)!:, feat!:, revert:, and plain types
+SUBJECT=$(echo "$MSG" | sed -E 's/^[a-z]+(\([^)]*\))?!?: //')
 
 # ── Check 2: Subject not empty ───────────────────────────────────────────────
 if [ -z "$SUBJECT" ]; then
@@ -40,16 +43,19 @@ if [ -z "$SUBJECT" ]; then
   echo "│  THE DOORMAN — Commit Blocked                               │"
   echo "├─────────────────────────────────────────────────────────────┤"
   echo "│  Rule: Subject is empty                                     │"
-  echo "│  Format: type(scope): subject                               │"
+  echo "│  Format: type(scope)!: subject                              │"
   echo "└─────────────────────────────────────────────────────────────┘"
   exit 1
 fi
 
 # ── Check 3: Subject starts lowercase ────────────────────────────────────────
-FIRST=$(echo "$SUBJECT" | cut -c1)
-if echo "$FIRST" | grep -qE '[[:upper:]]'; then
-  LOWER_SUBJECT=$(echo "$SUBJECT" | tr '[:upper:]' '[:lower:]')
-  SUGGESTED=$(echo "$MSG" | sed "s/$SUBJECT/$LOWER_SUBJECT/")
+FIRST=$(printf '%s' "$SUBJECT" | cut -c1)
+if printf '%s' "$FIRST" | grep -qE '[[:upper:]]'; then
+  LOWER_SUBJECT=$(printf '%s' "$SUBJECT" | tr '[:upper:]' '[:lower:]')
+  # Rebuild the suggestion without sed on the subject (subjects may contain /)
+  PREFIX_LEN=$(( ${#MSG} - ${#SUBJECT} ))
+  PREFIX=$(printf '%s' "$MSG" | cut -c1-"$PREFIX_LEN")
+  SUGGESTED="$PREFIX$LOWER_SUBJECT"
   echo ""
   echo "┌─────────────────────────────────────────────────────────────┐"
   echo "│  THE DOORMAN — Commit Blocked                               │"
@@ -61,10 +67,8 @@ if echo "$FIRST" | grep -qE '[[:upper:]]'; then
   exit 1
 fi
 
-# ── Check 4: Subject length ≤150 chars ────────────────────────────────────────
-SUBJ_LEN=$(echo "$SUBJECT" | wc -c | tr -d ' ')
-# wc -c includes newline, subtract 1
-SUBJ_LEN=$((SUBJ_LEN - 1))
+# ── Check 4: Subject length ≤150 characters ──────────────────────────────────
+SUBJ_LEN=$(printf '%s' "$SUBJECT" | wc -m | tr -d ' ')
 if [ "$SUBJ_LEN" -gt 150 ]; then
   echo ""
   echo "┌─────────────────────────────────────────────────────────────┐"

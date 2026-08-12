@@ -2,6 +2,34 @@ import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest'
 
 // --- Helper tests (pure functions, no mocks needed) ---
 
+describe('isValidRefname', () => {
+  it('accepts normal branch names', async () => {
+    const { isValidRefname } = await import('../../src/commands/prSync.js')
+    expect(isValidRefname('main')).toBe(true)
+    expect(isValidRefname('feature/x')).toBe(true)
+    expect(isValidRefname('release/1.2.3')).toBe(true)
+    expect(isValidRefname('feat_allow-at@name')).toBe(true)
+    expect(isValidRefname('jira-123/some-branch')).toBe(true)
+  })
+
+  it('rejects sequences git check-ref-format forbids', async () => {
+    const { isValidRefname } = await import('../../src/commands/prSync.js')
+    expect(isValidRefname('feature..x')).toBe(false)
+    expect(isValidRefname('feature//x')).toBe(false)
+    expect(isValidRefname('feature/')).toBe(false)
+    expect(isValidRefname('/feature')).toBe(false)
+    expect(isValidRefname('.feature')).toBe(false)
+    expect(isValidRefname('feature.')).toBe(false)
+    expect(isValidRefname('feature.lock')).toBe(false)
+    expect(isValidRefname('main@{upstream}')).toBe(false)
+    expect(isValidRefname('@')).toBe(false)
+    expect(isValidRefname('feat$bad')).toBe(false)
+    expect(isValidRefname('feat:bad')).toBe(false)
+    expect(isValidRefname('feat bad')).toBe(false)
+    expect(isValidRefname('')).toBe(false)
+  })
+})
+
 describe('prSyncHelpers', () => {
   describe('parseMarker', () => {
     it('returns found=false when no marker present', async () => {

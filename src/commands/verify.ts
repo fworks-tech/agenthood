@@ -6,6 +6,8 @@ import { contentHash } from '../utils/hash.js'
 import { loadLockfile } from '../utils/lockfile.js'
 import type { Lockfile } from '../utils/lockfile.js'
 import { SkillParser } from '../skills/discovery/SkillParser.ts'
+import { findLaneOverlaps } from '../members/laneOverlap.ts'
+import { rawSpecs } from '../members/member-specs.ts'
 
 const REQUIRED_SECTIONS = ['Overview', 'When to Use', 'Process', 'Red Flags', 'Rationalizations', 'Verification']
 
@@ -137,8 +139,16 @@ export async function verify(args: string[]): Promise<void> {
     updateLockfile(cwd, membersDir, membersToCheck)
   }
 
-  if (isStrict && hasAllPassed) {
-    console.log('\n  Strict mode: no lane overlap checks implemented yet.')
+  if (isStrict) {
+    const overlaps = findLaneOverlaps(rawSpecs)
+    if (overlaps.length > 0) {
+      console.log('\n  Strict mode: lane overlap detected:')
+      for (const o of overlaps) {
+        console.log(`    \u26a0 ${o.a} \u2194 ${o.b} (shared: ${o.shared.join(', ')})`)
+      }
+      process.exit(1)
+    }
+    console.log('\n  Strict mode: lane overlap check passed.')
   }
 
   if (!hasAllPassed) {

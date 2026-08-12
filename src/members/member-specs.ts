@@ -7,6 +7,13 @@ export interface RawSpec {
   category: MemberCategory
   permissionProfile: PermissionProfile
   preferredProvider: ProviderName
+  /**
+   * The lane map's "Owned Decisions" — what only this member may decide.
+   * Must mirror the Lane Map table in skills/the-sentinel/SKILL.md
+   * (parity enforced by tests/unit/members/lane-map-parity.test.ts).
+   * Shared tokens between members = lane overlap (verify --strict).
+   */
+  ownedDecisions: string[]
 }
 
 export const rawSpecs: RawSpec[] = [
@@ -17,6 +24,7 @@ export const rawSpecs: RawSpec[] = [
     category: 'engineering',
     permissionProfile: 'standard',
     preferredProvider: 'anthropic',
+    ownedDecisions: ['Commit messages', 'PR descriptions'],
   },
   {
     name: 'the-architect',
@@ -25,6 +33,7 @@ export const rawSpecs: RawSpec[] = [
     category: 'engineering',
     permissionProfile: 'standard',
     preferredProvider: 'anthropic',
+    ownedDecisions: ['Specs', 'ADRs', 'Task decomposition', 'Branch scope'],
   },
   {
     name: 'the-builder',
@@ -33,6 +42,7 @@ export const rawSpecs: RawSpec[] = [
     category: 'engineering',
     permissionProfile: 'standard',
     preferredProvider: 'anthropic',
+    ownedDecisions: ['Smallest verified change', 'Local validation', 'Handoff'],
   },
   {
     name: 'the-reviewer',
@@ -41,6 +51,7 @@ export const rawSpecs: RawSpec[] = [
     category: 'validation',
     permissionProfile: 'restricted',
     preferredProvider: 'anthropic',
+    ownedDecisions: ['Review criteria', 'Approval gates'],
   },
   {
     name: 'the-tester',
@@ -49,6 +60,7 @@ export const rawSpecs: RawSpec[] = [
     category: 'engineering',
     permissionProfile: 'standard',
     preferredProvider: 'anthropic',
+    ownedDecisions: ['TDD process', 'Coverage targets', 'Test types'],
   },
   {
     name: 'the-debugger',
@@ -57,6 +69,7 @@ export const rawSpecs: RawSpec[] = [
     category: 'engineering',
     permissionProfile: 'standard',
     preferredProvider: 'anthropic',
+    ownedDecisions: ['Root cause protocol', 'Investigation steps'],
   },
   {
     name: 'the-auditor',
@@ -65,6 +78,7 @@ export const rawSpecs: RawSpec[] = [
     category: 'validation',
     permissionProfile: 'restricted',
     preferredProvider: 'anthropic',
+    ownedDecisions: ['OWASP', 'Secrets', 'Dependency vulnerabilities'],
   },
   {
     name: 'the-herald',
@@ -73,6 +87,7 @@ export const rawSpecs: RawSpec[] = [
     category: 'lifecycle',
     permissionProfile: 'standard',
     preferredProvider: 'anthropic',
+    ownedDecisions: ['Semver', 'changelogs', 'Release notes'],
   },
   {
     name: 'the-librarian',
@@ -81,6 +96,7 @@ export const rawSpecs: RawSpec[] = [
     category: 'knowledge',
     permissionProfile: 'standard',
     preferredProvider: 'anthropic',
+    ownedDecisions: ['ADR storage', 'Doc sync', 'Knowledge management'],
   },
   {
     name: 'the-doorman',
@@ -89,6 +105,7 @@ export const rawSpecs: RawSpec[] = [
     category: 'validation',
     permissionProfile: 'restricted',
     preferredProvider: 'ollama',
+    ownedDecisions: ['Hook setup', 'Lint', 'Gate checks', 'Health checks'],
   },
   {
     name: 'the-oracle',
@@ -97,6 +114,7 @@ export const rawSpecs: RawSpec[] = [
     category: 'knowledge',
     permissionProfile: 'restricted',
     preferredProvider: 'anthropic',
+    ownedDecisions: ['Member templates', 'Naming', 'Registration maps'],
   },
   {
     name: 'the-envoy',
@@ -105,6 +123,7 @@ export const rawSpecs: RawSpec[] = [
     category: 'lifecycle',
     permissionProfile: 'restricted',
     preferredProvider: 'anthropic',
+    ownedDecisions: ['Skill format mapping', 'Bootstrap', 'Skill matrix'],
   },
   {
     name: 'the-sentinel',
@@ -113,6 +132,7 @@ export const rawSpecs: RawSpec[] = [
     category: 'validation',
     permissionProfile: 'restricted',
     preferredProvider: 'anthropic',
+    ownedDecisions: ['Member consistency', 'Contradiction detection', 'Drift'],
   },
   {
     name: 'the-warden',
@@ -121,6 +141,7 @@ export const rawSpecs: RawSpec[] = [
     category: 'validation',
     permissionProfile: 'restricted',
     preferredProvider: 'anthropic',
+    ownedDecisions: ['Smell identification', 'Architectural decay', 'Complexity'],
   },
   {
     name: 'the-strategist',
@@ -129,6 +150,7 @@ export const rawSpecs: RawSpec[] = [
     category: 'engineering',
     permissionProfile: 'restricted',
     preferredProvider: 'anthropic',
+    ownedDecisions: ['Problem statements', 'Success measures', 'Ranked priorities'],
   },
   {
     name: 'the-steward',
@@ -137,6 +159,7 @@ export const rawSpecs: RawSpec[] = [
     category: 'lifecycle',
     permissionProfile: 'restricted',
     preferredProvider: 'groq',
+    ownedDecisions: ['Member routing', 'Cache strategy', 'Session triage'],
   },
   {
     name: 'the-operator',
@@ -145,6 +168,7 @@ export const rawSpecs: RawSpec[] = [
     category: 'lifecycle',
     permissionProfile: 'restricted',
     preferredProvider: 'anthropic',
+    ownedDecisions: ['Deployment', 'Incidents', 'Rollback', 'Monitoring'],
   },
   {
     name: 'the-mailman',
@@ -153,6 +177,7 @@ export const rawSpecs: RawSpec[] = [
     category: 'lifecycle',
     permissionProfile: 'standard',
     preferredProvider: 'anthropic',
+    ownedDecisions: ['Message dispatch', 'Content scheduling', 'Cross-posting'],
   },
   {
     name: 'the-inspector',
@@ -161,5 +186,6 @@ export const rawSpecs: RawSpec[] = [
     category: 'validation',
     permissionProfile: 'standard',
     preferredProvider: 'anthropic',
+    ownedDecisions: ['Pixel-level analysis', 'Multi-panel correspondence'],
   },
 ]

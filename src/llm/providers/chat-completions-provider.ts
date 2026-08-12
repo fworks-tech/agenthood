@@ -6,7 +6,12 @@ import { MissingApiKeyError } from "../validateApiKeys.ts"
 import { validateMessages } from "./validation.ts"
 import { createChatCompletionsHandler } from "./chat-completions.ts"
 import type { ChatCompletionsHandler, ChatCompletionsClient } from "./chat-completions.ts"
-import { buildCompleteParams, buildStreamParams, embedWith } from "./openai-params.ts"
+import {
+  buildCompleteParams,
+  buildStreamParams,
+  embedWith,
+  type CompleteParamsBuilder,
+} from "./openai-params.ts"
 import type { ParamConverters } from "./openai-params.ts"
 
 /**
@@ -35,6 +40,8 @@ export interface ChatCompletionsProviderOptions {
   contextWindow: number
   /** Custom message/tool converters (e.g. OpenCode). */
   converters?: ParamConverters
+  /** Alternate body builder (e.g. OpenCode Go strips sampling extras). */
+  paramsBuilder?: CompleteParamsBuilder
   /** Groq passes the full complete params to stream(). */
   streamUsesCompleteParams?: boolean
   /** Construct the provider's SDK client. */
@@ -60,6 +67,7 @@ export abstract class ChatCompletionsProvider implements ILLMProvider {
 
   private readonly contextWindow: number
   private readonly converters: ParamConverters | undefined
+  private readonly paramsBuilder: CompleteParamsBuilder
   private readonly streamUsesCompleteParams: boolean
   private readonly chat: ChatCompletionsHandler
 
@@ -72,6 +80,7 @@ export abstract class ChatCompletionsProvider implements ILLMProvider {
     this.providerName = options.providerName
     this.contextWindow = options.contextWindow
     this.converters = options.converters
+    this.paramsBuilder = options.paramsBuilder ?? buildCompleteParams
     this.streamUsesCompleteParams = options.streamUsesCompleteParams ?? false
     this._model =
       config.model ??
@@ -88,7 +97,7 @@ export abstract class ChatCompletionsProvider implements ILLMProvider {
     if (this.converters) {
       validateMessages(request.messages)
     }
-    return this.chat.complete(buildCompleteParams(request, this._model, this.converters))
+    return this.chat.complete(this.paramsBuilder(request, this._model, this.converters))
   }
 
   async stream(request: LLMRequest): Promise<AsyncGenerator<LLMChunk>> {
@@ -96,7 +105,7 @@ export abstract class ChatCompletionsProvider implements ILLMProvider {
       validateMessages(request.messages)
     }
     const params = this.streamUsesCompleteParams
-      ? buildCompleteParams(request, this._model, this.converters)
+      ? this.paramsBuilder(request, this._model, this.converters)
       : buildStreamParams(request, this._model, this.converters)
     return this.chat.stream(params)
   }

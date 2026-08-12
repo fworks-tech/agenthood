@@ -9,12 +9,17 @@ export interface ParamConverters {
   convertTools?: (tools: ToolSchema[]) => unknown
 }
 
-/**
- * Shared complete() params for OpenAI-compatible providers, called by
+/** Shared complete() params for OpenAI-compatible providers, called by
  * ChatCompletionsProvider. OpenAI/OpenRouter/Groq use buildCompleteParams
  * for complete(); Groq also passes the full params to stream(). OpenCode
  * passes custom converters.
  */
+export type CompleteParamsBuilder = (
+  request: LLMRequest,
+  model: string,
+  converters?: ParamConverters,
+) => Record<string, unknown>
+
 export function buildCompleteParams(
   request: LLMRequest,
   model: string,
@@ -51,6 +56,33 @@ export function buildStreamParams(
   return {
     model,
     messages,
+    temperature: request.temperature,
+    max_tokens: request.maxTokens,
+  }
+}
+
+/**
+ * Params for the OpenCode Go subscription proxy. Same as complete params
+ * minus the sampling extras (top_p, frequency_penalty, presence_penalty,
+ * stop) — the Go tier's upstream providers reject those with a 400
+ * "Upstream request failed" even when the SDK would send them harmlessly
+ * elsewhere.
+ */
+export function buildGoCompleteParams(
+  request: LLMRequest,
+  model: string,
+  converters?: ParamConverters,
+): Record<string, unknown> {
+  const messages = converters?.convertMessages
+    ? converters.convertMessages(request.messages)
+    : validateMessages<OpenAI.Chat.ChatCompletionMessageParam[]>(request.messages)
+  const tools = converters?.convertTools && request.tools
+    ? converters.convertTools(request.tools)
+    : validateTools<OpenAI.Chat.ChatCompletionTool[]>(request.tools)
+  return {
+    model,
+    messages,
+    tools,
     temperature: request.temperature,
     max_tokens: request.maxTokens,
   }

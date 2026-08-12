@@ -1,0 +1,21 @@
+version: 2
+updates:
+  - package-ecosystem: npm
+    directory: "/"
+    schedule:
+      interval: weekly
+    open-pull-requests-limit: 0
+    ignore:
+      # npm's vendored bundle (undici, tar, brace-expansion, ip-address) cannot be
+      # updated in isolation — @semantic-release/npm pins npm ^11.x, and npm 11.x
+      # still vendors affected versions. Ignored until npm 12 is supported.
+      - dependency-name: "npm"
+      # Advisories with no real patched release yet — npm audit's only "fix" is a
+      # downgrade to older majors (semantic-release 24.x, @semantic-release/npm 12.x).
+      - dependency-name: "semantic-release"
+      - dependency-name: "@semantic-release/npm"
+  - package-ecosystem: npm
+    directory: "/vscode-extension"
+    schedule:
+      interval: weekly
+    open-pull-requests-limit: 0

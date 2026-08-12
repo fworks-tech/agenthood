@@ -50,10 +50,13 @@ export function classifyError(err: unknown): ClassifiedError {
   }
 
   const msg = err instanceof Error ? err.message : String(err)
-  const statusMatch = msg.match(/\b(40[12]|408|429|50[0-9])\b/)
+  const statusMatch = msg.match(/\b(40[0-2]|408|429|50[0-9])\b/)
 
   if (statusMatch) {
     const status = parseInt(statusMatch[1], 10)
+    // 400 is permanent: retrying a malformed request cannot succeed, so the
+    // chain must fail over immediately instead of burning backoff retries
+    if (status === 400) return { category: 'bad_request', retryable: false, retryAfter: 0, cooldownMs: 0, permanent: true }
     if (status === 401) return { category: 'auth', retryable: false, retryAfter: 0, cooldownMs: 0, permanent: true }
     if (status === 402) return { category: 'payment', retryable: false, retryAfter: 0, cooldownMs: 0, permanent: true }
     if (status === 408) return { category: 'timeout', retryable: true, retryAfter: 30, cooldownMs: 30_000, permanent: false }

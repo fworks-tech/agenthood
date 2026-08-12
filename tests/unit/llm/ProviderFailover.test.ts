@@ -107,6 +107,13 @@ describe('classifyError', () => {
     const c3 = classifyError(new Error('401 unauthorized'))
     expect(c3.category).toBe('auth')
   })
+
+  it('classifies HTTP 400 as permanent bad_request', () => {
+    const c = classifyError(new Error('400 Error from provider (Console Go): Upstream request failed'))
+    expect(c.category).toBe('bad_request')
+    expect(c.permanent).toBe(true)
+    expect(c.retryable).toBe(false)
+  })
 })
 
 describe('ProviderChain', () => {

@@ -5,6 +5,23 @@
 
 ---
 
+## v3.14.0 — August 12, 2026
+
+### 🐛 Bug Fixes
+
+- **Ci:** exempt nested lockfiles from size limits, survive SIGPIPE in diff caps
+- **Ci:** reuse agent-analysis action and harden verdict parsing
+- **Hooks:** deduplicate doorman banner, POSIX-safe checks, lock vs extension deps
+- **Hooks:** support breaking changes and revert commits, make pre-push advisory
+
+### ✨ Features
+
+- **Agents:** record decision and provenance per member run
+- **Memory:** add causal chains and provenance store for member decisions
+- **Memory:** add precedent search and society graph snapshots
+
+---
+
 ## v3.13.6 — August 8, 2026
 
 ### 🐛 Bug Fixes

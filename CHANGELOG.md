@@ -1,3 +1,20 @@
+# [3.14.0](https://github.com/fworks-tech/agenthood/compare/v3.13.6...v3.14.0) (2026-08-12)
+
+
+### Bug Fixes
+
+* **ci:** exempt nested lockfiles from size limits, survive SIGPIPE in diff caps ([c31785e](https://github.com/fworks-tech/agenthood/commit/c31785ed7ce4a61f177d0270f71232b45832079f))
+* **ci:** reuse agent-analysis action and harden verdict parsing ([a08f530](https://github.com/fworks-tech/agenthood/commit/a08f53099d54645f2d14bb80378c2b46ddf79267))
+* **hooks:** deduplicate doorman banner, POSIX-safe checks, lock vs extension deps ([9a5a2c7](https://github.com/fworks-tech/agenthood/commit/9a5a2c7e3b2fa70f0377a0f40b9c4c60bfbcf267))
+* **hooks:** support breaking changes and revert commits, make pre-push advisory ([b07c77c](https://github.com/fworks-tech/agenthood/commit/b07c77cb70795d57ae5e6de016ed3572b12ae513))
+
+
+### Features
+
+* **agents:** record decision and provenance per member run ([dd793f4](https://github.com/fworks-tech/agenthood/commit/dd793f4d90abb27f97eb57a6efe0f6dd2abb2968))
+* **memory:** add causal chains and provenance store for member decisions ([6c4a3a0](https://github.com/fworks-tech/agenthood/commit/6c4a3a0dc3c6e0fcbc661c0b383404a5d00f36d7))
+* **memory:** add precedent search and society graph snapshots ([a1e2bb2](https://github.com/fworks-tech/agenthood/commit/a1e2bb27addaa4347931bd46df5bf7ea55640627))
+
 ## [3.13.6](https://github.com/fworks-tech/agenthood/compare/v3.13.5...v3.13.6) (2026-08-08)
 
 

@@ -17,6 +17,9 @@ const ICONS = {
   stale: ':recycle:',
   action_required: ':warning:',
 };
+// Single source of truth — the break condition and every per_page request
+// must agree on the page size.
+const PAGE_SIZE = 100;
 
 function escapeCell(value) {
   // Escape markdown table metacharacters (| [ ] ` @) and collapse newlines so
@@ -30,11 +33,9 @@ function escapeCell(value) {
     .replace(/[\r\n]+/g, ' ');
 }
 
-const PAGE_SIZE = 100;
-
-function isLastPage(chunk, total, page, perPage) {
-  if (total !== undefined) return page * perPage >= total;
-  return chunk.length < perPage;
+function isLastPage(chunk, total, page) {
+  if (total !== undefined) return page * PAGE_SIZE >= total;
+  return chunk.length < PAGE_SIZE;
 }
 
 async function paginate(fetchPage) {
@@ -42,9 +43,9 @@ async function paginate(fetchPage) {
   let page = 1;
   for (;;) {
     const { data } = await fetchPage(page);
-    const chunk = Array.isArray(data) ? data : data.workflow_runs;
-    items.push(...(chunk || []));
-    if (isLastPage(chunk || [], data.total_count, page, PAGE_SIZE)) break;
+    const chunk = Array.isArray(data) ? data : (data.workflow_runs || []);
+    items.push(...chunk);
+    if (isLastPage(chunk, data.total_count, page)) break;
     page++;
   }
   return items;

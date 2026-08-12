@@ -294,12 +294,22 @@ export const command: CommandDescriptor = {
   handler: (args) => run(args),
 }
 
+const KNOWN_PROVIDERS: readonly string[] = [
+  'anthropic', 'groq', 'openai', 'ollama', 'opencode', 'opencode-go', 'openrouter',
+]
+
 export async function run(args: string[]): Promise<void> {
   const { positional, providerOverride, shouldDetect } = parseFlags(args)
   const [agentName, ...taskParts] = positional
 
   if (!agentName || taskParts.length === 0) {
     printUsage()
+    process.exit(1)
+  }
+
+  if (providerOverride && !KNOWN_PROVIDERS.includes(providerOverride)) {
+    console.error(`Unknown provider: "${providerOverride}"`)
+    console.error(`Known providers: ${KNOWN_PROVIDERS.join(', ')}`)
     process.exit(1)
   }
 

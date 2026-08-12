@@ -1,5 +1,4 @@
 import { OpenCodeProvider } from "./OpenCodeProvider.ts"
-import { buildGoCompleteParams } from "./openai-params.ts"
 import type { LLMConfig } from "../types.ts"
 
 /**

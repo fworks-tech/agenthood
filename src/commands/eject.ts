@@ -10,12 +10,13 @@ export const command: CommandDescriptor = {
   handler: () => eject(),
 }
 
-// Skills dirs init may have populated for a non-agenthood runtime. The
+// Skills dirs init may have populated for a non-agenthood runtime. Only the
+// member subdirs are removed — foreign user skills are never touched. The
 // .agenthood/skills variant dies with .agenthood itself.
 const RUNTIME_SKILL_DIRS = ['.claude/skills', '.github/skills', '.gemini/skills']
 
-function isAgenthoodSkillsDir(dir: string): boolean {
-  return readdirSync(dir).some((entry) => MEMBER_NAMES.includes(entry))
+function memberSubdirs(dir: string): string[] {
+  return readdirSync(dir).filter((entry) => MEMBER_NAMES.includes(entry))
 }
 
 export async function eject(): Promise<void> {
@@ -24,16 +25,18 @@ export async function eject(): Promise<void> {
   console.log('\n🏛️  Ejecting the Society...\n');
   console.log('  The Society notes that your commits were better while you were a member.\n');
 
-  const toRemove = [
-    '.agenthood',
-    'AGENTS.md',
-    ...RUNTIME_SKILL_DIRS.filter((dir) => {
-      const full = join(cwd, dir);
-      return existsSync(full) && isAgenthoodSkillsDir(full);
-    }),
-  ];
+  const toRemove = ['.agenthood', 'AGENTS.md'];
+  const skillSubdirs: string[] = [];
 
-  for (const path of toRemove) {
+  for (const dir of RUNTIME_SKILL_DIRS) {
+    const full = join(cwd, dir);
+    if (!existsSync(full)) continue;
+    for (const sub of memberSubdirs(full)) {
+      skillSubdirs.push(join(dir, sub));
+    }
+  }
+
+  for (const path of [...toRemove, ...skillSubdirs]) {
     const full = join(cwd, path);
     if (existsSync(full)) {
       await rm(full, { recursive: true });

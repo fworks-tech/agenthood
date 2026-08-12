@@ -45,13 +45,21 @@ describe('eject command', () => {
 
   it('removes runtime skills dirs that contain agenthood members', async () => {
     vi.mocked(existsSync).mockReturnValue(true)
-    vi.mocked(readdirSync).mockReturnValue(['the-scribe'] as never[])
+    vi.mocked(readdirSync).mockImplementation((dir: unknown) => {
+      const d = String(dir).replace(/\\/g, '/')
+      return (d.endsWith('.claude/skills') || d.endsWith('.github/skills') || d.endsWith('.gemini/skills')
+        ? ['the-scribe', 'the-reviewer', 'foreign-skill']
+        : []) as never[]
+    })
     const { eject } = await import('../../src/commands/eject.js')
     await eject()
     const removed = normalized(vi.mocked(rm))
-    expect(removed.some((p) => p.endsWith('.claude/skills'))).toBe(true)
-    expect(removed.some((p) => p.endsWith('.github/skills'))).toBe(true)
-    expect(removed.some((p) => p.endsWith('.gemini/skills'))).toBe(true)
+    expect(removed.some((p) => p.endsWith('.claude/skills/the-scribe'))).toBe(true)
+    expect(removed.some((p) => p.endsWith('.claude/skills/the-reviewer'))).toBe(true)
+    expect(removed.some((p) => p.endsWith('.github/skills/the-scribe'))).toBe(true)
+    expect(removed.some((p) => p.endsWith('.gemini/skills/the-scribe'))).toBe(true)
+    expect(removed.some((p) => p.endsWith('foreign-skill'))).toBe(false)
+    expect(removed.some((p) => p.endsWith('.claude/skills'))).toBe(false)
   })
 
   it('leaves foreign skills dirs untouched', async () => {

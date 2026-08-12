@@ -258,11 +258,11 @@ All seven are available via `src/memory/`; the five store-backed ones are wired 
 
 ### Society Index
 
-`SocietyIndexer` indexes all Society members, ADRs, and conventions into a `KnowledgeGraphStore` and optionally into `VectorStore`. It is run automatically during `agenthood init` and loaded by `agenthood run` at startup. The index persists to `.agenthood/society-graph.json`.
+`SocietyIndexer` indexes all Society members, ADRs, and conventions into a `KnowledgeGraphStore` and optionally into `VectorStore`. It is loaded by `agenthood run` at startup. The index persists to `.agenthood/society-graph.json`.
 
 ### Personalisation Store
 
-`PersonalisationStore` stores per-project agent preferences: coding style, analysis depth, and primary domain. Preferences are either set explicitly (via `agenthood init` prompts or `agenthood config set`) or inferred from `ResidualMemory` high-weight signals.
+`PersonalisationStore` stores per-project agent preferences: coding style, analysis depth, and primary domain. Preferences are set programmatically or inferred from `ResidualMemory` high-weight signals (the `agenthood init` prompts for personalisation were removed in 3.10).
 
 Preferences are injected into the system prompt by `PromptBuilder` after residual memory hints:
 

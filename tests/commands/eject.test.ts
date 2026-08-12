@@ -7,16 +7,15 @@ vi.mock('node:fs/promises', async (importOriginal) => {
 
 vi.mock('node:fs', async (importOriginal) => {
   const actual = await importOriginal<typeof import('node:fs')>()
-  return {
-    ...actual,
-    existsSync: vi.fn(() => true),
-    readFileSync: vi.fn(() => '{}'),
-    writeFileSync: vi.fn(),
-  }
+  return { ...actual, existsSync: vi.fn(), readdirSync: vi.fn() }
 })
 
 import { rm } from 'node:fs/promises'
-import { existsSync } from 'node:fs'
+import { existsSync, readdirSync } from 'node:fs'
+
+function normalized(rmMock: ReturnType<typeof vi.mocked<typeof rm>>): string[] {
+  return rmMock.mock.calls.map((c) => String(c[0]).replace(/\\/g, '/'))
+}
 
 describe('eject command', () => {
   let output = ''
@@ -25,42 +24,44 @@ describe('eject command', () => {
     output = ''
     vi.spyOn(console, 'log').mockImplementation((...args) => { output += args.join(' ') + '\n' })
     vi.mocked(rm).mockResolvedValue(undefined)
-    vi.mocked(existsSync).mockReturnValue(true)
+    vi.mocked(rm).mockClear()
+    vi.mocked(existsSync).mockClear()
+    vi.mocked(readdirSync).mockClear()
   })
 
   afterEach(() => {
     vi.restoreAllMocks()
   })
 
-  it('prints the eject header', async () => {
+  it('removes .agenthood and AGENTS.md', async () => {
+    vi.mocked(existsSync).mockReturnValue(true)
+    vi.mocked(readdirSync).mockReturnValue([] as never[])
     const { eject } = await import('../../src/commands/eject.js')
     await eject()
-    expect(output).toContain('Ejecting the Society')
+    const removed = normalized(vi.mocked(rm))
+    expect(removed.some((p) => p.endsWith('.agenthood'))).toBe(true)
+    expect(removed.some((p) => p.endsWith('AGENTS.md'))).toBe(true)
   })
 
-  it('removes .agenthood directory', async () => {
+  it('removes runtime skills dirs that contain agenthood members', async () => {
+    vi.mocked(existsSync).mockReturnValue(true)
+    vi.mocked(readdirSync).mockReturnValue(['the-scribe'] as never[])
     const { eject } = await import('../../src/commands/eject.js')
     await eject()
-    expect(output).toContain('Removed: .agenthood')
+    const removed = normalized(vi.mocked(rm))
+    expect(removed.some((p) => p.endsWith('.claude/skills'))).toBe(true)
+    expect(removed.some((p) => p.endsWith('.github/skills'))).toBe(true)
+    expect(removed.some((p) => p.endsWith('.gemini/skills'))).toBe(true)
   })
 
-  it('removes AGENTS.md', async () => {
+  it('leaves foreign skills dirs untouched', async () => {
+    vi.mocked(existsSync).mockReturnValue(true)
+    vi.mocked(readdirSync).mockReturnValue(['my-custom-skill'] as never[])
     const { eject } = await import('../../src/commands/eject.js')
     await eject()
-    expect(output).toContain('Removed: AGENTS.md')
-  })
-
-  it('handles missing files gracefully', async () => {
-    vi.mocked(existsSync).mockReturnValue(false)
-    const { eject } = await import('../../src/commands/eject.js')
-    await eject()
-    expect(output).not.toContain('Removed:')
-  })
-
-  it('calls rm with .agenthood path', async () => {
-    const { eject } = await import('../../src/commands/eject.js')
-    await eject()
-    const calls = vi.mocked(rm).mock.calls.map((c) => c[0] as string)
-    expect(calls.some((p) => p.endsWith('.agenthood'))).toBe(true)
+    const removed = normalized(vi.mocked(rm))
+    expect(removed.some((p) => p.endsWith('.claude/skills'))).toBe(false)
+    expect(removed.some((p) => p.endsWith('.github/skills'))).toBe(false)
+    expect(removed.some((p) => p.endsWith('.gemini/skills'))).toBe(false)
   })
 })

@@ -28,8 +28,11 @@ describe('init command', () => {
     vi.spyOn(console, 'log').mockImplementation((...args) => { output += args.join(' ') + '\n' })
     vi.spyOn(console, 'error').mockImplementation(() => {})
     vi.mocked(copyFile).mockResolvedValue(undefined)
+    vi.mocked(copyFile).mockClear()
     vi.mocked(writeFile).mockResolvedValue(undefined)
+    vi.mocked(writeFile).mockClear()
     vi.mocked(readFile).mockRejectedValue(new Error('not found'))
+    vi.mocked(existsSync).mockClear()
     vi.mocked(existsSync).mockImplementation((p) => {
       if (typeof p !== 'string') return true
       if (p.includes('config.json') && !p.includes('config.example')) return false
@@ -61,5 +64,15 @@ describe('init command', () => {
     const writeCalls = vi.mocked(writeFile).mock.calls.map((c) => c as [string, string, object])
     const configCalls = writeCalls.filter(([path]) => path.includes('config.json'))
     expect(configCalls.length).toBeGreaterThanOrEqual(1)
+  })
+
+  it('--dry-run lists planned files without writing anything', async () => {
+    vi.mocked(existsSync).mockReturnValue(false)
+    const { init } = await import('../../src/commands/init.js')
+    await init(['--dry-run'])
+    expect(output).toContain('Dry run')
+    expect(output).toMatch(/\.agenthood[\\/]config\.json/)
+    expect(vi.mocked(writeFile)).not.toHaveBeenCalled()
+    expect(vi.mocked(copyFile)).not.toHaveBeenCalled()
   })
 })

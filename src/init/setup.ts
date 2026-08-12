@@ -24,6 +24,14 @@ function resolveSkillsDest(cwd: string, runtime: Runtime): string {
   return join(cwd, '.agenthood', 'skills')
 }
 
+/** Files `init` would write for the given runtime/members — used by --dry-run */
+export function planPaths(cwd: string, runtime: Runtime, members: string[]): string[] {
+  const skillsDest = resolveSkillsDest(cwd, runtime)
+  const paths = members.map((m) => join(skillsDest, m, `${m}.md`))
+  paths.push(join(cwd, 'AGENTS.md'), join(cwd, '.agenthood', 'config.json'))
+  return paths
+}
+
 export async function installSkills(cwd: string, runtime: Runtime, members: string[]): Promise<void> {
   const skillsDest = resolveSkillsDest(cwd, runtime)
 

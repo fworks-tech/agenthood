@@ -89,11 +89,12 @@ agenthood/
 │
 ├── .github/                          ← CI and contribution automation
 │   ├── actions/agent-analysis/        ← Shared composite action for LLM agent checks in CI
+│   ├── actions/setup-env/             ← Shared composite action: checkout + Node + npm ci
 │   └── workflows/                     ← CI enforcement
 │   ├── commitlint.yml               ← The Doorman — standalone commitlint CI for target projects
 │   ├── distribution.yml             ← The Envoy — Skills.sh, SkillsMP, traction badges
 │   ├── herald.yml                   ← The Herald — CI summary comment on PRs
-│   ├── pr.yml                       ← The Doorman, Auditor, Scribe, Warden, Librarian, Sentinel, Tester — PR standards (7 checks merged)
+│   ├── pr.yml                       ← The Doorman, Auditor, Scribe, Warden, Librarian, Sentinel, Tester — PR standards (10 checks merged)
 │   ├── publish-vsce.yml             ← The Envoy — publish VSIX to Marketplace
 │   ├── reviewer.yml                 ← The Reviewer — LLM commit review on every push
 │   ├── semantic-release.yml         ← The Herald — automated release + npm publish

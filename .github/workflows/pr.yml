@@ -25,14 +25,9 @@ jobs:
     if: github.event_name == 'pull_request'
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+      - uses: ./.github/actions/setup-env
         with:
-          fetch-depth: 0
-      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020
-        with:
-          node-version: "24"
-          cache: npm
-      - run: npm ci --ignore-scripts --no-audit
+          install-args: "--ignore-scripts --no-audit"
       - name: The Doorman — validate commits in PR range
         env:
           NODE_OPTIONS: "--import tsx"
@@ -109,7 +104,7 @@ jobs:
   # The Scribe — auto-label PR by changed files
   # ──────────────────────────────────────────────
   labeler:
-    name: Society — PR Labeler
+    name: The Scribe — PR Labeler
     if: github.event_name == 'pull_request'
     runs-on: ubuntu-latest
     steps:
@@ -203,35 +198,26 @@ jobs:
   # ──────────────────────────────────────────────
   # The Tester — test suite
   # ──────────────────────────────────────────────
+  # ──────────────────────────────────────────────
+  # The Auditor — dependency audit
+  # ──────────────────────────────────────────────
+  audit:
+    name: The Auditor — Dependency Audit
+    runs-on: ubuntu-latest
+    steps:
+      - uses: ./.github/actions/setup-env
+      - name: The Auditor — audit project dependencies
+        shell: bash
+        run: .github/scripts/audit-check.sh
+
+  # ──────────────────────────────────────────────
+  # The Tester — test suite
+  # ──────────────────────────────────────────────
   tests:
     name: The Tester — Test Suite
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
-        with:
-          fetch-depth: 0
-      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020
-        with:
-          node-version: "24"
-          cache: npm
-      - run: npm ci --ignore-scripts
-      - name: The Auditor — audit project dependencies
-        shell: bash
-        run: |
-          npm audit --json > /tmp/npm-audit.json 2>/dev/null || true
-          real=$(node -e "
-            const a = JSON.parse(require('fs').readFileSync('/tmp/npm-audit.json', 'utf8'));
-            const bad = Object.values(a.vulnerabilities || {})
-              .filter(v => (v.severity === 'high' || v.severity === 'critical')
-                && (v.nodes || []).some(n => !n.startsWith('node_modules/npm')));
-            for (const v of bad) console.log(v.name + ' [' + v.severity + '] ' + (v.nodes || []).join(', '));
-          ")
-          if [ -n "$real" ]; then
-            echo "The Auditor: unfixed high/critical vulnerabilities in project dependencies:"
-            echo "$real"
-            exit 1
-          fi
-          echo "The Auditor: no high/critical vulnerabilities outside npm's bundled dependencies."
+      - uses: ./.github/actions/setup-env
       - name: The Tester — run affected tests
         shell: bash
         env:
@@ -246,14 +232,7 @@ jobs:
     name: The Warden — Lint & Typecheck
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
-        with:
-          fetch-depth: 0
-      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020
-        with:
-          node-version: "24"
-          cache: npm
-      - run: npm ci --ignore-scripts
+      - uses: ./.github/actions/setup-env
       - name: The Warden — lint
         run: npm run lint
       - name: The Warden — typecheck
@@ -268,12 +247,7 @@ jobs:
     name: The Envoy — Package Smoke Test
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
-      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020
-        with:
-          node-version: "24"
-          cache: npm
-      - run: npm ci --ignore-scripts
+      - uses: ./.github/actions/setup-env
       - name: The Envoy — pack, scratch install, and CLI check
         shell: bash
         run: .github/scripts/package-smoke.sh

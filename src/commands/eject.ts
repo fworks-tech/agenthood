@@ -1,8 +1,7 @@
 import { rm } from 'node:fs/promises';
 import { existsSync, readdirSync } from 'node:fs';
 import { join } from 'node:path';
-import { MEMBER_NAMES } from '../members.js';
-import { RUNTIME_SKILL_DIRS } from '../init/setup.js';
+import { MEMBER_NAMES, RUNTIME_SKILL_DIRS } from '../members.js';
 import type { CommandDescriptor } from './types.js';
 
 export const command: CommandDescriptor = {

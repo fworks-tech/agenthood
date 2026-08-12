@@ -294,9 +294,7 @@ export const command: CommandDescriptor = {
   handler: (args) => run(args),
 }
 
-const KNOWN_PROVIDERS: readonly string[] = [
-  'anthropic', 'groq', 'openai', 'ollama', 'opencode', 'opencode-go', 'openrouter',
-]
+const KNOWN_PROVIDERS = LLMRouter.knownProviders()
 
 export async function run(args: string[]): Promise<void> {
   const { positional, providerOverride, shouldDetect } = parseFlags(args)

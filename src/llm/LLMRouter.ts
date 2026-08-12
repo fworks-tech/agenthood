@@ -80,6 +80,11 @@ export class ComplexityScorer {
  * so importing LLMRouter does not pull in provider SDKs.
  */
 export class LLMRouter {
+  /** Single source of truth for --provider validation (see run.ts) */
+  static knownProviders(): string[] {
+    return Object.keys(LLMRouter.providerFactories)
+  }
+
   private static providerFactories: Record<string, ProviderFactory> = {
     anthropic: async (c) => {
       const { AnthropicProvider } = await import('./providers/AnthropicProvider.js')

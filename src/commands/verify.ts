@@ -1,4 +1,5 @@
 import { existsSync, readFileSync, readdirSync, writeFileSync } from 'node:fs'
+import type { CommandDescriptor } from './types.js'
 import { join } from 'node:path'
 import { contentHash } from '../utils/hash.js'
 import { loadLockfile } from '../utils/lockfile.js'
@@ -91,6 +92,12 @@ function updateLockfile(cwd: string, membersDir: string, members: string[]): voi
   const lockPath = join(cwd, 'agenthood.lock')
   writeFileSync(lockPath, JSON.stringify(lock, null, 2) + '\n', 'utf8')
   console.log(`\n  Lockfile written to ${lockPath}`)
+}
+
+export const command: CommandDescriptor = {
+  name: 'verify',
+  description: 'Validate member SKILL.md integrity and lockfile',
+  handler: (args) => verify(args),
 }
 
 export async function verify(args: string[]): Promise<void> {

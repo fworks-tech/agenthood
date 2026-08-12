@@ -7,12 +7,19 @@
  */
 
 import { chmodSync, readdirSync, existsSync } from 'node:fs'
+import type { CommandDescriptor } from './types.js'
 import { join, dirname } from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { execSync } from 'node:child_process'
 
 const __dirname = dirname(fileURLToPath(import.meta.url))
 const REPO_ROOT = join(__dirname, '..', '..')
+
+export const command: CommandDescriptor = {
+  name: 'setup',
+  description: 'Activate hooks and commit template (Agenthood repo)',
+  handler: () => setup(),
+}
 
 export async function setup(): Promise<void> {
   console.log('\n┌─────────────────────────────────────────────────────────────┐')

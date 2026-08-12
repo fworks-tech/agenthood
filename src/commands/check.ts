@@ -1,4 +1,5 @@
 import { existsSync, readFileSync } from 'node:fs';
+import type { CommandDescriptor } from './types.js';
 import { join, dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { MEMBER_NAMES, resolveSkillsDir } from '../members.js';
@@ -10,6 +11,12 @@ interface CheckResult {
 
 function pushFileCheck(results: CheckResult[], basePath: string, label: string, relPath: string): void {
   results.push({ label, isPassed: existsSync(join(basePath, relPath)) });
+}
+
+export const command: CommandDescriptor = {
+  name: 'check',
+  description: "Run the Doorman's health check",
+  handler: () => check(),
 }
 
 export async function check(): Promise<void> {

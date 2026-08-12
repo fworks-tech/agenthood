@@ -1,4 +1,5 @@
 import { execSync } from 'node:child_process'
+import type { CommandDescriptor } from './types.js'
 import { writeFileSync, unlinkSync } from 'node:fs'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
@@ -155,6 +156,12 @@ async function generateLLMComment(commits: ParsedCommit[]): Promise<string> {
   } catch {
     return formatPlainComment(commits)
   }
+}
+
+export const command: CommandDescriptor = {
+  name: 'pr-sync',
+  description: 'Sync PR body and post comment for new commits',
+  handler: (args) => prSync(args),
 }
 
 export async function prSync(args: string[]): Promise<void> {

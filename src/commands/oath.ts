@@ -4,6 +4,14 @@
  * Prints the Society's oath. Read it. Mean it.
  */
 
+import type { CommandDescriptor } from './types.js'
+
+export const command: CommandDescriptor = {
+  name: 'oath',
+  description: "Print the Society's oath",
+  handler: () => oath(),
+}
+
 export async function oath(): Promise<void> {
   console.log(`
 🏛️  The Oath of the Agenthood

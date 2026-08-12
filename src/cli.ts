@@ -4,41 +4,36 @@
  *
  * The Society's command-line interface. Entry point for all
  * initiation, activation, and health check operations.
+ *
+ * Commands are auto-discovered from ./commands/ — each command file exports
+ * a `command` CommandDescriptor (name, handler, aliases). Adding a command
+ * means adding a file, not touching this one.
  */
 
 import 'dotenv/config'
 
-import { ALL_MEMBERS } from './members.js';
-import { init } from './commands/init.js';
-import { check } from './commands/check.js';
-import { activate } from './commands/activate.js';
-import { deactivate } from './commands/deactivate.js';
-import { list } from './commands/list.js';
-import { oath } from './commands/oath.js';
-import { eject } from './commands/eject.js';
-import { setup } from './commands/setup.js';
-import { run } from './commands/run.js';
-import { prSync } from './commands/prSync.js';
-import { verify } from './commands/verify.js';
-import { rollback } from './commands/rollback.js';
-import { status } from './commands/status.js';
-import { workflow } from './commands/workflow.js';
+import { readdirSync } from 'node:fs';
+import { join, dirname } from 'node:path';
+import { fileURLToPath, pathToFileURL } from 'node:url';
 
-const COMMANDS: Record<string, (...args: string[]) => Promise<void>> = {
-  init: async () => init(),
-  check: async () => check(),
-  list: async () => list(),
-  oath: async () => oath(),
-  eject: async () => eject(),
-  setup: async () => setup(),
-  run: async (...args) => run(args),
-  verify: async (...args) => verify(args),
-  rollback: async (...args) => rollback(args),
-  status: async (...args) => status(args),
-  workflow: async (...args) => workflow(args),
-  activate: async (...args) => activate(args[0]),
-  deactivate: async (...args) => deactivate(args[0]),
-};
+import { ALL_MEMBERS } from './members.js';
+import type { CommandDescriptor } from './commands/types.js';
+
+async function discoverCommands(): Promise<Record<string, CommandDescriptor>> {
+  const commandsDir = join(dirname(fileURLToPath(import.meta.url)), 'commands');
+  const files = readdirSync(commandsDir)
+    .filter((f) => /\.(js|ts)$/.test(f) && !f.endsWith('.d.ts'))
+    .sort();
+  const registry: Record<string, CommandDescriptor> = {};
+  for (const file of files) {
+    const mod = await import(pathToFileURL(join(commandsDir, file)).href);
+    const desc = mod.command as CommandDescriptor | undefined;
+    if (!desc?.name || typeof desc.handler !== 'function') continue;
+    registry[desc.name] = desc;
+    for (const alias of desc.aliases ?? []) registry[alias] = desc;
+  }
+  return registry;
+}
 
 async function main(): Promise<void> {
   const rawArgs = process.argv.slice(2);
@@ -52,19 +47,14 @@ async function main(): Promise<void> {
     process.exit(0);
   }
 
-  if (command === 'pr-sync') {
-    await prSync(args);
-    return;
-  }
-
-  const handler = COMMANDS[command];
+  const handler = (await discoverCommands())[command];
   if (!handler) {
     console.error(`\nUnknown command: "${command}"\n`);
     printHelp();
     process.exit(1);
   }
 
-  await handler(...args);
+  await handler.handler(args);
 }
 
 const HELP_TEXT = `

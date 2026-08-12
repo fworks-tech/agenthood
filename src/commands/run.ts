@@ -1,4 +1,5 @@
 import { randomUUID } from "node:crypto"
+import type { CommandDescriptor } from "./types.js"
 import { existsSync } from "node:fs"
 import { readFile } from "node:fs/promises"
 import { join } from "node:path"
@@ -285,6 +286,12 @@ async function runFallbackAgent(agentName: string, task: string, context: Execut
     console.error(`Error running agent "${agentName}": ${msg}`)
     process.exit(1)
   }
+}
+
+export const command: CommandDescriptor = {
+  name: 'run',
+  description: 'Run a Society member (the-scribe, the-reviewer, …)',
+  handler: (args) => run(args),
 }
 
 export async function run(args: string[]): Promise<void> {

@@ -1,4 +1,5 @@
 import { existsSync, readFileSync } from 'node:fs'
+import type { CommandDescriptor } from './types.js'
 import { join } from 'node:path'
 import { execSync } from 'node:child_process'
 import { contentHash } from '../utils/hash.js'
@@ -36,6 +37,12 @@ function restoreMember(cwd: string, skillPath: string, member: string, commit: s
     console.error(`  \u2717 ${member} — failed to restore from ${commit.slice(0, 12)}`)
     return false
   }
+}
+
+export const command: CommandDescriptor = {
+  name: 'rollback',
+  description: 'Restore member SKILL.md from lockfile',
+  handler: (args) => rollback(args),
 }
 
 export async function rollback(args: string[]): Promise<void> {

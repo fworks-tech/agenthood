@@ -7,9 +7,16 @@
  */
 
 import { existsSync } from 'node:fs';
+import type { CommandDescriptor } from './types.js';
 import { join } from 'node:path';
 import { MemberRegistry } from '../members/MemberRegistry.ts';
 import { resolveSkillsDir } from '../members.ts';
+
+export const command: CommandDescriptor = {
+  name: 'list',
+  description: 'List all members, their status, permission & provider',
+  handler: () => list(),
+}
 
 export async function list(): Promise<void> {
   const cwd = process.cwd();

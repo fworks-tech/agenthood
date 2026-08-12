@@ -123,6 +123,7 @@ jobs:
             [ -f "$file" ] || continue
             case "$file" in
               *package-lock.json|*yarn.lock|*pnpm-lock.yaml) continue ;;
+              *.test.ts) continue ;; # test suites routinely exceed 500 lines; the limit targets source files
             esac
             lines=$(wc -l < "$file" | tr -d ' ')
             if [ "$lines" -gt 500 ]; then

@@ -3,7 +3,7 @@ set -euo pipefail
 
 if [ -z "${BASE_SHA:-}" ] || [ "$BASE_SHA" = "${HEAD_SHA:-}" ]; then
   echo "No PR range available -- running full suite."
-  npx vitest run
+  npm exec --no -- vitest run
   exit $?
 fi
 
@@ -11,7 +11,7 @@ CHANGED=$(git diff --name-only --diff-filter=ACM "$BASE_SHA"..."$HEAD_SHA" 2>/de
 CORE_PATTERNS="src/core/ src/llm/ILLMProvider src/llm/types src/members/types src/agents/index src/index"
 
 run_full_suite() {
-  npx vitest run
+  npm exec --no -- vitest run
   exit $?
 }
 
@@ -79,4 +79,4 @@ fi
 
 readarray -t SORTED_TESTS < <(echo "$TEST_FILES" | tr ' ' '\n' | sort -u | sed '/^$/d')
 echo "Running affected tests: ${SORTED_TESTS[*]}"
-npx vitest run -- "${SORTED_TESTS[@]}"
+npm exec --no -- vitest run -- "${SORTED_TESTS[@]}"

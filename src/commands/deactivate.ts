@@ -5,9 +5,16 @@
  */
 
 import { rm } from 'node:fs/promises';
+import type { CommandDescriptor } from './types.js';
 import { existsSync } from 'node:fs';
 import { join } from 'node:path';
 import { MEMBER_NAMES, resolveSkillsDir } from '../members.js';
+
+export const command: CommandDescriptor = {
+  name: 'deactivate',
+  description: 'Deactivate a member skill',
+  handler: (args) => deactivate(args[0]),
+}
 
 export async function deactivate(member?: string): Promise<void> {
   if (!member) {

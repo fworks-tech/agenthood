@@ -1,4 +1,5 @@
 import { existsSync, readFileSync, readdirSync } from 'node:fs'
+import type { CommandDescriptor } from './types.js'
 import { join } from 'node:path'
 import type { MetricsEntry } from '../memory/MetricsCollector.js'
 import { collectMemberMetrics } from './collectMetrics.js'
@@ -48,6 +49,12 @@ function printJson(memberCount: number, decisionCount: number, lockStatus: strin
     metrics: allStats,
   }
   console.log(JSON.stringify(output, null, 2))
+}
+
+export const command: CommandDescriptor = {
+  name: 'status',
+  description: 'Show project health and member metrics',
+  handler: (args) => status(args),
 }
 
 export async function status(args: string[] = []): Promise<void> {

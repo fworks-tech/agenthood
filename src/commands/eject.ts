@@ -1,6 +1,13 @@
 import { rm } from 'node:fs/promises';
 import { existsSync } from 'node:fs';
 import { join } from 'node:path';
+import type { CommandDescriptor } from './types.js';
+
+export const command: CommandDescriptor = {
+  name: 'eject',
+  description: 'Remove the Society from your project',
+  handler: () => eject(),
+}
 
 export async function eject(): Promise<void> {
   const cwd = process.cwd();

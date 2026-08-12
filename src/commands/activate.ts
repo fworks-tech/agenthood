@@ -5,12 +5,19 @@
  */
 
 import { copyFile, mkdir } from 'node:fs/promises';
+import type { CommandDescriptor } from './types.js';
 import { join, dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { MEMBER_NAMES, resolveSkillsDir } from '../members.js';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const SOCIETY_ROOT = join(__dirname, '..', '..');
+
+export const command: CommandDescriptor = {
+  name: 'activate',
+  description: 'Activate a specific member skill',
+  handler: (args) => activate(args[0]),
+}
 
 export async function activate(member?: string): Promise<void> {
   if (!member) {

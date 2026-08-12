@@ -89,7 +89,7 @@ agenthood/
 │
 ├── .github/                          ← CI and contribution automation
 │   ├── actions/agent-analysis/        ← Shared composite action for LLM agent checks in CI
-│   ├── actions/setup-env/             ← Shared composite action: checkout + Node + npm ci
+│   ├── actions/setup-env/             ← Shared composite action: Node + npm ci (after checkout)
 │   └── workflows/                     ← CI enforcement
 │   ├── commitlint.yml               ← The Doorman — standalone commitlint CI for target projects
 │   ├── distribution.yml             ← The Envoy — Skills.sh, SkillsMP, traction badges

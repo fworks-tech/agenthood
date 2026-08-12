@@ -46,7 +46,7 @@ function parseArgs(args: string[]): PrSyncCliOptions {
     switch (args[i]) {
       case '--pr': {
         const val = args[++i]
-        if (!val || isNaN(parseInt(val, 10))) {
+        if (!val || !/^\d+$/.test(val)) {
           console.error('Error: --pr requires a numeric argument')
           process.exit(1)
         }

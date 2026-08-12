@@ -89,7 +89,9 @@ export async function rollback(args: string[]): Promise<void> {
   const keys = Object.keys(lock.members).filter((m) => MEMBER_NAME_RE.test(m))
   const skipped = Object.keys(lock.members).filter((m) => !MEMBER_NAME_RE.test(m))
   for (const bad of skipped) {
-    console.warn(`Skipping invalid member key from lockfile: ${bad}`)
+    // JSON.stringify: hostile keys are attacker bytes — never echo them raw
+    // (ANSI escape / newline spoofing in logs)
+    console.warn(`Skipping invalid member key from lockfile: ${JSON.stringify(bad)}`)
   }
 
   const membersToRollback = targetMember ? [targetMember] : keys

@@ -101,17 +101,29 @@ function detectPR(options: PrSyncCliOptions): PRInfo | null {
   return null
 }
 
+/** Mirrors git check-ref-format: refnames are untrusted input, and a
+ * malformed one would either compute a wrong range or break rev-parse. */
+export function isValidRefname(name: string): boolean {
+  if (!name || name.length === 0) return false
+  if (!/^[A-Za-z0-9._/@-]+$/.test(name)) return false
+  if (name === '@') return false
+  if (name.startsWith('/') || name.endsWith('/')) return false
+  if (name.startsWith('.') || name.endsWith('.')) return false
+  if (name.endsWith('.lock')) return false
+  if (name.includes('..') || name.includes('//') || name.includes('@{')) return false
+  if (name.split('/').some((component) => component.startsWith('.'))) return false
+  return true
+}
+
 function getCommitsSince(sinceSha: string | null, baseBranch: string): ParsedCommit[] {
   // PR body markers are attacker-editable — never let a non-SHA reach the shell
   if (sinceSha && !/^[0-9a-f]{40}$/i.test(sinceSha)) {
     console.warn(`Malformed sync marker SHA ignored: ${sinceSha}`)
     sinceSha = null
   }
-  // baseRefName is GitHub-sourced; array args prevent injection, but a hostile
-  // or malformed refname would compute a wrong commit range — fail loudly
-  // rather than silently falling back. `@{` is rejected explicitly: it is
-  // meaningful to git refspecs (reflog syntax) even mid-refname.
-  if (!/^[A-Za-z0-9._/@-]+$/.test(baseBranch) || baseBranch.includes('@{')) {
+  // baseRefName is GitHub-sourced; array args prevent injection, but a
+  // malformed refname must fail loudly instead of computing a wrong range
+  if (!isValidRefname(baseBranch)) {
     console.error(`PR sync failed: invalid base branch refname: ${JSON.stringify(baseBranch)}`)
     process.exit(1)
   }

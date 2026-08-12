@@ -100,6 +100,23 @@ After title validation, check whether the PR represents a single concern:
 2. A suggested split: "PR A: [concern 1] — PR B: [concern 2]"
 3. Reference to The Architect for branch strategy guidance
 
+### PR Body Validation
+
+Every PR must link to the issue(s) it resolves via a `Closes #N` or `Fixes #N`
+footer in the description. Without it, GitHub will not auto-close the issue on
+merge — the resolved issue silently stays open.
+
+**Check — Issue link present**
+- Read the PR description
+- Must match `Closes #N` or `Fixes #N` (case-insensitive — GitHub's auto-close
+  keywords are case-insensitive)
+- If missing: block with:
+  *"Every PR must link to an issue via `Closes #N` or `Fixes #N`. GitHub auto-closes the issue on merge; without the footer, it stays open — the fix ships and the issue silently lingers."*
+
+**Enforcement**
+- CI: the Doorman job in `.github/workflows/pr.yml` runs `.github/scripts/pr-body-check.sh` on every non-draft, non-bot PR
+- Draft PRs and bot PRs (Dependabot/Renovate) are skipped — drafts are WIP by definition, bots do not author Closes footers
+
 ### Repository Health Check
 
 On demand or scheduled, scan for:
@@ -208,6 +225,7 @@ When PR title is non-conforming:
 
 - Any bypass of the `commit-msg` hook (`--no-verify`)
 - A PR that requires "and" to describe — two concerns dressed as one
+- A PR description with no `Closes #N` / `Fixes #N` footer — the issue it fixes will never auto-close
 - Force pushes to shared branches
 - Merges to main without a passing CI check
 - Branch protection disabled on main
@@ -230,6 +248,7 @@ The Doorman's job is done when:
 - [ ] PR scope passes the "no and" test
 - [ ] PR commits do not span unrelated concerns without justification
 - [ ] PR title passes Conventional Commits format check
+- [ ] PR description links to an issue via `Closes #N` / `Fixes #N`
 - [ ] No wildcard dependencies in `package.json`
 - [ ] No secrets in staged or committed files
 - [ ] Branch protection is enabled on main

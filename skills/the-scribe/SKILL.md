@@ -72,7 +72,7 @@ Co-Authored-By: Claude Sonnet 4.6 <noreply@anthropic.com>
    - **Why** — one paragraph explaining the motivation or problem solved
    - **How to test** — numbered steps a reviewer can follow to verify the change
 6. Add screenshots section if the diff touches UI files
-7. Add `Closes #N` footer
+7. Add `Closes #N` footer — mandatory, not decorative: GitHub auto-closes the issue on merge only when the footer is present, and The Doorman enforces it in CI (`pr-body-check.sh`). A PR that resolves an issue but says "covers #N" or omits the footer will fail the gate and leave the issue open
 8. Add `Co-Authored-By` footer
 
 ### Setting PR Metadata

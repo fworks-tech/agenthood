@@ -23,15 +23,23 @@ const ICONS = {
 // must agree on the page size.
 const PAGE_SIZE = 100;
 
+// Unique anchor so the bot only ever updates its own verdict — a bare
+// substring match would let any commenter hijack the comment id
+const VERDICT_MARKER = '<!-- agenthood-herald-verdict -->';
+const VERDICT_AUTHOR = 'github-actions[bot]';
+
 function escapeCell(value) {
-  // Escape markdown table metacharacters (| [ ] ` @) and collapse newlines so
-  // workflow/check names cannot inject table cells, links, mentions, or emphasis
+  // Escape markdown table metacharacters (| [ ] ` @ < >) and collapse newlines
+  // so workflow/check names cannot inject table cells, links, mentions,
+  // emphasis, or raw HTML
   return String(value || '')
     .replace(/\|/g, '\\|')
     .replace(/\[/g, '\\[')
     .replace(/\]/g, '\\]')
     .replace(/`/g, '\\`')
     .replace(/@/g, '\\@')
+    .replace(/</g, '\\<')
+    .replace(/>/g, '\\>')
     .replace(/[\r\n]+/g, ' ');
 }
 
@@ -74,7 +82,8 @@ function buildVerdictBody(sha, prNumber, runs) {
   const shortSha = sha.slice(0, 7);
   const rows = runs.map((run) => {
     const icon = ICONS[run.conclusion] || ':grey_question:';
-    return `| ${escapeCell(run.name)} | ${icon} ${run.conclusion} |`;
+    // conclusion is API-enum data, but escape it like the name for defense in depth
+    return `| ${escapeCell(run.name)} | ${icon} ${escapeCell(run.conclusion)} |`;
   }).join('\n');
   // skipped/neutral/stale are not failures — they mean the check did not run
   // or produced no verdict. Only explicit failures and cancellations fail.
@@ -83,6 +92,7 @@ function buildVerdictBody(sha, prNumber, runs) {
   const { verdict, summaryEmoji } = verdictFor(hasFailed, skippedCount);
   return [
     `## ${summaryEmoji} The Herald's Verdict`,
+    VERDICT_MARKER,
     '',
     `**PR #${prNumber}** · \`${shortSha}\``,
     '',
@@ -107,7 +117,9 @@ async function listComments(github, owner, repo, prNumber) {
 
 async function upsertComment(github, owner, repo, prNumber, body) {
   const comments = await listComments(github, owner, repo, prNumber);
-  const existingComment = comments.find((c) => c.body.includes("The Herald's Verdict"));
+  // only the bot's own verdict — anchored by marker AND author, so user
+  // comments can never be overwritten (comment_id hijack)
+  const existingComment = comments.find((c) => c.user?.login === VERDICT_AUTHOR && c.body.includes(VERDICT_MARKER));
   if (existingComment) {
     await github.rest.issues.updateComment({ owner, repo, comment_id: existingComment.id, body });
   } else {

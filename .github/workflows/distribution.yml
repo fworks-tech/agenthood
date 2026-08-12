@@ -36,7 +36,7 @@ jobs:
         run: .github/scripts/validate-skill-md.sh
 
   traction:
-    name: Update traction badges
+    name: Report traction metrics
     runs-on: ubuntu-latest
     steps:
       - name: Fetch npm downloads
@@ -44,9 +44,11 @@ jobs:
           DATA=$(curl -s https://api.npmjs.org/downloads/point/last-week/agenthood)
           DOWNLOADS=$(echo "$DATA" | python3 -c "import sys,json; d=json.load(sys.stdin); print(d.get('downloads', 'N/A'))")
           echo "npm weekly downloads: $DOWNLOADS"
+          echo "- npm weekly downloads: $DOWNLOADS" >> "$GITHUB_STEP_SUMMARY"
       - name: Fetch GitHub stars
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
           STARS=$(gh api repos/fworks-tech/agenthood --jq '.stargazers_count')
           echo "GitHub stars: $STARS"
+          echo "- GitHub stars: $STARS" >> "$GITHUB_STEP_SUMMARY"

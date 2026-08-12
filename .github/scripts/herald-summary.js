@@ -78,6 +78,7 @@ const { data: checkRuns } = await github.rest.checks.listForRef({
 const runs = checkRuns.check_runs;
 const completed = runs.every(r => r.status === 'completed');
 if (!completed) return;
+if (runs.length === 0) return; // nothing to summarize — no comment
 
 const body = buildVerdictBody(runs);
 await upsertComment(body);

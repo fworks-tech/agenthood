@@ -51,6 +51,10 @@ validate_prerequisites() {
     echo "::error::prompt-template must contain %s placeholder"
     exit 1
   fi
+  echo "$SAFE_CHANGED" > ${temp_dir}/${AGENT_NAME}_safe_changed.txt
+}
+
+build_task() {
   TASK="${PROMPT_TEMPLATE//%s/$SAFE_CHANGED}"
   if [ "${INCLUDE_DIFF:-false}" = "true" ]; then
     # Cap at ~100KB of complete lines so TASK stays under the kernel
@@ -66,7 +70,6 @@ $DIFF
 </DIFF>"
     fi
   fi
-  echo "$SAFE_CHANGED" > ${temp_dir}/${AGENT_NAME}_safe_changed.txt
 }
 
 stale_previous_comment() {
@@ -100,6 +103,7 @@ build_comment_body() {
 
 validate_prerequisites
 SAFE_CHANGED=$(cat ${temp_dir}/${AGENT_NAME}_safe_changed.txt)
+build_task
 echo "agent-analysis: running $AGENT_NAME on $(echo "$SAFE_CHANGED" | tr '\n' ' ')"
 
 npm ci --ignore-scripts

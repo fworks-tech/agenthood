@@ -9,8 +9,8 @@ to understand the Society's standards before taking any action in a repository.
 ## Commit Standards
 
 - Follow [Conventional Commits](https://www.conventionalcommits.org/) strictly
-- Format: `type(scope): subject`
-- Types: `feat`, `fix`, `docs`, `test`, `refactor`, `ci`, `chore`
+- Format: `type(scope)!: subject` — `!` marks breaking changes
+- Types: `feat`, `fix`, `docs`, `test`, `refactor`, `ci`, `chore`, `revert`
 - Subject: imperative, lowercase, ≤150 chars, no trailing period
 - One logical change per commit — if in doubt, split it
 - Never write: `fix stuff`, `wip`, `update`, `changes`, `misc`, `asdf`

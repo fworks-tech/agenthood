@@ -1,3 +1,10 @@
+## [3.14.2](https://github.com/fworks-tech/agenthood/compare/v3.14.1...v3.14.2) (2026-08-12)
+
+
+### Bug Fixes
+
+* **ci:** severity-filter audit gate, three-dot diffs, revert pass-through, pin vsce ([4531b3a](https://github.com/fworks-tech/agenthood/commit/4531b3a33d1fb7ff7411dfdbd9d2d4eb15b08fd0))
+
 ## [3.14.1](https://github.com/fworks-tech/agenthood/compare/v3.14.0...v3.14.1) (2026-08-12)
 
 

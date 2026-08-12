@@ -5,6 +5,14 @@
 
 ---
 
+## v3.14.2 — August 12, 2026
+
+### 🐛 Bug Fixes
+
+- **Ci:** severity-filter audit gate, three-dot diffs, revert pass-through, pin vsce
+
+---
+
 ## v3.14.1 — August 12, 2026
 
 ### 🐛 Bug Fixes

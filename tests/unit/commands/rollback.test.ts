@@ -126,6 +126,33 @@ describe('rollback command', () => {
     expect(allArgs.some((a) => a.includes(';'))).toBe(false)
   })
 
+  it('non-dry-run: restores only the valid member, hostile keys never reach git checkout', async () => {
+    vi.mocked(readFileSync).mockReturnValue(JSON.stringify({
+      version: 1,
+      members: {
+        'evil\n[2J]key': { version: LOCKED_HASH, updatedAt: '' },
+        'the-test': { version: LOCKED_HASH, updatedAt: '' },
+      },
+    }) as never)
+    vi.mocked(execFileSync)
+      .mockReturnValueOnce('abc123\n' as never) // git log (valid member only)
+      .mockReturnValueOnce(LOCKED_CONTENT as never) // git show abc123
+
+    vi.spyOn(console, 'log').mockImplementation(() => {})
+    vi.spyOn(console, 'warn').mockImplementation(() => {})
+    const exit = vi.spyOn(process, 'exit').mockImplementation((() => {}) as any)
+
+    await rollback([])
+
+    const checkoutCalls = vi.mocked(execFileSync).mock.calls.filter(
+      ([cmd, args]) => cmd === 'git' && (args as string[])[0] === 'checkout'
+    )
+    expect(checkoutCalls).toHaveLength(1)
+    const checkoutPath = (checkoutCalls[0][1] as string[])[3]
+    expect(checkoutPath).toMatch(/members[\\/]the-test[\\/]SKILL\.md$/)
+    expect(checkoutPath).not.toContain('evil')
+  })
+
   it('rejects an invalid CLI member name before touching git', async () => {
     const exit = vi.spyOn(process, 'exit').mockImplementation((() => {}) as any)
     await rollback(['bad;name'])

@@ -5,6 +5,35 @@
 
 ---
 
+## v3.15.0 — August 12, 2026
+
+### 🐛 Bug Fixes
+
+- **Ci:** drop flag-terminator in pr comment helper, reject reflog refnames
+- **Ci:** indent heredoc comment bodies to keep workflow YAML valid
+- **Ci:** make new check scripts executable, document heredoc safety
+- **Ci:** remove empty expression literal from workflow comment
+- **Cli:** allowlist --provider values, drop unused go import
+- **Cli:** component-level lock refname rule, case-insensitive per check-ref-format
+- **Cli:** execFileSync for all pr-sync git/gh calls
+- **Cli:** neutral skills-dir module, strict config parse, init failure exit
+- **Cli:** refname validation mirrors git check-ref-format
+- **Cli:** sanitize pr-sync marker shas and private temp files
+- **Cli:** strict --pr parsing, untrusted prompt marker, sanitized key echo, diff-failure gate
+- **Cli:** validate lockfile keys and use execFileSync in rollback
+- **Init:** eject removes only member subdirs, never foreign skills
+- **Llm:** friendly ollama connect errors and permanent 400 classification
+- **Llm:** groq fails fast on missing key, validate chain primary, setup key guidance
+- **Llm:** strip sampling extras for opencode-go to avoid upstream 400
+- **Verify:** run lane checks before lockfile write; harden CI scripts per review
+
+### ✨ Features
+
+- **Init:** dry-run flag and agenthood-aware eject of skills dirs
+- **Verify:** real lane-overlap checks for --strict
+
+---
+
 ## v3.14.2 — August 12, 2026
 
 ### 🐛 Bug Fixes

@@ -1,3 +1,32 @@
+# [3.15.0](https://github.com/fworks-tech/agenthood/compare/v3.14.2...v3.15.0) (2026-08-12)
+
+
+### Bug Fixes
+
+* **ci:** drop flag-terminator in pr comment helper, reject reflog refnames ([ad3c69e](https://github.com/fworks-tech/agenthood/commit/ad3c69ed18db70aa05fa188cc0eaa9ae4e32288a))
+* **ci:** indent heredoc comment bodies to keep workflow YAML valid ([e4a99ed](https://github.com/fworks-tech/agenthood/commit/e4a99ed5f1a05c83dcb024c7e4a84295aa38bdc4))
+* **ci:** make new check scripts executable, document heredoc safety ([bbf882d](https://github.com/fworks-tech/agenthood/commit/bbf882d05b3798128f0a331af868e6f2cff4c4e5))
+* **ci:** remove empty expression literal from workflow comment ([69446bf](https://github.com/fworks-tech/agenthood/commit/69446bf8631242993396170d3cf34ac24234336b))
+* **cli:** allowlist --provider values, drop unused go import ([2af8839](https://github.com/fworks-tech/agenthood/commit/2af8839924d04191b96627f73d5d10f7564e4557))
+* **cli:** component-level lock refname rule, case-insensitive per check-ref-format ([3c19e88](https://github.com/fworks-tech/agenthood/commit/3c19e8886d5cebe31732f6a0bbefec4af3b499b8))
+* **cli:** execFileSync for all pr-sync git/gh calls ([60ba350](https://github.com/fworks-tech/agenthood/commit/60ba350a768c582c3a40d4553d40a56f481bc6cb))
+* **cli:** neutral skills-dir module, strict config parse, init failure exit ([806b755](https://github.com/fworks-tech/agenthood/commit/806b75535b0bad6a09ae2603dfb65b0d874fb656))
+* **cli:** refname validation mirrors git check-ref-format ([72e5033](https://github.com/fworks-tech/agenthood/commit/72e5033610b967a2a19cf6645f7c32828b9d8ddb))
+* **cli:** sanitize pr-sync marker shas and private temp files ([3382d68](https://github.com/fworks-tech/agenthood/commit/3382d68f099af73824cf70eddf4de5274fed764e))
+* **cli:** strict --pr parsing, untrusted prompt marker, sanitized key echo, diff-failure gate ([7423f14](https://github.com/fworks-tech/agenthood/commit/7423f14c78bfbd0db885b45e3d9916f0990d4cc2))
+* **cli:** validate lockfile keys and use execFileSync in rollback ([b7d9237](https://github.com/fworks-tech/agenthood/commit/b7d92376e9dcdf545d7e55e4d9037169f36b0cfc))
+* **init:** eject removes only member subdirs, never foreign skills ([e471009](https://github.com/fworks-tech/agenthood/commit/e471009268e0e55c2b096acfc772ed1024e60665))
+* **llm:** friendly ollama connect errors and permanent 400 classification ([93d9326](https://github.com/fworks-tech/agenthood/commit/93d9326e88b795636115fe1d412d1b490d03f370))
+* **llm:** groq fails fast on missing key, validate chain primary, setup key guidance ([0065475](https://github.com/fworks-tech/agenthood/commit/0065475d1597e1bb6dc6abde9295e760153fb037))
+* **llm:** strip sampling extras for opencode-go to avoid upstream 400 ([f7cde7f](https://github.com/fworks-tech/agenthood/commit/f7cde7f29cf802b64676d8f6adae2856f5196fd3))
+* **verify:** run lane checks before lockfile write; harden CI scripts per review ([a95e224](https://github.com/fworks-tech/agenthood/commit/a95e224af3de72a82ab661d326edf5960f252994))
+
+
+### Features
+
+* **init:** dry-run flag and agenthood-aware eject of skills dirs ([523bf19](https://github.com/fworks-tech/agenthood/commit/523bf1980bcc4bbbec89ff001534b1f27fc80bab))
+* **verify:** real lane-overlap checks for --strict ([f795fda](https://github.com/fworks-tech/agenthood/commit/f795fdabbb70804549313f324a7f9df2abed33bc))
+
 ## [3.14.2](https://github.com/fworks-tech/agenthood/compare/v3.14.1...v3.14.2) (2026-08-12)
 
 

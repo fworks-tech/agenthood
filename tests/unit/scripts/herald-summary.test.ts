@@ -7,11 +7,9 @@ const { summarize, escapeCell, TRIGGER_WORKFLOWS } = require('../../../.github/s
 type Run = { name: string; status: string; conclusion: string | null }
 type RunsPage = { total_count: number; workflow_runs: Run[] }
 
-function mockGithub(runsForSha: (sha: string, page: number) => RunsPage) {
-  const comments: Array<{ id: number; body: string }> = []
+function mockGithub(runsForSha: (sha: string, page: number) => RunsPage, commentsForPage?: (page: number) => Array<{ id: number; body: string }>) {
   const created: Array<{ issue_number: number; body: string }> = []
   return {
-    comments,
     created,
     client: {
       rest: {
@@ -21,7 +19,9 @@ function mockGithub(runsForSha: (sha: string, page: number) => RunsPage) {
           })),
         },
         issues: {
-          listComments: vi.fn(async () => ({ data: comments })),
+          listComments: vi.fn(async (args: { page: number }) => ({
+            data: commentsForPage ? commentsForPage(args.page) : [],
+          })),
           updateComment: vi.fn(async () => {}),
           createComment: vi.fn(async (args: { issue_number: number; body: string }) => {
             created.push(args)
@@ -123,29 +123,29 @@ describe('herald-summary', () => {
       ['The Reviewer — Commit Review', 'success'],
       ['The Envoy — VS Code Extension Build and Test', 'success'],
     ]))
-    m.comments.push({ id: 42, body: "## :x: The Herald's Verdict\nold" })
+    const comments: Array<{ id: number; body: string }> = []
+    comments.push({ id: 42, body: "## :x: The Herald's Verdict\nold" })
+    m.client.rest.issues.listComments.mockResolvedValue({ data: comments })
     await summarize(contextFor([{ number: 1, sha: 'abc1234' }]), m.client)
     expect(m.client.rest.issues.updateComment).toHaveBeenCalledWith(expect.objectContaining({ comment_id: 42 }))
     expect(m.client.rest.issues.createComment).not.toHaveBeenCalled()
   })
 
   it('finds the existing verdict comment across comment pages', async () => {
+    // 250 comments: the verdict comment sits on page 3 — a single-page lookup
+    // would miss it and create a duplicate
     const m = mockGithub(() => completedTriggers([
       ['Society — PR Standards', 'success'],
       ['The Reviewer — Commit Review', 'success'],
       ['The Envoy — VS Code Extension Build and Test', 'success'],
-    ]))
-    // 150 comments: the verdict lives on page 2 — pagination must find it
-    m.client.rest.issues.listComments = vi.fn(async (args: { page: number }) => {
-      const page = args.page
-      if (page === 1) {
-        return { data: Array.from({ length: 100 }, (_, i) => ({ id: i, body: `comment ${i}` })) }
-      }
-      return { data: [{ id: 150, body: "## :white_check_mark: The Herald's Verdict\nold" }] }
+    ]), (page) => {
+      if (page < 3) return Array.from({ length: 100 }, (_, i) => ({ id: page * 1000 + i, body: `comment ${page}-${i}` }))
+      if (page === 3) return [{ id: 9999, body: "## :white_check_mark: The Herald's Verdict\nexisting" }, ...Array.from({ length: 49 }, (_, i) => ({ id: 3000 + i, body: `comment 3-${i}` }))]
+      return []
     })
     await summarize(contextFor([{ number: 1, sha: 'abc1234' }]), m.client)
-    expect(m.client.rest.issues.listComments).toHaveBeenCalledTimes(2)
-    expect(m.client.rest.issues.updateComment).toHaveBeenCalledWith(expect.objectContaining({ comment_id: 150 }))
+    expect(m.client.rest.issues.listComments).toHaveBeenCalledTimes(3)
+    expect(m.client.rest.issues.updateComment).toHaveBeenCalledWith(expect.objectContaining({ comment_id: 9999 }))
     expect(m.client.rest.issues.createComment).not.toHaveBeenCalled()
   })
 

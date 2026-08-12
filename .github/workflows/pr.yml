@@ -72,12 +72,13 @@ jobs:
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
-          gh pr comment ${{ github.event.pull_request.number }} \
-            --body "## The Auditor — Secret Scan :warning:
+          cat <<EOF | .github/scripts/post-pr-comment.sh ${{ github.event.pull_request.number }}
+## The Auditor — Secret Scan :warning:
 
-          Potential secrets or configuration issues were detected. Review the [workflow run](${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}) for details.
+Potential secrets or configuration issues were detected. Review the [workflow run](${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}) for details.
 
-          *-- The Auditor, Agenthood*"
+*-- The Auditor, Agenthood*
+EOF
       - name: The Auditor — agent analysis
         if: github.event_name == 'pull_request'
         # Sends changed-file names to an external LLM provider.
@@ -119,29 +120,7 @@ jobs:
         env:
           BASE_SHA: ${{ github.event.pull_request.base.sha }}
           HEAD_SHA: ${{ github.event.pull_request.head.sha }}
-        run: |
-          failed=0
-          while IFS= read -r file; do
-            [ -f "$file" ] || continue
-            case "$file" in
-              *package-lock.json|*yarn.lock|*pnpm-lock.yaml) continue ;;
-              *.test.ts) continue ;; # test suites routinely exceed 500 lines; the limit targets source files
-            esac
-            lines=$(wc -l < "$file" | tr -d ' ')
-            if [ "$lines" -gt 500 ]; then
-              echo "FAIL: $file — $lines lines (limit: 500)"
-              failed=1
-            elif [ "$lines" -gt 300 ]; then
-              echo "WARN: $file — $lines lines (approaching limit of 500)"
-            fi
-          done < <(git diff --name-only --diff-filter=ACM "$BASE_SHA"..."$HEAD_SHA" 2>/dev/null)
-          if [ "$failed" -eq 1 ]; then
-            echo ""
-            echo "The Warden: one or more files exceed the 500-line limit."
-            echo "Split the file or justify the exception in the PR description."
-            exit 1
-          fi
-          echo "The Warden: all changed files within size limits."
+        run: .github/scripts/filesize-check.sh
       - name: The Warden — agent analysis
         # Sends changed-file names to an external LLM provider.
         # Data handling and opt-out: docs/governance/agent-analysis-data.md
@@ -176,12 +155,13 @@ jobs:
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
-          gh pr comment ${{ github.event.pull_request.number }} \
-            --body "## The Librarian — Documentation Check :warning:
+          cat <<EOF | .github/scripts/post-pr-comment.sh ${{ github.event.pull_request.number }}
+## The Librarian — Documentation Check :warning:
 
-          Documentation may be out of sync with code changes. Review the [workflow run](${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}) for details.
+Documentation may be out of sync with code changes. Review the [workflow run](${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}) for details.
 
-          *-- The Librarian, Agenthood*"
+*-- The Librarian, Agenthood*
+EOF
 
   # ──────────────────────────────────────────────
   # The Sentinel — member file structure

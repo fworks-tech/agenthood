@@ -7,10 +7,13 @@ if [ -z "${BASE_SHA:-}" ] || [ "$BASE_SHA" = "${HEAD_SHA:-}" ]; then
   exit $?
 fi
 
-# SHA env vars flow into git diff — reject anything that isn't a full hex SHA
+# SHA env vars flow into git diff — reject anything that isn't a full hex SHA.
+# [[ =~ ]] is string-anchored (a grep would accept a matching line inside a
+# newline-delimited value); the value is never echoed into the error line
+# (GitHub Actions log-line forgery via embedded newlines).
 for var in BASE_SHA HEAD_SHA; do
-  if ! printf '%s' "${!var}" | grep -qE '^[0-9a-f]{40}$'; then
-    echo "::error::$var is not a valid 40-hex SHA: ${!var}"
+  if [[ ! "${!var}" =~ ^[0-9a-f]{40}$ ]]; then
+    echo "::error::$var is not a valid 40-hex SHA"
     exit 1
   fi
 done

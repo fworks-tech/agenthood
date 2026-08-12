@@ -11,4 +11,7 @@ if [[ ! "$PR_NUMBER" =~ ^[0-9]+$ ]]; then
   exit 1
 fi
 
-gh pr comment -- "$PR_NUMBER" --body-file -
+# No `--` here: gh (cobra/pflag) treats `--` as end-of-flags, which would turn
+# --body-file and - into positional args. The numeric check above guarantees
+# $PR_NUMBER cannot be flag-like.
+gh pr comment "$PR_NUMBER" --body-file -

@@ -109,8 +109,9 @@ function getCommitsSince(sinceSha: string | null, baseBranch: string): ParsedCom
   }
   // baseRefName is GitHub-sourced; array args prevent injection, but a hostile
   // or malformed refname would compute a wrong commit range — fail loudly
-  // rather than silently falling back
-  if (!/^[A-Za-z0-9._/@-]+$/.test(baseBranch)) {
+  // rather than silently falling back. `@{` is rejected explicitly: it is
+  // meaningful to git refspecs (reflog syntax) even mid-refname.
+  if (!/^[A-Za-z0-9._/@-]+$/.test(baseBranch) || baseBranch.includes('@{')) {
     console.error(`PR sync failed: invalid base branch refname: ${JSON.stringify(baseBranch)}`)
     process.exit(1)
   }

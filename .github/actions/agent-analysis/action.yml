@@ -18,6 +18,10 @@ inputs:
     description: Maximum number of changed files to include in the analysis prompt
     required: false
     default: "15"
+  include-diff:
+    description: Append the full git diff (capped at 100KB) to the prompt as untrusted data
+    required: false
+    default: "false"
   api-key:
     description: OPENCODE_API_KEY for agent analysis
     required: false
@@ -26,7 +30,7 @@ inputs:
 runs:
   using: composite
   steps:
-    - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020
+    - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020
       with:
         node-version: "24"
         cache: npm
@@ -37,6 +41,7 @@ runs:
         PROMPT_TEMPLATE: ${{ inputs.prompt-template }}
         RANGE: ${{ inputs.range }}
         MAX_FILES: ${{ inputs.max-files }}
+        INCLUDE_DIFF: ${{ inputs.include-diff }}
         OPENCODE_API_KEY: ${{ inputs.api-key }}
         GH_TOKEN: ${{ github.token }}
       run: .github/scripts/agent-analysis.sh

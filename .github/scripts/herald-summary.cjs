@@ -39,7 +39,7 @@ async function listWorkflowRunsForSha(github, owner, repo, sha) {
     for (const run of data.workflow_runs) {
       if (TRIGGER_WORKFLOWS.includes(run.name)) trials.push(run);
     }
-    if (trials.length >= data.total_count || data.workflow_runs.length < 100) break;
+    if (page * 100 >= data.total_count || data.workflow_runs.length < 100) break;
     page++;
   }
   return trials;
@@ -128,4 +128,4 @@ async function summarize(context, github) {
   }
 }
 
-module.exports = { summarize };
+module.exports = { summarize, escapeCell };

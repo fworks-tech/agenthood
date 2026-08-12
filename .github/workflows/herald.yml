@@ -9,15 +9,19 @@ on:
     types:
       - completed
 
-# Both scopes are required: `pull-requests: write` covers PR metadata, and
+# Three scopes are required: `pull-requests: write` covers PR metadata;
 # `issues: write` is needed because PR comments are created through the Issues
-# API (issues.listComments/createComment/updateComment in herald-summary.cjs).
+# API (issues.listComments/createComment/updateComment); `actions: read` is
+# needed to list the triggering workflows' runs (actions.listWorkflowRunsForRepo).
 permissions:
   pull-requests: write
   issues: write
+  actions: read
 
 concurrency:
-  group: herald-ci-summary-${{ github.event.workflow_run.head_sha }}-${{ github.event.workflow_run.workflow }}
+  # Keyed on the head SHA alone so two triggers completing near-simultaneously
+  # cancel each other instead of racing to post duplicate verdict comments
+  group: herald-ci-summary-${{ github.event.workflow_run.head_sha }}
   cancel-in-progress: true
 
 jobs:

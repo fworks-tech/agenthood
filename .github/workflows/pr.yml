@@ -122,7 +122,7 @@ jobs:
           while IFS= read -r file; do
             [ -f "$file" ] || continue
             case "$file" in
-              package-lock.json|yarn.lock|pnpm-lock.yaml) continue ;;
+              *package-lock.json|*yarn.lock|*pnpm-lock.yaml) continue ;;
             esac
             lines=$(wc -l < "$file" | tr -d ' ')
             if [ "$lines" -gt 500 ]; then

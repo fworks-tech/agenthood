@@ -45,24 +45,24 @@ describe('rollback command', () => {
 
   it('errors when lockfile is missing', async () => {
     vi.mocked(existsSync).mockReturnValue(false)
-    const exit = vi.spyOn(process, 'exit').mockImplementation((() => {}) as any)
+    const exit = vi.spyOn(process, 'exit').mockImplementation((() => { throw new Error('process.exit') }) as any)
 
-    await rollback([])
+    await expect(rollback([])).rejects.toThrow('process.exit')
     expect(exit).toHaveBeenCalledWith(1)
   })
 
   it('errors when lockfile is invalid', async () => {
     vi.mocked(readFileSync).mockReturnValue('not json')
-    const exit = vi.spyOn(process, 'exit').mockImplementation((() => {}) as any)
+    const exit = vi.spyOn(process, 'exit').mockImplementation((() => { throw new Error('process.exit') }) as any)
 
-    await rollback([])
+    await expect(rollback([])).rejects.toThrow('process.exit')
     expect(exit).toHaveBeenCalledWith(1)
   })
 
   it('errors when target member not in lockfile', async () => {
-    const exit = vi.spyOn(process, 'exit').mockImplementation((() => {}) as any)
+    const exit = vi.spyOn(process, 'exit').mockImplementation((() => { throw new Error('process.exit') }) as any)
 
-    await rollback(['nonexistent'])
+    await expect(rollback(['nonexistent'])).rejects.toThrow('process.exit')
     expect(exit).toHaveBeenCalledWith(1)
   })
 
@@ -73,9 +73,9 @@ describe('rollback command', () => {
       .mockReturnValueOnce(LOCKED_CONTENT as never)     // git show abc456 (match)
 
     const log = vi.spyOn(console, 'log').mockImplementation(() => {})
-    const exit = vi.spyOn(process, 'exit').mockImplementation((() => {}) as any)
+    const exit = vi.spyOn(process, 'exit').mockImplementation((() => { throw new Error('process.exit') }) as any)
 
-    await rollback(['--dry-run'])
+    await expect(rollback(['--dry-run'])).resolves.toBeUndefined()
 
     // Should NOT have called git checkout
     const checkoutCalls = vi.mocked(execFileSync).mock.calls.filter(
@@ -90,7 +90,7 @@ describe('rollback command', () => {
       .mockReturnValueOnce(LOCKED_CONTENT as never)     // git show abc123
 
     const log = vi.spyOn(console, 'log').mockImplementation(() => {})
-    const exit = vi.spyOn(process, 'exit').mockImplementation((() => {}) as any)
+    const exit = vi.spyOn(process, 'exit').mockImplementation((() => { throw new Error('process.exit') }) as any)
 
     await rollback([])
 
@@ -116,7 +116,7 @@ describe('rollback command', () => {
     const output: string[] = []
     vi.spyOn(console, 'log').mockImplementation((...a) => { output.push(a.join(' ')) })
     vi.spyOn(console, 'warn').mockImplementation((...a) => { output.push(a.join(' ')) })
-    const exit = vi.spyOn(process, 'exit').mockImplementation((() => {}) as any)
+    const exit = vi.spyOn(process, 'exit').mockImplementation((() => { throw new Error('process.exit') }) as any)
 
     await rollback(['--dry-run'])
 
@@ -140,7 +140,7 @@ describe('rollback command', () => {
 
     vi.spyOn(console, 'log').mockImplementation(() => {})
     vi.spyOn(console, 'warn').mockImplementation(() => {})
-    const exit = vi.spyOn(process, 'exit').mockImplementation((() => {}) as any)
+    const exit = vi.spyOn(process, 'exit').mockImplementation((() => { throw new Error('process.exit') }) as any)
 
     await rollback([])
 
@@ -154,8 +154,8 @@ describe('rollback command', () => {
   })
 
   it('rejects an invalid CLI member name before touching git', async () => {
-    const exit = vi.spyOn(process, 'exit').mockImplementation((() => {}) as any)
-    await rollback(['bad;name'])
+    const exit = vi.spyOn(process, 'exit').mockImplementation((() => { throw new Error('process.exit') }) as any)
+    await expect(rollback(['bad;name'])).rejects.toThrow('process.exit')
     expect(exit).toHaveBeenCalledWith(1)
     expect(vi.mocked(execFileSync)).not.toHaveBeenCalled()
   })

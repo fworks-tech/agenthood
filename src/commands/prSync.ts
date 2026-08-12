@@ -103,18 +103,27 @@ function detectPR(options: PrSyncCliOptions): PRInfo | null {
 
 const LOCK_SUFFIX_RE = /\.lock$/i
 
+/** Builds the remote ref for a base branch. The `origin/` prefix is a safety
+ * invariant: it guarantees the ref is never parsed as a git option even when
+ * the branch name itself starts with `-`. Keep all git/gh ref usages behind
+ * this helper so the invariant cannot silently regress. */
+function originRef(baseBranch: string): string {
+  return `origin/${baseBranch}`
+}
+
 /** Mirrors git check-ref-format: refnames are untrusted input, and a
  * malformed one would either compute a wrong range or break rev-parse.
  *
- * Empirical references (git 2.55.0, `git check-ref-format <ref>`):
+ * Empirical references (git 2.55.0.windows.3, `git check-ref-format <ref>`):
  *   - `foo./bar` → valid (only the whole ref may not end with a dot)
- *   - `feature/-lead` → valid (leading dashes are legal components; safe here
- *     because the only call site always prefixes the ref with `origin/`)
- *   - `foo.lock/bar`, `foo.Lock` → invalid (.lock is component-level and
- *     matched case-insensitively, though the man page does not state case)
+ *   - `feature/-lead` → valid (leading dashes are legal components)
+ *   - `foo.lock`, `foo.Lock` → invalid on this git build. The man page only
+ *     documents ".lock", so the case-insensitive match here is intentional,
+ *     fail-closed strictness rather than a documented git rule.
  *
  * We intentionally do NOT require a slash — GitHub allows onelevel branches
- * like `main`.
+ * like `main`. Leading dashes are safe because refs are always passed through
+ * originRef() (never parsed as a flag).
  */
 export function isValidRefname(name: string): boolean {
   if (!name || name.length === 0) return false
@@ -125,7 +134,7 @@ export function isValidRefname(name: string): boolean {
   if (name.endsWith('.')) return false
   const components = name.split('/')
   if (components.some((c) => c.startsWith('.'))) return false
-  // git rejects any component ending in .lock, case-insensitively
+  // fail-closed: reject any component ending in .lock, case-insensitively
   if (components.some((c) => LOCK_SUFFIX_RE.test(c))) return false
   return true
 }
@@ -154,7 +163,7 @@ function getCommitsSince(sinceSha: string | null, baseBranch: string): ParsedCom
   }
   if (!sinceSha) {
     try {
-      const mergeBase = runFile('git', ['merge-base', 'HEAD', `origin/${baseBranch}`])
+      const mergeBase = runFile('git', ['merge-base', 'HEAD', originRef(baseBranch)])
       range = `${mergeBase}..HEAD`
     } catch {
       const root = runFile('git', ['rev-list', '--max-parents=0', 'HEAD'])

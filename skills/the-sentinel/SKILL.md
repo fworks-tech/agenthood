@@ -100,25 +100,29 @@ Date: YYYY-MM-DD
 
 ### Lane Map
 
-Produce a table showing each member's domain boundary:
+Produce a table showing each member's domain boundary. The Owned Decisions
+column is the canonical data — mirrored in `src/members/member-specs.ts`
+(parity enforced by `tests/unit/members/lane-map-parity.test.ts`). Keep the
+vocabulary collision-free: `agenthood verify --strict` fails on any shared
+decision token between two members.
 
 | Member | Lane | Owned Decisions |
 |--------|------|-----------------|
-| The Strategist | Goal refinement | Problem statements, success criteria, ranked priorities |
-| The Scribe | Written communication | Commit messages, PR descriptions, changelogs |
+| The Strategist | Goal refinement | Problem statements, success measures, ranked priorities |
+| The Scribe | Written communication | Commit messages, PR descriptions |
 | The Architect | Design & planning | Specs, ADRs, task decomposition, branch scope |
-| The Builder | Implementation | Smallest verified change, local validation, review handoff |
+| The Builder | Implementation | Smallest verified change, local validation, handoff |
 | The Reviewer | Code quality | Review criteria, approval gates |
 | The Tester | Test coverage | TDD process, coverage targets, test types |
 | The Debugger | Error recovery | Root cause protocol, investigation steps |
 | The Auditor | Security | OWASP, secrets, dependency vulnerabilities |
 | The Herald | Releases | Semver, changelogs, release notes |
 | The Librarian | Documentation | ADR storage, doc sync, knowledge management |
-| The Doorman | Enforcement | Hook setup, lint, validation, health checks |
+| The Doorman | Enforcement | Hook setup, lint, gate checks, health checks |
 | The Oracle | Society knowledge | Member templates, naming, registration maps |
-| The Envoy | Provider translation | Skill format mapping, bootstrap, coverage matrix |
+| The Envoy | Provider translation | Skill format mapping, bootstrap, skill matrix |
 | The Sentinel | Society integrity | Member consistency, contradiction detection, drift |
-| The Warden | Code health | Smell detection, architectural decay, complexity |
+| The Warden | Code health | Smell identification, architectural decay, complexity |
 | The Steward | Context economy | Member routing, cache strategy, session triage |
 | The Operator | Runtime health | Deployment, incidents, rollback, monitoring |
 | The Inspector | Visual verification | Pixel-level analysis, multi-panel correspondence |

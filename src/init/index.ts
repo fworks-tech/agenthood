@@ -24,15 +24,22 @@ export async function init(args: string[] = []): Promise<void> {
     ['Agenthood config', () => scaffoldConfig(cwd, runtime, members)],
   ]
 
+  let failures = 0
   for (const [label, step] of steps) {
     process.stdout.write(`  Installing ${label}...`)
     try {
       await step()
       console.log(' ✅')
     } catch (err) {
+      failures++
       console.log(' ❌')
       console.error(`    Failed: ${err}`)
     }
+  }
+
+  if (failures > 0) {
+    console.error('\n🏛️  Initiation incomplete — some steps failed.')
+    process.exit(1)
   }
 
   console.log('\n🏛️  The Society is ready.\n')

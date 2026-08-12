@@ -30,6 +30,15 @@ export const MEMBER_NAMES: string[] = ALL_MEMBERS.map(m => m.name)
  * values could otherwise inject shell commands (see rollback/verify) */
 export const MEMBER_NAME_RE = /^[a-z0-9][a-z0-9_-]*$/
 
+/** Single source of truth for where each runtime's member skills live —
+ * consumed by init (installSkills/planPaths) and eject (cleanup). */
+export const RUNTIME_SKILL_DIRS: Record<Runtime, string> = {
+  'claude-code': '.claude/skills',
+  copilot: '.github/skills',
+  'gemini-cli': '.gemini/skills',
+  other: '.agenthood/skills',
+}
+
 export type Runtime = 'claude-code' | 'copilot' | 'gemini-cli' | 'other'
 
 export function resolveSkillsDir(cwd: string): string {

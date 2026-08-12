@@ -3,6 +3,7 @@ import { existsSync } from 'node:fs'
 import { join, dirname } from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { stripConfig } from '../utils/stripConfig.js'
+import { RUNTIME_SKILL_DIRS } from '../members.js'
 import type { Runtime } from '../members.js'
 
 const __dirname = dirname(fileURLToPath(import.meta.url))
@@ -17,15 +18,8 @@ async function safeCopy(src: string, dest: string): Promise<void> {
   await copyFile(src, dest)
 }
 
-/** Single source of truth for where each runtime's member skills live —
- * consumed by init (installSkills/planPaths) and eject (cleanup). */
-export const RUNTIME_SKILL_DIRS: Record<Runtime, string> = {
-  'claude-code': '.claude/skills',
-  copilot: '.github/skills',
-  'gemini-cli': '.gemini/skills',
-  other: '.agenthood/skills',
-}
-
+/** Path (relative to the project root) where each runtime's member skills
+ * live — consumed by init (installSkills/planPaths) and eject (cleanup) */
 function resolveSkillsDest(cwd: string, runtime: Runtime): string {
   return join(cwd, RUNTIME_SKILL_DIRS[runtime])
 }

@@ -10,54 +10,63 @@ import { ApplicationContext } from "../runtime/ApplicationContext.ts"
 
 async function loadConfig(providerOverride?: string): Promise<LLMConfig> {
   const configPath = join(process.cwd(), '.agenthood', 'config.json')
+  let raw: Record<string, unknown>
   try {
-    const raw = JSON.parse(await readFile(configPath, 'utf8'))
-    const cfg: LLMConfig = {}
-
-    if (raw.provider) {
-      if (typeof raw.provider === 'string') {
-        cfg.provider = raw.provider
-      } else {
-        cfg.provider = raw.provider.name
-        cfg.model = raw.provider.model
-      }
+    raw = JSON.parse(await readFile(configPath, 'utf8')) as Record<string, unknown>
+  } catch (err) {
+    if (err instanceof SyntaxError) {
+      // corrupt config must not silently fall back to defaults
+      console.error(`Invalid JSON in ${configPath}: ${(err as Error).message}`)
+      process.exit(1)
     }
-
-    if (Array.isArray(raw.providers)) {
-      const entries: ProviderEntry[] = []
-      for (const p of raw.providers) {
-        if (p.name) {
-          entries.push({
-            name: p.name,
-            model: p.model,
-            apiKey: p.apiKey,
-            baseUrl: p.baseUrl,
-            models: p.models,
-            priority: p.priority,
-          })
-        }
-      }
-      if (entries.length > 0) cfg.providers = entries
-    }
-
-    if (raw.failover) {
-      cfg.failureThreshold = raw.failover.failureThreshold
-      cfg.cooldownMs = raw.failover.cooldownMs
-      cfg.probeEnabled = raw.failover.probeEnabled
-    }
-
-    if (raw.skills) {
-      cfg.skills = { autoDiscover: raw.skills.autoDiscover === true }
-    }
-
-    if (providerOverride) {
-      cfg.provider = providerOverride
-    }
-
-    return cfg
-  } catch {
     return providerOverride ? { provider: providerOverride } : {}
   }
+  const cfg: LLMConfig = {}
+
+  if (raw.provider) {
+    if (typeof raw.provider === 'string') {
+      cfg.provider = raw.provider
+    } else {
+      const providerBlock = raw.provider as { name?: string; model?: string }
+      cfg.provider = providerBlock.name
+      cfg.model = providerBlock.model
+    }
+  }
+
+  if (Array.isArray(raw.providers)) {
+    const entries: ProviderEntry[] = []
+    for (const p of raw.providers) {
+      if (p.name) {
+        entries.push({
+          name: p.name,
+          model: p.model,
+          apiKey: p.apiKey,
+          baseUrl: p.baseUrl,
+          models: p.models,
+          priority: p.priority,
+        })
+      }
+    }
+    if (entries.length > 0) cfg.providers = entries
+  }
+
+  if (raw.failover) {
+    const failover = raw.failover as { failureThreshold?: number; cooldownMs?: number; probeEnabled?: boolean }
+    cfg.failureThreshold = failover.failureThreshold
+    cfg.cooldownMs = failover.cooldownMs
+    cfg.probeEnabled = failover.probeEnabled
+  }
+
+  if (raw.skills) {
+    const skills = raw.skills as { autoDiscover?: boolean }
+    cfg.skills = { autoDiscover: skills.autoDiscover === true }
+  }
+
+  if (providerOverride) {
+    cfg.provider = providerOverride
+  }
+
+  return cfg
 }
 
 function parseFlags(args: string[]): { positional: string[]; providerOverride?: string; shouldDetect: boolean } {

@@ -7,6 +7,14 @@ if [ -z "${BASE_SHA:-}" ] || [ "$BASE_SHA" = "${HEAD_SHA:-}" ]; then
   exit $?
 fi
 
+# SHA env vars flow into git diff — reject anything that isn't a full hex SHA
+for var in BASE_SHA HEAD_SHA; do
+  if ! printf '%s' "${!var}" | grep -qE '^[0-9a-f]{40}$'; then
+    echo "::error::$var is not a valid 40-hex SHA: ${!var}"
+    exit 1
+  fi
+done
+
 # git diff exits 0 (no changes) or 1 (differences) — anything above 1 is a
 # real failure that must not be mistaken for "no affected tests" (false green)
 set +e

@@ -90,4 +90,6 @@ export interface LLMConfig {
   failureThreshold?: number
   cooldownMs?: number
   probeEnabled?: boolean
+  /** Skill auto-discovery toggle from .agenthood/config.json */
+  skills?: { autoDiscover?: boolean }
 }

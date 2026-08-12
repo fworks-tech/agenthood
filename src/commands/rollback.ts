@@ -3,11 +3,8 @@ import type { CommandDescriptor } from './types.js'
 import { join } from 'node:path'
 import { execFileSync } from 'node:child_process'
 import { contentHash } from '../utils/hash.js'
+import { MEMBER_NAME_RE } from '../members.js'
 import type { Lockfile } from '../utils/lockfile.js'
-
-/** Member names are refs into git pathspecs — a hostile lockfile key could
- * otherwise inject shell commands. Applies to CLI args and lockfile keys. */
-const MEMBER_NAME_RE = /^[a-z0-9][a-z0-9_-]*$/
 
 function findRevision(cwd: string, skillPath: string, lockedHash: string): string | null {
   let commits: string[]

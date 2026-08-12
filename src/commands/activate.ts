@@ -6,6 +6,7 @@
 
 import { copyFile, mkdir } from 'node:fs/promises';
 import type { CommandDescriptor } from './types.js';
+import { requireMember } from './memberArg.js';
 import { join, dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { MEMBER_NAMES, resolveSkillsDir } from '../members.js';
@@ -20,17 +21,7 @@ export const command: CommandDescriptor = {
 }
 
 export async function activate(member?: string): Promise<void> {
-  if (!member) {
-    console.error('\nUsage: npx agenthood activate <member>\n');
-    console.error('Members:', MEMBER_NAMES.join(', '));
-    process.exit(1);
-  }
-
-  if (!MEMBER_NAMES.includes(member)) {
-    console.error(`\nUnknown member: "${member}"`);
-    console.error('Available members:', MEMBER_NAMES.join(', '));
-    process.exit(1);
-  }
+  member = requireMember(member, 'activate')
 
   const cwd = process.cwd();
   const skillsDest = resolveSkillsDir(cwd);

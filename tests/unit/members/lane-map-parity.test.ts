@@ -15,6 +15,8 @@ describe('lane map parity', () => {
     for (const line of (table ?? '').split('\n')) {
       const cells = line.split('|').map((c) => c.trim())
       if (cells.length < 5 || !cells[1]) continue
+      // skip the markdown separator row |------|-------|-----|
+      if (/^-+$/.test(cells[1])) continue
       const member = cells[1].toLowerCase().replace(/\s+/g, '-')
       const decisions = cells[3].split(',').map((d) => d.trim()).filter(Boolean)
       mdEntries.set(member, decisions)

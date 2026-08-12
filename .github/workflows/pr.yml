@@ -72,7 +72,7 @@ jobs:
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
-          cat <<EOF | .github/scripts/post-pr-comment.sh ${{ github.event.pull_request.number }}
+          cat <<'EOF' | .github/scripts/post-pr-comment.sh ${{ github.event.pull_request.number }}
 ## The Auditor — Secret Scan :warning:
 
 Potential secrets or configuration issues were detected. Review the [workflow run](${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}) for details.
@@ -155,7 +155,7 @@ EOF
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
-          cat <<EOF | .github/scripts/post-pr-comment.sh ${{ github.event.pull_request.number }}
+          cat <<'EOF' | .github/scripts/post-pr-comment.sh ${{ github.event.pull_request.number }}
 ## The Librarian — Documentation Check :warning:
 
 Documentation may be out of sync with code changes. Review the [workflow run](${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}) for details.

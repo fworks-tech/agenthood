@@ -135,10 +135,6 @@ export async function verify(args: string[]): Promise<void> {
 
   const hasAllPassed = results.every((r) => r.pass)
 
-  if (updateLock && hasAllPassed) {
-    updateLockfile(cwd, membersDir, membersToCheck)
-  }
-
   if (isStrict) {
     const overlaps = findLaneOverlaps(rawSpecs)
     if (overlaps.length > 0) {
@@ -149,6 +145,10 @@ export async function verify(args: string[]): Promise<void> {
       process.exit(1)
     }
     console.log('\n  Strict mode: lane overlap check passed.')
+  }
+
+  if (updateLock && hasAllPassed) {
+    updateLockfile(cwd, membersDir, membersToCheck)
   }
 
   if (!hasAllPassed) {

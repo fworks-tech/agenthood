@@ -73,12 +73,12 @@ jobs:
           GH_TOKEN: ${{ github.token }}
         run: |
           cat <<'EOF' | .github/scripts/post-pr-comment.sh ${{ github.event.pull_request.number }}
-## The Auditor — Secret Scan :warning:
+          ## The Auditor — Secret Scan :warning:
 
-Potential secrets or configuration issues were detected. Review the [workflow run](${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}) for details.
+          Potential secrets or configuration issues were detected. Review the [workflow run](${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}) for details.
 
-*-- The Auditor, Agenthood*
-EOF
+          *-- The Auditor, Agenthood*
+          EOF
       - name: The Auditor — agent analysis
         if: github.event_name == 'pull_request'
         # Sends changed-file names to an external LLM provider.
@@ -156,12 +156,12 @@ EOF
           GH_TOKEN: ${{ github.token }}
         run: |
           cat <<'EOF' | .github/scripts/post-pr-comment.sh ${{ github.event.pull_request.number }}
-## The Librarian — Documentation Check :warning:
+          ## The Librarian — Documentation Check :warning:
 
-Documentation may be out of sync with code changes. Review the [workflow run](${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}) for details.
+          Documentation may be out of sync with code changes. Review the [workflow run](${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}) for details.
 
-*-- The Librarian, Agenthood*
-EOF
+          *-- The Librarian, Agenthood*
+          EOF
 
   # ──────────────────────────────────────────────
   # The Sentinel — member file structure

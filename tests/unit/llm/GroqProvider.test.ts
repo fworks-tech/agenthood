@@ -295,19 +295,24 @@ describe("GroqProvider", () => {
     });
 
     it("uses config.model if provided", () => {
-      const provider = new GroqProvider({ model: "custom-model" });
+      const provider = new GroqProvider({ apiKey: "test-key", model: "custom-model" });
       expect(provider.model).toBe("custom-model");
     });
 
     it("falls back to GROQ_DEFAULT_MODEL env var", () => {
       process.env.GROQ_DEFAULT_MODEL = "env-model";
-      const provider = new GroqProvider({});
+      const provider = new GroqProvider({ apiKey: "test-key" });
       expect(provider.model).toBe("env-model");
     });
 
     it("defaults to llama-3.3-70b-versatile if no model specified", () => {
-      const provider = new GroqProvider({});
+      const provider = new GroqProvider({ apiKey: "test-key" });
       expect(provider.model).toBe("llama-3.3-70b-versatile");
+    });
+
+    it("fails fast with MissingApiKeyError when no key is available", () => {
+      delete process.env.GROQ_API_KEY
+      expect(() => new GroqProvider({})).toThrow(/GROQ_API_KEY not set/)
     });
   });
 });

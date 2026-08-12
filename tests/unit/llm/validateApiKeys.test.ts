@@ -2,7 +2,7 @@ import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest'
 import { validateApiKeys, MissingApiKeyError } from '../../../src/llm/validateApiKeys.js'
 import type { LLMConfig } from '../../../src/llm/types.js'
 
-const ENV_VARS = ['GROQ_API_KEY', 'OPENAI_API_KEY', 'ANTHROPIC_API_KEY'] as const
+const ENV_VARS = ['GROQ_API_KEY', 'OPENAI_API_KEY', 'ANTHROPIC_API_KEY', 'OPENCODE_API_KEY'] as const
 const ORIGINAL: Record<string, string | undefined> = {}
 
 beforeEach(() => {
@@ -90,6 +90,23 @@ describe('validateApiKeys', () => {
   it('validates only the selected provider, not others', () => {
     process.env.GROQ_API_KEY = 'test-key'
     expect(() => validateApiKeys({ provider: 'groq' })).not.toThrow()
+  })
+
+  it('validates the first failover entry when no explicit provider is set', () => {
+    expect(() => validateApiKeys({ providers: [{ name: 'opencode', priority: 1 }, { name: 'groq', priority: 2 }] }))
+      .toThrow(MissingApiKeyError)
+  })
+
+  it('passes when the first failover entry key is set', () => {
+    process.env.OPENCODE_API_KEY = 'test-key'
+    expect(() => validateApiKeys({ providers: [{ name: 'opencode', priority: 1 }, { name: 'groq', priority: 2 }] }))
+      .not.toThrow()
+  })
+
+  it('validates opencode-go with OPENCODE_API_KEY', () => {
+    expect(() => validateApiKeys({ provider: 'opencode-go' })).toThrow(MissingApiKeyError)
+    process.env.OPENCODE_API_KEY = 'test-key'
+    expect(() => validateApiKeys({ provider: 'opencode-go' })).not.toThrow()
   })
 
   it('uses apiKey from config.providers entries when env var missing', () => {

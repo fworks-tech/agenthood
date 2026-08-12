@@ -1,11 +1,15 @@
 import type { LLMConfig, ProviderEntry } from './types.js'
 
-const PROVIDER_KEYS: Record<string, { envVar: string; signupUrl: string }> = {
+// Central registry of API-key env vars and signup URLs, also used by
+// `agenthood setup` to print provider guidance
+export const PROVIDER_KEYS: Record<string, { envVar: string; signupUrl: string }> = {
   groq: { envVar: 'GROQ_API_KEY', signupUrl: 'https://console.groq.com' },
   openai: { envVar: 'OPENAI_API_KEY', signupUrl: 'https://platform.openai.com/api-keys' },
   anthropic: { envVar: 'ANTHROPIC_API_KEY', signupUrl: 'https://console.anthropic.com' },
   openrouter: { envVar: 'OPENROUTER_API_KEY', signupUrl: 'https://openrouter.ai/keys' },
   opencode: { envVar: 'OPENCODE_API_KEY', signupUrl: 'https://opencode.ai' },
+  'opencode-go': { envVar: 'OPENCODE_API_KEY', signupUrl: 'https://opencode.ai' },
+  // ollama intentionally absent: local Ollama needs no API key
 }
 
 export class MissingApiKeyError extends Error {
@@ -20,8 +24,18 @@ function resolveConfigKey(config: LLMConfig, provider: string): string | undefin
   return entry?.apiKey ?? config.apiKey
 }
 
+function primaryProvider(config: LLMConfig): string {
+  if (config.provider) return config.provider
+  // No explicit provider block: validate the first entry of the failover
+  // chain (ascending priority), not a hardcoded groq default
+  if (config.providers?.length) {
+    return [...config.providers].sort((a, b) => (a.priority ?? 0) - (b.priority ?? 0))[0].name
+  }
+  return 'groq'
+}
+
 export function validateApiKeys(config: LLMConfig): void {
-  const provider = config.provider ?? 'groq'
+  const provider = primaryProvider(config)
   const keyInfo = PROVIDER_KEYS[provider]
 
   if (!keyInfo) {

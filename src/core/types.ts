@@ -51,21 +51,17 @@ export interface ProjectMemory {
   getArchitecturalDecisions(): Promise<string[]>
 }
 
+export type CausalRelationType = 'CAUSED' | 'INFLUENCED' | 'PRECEDENT_FOR'
+
 export interface DecisionLog {
-  record(entry: {
-    id: string
-    timestamp: string
-    member: string
-    task: string
-    decision: string
-    rationale: string
-    alternatives: Array<{ option: string; reason: string }>
-    outcome: string
-    tags: string[]
-  }): Promise<void>
+  record(entry: DecisionLogEntry): Promise<void>
   search(query: string, filters?: { member?: string; tags?: string[] }): Promise<Array<{ entry: DecisionLogEntry; score: number; matchField: string }>>
   recent(count?: number): Promise<DecisionLogEntry[]>
   get(id: string): Promise<DecisionLogEntry | undefined>
+  all(): Promise<DecisionLogEntry[]>
+  addCausalRelationship(sourceId: string, targetId: string, relationshipType: CausalRelationType): Promise<void>
+  traceDecisionChain(id: string): Promise<DecisionLogEntry[]>
+  analyzeDecisionImpact(id: string): Promise<DecisionLogEntry[]>
 }
 
 export type DecisionLogEntry = {
@@ -78,6 +74,11 @@ export type DecisionLogEntry = {
   alternatives: Array<{ option: string; reason: string }>
   outcome: string
   tags: string[]
+  confidence?: number
+  decisionMaker?: string
+  validFrom?: string
+  validUntil?: string
+  reasoningEmbedding?: number[]
 }
 
 export interface EvalResult {

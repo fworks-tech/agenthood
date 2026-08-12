@@ -1,5 +1,6 @@
 import { randomUUID } from 'node:crypto'
 import type { ExecutionContext } from '../../src/core/ExecutionContext.js'
+import type { ProvenanceEntry } from '../../src/memory/ProvenanceStore.js'
 
 export function createTestContext(overrides?: Partial<ExecutionContext>): ExecutionContext {
   return {
@@ -26,6 +27,28 @@ export function createTestContext(overrides?: Partial<ExecutionContext>): Execut
       project: {
         getConventions: async () => [],
         getArchitecturalDecisions: async () => [],
+      },
+      decisions: {
+        record: async () => {},
+        search: async () => [],
+        recent: async () => [],
+        get: async () => undefined,
+        all: async () => [],
+        addCausalRelationship: async () => {},
+        traceDecisionChain: async () => [],
+        analyzeDecisionImpact: async () => [],
+      },
+      provenance: {
+        track: async (entry: Omit<ProvenanceEntry, 'checksum' | 'sequenceId' | 'previousChecksum'>) => ({
+          ...entry,
+          checksum: 'test-checksum',
+          sequenceId: 1,
+        }),
+        get: async () => undefined,
+        recent: async () => [],
+        count: () => 0,
+        invalidate: async () => {},
+        verifyChain: async () => ({ valid: true }),
       },
     },
     llm: overrides?.llm ?? {

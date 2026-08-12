@@ -1,5 +1,6 @@
 import type { ILLMProvider } from '../llm/ILLMProvider.js'
 import type { Message } from '../llm/types.js'
+import type { ProvenanceStore } from '../memory/ProvenanceStore.js'
 import type {
   Project,
   Tracer,
@@ -20,6 +21,7 @@ export interface ExecutionContext {
     episodic: EpisodicMemory
     project: ProjectMemory
     decisions: DecisionLog
+    provenance: ProvenanceStore
   }
   llm: ILLMProvider
   prompts: { build(templateName: string, variables: Record<string, unknown>): Message }

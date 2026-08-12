@@ -175,4 +175,151 @@ describe('DecisionLog', () => {
       expect(recent).toHaveLength(1)
     })
   })
+
+  describe('all', () => {
+    it('returns every recorded entry', async () => {
+      const log = new DecisionLog()
+      await log.record({ ...fixtureEntry, id: 'dec-001' })
+      await log.record({ ...fixtureEntry, id: 'dec-002' })
+
+      const entries = await log.all()
+      expect(entries).toHaveLength(2)
+    })
+  })
+
+  describe('addCausalRelationship', () => {
+    it('throws when source or target is missing', async () => {
+      const log = new DecisionLog()
+      await log.record({ ...fixtureEntry, id: 'dec-001' })
+
+      await expect(
+        log.addCausalRelationship('dec-001', 'dec-002', 'CAUSED'),
+      ).rejects.toThrow('target decision "dec-002" not found')
+
+      await expect(
+        log.addCausalRelationship('dec-missing', 'dec-001', 'CAUSED'),
+      ).rejects.toThrow('source decision "dec-missing" not found')
+    })
+
+    it('persists an edge to edges.json', async () => {
+      const log = new DecisionLog()
+      await log.record({ ...fixtureEntry, id: 'dec-001' })
+      await log.record({ ...fixtureEntry, id: 'dec-002' })
+
+      await log.addCausalRelationship('dec-001', 'dec-002', 'CAUSED')
+
+      const edgesCall = vi.mocked(writeFileSync).mock.calls.find(
+        (call) => String(call[0]).endsWith('edges.json'),
+      )
+      expect(edgesCall).toBeDefined()
+      const written = JSON.parse(edgesCall![1] as string)
+      expect(written.edges).toEqual([
+        expect.objectContaining({
+          source: 'dec-001',
+          target: 'dec-002',
+          relationshipType: 'CAUSED',
+        }),
+      ])
+    })
+
+    it('does not duplicate an identical edge', async () => {
+      const log = new DecisionLog()
+      await log.record({ ...fixtureEntry, id: 'dec-001' })
+      await log.record({ ...fixtureEntry, id: 'dec-002' })
+
+      await log.addCausalRelationship('dec-001', 'dec-002', 'INFLUENCED')
+      await log.addCausalRelationship('dec-001', 'dec-002', 'INFLUENCED')
+
+      const edgesCalls = vi.mocked(writeFileSync).mock.calls.filter(
+        (call) => String(call[0]).endsWith('edges.json'),
+      )
+      const last = JSON.parse(edgesCalls[edgesCalls.length - 1][1] as string)
+      expect(last.edges).toHaveLength(1)
+    })
+  })
+
+  describe('traceDecisionChain', () => {
+    it('returns full ancestry from root cause to the decision', async () => {
+      const log = new DecisionLog()
+      await log.record({ ...fixtureEntry, id: 'dec-root', timestamp: '2026-06-01T00:00:00.000Z' })
+      await log.record({ ...fixtureEntry, id: 'dec-mid', timestamp: '2026-06-02T00:00:00.000Z' })
+      await log.record({ ...fixtureEntry, id: 'dec-leaf', timestamp: '2026-06-03T00:00:00.000Z' })
+      await log.addCausalRelationship('dec-root', 'dec-mid', 'CAUSED')
+      await log.addCausalRelationship('dec-mid', 'dec-leaf', 'INFLUENCED')
+
+      const chain = await log.traceDecisionChain('dec-leaf')
+      expect(chain.map((e) => e.id)).toEqual(['dec-root', 'dec-mid', 'dec-leaf'])
+    })
+
+    it('returns empty for unknown decision', async () => {
+      const log = new DecisionLog()
+      const chain = await log.traceDecisionChain('dec-unknown')
+      expect(chain).toEqual([])
+    })
+
+    it('terminates on cycles', async () => {
+      const log = new DecisionLog()
+      await log.record({ ...fixtureEntry, id: 'dec-a' })
+      await log.record({ ...fixtureEntry, id: 'dec-b' })
+      await log.addCausalRelationship('dec-a', 'dec-b', 'CAUSED')
+      await log.addCausalRelationship('dec-b', 'dec-a', 'CAUSED')
+
+      const chain = await log.traceDecisionChain('dec-a')
+      expect(chain.map((e) => e.id)).toEqual(['dec-b', 'dec-a'])
+    })
+  })
+
+  describe('analyzeDecisionImpact', () => {
+    it('returns downstream decisions in BFS order', async () => {
+      const log = new DecisionLog()
+      await log.record({ ...fixtureEntry, id: 'dec-root' })
+      await log.record({ ...fixtureEntry, id: 'dec-mid' })
+      await log.record({ ...fixtureEntry, id: 'dec-leaf' })
+      await log.addCausalRelationship('dec-root', 'dec-mid', 'CAUSED')
+      await log.addCausalRelationship('dec-mid', 'dec-leaf', 'CAUSED')
+
+      const impacted = await log.analyzeDecisionImpact('dec-root')
+      expect(impacted.map((e) => e.id)).toEqual(['dec-mid', 'dec-leaf'])
+    })
+
+    it('returns empty for a leaf decision', async () => {
+      const log = new DecisionLog()
+      await log.record({ ...fixtureEntry, id: 'dec-a' })
+      await log.record({ ...fixtureEntry, id: 'dec-b' })
+      await log.addCausalRelationship('dec-a', 'dec-b', 'PRECEDENT_FOR')
+
+      const impacted = await log.analyzeDecisionImpact('dec-b')
+      expect(impacted).toEqual([])
+    })
+  })
+
+  describe('edges.json backward compatibility', () => {
+    it('excludes edges.json from the entry cache', async () => {
+      vi.mocked(existsSync).mockReturnValue(true)
+      vi.mocked(readdirSync).mockReturnValue(['edges.json', 'dec-001.json'])
+      vi.mocked(readFileSync).mockImplementation((filePath: unknown) => {
+        if (String(filePath).endsWith('edges.json')) {
+          return JSON.stringify({ edges: [{ source: 'x', target: 'y', relationshipType: 'CAUSED' }] })
+        }
+        return JSON.stringify(fixtureEntry)
+      })
+
+      const log = new DecisionLog()
+      const entries = await log.all()
+      expect(entries).toHaveLength(1)
+      expect(log.count()).toBe(1)
+    })
+
+    it('loads legacy entries without the new optional fields', async () => {
+      vi.mocked(existsSync).mockReturnValue(true)
+      vi.mocked(readdirSync).mockReturnValue(['dec-legacy.json'])
+      vi.mocked(readFileSync).mockReturnValue(JSON.stringify(fixtureEntry))
+
+      const log = new DecisionLog()
+      const entry = await log.get('dec-legacy')
+      expect(entry).toBeDefined()
+      expect(entry!.id).toBe('dec-20260601-001')
+      expect(entry!.confidence).toBeUndefined()
+    })
+  })
 })

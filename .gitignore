@@ -20,6 +20,8 @@ vscode-extension/.vscode-test/
 # Agenthood runtime artifacts
 .agenthood/memory/
 .agenthood/decisions/
+.agenthood/provenance/
+.agenthood/snapshots/
 .agenthood/metrics/
 .agenthood/residual.json
 .agenthood/society-graph.json

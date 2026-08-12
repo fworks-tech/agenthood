@@ -2,6 +2,7 @@ import { rm } from 'node:fs/promises';
 import { existsSync, readdirSync } from 'node:fs';
 import { join } from 'node:path';
 import { MEMBER_NAMES } from '../members.js';
+import { RUNTIME_SKILL_DIRS } from '../init/setup.js';
 import type { CommandDescriptor } from './types.js';
 
 export const command: CommandDescriptor = {
@@ -13,7 +14,8 @@ export const command: CommandDescriptor = {
 // Skills dirs init may have populated for a non-agenthood runtime. Only the
 // member subdirs are removed — foreign user skills are never touched. The
 // .agenthood/skills variant dies with .agenthood itself.
-const RUNTIME_SKILL_DIRS = ['.claude/skills', '.github/skills', '.gemini/skills']
+const RUNTIME_SKILL_DIRS_EXCLUDING_AGENTHOOD = Object.values(RUNTIME_SKILL_DIRS)
+  .filter((dir) => !dir.endsWith('.agenthood/skills'))
 
 function memberSubdirs(dir: string): string[] {
   return readdirSync(dir).filter((entry) => MEMBER_NAMES.includes(entry))
@@ -28,7 +30,7 @@ export async function eject(): Promise<void> {
   const toRemove = ['.agenthood', 'AGENTS.md'];
   const skillSubdirs: string[] = [];
 
-  for (const dir of RUNTIME_SKILL_DIRS) {
+  for (const dir of RUNTIME_SKILL_DIRS_EXCLUDING_AGENTHOOD) {
     const full = join(cwd, dir);
     if (!existsSync(full)) continue;
     for (const sub of memberSubdirs(full)) {

@@ -17,11 +17,17 @@ async function safeCopy(src: string, dest: string): Promise<void> {
   await copyFile(src, dest)
 }
 
+/** Single source of truth for where each runtime's member skills live —
+ * consumed by init (installSkills/planPaths) and eject (cleanup). */
+export const RUNTIME_SKILL_DIRS: Record<Runtime, string> = {
+  'claude-code': '.claude/skills',
+  copilot: '.github/skills',
+  'gemini-cli': '.gemini/skills',
+  other: '.agenthood/skills',
+}
+
 function resolveSkillsDest(cwd: string, runtime: Runtime): string {
-  if (runtime === 'claude-code') return join(cwd, '.claude', 'skills')
-  if (runtime === 'copilot') return join(cwd, '.github', 'skills')
-  if (runtime === 'gemini-cli') return join(cwd, '.gemini', 'skills')
-  return join(cwd, '.agenthood', 'skills')
+  return join(cwd, RUNTIME_SKILL_DIRS[runtime])
 }
 
 /** Files `init` would write for the given runtime/members — used by --dry-run */

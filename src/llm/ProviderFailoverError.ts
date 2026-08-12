@@ -23,6 +23,19 @@ export class AllProvidersFailedError extends Error {
   }
 }
 
+/** HTTP status → fixed classification. 400 is permanent: retrying a malformed
+ * request cannot succeed, so the chain must fail over immediately instead of
+ * burning backoff retries. 5xx is handled separately (retryable unavailable). */
+const STATUS_CLASSIFICATIONS: Record<number, ClassifiedError> = {
+  400: { category: 'bad_request', retryable: false, retryAfter: 0, cooldownMs: 0, permanent: true },
+  401: { category: 'auth', retryable: false, retryAfter: 0, cooldownMs: 0, permanent: true },
+  402: { category: 'payment', retryable: false, retryAfter: 0, cooldownMs: 0, permanent: true },
+  408: { category: 'timeout', retryable: true, retryAfter: 30, cooldownMs: 30_000, permanent: false },
+  429: { category: 'rate_limited', retryable: true, retryAfter: 60, cooldownMs: 60_000, permanent: false },
+}
+
+const UNKNOWN: ClassifiedError = { category: 'unknown', retryable: false, retryAfter: 0, cooldownMs: 0, permanent: false }
+
 /**
  * Classify an error into a structured category with retry/cooldown semantics.
  * Checks typed error classes first (AuthError, RateLimitedError, etc.),
@@ -54,15 +67,11 @@ export function classifyError(err: unknown): ClassifiedError {
 
   if (statusMatch) {
     const status = parseInt(statusMatch[1], 10)
-    // 400 is permanent: retrying a malformed request cannot succeed, so the
-    // chain must fail over immediately instead of burning backoff retries
-    if (status === 400) return { category: 'bad_request', retryable: false, retryAfter: 0, cooldownMs: 0, permanent: true }
-    if (status === 401) return { category: 'auth', retryable: false, retryAfter: 0, cooldownMs: 0, permanent: true }
-    if (status === 402) return { category: 'payment', retryable: false, retryAfter: 0, cooldownMs: 0, permanent: true }
-    if (status === 408) return { category: 'timeout', retryable: true, retryAfter: 30, cooldownMs: 30_000, permanent: false }
-    if (status === 429) return { category: 'rate_limited', retryable: true, retryAfter: 60, cooldownMs: 60_000, permanent: false }
-    if (status >= 500) return { category: 'unavailable', retryable: true, retryAfter: 60, cooldownMs: 60_000, permanent: false }
+    if (status >= 500) {
+      return { category: 'unavailable', retryable: true, retryAfter: 60, cooldownMs: 60_000, permanent: false }
+    }
+    return STATUS_CLASSIFICATIONS[status] ?? UNKNOWN
   }
 
-  return { category: 'unknown', retryable: false, retryAfter: 0, cooldownMs: 0, permanent: false }
+  return UNKNOWN
 }

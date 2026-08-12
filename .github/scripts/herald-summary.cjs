@@ -1,4 +1,4 @@
-(async () => {
+async function summarize(context, github) {
   const prList = context.payload.workflow_run?.pull_requests;
   if (!prList || prList.length === 0) return;
   const pr = prList[0];
@@ -20,7 +20,9 @@
     const shortSha = sha.slice(0, 7);
     const rows = runs.map(r => {
       const icon = iconMap[r.conclusion] || ':grey_question:';
-      return `| ${r.name} | ${icon} ${r.conclusion} |`;
+      // escape pipes so workflow names cannot break the markdown table
+      const name = String(r.name || '').replace(/\|/g, '\\|');
+      return `| ${name} | ${icon} ${r.conclusion} |`;
     }).join('\n');
     // skipped/neutral are not failures — they mean the check did not run or
     // produced no verdict. Only explicit failures and cancellations fail the PR.
@@ -83,4 +85,6 @@
 
   const body = buildVerdictBody(runs);
   await upsertComment(body);
-})()
+}
+
+module.exports = { summarize };

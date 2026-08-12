@@ -1,22 +1,25 @@
 import { existsSync, readFileSync } from 'node:fs'
 import type { CommandDescriptor } from './types.js'
 import { join } from 'node:path'
-import { execSync } from 'node:child_process'
+import { execFileSync } from 'node:child_process'
 import { contentHash } from '../utils/hash.js'
 import type { Lockfile } from '../utils/lockfile.js'
 
+/** Member names are refs into git pathspecs — a hostile lockfile key could
+ * otherwise inject shell commands. Applies to CLI args and lockfile keys. */
+const MEMBER_NAME_RE = /^[a-z0-9][a-z0-9_-]*$/
+
 function findRevision(cwd: string, skillPath: string, lockedHash: string): string | null {
-  const gitCmd = `git log --all --pretty=format:"%H" -- "${skillPath}"`
   let commits: string[]
   try {
-    const output = execSync(gitCmd, { cwd, encoding: 'utf-8', stdio: 'pipe' })
+    const output = execFileSync('git', ['log', '--all', '--pretty=format:%H', '--', skillPath], { cwd, encoding: 'utf-8', stdio: 'pipe' })
     commits = output.trim().split('\n').filter(Boolean)
   } catch {
     return null
   }
 
   for (const commit of commits) {
-    const content = execSync(`git show ${commit}:"${skillPath}"`, { cwd, encoding: 'utf-8', stdio: 'pipe' })
+    const content = execFileSync('git', ['show', `${commit}:${skillPath}`], { cwd, encoding: 'utf-8', stdio: 'pipe' })
     const hash = contentHash(content)
     if (hash === lockedHash) return commit
   }
@@ -30,7 +33,7 @@ function restoreMember(cwd: string, skillPath: string, member: string, commit: s
   }
 
   try {
-    execSync(`git checkout ${commit} -- "${skillPath}"`, { cwd, encoding: 'utf-8', stdio: 'pipe' })
+    execFileSync('git', ['checkout', commit, '--', skillPath], { cwd, encoding: 'utf-8', stdio: 'pipe' })
     console.log(`  \u2713 ${member} — restored from ${commit.slice(0, 12)}`)
     return true
   } catch {
@@ -53,7 +56,7 @@ export async function rollback(args: string[]): Promise<void> {
   const isDryRun = flags.has('--dry-run')
   const targetMember = positionals[0]
 
-  if (targetMember && !/^[a-z0-9][a-z0-9_-]*$/.test(targetMember)) {
+  if (targetMember && !MEMBER_NAME_RE.test(targetMember)) {
     console.error(`Invalid member name: "${targetMember}"`)
     process.exit(1)
     return
@@ -81,12 +84,22 @@ export async function rollback(args: string[]): Promise<void> {
     return
   }
 
-  const membersToRollback = targetMember ? [targetMember] : Object.keys(lock.members)
+  // lockfile keys are attacker-influenced (cloned repos) — validate every
+  // key, not just the CLI arg, before it becomes a git pathspec
+  const keys = Object.keys(lock.members).filter((m) => MEMBER_NAME_RE.test(m))
+  const skipped = Object.keys(lock.members).filter((m) => !MEMBER_NAME_RE.test(m))
+  for (const bad of skipped) {
+    console.warn(`Skipping invalid member key from lockfile: ${bad}`)
+  }
+
+  const membersToRollback = targetMember ? [targetMember] : keys
   let hasRestoredAny = false
 
   for (const member of membersToRollback) {
     const skillPath = join('members', member, 'SKILL.md')
-    const lockedHash = lock.members[member].version
+    const entry = lock.members[member]
+    if (!entry) continue
+    const lockedHash = entry.version
 
     const commit = findRevision(cwd, skillPath, lockedHash)
     if (!commit) {

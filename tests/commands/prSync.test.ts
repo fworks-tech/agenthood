@@ -175,7 +175,6 @@ fix description`
 // --- Command integration tests (mocked execSync) ---
 
   describe('prSync command', () => {
-    let mockExecSync: any
     let mockExecFileSync: any
     let output: string
 
@@ -195,7 +194,6 @@ fix description`
       }) as any)
 
       vi.mock('node:child_process', () => ({
-        execSync: vi.fn(),
         execFileSync: vi.fn(),
       }))
 
@@ -205,7 +203,6 @@ fix description`
       }))
 
       const mod = await import('node:child_process')
-      mockExecSync = mod.execSync
       mockExecFileSync = mod.execFileSync
     })
 

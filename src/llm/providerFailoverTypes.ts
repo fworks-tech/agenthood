@@ -15,7 +15,7 @@ export interface CircuitBreakerState {
  * retryability and cooldown semantics.
  */
 export interface ClassifiedError {
-  category: 'auth' | 'payment' | 'rate_limited' | 'timeout' | 'unavailable' | 'model_not_found' | 'unknown'
+  category: 'auth' | 'payment' | 'rate_limited' | 'timeout' | 'unavailable' | 'model_not_found' | 'bad_request' | 'unknown'
   retryable: boolean
   retryAfter: number
   cooldownMs: number

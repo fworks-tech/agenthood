@@ -21,6 +21,16 @@ export class OllamaProvider implements ILLMProvider {
     this.model = config.model ?? 'llama3.2'
   }
 
+  private wrapError(err: unknown, method: string): Error {
+    const msg = err instanceof Error ? err.message : String(err)
+    if (msg.includes('fetch') || msg.includes('connect')) {
+      return new Error(
+        `OllamaProvider: Cannot connect to ${this.baseUrl}. Ensure Ollama is running (ollama serve).`
+      )
+    }
+    return new Error(`OllamaProvider.${method}() failed: ${msg}`)
+  }
+
   async complete(request: LLMRequest): Promise<LLMResponse> {
     try {
       const response = await fetch(`${this.baseUrl}/api/chat`, {
@@ -64,33 +74,32 @@ export class OllamaProvider implements ILLMProvider {
         model: this.model,
       }
     } catch (err) {
-      const msg = err instanceof Error ? err.message : String(err)
-      if (msg.includes('fetch') || msg.includes('connect')) {
-        throw new Error(
-          `OllamaProvider: Cannot connect to ${this.baseUrl}. Ensure Ollama is running (ollama serve).`
-        )
-      }
-      throw new Error(`OllamaProvider.complete() failed: ${msg}`)
+      throw this.wrapError(err, 'complete')
     }
   }
 
   async stream(request: LLMRequest): Promise<AsyncGenerator<LLMChunk>> {
-    const response = await fetch(`${this.baseUrl}/api/chat`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        model: this.model,
-        messages: request.messages.map(m => ({
-          role: m.role,
-          content: m.content,
-        })),
-        stream: true,
-        options: {
-          temperature: request.temperature,
-          top_p: request.top_p,
-        },
-      }),
-    })
+    let response: Response
+    try {
+      response = await fetch(`${this.baseUrl}/api/chat`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          model: this.model,
+          messages: request.messages.map(m => ({
+            role: m.role,
+            content: m.content,
+          })),
+          stream: true,
+          options: {
+            temperature: request.temperature,
+            top_p: request.top_p,
+          },
+        }),
+      })
+    } catch (err) {
+      throw this.wrapError(err, 'stream')
+    }
 
     if (!response.ok) {
       const body = await response.text()
@@ -158,8 +167,7 @@ export class OllamaProvider implements ILLMProvider {
       const data = (await response.json()) as OllamaEmbedResponse
       return data.embedding
     } catch (err) {
-      const msg = err instanceof Error ? err.message : String(err)
-      throw new Error(`OllamaProvider.embed() failed: ${msg}`)
+      throw this.wrapError(err, 'embed')
     }
   }
 }

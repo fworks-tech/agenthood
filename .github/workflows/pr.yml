@@ -72,6 +72,10 @@ jobs:
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
+          # YAML literal blocks strip the common indentation before the shell
+          # sees them, so `EOF` and the markdown body land at column 0 — the
+          # heredoc is well-formed. The body must be piped (stdin) so ${{ }}
+          # expressions and markdown are never interpolated into the gh args.
           cat <<'EOF' | .github/scripts/post-pr-comment.sh ${{ github.event.pull_request.number }}
           ## The Auditor — Secret Scan :warning:
 
@@ -155,6 +159,7 @@ jobs:
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
+          # see the Auditor step above for why the heredoc/pipe is safe here
           cat <<'EOF' | .github/scripts/post-pr-comment.sh ${{ github.event.pull_request.number }}
           ## The Librarian — Documentation Check :warning:
 

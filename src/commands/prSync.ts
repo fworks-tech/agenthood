@@ -107,6 +107,12 @@ function getCommitsSince(sinceSha: string | null, baseBranch: string): ParsedCom
     console.warn(`Malformed sync marker SHA ignored: ${sinceSha}`)
     sinceSha = null
   }
+  // baseRefName is GitHub-sourced; array args prevent injection, but a hostile
+  // refname would surface as confusing git errors — validate before use
+  if (!/^[A-Za-z0-9._/-]+$/.test(baseBranch)) {
+    console.warn(`Malformed base branch refname ignored: ${JSON.stringify(baseBranch)}`)
+    baseBranch = 'main'
+  }
 
   let range: string | null = null
   if (sinceSha) {
@@ -183,6 +189,34 @@ export const command: CommandDescriptor = {
   handler: (args) => prSync(args),
 }
 
+interface SyncPayload {
+  lastSyncSha: string
+  commits: ParsedCommit[]
+  newBody: string
+}
+
+function buildSyncPayload(currentBody: string, prInfo: PRInfo): SyncPayload | null {
+  const { sha: lastSyncSha } = parseMarker(currentBody)
+  const commits = getCommitsSince(lastSyncSha || null, prInfo.baseBranch)
+  if (commits.length === 0) {
+    console.log('No new commits since last sync.')
+    return null
+  }
+  const parents = runFile('git', ['rev-list', '--parents', 'HEAD', '-1']).split(' ')
+  const currentSha = parents.length > 2 ? parents[1] : parents[0]
+  return { lastSyncSha, commits, newBody: buildSyncBody(currentBody, currentSha, commits) }
+}
+
+function postComment(prNumber: number, comment: string, dryRun: boolean): void {
+  if (dryRun) {
+    console.log('\n=== PROPOSED COMMENT ===')
+    console.log(comment)
+    console.log(`\n[Dry run complete. No changes made.]`)
+  } else {
+    ghApiPost(`repos/{owner}/{repo}/issues/${prNumber}/comments`, { body: comment })
+  }
+}
+
 export async function prSync(args: string[]): Promise<void> {
   ensureGhAvailable()
 
@@ -198,20 +232,9 @@ export async function prSync(args: string[]): Promise<void> {
     // Fetch current PR body
     const currentBody = runFile('gh', ['api', `repos/{owner}/{repo}/pulls/${prInfo.number}`, '--jq', '.body // ""'])
 
-    // Find existing marker to determine since-sha
-    const { sha: lastSyncSha } = parseMarker(currentBody)
-    const commits = getCommitsSince(lastSyncSha || null, prInfo.baseBranch)
-
-    if (commits.length === 0) {
-      console.log('No new commits since last sync.')
-      return
-    }
-
-    const parents = runFile('git', ['rev-list', '--parents', 'HEAD', '-1']).split(' ')
-    const currentSha = parents.length > 2 ? parents[1] : parents[0]
-
-    // Build new PR body
-    const newBody = buildSyncBody(currentBody, currentSha, commits)
+    const payload = buildSyncPayload(currentBody, prInfo)
+    if (!payload) return
+    const { lastSyncSha, commits, newBody } = payload
 
     if (options.dryRun) {
       console.log(`[DRY RUN] PR #${prInfo.number} — ${commits.length} new commit(s) since ${lastSyncSha || 'base'}`)
@@ -221,23 +244,14 @@ export async function prSync(args: string[]): Promise<void> {
       ghApiPatch(`repos/{owner}/{repo}/pulls/${prInfo.number}`, { body: newBody })
     }
 
-    // Generate and post comment
+    // Reviewer comment (opt-out via --no-reviewer) or plain list
     const hasApiKey = !!(process.env.GROQ_API_KEY || process.env.ANTHROPIC_API_KEY || process.env.OPENAI_API_KEY)
-    const shouldUseReviewer = options.withReviewer !== false && hasApiKey
+    const comment = options.withReviewer !== false && hasApiKey
+      ? await generateLLMComment(commits)
+      : formatPlainComment(commits)
 
-    let comment: string
-    if (shouldUseReviewer) {
-      comment = await generateLLMComment(commits)
-    } else {
-      comment = formatPlainComment(commits)
-    }
-
-    if (options.dryRun) {
-      console.log('\n=== PROPOSED COMMENT ===')
-      console.log(comment)
-      console.log(`\n[Dry run complete. No changes made.]`)
-    } else {
-      ghApiPost(`repos/{owner}/{repo}/issues/${prInfo.number}/comments`, { body: comment })
+    postComment(prInfo.number, comment, options.dryRun === true)
+    if (!options.dryRun) {
       console.log(`PR #${prInfo.number} synced (${commits.length} new commit(s)).`)
     }
   } catch (err) {

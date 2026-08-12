@@ -56,14 +56,12 @@ export async function rollback(args: string[]): Promise<void> {
   if (targetMember && !MEMBER_NAME_RE.test(targetMember)) {
     console.error(`Invalid member name: "${targetMember}"`)
     process.exit(1)
-    return
   }
 
   const lockPath = join(cwd, 'agenthood.lock')
   if (!existsSync(lockPath)) {
     console.error('Lockfile not found. Run `agenthood verify --update-lock` first.')
     process.exit(1)
-    return
   }
 
   let lock: Lockfile
@@ -72,13 +70,11 @@ export async function rollback(args: string[]): Promise<void> {
   } catch {
     console.error('Invalid lockfile format.')
     process.exit(1)
-    return
   }
 
   if (targetMember && !lock.members[targetMember]) {
     console.error(`Member "${targetMember}" not found in lockfile.`)
     process.exit(1)
-    return
   }
 
   // lockfile keys are attacker-influenced (cloned repos) — validate every

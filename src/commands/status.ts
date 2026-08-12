@@ -51,52 +51,45 @@ function printJson(memberCount: number, decisionCount: number, lockStatus: strin
   console.log(JSON.stringify(output, null, 2))
 }
 
-export const command: CommandDescriptor = {
-  name: 'status',
-  description: 'Show project health and member metrics',
-  handler: (args) => status(args),
+function reportDrift(cwd: string): void {
+  const skillsBase = resolveSkillsDir(cwd)
+  const lock = loadLockfile(cwd)
+  if (!lock) {
+    console.log('\n  No lockfile found. Run `agenthood verify --update-lock` first.\n')
+    process.exit(0)
+  }
+  const driftFound: string[] = []
+  const members = readdirSync(skillsBase, { withFileTypes: true }).filter((d) => d.isDirectory()).map((d) => d.name)
+  for (const member of members) {
+    const skillPath = join(skillsBase, member, `${member}.md`)
+    if (!existsSync(skillPath)) continue
+    const content = readFileSync(skillPath, 'utf8')
+    const currentHash = contentHash(content)
+    const lockedHash = lock.members[member]?.version
+    if (lockedHash && currentHash !== lockedHash) {
+      driftFound.push(member)
+    }
+  }
+  if (driftFound.length === 0) {
+    console.log('\n  No drift detected \u2014 all members match lockfile.\n')
+  } else {
+    console.log(`\n  Drift detected in ${driftFound.length} member(s):\n`)
+    for (const m of driftFound) {
+      console.log(`    ! ${m}`)
+    }
+    console.log()
+  }
+  process.exit(0)
 }
 
-export async function status(args: string[] = []): Promise<void> {
-  const cwd = process.cwd()
-  const flags = new Set(args.filter((a) => a.startsWith('--')))
-  const isWatch = flags.has('--watch')
-  const isJson = flags.has('--json')
-  const isDrift = flags.has('--drift')
+interface ProjectStats {
+  memberCount: number
+  decisionCount: number
+  lockStatus: string
+  memoryInit: boolean
+}
 
-  if (isDrift) {
-    const skillsBase = resolveSkillsDir(cwd)
-    const lock = loadLockfile(cwd)
-    if (!lock) {
-      console.log('\n  No lockfile found. Run `agenthood verify --update-lock` first.\n')
-      process.exit(0)
-      return
-    }
-    const driftFound: string[] = []
-    const members = readdirSync(skillsBase, { withFileTypes: true }).filter((d) => d.isDirectory()).map((d) => d.name)
-    for (const member of members) {
-      const skillPath = join(skillsBase, member, `${member}.md`)
-      if (!existsSync(skillPath)) continue
-      const content = readFileSync(skillPath, 'utf8')
-      const currentHash = contentHash(content)
-      const lockedHash = lock.members[member]?.version
-      if (lockedHash && currentHash !== lockedHash) {
-        driftFound.push(member)
-      }
-    }
-    if (driftFound.length === 0) {
-      console.log('\n  No drift detected \u2014 all members match lockfile.\n')
-    } else {
-      console.log(`\n  Drift detected in ${driftFound.length} member(s):\n`)
-      for (const m of driftFound) {
-        console.log(`    ! ${m}`)
-      }
-      console.log()
-    }
-    process.exit(0)
-    return
-  }
-
+function collectProjectStats(cwd: string): ProjectStats {
   const configPath = join(cwd, '.agenthood', 'config.json')
   let memberCount = 0
   if (existsSync(configPath)) {
@@ -124,21 +117,45 @@ export async function status(args: string[] = []): Promise<void> {
     }
   }
 
-  const isMemoryInitialized = existsSync(join(cwd, '.agenthood', 'memory'))
+  const memoryInit = existsSync(join(cwd, '.agenthood', 'memory'))
+  return { memberCount, decisionCount, lockStatus, memoryInit }
+}
+
+function runWatchLoop(cwd: string, stats: ProjectStats, display: (m: number, d: number, l: string, mi: boolean, s: MetricsEntry[]) => void): void {
+  const interval = setInterval(() => {
+    const fresh = collectMemberMetrics(join(cwd, '.agenthood', 'metrics'))
+    display(stats.memberCount, stats.decisionCount, stats.lockStatus, stats.memoryInit, fresh)
+  }, 5000)
+  process.on('SIGINT', () => { clearInterval(interval); process.exit(0) })
+  process.on('SIGTERM', () => { clearInterval(interval); process.exit(0) })
+}
+
+export const command: CommandDescriptor = {
+  name: 'status',
+  description: 'Show project health and member metrics',
+  handler: (args) => status(args),
+}
+
+export async function status(args: string[] = []): Promise<void> {
+  const cwd = process.cwd()
+  const flags = new Set(args.filter((a) => a.startsWith('--')))
+  const isWatch = flags.has('--watch')
+  const isJson = flags.has('--json')
+  const isDrift = flags.has('--drift')
+
+  if (isDrift) {
+    reportDrift(cwd)
+    return
+  }
+
+  const stats = collectProjectStats(cwd)
   const allStats = collectMemberMetrics(join(cwd, '.agenthood', 'metrics'))
 
   const display = isJson ? printJson : printPlain
 
   if (isWatch) {
-    const interval = setInterval(() => {
-      const stats = collectMemberMetrics(join(cwd, '.agenthood', 'metrics'))
-      display(memberCount, decisionCount, lockStatus, isMemoryInitialized, stats)
-    }, 5000)
-    display(memberCount, decisionCount, lockStatus, isMemoryInitialized, allStats)
-    process.on('SIGINT', () => { clearInterval(interval); process.exit(0) })
-    process.on('SIGTERM', () => { clearInterval(interval); process.exit(0) })
-    return
+    runWatchLoop(cwd, stats, display)
   }
 
-  display(memberCount, decisionCount, lockStatus, isMemoryInitialized, allStats)
+  display(stats.memberCount, stats.decisionCount, stats.lockStatus, stats.memoryInit, allStats)
 }

@@ -8,7 +8,53 @@ import { GraphSnapshot } from "../memory/GraphSnapshot.ts"
 import { MemberOrchestrator } from "../reasoning/MemberOrchestrator.ts"
 import { ApplicationContext } from "../runtime/ApplicationContext.ts"
 
-async function loadConfig(providerOverride?: string): Promise<LLMConfig> {
+function parseProviderBlock(raw: Record<string, unknown>): { provider?: string; model?: string } {
+  const provider = raw.provider
+  if (typeof provider === 'string') return { provider }
+  if (provider && typeof provider === 'object') {
+    const block = provider as { name?: string; model?: string }
+    return { provider: block.name, model: block.model }
+  }
+  return {}
+}
+
+function parseProviders(raw: Record<string, unknown>): ProviderEntry[] | undefined {
+  if (!Array.isArray(raw.providers)) return undefined
+  const entries: ProviderEntry[] = []
+  for (const p of raw.providers) {
+    if (!p || typeof p !== 'object') continue
+    const entry = p as Record<string, unknown>
+    if (typeof entry.name !== 'string') continue
+    entries.push({
+      name: entry.name,
+      model: entry.model as string | undefined,
+      apiKey: entry.apiKey as string | undefined,
+      baseUrl: entry.baseUrl as string | undefined,
+      models: Array.isArray(entry.models) ? (entry.models as string[]) : undefined,
+      priority: entry.priority as number | undefined,
+    })
+  }
+  return entries.length > 0 ? entries : undefined
+}
+
+function parseFailover(raw: Record<string, unknown>): Pick<LLMConfig, 'failureThreshold' | 'cooldownMs' | 'probeEnabled'> {
+  const failover = raw.failover
+  if (!failover || typeof failover !== 'object') return {}
+  const f = failover as Record<string, unknown>
+  return {
+    failureThreshold: f.failureThreshold as number | undefined,
+    cooldownMs: f.cooldownMs as number | undefined,
+    probeEnabled: f.probeEnabled as boolean | undefined,
+  }
+}
+
+function parseSkills(raw: Record<string, unknown>): { autoDiscover?: boolean } | undefined {
+  const skills = raw.skills
+  if (!skills || typeof skills !== 'object') return undefined
+  return { autoDiscover: (skills as Record<string, unknown>).autoDiscover === true }
+}
+
+export async function loadConfig(providerOverride?: string): Promise<LLMConfig> {
   const configPath = join(process.cwd(), '.agenthood', 'config.json')
   let raw: Record<string, unknown>
   try {
@@ -21,51 +67,13 @@ async function loadConfig(providerOverride?: string): Promise<LLMConfig> {
     }
     return providerOverride ? { provider: providerOverride } : {}
   }
-  const cfg: LLMConfig = {}
 
-  if (raw.provider) {
-    if (typeof raw.provider === 'string') {
-      cfg.provider = raw.provider
-    } else {
-      const providerBlock = raw.provider as { name?: string; model?: string }
-      cfg.provider = providerBlock.name
-      cfg.model = providerBlock.model
-    }
-  }
-
-  if (Array.isArray(raw.providers)) {
-    const entries: ProviderEntry[] = []
-    for (const p of raw.providers) {
-      if (p.name) {
-        entries.push({
-          name: p.name,
-          model: p.model,
-          apiKey: p.apiKey,
-          baseUrl: p.baseUrl,
-          models: p.models,
-          priority: p.priority,
-        })
-      }
-    }
-    if (entries.length > 0) cfg.providers = entries
-  }
-
-  if (raw.failover) {
-    const failover = raw.failover as { failureThreshold?: number; cooldownMs?: number; probeEnabled?: boolean }
-    cfg.failureThreshold = failover.failureThreshold
-    cfg.cooldownMs = failover.cooldownMs
-    cfg.probeEnabled = failover.probeEnabled
-  }
-
-  if (raw.skills) {
-    const skills = raw.skills as { autoDiscover?: boolean }
-    cfg.skills = { autoDiscover: skills.autoDiscover === true }
-  }
-
-  if (providerOverride) {
-    cfg.provider = providerOverride
-  }
-
+  const cfg: LLMConfig = { ...parseProviderBlock(raw), ...parseFailover(raw) }
+  const providers = parseProviders(raw)
+  if (providers) cfg.providers = providers
+  const skills = parseSkills(raw)
+  if (skills) cfg.skills = skills
+  if (providerOverride) cfg.provider = providerOverride
   return cfg
 }
 

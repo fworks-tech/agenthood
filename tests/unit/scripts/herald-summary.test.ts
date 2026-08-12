@@ -129,6 +129,26 @@ describe('herald-summary', () => {
     expect(m.client.rest.issues.createComment).not.toHaveBeenCalled()
   })
 
+  it('finds the existing verdict comment across comment pages', async () => {
+    const m = mockGithub(() => completedTriggers([
+      ['Society — PR Standards', 'success'],
+      ['The Reviewer — Commit Review', 'success'],
+      ['The Envoy — VS Code Extension Build and Test', 'success'],
+    ]))
+    // 150 comments: the verdict lives on page 2 — pagination must find it
+    m.client.rest.issues.listComments = vi.fn(async (args: { page: number }) => {
+      const page = args.page
+      if (page === 1) {
+        return { data: Array.from({ length: 100 }, (_, i) => ({ id: i, body: `comment ${i}` })) }
+      }
+      return { data: [{ id: 150, body: "## :white_check_mark: The Herald's Verdict\nold" }] }
+    })
+    await summarize(contextFor([{ number: 1, sha: 'abc1234' }]), m.client)
+    expect(m.client.rest.issues.listComments).toHaveBeenCalledTimes(2)
+    expect(m.client.rest.issues.updateComment).toHaveBeenCalledWith(expect.objectContaining({ comment_id: 150 }))
+    expect(m.client.rest.issues.createComment).not.toHaveBeenCalled()
+  })
+
   it('waits for all triggering workflows to complete before posting', async () => {
     const m = mockGithub(() => ({
       total_count: 3,

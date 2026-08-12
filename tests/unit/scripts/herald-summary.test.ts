@@ -1,5 +1,6 @@
 import { describe, it, expect, vi } from 'vitest'
 import { createRequire } from 'node:module'
+import { readFileSync } from 'node:fs'
 
 const require = createRequire(import.meta.url)
 const { summarize, escapeCell, TRIGGER_WORKFLOWS } = require('../../../.github/scripts/herald-summary.cjs')
@@ -122,10 +123,7 @@ describe('herald-summary', () => {
       ['Society — PR Standards', 'success'],
       ['The Reviewer — Commit Review', 'success'],
       ['The Envoy — VS Code Extension Build and Test', 'success'],
-    ]))
-    const comments: Array<{ id: number; body: string }> = []
-    comments.push({ id: 42, body: "## :x: The Herald's Verdict\nold" })
-    m.client.rest.issues.listComments.mockResolvedValue({ data: comments })
+    ]), () => [{ id: 42, body: "## :x: The Herald's Verdict\nold" }])
     await summarize(contextFor([{ number: 1, sha: 'abc1234' }]), m.client)
     expect(m.client.rest.issues.updateComment).toHaveBeenCalledWith(expect.objectContaining({ comment_id: 42 }))
     expect(m.client.rest.issues.createComment).not.toHaveBeenCalled()
@@ -168,5 +166,14 @@ describe('herald-summary', () => {
     )
     expect(escapeCell('multi\nline\r\nname')).toBe('multi line name')
     expect(escapeCell('plain')).toBe('plain')
+  })
+
+  it('keeps TRIGGER_WORKFLOWS in sync with the herald.yml workflow filter', () => {
+    const yml = readFileSync(new URL('../../../.github/workflows/herald.yml', import.meta.url), 'utf8')
+    const section = yml.match(/workflow_run:\s*\n(?:\s*#.*\n)*\s*workflows:\s*\n([\s\S]*?)\n\s*types:/)?.[1] ?? ''
+    expect(section).not.toBe('')
+    const ymlWorkflows = [...section.matchAll(/^\s*-\s+('([^']+)'|([^\s].*?))\s*$/gm)].map((m) => m[2] ?? m[3])
+    expect(ymlWorkflows.length).toBeGreaterThan(0)
+    expect([...TRIGGER_WORKFLOWS].sort()).toEqual(ymlWorkflows.sort())
   })
 })

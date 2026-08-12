@@ -1,3 +1,5 @@
+// Must match `on.workflow_run.workflows` in .github/workflows/herald.yml —
+// parity is enforced by the test suite (herald-summary.test.ts).
 const TRIGGER_WORKFLOWS = [
   'Society — PR Standards',
   'The Envoy — VS Code Extension Build and Test',
@@ -43,9 +45,9 @@ async function paginate(fetchPage) {
   let page = 1;
   for (;;) {
     const { data } = await fetchPage(page);
-    const chunk = Array.isArray(data) ? data : (data.workflow_runs || []);
+    const chunk = Array.isArray(data) ? data : (data?.workflow_runs || []);
     items.push(...chunk);
-    if (isLastPage(chunk, data.total_count, page)) break;
+    if (isLastPage(chunk, data?.total_count, page)) break;
     page++;
   }
   return items;

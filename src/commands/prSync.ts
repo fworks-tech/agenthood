@@ -101,17 +101,23 @@ function detectPR(options: PrSyncCliOptions): PRInfo | null {
   return null
 }
 
-/** Mirrors git check-ref-format: refnames are untrusted input, and a
- * malformed one would either compute a wrong range or break rev-parse. */
+/** Mirrors git check-ref-format (validated empirically): refnames are
+ * untrusted input, and a malformed one would either compute a wrong range or
+ * break rev-parse. Note: we intentionally do NOT require a slash — GitHub
+ * allows onelevel branches like `main`. Leading dashes are safe downstream
+ * because the ref is always prefixed with `origin/` (never parsed as a flag).
+ */
 export function isValidRefname(name: string): boolean {
   if (!name || name.length === 0) return false
   if (!/^[A-Za-z0-9._/@-]+$/.test(name)) return false
   if (name === '@') return false
   if (name.startsWith('/') || name.endsWith('/')) return false
-  if (name.startsWith('.') || name.endsWith('.')) return false
-  if (name.endsWith('.lock')) return false
   if (name.includes('..') || name.includes('//') || name.includes('@{')) return false
-  if (name.split('/').some((component) => component.startsWith('.'))) return false
+  if (name.endsWith('.')) return false
+  const components = name.split('/')
+  if (components.some((c) => c.startsWith('.'))) return false
+  // git rejects any component ending in .lock, case-insensitively
+  if (components.some((c) => /\.lock$/i.test(c))) return false
   return true
 }
 

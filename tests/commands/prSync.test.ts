@@ -10,6 +10,8 @@ describe('isValidRefname', () => {
     expect(isValidRefname('release/1.2.3')).toBe(true)
     expect(isValidRefname('feat_allow-at@name')).toBe(true)
     expect(isValidRefname('jira-123/some-branch')).toBe(true)
+    expect(isValidRefname('foo./bar')).toBe(true)
+    expect(isValidRefname('feature/-lead')).toBe(true)
   })
 
   it('rejects sequences git check-ref-format forbids', async () => {
@@ -21,6 +23,8 @@ describe('isValidRefname', () => {
     expect(isValidRefname('.feature')).toBe(false)
     expect(isValidRefname('feature.')).toBe(false)
     expect(isValidRefname('feature.lock')).toBe(false)
+    expect(isValidRefname('foo.lock/bar')).toBe(false)
+    expect(isValidRefname('foo.Lock/bar')).toBe(false)
     expect(isValidRefname('main@{upstream}')).toBe(false)
     expect(isValidRefname('@')).toBe(false)
     expect(isValidRefname('feat$bad')).toBe(false)

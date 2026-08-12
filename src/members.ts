@@ -26,6 +26,10 @@ export const ALL_MEMBERS: Member[] = registry.list().map((s) => ({
 
 export const MEMBER_NAMES: string[] = ALL_MEMBERS.map(m => m.name)
 
+/** Member names are refs into git pathspecs and filesystem paths — hostile
+ * values could otherwise inject shell commands (see rollback/verify) */
+export const MEMBER_NAME_RE = /^[a-z0-9][a-z0-9_-]*$/
+
 export type Runtime = 'claude-code' | 'copilot' | 'gemini-cli' | 'other'
 
 export function resolveSkillsDir(cwd: string): string {

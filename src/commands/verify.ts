@@ -1,5 +1,6 @@
 import { existsSync, readFileSync, readdirSync, writeFileSync } from 'node:fs'
 import type { CommandDescriptor } from './types.js'
+import { MEMBER_NAME_RE } from '../members.js'
 import { join } from 'node:path'
 import { contentHash } from '../utils/hash.js'
 import { loadLockfile } from '../utils/lockfile.js'
@@ -110,7 +111,7 @@ export async function verify(args: string[]): Promise<void> {
   const updateLock = flags.has('--update-lock')
   const targetMember = positionals[0]
 
-  if (targetMember && !/^[a-z0-9][a-z0-9_-]*$/.test(targetMember)) {
+  if (targetMember && !MEMBER_NAME_RE.test(targetMember)) {
     console.error(`Invalid member name: "${targetMember}"`)
     process.exit(1)
     return

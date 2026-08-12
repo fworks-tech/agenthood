@@ -7,7 +7,7 @@ if [ -z "${BASE_SHA:-}" ] || [ "$BASE_SHA" = "${HEAD_SHA:-}" ]; then
   exit $?
 fi
 
-CHANGED=$(git diff --name-only --diff-filter=ACM "$BASE_SHA" "$HEAD_SHA" 2>/dev/null)
+CHANGED=$(git diff --name-only --diff-filter=ACM "$BASE_SHA"..."$HEAD_SHA" 2>/dev/null)
 CORE_PATTERNS="src/core/ src/llm/ILLMProvider src/llm/types src/members/types src/agents/index src/index"
 
 run_full_suite() {

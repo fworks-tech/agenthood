@@ -2,6 +2,8 @@ name: The Herald — CI Summary
 
 on:
   workflow_run:
+    # Keep in sync with TRIGGER_WORKFLOWS in .github/scripts/herald-summary.cjs —
+    # parity is enforced by tests/unit/scripts/herald-summary.test.ts
     workflows:
       - Society — PR Standards
       - The Envoy — VS Code Extension Build and Test

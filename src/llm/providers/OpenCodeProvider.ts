@@ -3,6 +3,7 @@ import type { LLMConfig, Message, ToolSchema } from "../types.ts"
 import { ChatCompletionsProvider } from "./chat-completions-provider.ts"
 import type { ChatCompletionsProviderOptions } from "./chat-completions-provider.ts"
 import type { ParamConverters } from "./openai-params.ts"
+import { buildGoCompleteParams } from "./openai-params.ts"
 import { DEFAULT_CONTEXT_WINDOW, OPENCODE_DEFAULT_MODEL } from "./constants.ts"
 
 function toOpenAIMessages(messages: Message[]): unknown {
@@ -41,7 +42,7 @@ const opencodeConverters: ParamConverters = {
 }
 
 export class OpenCodeProvider extends ChatCompletionsProvider {
-  constructor(config: LLMConfig) {
+  constructor(config: LLMConfig, runtimeOptions: { goTier?: boolean } = {}) {
     const options: ChatCompletionsProviderOptions = {
       providerName: "OpenCode",
       apiKeyEnv: "OPENCODE_API_KEY",
@@ -51,6 +52,7 @@ export class OpenCodeProvider extends ChatCompletionsProvider {
       defaultModel: OPENCODE_DEFAULT_MODEL,
       contextWindow: DEFAULT_CONTEXT_WINDOW,
       converters: opencodeConverters,
+      paramsBuilder: runtimeOptions.goTier ? buildGoCompleteParams : undefined,
       createClient: (apiKey, baseUrl) => new OpenAI({ apiKey, baseURL: baseUrl }),
     };
     super(config, options);

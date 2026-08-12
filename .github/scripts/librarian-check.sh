@@ -2,7 +2,7 @@
 set -euo pipefail
 
 FAILED=0
-CHANGED=$(git diff --name-only --diff-filter=ACM "${BASE_SHA:?}" "${HEAD_SHA:?}" 2>/dev/null)
+CHANGED=$(git diff --name-only --diff-filter=ACM "${BASE_SHA:?}"..."${HEAD_SHA:?}" 2>/dev/null)
 
 # Check a changed-file pattern is registered in a registry file
 check_registered() {

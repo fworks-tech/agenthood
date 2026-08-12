@@ -13,9 +13,9 @@ jobs:
     name: Publish to VS Code Marketplace
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
 
-      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020
+      - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020
         with:
           node-version: "24"
 
@@ -25,6 +25,8 @@ jobs:
       - run: cd vscode-extension && npm audit --audit-level=high || echo "::warning::publish-vsce npm audit found vulnerabilities"
 
       - name: Publish to Marketplace
-        run: cd vscode-extension && npx @vscode/vsce@2 publish
+        # --no-install: use the lockfile-pinned @vscode/vsce ^3.0.0 installed by
+        # npm ci — never a fresh, unpinned 2.x fetch from the registry
+        run: cd vscode-extension && npx --no-install @vscode/vsce publish
         env:
           VSCE_TOKEN: ${{ secrets.VSCE_TOKEN }}

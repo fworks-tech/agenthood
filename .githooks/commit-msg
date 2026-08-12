@@ -12,6 +12,14 @@ if [ -z "$MSG" ]; then
   exit 0
 fi
 
+# Stock `git revert` messages ("Revert \"<subject>\"") pass through — the CI
+# commitlint config accepts them, so the local hook must too.
+case "$MSG" in
+  'Revert "'*)
+    exit 0
+    ;;
+esac
+
 block() {
   # Usage: block "line 1" "line 2" ...
   echo ""

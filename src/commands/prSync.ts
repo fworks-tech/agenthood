@@ -1,4 +1,4 @@
-import { execSync, execFileSync } from 'node:child_process'
+import { execFileSync } from 'node:child_process'
 import type { CommandDescriptor } from './types.js'
 import { writeFileSync, rmSync, mkdtempSync } from 'node:fs'
 import { tmpdir } from 'node:os'
@@ -23,19 +23,16 @@ interface PrSyncCliOptions {
   withReviewer?: boolean
 }
 
-function run(cmd: string): string {
-  return execSync(cmd, { encoding: 'utf-8', stdio: 'pipe' }).trim()
-}
-
-/** execFileSync variant for commands whose arguments come from untrusted
- * input (PR body markers) — no shell involved, so nothing can be injected */
+/** execFileSync variant for git/gh invocations — args are passed as array
+ * elements, never through a shell, so attacker-influenced values (PR body
+ * markers, branch names, baseRefName) cannot inject commands */
 function runFile(cmd: string, args: string[]): string {
   return execFileSync(cmd, args, { encoding: 'utf-8', stdio: 'pipe' }).trim()
 }
 
 function ensureGhAvailable(): void {
   try {
-    execSync('gh --version', { encoding: 'utf-8', stdio: 'pipe' })
+    runFile('gh', ['--version'])
   } catch {
     console.error('Error: gh CLI not found. Install from https://cli.github.com/')
     process.exit(1)
@@ -81,7 +78,7 @@ function detectPR(options: PrSyncCliOptions): PRInfo | null {
 
   if (prNumber) {
     try {
-      const baseBranch = run(`gh pr view ${prNumber} --json baseRefName --jq '.baseRefName'`)
+      const baseBranch = runFile('gh', ['pr', 'view', String(prNumber), '--json', 'baseRefName', '--jq', '.baseRefName'])
       return { number: prNumber, baseBranch }
     } catch {
       console.error(`Error: PR #${prNumber} not found`)
@@ -90,9 +87,9 @@ function detectPR(options: PrSyncCliOptions): PRInfo | null {
   }
 
   try {
-    const branch = run('git rev-parse --abbrev-ref HEAD')
+    const branch = runFile('git', ['rev-parse', '--abbrev-ref', 'HEAD'])
     if (branch === 'main') return null
-    const result = run(`gh pr list --head "${branch}" --json number,baseRefName --jq '.[0]'`)
+    const result = runFile('gh', ['pr', 'list', '--head', branch, '--json', 'number,baseRefName', '--jq', '.[0]'])
     if (result && result !== 'null' && result !== '') {
       const parsed = JSON.parse(result)
       return { number: parsed.number, baseBranch: parsed.baseRefName }
@@ -122,10 +119,10 @@ function getCommitsSince(sinceSha: string | null, baseBranch: string): ParsedCom
   }
   if (!sinceSha) {
     try {
-      const mergeBase = run(`git merge-base HEAD origin/${baseBranch}`)
+      const mergeBase = runFile('git', ['merge-base', 'HEAD', `origin/${baseBranch}`])
       range = `${mergeBase}..HEAD`
     } catch {
-      const root = run('git rev-list --max-parents=0 HEAD')
+      const root = runFile('git', ['rev-list', '--max-parents=0', 'HEAD'])
       range = `${root}..HEAD`
     }
   }
@@ -149,7 +146,7 @@ function removeTempJson(file: string): void {
 function ghApiPatch(path: string, data: object): void {
   const tmpFile = writePrivateTempJson(data)
   try {
-    run(`gh api -X PATCH ${path} --input "${tmpFile}"`)
+    runFile('gh', ['api', '-X', 'PATCH', path, '--input', tmpFile])
   } finally {
     removeTempJson(tmpFile)
   }
@@ -158,7 +155,7 @@ function ghApiPatch(path: string, data: object): void {
 function ghApiPost(path: string, data: object): void {
   const tmpFile = writePrivateTempJson(data)
   try {
-    run(`gh api -X POST ${path} --input "${tmpFile}"`)
+    runFile('gh', ['api', '-X', 'POST', path, '--input', tmpFile])
   } finally {
     removeTempJson(tmpFile)
   }
@@ -199,7 +196,7 @@ export async function prSync(args: string[]): Promise<void> {
 
   try {
     // Fetch current PR body
-    const currentBody = run(`gh api repos/{owner}/{repo}/pulls/${prInfo.number} --jq '.body // ""'`)
+    const currentBody = runFile('gh', ['api', `repos/{owner}/{repo}/pulls/${prInfo.number}`, '--jq', '.body // ""'])
 
     // Find existing marker to determine since-sha
     const { sha: lastSyncSha } = parseMarker(currentBody)
@@ -210,7 +207,7 @@ export async function prSync(args: string[]): Promise<void> {
       return
     }
 
-    const parents = run('git rev-list --parents HEAD -1').split(' ')
+    const parents = runFile('git', ['rev-list', '--parents', 'HEAD', '-1']).split(' ')
     const currentSha = parents.length > 2 ? parents[1] : parents[0]
 
     // Build new PR body

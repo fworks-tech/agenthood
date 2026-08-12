@@ -21,6 +21,8 @@ import { LongTermMemoryImpl } from "../memory/LongTermMemory.ts"
 import { EpisodicMemoryImpl } from "../memory/EpisodicMemory.ts"
 import { ProjectMemoryImpl } from "../memory/ProjectMemory.ts"
 import { DecisionLog } from "../memory/DecisionLog.ts"
+import { ProvenanceStore } from "../memory/ProvenanceStore.ts"
+import { GraphSnapshot } from "../memory/GraphSnapshot.ts"
 import { MetricsCollector } from "../memory/MetricsCollector.ts"
 import { LanceDBStore } from "../memory/VectorStore.ts"
 import { MemberOrchestrator } from "../reasoning/MemberOrchestrator.ts"
@@ -123,7 +125,7 @@ async function discoverSkills(): Promise<{ catalog: string; manifests: Map<strin
   return { catalog: lines.join('\n'), manifests: map }
 }
 
-async function createContext(projectPath: string, config: LLMConfig): Promise<ExecutionContext> {
+async function createContext(projectPath: string, config: LLMConfig): Promise<{ ctx: ExecutionContext; societyGraph: KnowledgeGraphStore }> {
   const llm = await LLMRouter.create(config)
   const societyGraph = loadSocietyGraph(projectPath)
   const vectorStore = await connectVectorStore(projectPath)
@@ -133,6 +135,7 @@ async function createContext(projectPath: string, config: LLMConfig): Promise<Ex
   const oracleAgent = setupOracle(llm, societyGraph)
   const memory = buildMemoryTiers(llm, vectorStore, societyGraph, projectPath)
 
+  const spans: Array<{ name: string; startedAt: string }> = []
   const ctx: ExecutionContext = {
     executionId: randomUUID(),
     project: {
@@ -142,12 +145,17 @@ async function createContext(projectPath: string, config: LLMConfig): Promise<Ex
     memory,
     llm,
     prompts: new PromptBuilder(new PromptRegistry()),
-    tracer: { startSpan: () => {}, endSpan: () => {} },
+    tracer: {
+      startSpan: (name: string) => {
+        spans.push({ name, startedAt: new Date().toISOString() })
+      },
+      endSpan: () => {},
+    },
     artifacts: [],
     oracle: { ask: (q: string) => oracleAgent.ask(q, ctx) },
     skillsCatalog: catalog || undefined,
   }
-  return ctx
+  return { ctx, societyGraph }
 }
 
 function loadSocietyGraph(projectPath: string): KnowledgeGraphStore {
@@ -205,6 +213,7 @@ function buildMemoryTiers(
     episodic: new EpisodicMemoryImpl(vectorStore, llm),
     project: new ProjectMemoryImpl(projectPath, societyGraph),
     decisions: new DecisionLog({ decisionsDir: join(projectPath, '.agenthood', 'decisions') }),
+    provenance: new ProvenanceStore({ provenanceDir: join(projectPath, '.agenthood', 'provenance') }),
   }
 }
 
@@ -300,7 +309,7 @@ export async function run(args: string[]): Promise<void> {
     throw err
   }
 
-  const context = await createContext(process.cwd(), config)
+  const { ctx: context, societyGraph } = await createContext(process.cwd(), config)
 
   if (shouldDetect) {
     await runDetection(task)
@@ -309,5 +318,11 @@ export async function run(args: string[]): Promise<void> {
   const handled = await runSocietyMember(agentName, task, config, context)
   if (!handled) {
     await runFallbackAgent(agentName, task, context)
+  }
+
+  try {
+    new GraphSnapshot({ snapshotsDir: join(process.cwd(), '.agenthood', 'snapshots') }).take(societyGraph)
+  } catch (err) {
+    console.warn(`[run] society graph snapshot unavailable: ${(err as Error)?.message ?? err}`)
   }
 }

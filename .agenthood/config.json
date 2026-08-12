@@ -26,8 +26,8 @@
     "hooksPath": ".githooks"
   },
   "conventions": {
-    "commitTemplate": ".gitmessage",
-    "commitlintConfig": "commitlint.config.ts"
+    "commitTemplate": "docs/conventions/.gitmessage",
+    "commitlintConfig": "docs/conventions/commitlint.config.ts"
   },
   "providers": [
     {

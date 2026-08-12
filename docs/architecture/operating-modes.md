@@ -100,7 +100,7 @@ Within Agent Mode, three permission profiles further constrain behavior:
 
 ## Context Assembly
 
-In both modes, context is assembled from the same 10 sources before a member acts:
+In both modes, context is assembled from the same 11 sources before a member acts:
 
 1. Active/selected file(s)
 2. Explicitly `@mentioned` files
@@ -109,9 +109,10 @@ In both modes, context is assembled from the same 10 sources before a member act
 5. Codebase architectural understanding
 6. Persistent memory (`.agenthood/memory/` — LanceDB vector store, `.agenthood/society-graph.json` — knowledge graph)
 7. Residual memory traces (`.agenthood/residual.json`)
-8. Active member skills
-9. Conversation history
-10. Question classification result
+8. Decision and provenance records (`.agenthood/decisions/`, `.agenthood/provenance/` — per-run audit trail, see [decision-intelligence.md](decision-intelligence.md))
+9. Active member skills
+10. Conversation history
+11. Question classification result
 
 The difference between modes is not *what* is known — it is *what* is done with that knowledge.
 

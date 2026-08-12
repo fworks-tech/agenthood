@@ -84,7 +84,7 @@ Expected output:
 For teams who want members to execute autonomously — reasoning, acting, and remembering
 across sessions without a human in the loop — use the TypeScript runtime.
 
-**Requirements:** Node.js 22.14+, `GROQ_API_KEY` (free at console.groq.com) or Ollama (offline)
+**Requirements:** Node.js 22.14+, `OPENCODE_API_KEY` (or a key for another provider — the default follows the `providers` list in `.agenthood/config.json`), or Ollama for offline execution
 
 ```bash
 # Build the runtime (once, after install)
@@ -101,6 +101,11 @@ npx agenthood run the-reviewer "review the open PR"
 
 The runtime reads the same `.agenthood/config.json` the CLI created — no
 additional configuration required.
+
+Every run records a decision and provenance entry in `.agenthood/decisions/`
+and `.agenthood/provenance/` — a tamper-evident audit trail of what each member
+did and why, so the runtime is not a black box
+([ADR-015](docs/adr/ADR-015-decision-intelligence-and-provenance.md)).
 
 This step is entirely optional. The prompt-driven workflow from Steps 1–4 continues
 to work unchanged whether or not the runtime is built.

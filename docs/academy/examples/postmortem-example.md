@@ -51,9 +51,14 @@ The deploy script in `scripts/deploy.sh` ran `chmod -R 750 .agenthood/` which re
 - [The Sentinel] Add directory permission check to the health monitoring probe
 - [The Librarian] Document required directory permissions in `docs/operations/deployment.md`
 
+> *Illustrative example — the paths above (`docs/operations/deployment.md`, `scripts/deploy.sh`) reference a fictional deployment setup; replace with your project's real operations docs.*
+
 ## Decision Record
 
-See [Decision Log entry](.agenthood/decisions/dec-20260615-vector-permissions.json).
+See [Decision Log entry](.agenthood/decisions/dec-20260615-vector-permissions.json)
+and its [provenance entry](.agenthood/provenance/<executionId>.json). The
+provenance chain (`ProvenanceStore.verifyChain()`) proves this record was not
+modified after the fact.
 
 ## Related
 

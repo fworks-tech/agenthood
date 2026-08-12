@@ -52,14 +52,18 @@ npx tsc --noEmit
 Follow [Conventional Commits](https://www.conventionalcommits.org/):
 
 ```
-type(scope): subject
+type(scope)!: subject
 
-- type: feat, fix, docs, test, refactor, ci, chore
+- type: feat, fix, docs, test, refactor, ci, chore, revert
 - scope: area of change (e.g., failover, cli, docs)
+- !: mark breaking changes (feat!: ... or feat(scope)!: ...)
 - subject: imperative, lowercase, <=150 chars, no trailing period
 ```
 
-Hooks are installed by `npx agenthood init` and enforce the format automatically.
+Hooks are installed by `npx agenthood init` and enforce the format automatically:
+- `.githooks/commit-msg` — local validation (types, breaking-change `!`, subject rules)
+- `.githooks/pre-push` — blocks pushes to `main` and requires `type/issue-NUMBER-...` branch names; the issue-existence check is advisory only
+- CI re-validates the same rules in the PR workflow (`docs/conventions/commitlint.config.ts`)
 
 ### Pull Requests
 

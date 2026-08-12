@@ -24,7 +24,7 @@ in [`src/llm/providers/`](../src/llm/providers/). Any member can run on any prov
 | **OpenCode Go** (preferred) | deepseek-v4-flash | Subscription at `api.opencode.ai/zen/go/v1` |
 | **OpenCode Zen** | deepseek-v4-flash | Pay-as-you-go at `api.opencode.ai/zen/v1` |
 | **Anthropic** | Claude Sonnet 5 | Primary for most members; precise, detailed reasoning |
-| **Groq** | llama-3.3-70b-versatile | Default when no provider is configured; free tier |
+| **Groq** | llama-3.3-70b-versatile | Fallback in the default chain; free tier |
 | **OpenAI** | GPT-5.4 | Broad general capability; fallback for Anthropic |
 | **OpenRouter** | openai/gpt-4o-mini | OpenAI-compatible at `api.openrouter.ai/api/v1`; routes to many models |
 | **Ollama** | Local model (configurable) | Air-gapped / offline use; default for the Doorman |

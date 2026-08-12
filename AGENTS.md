@@ -9,8 +9,8 @@ to understand the Society's standards before taking any action in a repository.
 ## Commit Standards
 
 - Follow [Conventional Commits](https://www.conventionalcommits.org/) strictly
-- Format: `type(scope): subject`
-- Types: `feat`, `fix`, `docs`, `test`, `refactor`, `ci`, `chore`
+- Format: `type(scope)!: subject` — `!` marks breaking changes
+- Types: `feat`, `fix`, `docs`, `test`, `refactor`, `ci`, `chore`, `revert`
 - Subject: imperative, lowercase, ≤150 chars, no trailing period
 - One logical change per commit — if in doubt, split it
 - Never write: `fix stuff`, `wip`, `update`, `changes`, `misc`, `asdf`
@@ -89,6 +89,13 @@ the same `members` configuration. The default LLM provider follows the `provider
 in the config (currently opencode, with Groq among the fallbacks). See
 [ADR-008](docs/adr/ADR-008-typescript-runtime-over-python.md)
 and [ADR-009](docs/adr/ADR-009-groq-as-default-llm-provider.md) for design decisions.
+
+Every `agenthood run` records one decision and one provenance entry (success or
+failure) — the audit trail in `.agenthood/decisions/` and
+`.agenthood/provenance/`, with tamper-evident hash-chain integrity and causal
+links between decisions. See
+[ADR-015](docs/adr/ADR-015-decision-intelligence-and-provenance.md) and
+[decision-intelligence.md](docs/architecture/decision-intelligence.md).
 
 > **ADR-008** supersedes the earlier Python/DeepAgents runtime approach.
 > The TypeScript CLI in this repo is the single supported runtime for `agenthood run`.

@@ -22,6 +22,11 @@ and sounds the alarm the moment the Society's own documents start to smell.
 
 *"A Society that cannot audit itself cannot audit anything else."*
 
+The Sentinel's audit extends to the runtime's audit trail: every member run
+writes a decision + provenance entry (`.agenthood/decisions/`,
+`.agenthood/provenance/`), and `ProvenanceStore.verifyChain()` detects
+tampered or deleted entries — the Society can prove its own record is intact.
+
 ---
 
 ## Responsibilities

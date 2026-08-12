@@ -1,16 +1,24 @@
 import { existsSync, mkdirSync, readFileSync, writeFileSync, readdirSync } from 'node:fs'
 import { join } from 'node:path'
+import type { CausalRelationType, DecisionLogEntry as CoreDecisionLogEntry } from '../core/types.js'
 
-export interface DecisionEntry {
+const EDGES_FILE = 'edges.json'
+
+export interface DecisionEntry extends CoreDecisionLogEntry {
+  confidence?: number
+  decisionMaker?: string
+  validFrom?: string
+  validUntil?: string
+  reasoningEmbedding?: number[]
+}
+
+export interface CausalEdge {
   id: string
+  source: string
+  target: string
+  relationshipType: CausalRelationType
   timestamp: string
-  member: string
-  task: string
-  decision: string
-  rationale: string
-  alternatives: Array<{ option: string; reason: string }>
-  outcome: string
-  tags: string[]
+  metadata?: Record<string, unknown>
 }
 
 export interface DecisionSearchResult {
@@ -26,6 +34,7 @@ export interface DecisionLogOptions {
 export class DecisionLog {
   private decisionsDir: string
   private cache: Map<string, DecisionEntry> = new Map()
+  private edgesCache: CausalEdge[] | null = null
 
   constructor(options: DecisionLogOptions = {}) {
     this.decisionsDir = options.decisionsDir ?? join(process.cwd(), '.agenthood', 'decisions')
@@ -38,6 +47,69 @@ export class DecisionLog {
     this.ensureDir()
     writeFileSync(filePath, JSON.stringify(entry, null, 2), 'utf8')
     this.cache.set(entry.id, entry)
+  }
+
+  async addCausalRelationship(sourceId: string, targetId: string, relationshipType: CausalRelationType): Promise<void> {
+    const source = await this.get(sourceId)
+    if (!source) throw new Error(`DecisionLog: source decision "${sourceId}" not found`)
+    const target = await this.get(targetId)
+    if (!target) throw new Error(`DecisionLog: target decision "${targetId}" not found`)
+
+    const edges = this.loadEdges()
+    const edge: CausalEdge = {
+      id: `edge-${sourceId}-${targetId}-${relationshipType.toLowerCase()}`,
+      source: sourceId,
+      target: targetId,
+      relationshipType,
+      timestamp: new Date().toISOString(),
+    }
+    if (edges.some((e) => e.id === edge.id)) return
+    edges.push(edge)
+    this.saveEdges(edges)
+  }
+
+  async traceDecisionChain(id: string): Promise<DecisionEntry[]> {
+    const start = await this.get(id)
+    if (!start) return []
+    const edges = this.loadEdges()
+    const chain: DecisionEntry[] = []
+    const visited = new Set<string>()
+
+    const walk = async (nodeId: string): Promise<void> => {
+      if (visited.has(nodeId)) return
+      visited.add(nodeId)
+      for (const edge of edges) {
+        if (edge.target === nodeId) {
+          await walk(edge.source)
+        }
+      }
+      const entry = await this.get(nodeId)
+      if (entry) chain.push(entry)
+    }
+    await walk(id)
+    return chain
+  }
+
+  async analyzeDecisionImpact(id: string): Promise<DecisionEntry[]> {
+    const start = await this.get(id)
+    if (!start) return []
+    const edges = this.loadEdges()
+    const impacted: DecisionEntry[] = []
+    const visited = new Set<string>([id])
+    const queue = [id]
+
+    while (queue.length > 0) {
+      const nodeId = queue.shift()!
+      for (const edge of edges) {
+        if (edge.source === nodeId && !visited.has(edge.target)) {
+          visited.add(edge.target)
+          const entry = await this.get(edge.target)
+          if (entry) impacted.push(entry)
+          queue.push(edge.target)
+        }
+      }
+    }
+    return impacted
   }
 
   async search(query: string, filters?: { member?: string; tags?: string[] }): Promise<DecisionSearchResult[]> {
@@ -61,6 +133,11 @@ export class DecisionLog {
     return Array.from(this.cache.values())
       .sort((a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime())
       .slice(0, count)
+  }
+
+  async all(): Promise<DecisionEntry[]> {
+    this.loadCache()
+    return Array.from(this.cache.values())
   }
 
   async get(id: string): Promise<DecisionEntry | undefined> {
@@ -100,7 +177,7 @@ export class DecisionLog {
 
   private loadCache(): void {
     if (!existsSync(this.decisionsDir)) return
-    const files = readdirSync(this.decisionsDir).filter((f) => f.endsWith('.json'))
+    const files = readdirSync(this.decisionsDir).filter((f) => f.endsWith('.json') && f !== EDGES_FILE)
     for (const file of files) {
       const id = file.replace('.json', '')
       if (this.cache.has(id)) continue
@@ -112,6 +189,30 @@ export class DecisionLog {
         // skip corrupt files
       }
     }
+  }
+
+  private loadEdges(): CausalEdge[] {
+    if (this.edgesCache) return this.edgesCache
+    const edgesPath = join(this.decisionsDir, EDGES_FILE)
+    if (!existsSync(edgesPath)) {
+      this.edgesCache = []
+      return this.edgesCache
+    }
+    try {
+      const raw = readFileSync(edgesPath, 'utf8')
+      const data = JSON.parse(raw) as { edges: CausalEdge[] }
+      this.edgesCache = Array.isArray(data.edges) ? data.edges : []
+    } catch {
+      this.edgesCache = []
+    }
+    return this.edgesCache
+  }
+
+  private saveEdges(edges: CausalEdge[]): void {
+    this.edgesCache = edges
+    const edgesPath = join(this.decisionsDir, EDGES_FILE)
+    this.ensureDir()
+    writeFileSync(edgesPath, JSON.stringify({ edges }, null, 2), 'utf8')
   }
 
   private sanitizeId(id: string): string {

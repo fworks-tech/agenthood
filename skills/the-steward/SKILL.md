@@ -140,6 +140,9 @@ Produce this document when context must be closed:
 - [Decision 1 and rationale]
 - [Decision 2 and rationale]
 
+## Decision Record
+- [Link to `.agenthood/decisions/<id>.json` and its provenance entry `.agenthood/provenance/<executionId>.json` — every run is already recorded (ADR-015); link the handoff to those records]
+
 ## Work in Progress
 - Branch: [branch name]
 - PR: [PR number and URL if open]

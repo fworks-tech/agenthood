@@ -26,14 +26,18 @@ This is why each memory tier needs an explicit lifecycle. Short-term memory is c
 
 ## How Agenthood implements it
 
-Agenthood's memory model is five tiers, each in `src/memory/`. The interface that unifies them is `IMemoryStore`:
+Agenthood's memory model is five tiers, each in `src/memory/`. The interface that unifies the key-value tiers is `IMemoryStore`:
 
 ```typescript
 export interface IMemoryStore<T> {
-  tier: 'short' | 'long' | 'episodic' | 'project' | 'residual';
-  add(entry: T): Promise<void>;
-  query(selector: MemorySelector): Promise<T[]>;
-  evict(policy: EvictionPolicy): Promise<number>;
+  set(key: string, value: T, ttlMs?: number): Promise<void>;
+  get(key: string): Promise<T | undefined>;
+  delete(key: string): Promise<number>;
+  has(key: string): Promise<boolean>;
+  clear(): Promise<void>;
+  size(): Promise<number>;
+  prune(policy: RetentionPolicy): Promise<number>;
+  stats(): Promise<{ totalEntries: number; oldestEntry: Date | null }>;
 }
 
 export const MEMORY_TIERS = {
@@ -49,12 +53,30 @@ The five tiers serve distinct purposes. **Short-term** holds the working context
 
 ADR-010 covers the vector store backing long-term and project memory (LanceDB, embedded, zero infrastructure).
 
+### Beyond the tiers: decision and provenance records
+
+On top of the five tiers sit the records that make the society accountable
+([ADR-015](../../adr/ADR-015-decision-intelligence-and-provenance.md)). Every
+member run writes:
+
+- a **decision entry** (`.agenthood/decisions/`) — what the member decided,
+  with confidence and causal links to related decisions (`CAUSED`,
+  `INFLUENCED`, `PRECEDENT_FOR`)
+- a **provenance entry** (`.agenthood/provenance/`) — who ran, what activity,
+  what source input, joined into a tamper-evident SHA-256 hash chain that
+  `verifyChain()` can prove unmodified
+
+This is the memory tier that answers *"why did the society do X?"* — decisions
+are traceable to their causes, searchable as precedent, and replayable via
+society-graph snapshots. The full design is in
+[decision-intelligence.md](../../architecture/decision-intelligence.md).
+
 ---
 
 ## Hands-on example
 
 ```bash
-agenthood run the-developer "fix the same bug we fixed in the billing service last week"
+agenthood run the-builder "fix the same bug we fixed in the billing service last week"
 ```
 
 The agent queries episodic memory for past billing-service fixes, retrieves the relevant trace, and applies the learned pattern. Without episodic memory, it would start from scratch:

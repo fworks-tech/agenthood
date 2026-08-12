@@ -56,22 +56,27 @@ Each member is a subagent with:
 Full tool-scope definitions live in [`built-in-tools.md`](built-in-tools.md) and are
 implemented in [`src/members/MemberRegistry.ts`](../src/members/MemberRegistry.ts).
 
-| Member | Key Tools | Permission Profile |
-|--------|-----------|--------------------|
-| The Scribe | git.diff, git.log, git.commit, file.write | standard |
-| The Architect | file.write, file.delete, code.analysis, search.web | standard |
-| The Reviewer | file.read, code.symbols, code.diagnostics | restricted |
-| The Tester | file.write, terminal.run, code.grep | standard |
-| The Debugger | terminal.run, terminal.deep, debug.* | standard |
-| The Auditor | file.read, code.diagnostics, search.web | restricted |
-| The Herald | git.push, git.tag, file.write, search.web | standard |
-| The Librarian | file.write, search.web, search.hybrid | standard |
-| The Doorman | git.diff, git.log, code.diagnostics | restricted |
-| The Oracle | git.log, search.vector, search.hybrid | restricted |
-| The Sentinel | file.read, code.diagnostics | restricted |
-| The Warden | code.grep, code.diagnostics | restricted |
-| The Envoy | file.read, search.web, search.vector | restricted |
-| The Steward | memory.read, memory.write, tasks.* | restricted |
+| Member | Permission Profile | Key Tools |
+|--------|-------------------|-----------|
+| The Scribe | standard | file.write, file.edit, git.*, terminal.run |
+| The Architect | standard | file.write, file.edit, git.*, terminal.run |
+| The Builder | standard | file.write, file.edit, git.*, terminal.run |
+| The Reviewer | restricted | file.read, code.grep, memory.*, tasks.* |
+| The Tester | standard | file.write, file.edit, git.*, terminal.run |
+| The Debugger | standard | file.write, file.edit, git.*, terminal.run |
+| The Auditor | restricted | file.read, code.grep, memory.*, tasks.* |
+| The Herald | standard | file.write, file.edit, git.*, terminal.run |
+| The Librarian | standard | file.write, file.edit, git.*, terminal.run |
+| The Doorman | restricted | file.read, code.grep, memory.*, tasks.* |
+| The Oracle | restricted | file.read, code.grep, memory.*, tasks.* |
+| The Envoy | restricted | file.read, code.grep, memory.*, tasks.* |
+| The Sentinel | restricted | file.read, code.grep, memory.*, tasks.* |
+| The Warden | restricted | file.read, code.grep, memory.*, tasks.* |
+| The Strategist | restricted | file.read, code.grep, memory.*, tasks.* |
+| The Steward | restricted | file.read, code.grep, memory.*, tasks.* |
+| The Operator | restricted | file.read, code.grep, memory.*, tasks.* |
+| The Mailman | standard | file.write, file.edit, git.*, terminal.run |
+| The Inspector | standard | file.write, file.edit, git.*, terminal.run |
 
 ---
 
@@ -138,6 +143,14 @@ The Society remembers across sessions:
 
 Memory is backed by a tiered store: LanceDB for vector storage (`.agenthood/memory/`), ResidualMemory (`.agenthood/residual.json`), KnowledgeGraphStore (`.agenthood/society-graph.json`), and ShortTermMemory (in-memory ring buffer). Multiple namespaces — `shortTerm`, `longTerm`, `episodic`, `project` — keep concerns separated.
 
+On top of the tiers sit the decision and provenance records. Every member run
+writes one entry to the decision log (`.agenthood/decisions/`) and one to the
+provenance store (`.agenthood/provenance/`), linked by the run's
+`executionId`. Decisions connect with causal edges (`CAUSED`, `INFLUENCED`,
+`PRECEDENT_FOR`) in `edges.json`, and the provenance chain is tamper-evident
+(SHA-256 hash chain, `verifyChain()`). See
+[decision-intelligence.md](decision-intelligence.md).
+
 ---
 
 ## Runtime Implementation
@@ -158,6 +171,7 @@ this repo (`src/`), per [ADR-008](../adr/ADR-008-typescript-runtime-over-python.
 | Safety caps | `src/core/SafetyGuard.ts` | ✅ v2.0.0 |
 | Provider failover + circuit breaker | `src/llm/ProviderFailover.ts` | ✅ v2.0.0 |
 | Persistent memory (IMemoryStore, ResidualMemory, InMemoryStore, VectorStore, ShortTerm, LongTerm, Episodic, Project) | `src/memory/` | ✅ Shipped |
+| Decision intelligence (DecisionLog + causal chains, ProvenanceStore, DecisionSearch, GraphSnapshot) | `src/memory/` | ✅ ADR-015 |
 | RAG pipeline (ChunkStrategy (FixedSize + MarkdownHierarchical), Indexer, Retriever, AgenticRAG, TreeSitterParser, ProjectIngestion) | `src/rag/` | ✅ Shipped |
 | Society index (members, ADRs, conventions → KGS + VectorStore) | `src/project/SocietyIndexer.ts` | ✅ Shipped |
 | MemberOrchestrator Phase 1 — detection | `src/reasoning/MemberOrchestrator.ts` | ✅ v2.6.0 |

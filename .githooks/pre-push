@@ -51,19 +51,20 @@ if [ -z "$ISSUE_NUMBER" ]; then
   exit 1
 fi
 
-# ── Check: Issue exists (non-blocking, requires gh CLI) ───────────────────────
-if command -v gh >/dev/null 2>&1; then
+# ── Check: Issue exists (advisory — never blocks the push) ────────────────────
+# Runs only when gh is available AND the remote is GitHub; missing/expired gh
+# auth or a non-GitHub remote silently skips the check.
+REMOTE_URL=$(git remote get-url origin 2>/dev/null || echo "")
+if command -v gh >/dev/null 2>&1 && printf '%s' "$REMOTE_URL" | grep -q 'github.com'; then
   if ! gh issue view "$ISSUE_NUMBER" --json state > /dev/null 2>&1; then
     echo ""
     echo "┌────────────────────────────────────────────────────────────────┐"
-    echo "│ Issue #$ISSUE_NUMBER does not exist.                              │"
+    echo "│ Advisory: issue #$ISSUE_NUMBER not found on GitHub.              │"
     echo "├────────────────────────────────────────────────────────────────┤"
-    echo "│ Create it:                                                     │"
+    echo "│ Push proceeds — but create the issue before opening a PR:     │"
     echo "│   gh issue create --title \"...\"                              │"
     echo "└────────────────────────────────────────────────────────────────┘"
     echo ""
-    echo "  To ignore, push with --no-verify."
-    exit 1
   fi
 fi
 

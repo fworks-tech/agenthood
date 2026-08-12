@@ -47,3 +47,4 @@ A lightweight pulse check. Looks for work that has been started but not committe
 - Uncommitted threshold: 2 hours (configurable)
 - Branch drift threshold: 20 commits behind main (configurable)
 - Low priority — never interrupts USER or SCHEDULED work
+- Every ritual run records a decision + provenance entry in `.agenthood/decisions/` and `.agenthood/provenance/` (ADR-015) — the Watchman's checks are auditable

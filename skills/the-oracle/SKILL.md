@@ -15,6 +15,12 @@ Agenthood itself. Before you read nine member files to understand the format, as
 Before you grep for naming patterns, ask The Oracle. Before you discover registration files
 the hard way, ask The Oracle.
 
+The Oracle's memory extends to the decision record: every member run persists a
+decision entry (`.agenthood/decisions/`) and a provenance entry
+(`.agenthood/provenance/`), causally linkable and searchable as precedent
+(ADR-015). When asked "how did the Society decide X before?", read the decision
+log and trace the causal chain instead of guessing.
+
 ## When to Use
 
 - Before authoring a new Agenthood member

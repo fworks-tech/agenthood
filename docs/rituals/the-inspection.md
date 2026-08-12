@@ -51,3 +51,4 @@ Scans the codebase for code health signals: TODOs and FIXMEs, files exceeding si
 - File size limit is configurable (default: 500 lines)
 - TODO age threshold: flag TODOs older than 30 days
 - Does not modify any files — report only
+- The report's findings can be checked against `.agenthood/provenance/` — past inspection runs are tamper-evident (ADR-015)

@@ -36,8 +36,8 @@
 
   "_comment_conventions": "Paths to the commit template and commitlint config files in your project root.",
   "conventions": {
-    "commitTemplate": ".gitmessage",
-    "commitlintConfig": "commitlint.config.ts"
+    "commitTemplate": "docs/conventions/.gitmessage",
+    "commitlintConfig": "docs/conventions/commitlint.config.ts"
   },
 
   "_comment_provider": "Optional: preferred LLM provider and model. Members use this when they can select their own model.",

@@ -39,6 +39,13 @@ Works with The Architect to record decisions in `docs/adr/`:
 - Context, decision, alternatives, consequences
 - Linked from relevant code with comments pointing to the ADR number
 
+### 2b. Decision Log & Provenance
+ADRs capture the big calls; the decision log captures every run. The runtime
+writes one decision entry (`.agenthood/decisions/`) and one provenance entry
+(`.agenthood/provenance/`) per member run, with causal links and a tamper-evident
+hash chain (ADR-015). Postmortems and ADRs link back to these records instead of
+reconstructing history from git.
+
 ### 3. API Documentation
 From code, generates:
 - Endpoint descriptions with request/response shapes

@@ -84,6 +84,10 @@ npx agenthood list
 The runtime loads each member's `SKILL.md` file at execution time.
 The files are read-only — the runtime never modifies them.
 
+Each run records a decision + provenance entry (`.agenthood/decisions/`,
+`.agenthood/provenance/`) — the tamper-evident audit trail behind every member
+action ([ADR-015](../adr/ADR-015-decision-intelligence-and-provenance.md)).
+
 See [ADR-008](../adr/ADR-008-typescript-runtime-over-python.md) and
 [ADR-009](../adr/ADR-009-groq-as-default-llm-provider.md) for design decisions.
 

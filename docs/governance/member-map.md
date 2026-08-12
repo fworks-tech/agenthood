@@ -43,7 +43,11 @@ A RACI (Responsible / Accountable / Consulted / Informed) matrix documenting all
 **No two members may own the same decision.** When overlap is detected:
 1. The Sentinel flags it
 2. The Oracle proposes a boundary
-3. The Steward routes to the appropriate sole owner
+
+**Owned decisions are recorded.** Every member run writes its decision to the
+decision log (`.agenthood/decisions/`) with a provenance entry — the RACI map
+is enforced by process, and the audit trail makes each member's decisions
+queryable and provable.
 
 ## Escalation Rules
 

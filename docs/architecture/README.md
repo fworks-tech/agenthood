@@ -17,6 +17,7 @@ the *what* and *why*, not the implementation.
 | [operating-modes.md](operating-modes.md) | Agent mode vs Ask mode, when to use each |
 | [provider-failover.md](provider-failover.md) | Multi-LLM support, failure classification, fallback chains |
 | [built-in-tools.md](built-in-tools.md) | Core tool registry, tool scoping per member, safety caps |
+| [decision-intelligence.md](decision-intelligence.md) | Decision records, causal chains, provenance integrity, precedent search |
 
 ---
 
@@ -70,6 +71,7 @@ which superseded the earlier Python/DeepAgents runtime approach.
 | Orchestrator (publish/subscribe event bus) | `src/orchestrator/` | 📋 Planned — Phase 3 |
 | MemberOrchestrator Phase 1 — detection | `src/reasoning/MemberOrchestrator.ts` | ✅ v2.6.0 |
 | Memory tiers (IMemoryStore, ResidualMemory, InMemoryStore, VectorStore, ShortTerm, LongTerm, Episodic, Project, PersonalisationStore) | `src/memory/` | ✅ Shipped |
+| Decision intelligence (DecisionLog + causal chains, ProvenanceStore, DecisionSearch, GraphSnapshot) | `src/memory/` | ✅ ADR-015 |
 | RAG — KnowledgeGraphStore, FixedSizeChunkStrategy + MarkdownHierarchicalChunkStrategy, Indexer, Retriever, AgenticRAG, TreeSitterParser | `src/rag/` | ✅ Shipped |
 | Society index (members, ADRs, conventions) | `src/project/SocietyIndexer.ts` | ✅ Shipped |
 | Governance docs (RACI + release policy) | `../governance/` | ✅ v2.6.0 |

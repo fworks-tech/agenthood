@@ -102,20 +102,24 @@ After title validation, check whether the PR represents a single concern:
 
 ### PR Body Validation
 
-Every PR must link to the issue(s) it resolves via a `Closes #N` or `Fixes #N`
-footer in the description. Without it, GitHub will not auto-close the issue on
-merge — the resolved issue silently stays open.
+Every PR must link to the issue(s) it resolves via a GitHub closing keyword
+(`close`, `closes`, `closed`, `fix`, `fixes`, `fixed`, `resolve`, `resolves`,
+`resolved`) plus an issue number in the description. Without it, GitHub will
+not auto-close the issue on merge — the resolved issue silently stays open.
 
 **Check — Issue link present**
 - Read the PR description
-- Must match `Closes #N` or `Fixes #N` (case-insensitive — GitHub's auto-close
-  keywords are case-insensitive)
+- Must match a closing keyword followed by an issue number (case-insensitive,
+  optional colon after the keyword, `#` before the number is optional —
+  matching GitHub's own keyword semantics)
 - If missing: block with:
-  *"Every PR must link to an issue via `Closes #N` or `Fixes #N`. GitHub auto-closes the issue on merge; without the footer, it stays open — the fix ships and the issue silently lingers."*
+  *"Every PR must link to an issue via a closing keyword (`Closes #N`,
+  `Fixes #N`, `Resolves #N`). GitHub auto-closes the issue on merge; without
+  the footer, it stays open — the fix ships and the issue silently lingers."*
 
 **Enforcement**
 - CI: the Doorman job in `.github/workflows/pr.yml` runs `.github/scripts/pr-body-check.sh` on every non-draft, non-bot PR
-- Draft PRs and bot PRs (Dependabot/Renovate) are skipped — drafts are WIP by definition, bots do not author Closes footers
+- Draft PRs and bot PRs (Dependabot/Renovate) are skipped — drafts are WIP by definition, bots do not author closing keywords
 
 ### Repository Health Check
 
@@ -164,8 +168,6 @@ When writing `.githooks/commit-msg` without npm/node:
 - Vague subject check: exact-match `=` in a shell loop, not substring — prevents "update endpoint" false positive
 - `git show ":$FILE"` reads staged (index) content, not working tree — correct for pre-commit secret scanning
 - NUL-delimited file iteration for filenames with spaces: `git diff --cached --name-only -z | while IFS= read -r -d '' FILE`
-
-For the Agenthood repo itself: run `make setup` — runs the CLI setup command which initializes the runtime configuration.
 
 ### Setup Mode
 

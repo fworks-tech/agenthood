@@ -81,7 +81,7 @@ After writing the description, set the following fields before opening the PR:
 
 **Assignee:**
 - Always assign the repository owner — every PR and issue needs an owner
-- The `auto-assign` workflow catches omissions, but set it explicitly
+- The owner is assigned explicitly here; there is no auto-assign automation, only this step
 
 **Labels:**
 - The `labeler` workflow auto-labels by file path — verify accuracy after open
@@ -141,7 +141,7 @@ begins — The Scribe flags the violation if it reaches PR time.
 
 ## Red Flags
 
-- Any subject containing: `fix`, `update`, `changes`, `misc`, `wip`, `asdf`, `test123`
+- Any subject exactly matching a vague word or phrase: `wip`, `update`, `changes`, `misc`, `asdf`, `test123`, `temp`, `cleanup` — exact match only, never substring (`update endpoint` is a valid subject, `update` alone is not)
 - Subject starting with a capital letter
 - Subject ending with a period
 - Missing type prefix

@@ -1,0 +1,25 @@
+name: Setup Node Environment
+description: Checkout with full history, install Node, and run npm ci
+
+inputs:
+  node-version:
+    description: Node version to install
+    required: false
+    default: "24"
+  install-args:
+    description: Extra args for npm ci
+    required: false
+    default: "--ignore-scripts"
+
+runs:
+  using: composite
+  steps:
+    - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+      with:
+        fetch-depth: 0
+    - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020
+      with:
+        node-version: ${{ inputs.node-version }}
+        cache: npm
+    - run: npm ci ${{ inputs.install-args }}
+      shell: bash

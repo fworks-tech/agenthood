@@ -2,7 +2,7 @@
 
 ### Prerequisites
 
-- Node.js >= 22.14.0
+- Node.js >= 22.14.0 (see `package.json` `engines`; CI pins Node 24 via `.github/actions/setup-env/`)
 - npm >= 10
 
 ### Setup

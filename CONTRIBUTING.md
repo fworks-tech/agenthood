@@ -75,7 +75,7 @@ Hooks are installed by `npx agenthood init` and enforce the format automatically
 
 - Target the `main` branch for feature branches
 - PR title follows the same Conventional Commits format
-- Include Closes/Fixes in the description
+- Include `Closes #N` / `Fixes #N` in the description — mandatory. GitHub auto-closes the issue only when the footer is present; the PR workflow enforces it (`.github/scripts/pr-body-check.sh`)
 - All CI checks must pass before merge
 
 ### Secrets and Credentials

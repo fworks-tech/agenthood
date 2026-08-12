@@ -98,6 +98,7 @@ After translation, validate that AGENTS.md conventions are enforced in the targe
 
 **Check 3 — CI convention checks**
 - Does the target repository have commitlint validation in CI? (See the `commitlint` job in `.github/workflows/pr.yml` for an example.)
+- Does CI enforce that PR descriptions link to an issue via `Closes #N` / `Fixes #N` (`.github/scripts/pr-body-check.sh`)? Without it, resolved issues silently stay open after merge.
 - If not: ⚠️ with install instruction
 
 **Check 4 — Agent behavior rules visibility**

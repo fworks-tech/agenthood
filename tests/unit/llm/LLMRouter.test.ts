@@ -1,9 +1,18 @@
-import { describe, it, expect } from 'vitest'
+import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest'
 import { LLMRouter, ComplexityScorer } from '../../../src/llm/LLMRouter.js'
 import { GroqProvider } from '../../../src/llm/providers/GroqProvider.js'
 import { OllamaProvider } from '../../../src/llm/providers/OllamaProvider.js'
 import { ProviderChain } from '../../../src/llm/ProviderFailover.js'
 import type { LLMRequest } from '../../../src/llm/types.js'
+
+// GroqProvider now fails fast without a key — provide one for routing tests
+beforeEach(() => {
+  process.env.GROQ_API_KEY = 'test-key'
+})
+
+afterEach(() => {
+  delete process.env.GROQ_API_KEY
+})
 
 function makeRequest(overrides?: Partial<LLMRequest>): LLMRequest {
   return {

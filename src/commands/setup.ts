@@ -11,6 +11,7 @@ import type { CommandDescriptor } from './types.js'
 import { join, dirname } from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { execSync } from 'node:child_process'
+import { PROVIDER_KEYS } from '../llm/validateApiKeys.js'
 
 const __dirname = dirname(fileURLToPath(import.meta.url))
 const REPO_ROOT = join(__dirname, '..', '..')
@@ -52,7 +53,29 @@ export async function setup(): Promise<void> {
   console.log('│  prepare-commit-msg             — template injection        │')
   console.log('│  pre-push           The Doorman — block push to main        │')
   console.log('└─────────────────────────────────────────────────────────────┘\n')
+
+  printProviderKeyStatus()
+
   console.log('The Society is watching. Ship with confidence.\n')
+}
+
+function printProviderKeyStatus(): void {
+  const missing: Array<{ envVar: string; signupUrl: string }> = []
+  const unique = new Map<string, { envVar: string; signupUrl: string }>()
+  for (const info of Object.values(PROVIDER_KEYS)) unique.set(info.envVar, info)
+  for (const info of unique.values()) {
+    if (!process.env[info.envVar]) missing.push(info)
+  }
+
+  if (missing.length === 0) {
+    console.log('✓  All LLM provider API keys are set in the environment.')
+    return
+  }
+  console.log('ℹ  LLM provider API keys not yet set (needed for `agenthood run`):')
+  for (const { envVar, signupUrl } of missing) {
+    console.log(`     ${envVar.padEnd(20)} get a key at ${signupUrl}`)
+  }
+  console.log('   Ollama needs no key — run `ollama serve` locally instead.\n')
 }
 
 function activateHooksPath(): void {

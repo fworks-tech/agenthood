@@ -9,6 +9,10 @@ export class GroqProvider extends ChatCompletionsProvider {
     const options: ChatCompletionsProviderOptions = {
       providerName: "Groq",
       apiKeyEnv: "GROQ_API_KEY",
+      // Fail fast at construction with a clear MissingApiKeyError instead of
+      // letting the SDK build with an empty key and surface a generic 401 later
+      requireApiKey: true,
+      signupUrl: "https://console.groq.com",
       envModelVar: "GROQ_DEFAULT_MODEL",
       defaultModel: GROQ_DEFAULT_MODEL,
       contextWindow: DEFAULT_CONTEXT_WINDOW,

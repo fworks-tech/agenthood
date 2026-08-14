@@ -9,6 +9,7 @@ import { resolveSkillsDir } from '../members.js'
 import { JSONFileTraceStore } from '../core/TraceStore.js'
 import { summarizeMemberWindows } from '../core/traceSummary.js'
 import type { TraceWindow } from '../core/traceSummary.js'
+import type { Anomaly } from '../core/AnomalyDetector.js'
 import { EpisodeLearner } from '../evals/EpisodeLearner.js'
 import { LanceDBStore } from '../memory/VectorStore.js'
 
@@ -234,6 +235,45 @@ function printMemberWindows(member: string, windows: TraceWindow[], json: boolea
   console.log()
 }
 
+async function printAlerts(cwd: string, json: boolean, limit: number): Promise<void> {
+  const alertsPath = join(cwd, '.agenthood', 'alerts', 'anomalies.ndjson')
+  if (!existsSync(alertsPath)) {
+    console.log('\n  No anomaly alerts recorded yet.\n')
+    return
+  }
+
+  const anomalies: Anomaly[] = []
+  for (const line of readFileSync(alertsPath, 'utf8').split('\n')) {
+    if (!line.trim()) continue
+    try {
+      anomalies.push(JSON.parse(line) as Anomaly)
+    } catch {
+      // skip corrupt lines
+    }
+  }
+  const recent = anomalies.slice(-limit)
+
+  if (json) {
+    console.log(JSON.stringify({ count: anomalies.length, alerts: recent }, null, 2))
+    return
+  }
+
+  if (recent.length === 0) {
+    console.log('\n  No anomaly alerts recorded yet.\n')
+    return
+  }
+
+  console.log(`\n  Anomaly Alerts (${anomalies.length} total, showing ${recent.length})\n`)
+  console.log(`  ${'Type'.padEnd(18)} ${'Member'.padEnd(20)} ${'Current'.padEnd(10)} ${'Baseline'.padEnd(10)} Timestamp`)
+  console.log(`  ${''.padEnd(18, '-')} ${''.padEnd(20, '-')} ${''.padEnd(10, '-')} ${''.padEnd(10, '-')} ${''.padEnd(24, '-')}`)
+  for (const a of recent) {
+    console.log(
+      `  ${a.type.padEnd(18)} ${a.member.length > 18 ? `${a.member.slice(0, 18)}\u2026` : a.member.padEnd(20)} ${String(a.current).padEnd(10)} ${String(a.baseline).padEnd(10)} ${a.timestamp}`,
+    )
+  }
+  console.log()
+}
+
 export const command: CommandDescriptor = {
   name: 'status',
   description: 'Show project health and member metrics',
@@ -254,6 +294,13 @@ export async function status(args: string[] = []): Promise<void> {
 
   if (flags.has('--learner')) {
     await printLearnerStatus(cwd, isJson)
+    return
+  }
+
+  if (flags.has('--alerts')) {
+    const limitIndex = args.indexOf('--limit')
+    const limit = limitIndex >= 0 ? Number.parseInt(args[limitIndex + 1] ?? '20', 10) : 20
+    await printAlerts(cwd, isJson, Number.isNaN(limit) || limit < 0 ? 20 : limit)
     return
   }
 

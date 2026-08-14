@@ -1,7 +1,7 @@
-import { existsSync, readFileSync } from 'node:fs'
+import { existsSync } from 'node:fs'
 import { join } from 'node:path'
 
-import { JSONFileTraceStore } from '../core/TraceStore.js'
+import { JSONFileTraceStore, loadObservabilityConfig, resolveTraceStorePath } from '../core/TraceStore.js'
 import { healthCheck } from '../core/healthCheck.ts'
 import type { HealthReport, HealthDeps } from '../core/healthCheck.ts'
 import { MemberRegistry } from '../members/index.ts'
@@ -43,7 +43,7 @@ export const command: CommandDescriptor = {
 }
 
 async function collectHealthDeps(cwd: string, config: Awaited<ReturnType<typeof loadConfig>>): Promise<HealthDeps> {
-  const tracesPath = join(cwd, '.agenthood', 'traces', 'traces.ndjson')
+  const tracesPath = resolveTraceStorePath(cwd, loadObservabilityConfig(cwd))
   const store = new JSONFileTraceStore(tracesPath)
 
   // real store state instead of a stub tracer that is always empty
@@ -66,7 +66,7 @@ async function collectHealthDeps(cwd: string, config: Awaited<ReturnType<typeof 
     },
   }))
 
-  const rawConfig = readRawConfig(cwd)
+  const rawConfig = loadObservabilityConfig(cwd)
   const retentionBlock = (rawConfig.observability as Record<string, unknown> | undefined)?.retention
 
   return {
@@ -80,16 +80,6 @@ async function collectHealthDeps(cwd: string, config: Awaited<ReturnType<typeof 
   }
 }
 
-function readRawConfig(cwd: string): Record<string, unknown> {
-  const configPath = join(cwd, '.agenthood', 'config.json')
-  if (!existsSync(configPath)) return {}
-  try {
-    const raw = JSON.parse(readFileSync(configPath, 'utf8'))
-    return typeof raw === 'object' && raw !== null ? (raw as Record<string, unknown>) : {}
-  } catch {
-    return {}
-  }
-}
 
 export async function health(args: string[] = []): Promise<void> {
   const json = args.includes('--json')

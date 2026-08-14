@@ -113,3 +113,28 @@ describe('JSONFileTraceStore', () => {
     }
   })
 })
+
+describe('resolveTraceStorePath', () => {
+  it('defaults to the conventional traces path', async () => {
+    const { resolveTraceStorePath } = await import('../../../src/core/TraceStore.js')
+    expect(resolveTraceStorePath('/proj', {})).toBe(join('/proj', '.agenthood', 'traces', 'traces.ndjson'))
+  })
+
+  it('resolves a relative tracePath against the project root', async () => {
+    const { resolveTraceStorePath } = await import('../../../src/core/TraceStore.js')
+    const path = resolveTraceStorePath('/proj', { observability: { tracePath: 'var/traces.ndjson' } })
+    expect(path).toBe(join('/proj', 'var', 'traces.ndjson'))
+  })
+
+  it('keeps an absolute tracePath as-is', async () => {
+    const { resolveTraceStorePath } = await import('../../../src/core/TraceStore.js')
+    const path = resolveTraceStorePath('/proj', { observability: { tracePath: 'D:/custom/traces.ndjson' } })
+    expect(path).toBe('D:/custom/traces.ndjson')
+  })
+
+  it('ignores an empty or non-string tracePath', async () => {
+    const { resolveTraceStorePath } = await import('../../../src/core/TraceStore.js')
+    expect(resolveTraceStorePath('/proj', { observability: { tracePath: '' } })).toBe(join('/proj', '.agenthood', 'traces', 'traces.ndjson'))
+    expect(resolveTraceStorePath('/proj', { observability: { tracePath: 42 } })).toBe(join('/proj', '.agenthood', 'traces', 'traces.ndjson'))
+  })
+})

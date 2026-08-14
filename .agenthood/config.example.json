@@ -91,5 +91,28 @@
     "tests": true,
     "impact": true,
     "lint": true
+  },
+
+  "_comment_observability": "Optional: observability stack. Redaction strips PII/secrets from persisted traces, decisions, and provenance; retention prunes old traces; alerts tune anomaly thresholds; tracePath relocates the trace store.",
+  "observability": {
+    "redaction": {
+      "enabled": false,
+      "_comment": "Set enabled true to strip emails, API keys, bearer tokens, URL query values, and IPs from persisted payloads. rules/paths add custom regex sources and path roots.",
+      "rules": [],
+      "paths": []
+    },
+    "retention": {
+      "ttlDays": 30,
+      "maxEntries": 1000,
+      "exportEnabled": false,
+      "exportPath": ".agenthood/exports"
+    },
+    "alerts": {
+      "costThreshold": 3,
+      "qualityDrop": 0.2,
+      "burstThreshold": 10,
+      "cooldownMinutes": 60
+    },
+    "tracePath": ".agenthood/traces/traces.ndjson"
   }
 }

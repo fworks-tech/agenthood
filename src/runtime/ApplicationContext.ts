@@ -1,5 +1,5 @@
 import { randomUUID } from 'node:crypto'
-import { existsSync, readFileSync } from 'node:fs'
+import { existsSync } from 'node:fs'
 import { join } from 'node:path'
 
 import { AgentRegistry } from '../core/AgentRegistry.ts'
@@ -7,7 +7,13 @@ import type { ExecutionContext } from '../core/ExecutionContext.ts'
 import { createRedactionFilterFromConfig } from '../core/RedactionFilter.ts'
 import { AnomalyDetector, appendAnomalies, createAnomalyConfigFromConfig } from '../core/AnomalyDetector.ts'
 import { Tracer } from '../core/Tracer.ts'
-import { JSONFileTraceStore, RetentionManager, createRetentionPolicyFromConfig } from '../core/TraceStore.ts'
+import {
+  JSONFileTraceStore,
+  RetentionManager,
+  createRetentionPolicyFromConfig,
+  loadObservabilityConfig,
+  resolveTraceStorePath,
+} from '../core/TraceStore.ts'
 import { EmbeddingIndex, reindexLegacyPatterns } from '../evals/EmbeddingIndex.ts'
 import { EpisodeLearner } from '../evals/EpisodeLearner.ts'
 import { LLMRouter } from '../llm/LLMRouter.ts'
@@ -76,8 +82,8 @@ export class ApplicationContext {
     const oracleAgent = this.setupOracle(llm, societyGraph)
     const memory = this.buildMemoryTiers(llm, vectorStore, societyGraph, projectPath)
 
-    const traceStore = new JSONFileTraceStore(join(projectPath, '.agenthood', 'traces', 'traces.ndjson'))
-    const projectConfig = loadProjectConfig(projectPath)
+    const projectConfig = loadObservabilityConfig(projectPath)
+    const traceStore = new JSONFileTraceStore(resolveTraceStorePath(projectPath, projectConfig))
     const redactor = createRedactionFilterFromConfig(projectConfig)
     this.anomalyDetector = new AnomalyDetector(createAnomalyConfigFromConfig(projectConfig))
 
@@ -288,18 +294,6 @@ async function connectVectorStore(projectPath: string): Promise<LanceDBStore> {
     console.warn(`[run] vector store unavailable: ${(e as Error)?.message ?? e}`)
   }
   return vectorStore
-}
-
-/** Reads the project config file, or an empty object when missing/corrupt. */
-function loadProjectConfig(projectPath: string): Record<string, unknown> {
-  const configPath = join(projectPath, '.agenthood', 'config.json')
-  if (!existsSync(configPath)) return {}
-  try {
-    const raw = JSON.parse(readFileSync(configPath, 'utf8'))
-    return typeof raw === 'object' && raw !== null ? (raw as Record<string, unknown>) : {}
-  } catch {
-    return {}
-  }
 }
 
 function loadSocietyGraph(projectPath: string): KnowledgeGraphStore {

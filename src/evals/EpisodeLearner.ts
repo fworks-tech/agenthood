@@ -11,16 +11,48 @@ export interface LearningOutcome {
   skill: string
 }
 
+export interface LearnerStatus {
+  lastUpdate: string | null
+  highScoreCount: number
+  midScoreCount: number
+  lowScoreCount: number
+  totalEpisodes: number
+  confidenceTrend: 'rising' | 'falling' | 'stable'
+  memberBreakdown: Record<string, { learned: number; antipatterns: number }>
+}
+
 const HIGH_SCORE_THRESHOLD = 0.8
 const LOW_SCORE_THRESHOLD = 0.4
+const TREND_BAND = 0.05
+const SCORE_HISTORY_CAP = 50
 
 export class EpisodeLearner {
   private residualMemory?: ResidualMemory
   private matcher?: SemanticPatternMatcher
+  private highScoreCount = 0
+  private midScoreCount = 0
+  private lowScoreCount = 0
+  private totalEpisodes = 0
+  private lastUpdate: string | null = null
+  private scoreHistory: number[] = []
+  private memberBreakdown: Record<string, { learned: number; antipatterns: number }> = {}
 
   constructor(residualMemory?: ResidualMemory, matcher?: SemanticPatternMatcher) {
     this.residualMemory = residualMemory
     this.matcher = matcher
+  }
+
+  /** Current learning state: band counts, totals, trend, and per-member breakdown. */
+  getStatus(): LearnerStatus {
+    return {
+      lastUpdate: this.lastUpdate,
+      highScoreCount: this.highScoreCount,
+      midScoreCount: this.midScoreCount,
+      lowScoreCount: this.lowScoreCount,
+      totalEpisodes: this.totalEpisodes,
+      confidenceTrend: this.confidenceTrend(),
+      memberBreakdown: this.memberBreakdown,
+    }
   }
 
   async learn(
@@ -38,18 +70,49 @@ export class EpisodeLearner {
     const skill = evalResult.metadata?.skill ?? "unknown"
     const avgScore = this.averageScore(evalResult.scores)
 
+    this.totalEpisodes++
+    this.lastUpdate = new Date().toISOString()
+    this.scoreHistory.push(avgScore)
+    if (this.scoreHistory.length > SCORE_HISTORY_CAP) this.scoreHistory.shift()
+
     const data = { episode: episode.episode, score: avgScore, member, skill }
     if (avgScore >= HIGH_SCORE_THRESHOLD) {
+      this.highScoreCount++
+      this.trackMember(member, 'learned')
       await this.storeOutcome('learned', data, context)
     } else if (avgScore < LOW_SCORE_THRESHOLD) {
+      this.lowScoreCount++
+      this.trackMember(member, 'antipattern')
       await this.storeOutcome('antipattern', data, context)
     } else {
+      this.midScoreCount++
       context.tracer.endSpan("episode-learner", {
         action: "skip",
         episodeId: evalResult.episodeId,
         avgScore,
       })
     }
+  }
+
+  private trackMember(member: string, kind: 'learned' | 'antipattern'): void {
+    const entry = this.memberBreakdown[member] ?? { learned: 0, antipatterns: 0 }
+    if (kind === 'learned') entry.learned++
+    else entry.antipatterns++
+    this.memberBreakdown[member] = entry
+  }
+
+  /** Compares the mean of the newer half of scored episodes against the older half. */
+  private confidenceTrend(): 'rising' | 'falling' | 'stable' {
+    if (this.scoreHistory.length < 4) return 'stable'
+    const half = Math.floor(this.scoreHistory.length / 2)
+    const older = this.scoreHistory.slice(0, half)
+    const newer = this.scoreHistory.slice(half)
+    const olderMean = older.reduce((a, b) => a + b, 0) / older.length
+    const newerMean = newer.reduce((a, b) => a + b, 0) / newer.length
+    const delta = newerMean - olderMean
+    if (delta > TREND_BAND) return 'rising'
+    if (delta < -TREND_BAND) return 'falling'
+    return 'stable'
   }
 
   private averageScore(scores: Record<string, number>): number {

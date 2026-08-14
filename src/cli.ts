@@ -83,6 +83,7 @@ Commands:
                             Use --json for machine-readable output
                             Use --drift to detect SKILL.md drift vs lockfile
                             Use --member <name> for per-member trace summaries
+                            Use --learner for EpisodeLearner learning status
   trace                   List recent member invocation traces
                             Use --member <name>, --limit <n>, --since <time>
                             Use --json for machine-readable output

@@ -3,6 +3,9 @@ import { createTestContext } from '../../helpers/testContext.ts'
 import type { EvalResult, LongTermMemory } from '../../../src/core/types.ts'
 import type { ExecutionContext } from '../../../src/core/ExecutionContext.ts'
 import type { ResidualMemory } from '../../../src/memory/ResidualMemory.ts'
+import { EpisodeLearner } from '../../../src/evals/EpisodeLearner.js'
+import { SemanticPatternMatcher } from '../../../src/evals/SemanticPatternMatcher.js'
+import { hashPattern } from '../../../src/utils/hash.js'
 
 describe('EpisodeLearner', () => {
   let mockLongTerm: LongTermMemory
@@ -42,7 +45,6 @@ describe('EpisodeLearner', () => {
   })
 
   it('writes pattern to LongTermMemory under learnings/ for high scores', async () => {
-    const { EpisodeLearner } = await import('../../../src/evals/EpisodeLearner.js')
     const learner = new EpisodeLearner(mockResidual)
 
     const evalResult: EvalResult = {
@@ -64,7 +66,6 @@ describe('EpisodeLearner', () => {
   })
 
   it('reinforces ResidualMemory for high scores', async () => {
-    const { EpisodeLearner } = await import('../../../src/evals/EpisodeLearner.js')
     const learner = new EpisodeLearner(mockResidual)
 
     const evalResult: EvalResult = {
@@ -82,7 +83,6 @@ describe('EpisodeLearner', () => {
   })
 
   it('writes anti-pattern to LongTermMemory under antipatterns/ for low scores', async () => {
-    const { EpisodeLearner } = await import('../../../src/evals/EpisodeLearner.js')
     const learner = new EpisodeLearner(mockResidual)
 
     const evalResult: EvalResult = {
@@ -103,7 +103,6 @@ describe('EpisodeLearner', () => {
   })
 
   it('decays ResidualMemory signal for low scores', async () => {
-    const { EpisodeLearner } = await import('../../../src/evals/EpisodeLearner.js')
     const learner = new EpisodeLearner(mockResidual)
 
     const evalResult: EvalResult = {
@@ -121,7 +120,6 @@ describe('EpisodeLearner', () => {
   })
 
   it('does nothing for mid-range scores', async () => {
-    const { EpisodeLearner } = await import('../../../src/evals/EpisodeLearner.js')
     const learner = new EpisodeLearner(mockResidual)
 
     const evalResult: EvalResult = {
@@ -137,7 +135,6 @@ describe('EpisodeLearner', () => {
   })
 
   it('does nothing when scores object is empty', async () => {
-    const { EpisodeLearner } = await import('../../../src/evals/EpisodeLearner.js')
     const learner = new EpisodeLearner(mockResidual)
 
     const evalResult: EvalResult = {
@@ -152,7 +149,6 @@ describe('EpisodeLearner', () => {
   })
 
   it('does nothing when episode is not found', async () => {
-    const { EpisodeLearner } = await import('../../../src/evals/EpisodeLearner.js')
     const learner = new EpisodeLearner(mockResidual)
 
     context = createTestContext({
@@ -179,7 +175,6 @@ describe('EpisodeLearner', () => {
   })
 
   it('is idempotent — calling learn() twice with same args does not error', async () => {
-    const { EpisodeLearner } = await import('../../../src/evals/EpisodeLearner.js')
     const learner = new EpisodeLearner(mockResidual)
 
     const evalResult: EvalResult = {
@@ -196,7 +191,6 @@ describe('EpisodeLearner', () => {
   })
 
   it('works without ResidualMemory', async () => {
-    const { EpisodeLearner } = await import('../../../src/evals/EpisodeLearner.js')
     const learner = new EpisodeLearner()
 
     const evalResult: EvalResult = {
@@ -209,9 +203,6 @@ describe('EpisodeLearner', () => {
   })
 
   it('uses existing pattern key when matcher finds a semantic match', async () => {
-    const { SemanticPatternMatcher } = await import('../../../src/evals/SemanticPatternMatcher.js')
-    const { EpisodeLearner } = await import('../../../src/evals/EpisodeLearner.js')
-    const { hashPattern } = await import('../../../src/utils/hash.js')
 
     const mockVecStore = {
       connect: vi.fn(),
@@ -271,9 +262,6 @@ describe('EpisodeLearner', () => {
   })
 
   it('falls back to hash-based matching and adds pattern when matcher finds no match', async () => {
-    const { SemanticPatternMatcher } = await import('../../../src/evals/SemanticPatternMatcher.js')
-    const { EpisodeLearner } = await import('../../../src/evals/EpisodeLearner.js')
-
     const mockVecStore = {
       connect: vi.fn(),
       add: vi.fn(),
@@ -328,5 +316,93 @@ describe('EpisodeLearner', () => {
 
     expect(mockLongTerm.store).toHaveBeenCalledOnce()
     expect(mockVecStore.add).toHaveBeenCalledOnce()
+  })
+})
+
+describe('EpisodeLearner status', () => {
+  let mockLongTerm: LongTermMemory
+  let context: ExecutionContext
+
+  beforeEach(() => {
+    mockLongTerm = {
+      store: vi.fn(),
+      retrieve: vi.fn(),
+    }
+    context = createTestContext({
+      memory: {
+        ...createTestContext().memory,
+        longTerm: mockLongTerm,
+        episodic: {
+          record: vi.fn(),
+          recall: vi.fn(),
+          getEpisode: vi.fn().mockResolvedValue({
+            episode: 'episode text',
+            outcome: 'success',
+            timestamp: new Date().toISOString(),
+          }),
+        },
+      },
+    })
+  })
+
+  it('shows zero values before any learn() call', async () => {
+    const learner = new EpisodeLearner()
+    expect(learner.getStatus()).toEqual({
+      lastUpdate: null,
+      highScoreCount: 0,
+      midScoreCount: 0,
+      lowScoreCount: 0,
+      totalEpisodes: 0,
+      confidenceTrend: 'stable',
+      memberBreakdown: {},
+    })
+  })
+
+  it('counts bands and members across learn() calls', async () => {
+    const learner = new EpisodeLearner()
+
+    await learner.learn({ episodeId: 'a', scores: { x: 0.9 }, metadata: { member: 'the-scribe' } }, context)
+    await learner.learn({ episodeId: 'b', scores: { x: 0.85 }, metadata: { member: 'the-scribe' } }, context)
+    await learner.learn({ episodeId: 'c', scores: { x: 0.95 }, metadata: { member: 'the-reviewer' } }, context)
+    await learner.learn({ episodeId: 'd', scores: { x: 0.3 }, metadata: { member: 'the-scribe' } }, context)
+    await learner.learn({ episodeId: 'e', scores: { x: 0.2 }, metadata: { member: 'the-reviewer' } }, context)
+
+    const status = learner.getStatus()
+    expect(status.totalEpisodes).toBe(5)
+    expect(status.highScoreCount).toBe(3)
+    expect(status.lowScoreCount).toBe(2)
+    expect(status.midScoreCount).toBe(0)
+    expect(status.lastUpdate).toBeTruthy()
+    expect(status.memberBreakdown['the-scribe']).toEqual({ learned: 2, antipatterns: 1 })
+    expect(status.memberBreakdown['the-reviewer']).toEqual({ learned: 1, antipatterns: 1 })
+  })
+
+  it('counts mid-band episodes separately', async () => {
+    const learner = new EpisodeLearner()
+    await learner.learn({ episodeId: 'm', scores: { x: 0.6 }, metadata: { member: 'the-scribe' } }, context)
+    expect(learner.getStatus().midScoreCount).toBe(1)
+    expect(learner.getStatus().lowScoreCount).toBe(0)
+  })
+
+  it('reports a rising confidence trend for improving scores', async () => {
+    const learner = new EpisodeLearner()
+    for (const score of [0.4, 0.45, 0.8, 0.85, 0.9, 0.95]) {
+      await learner.learn({ episodeId: String(score), scores: { x: score }, metadata: { member: 'the-scribe' } }, context)
+    }
+    expect(learner.getStatus().confidenceTrend).toBe('rising')
+  })
+
+  it('reports a falling confidence trend for degrading scores', async () => {
+    const learner = new EpisodeLearner()
+    for (const score of [0.9, 0.85, 0.4, 0.35, 0.3, 0.25]) {
+      await learner.learn({ episodeId: String(score), scores: { x: score }, metadata: { member: 'the-scribe' } }, context)
+    }
+    expect(learner.getStatus().confidenceTrend).toBe('falling')
+  })
+
+  it('does not count episodes with empty scores', async () => {
+    const learner = new EpisodeLearner()
+    await learner.learn({ episodeId: 'empty', scores: {}, metadata: { member: 'the-scribe' } }, context)
+    expect(learner.getStatus().totalEpisodes).toBe(0)
   })
 })

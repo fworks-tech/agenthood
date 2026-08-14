@@ -9,6 +9,8 @@ import { resolveSkillsDir } from '../members.js'
 import { JSONFileTraceStore } from '../core/TraceStore.js'
 import { summarizeMemberWindows } from '../core/traceSummary.js'
 import type { TraceWindow } from '../core/traceSummary.js'
+import { EpisodeLearner } from '../evals/EpisodeLearner.js'
+import { LanceDBStore } from '../memory/VectorStore.js'
 
 function formatDuration(ms: number): string {
   if (ms < 1000) return `${ms}ms`
@@ -133,6 +135,80 @@ function runWatchLoop(cwd: string, stats: ProjectStats, display: (m: number, d: 
   process.on('SIGTERM', () => { clearInterval(interval); process.exit(0) })
 }
 
+interface PersistedPatternCounts {
+  learned: number
+  antipatterns: number
+  byMember: Record<string, { learned: number; antipatterns: number }>
+}
+
+function safeParseOutcome(content: string | undefined): { member?: string } | null {
+  if (!content) return null
+  try {
+    const parsed = JSON.parse(content) as { member?: string }
+    return typeof parsed === 'object' && parsed !== null ? parsed : null
+  } catch {
+    return null
+  }
+}
+
+async function loadPersistedPatterns(cwd: string): Promise<PersistedPatternCounts> {
+  const empty: PersistedPatternCounts = { learned: 0, antipatterns: 0, byMember: {} }
+  const store = new LanceDBStore(1536)
+  try {
+    await store.connect(join(cwd, '.agenthood', 'memory'))
+    const [learned, antipatterns] = await Promise.all([
+      store.getByKeyPrefix('learnings'),
+      store.getByKeyPrefix('antipatterns'),
+    ])
+    store.disconnect()
+
+    const byMember: PersistedPatternCounts['byMember'] = {}
+    for (const [records, kind] of [
+      [learned, 'learned'],
+      [antipatterns, 'antipatterns'],
+    ] as const) {
+      for (const record of records) {
+        const outcome = safeParseOutcome(record.content)
+        const member = outcome?.member ?? 'unknown'
+        const entry = byMember[member] ?? { learned: 0, antipatterns: 0 }
+        entry[kind]++
+        byMember[member] = entry
+      }
+    }
+    return { learned: learned.length, antipatterns: antipatterns.length, byMember }
+  } catch {
+    return empty
+  }
+}
+
+async function printLearnerStatus(cwd: string, json: boolean): Promise<void> {
+  const learner = new EpisodeLearner()
+  const status = learner.getStatus()
+  const persisted = await loadPersistedPatterns(cwd)
+
+  if (json) {
+    console.log(JSON.stringify({ session: status, persisted }, null, 2))
+    return
+  }
+
+  console.log(`\n  EpisodeLearner\n`)
+  console.log(`  Session episodes:  ${status.totalEpisodes} (high ${status.highScoreCount} / mid ${status.midScoreCount} / low ${status.lowScoreCount})`)
+  console.log(`  Confidence trend:  ${status.confidenceTrend}`)
+  console.log(`  Last update:       ${status.lastUpdate ?? 'never'}`)
+  console.log(`  Persisted patterns: ${persisted.learned} learned, ${persisted.antipatterns} anti-patterns\n`)
+  const members = Object.keys(persisted.byMember).sort()
+  if (members.length > 0) {
+    console.log(`  Per member:\n`)
+    for (const member of members) {
+      const counts = persisted.byMember[member]
+      console.log(`    ${member.padEnd(20)} ${counts.learned} learned, ${counts.antipatterns} anti-patterns`)
+    }
+    console.log()
+  } else {
+    console.log('  No persisted patterns yet. Evaluation with scores activates the learner.\n')
+  }
+}
+
 function printMemberWindows(member: string, windows: TraceWindow[], json: boolean): void {
   if (json) {
     const payload: Record<string, unknown> = { member }
@@ -173,6 +249,11 @@ export async function status(args: string[] = []): Promise<void> {
 
   if (isDrift) {
     reportDrift(cwd)
+    return
+  }
+
+  if (flags.has('--learner')) {
+    await printLearnerStatus(cwd, isJson)
     return
   }
 

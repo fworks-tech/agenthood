@@ -1,3 +1,10 @@
+# [3.27.0](https://github.com/fworks-tech/agenthood/compare/v3.26.0...v3.27.0) (2026-08-14)
+
+
+### Features
+
+* **evals:** add replay evaluator for behavior drift ([27d729f](https://github.com/fworks-tech/agenthood/commit/27d729f8df51ef1d444f9d094c2ea5376d828aec)), closes [#314](https://github.com/fworks-tech/agenthood/issues/314)
+
 # [3.26.0](https://github.com/fworks-tech/agenthood/compare/v3.25.0...v3.26.0) (2026-08-14)
 
 

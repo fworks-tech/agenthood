@@ -5,6 +5,14 @@
 
 ---
 
+## v3.27.0 — August 14, 2026
+
+### ✨ Features
+
+- **Evals:** add replay evaluator for behavior drift
+
+---
+
 ## v3.26.0 — August 14, 2026
 
 ### ✨ Features

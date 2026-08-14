@@ -272,3 +272,45 @@ describe('status --learner', () => {
     expect(output).toContain('persisted')
   })
 })
+
+describe('status --alerts', () => {
+  it('prints a message when no alerts exist yet', async () => {
+    vi.mocked(existsSync).mockReturnValue(false)
+    const log = vi.spyOn(console, 'log').mockImplementation(() => {})
+
+    await status(['--alerts'])
+
+    expect(log.mock.calls.flat().join(' ')).toContain('No anomaly alerts')
+  })
+
+  it('renders recent alerts from the anomalies file', async () => {
+    vi.mocked(existsSync).mockImplementation((path) => (path as string).includes('anomalies.ndjson'))
+    vi.mocked(readFileSync).mockReturnValue(
+      '{"type":"cost_spike","member":"the-builder","current":4,"baseline":0.5,"timestamp":"2026-08-14T00:00:00.000Z"}\n' +
+      '{"type":"quality_drop","member":"the-reviewer","current":0.4,"baseline":0.8,"timestamp":"2026-08-14T00:01:00.000Z"}\n',
+    )
+    const log = vi.spyOn(console, 'log').mockImplementation(() => {})
+
+    await status(['--alerts'])
+
+    const output = log.mock.calls.flat().join(' ')
+    expect(output).toContain('cost_spike')
+    expect(output).toContain('quality_drop')
+    expect(output).toContain('the-builder')
+  })
+
+  it('outputs JSON with --alerts --json', async () => {
+    vi.mocked(existsSync).mockImplementation((path) => (path as string).includes('anomalies.ndjson'))
+    vi.mocked(readFileSync).mockReturnValue('{"type":"cost_spike","member":"the-builder","current":4,"baseline":0.5,"timestamp":"2026-08-14T00:00:00.000Z"}\n')
+    const log = vi.spyOn(console, 'log').mockImplementation(() => {})
+
+    await status(['--alerts', '--json'])
+
+    // console.log is a shared spy across tests in this file, so read only the
+    // last call this test produced
+    const lastCall = log.mock.calls.at(-1)?.[0] ?? ''
+    const parsed = JSON.parse(lastCall)
+    expect(parsed.count).toBe(1)
+    expect(parsed.alerts[0].type).toBe('cost_spike')
+  })
+})

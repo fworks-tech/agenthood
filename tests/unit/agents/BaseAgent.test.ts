@@ -185,7 +185,16 @@ describe('BaseAgent', () => {
   })
 
   it('emits a trace envelope after a successful run', async () => {
-    const agent = new TestAgent(llm, loop, toolRegistry)
+    const bigUsageLlm: ILLMProvider = {
+      ...llm,
+      complete: vi.fn().mockResolvedValue({
+        content: 'mock output',
+        usage: { promptTokens: 1_000_000, completionTokens: 1_000_000, totalTokens: 2_000_000 },
+        model: 'mock-model',
+      }),
+    }
+    const bigUsageLoop = new ReActLoop(bigUsageLlm, new ToolRegistry())
+    const agent = new TestAgent(bigUsageLlm, bigUsageLoop, toolRegistry)
     const context = createTestContext()
 
     await agent.run('test task', context)
@@ -199,8 +208,11 @@ describe('BaseAgent', () => {
       correlationId: context.executionId,
       source: 'api',
       qualityScore: null,
-      tokenCount: { input: 10, output: 10, total: 20 },
+      tokenCount: { input: 1_000_000, output: 1_000_000, total: 2_000_000 },
     })
+    // mock-model is unknown → fallback pricing: $1/1M in, $3/1M out
+    expect(env.cost).toBe(4)
+    expect(env.model).toBe('mock-model')
     expect(env.durationMs).toBeGreaterThanOrEqual(0)
     expect(env.inputHash).toHaveLength(64)
     expect(env.outputHash).toHaveLength(64)

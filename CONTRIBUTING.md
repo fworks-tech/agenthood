@@ -101,6 +101,8 @@ Redaction: trace payload text can be scrubbed before persistence via `{ "observa
 
 Retention: `{ "observability": { "retention": { "ttlDays": 30, "maxEntries": 100000, "exportEnabled": true, "exportPath": "./traces/export" } } }` bounds the trace store — traces older than `ttlDays` and beyond `maxEntries` (oldest first) are pruned hourly, and pruned data is exported to NDJSON before deletion when `exportEnabled` is set. `ttlDays: 0` disables pruning.
 
+Error reporting: setting `{ "sentry": { "dsn": "https://..." } }` in `.agenthood/config.json` sends member run failures to Sentry (member, model, status, duration, correlation id). The integration is dynamically imported and never loaded when the DSN is absent. Never commit a real DSN to the repository.
+
 ### Secrets and Credentials
 
 - Do NOT commit API keys, secrets, or credentials to the repository.

@@ -105,6 +105,7 @@ export class ApplicationContext {
       skillsCatalog: skills.catalog || undefined,
       sentry,
       redactor,
+      usage: { promptTokens: 0, completionTokens: 0, totalTokens: 0 },
     }
   }
 

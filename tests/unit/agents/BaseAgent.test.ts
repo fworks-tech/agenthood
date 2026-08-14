@@ -304,6 +304,18 @@ describe('BaseAgent', () => {
     expect(env.source).toBe('api')
   })
 
+  it('sums tool-level usage from the context accumulator into the envelope', async () => {
+    const agent = new TestAgent(llm, new ReActLoop(llm, new ToolRegistry()), toolRegistry)
+    const context = createTestContext({
+      usage: { promptTokens: 100, completionTokens: 50, totalTokens: 150 },
+    })
+
+    await agent.run('test task', context)
+
+    const env = context.tracer.getRecent(1)[0]
+    expect(env.tokenCount).toEqual({ input: 110, output: 60, total: 170 })
+  })
+
   it('emits a trace envelope with error status when run fails', async () => {
     const failingLlm: ILLMProvider = {
       ...llm,

@@ -100,6 +100,11 @@ export abstract class BaseAgent {
     // persisted (redacted) payload; Tracer.record's own pass is a no-op then
     const safeInput = context.redactor ? context.redactor.redactText(input) : input;
     const safeOutput = context.redactor ? context.redactor.redactText(output) : output;
+    // tool-level LLM calls (WriteCode/Refactor/Explain) accumulate here
+    const toolUsage = context.usage;
+    const promptTokens = (usage?.promptTokens ?? 0) + (toolUsage?.promptTokens ?? 0);
+    const completionTokens = (usage?.completionTokens ?? 0) + (toolUsage?.completionTokens ?? 0);
+    const totalTokens = (usage?.totalTokens ?? 0) + (toolUsage?.totalTokens ?? 0);
     try {
       context.tracer.record(
         createTraceEnvelope({
@@ -108,14 +113,14 @@ export abstract class BaseAgent {
           output: safeOutput,
           durationMs,
           tokenCount: {
-            input: usage?.promptTokens ?? 0,
-            output: usage?.completionTokens ?? 0,
-            total: usage?.totalTokens ?? 0,
+            input: promptTokens,
+            output: completionTokens,
+            total: totalTokens,
           },
           cost: this.costEstimator.computeCost(
             model,
-            usage?.promptTokens ?? 0,
-            usage?.completionTokens ?? 0,
+            promptTokens,
+            completionTokens,
           ).estimatedCost,
           qualityScore: getMemberQualityScore(this.role, join(context.project.localPath, '.agenthood', 'baselines')),
           status: error ? "error" : "success",

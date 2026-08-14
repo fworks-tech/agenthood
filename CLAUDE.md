@@ -57,7 +57,7 @@ Agenthood is a **multi-agent AI framework** distributed as an npm package + VS C
 | 7 — Runtime | `src/` | TypeScript CLI + autonomous runtime (`agenthood run`) |
 | 8 — Memory & RAG | `src/memory/`, `src/rag/` | Memory tiers, DecisionLog + ProvenanceStore (ADR-015), KnowledgeGraphStore, RAG pipeline, Tree-sitter, LanceDB |
 | 9 — Workflows | `src/workflows/` | WorkflowEngine, QualityGates, DiffImpactAnalyzer, WorkflowCheckpoint, GoalChain shipped (e.g. review-pr); ParallelStep/HumanInLoop — 📋 Planned |
-| 10 — Evals & Observability | `src/evals/`, `src/core/` | EvalRunner (LLM-as-judge, 4 metrics), BaselineComparator, ReplayEvaluator, EpisodeLearner, trace pipeline (Tracer, TraceStore, redaction, retention, anomaly detection) — all shipped |
+| 10 — Evals & Observability | `src/evals/`, `src/core/` | EvalRunner (LLM-as-judge, 4 metrics), BaselineComparator, ReplayEvaluator (`eval --replay`), EpisodeLearner (EmbeddingIndex-backed, wired into agent construction), trace pipeline (Tracer, TraceStore, redaction incl. decisions/provenance, retention, anomaly detection wired into flush + `status --alerts`, health checks) — all shipped and wired |
 
 ### CLI source (`src/`)
 

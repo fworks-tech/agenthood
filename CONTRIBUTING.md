@@ -101,6 +101,14 @@ Redaction: trace payload text can be scrubbed before persistence via `{ "observa
 
 Retention: `{ "observability": { "retention": { "ttlDays": 30, "maxEntries": 100000, "exportEnabled": true, "exportPath": "./traces/export" } } }` bounds the trace store — traces older than `ttlDays` and beyond `maxEntries` (oldest first) are pruned hourly, and pruned data is exported to NDJSON before deletion when `exportEnabled` is set. `ttlDays: 0` disables pruning.
 
+Alerts: `{ "observability": { "alerts": { "costThreshold": 3, "qualityDrop": 0.2, "burstThreshold": 10, "cooldownMinutes": 60 } } }` tunes anomaly detection. On every trace flush the detector scores the batch against per-member leave-one-out baselines and appends cost spikes, quality drops, and bursts to `.agenthood/alerts/anomalies.ndjson`, surfaced by `agenthood status --alerts`. All thresholds default to the values above when the block is absent.
+
+Trace path: `{ "observability": { "tracePath": ".agenthood/traces/traces.ndjson" } }` relocates the trace store (relative paths resolve against the project root); the runtime, `trace`, `status`, and `health` commands all honor it.
+
+Replay evaluation: `agenthood eval <member> --replay [--limit N]` re-runs stored envelopes against their inputs and reports output drift via embedding similarity to `.agenthood/evals/replay-report.json`; re-run outputs pass through the redactor.
+
+Redaction scope: the redactor also guards decision (`task`/`decision`) and provenance (`sourceDocument`) payloads, and trace hashes are computed over the redacted text so `inputHash` matches the persisted payload (see ADR-018).
+
 Error reporting: setting `{ "sentry": { "dsn": "https://..." } }` in `.agenthood/config.json` sends member run failures to Sentry (member, model, status, duration, correlation id). The integration is dynamically imported and never loaded when the DSN is absent. Never commit a real DSN to the repository.
 
 ### Secrets and Credentials

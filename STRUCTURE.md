@@ -75,7 +75,7 @@ agenthood/
 │   ├── agents/                      ← BaseAgent + AgentRegistry (Oracle, Strategist, Operator + Developer, Architect, Reviewer, QA)
 │   ├── llm/                         ← ILLMProvider, LLMRouter, 4 providers
 │   ├── skills/                      ← ISkill, SkillRegistry
-│   ├── core/                        ← SafetyGuard, ConcurrencyQueue, RiskManager, SchemaValidator
+│   ├── core/                        ← SafetyGuard, ConcurrencyQueue, RiskManager, SchemaValidator, observability (Tracer, TraceStore, RedactionFilter, AnomalyDetector, healthCheck, qualityScore)
 │   ├── reasoning/                   ← ReActLoop, ThinkingBudget
 │   ├── workflows/                   ← WorkflowEngine, QualityGates, DiffImpactAnalyzer, WorkflowCheckpoint, GoalChain
 │   ├── memory/                      ← ResidualMemory, IMemoryStore, VectorStore (LanceDB), ShortTermMemory, LongTermMemory, EpisodicMemory, ProjectMemory, PersonalisationStore, DecisionLog (causal chains), ProvenanceStore (hash chain), DecisionSearch, GraphSnapshot

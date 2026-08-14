@@ -132,6 +132,7 @@ export async function evalMember(args: string[] = []): Promise<void> {
 
   const config = await loadConfig()
   const app = await ApplicationContext.create(process.cwd(), config)
+  app.ctx.source = 'automated'
 
   if (!app.members.has(member)) {
     console.error(`Unknown member: "${member}"`)

@@ -155,6 +155,7 @@ export async function run(args: string[]): Promise<void> {
   }
 
   const app = await ApplicationContext.create(process.cwd(), config)
+  app.ctx.source = 'cli'
 
   if (shouldDetect) {
     await runDetection(app, task)

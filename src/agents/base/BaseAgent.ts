@@ -116,6 +116,7 @@ export abstract class BaseAgent {
           qualityScore: getMemberQualityScore(this.role, join(context.project.localPath, '.agenthood', 'baselines')),
           status: error ? "error" : "success",
           correlationId: context.correlationId ?? context.executionId,
+          source: context.source,
           model,
         }),
       );

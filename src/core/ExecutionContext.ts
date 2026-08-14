@@ -10,11 +10,14 @@ import type {
   EpisodicMemory,
   ProjectMemory,
   DecisionLog,
+  TraceSource,
 } from './types.js'
 
 export interface ExecutionContext {
   executionId: string
   correlationId?: string
+  /** Invocation origin, stamped onto every emitted trace envelope */
+  source?: TraceSource
   project: Project
   memory: {
     shortTerm: ShortTermMemory

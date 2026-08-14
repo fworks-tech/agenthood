@@ -237,6 +237,26 @@ describe('BaseAgent', () => {
     expect(env.correlationId).toBe('workflow-corr-9')
   })
 
+  it('stamps the envelope source from ExecutionContext when provided', async () => {
+    const agent = new TestAgent(llm, new ReActLoop(llm, new ToolRegistry()), toolRegistry)
+    const context = createTestContext({ source: 'playground' })
+
+    await agent.run('test task', context)
+
+    const env = context.tracer.getRecent(1)[0]
+    expect(env.source).toBe('playground')
+  })
+
+  it('falls back to the api source when ExecutionContext has none', async () => {
+    const agent = new TestAgent(llm, new ReActLoop(llm, new ToolRegistry()), toolRegistry)
+    const context = createTestContext()
+
+    await agent.run('test task', context)
+
+    const env = context.tracer.getRecent(1)[0]
+    expect(env.source).toBe('api')
+  })
+
   it('emits a trace envelope with error status when run fails', async () => {
     const failingLlm: ILLMProvider = {
       ...llm,

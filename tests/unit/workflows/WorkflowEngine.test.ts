@@ -86,4 +86,89 @@ describe('WorkflowEngine', () => {
     engine.registerProtocol('custom', custom)
     expect(true).toBe(true)
   })
+
+  it('assigns one correlationId and propagates it to all steps', async () => {
+    const seenIds: string[] = []
+    const protocol = {
+      name: 'capturing',
+      config: { retryPolicy: { maxRetries: 0, backoffMs: 0 }, timeoutMs: 100 },
+      execute: vi.fn(async (_input: unknown, context: ExecutionContext) => {
+        seenIds.push(context.correlationId as string)
+        return 'ok'
+      }),
+      onFailure: () => 'abort' as const,
+    }
+    const engine = new WorkflowEngine()
+    engine.registerProtocol('capturing', protocol)
+
+    const definition: WorkflowDefinition = {
+      name: 'three-steps',
+      description: '',
+      steps: [
+        { name: 'step-1', type: 'agent', protocol: protocol as never },
+        { name: 'step-2', type: 'agent', protocol: protocol as never },
+        { name: 'step-3', type: 'agent', protocol: protocol as never },
+      ],
+    }
+
+    const result = await engine.execute(definition, mockContext)
+
+    expect(seenIds).toHaveLength(3)
+    expect(new Set(seenIds).size).toBe(1)
+    expect(seenIds[0]).toMatch(/^[0-9a-f-]{36}$/)
+    expect(result.metadata.correlationId).toBe(seenIds[0])
+  })
+
+  it('preserves the correlationId across retries', async () => {
+    const seenIds: string[] = []
+    const protocol = {
+      name: 'flaky',
+      config: { retryPolicy: { maxRetries: 2, backoffMs: 0 }, timeoutMs: 100 },
+      execute: vi.fn(async (_input: unknown, context: ExecutionContext) => {
+        seenIds.push(context.correlationId as string)
+        if (seenIds.length === 1) throw new Error('transient failure')
+        return 'recovered'
+      }),
+      onFailure: () => 'retry' as const,
+    }
+    const engine = new WorkflowEngine()
+    engine.registerProtocol('flaky', protocol)
+
+    const definition: WorkflowDefinition = {
+      name: 'retry-workflow',
+      description: '',
+      steps: [{ name: 'step-1', type: 'agent', protocol: protocol as never }],
+    }
+
+    const result = await engine.execute(definition, mockContext)
+
+    expect(seenIds).toHaveLength(2)
+    expect(new Set(seenIds).size).toBe(1)
+    expect(result.stepResults.get('step-1')).toBe('recovered')
+  })
+
+  it('inherits an existing correlationId from the context (nested workflows)', async () => {
+    const seenIds: string[] = []
+    const protocol = {
+      name: 'capturing',
+      config: { retryPolicy: { maxRetries: 0, backoffMs: 0 }, timeoutMs: 100 },
+      execute: vi.fn(async (_input: unknown, context: ExecutionContext) => {
+        seenIds.push(context.correlationId as string)
+        return 'ok'
+      }),
+      onFailure: () => 'abort' as const,
+    }
+    const engine = new WorkflowEngine()
+    engine.registerProtocol('capturing', protocol)
+
+    const definition: WorkflowDefinition = {
+      name: 'nested',
+      description: '',
+      steps: [{ name: 'step-1', type: 'agent', protocol: protocol as never }],
+    }
+
+    await engine.execute(definition, { ...mockContext, correlationId: 'parent-corr-123' })
+
+    expect(seenIds).toEqual(['parent-corr-123'])
+  })
 })

@@ -14,6 +14,7 @@ import type {
 
 export interface ExecutionContext {
   executionId: string
+  correlationId?: string
   project: Project
   memory: {
     shortTerm: ShortTermMemory

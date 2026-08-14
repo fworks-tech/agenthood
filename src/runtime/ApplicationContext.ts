@@ -7,7 +7,7 @@ import type { ExecutionContext } from '../core/ExecutionContext.ts'
 import { createRedactionFilterFromConfig } from '../core/RedactionFilter.ts'
 import { Tracer } from '../core/Tracer.ts'
 import { JSONFileTraceStore, RetentionManager, createRetentionPolicyFromConfig } from '../core/TraceStore.ts'
-import { EmbeddingIndex } from '../evals/EmbeddingIndex.ts'
+import { EmbeddingIndex, reindexLegacyPatterns } from '../evals/EmbeddingIndex.ts'
 import { EpisodeLearner } from '../evals/EpisodeLearner.ts'
 import { LLMRouter } from '../llm/LLMRouter.ts'
 import type { ILLMProvider } from '../llm/ILLMProvider.ts'
@@ -107,7 +107,13 @@ export class ApplicationContext {
     const societyGraph = loadSocietyGraph(projectPath)
     const skills = await discoverSkills(projectPath)
     const vectorStore = await connectVectorStore(projectPath)
-    return new ApplicationContext(projectPath, llm, societyGraph, vectorStore, skills, config.sentry)
+    const app = new ApplicationContext(projectPath, llm, societyGraph, vectorStore, skills, config.sentry)
+    try {
+      await reindexLegacyPatterns(new EmbeddingIndex(vectorStore), vectorStore, (text) => llm.embed(text))
+    } catch (err) {
+      console.warn(`[run] pattern re-index skipped: ${err instanceof Error ? err.message : String(err)}`)
+    }
+    return app
   }
 
   static knownProviders(): string[] {

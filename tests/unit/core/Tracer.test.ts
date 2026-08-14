@@ -1,7 +1,8 @@
-import { describe, it, expect } from 'vitest'
+import { describe, it, expect, vi } from 'vitest'
 import { Tracer } from '../../../src/core/Tracer.js'
 import { createTraceEnvelope } from '../../../src/core/TraceEnvelope.js'
 import type { TraceEnvelope } from '../../../src/core/types.js'
+import type { TraceStore } from '../../../src/core/TraceStore.js'
 
 function makeEnvelope(overrides: Partial<TraceEnvelope> = {}): TraceEnvelope {
   return createTraceEnvelope({
@@ -82,5 +83,32 @@ describe('Tracer', () => {
   it('returns empty when nothing recorded', () => {
     const tracer = new Tracer(1000)
     expect(tracer.getRecent(5)).toEqual([])
+  })
+
+  it('flushes pending envelopes to the store', async () => {
+    const store: TraceStore = { store: vi.fn().mockResolvedValue(undefined), query: vi.fn().mockResolvedValue([]) }
+    const tracer = new Tracer(1000, store, 5000)
+    tracer.record(makeEnvelope())
+    tracer.record(makeEnvelope())
+
+    await tracer.flush()
+
+    expect(store.store).toHaveBeenCalledTimes(2)
+  })
+
+  it('does not flush when no store is configured', async () => {
+    const tracer = new Tracer(1000)
+    tracer.record(makeEnvelope())
+    await tracer.flush()
+  })
+
+  it('clears pending after flush', async () => {
+    const store: TraceStore = { store: vi.fn().mockResolvedValue(undefined), query: vi.fn().mockResolvedValue([]) }
+    const tracer = new Tracer(1000, store, 5000)
+    tracer.record(makeEnvelope())
+    await tracer.flush()
+    await tracer.flush()
+
+    expect(store.store).toHaveBeenCalledTimes(1)
   })
 })

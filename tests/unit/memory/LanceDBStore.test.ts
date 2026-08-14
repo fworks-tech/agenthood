@@ -368,3 +368,22 @@ describe('LanceDBStore', () => {
     })
   })
 })
+
+describe('toSqlFilter', () => {
+  it('wraps string values in JSON quoting matching the stored metadata shape', async () => {
+    const { toSqlFilter } = await import('../../../src/memory/VectorStore.js')
+    expect(toSqlFilter({ type: 'learned_pattern' })).toBe('metadata LIKE \'%"type":"learned\\_pattern"%\'')
+  })
+
+  it('serializes non-string values as JSON', async () => {
+    const { toSqlFilter } = await import('../../../src/memory/VectorStore.js')
+    expect(toSqlFilter({ count: 3, active: true })).toBe(
+      'metadata LIKE \'%"count":3%\' AND metadata LIKE \'%"active":true%\'',
+    )
+  })
+
+  it('escapes LIKE metacharacters and single quotes in values', async () => {
+    const { toSqlFilter } = await import('../../../src/memory/VectorStore.js')
+    expect(toSqlFilter({ key: "a'b_c%d" })).toBe('metadata LIKE \'%"key":"a\'\'b\\_c\\%d"%\'')
+  })
+})

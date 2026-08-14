@@ -1,3 +1,10 @@
+# [3.26.0](https://github.com/fworks-tech/agenthood/compare/v3.25.0...v3.26.0) (2026-08-14)
+
+
+### Features
+
+* **cli:** add eval command with baseline regression gating ([efb7e77](https://github.com/fworks-tech/agenthood/commit/efb7e77c11147ccf062d12cb30be987189c55ff4)), closes [#298](https://github.com/fworks-tech/agenthood/issues/298)
+
 # [3.25.0](https://github.com/fworks-tech/agenthood/compare/v3.24.0...v3.25.0) (2026-08-14)
 
 

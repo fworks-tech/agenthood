@@ -5,6 +5,14 @@
 
 ---
 
+## v3.26.0 — August 14, 2026
+
+### ✨ Features
+
+- **Cli:** add eval command with baseline regression gating
+
+---
+
 ## v3.25.0 — August 14, 2026
 
 ### ✨ Features

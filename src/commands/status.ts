@@ -157,8 +157,8 @@ async function loadPersistedPatterns(cwd: string): Promise<PersistedPatternCount
   try {
     await store.connect(join(cwd, '.agenthood', 'memory'))
     const [learned, antipatterns] = await Promise.all([
-      store.getByKeyPrefix('learnings'),
-      store.getByKeyPrefix('antipatterns'),
+      store.getByKeyPrefix('ltm:learnings'),
+      store.getByKeyPrefix('ltm:antipatterns'),
     ])
     store.disconnect()
 

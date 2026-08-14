@@ -1,4 +1,5 @@
 import { randomUUID } from "node:crypto";
+import { join } from "node:path";
 import type { ILLMProvider } from "../../llm/ILLMProvider.js";
 import type { ITool } from "../../tools/ITool.js";
 import type { ExecutionContext } from "../../core/ExecutionContext.js";
@@ -10,6 +11,7 @@ import type { EpisodeLearner } from "../../evals/EpisodeLearner.js";
 import type { EvalResult } from "../../core/types.js";
 import { createTraceEnvelope } from "../../core/TraceEnvelope.js";
 import { CostEstimator } from "../../core/CostEstimator.js";
+import { getMemberQualityScore } from "../../core/qualityScore.js";
 
 export abstract class BaseAgent {
   abstract role: string;
@@ -101,7 +103,7 @@ export abstract class BaseAgent {
             usage?.promptTokens ?? 0,
             usage?.completionTokens ?? 0,
           ).estimatedCost,
-          qualityScore: null,
+          qualityScore: getMemberQualityScore(this.role, join(context.project.localPath, '.agenthood', 'baselines')),
           status: error ? "error" : "success",
           correlationId: context.correlationId ?? context.executionId,
           model,

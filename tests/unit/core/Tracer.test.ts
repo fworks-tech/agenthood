@@ -111,4 +111,34 @@ describe('Tracer', () => {
 
     expect(store.store).toHaveBeenCalledTimes(1)
   })
+
+  it('re-queues envelopes whose store write fails', async () => {
+    const store = vi.fn()
+      .mockRejectedValueOnce(new Error('disk full'))
+      .mockResolvedValueOnce(undefined)
+    const traceStore: TraceStore = { store, query: vi.fn().mockResolvedValue([]) }
+    const tracer = new Tracer(1000, traceStore, 5000)
+    tracer.record(makeEnvelope())
+
+    await expect(tracer.flush()).rejects.toThrow('disk full')
+    await expect(tracer.flush()).resolves.toBeUndefined()
+
+    expect(store).toHaveBeenCalledTimes(2)
+  })
+
+  it('keeps unflushed envelopes after a failed batch', async () => {
+    const store = vi.fn()
+      .mockRejectedValueOnce(new Error('disk full'))
+      .mockResolvedValueOnce(undefined)
+    const traceStore: TraceStore = { store, query: vi.fn().mockResolvedValue([]) }
+    const tracer = new Tracer(1000, traceStore, 5000)
+    tracer.record(makeEnvelope({ member: 'm-1' }))
+    tracer.record(makeEnvelope({ member: 'm-2' }))
+
+    await expect(tracer.flush()).rejects.toThrow('disk full')
+    // first envelope failed and was re-queued; second stays pending too
+    await tracer.flush()
+
+    expect(store).toHaveBeenCalledTimes(3)
+  })
 })

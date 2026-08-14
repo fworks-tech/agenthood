@@ -56,7 +56,7 @@ export class JSONFileTraceStore implements TraceStore {
     if (filters.correlationId) result = result.filter((e) => e.correlationId === filters.correlationId)
     if (filters.since) result = result.filter((e) => e.timestamp >= filters.since!)
     if (filters.until) result = result.filter((e) => e.timestamp <= filters.until!)
-    result.sort((a, b) => (a.timestamp < b.timestamp ? 1 : -1))
+    result.sort((a, b) => (a.timestamp < b.timestamp ? 1 : a.timestamp > b.timestamp ? -1 : 0))
     if (filters.limit !== undefined && filters.limit >= 0) result = result.slice(0, filters.limit)
     return result
   }

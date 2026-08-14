@@ -7,6 +7,8 @@ import type { ExecutionContext } from '../core/ExecutionContext.ts'
 import { createRedactionFilterFromConfig } from '../core/RedactionFilter.ts'
 import { Tracer } from '../core/Tracer.ts'
 import { JSONFileTraceStore, RetentionManager, createRetentionPolicyFromConfig } from '../core/TraceStore.ts'
+import { EmbeddingIndex } from '../evals/EmbeddingIndex.ts'
+import { EpisodeLearner } from '../evals/EpisodeLearner.ts'
 import { LLMRouter } from '../llm/LLMRouter.ts'
 import type { ILLMProvider } from '../llm/ILLMProvider.ts'
 import type { LLMConfig } from '../llm/types.ts'
@@ -50,6 +52,7 @@ export class ApplicationContext {
   readonly members: MemberRegistry
   readonly llm: ILLMProvider
   private retentionManager?: RetentionManager
+  private readonly episodeLearner: EpisodeLearner
 
   private constructor(
     projectPath: string,
@@ -63,6 +66,7 @@ export class ApplicationContext {
     this.societyGraph = societyGraph
     this.agents = new AgentRegistry()
     this.members = new MemberRegistry()
+    this.episodeLearner = new EpisodeLearner(undefined, new EmbeddingIndex(vectorStore))
 
     this.setupAgents(llm, skills.manifests)
     const oracleAgent = this.setupOracle(llm, societyGraph)
@@ -140,10 +144,10 @@ export class ApplicationContext {
       tReg.register(new ActivateSkillTool(skillManifests))
     }
 
-    this.agents.register(new DeveloperAgent(llm, loop, tReg, this.agents))
-    this.agents.register(new ArchitectAgent(llm, loop, tReg))
-    this.agents.register(new ReviewerAgent(llm, loop, tReg))
-    this.agents.register(new QAAgent(llm, loop, tReg))
+    this.agents.register(new DeveloperAgent(llm, loop, tReg, this.agents, this.episodeLearner))
+    this.agents.register(new ArchitectAgent(llm, loop, tReg, this.episodeLearner))
+    this.agents.register(new ReviewerAgent(llm, loop, tReg, this.episodeLearner))
+    this.agents.register(new QAAgent(llm, loop, tReg, this.episodeLearner))
   }
 
   private setupOracle(llm: ILLMProvider, societyGraph: KnowledgeGraphStore): OracleAgent {
@@ -205,7 +209,7 @@ export class ApplicationContext {
       }
     }
 
-    const agent = new MemberAgent(spec, llm, loop, sReg, this.agents)
+    const agent = new MemberAgent(spec, llm, loop, sReg, this.agents, this.episodeLearner)
     const metricsCollector = new MetricsCollector(join(process.cwd(), '.agenthood', 'metrics'))
     const startTime = performance.now()
 

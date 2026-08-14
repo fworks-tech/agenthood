@@ -22,6 +22,7 @@ import { ExplainCodeSkill } from '../tools/code/ExplainCodeSkill.ts'
 import { RefactorSkill } from '../tools/code/RefactorSkill.ts'
 import { PrSyncSkill } from '../tools/pr/PrSyncSkill.ts'
 import { SubagentTaskSkill } from '../tools/core/SubagentTaskSkill.ts'
+import type { EpisodeLearner } from '../evals/EpisodeLearner.js'
 
 const TOOL_MAP: Record<string, new (...args: never[]) => ITool> = {
   'file.read': ReadFileSkill,
@@ -45,8 +46,9 @@ export class MemberAgent extends BaseAgent {
     reasoningLoop: ReActLoop,
     toolRegistry: ToolRegistry,
     private agentRegistry?: AgentRegistry,
+    episodeLearner?: EpisodeLearner,
   ) {
-    super(llm, reasoningLoop, toolRegistry)
+    super(llm, reasoningLoop, toolRegistry, undefined, episodeLearner)
     this.role = spec.name
     this.tools = this.buildTools()
   }

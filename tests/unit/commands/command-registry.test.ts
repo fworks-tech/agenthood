@@ -20,7 +20,7 @@ describe('command registry', () => {
     }
     expect(names.sort()).toEqual([
       'activate', 'check', 'deactivate', 'eject', 'init', 'list', 'oath',
-      'pr-sync', 'rollback', 'run', 'setup', 'status', 'verify', 'workflow',
+      'pr-sync', 'rollback', 'run', 'setup', 'status', 'trace', 'verify', 'workflow',
     ])
   })
 

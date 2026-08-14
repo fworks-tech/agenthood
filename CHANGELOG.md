@@ -1,3 +1,10 @@
+# [3.24.0](https://github.com/fworks-tech/agenthood/compare/v3.23.0...v3.24.0) (2026-08-14)
+
+
+### Features
+
+* **evals:** add eval runner with llm-as-judge scoring ([86adfe8](https://github.com/fworks-tech/agenthood/commit/86adfe8c51afa8bab76fd40b98a5da2f056a7597)), closes [#310](https://github.com/fworks-tech/agenthood/issues/310)
+
 # [3.23.0](https://github.com/fworks-tech/agenthood/compare/v3.22.0...v3.23.0) (2026-08-14)
 
 

@@ -5,6 +5,14 @@
 
 ---
 
+## v3.24.0 — August 14, 2026
+
+### ✨ Features
+
+- **Evals:** add eval runner with llm-as-judge scoring
+
+---
+
 ## v3.23.0 — August 14, 2026
 
 ### 🐛 Bug Fixes

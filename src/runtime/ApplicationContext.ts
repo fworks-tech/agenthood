@@ -99,6 +99,7 @@ export class ApplicationContext {
       oracle: { ask: (q: string) => oracleAgent.ask(q, this.ctx) },
       skillsCatalog: skills.catalog || undefined,
       sentry,
+      redactor,
     }
   }
 

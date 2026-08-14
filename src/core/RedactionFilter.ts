@@ -62,6 +62,12 @@ export class RedactionFilter {
     return this.options.enabled === true
   }
 
+  /** Redacts a single text payload; returns it untouched when disabled. */
+  redactText(text: string): string {
+    if (!this.enabled()) return text
+    return this.applyRules(text) ?? text
+  }
+
   redact(envelope: TraceEnvelope): TraceEnvelope {
     if (!this.enabled()) return envelope
     const input = this.applyRules(envelope.input)

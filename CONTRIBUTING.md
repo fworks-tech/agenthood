@@ -85,6 +85,7 @@ The `agenthood` CLI auto-discovers commands from `src/commands/` — each file e
 - `agenthood run <member> "<task>"` — invoke a member or core agent
 - `agenthood trace` — list recent invocation traces (`--member`, `--limit`, `--since`, `--json`)
 - `agenthood status` — project health and member metrics (`--watch`, `--json`, `--drift`, `--member`)
+- `agenthood eval <member> --suite <path>` — run an eval suite against a member (`--baseline`, `--update-baseline`, `--json`)
 - `agenthood check` / `verify` — health and member-integrity validation
 
 Adding a command means adding a file in `src/commands/` and documenting it here.
@@ -92,6 +93,8 @@ Adding a command means adding a file in `src/commands/` and documenting it here.
 ### Observability
 
 Every member invocation emits a trace envelope (member, duration, tokens, cost, quality, status, correlation id). Traces are flushed to `.agenthood/traces/traces.ndjson`; `agenthood status --member <name>` aggregates them into per-member cost/quality summaries over 1h/24h/7d/all windows, and `agenthood trace` lists recent envelopes. Costs come from the static pricing table in `src/core/modelPricing.ts` (unknown models fall back with a warning).
+
+Evaluation: `agenthood eval <member> --suite <path>` runs the member against every task in an eval suite (`evals/benchmarks/` ships ready-made fixtures), scores each run on faithfulness, relevance, context_recall, and answer_correctness via an LLM judge, and compares the aggregates against a stored baseline in `.agenthood/baselines/<member>.json` — the command exits non-zero when a metric regresses. Use `--update-baseline` after a deliberately good run to refresh the comparison target.
 
 ### Secrets and Credentials
 

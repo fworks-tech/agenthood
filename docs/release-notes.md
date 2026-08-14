@@ -5,6 +5,14 @@
 
 ---
 
+## v3.25.0 — August 14, 2026
+
+### ✨ Features
+
+- **Evals:** add baseline comparison for eval reports
+
+---
+
 ## v3.24.0 — August 14, 2026
 
 ### ✨ Features

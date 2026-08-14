@@ -1,3 +1,10 @@
+# [3.25.0](https://github.com/fworks-tech/agenthood/compare/v3.24.0...v3.25.0) (2026-08-14)
+
+
+### Features
+
+* **evals:** add baseline comparison for eval reports ([72891d4](https://github.com/fworks-tech/agenthood/commit/72891d4ccff8341723e6da53560a5547d41b5158)), closes [#311](https://github.com/fworks-tech/agenthood/issues/311)
+
 # [3.24.0](https://github.com/fworks-tech/agenthood/compare/v3.23.0...v3.24.0) (2026-08-14)
 
 

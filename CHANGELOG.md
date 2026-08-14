@@ -1,3 +1,10 @@
+# [3.31.0](https://github.com/fworks-tech/agenthood/compare/v3.30.0...v3.31.0) (2026-08-14)
+
+
+### Features
+
+* **observability:** add health check command and API ([73d4d1f](https://github.com/fworks-tech/agenthood/commit/73d4d1f819f5d00aca19fc755d52abef53e87d64)), closes [#321](https://github.com/fworks-tech/agenthood/issues/321)
+
 # [3.30.0](https://github.com/fworks-tech/agenthood/compare/v3.29.0...v3.30.0) (2026-08-14)
 
 

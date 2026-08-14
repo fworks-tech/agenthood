@@ -5,6 +5,14 @@
 
 ---
 
+## v3.31.0 — August 14, 2026
+
+### ✨ Features
+
+- **Observability:** add health check command and API
+
+---
+
 ## v3.30.0 — August 14, 2026
 
 ### ✨ Features

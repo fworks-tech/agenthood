@@ -21,6 +21,10 @@ export interface HealthDeps {
   memberCount: number
   /** Optional provider probes — omitted entirely when none are configured */
   providers?: Array<{ name: string; probe: () => Promise<boolean> }>
+  /** Optional observability-config probes; each omitted check is skipped */
+  sentry?: { dsn?: string }
+  baselinesProbe?: () => Promise<boolean>
+  retentionProbe?: () => Promise<boolean>
 }
 
 /**
@@ -53,6 +57,9 @@ export async function healthCheck(deps: HealthDeps): Promise<HealthReport> {
       const available = await p.probe()
       return { name: `provider:${p.name}`, status: available ? 'ok' : 'degraded', detail: available ? 'key available' : 'key missing' }
     }),
+    ...(deps.sentry ? [sentryCheck(deps.sentry.dsn)] : []),
+    ...(deps.baselinesProbe ? [probeCheck('baselines', deps.baselinesProbe, 'baselines present', 'no baselines — quality not stamped')] : []),
+    ...(deps.retentionProbe ? [probeCheck('retention', deps.retentionProbe, 'policy configured', 'no retention policy — traces kept indefinitely')] : []),
   ])
 
   const checks = [tracer, traceStore, memberRegistry, ...providerChecks]
@@ -63,6 +70,27 @@ export async function healthCheck(deps: HealthDeps): Promise<HealthReport> {
       : 'healthy'
 
   return { status, version: readVersion(), uptimeMs: Math.round(process.uptime() * 1000), checks }
+}
+
+function sentryCheck(dsn: string | undefined): HealthComponent {
+  if (!dsn) return { name: 'sentry', status: 'ok', detail: 'not configured' }
+  const valid = dsn.startsWith('http')
+  return {
+    name: 'sentry',
+    status: valid ? 'ok' : 'degraded',
+    detail: valid ? 'configured' : 'invalid DSN',
+  }
+}
+
+async function probeCheck(
+  name: string,
+  probe: () => Promise<boolean>,
+  presentDetail: string,
+  absentDetail: string,
+): Promise<HealthComponent> {
+  const present = await probe()
+  // absence is the default fresh-project state, so it informs without failing
+  return { name, status: 'ok', detail: present ? presentDetail : absentDetail }
 }
 
 function readVersion(): string {

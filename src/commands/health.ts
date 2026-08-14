@@ -1,7 +1,7 @@
+import { existsSync, readFileSync } from 'node:fs'
 import { join } from 'node:path'
 
 import { JSONFileTraceStore } from '../core/TraceStore.js'
-import { Tracer } from '../core/Tracer.ts'
 import { healthCheck } from '../core/healthCheck.ts'
 import type { HealthReport, HealthDeps } from '../core/healthCheck.ts'
 import { MemberRegistry } from '../members/index.ts'
@@ -43,18 +43,19 @@ export const command: CommandDescriptor = {
 }
 
 async function collectHealthDeps(cwd: string, config: Awaited<ReturnType<typeof loadConfig>>): Promise<HealthDeps> {
-  const tracer = new Tracer(1000)
-
   const tracesPath = join(cwd, '.agenthood', 'traces', 'traces.ndjson')
-  const traceStoreProbe = async (): Promise<boolean> => {
-    try {
-      const store = new JSONFileTraceStore(tracesPath)
-      await store.query()
-      return true
-    } catch {
-      return false
-    }
+  const store = new JSONFileTraceStore(tracesPath)
+
+  // real store state instead of a stub tracer that is always empty
+  let traceCount = 0
+  let storeOk = true
+  try {
+    traceCount = (await store.query()).length
+  } catch {
+    storeOk = false
   }
+
+  const traceStoreProbe = async (): Promise<boolean> => storeOk
 
   const providers = (config.providers ?? []).map((p) => ({
     name: p.name,
@@ -65,11 +66,28 @@ async function collectHealthDeps(cwd: string, config: Awaited<ReturnType<typeof 
     },
   }))
 
+  const rawConfig = readRawConfig(cwd)
+  const retentionBlock = (rawConfig.observability as Record<string, unknown> | undefined)?.retention
+
   return {
-    tracer: { size: tracer.size, capacity: tracer.capacity },
+    tracer: { size: storeOk ? traceCount : 0, capacity: 1000 },
     traceStoreProbe,
     memberCount: new MemberRegistry().list().length,
     providers,
+    sentry: config.sentry,
+    baselinesProbe: async () => existsSync(join(cwd, '.agenthood', 'baselines')),
+    retentionProbe: async () => retentionBlock != null,
+  }
+}
+
+function readRawConfig(cwd: string): Record<string, unknown> {
+  const configPath = join(cwd, '.agenthood', 'config.json')
+  if (!existsSync(configPath)) return {}
+  try {
+    const raw = JSON.parse(readFileSync(configPath, 'utf8'))
+    return typeof raw === 'object' && raw !== null ? (raw as Record<string, unknown>) : {}
+  } catch {
+    return {}
   }
 }
 

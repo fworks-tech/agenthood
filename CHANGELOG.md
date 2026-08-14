@@ -1,3 +1,10 @@
+# [3.18.0](https://github.com/fworks-tech/agenthood/compare/v3.17.0...v3.18.0) (2026-08-14)
+
+
+### Features
+
+* **core:** implement TokenCounter and CostEstimator ([ac896d0](https://github.com/fworks-tech/agenthood/commit/ac896d003023504b6d2900811530c74ed22ce628)), closes [#296](https://github.com/fworks-tech/agenthood/issues/296) [#297](https://github.com/fworks-tech/agenthood/issues/297)
+
 # [3.17.0](https://github.com/fworks-tech/agenthood/compare/v3.16.0...v3.17.0) (2026-08-14)
 
 

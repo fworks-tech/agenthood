@@ -5,6 +5,14 @@
 
 ---
 
+## v3.18.0 — August 14, 2026
+
+### ✨ Features
+
+- **Core:** implement TokenCounter and CostEstimator #297
+
+---
+
 ## v3.17.0 — August 14, 2026
 
 ### 🐛 Bug Fixes

@@ -1,3 +1,10 @@
+# [3.20.0](https://github.com/fworks-tech/agenthood/compare/v3.19.0...v3.20.0) (2026-08-14)
+
+
+### Features
+
+* **observability:** persist traces to a queryable store ([f20a0a3](https://github.com/fworks-tech/agenthood/commit/f20a0a355f9e110f25e1ea5739b000a3c6e666cc)), closes [#299](https://github.com/fworks-tech/agenthood/issues/299)
+
 # [3.19.0](https://github.com/fworks-tech/agenthood/compare/v3.18.0...v3.19.0) (2026-08-14)
 
 

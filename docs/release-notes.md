@@ -5,6 +5,14 @@
 
 ---
 
+## v3.20.0 — August 14, 2026
+
+### ✨ Features
+
+- **Observability:** persist traces to a queryable store
+
+---
+
 ## v3.19.0 — August 14, 2026
 
 ### ✨ Features

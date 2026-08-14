@@ -103,7 +103,7 @@ export abstract class BaseAgent {
           ).estimatedCost,
           qualityScore: null,
           status: error ? "error" : "success",
-          correlationId: context.executionId,
+          correlationId: context.correlationId ?? context.executionId,
           model,
         }),
       );

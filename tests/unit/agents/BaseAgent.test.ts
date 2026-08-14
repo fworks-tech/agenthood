@@ -219,6 +219,24 @@ describe('BaseAgent', () => {
     expect(new Date(env.timestamp).getTime()).not.toBeNaN()
   })
 
+  it('prefers context.correlationId over executionId in envelopes', async () => {
+    const bigUsageLlm: ILLMProvider = {
+      ...llm,
+      complete: vi.fn().mockResolvedValue({
+        content: 'mock output',
+        usage: { promptTokens: 0, completionTokens: 0, totalTokens: 0 },
+        model: 'mock-model',
+      }),
+    }
+    const agent = new TestAgent(bigUsageLlm, new ReActLoop(bigUsageLlm, new ToolRegistry()), toolRegistry)
+    const context = createTestContext({ correlationId: 'workflow-corr-9' })
+
+    await agent.run('test task', context)
+
+    const env = context.tracer.getRecent(1)[0]
+    expect(env.correlationId).toBe('workflow-corr-9')
+  })
+
   it('emits a trace envelope with error status when run fails', async () => {
     const failingLlm: ILLMProvider = {
       ...llm,

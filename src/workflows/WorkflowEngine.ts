@@ -1,3 +1,4 @@
+import { randomUUID } from 'node:crypto'
 import type { ExecutionContext } from '../core/ExecutionContext.js'
 import type { IProtocol } from './protocols/IProtocol.js'
 import type { WorkflowStep, WorkflowContext, WorkflowDefinition } from './types.js'
@@ -22,11 +23,15 @@ export class WorkflowEngine {
   }
 
   async execute(definition: WorkflowDefinition, context: ExecutionContext): Promise<WorkflowContext> {
+    // A new correlationId is minted per top-level workflow run; nested
+    // workflows inherit the parent's so all step traces chain together.
+    const correlationId = context.correlationId ?? randomUUID()
+    const stepContext: ExecutionContext = { ...context, correlationId }
     const wfContext: WorkflowContext = {
       executionId: context.executionId,
       artifacts: new Map(),
       stepResults: new Map(),
-      metadata: { workflowName: definition.name },
+      metadata: { workflowName: definition.name, correlationId },
     }
 
     console.log(`\n[WorkflowEngine] Starting "${definition.name}" (${definition.steps.length} steps)\n`)
@@ -38,7 +43,7 @@ export class WorkflowEngine {
       }
 
       try {
-        const result = await this.executeStep(step, context, wfContext)
+        const result = await this.executeStep(step, stepContext, wfContext)
         wfContext.stepResults.set(step.name, result)
       } catch (err) {
         if (step.type === 'human-in-loop') {

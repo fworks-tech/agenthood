@@ -9,6 +9,7 @@ import type { ResidualMemory } from "../../memory/ResidualMemory.js";
 import type { EpisodeLearner } from "../../evals/EpisodeLearner.js";
 import type { EvalResult } from "../../core/types.js";
 import { createTraceEnvelope } from "../../core/TraceEnvelope.js";
+import { CostEstimator } from "../../core/CostEstimator.js";
 
 export abstract class BaseAgent {
   abstract role: string;
@@ -23,7 +24,11 @@ export abstract class BaseAgent {
     protected toolRegistry: ToolRegistry,
     protected residualMemory?: ResidualMemory,
     protected episodeLearner?: EpisodeLearner,
-  ) {}
+  ) {
+    this.costEstimator = new CostEstimator();
+  }
+
+  private readonly costEstimator: CostEstimator;
 
   async run(input: string, context: ExecutionContext): Promise<AgentResult> {
     for (const tool of this.tools) {
@@ -78,6 +83,7 @@ export abstract class BaseAgent {
     context: ExecutionContext,
   ): void {
     const usage = this.reasoningLoop.usage;
+    const model = this.reasoningLoop.model || "unknown";
     try {
       context.tracer.record(
         createTraceEnvelope({
@@ -90,11 +96,15 @@ export abstract class BaseAgent {
             output: usage?.completionTokens ?? 0,
             total: usage?.totalTokens ?? 0,
           },
-          cost: 0,
+          cost: this.costEstimator.computeCost(
+            model,
+            usage?.promptTokens ?? 0,
+            usage?.completionTokens ?? 0,
+          ).estimatedCost,
           qualityScore: null,
           status: error ? "error" : "success",
           correlationId: context.executionId,
-          model: this.reasoningLoop.model || undefined,
+          model,
         }),
       );
     } catch (err) {

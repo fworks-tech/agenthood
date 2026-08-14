@@ -5,6 +5,15 @@
 
 ---
 
+## v3.29.0 — August 14, 2026
+
+### ✨ Features
+
+- **Observability:** add anomaly detection for cost and quality
+- **Observability:** add trace retention and export policy
+
+---
+
 ## v3.28.0 — August 14, 2026
 
 ### ✨ Features

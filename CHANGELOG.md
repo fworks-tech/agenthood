@@ -1,3 +1,11 @@
+# [3.29.0](https://github.com/fworks-tech/agenthood/compare/v3.28.0...v3.29.0) (2026-08-14)
+
+
+### Features
+
+* **observability:** add anomaly detection for cost and quality ([f7ca9ae](https://github.com/fworks-tech/agenthood/commit/f7ca9aef3600aa71be045e05184dd61a980d8966)), closes [#306](https://github.com/fworks-tech/agenthood/issues/306)
+* **observability:** add trace retention and export policy ([3e73919](https://github.com/fworks-tech/agenthood/commit/3e739191ee89b7e98b771cb8d01c640b5804bb3a)), closes [#307](https://github.com/fworks-tech/agenthood/issues/307)
+
 # [3.28.0](https://github.com/fworks-tech/agenthood/compare/v3.27.0...v3.28.0) (2026-08-14)
 
 

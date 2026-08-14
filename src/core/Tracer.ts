@@ -1,5 +1,6 @@
 import type { TraceEnvelope, Tracer as TracerInterface } from "./types.ts"
 import type { TraceStore } from "./TraceStore.ts"
+import type { RedactionFilter } from "./RedactionFilter.ts"
 
 /**
  * Central in-memory trace recorder. Holds a ring buffer of the most recent
@@ -17,6 +18,7 @@ export class Tracer implements TracerInterface {
     readonly capacity = 1000,
     private readonly store?: TraceStore,
     private readonly flushIntervalMs = 5000,
+    private readonly redactor?: RedactionFilter,
   ) {
     this.buffer = new Array<TraceEnvelope | undefined>(capacity)
     if (store) {
@@ -34,10 +36,11 @@ export class Tracer implements TracerInterface {
   endSpan(_name: string, _data?: Record<string, unknown>): void {}
 
   record(envelope: TraceEnvelope): void {
-    this.buffer[this.head] = envelope
+    const stored = this.redactor ? this.redactor.redact(envelope) : envelope
+    this.buffer[this.head] = stored
     this.head = (this.head + 1) % this.capacity
     if (this.size < this.capacity) this.size++
-    if (this.store) this.pending.push(envelope)
+    if (this.store) this.pending.push(stored)
   }
 
   /** Flushes all pending envelopes to the configured store. On failure the failed envelope and the rest of the batch are re-queued for the next attempt. */

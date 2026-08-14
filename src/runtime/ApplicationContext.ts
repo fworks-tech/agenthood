@@ -1,9 +1,10 @@
 import { randomUUID } from 'node:crypto'
-import { existsSync } from 'node:fs'
+import { existsSync, readFileSync } from 'node:fs'
 import { join } from 'node:path'
 
 import { AgentRegistry } from '../core/AgentRegistry.ts'
 import type { ExecutionContext } from '../core/ExecutionContext.ts'
+import { createRedactionFilterFromConfig } from '../core/RedactionFilter.ts'
 import { Tracer } from '../core/Tracer.ts'
 import { JSONFileTraceStore } from '../core/TraceStore.ts'
 import { LLMRouter } from '../llm/LLMRouter.ts'
@@ -62,6 +63,7 @@ export class ApplicationContext {
     const memory = this.buildMemoryTiers(llm, vectorStore, societyGraph, projectPath)
 
     const traceStore = new JSONFileTraceStore(join(projectPath, '.agenthood', 'traces', 'traces.ndjson'))
+    const redactor = createRedactionFilterFromConfig(loadProjectConfig(projectPath))
 
     this.ctx = {
       executionId: randomUUID(),
@@ -72,7 +74,7 @@ export class ApplicationContext {
       memory,
       llm,
       prompts: new PromptBuilder(new PromptRegistry()),
-      tracer: new Tracer(1000, traceStore, 5000),
+      tracer: new Tracer(1000, traceStore, 5000, redactor),
       artifacts: [],
       oracle: { ask: (q: string) => oracleAgent.ask(q, this.ctx) },
       skillsCatalog: skills.catalog || undefined,
@@ -214,8 +216,19 @@ async function connectVectorStore(projectPath: string): Promise<LanceDBStore> {
   return vectorStore
 }
 
-function loadSocietyGraph(projectPath: string): KnowledgeGraphStore {
-  const graph = new KnowledgeGraphStore()
+/** Reads the project config file, or an empty object when missing/corrupt. */
+function loadProjectConfig(projectPath: string): Record<string, unknown> {
+  const configPath = join(projectPath, '.agenthood', 'config.json')
+  if (!existsSync(configPath)) return {}
+  try {
+    const raw = JSON.parse(readFileSync(configPath, 'utf8'))
+    return typeof raw === 'object' && raw !== null ? (raw as Record<string, unknown>) : {}
+  } catch {
+    return {}
+  }
+}
+
+function loadSocietyGraph(projectPath: string): KnowledgeGraphStore {  const graph = new KnowledgeGraphStore()
   const graphPath = join(projectPath, '.agenthood', 'society-graph.json')
   if (existsSync(graphPath)) {
     try {

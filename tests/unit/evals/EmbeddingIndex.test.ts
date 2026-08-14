@@ -1,6 +1,6 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest'
 import type { IVectorStore, VectorRecord, VectorSearchResult } from '../../../src/memory/VectorStore.js'
-import { EmbeddingIndex } from '../../../src/evals/EmbeddingIndex.js'
+import { EmbeddingIndex, INDEX_VERSION_KEY, INDEX_CURRENT_VERSION } from '../../../src/evals/EmbeddingIndex.js'
 import { hashPattern } from '../../../src/utils/hash.js'
 
 const mockVectorStore: IVectorStore = {
@@ -137,5 +137,115 @@ describe('EmbeddingIndex.findSimilar', () => {
 
     expect(matches).toEqual([])
     expect(mockVectorStore.search).not.toHaveBeenCalled()
+  })
+})
+
+describe('reindexLegacyPatterns', () => {
+  beforeEach(() => {
+    vi.clearAllMocks()
+  })
+
+  function ltmRow(prefix: string, outcome: unknown): VectorRecord {
+    return {
+      id: `${prefix}/v1:abc123`,
+      vector: new Array(1536).fill(0),
+      content: JSON.stringify(outcome),
+      metadata: { type: 'long_term' },
+      createdAt: new Date(),
+    }
+  }
+
+  it('re-embeds legacy ltm rows as pattern rows and writes the version marker', async () => {
+    vi.mocked(mockVectorStore.getById).mockResolvedValue(null)
+    vi.mocked(mockVectorStore.getByKeyPrefix)
+      .mockResolvedValueOnce([
+        ltmRow('ltm:learnings', { pattern: 'learned:dev:test:fixed bug', score: 0.9, member: 'dev', skill: 'test' }),
+      ])
+      .mockResolvedValueOnce([
+        ltmRow('ltm:antipatterns', { pattern: 'antipattern:dev:test:silent skip', score: 0.8, member: 'dev', skill: 'test' }),
+      ])
+    const index = new EmbeddingIndex(mockVectorStore)
+    const embed = vi.fn().mockResolvedValue([1, 0, 0])
+
+    const { reindexLegacyPatterns } = await import('../../../src/evals/EmbeddingIndex.js')
+    const migrated = await reindexLegacyPatterns(index, mockVectorStore, embed)
+
+    expect(migrated).toBe(2)
+    expect(embed).toHaveBeenCalledTimes(2)
+    expect(mockVectorStore.add).toHaveBeenCalledTimes(3)
+    const [rows] = vi.mocked(mockVectorStore.add).mock.calls[2] as [VectorRecord[]]
+    expect(rows[0].id).toBe(INDEX_VERSION_KEY)
+    expect(rows[0].metadata).toEqual({ type: 'index_version' })
+    expect(JSON.parse(rows[0].content).version).toBe(INDEX_CURRENT_VERSION)
+    expect(mockVectorStore.getByKeyPrefix).toHaveBeenNthCalledWith(1, 'ltm:learnings', 10_000)
+    expect(mockVectorStore.getByKeyPrefix).toHaveBeenNthCalledWith(2, 'ltm:antipatterns', 10_000)
+  })
+
+  it('skips everything when the marker is already at the current version', async () => {
+    vi.mocked(mockVectorStore.getById).mockResolvedValue({
+      id: INDEX_VERSION_KEY,
+      vector: [],
+      content: JSON.stringify({ version: 2 }),
+      metadata: { type: 'index_version' },
+      createdAt: new Date(),
+    })
+    const index = new EmbeddingIndex(mockVectorStore)
+    const embed = vi.fn()
+
+    const { reindexLegacyPatterns } = await import('../../../src/evals/EmbeddingIndex.js')
+    const migrated = await reindexLegacyPatterns(index, mockVectorStore, embed)
+
+    expect(migrated).toBe(0)
+    expect(mockVectorStore.getByKeyPrefix).not.toHaveBeenCalled()
+    expect(embed).not.toHaveBeenCalled()
+    expect(mockVectorStore.add).not.toHaveBeenCalled()
+  })
+
+  it('re-runs the migration when the marker is corrupt', async () => {
+    vi.mocked(mockVectorStore.getById).mockResolvedValue({
+      id: INDEX_VERSION_KEY,
+      vector: [],
+      content: 'not-json',
+      metadata: { type: 'index_version' },
+      createdAt: new Date(),
+    })
+    vi.mocked(mockVectorStore.getByKeyPrefix).mockResolvedValue([])
+    const index = new EmbeddingIndex(mockVectorStore)
+
+    const { reindexLegacyPatterns } = await import('../../../src/evals/EmbeddingIndex.js')
+    const migrated = await reindexLegacyPatterns(index, mockVectorStore, vi.fn())
+
+    expect(migrated).toBe(0)
+    expect(mockVectorStore.add).toHaveBeenCalledOnce()
+  })
+
+  it('skips rows with unparseable or empty content', async () => {
+    vi.mocked(mockVectorStore.getById).mockResolvedValue(null)
+    vi.mocked(mockVectorStore.getByKeyPrefix).mockResolvedValueOnce([
+      ltmRow('ltm:learnings', 'not-json'),
+      ltmRow('ltm:learnings', { score: 0.9, member: 'dev' }),
+    ])
+    const index = new EmbeddingIndex(mockVectorStore)
+    const embed = vi.fn()
+
+    const { reindexLegacyPatterns } = await import('../../../src/evals/EmbeddingIndex.js')
+    const migrated = await reindexLegacyPatterns(index, mockVectorStore, embed)
+
+    expect(migrated).toBe(0)
+    expect(embed).not.toHaveBeenCalled()
+    expect(mockVectorStore.add).toHaveBeenCalledOnce()
+  })
+
+  it('propagates embed failures without writing the marker', async () => {
+    vi.mocked(mockVectorStore.getById).mockResolvedValue(null)
+    vi.mocked(mockVectorStore.getByKeyPrefix).mockResolvedValue([
+      ltmRow('ltm:learnings', { pattern: 'learned:dev:test:fixed bug', score: 0.9, member: 'dev', skill: 'test' }),
+    ])
+    const index = new EmbeddingIndex(mockVectorStore)
+    const embed = vi.fn().mockRejectedValue(new Error('provider down'))
+
+    const { reindexLegacyPatterns } = await import('../../../src/evals/EmbeddingIndex.js')
+    await expect(reindexLegacyPatterns(index, mockVectorStore, embed)).rejects.toThrow('provider down')
+    expect(mockVectorStore.add).not.toHaveBeenCalled()
   })
 })

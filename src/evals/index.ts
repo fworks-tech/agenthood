@@ -19,3 +19,5 @@ export type {
   TaskScore,
   EvalReport,
 } from "./EvalRunner.js"
+export { BaselineComparator, DEFAULT_THRESHOLD } from "./BaselineComparator.js"
+export type { MetricDelta, RegressionReport, BaselineRecord } from "./BaselineComparator.js"

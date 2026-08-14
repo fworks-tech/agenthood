@@ -34,3 +34,4 @@ export { RedactionFilter, createRedactionFilterFromConfig } from "./RedactionFil
 export type { RedactionOptions } from "./RedactionFilter.ts"
 export { AnomalyDetector, createAnomalyConfigFromConfig } from "./AnomalyDetector.ts"
 export type { Anomaly, AnomalyConfig, AnomalyType } from "./AnomalyDetector.ts"
+export { getMemberQualityScore } from "./qualityScore.ts"

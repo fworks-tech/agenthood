@@ -56,7 +56,7 @@ Agenthood is a **multi-agent AI framework** distributed as an npm package + VS C
 | 6 — CI | `.github/workflows/` | GitHub Actions enforcing every layer |
 | 7 — Runtime | `src/` | TypeScript CLI + autonomous runtime (`agenthood run`) |
 | 8 — Memory & RAG | `src/memory/`, `src/rag/` | Memory tiers, DecisionLog + ProvenanceStore (ADR-015), KnowledgeGraphStore, RAG pipeline, Tree-sitter, LanceDB |
-| 9 — Workflows | _not yet implemented_ | Multi-member orchestration (AgentStep, ParallelStep, HumanInLoop) — 📋 Planned |
+| 9 — Workflows | `src/workflows/` | WorkflowEngine, QualityGates, DiffImpactAnalyzer, WorkflowCheckpoint, GoalChain shipped (e.g. review-pr); ParallelStep/HumanInLoop — 📋 Planned |
 | 10 — Evals & Observability | `src/evals/`, `src/core/` | EvalRunner (LLM-as-judge, 4 metrics), BaselineComparator, ReplayEvaluator, EpisodeLearner, trace pipeline (Tracer, TraceStore, redaction, retention, anomaly detection) — all shipped |
 
 ### CLI source (`src/`)
@@ -77,7 +77,7 @@ The CLI's production dependencies include `@anthropic-ai/sdk`, `groq-sdk`, `open
 
 ### Members (`skills/`)
 
-specialized agent skills, each a Markdown file (`skills/<name>/SKILL.md`). They are **agent-agnostic** — designed to work with Claude Code, GitHub Copilot, OpenAI Codex, CodeBuddy, and others. Key members:
+specialized agent skills, each a Markdown file (`skills/<name>/SKILL.md`). They are **agent-agnostic** — designed to work with Claude Code, GitHub Copilot, OpenAI Codex, CodeBuddy, and others. The canonical roster lives in [`docs/members/README.md`](docs/members/README.md). Key members:
 - **the-scribe** — N+1 commit pattern, PR "no and" test, changelog generation, Conventional Commits enforcement
 - **the-architect** — Interview mode to 95% confidence, spec-first development, task decomposition, stacked branch planning
 - **the-reviewer** — Five-axis review (Correctness, Readability, Architecture, Security, Performance), test-first review, change sizing

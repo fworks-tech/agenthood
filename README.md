@@ -90,7 +90,7 @@ npx agenthood rollback the-scribe       # restore SKILL.md from lockfile
 npx agenthood workflow review-pr        # execute the review-pr workflow
 ```
 
-Set one of these in a `.env` file in your project root (loaded automatically by the runtime). The default provider follows the `providers` list in `.agenthood/config.json` (opencode primary, Groq among the fallbacks) — set the keys for the providers you want available:
+Set one of these in a `.env` file in your project root (loaded automatically by the runtime) — and add `.env` to your `.gitignore` so keys never get committed. The default provider follows the `providers` list in `.agenthood/config.json` (opencode primary, Groq among the fallbacks) — set the keys for the providers you want available:
 
 | Variable | Provider | Free tier |
 |----------|----------|-----------|

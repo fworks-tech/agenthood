@@ -1,0 +1,37 @@
+{
+  "name": "developer-agent",
+  "description": "Core developer agent tasks used for eval baselines",
+  "metrics": ["faithfulness", "relevance", "context_recall", "answer_correctness"],
+  "tasks": [
+    {
+      "input": "Write a TypeScript function that reverses a string.",
+      "expectedOutput": "A TypeScript function that takes a string and returns it reversed.",
+      "tags": ["code", "typescript"],
+      "difficulty": "easy"
+    },
+    {
+      "input": "Explain the difference between let and const in JavaScript.",
+      "expectedOutput": "An explanation that const forbids reassignment while let allows it, with a code example.",
+      "tags": ["explain", "javascript"],
+      "difficulty": "easy"
+    },
+    {
+      "input": "Refactor this function to be pure: let cache = {}; function get(key) { if (cache[key]) return cache[key]; const v = compute(key); cache[key] = v; return v; }",
+      "expectedOutput": "A pure version that takes the cache as a parameter or uses a memoization wrapper without mutating shared state.",
+      "tags": ["refactor", "javascript"],
+      "difficulty": "medium"
+    },
+    {
+      "input": "Write a SQL query to find employees whose salary is above the department average.",
+      "expectedOutput": "A SQL query using a correlated subquery or window function comparing salary to the department average.",
+      "tags": ["sql", "data"],
+      "difficulty": "medium"
+    },
+    {
+      "input": "Diagnose why this CI step fails intermittently: curl fails with connection reset after 30 seconds of a long build.",
+      "expectedOutput": "A diagnosis covering timeouts, proxy interference, and suggested retry/backoff configuration.",
+      "tags": ["ci", "diagnosis"],
+      "difficulty": "hard"
+    }
+  ]
+}

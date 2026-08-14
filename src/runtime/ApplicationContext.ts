@@ -6,7 +6,7 @@ import { AgentRegistry } from '../core/AgentRegistry.ts'
 import type { ExecutionContext } from '../core/ExecutionContext.ts'
 import { createRedactionFilterFromConfig } from '../core/RedactionFilter.ts'
 import { Tracer } from '../core/Tracer.ts'
-import { JSONFileTraceStore } from '../core/TraceStore.ts'
+import { JSONFileTraceStore, RetentionManager, createRetentionPolicyFromConfig } from '../core/TraceStore.ts'
 import { LLMRouter } from '../llm/LLMRouter.ts'
 import type { ILLMProvider } from '../llm/ILLMProvider.ts'
 import type { LLMConfig } from '../llm/types.ts'
@@ -45,6 +45,7 @@ export class ApplicationContext {
   readonly agents: AgentRegistry
   readonly members: MemberRegistry
   readonly llm: ILLMProvider
+  private retentionManager?: RetentionManager
 
   private constructor(
     projectPath: string,
@@ -63,7 +64,17 @@ export class ApplicationContext {
     const memory = this.buildMemoryTiers(llm, vectorStore, societyGraph, projectPath)
 
     const traceStore = new JSONFileTraceStore(join(projectPath, '.agenthood', 'traces', 'traces.ndjson'))
-    const redactor = createRedactionFilterFromConfig(loadProjectConfig(projectPath))
+    const projectConfig = loadProjectConfig(projectPath)
+    const redactor = createRedactionFilterFromConfig(projectConfig)
+
+    const retentionPolicy = createRetentionPolicyFromConfig(projectConfig)
+    if (retentionPolicy) {
+      this.retentionManager = new RetentionManager(traceStore, retentionPolicy)
+      this.retentionManager.prune().catch((err) => {
+        console.warn(`[run] retention prune failed: ${err instanceof Error ? err.message : String(err)}`)
+      })
+      this.retentionManager.start()
+    }
 
     this.ctx = {
       executionId: randomUUID(),
@@ -228,7 +239,8 @@ function loadProjectConfig(projectPath: string): Record<string, unknown> {
   }
 }
 
-function loadSocietyGraph(projectPath: string): KnowledgeGraphStore {  const graph = new KnowledgeGraphStore()
+function loadSocietyGraph(projectPath: string): KnowledgeGraphStore {
+  const graph = new KnowledgeGraphStore()
   const graphPath = join(projectPath, '.agenthood', 'society-graph.json')
   if (existsSync(graphPath)) {
     try {

@@ -98,6 +98,8 @@ Evaluation: `agenthood eval <member> --suite <path>` runs the member against eve
 
 Redaction: trace payload text can be scrubbed before persistence via `{ "observability": { "redaction": { "enabled": true, "rules": ["<regex sources>"], "paths": ["<file roots>"] } } }` in `.agenthood/config.json`. Emails, `sk-` keys, bearer tokens, URL query values, and IP addresses are replaced with a deterministic `[REDACTED]` placeholder (preserving replay reproducibility); custom regex rules and absolute-path roots are opt-in. Redaction is disabled by default.
 
+Retention: `{ "observability": { "retention": { "ttlDays": 30, "maxEntries": 100000, "exportEnabled": true, "exportPath": "./traces/export" } } }` bounds the trace store — traces older than `ttlDays` and beyond `maxEntries` (oldest first) are pruned hourly, and pruned data is exported to NDJSON before deletion when `exportEnabled` is set. `ttlDays: 0` disables pruning.
+
 ### Secrets and Credentials
 
 - Do NOT commit API keys, secrets, or credentials to the repository.

@@ -89,6 +89,10 @@ The `agenthood` CLI auto-discovers commands from `src/commands/` — each file e
 
 Adding a command means adding a file in `src/commands/` and documenting it here.
 
+### Observability
+
+Every member invocation emits a trace envelope (member, duration, tokens, cost, quality, status, correlation id). Traces are flushed to `.agenthood/traces/traces.ndjson`; `agenthood status --member <name>` aggregates them into per-member cost/quality summaries over 1h/24h/7d/all windows, and `agenthood trace` lists recent envelopes. Costs come from the static pricing table in `src/core/modelPricing.ts` (unknown models fall back with a warning).
+
 ### Secrets and Credentials
 
 - Do NOT commit API keys, secrets, or credentials to the repository.

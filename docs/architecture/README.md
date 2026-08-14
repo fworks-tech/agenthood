@@ -31,6 +31,7 @@ User Request
 ConcurrencyQueue        — assign priority, wait for slot
     ↓
 Orchestrator            — route to the right member(s)
+                          (Phase 1: MemberOrchestrator detection shipped)
     ↓
 Member Execution        — reason → act → observe loop
     ↓

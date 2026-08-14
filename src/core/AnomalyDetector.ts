@@ -1,3 +1,5 @@
+import { appendFile, mkdir } from 'node:fs/promises'
+import { dirname } from 'node:path'
 import type { TraceEnvelope } from './types.js'
 
 export type AnomalyType = 'cost_spike' | 'quality_drop' | 'frequency_burst'
@@ -137,6 +139,17 @@ export function createAnomalyConfigFromConfig(raw: unknown): AnomalyConfig | und
   const config: AnomalyConfig = {}
   if (typeof a.costThreshold === 'number') config.costThreshold = a.costThreshold
   if (typeof a.qualityDrop === 'number') config.qualityDrop = a.qualityDrop
+  if (typeof a.burstThreshold === 'number') config.burstThreshold = a.burstThreshold
   if (typeof a.cooldownMinutes === 'number') config.cooldownMinutes = a.cooldownMinutes
   return config
+}
+
+/**
+ * Appends anomalies to an NDJSON alerts file (owner-only), creating the
+ * directory when needed. No-op on an empty list.
+ */
+export async function appendAnomalies(path: string, anomalies: Anomaly[]): Promise<void> {
+  if (anomalies.length === 0) return
+  await mkdir(dirname(path), { recursive: true })
+  await appendFile(path, anomalies.map((a) => JSON.stringify(a)).join('\n') + '\n', { mode: 0o600 })
 }

@@ -127,4 +127,50 @@ describe('createAnomalyConfigFromConfig', () => {
     })
     expect(config).toEqual({ costThreshold: 4.5, qualityDrop: 0.1, cooldownMinutes: 30 })
   })
+
+  it('maps burstThreshold from config', () => {
+    const config = createAnomalyConfigFromConfig({
+      observability: { alerts: { burstThreshold: 25 } },
+    })
+    expect(config).toEqual({ burstThreshold: 25 })
+  })
+})
+
+describe('appendAnomalies', () => {
+  it('writes an NDJSON line per anomaly and creates the directory', async () => {
+    const { mkdtempSync, rmSync } = await import('node:fs')
+    const { tmpdir } = await import('node:os')
+    const { join } = await import('node:path')
+    const { readFileSync } = await import('node:fs')
+    const { appendAnomalies } = await import('../../../src/core/AnomalyDetector.js')
+    const dir = mkdtempSync(join(tmpdir(), 'agenthood-alerts-'))
+    const file = join(dir, 'nested', 'anomalies.ndjson')
+
+    await appendAnomalies(file, [
+      { type: 'cost_spike', member: 'the-builder', current: 4, baseline: 0.5, timestamp: '2026-08-14T00:00:00.000Z' },
+    ])
+    await appendAnomalies(file, [
+      { type: 'quality_drop', member: 'the-reviewer', current: 0.4, baseline: 0.8, timestamp: '2026-08-14T00:01:00.000Z' },
+    ])
+
+    const lines = readFileSync(file, 'utf8').trim().split('\n')
+    expect(lines).toHaveLength(2)
+    expect(JSON.parse(lines[0]).type).toBe('cost_spike')
+    expect(JSON.parse(lines[1]).member).toBe('the-reviewer')
+    rmSync(dir, { recursive: true, force: true })
+  })
+
+  it('is a no-op for an empty list', async () => {
+    const { mkdtempSync, rmSync, existsSync } = await import('node:fs')
+    const { tmpdir } = await import('node:os')
+    const { join } = await import('node:path')
+    const { appendAnomalies } = await import('../../../src/core/AnomalyDetector.js')
+    const dir = mkdtempSync(join(tmpdir(), 'agenthood-alerts-'))
+    const file = join(dir, 'anomalies.ndjson')
+
+    await appendAnomalies(file, [])
+
+    expect(existsSync(file)).toBe(false)
+    rmSync(dir, { recursive: true, force: true })
+  })
 })

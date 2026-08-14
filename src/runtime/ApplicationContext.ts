@@ -5,6 +5,7 @@ import { join } from 'node:path'
 import { AgentRegistry } from '../core/AgentRegistry.ts'
 import type { ExecutionContext } from '../core/ExecutionContext.ts'
 import { createRedactionFilterFromConfig } from '../core/RedactionFilter.ts'
+import { AnomalyDetector, appendAnomalies, createAnomalyConfigFromConfig } from '../core/AnomalyDetector.ts'
 import { Tracer } from '../core/Tracer.ts'
 import { JSONFileTraceStore, RetentionManager, createRetentionPolicyFromConfig } from '../core/TraceStore.ts'
 import { EmbeddingIndex, reindexLegacyPatterns } from '../evals/EmbeddingIndex.ts'
@@ -53,6 +54,8 @@ export class ApplicationContext {
   readonly llm: ILLMProvider
   private retentionManager?: RetentionManager
   private readonly episodeLearner: EpisodeLearner
+  private readonly anomalyDetector: AnomalyDetector
+  private readonly alertsPath: string
 
   private constructor(
     projectPath: string,
@@ -67,6 +70,7 @@ export class ApplicationContext {
     this.agents = new AgentRegistry()
     this.members = new MemberRegistry()
     this.episodeLearner = new EpisodeLearner(undefined, new EmbeddingIndex(vectorStore))
+    this.alertsPath = join(projectPath, '.agenthood', 'alerts', 'anomalies.ndjson')
 
     this.setupAgents(llm, skills.manifests)
     const oracleAgent = this.setupOracle(llm, societyGraph)
@@ -75,6 +79,7 @@ export class ApplicationContext {
     const traceStore = new JSONFileTraceStore(join(projectPath, '.agenthood', 'traces', 'traces.ndjson'))
     const projectConfig = loadProjectConfig(projectPath)
     const redactor = createRedactionFilterFromConfig(projectConfig)
+    this.anomalyDetector = new AnomalyDetector(createAnomalyConfigFromConfig(projectConfig))
 
     const retentionPolicy = createRetentionPolicyFromConfig(projectConfig)
     if (retentionPolicy) {
@@ -253,8 +258,22 @@ export class ApplicationContext {
   async flushTraces(): Promise<void> {
     try {
       await this.ctx.tracer.flush()
+      await this.evaluateAnomalies()
     } catch (err) {
       console.error(`[run] trace flush failed: ${err instanceof Error ? err.message : String(err)}`)
+    }
+  }
+
+  /** Scores the recent in-process envelopes and appends any anomalies. */
+  private async evaluateAnomalies(): Promise<void> {
+    const recent = this.ctx.tracer.getRecent(this.ctx.tracer.size)
+    if (recent.length === 0) return
+    const anomalies = this.anomalyDetector.evaluate(recent)
+    if (anomalies.length === 0) return
+    try {
+      await appendAnomalies(this.alertsPath, anomalies)
+    } catch (err) {
+      console.warn(`[run] anomaly persistence failed: ${err instanceof Error ? err.message : String(err)}`)
     }
   }
 }

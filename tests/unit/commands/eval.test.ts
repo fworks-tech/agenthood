@@ -31,6 +31,7 @@ function stubLlm(content = '0.8'): ILLMProvider {
 
 function stubApp(llm: ILLMProvider, runTask = async () => ({ output: 'a thorough review', durationMs: 5 })) {
   return {
+    ctx: { source: undefined },
     members: { has: (n: string) => n === 'the-reviewer' },
     llm,
     runMemberTask: runTask,

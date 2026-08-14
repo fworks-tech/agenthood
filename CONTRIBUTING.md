@@ -84,7 +84,7 @@ The `agenthood` CLI auto-discovers commands from `src/commands/` — each file e
 
 - `agenthood run <member> "<task>"` — invoke a member or core agent
 - `agenthood trace` — list recent invocation traces (`--member`, `--limit`, `--since`, `--json`)
-- `agenthood status` — project health and member metrics (`--watch`, `--json`, `--drift`, `--member`)
+- `agenthood status` — project health and member metrics (`--watch`, `--json`, `--drift`, `--member`, `--learner`)
 - `agenthood eval <member> --suite <path>` — run an eval suite against a member (`--baseline`, `--update-baseline`, `--json`)
 - `agenthood check` / `verify` — health and member-integrity validation
 

@@ -275,6 +275,43 @@ Personalisation:
 
 Preferences persist to `.agenthood/preferences.json`.
 
+## Observability & Evaluation
+
+Every member invocation emits a trace envelope (member, duration, tokens, cost, quality, status, correlation id, raw input/output). Traces flush from the in-memory ring buffer (`Tracer`) to `.agenthood/traces/traces.ndjson` (`JSONFileTraceStore`) on a cadence and before process exit.
+
+Inspect traces with:
+
+```bash
+npx agenthood trace                     # list recent envelopes (--member, --limit, --since, --json)
+npx agenthood status --member <name>    # per-member cost/quality summaries over 1h/24h/7d/all
+npx agenthood health                    # runtime health: tracer, store, registry, providers (exit 0/1/2)
+npx agenthood status --learner          # EpisodeLearner band counts, trend, persisted patterns
+```
+
+Evaluate members against fixed suites with baseline gating:
+
+```bash
+npx agenthood eval the-reviewer --suite evals/benchmarks/review-pr.json --update-baseline
+npx agenthood eval the-reviewer --suite evals/benchmarks/review-pr.json   # exit 1 on regression
+```
+
+Scores (faithfulness, relevance, context_recall via LLM-as-judge; answer_correctness via embedding cosine) aggregate into baselines at `.agenthood/baselines/<member>.json`, which also feed each member's per-trace `qualityScore`. Replay evaluation (`ReplayEvaluator`) re-runs historical envelopes against their stored inputs to surface behavior drift.
+
+Privacy and lifecycle config in `.agenthood/config.json`:
+
+```json
+{
+  "observability": {
+    "redaction": { "enabled": true, "rules": [], "paths": ["/home/me"] },
+    "retention": { "ttlDays": 30, "maxEntries": 100000, "exportEnabled": true, "exportPath": "./traces/export" },
+    "alerts": { "costThreshold": 3.0, "qualityDrop": 0.2, "cooldownMinutes": 60 }
+  },
+  "sentry": { "dsn": "https://..." }
+}
+```
+
+Redaction replaces emails, keys, tokens, URL query values, and IPs with deterministic placeholders before persistence (replay stays reproducible). Retention prunes by TTL and entry cap, exporting pruned data to NDJSON. Alerts drive `AnomalyDetector` (cost spikes, quality drops, bursts). Sentry captures member run failures when a DSN is set.
+
 ## Logging
 
 When failover activates, the runtime logs provider selection to stderr:

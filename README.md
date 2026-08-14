@@ -83,6 +83,9 @@ npx agenthood run the-reviewer "review the changes in the last commit"
 npx agenthood run the-architect "plan the implementation for issue #42"
 npx agenthood verify                    # validate member SKILL.md integrity
 npx agenthood status --watch            # live project health monitoring
+npx agenthood trace                     # list recent invocation traces
+npx agenthood health                    # runtime health checks (exit 0/1/2)
+npx agenthood eval the-reviewer --suite evals/benchmarks/review-pr.json  # scored eval with baseline gating
 npx agenthood rollback the-scribe       # restore SKILL.md from lockfile
 npx agenthood workflow review-pr        # execute the review-pr workflow
 ```

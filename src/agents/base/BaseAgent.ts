@@ -8,6 +8,7 @@ import { ToolRegistry } from "../../tools/ToolRegistry.js";
 import type { ResidualMemory } from "../../memory/ResidualMemory.js";
 import type { EpisodeLearner } from "../../evals/EpisodeLearner.js";
 import type { EvalResult } from "../../core/types.js";
+import { createTraceEnvelope } from "../../core/TraceEnvelope.js";
 
 export abstract class BaseAgent {
   abstract role: string;
@@ -36,6 +37,7 @@ export abstract class BaseAgent {
     const systemPrompt = await this.getSystemPrompt(context);
     context.tracer.startSpan(this.role);
 
+    const startTime = performance.now();
     let output = "";
     let error: unknown = null;
     try {
@@ -43,7 +45,10 @@ export abstract class BaseAgent {
     } catch (err) {
       error = err;
     }
+    const durationMs = Math.round(performance.now() - startTime);
     context.tracer.endSpan(this.role, { output });
+
+    this.recordTrace(input, output, durationMs, error, context);
 
     this.residualMemory?.record(`agent:${this.role}:${input.slice(0, 80)}`, 0.5);
 
@@ -63,6 +68,38 @@ export abstract class BaseAgent {
 
     if (error) throw error;
     return result;
+  }
+
+  private recordTrace(
+    input: string,
+    output: string,
+    durationMs: number,
+    error: unknown,
+    context: ExecutionContext,
+  ): void {
+    const usage = this.reasoningLoop.usage;
+    try {
+      context.tracer.record(
+        createTraceEnvelope({
+          member: this.role,
+          input,
+          output,
+          durationMs,
+          tokenCount: {
+            input: usage?.promptTokens ?? 0,
+            output: usage?.completionTokens ?? 0,
+            total: usage?.totalTokens ?? 0,
+          },
+          cost: 0,
+          qualityScore: null,
+          status: error ? "error" : "success",
+          correlationId: context.executionId,
+          model: this.reasoningLoop.model || undefined,
+        }),
+      );
+    } catch (err) {
+      console.error(`[BaseAgent] trace recording failed: ${err instanceof Error ? err.message : String(err)}`)
+    }
   }
 
   private async recordRun(

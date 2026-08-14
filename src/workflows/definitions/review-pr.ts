@@ -1,6 +1,7 @@
 import { DiffImpactAnalyzer } from '../DiffImpactAnalyzer.js'
 import { QualityGates } from '../QualityGates.js'
 import { WorkflowEngine } from '../WorkflowEngine.js'
+import { Tracer } from '../../core/Tracer.js'
 import type { ExecutionContext } from '../../core/ExecutionContext.js'
 import type { IProtocol } from '../protocols/IProtocol.js'
 import type { WorkflowDefinition, WorkflowStep } from '../types.js'
@@ -118,7 +119,7 @@ export async function executeReviewPrWorkflow(): Promise<string> {
     llm: {} as any,
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     prompts: {} as any,
-    tracer: { startSpan: () => {}, endSpan: () => {} },
+    tracer: new Tracer(),
     artifacts: [],
   }
 

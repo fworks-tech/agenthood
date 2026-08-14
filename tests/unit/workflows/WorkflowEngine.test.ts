@@ -20,7 +20,7 @@ const mockContext: ExecutionContext = {
   },
   llm: {} as any,
   prompts: { build: vi.fn() } as any,
-  tracer: { startSpan: vi.fn(), endSpan: vi.fn() },
+  tracer: { startSpan: vi.fn(), endSpan: vi.fn(), record: vi.fn(), getRecent: vi.fn(), getByMember: vi.fn(), getByCorrelationId: vi.fn() },
   artifacts: [],
 }
 

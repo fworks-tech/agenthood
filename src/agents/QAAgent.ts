@@ -10,6 +10,7 @@ import type { ILLMProvider } from '../llm/ILLMProvider.ts'
 import type { ReActLoop } from '../reasoning/ReActLoop.ts'
 import type { ToolRegistry } from '../tools/ToolRegistry.ts'
 import { loadMemberLore } from './memberLore.ts'
+import type { EpisodeLearner } from '../evals/EpisodeLearner.js'
 
 const __filename = fileURLToPath(import.meta.url)
 const __dirname = dirname(__filename)
@@ -19,8 +20,8 @@ export class QAAgent extends BaseAgent {
   role = 'qa'
   protected tools: ITool[]
 
-  constructor(llm: ILLMProvider, reasoningLoop: ReActLoop, toolRegistry: ToolRegistry) {
-    super(llm, reasoningLoop, toolRegistry)
+  constructor(llm: ILLMProvider, reasoningLoop: ReActLoop, toolRegistry: ToolRegistry, episodeLearner?: EpisodeLearner) {
+    super(llm, reasoningLoop, toolRegistry, undefined, episodeLearner)
     this.tools = [
       new ReadFileSkill(),
       new WriteFileSkill(),

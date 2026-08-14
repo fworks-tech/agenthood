@@ -12,6 +12,7 @@ import type { AgentRegistry } from "../core/AgentRegistry.ts"
 import type { ILLMProvider } from "../llm/ILLMProvider.ts"
 import type { ReActLoop } from "../reasoning/ReActLoop.ts"
 import type { ToolRegistry } from "../tools/ToolRegistry.ts"
+import type { EpisodeLearner } from "../evals/EpisodeLearner.js"
 
 export class DeveloperAgent extends BaseAgent {
   role = "developer";
@@ -22,8 +23,9 @@ export class DeveloperAgent extends BaseAgent {
     reasoningLoop: ReActLoop,
     toolRegistry: ToolRegistry,
     agentRegistry: AgentRegistry,
+    episodeLearner?: EpisodeLearner,
   ) {
-    super(llm, reasoningLoop, toolRegistry);
+    super(llm, reasoningLoop, toolRegistry, undefined, episodeLearner);
     this.tools = [
       new WriteCodeSkill(),
       new RefactorSkill(),

@@ -75,8 +75,8 @@ which superseded the earlier Python/DeepAgents runtime approach.
 | Decision intelligence (DecisionLog + causal chains, ProvenanceStore, DecisionSearch, GraphSnapshot) | `src/memory/` | ✅ ADR-015 |
 | RAG — KnowledgeGraphStore, FixedSizeChunkStrategy + MarkdownHierarchicalChunkStrategy, Indexer, Retriever, AgenticRAG, TreeSitterParser | `src/rag/` | ✅ Shipped |
 | Society index (members, ADRs, conventions) | `src/project/SocietyIndexer.ts` | ✅ Shipped |
-| Observability — trace pipeline (TraceEnvelope, Tracer ring buffer, JSONFileTraceStore, redaction, retention, anomaly detection, health checks) | `src/core/`, `src/memory/LanceDBTraceStore.ts` | ✅ Shipped (M7) |
-| Evaluation — EvalRunner (LLM-as-judge), BaselineComparator, ReplayEvaluator, EpisodeLearner | `src/evals/` | ✅ Shipped (M7) |
+| Observability — trace pipeline (TraceEnvelope, Tracer ring buffer, JSONFileTraceStore, redaction, retention, anomaly detection wired into flush with `status --alerts`, health checks) | `src/core/` | ✅ Shipped + wired (M7) |
+| Evaluation — EvalRunner (LLM-as-judge), BaselineComparator, ReplayEvaluator (`eval --replay`), EpisodeLearner (EmbeddingIndex-backed, injected into agents) | `src/evals/` | ✅ Shipped + wired (M7) |
 | Governance docs (RACI + release policy) | `../governance/` | ✅ v2.6.0 |
 
 The TS CLI is the single supported runtime for `agenthood run`.

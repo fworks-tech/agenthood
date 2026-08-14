@@ -284,8 +284,9 @@ Inspect traces with:
 ```bash
 npx agenthood trace                     # list recent envelopes (--member, --limit, --since, --json)
 npx agenthood status --member <name>    # per-member cost/quality summaries over 1h/24h/7d/all
-npx agenthood health                    # runtime health: tracer, store, registry, providers (exit 0/1/2)
 npx agenthood status --learner          # EpisodeLearner band counts, trend, persisted patterns
+npx agenthood status --alerts           # recent anomaly alerts (cost spikes, quality drops, bursts)
+npx agenthood health                    # runtime health: tracer, store, registry, providers (exit 0/1/2)
 ```
 
 Evaluate members against fixed suites with baseline gating:
@@ -295,7 +296,11 @@ npx agenthood eval the-reviewer --suite evals/benchmarks/review-pr.json --update
 npx agenthood eval the-reviewer --suite evals/benchmarks/review-pr.json   # exit 1 on regression
 ```
 
-Scores (faithfulness, relevance, context_recall via LLM-as-judge; answer_correctness via embedding cosine) aggregate into baselines at `.agenthood/baselines/<member>.json`, which also feed each member's per-trace `qualityScore`. Replay evaluation (`ReplayEvaluator`) re-runs historical envelopes against their stored inputs to surface behavior drift.
+Scores (faithfulness, relevance, context_recall via LLM-as-judge; answer_correctness via embedding cosine) aggregate into baselines at `.agenthood/baselines/<member>.json`, which also feed each member's per-trace `qualityScore`. Replay evaluation re-runs historical envelopes against their stored inputs to surface behavior drift:
+
+```bash
+npx agenthood eval the-reviewer --replay --limit 50   # drift report at .agenthood/evals/replay-report.json
+```
 
 Privacy and lifecycle config in `.agenthood/config.json`:
 
@@ -304,13 +309,14 @@ Privacy and lifecycle config in `.agenthood/config.json`:
   "observability": {
     "redaction": { "enabled": true, "rules": [], "paths": ["/home/me"] },
     "retention": { "ttlDays": 30, "maxEntries": 100000, "exportEnabled": true, "exportPath": "./traces/export" },
-    "alerts": { "costThreshold": 3.0, "qualityDrop": 0.2, "cooldownMinutes": 60 }
+    "alerts": { "costThreshold": 3.0, "qualityDrop": 0.2, "burstThreshold": 10, "cooldownMinutes": 60 },
+    "tracePath": ".agenthood/traces/traces.ndjson"
   },
   "sentry": { "dsn": "https://..." }
 }
 ```
 
-Redaction replaces emails, keys, tokens, URL query values, and IPs with deterministic placeholders before persistence (replay stays reproducible). Retention prunes by TTL and entry cap, exporting pruned data to NDJSON. Alerts drive `AnomalyDetector` (cost spikes, quality drops, bursts). Sentry captures member run failures when a DSN is set.
+Redaction replaces emails, keys, tokens, URL query values, and IPs with deterministic placeholders before persistence (replay stays reproducible); the same redactor guards decision and provenance payloads. Retention prunes by TTL and entry cap, exporting pruned data to NDJSON. On every trace flush `AnomalyDetector` scores the batch against per-member leave-one-out baselines and appends cost spikes, quality drops, and bursts to `.agenthood/alerts/anomalies.ndjson` (`status --alerts`). Sentry captures member run failures when a DSN is set. `tracePath` relocates the trace store; relative paths resolve against the project root.
 
 ## Logging
 

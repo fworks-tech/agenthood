@@ -1,3 +1,10 @@
+# [3.21.0](https://github.com/fworks-tech/agenthood/compare/v3.20.0...v3.21.0) (2026-08-14)
+
+
+### Features
+
+* **observability:** add workflow and session correlation IDs ([b0b1602](https://github.com/fworks-tech/agenthood/commit/b0b1602c2cf65941d47ea0fb428a16169c3dc4d8)), closes [#301](https://github.com/fworks-tech/agenthood/issues/301)
+
 # [3.20.0](https://github.com/fworks-tech/agenthood/compare/v3.19.0...v3.20.0) (2026-08-14)
 
 

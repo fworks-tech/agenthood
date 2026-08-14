@@ -5,6 +5,14 @@
 
 ---
 
+## v3.21.0 — August 14, 2026
+
+### ✨ Features
+
+- **Observability:** add workflow and session correlation IDs
+
+---
+
 ## v3.20.0 — August 14, 2026
 
 ### ✨ Features

@@ -34,6 +34,22 @@ export abstract class BaseAgent {
   private readonly costEstimator: CostEstimator;
 
   async run(input: string, context: ExecutionContext): Promise<AgentResult> {
+    return this.runWithExecutor(input, context, (systemPrompt, task) =>
+      this.reasoningLoop.run(systemPrompt, task, context),
+    )
+  }
+
+  /**
+   * Shared invocation lifecycle: tool registration, decay, prompt, timing,
+   * tracing, learning, decision/provenance recording, and Sentry reporting.
+   * Subclasses that execute differently (e.g. Oracle's retrieval-first ask)
+   * supply the executor and inherit the whole lifecycle.
+   */
+  protected async runWithExecutor(
+    input: string,
+    context: ExecutionContext,
+    execute: (systemPrompt: string, input: string) => Promise<string>,
+  ): Promise<AgentResult> {
     for (const tool of this.tools) {
       if (!this.toolRegistry.has(tool.name)) {
         this.toolRegistry.register(tool);
@@ -49,7 +65,7 @@ export abstract class BaseAgent {
     let output = "";
     let error: unknown = null;
     try {
-      output = await this.reasoningLoop.run(systemPrompt, input, context);
+      output = await execute(systemPrompt, input);
     } catch (err) {
       error = err;
     }

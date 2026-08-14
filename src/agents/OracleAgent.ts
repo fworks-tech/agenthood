@@ -6,7 +6,6 @@ import type { ExecutionContext } from '../core/ExecutionContext.js'
 import type { ITool } from '../tools/ITool.js'
 import type { AgentResult } from './base/AgentResult.js'
 import { KnowledgeGraphStore } from '../rag/KnowledgeGraphStore.js'
-import { reportErrorToSentry } from '../core/sentryReporter.js'
 
 export class OracleAgent extends BaseAgent {
   role = 'the-oracle'
@@ -67,27 +66,6 @@ export class OracleAgent extends BaseAgent {
   }
 
   async run(input: string, context: ExecutionContext): Promise<AgentResult> {
-    const startTime = performance.now()
-    let output = ''
-    let error: unknown = null
-    try {
-      output = await this.ask(input, context)
-    } catch (err) {
-      error = err
-    }
-    const durationMs = Math.round(performance.now() - startTime)
-    this.recordTrace(input, output, durationMs, error, context)
-    await this.recordRun(input, output, error, context)
-    if (error) {
-      await reportErrorToSentry(error, context, {
-        member: this.role,
-        model: 'oracle',
-        durationMs,
-        status: 'error',
-        correlationId: context.correlationId ?? context.executionId,
-      })
-      throw error
-    }
-    return { role: this.role, output, artifacts: context.artifacts }
+    return this.runWithExecutor(input, context, (_systemPrompt, task) => this.ask(task, context))
   }
 }

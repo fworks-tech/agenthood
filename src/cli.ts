@@ -82,6 +82,7 @@ Commands:
                             Use --watch to poll every 5 seconds
                             Use --json for machine-readable output
                             Use --drift to detect SKILL.md drift vs lockfile
+                            Use --member <name> for per-member trace summaries
   trace                   List recent member invocation traces
                             Use --member <name>, --limit <n>, --since <time>
                             Use --json for machine-readable output

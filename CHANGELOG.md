@@ -1,3 +1,11 @@
+# [3.32.0](https://github.com/fworks-tech/agenthood/compare/v3.31.0...v3.32.0) (2026-08-14)
+
+
+### Features
+
+* **observability:** add optional sentry error reporting ([fee0865](https://github.com/fworks-tech/agenthood/commit/fee08659d761c3625576fb3bba083edd2ad85255)), closes [#319](https://github.com/fworks-tech/agenthood/issues/319)
+* **observability:** expose episode learner learning status ([68af9e9](https://github.com/fworks-tech/agenthood/commit/68af9e952bae7f736f85f080d32b36d79c12fe43)), closes [#303](https://github.com/fworks-tech/agenthood/issues/303)
+
 # [3.31.0](https://github.com/fworks-tech/agenthood/compare/v3.30.0...v3.31.0) (2026-08-14)
 
 

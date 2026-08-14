@@ -5,6 +5,15 @@
 
 ---
 
+## v3.32.0 — August 14, 2026
+
+### ✨ Features
+
+- **Observability:** add optional sentry error reporting
+- **Observability:** expose episode learner learning status
+
+---
+
 ## v3.31.0 — August 14, 2026
 
 ### ✨ Features

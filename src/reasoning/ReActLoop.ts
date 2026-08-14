@@ -1,6 +1,6 @@
 import type { ILLMProvider } from "../llm/ILLMProvider.ts"
 import type { ExecutionContext } from "../core/ExecutionContext.ts"
-import type { Message, ToolCall } from "../llm/types.ts"
+import type { Message, TokenUsage, ToolCall } from "../llm/types.ts"
 import { ContextCompressor } from "../core/ContextCompressor.ts"
 import { ToolRegistry, ToolNotFoundError } from "../tools/ToolRegistry.ts"
 import { ThinkingBudget } from "./ThinkingBudget.ts"
@@ -16,6 +16,8 @@ export class ToolLoopDetectedError extends Error {
 
 export class ReActLoop {
   activatedSkills = new Set<string>()
+  usage: TokenUsage = { promptTokens: 0, completionTokens: 0, totalTokens: 0 }
+  model = ""
 
   constructor(
     private llm: ILLMProvider,
@@ -35,6 +37,9 @@ export class ReActLoop {
       { role: "system", content: systemPrompt },
       { role: "user", content: userInput },
     ];
+
+    this.usage = { promptTokens: 0, completionTokens: 0, totalTokens: 0 };
+    this.model = "";
 
     const recentCalls: string[] = [];
 
@@ -56,6 +61,10 @@ export class ReActLoop {
       )
 
       const response = await this.llm.complete(request);
+      this.model = response.model || this.model;
+      this.usage.promptTokens += response.usage?.promptTokens ?? 0;
+      this.usage.completionTokens += response.usage?.completionTokens ?? 0;
+      this.usage.totalTokens += response.usage?.totalTokens ?? 0;
       messages.push({
         role: "assistant",
         content: response.content,

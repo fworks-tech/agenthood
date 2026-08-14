@@ -184,6 +184,63 @@ describe('BaseAgent', () => {
     })
   })
 
+  it('emits a trace envelope after a successful run', async () => {
+    const agent = new TestAgent(llm, loop, toolRegistry)
+    const context = createTestContext()
+
+    await agent.run('test task', context)
+
+    const traces = context.tracer.getRecent(1)
+    expect(traces).toHaveLength(1)
+    const env = traces[0]
+    expect(env).toMatchObject({
+      member: 'test-agent',
+      status: 'success',
+      correlationId: context.executionId,
+      source: 'api',
+      qualityScore: null,
+      tokenCount: { input: 10, output: 10, total: 20 },
+    })
+    expect(env.durationMs).toBeGreaterThanOrEqual(0)
+    expect(env.inputHash).toHaveLength(64)
+    expect(env.outputHash).toHaveLength(64)
+    expect(new Date(env.timestamp).getTime()).not.toBeNaN()
+  })
+
+  it('emits a trace envelope with error status when run fails', async () => {
+    const failingLlm: ILLMProvider = {
+      ...llm,
+      complete: vi.fn().mockRejectedValue(new Error('provider exploded')),
+    }
+    const failingLoop = new ReActLoop(failingLlm, new ToolRegistry())
+    const agent = new TestAgent(failingLlm, failingLoop, new ToolRegistry())
+    const context = createTestContext()
+
+    await expect(agent.run('test task', context)).rejects.toThrow('provider exploded')
+
+    const traces = context.tracer.getRecent(1)
+    expect(traces).toHaveLength(1)
+    expect(traces[0]).toMatchObject({ member: 'test-agent', status: 'error' })
+  })
+
+  it('does not block the response when trace recording fails', async () => {
+    const brokenTracer = {
+      startSpan: vi.fn(),
+      endSpan: vi.fn(),
+      record: vi.fn().mockImplementation(() => {
+        throw new Error('tracer exploded')
+      }),
+      getRecent: vi.fn(() => []),
+      getByMember: vi.fn(() => []),
+      getByCorrelationId: vi.fn(() => []),
+    }
+    const agent = new TestAgent(llm, loop, toolRegistry)
+    const context = createTestContext({ tracer: brokenTracer })
+
+    const result = await agent.run('test task', context)
+    expect(result.role).toBe('test-agent')
+  })
+
   it('records a failed decision and rethrows the error', async () => {
     const recordDecision = vi.fn().mockResolvedValue(undefined)
     const trackProvenance = vi.fn().mockResolvedValue(undefined)

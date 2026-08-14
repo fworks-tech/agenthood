@@ -4,6 +4,7 @@ import { join } from 'node:path'
 
 import { AgentRegistry } from '../core/AgentRegistry.ts'
 import type { ExecutionContext } from '../core/ExecutionContext.ts'
+import { Tracer } from '../core/Tracer.ts'
 import { LLMRouter } from '../llm/LLMRouter.ts'
 import type { ILLMProvider } from '../llm/ILLMProvider.ts'
 import type { LLMConfig } from '../llm/types.ts'
@@ -58,7 +59,6 @@ export class ApplicationContext {
     const oracleAgent = this.setupOracle(llm, societyGraph)
     const memory = this.buildMemoryTiers(llm, vectorStore, societyGraph, projectPath)
 
-    const spans: Array<{ name: string; startedAt: string }> = []
     this.ctx = {
       executionId: randomUUID(),
       project: {
@@ -68,12 +68,7 @@ export class ApplicationContext {
       memory,
       llm,
       prompts: new PromptBuilder(new PromptRegistry()),
-      tracer: {
-        startSpan: (name: string) => {
-          spans.push({ name, startedAt: new Date().toISOString() })
-        },
-        endSpan: () => {},
-      },
+      tracer: new Tracer(1000),
       artifacts: [],
       oracle: { ask: (q: string) => oracleAgent.ask(q, this.ctx) },
       skillsCatalog: skills.catalog || undefined,

@@ -15,9 +15,34 @@ export interface Convention {
   value: string
 }
 
+export type TraceSource = 'cli' | 'playground' | 'api' | 'automated'
+
+export interface TraceEnvelope {
+  member: string
+  inputHash: string
+  outputHash: string
+  durationMs: number
+  tokenCount: {
+    input: number
+    output: number
+    total: number
+  }
+  cost: number
+  qualityScore: number | null
+  status: 'success' | 'error' | 'timeout'
+  correlationId: string
+  timestamp: string
+  source: TraceSource
+  model?: string
+}
+
 export interface Tracer {
   startSpan(name: string): void
   endSpan(name: string, data?: Record<string, unknown>): void
+  record(envelope: TraceEnvelope): void
+  getRecent(n: number): TraceEnvelope[]
+  getByMember(memberId: string): TraceEnvelope[]
+  getByCorrelationId(id: string): TraceEnvelope[]
 }
 
 export type ArtifactType = 'code' | 'test' | 'doc' | 'review' | 'report'

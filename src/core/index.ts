@@ -3,7 +3,8 @@ export type {
   Project,
   TechStack,
   Convention,
-  Tracer,
+  TraceEnvelope,
+  TraceSource,
   Artifact,
   ArtifactType,
   ShortTermMemory,
@@ -11,6 +12,9 @@ export type {
   EpisodicMemory,
   ProjectMemory,
 } from "./types.ts"
+export { Tracer } from "./Tracer.ts"
+export { createTraceEnvelope } from "./TraceEnvelope.ts"
+export type { CreateTraceEnvelopeInput } from "./TraceEnvelope.ts"
 export { ConcurrencyQueue } from "./ConcurrencyQueue.ts"
 export type { QueuedTask, Priority, QueueStatus } from "./ConcurrencyQueue.ts"
 export { SafetyGuard, SafetyLimitError, LoopDetectedError, CatastrophicCommandError } from "./SafetyGuard.ts"

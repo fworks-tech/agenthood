@@ -1,6 +1,7 @@
 import { randomUUID } from 'node:crypto'
 import type { ExecutionContext } from '../../src/core/ExecutionContext.js'
 import type { ProvenanceEntry } from '../../src/memory/ProvenanceStore.js'
+import { Tracer } from '../../src/core/Tracer.js'
 
 export function createTestContext(overrides?: Partial<ExecutionContext>): ExecutionContext {
   return {
@@ -66,10 +67,7 @@ export function createTestContext(overrides?: Partial<ExecutionContext>): Execut
     prompts: overrides?.prompts ?? {
       build: () => ({ role: 'system' as const, content: 'mock prompt' }),
     },
-    tracer: overrides?.tracer ?? {
-      startSpan: () => {},
-      endSpan: () => {},
-    },
+    tracer: overrides?.tracer ?? new Tracer(),
     artifacts: [],
     ...overrides,
   }

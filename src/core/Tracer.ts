@@ -11,7 +11,7 @@ import type { RedactionFilter } from "./RedactionFilter.ts"
 export class Tracer implements TracerInterface {
   private readonly buffer: Array<TraceEnvelope | undefined>
   private head = 0
-  private size = 0
+  private count = 0
   private pending: TraceEnvelope[] = []
 
   constructor(
@@ -39,8 +39,13 @@ export class Tracer implements TracerInterface {
     const stored = this.redactor ? this.redactor.redact(envelope) : envelope
     this.buffer[this.head] = stored
     this.head = (this.head + 1) % this.capacity
-    if (this.size < this.capacity) this.size++
+    if (this.count < this.capacity) this.count++
     if (this.store) this.pending.push(stored)
+  }
+
+  /** Number of envelopes currently held in the ring buffer */
+  get size(): number {
+    return this.count
   }
 
   /** Flushes all pending envelopes to the configured store. On failure the failed envelope and the rest of the batch are re-queued for the next attempt. */
@@ -58,7 +63,7 @@ export class Tracer implements TracerInterface {
   }
 
   getRecent(n: number): TraceEnvelope[] {
-    const count = Math.min(Math.max(n, 0), this.size)
+    const count = Math.min(Math.max(n, 0), this.count)
     const result: TraceEnvelope[] = []
     for (let i = 0; i < count; i++) {
       const idx = (this.head - 1 - i + this.capacity) % this.capacity
@@ -69,10 +74,10 @@ export class Tracer implements TracerInterface {
   }
 
   getByMember(memberId: string): TraceEnvelope[] {
-    return this.getRecent(this.size).filter((env) => env.member === memberId)
+    return this.getRecent(this.count).filter((env) => env.member === memberId)
   }
 
   getByCorrelationId(id: string): TraceEnvelope[] {
-    return this.getRecent(this.size).filter((env) => env.correlationId === id)
+    return this.getRecent(this.count).filter((env) => env.correlationId === id)
   }
 }

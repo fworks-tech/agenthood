@@ -86,6 +86,7 @@ The `agenthood` CLI auto-discovers commands from `src/commands/` — each file e
 - `agenthood trace` — list recent invocation traces (`--member`, `--limit`, `--since`, `--json`)
 - `agenthood status` — project health and member metrics (`--watch`, `--json`, `--drift`, `--member`)
 - `agenthood eval <member> --suite <path>` — run an eval suite against a member (`--baseline`, `--update-baseline`, `--json`)
+- `agenthood health` — runtime health checks (`--json`; exit 0 healthy / 1 degraded / 2 unhealthy)
 - `agenthood check` / `verify` — health and member-integrity validation
 
 Adding a command means adding a file in `src/commands/` and documenting it here.

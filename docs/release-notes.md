@@ -5,6 +5,18 @@
 
 ---
 
+## v3.17.0 — August 14, 2026
+
+### 🐛 Bug Fixes
+
+- **Deps:** bump nanoid to 3.3.18 to clear auditor gate
+
+### ✨ Features
+
+- **Observability:** emit trace envelope and in-memory ring-buffer tracer #295
+
+---
+
 ## v3.16.0 — August 12, 2026
 
 ### 🐛 Bug Fixes

@@ -1,3 +1,15 @@
+# [3.17.0](https://github.com/fworks-tech/agenthood/compare/v3.16.0...v3.17.0) (2026-08-14)
+
+
+### Bug Fixes
+
+* **deps:** bump nanoid to 3.3.18 to clear auditor gate ([0673fe3](https://github.com/fworks-tech/agenthood/commit/0673fe3e14ee658694c55bce5347b495f5cf2602))
+
+
+### Features
+
+* **observability:** emit trace envelope and in-memory ring-buffer tracer ([2110aba](https://github.com/fworks-tech/agenthood/commit/2110aba8383b8d2cb6c2502a8aa5b4bb10291e70)), closes [#292](https://github.com/fworks-tech/agenthood/issues/292) [#295](https://github.com/fworks-tech/agenthood/issues/295)
+
 # [3.16.0](https://github.com/fworks-tech/agenthood/compare/v3.15.0...v3.16.0) (2026-08-12)
 
 

@@ -38,4 +38,9 @@ export interface ExecutionContext {
   sentry?: { dsn?: string }
   /** Shared redactor guarding trace, decision, and provenance payloads */
   redactor?: RedactionFilter
+  /**
+   * Mutable accumulator for LLM usage outside the reasoning loop (tool-level
+   * calls). BaseAgent sums it into the trace token counts.
+   */
+  usage?: { promptTokens: number; completionTokens: number; totalTokens: number }
 }

@@ -34,6 +34,11 @@ export class WriteCodeSkill implements ITool {
       messages: [prompt, { role: 'user', content: spec }],
       temperature: 0.2,
     })
+    if (context.usage && response.usage) {
+      context.usage.promptTokens += response.usage.promptTokens ?? 0
+      context.usage.completionTokens += response.usage.completionTokens ?? 0
+      context.usage.totalTokens += response.usage.totalTokens ?? 0
+    }
 
     return { success: true, output: response.content }
   }

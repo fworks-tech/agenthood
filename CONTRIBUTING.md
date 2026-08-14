@@ -78,6 +78,17 @@ Hooks are installed by `npx agenthood init` and enforce the format automatically
 - Include `Closes #N` / `Fixes #N` in the description — mandatory. GitHub auto-closes the issue only when the footer is present; the PR workflow enforces it (`.github/scripts/pr-body-check.sh`)
 - All CI checks must pass before merge
 
+### CLI Commands
+
+The `agenthood` CLI auto-discovers commands from `src/commands/` — each file exports a `command` descriptor. Key commands:
+
+- `agenthood run <member> "<task>"` — invoke a member or core agent
+- `agenthood trace` — list recent invocation traces (`--member`, `--limit`, `--since`, `--json`)
+- `agenthood status` — project health and member metrics (`--watch`, `--json`, `--drift`, `--member`)
+- `agenthood check` / `verify` — health and member-integrity validation
+
+Adding a command means adding a file in `src/commands/` and documenting it here.
+
 ### Secrets and Credentials
 
 - Do NOT commit API keys, secrets, or credentials to the repository.

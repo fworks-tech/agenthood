@@ -14,6 +14,7 @@ import { MemberRegistry, MemberAgent } from '../members/index.ts'
 import type { ProviderName } from '../members/types.ts'
 import { DecisionLog } from '../memory/DecisionLog.ts'
 import { EpisodicMemoryImpl } from '../memory/EpisodicMemory.ts'
+import { GraphSnapshot } from '../memory/GraphSnapshot.ts'
 import { LongTermMemoryImpl } from '../memory/LongTermMemory.ts'
 import { MetricsCollector } from '../memory/MetricsCollector.ts'
 import { ProjectMemoryImpl } from '../memory/ProjectMemory.ts'
@@ -21,6 +22,9 @@ import { ProvenanceStore } from '../memory/ProvenanceStore.ts'
 import { ShortTermMemoryImpl } from '../memory/ShortTermMemory.ts'
 import { LanceDBStore } from '../memory/VectorStore.ts'
 import type { MemberRunResult } from '../evals/EvalRunner.ts'
+import { MemberOrchestrator } from '../reasoning/MemberOrchestrator.ts'
+import type { DetectionResult } from '../reasoning/MemberOrchestrator.ts'
+import { validateApiKeys } from '../llm/validateApiKeys.ts'
 import { PromptBuilder } from '../prompts/PromptBuilder.ts'
 import { PromptRegistry } from '../prompts/PromptRegistry.ts'
 import { KnowledgeGraphStore } from '../rag/KnowledgeGraphStore.ts'
@@ -100,6 +104,32 @@ export class ApplicationContext {
     const skills = await discoverSkills(projectPath)
     const vectorStore = await connectVectorStore(projectPath)
     return new ApplicationContext(projectPath, llm, societyGraph, vectorStore, skills, config.sentry)
+  }
+
+  static knownProviders(): string[] {
+    return LLMRouter.knownProviders()
+  }
+
+  static validateConfig(config: LLMConfig): void {
+    validateApiKeys(config)
+  }
+
+  /** Keyword-based member detection for `agenthood run --detect`. */
+  detectMembers(task: string): DetectionResult[] {
+    return new MemberOrchestrator().detectMembers({
+      userMessage: task,
+      changedFiles: [],
+      currentStage: undefined,
+    })
+  }
+
+  /** Persists a snapshot of the society knowledge graph for inspection. */
+  snapshotSocietyGraph(): void {
+    try {
+      new GraphSnapshot({ snapshotsDir: join(process.cwd(), '.agenthood', 'snapshots') }).take(this.societyGraph)
+    } catch (err) {
+      console.warn(`[run] society graph snapshot unavailable: ${err instanceof Error ? err.message : String(err)}`)
+    }
   }
 
   private setupAgents(llm: ILLMProvider, skillManifests: Map<string, ISkillManifest>): void {

@@ -1,11 +1,8 @@
 import type { CommandDescriptor } from "./types.js"
 import { join } from "node:path"
 import { readFile } from "node:fs/promises"
-import { LLMRouter } from "../llm/LLMRouter.ts"
-import { validateApiKeys, MissingApiKeyError } from "../llm/validateApiKeys.ts"
+import { MissingApiKeyError } from "../llm/validateApiKeys.ts"
 import type { LLMConfig, ProviderEntry } from "../llm/types.ts"
-import { GraphSnapshot } from "../memory/GraphSnapshot.ts"
-import { MemberOrchestrator } from "../reasoning/MemberOrchestrator.ts"
 import { ApplicationContext } from "../runtime/ApplicationContext.ts"
 
 function parseProviderBlock(raw: Record<string, unknown>): { provider?: string; model?: string } {
@@ -114,13 +111,8 @@ function printUsage(): void {
   console.error('  --detect            Auto-detect members for this task')
 }
 
-async function runDetection(task: string): Promise<void> {
-  const orchestrator = new MemberOrchestrator()
-  const detected = orchestrator.detectMembers({
-    userMessage: task,
-    changedFiles: [],
-    currentStage: undefined,
-  })
+async function runDetection(app: ApplicationContext, task: string): Promise<void> {
+  const detected = app.detectMembers(task)
   if (detected.length > 0) {
     console.log(`\n🎯 Detected members: ${detected.map((d) => `${d.member} (score: ${d.score})`).join(', ')}\n`)
   } else {
@@ -134,8 +126,6 @@ export const command: CommandDescriptor = {
   handler: (args) => run(args),
 }
 
-const KNOWN_PROVIDERS = LLMRouter.knownProviders()
-
 export async function run(args: string[]): Promise<void> {
   const { positional, providerOverride, shouldDetect } = parseFlags(args)
   const [agentName, ...taskParts] = positional
@@ -145,9 +135,9 @@ export async function run(args: string[]): Promise<void> {
     process.exit(1)
   }
 
-  if (providerOverride && !KNOWN_PROVIDERS.includes(providerOverride)) {
+  if (providerOverride && !ApplicationContext.knownProviders().includes(providerOverride)) {
     console.error(`Unknown provider: "${providerOverride}"`)
-    console.error(`Known providers: ${KNOWN_PROVIDERS.join(', ')}`)
+    console.error(`Known providers: ${ApplicationContext.knownProviders().join(', ')}`)
     process.exit(1)
   }
 
@@ -155,7 +145,7 @@ export async function run(args: string[]): Promise<void> {
   const task = taskParts.join(" ")
 
   try {
-    validateApiKeys(config)
+    ApplicationContext.validateConfig(config)
   } catch (err) {
     if (err instanceof MissingApiKeyError) {
       console.error(`\n${err.message}\n`)
@@ -167,7 +157,7 @@ export async function run(args: string[]): Promise<void> {
   const app = await ApplicationContext.create(process.cwd(), config)
 
   if (shouldDetect) {
-    await runDetection(task)
+    await runDetection(app, task)
   }
 
   const handled = await app.runMember(agentName, task, config)
@@ -175,9 +165,5 @@ export async function run(args: string[]): Promise<void> {
     await app.runAgent(agentName, task)
   }
 
-  try {
-    new GraphSnapshot({ snapshotsDir: join(process.cwd(), '.agenthood', 'snapshots') }).take(app.societyGraph)
-  } catch (err) {
-    console.warn(`[run] society graph snapshot unavailable: ${(err as Error)?.message ?? err}`)
-  }
+  app.snapshotSocietyGraph()
 }

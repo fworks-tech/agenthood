@@ -80,8 +80,9 @@ export class RedactionFilter {
     if (text === undefined) return undefined
     let result = text
     for (const rule of this.rules) {
-      // String.prototype.replace accepts function replacements at runtime, so
-      // the union only needs the string overload for typechecking
+      // replace accepts a replacer function at runtime; the union type only
+      // needs the string overload selected for typechecking (TS has no
+      // overload that takes the full union)
       const replaced = result.replace(rule.regex, rule.replace as string)
       if (replaced !== result) {
         result = replaced

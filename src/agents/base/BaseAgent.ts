@@ -58,7 +58,8 @@ export abstract class BaseAgent {
 
     this.recordTrace(input, output, durationMs, error, context);
 
-    this.residualMemory?.record(`agent:${this.role}:${input.slice(0, 80)}`, 0.5);
+    const residualInput = context.redactor ? context.redactor.redactText(input) : input;
+    this.residualMemory?.record(`agent:${this.role}:${residualInput.slice(0, 80)}`, 0.5);
 
     const result: AgentResult = { role: this.role, output, artifacts: context.artifacts };
 
@@ -134,7 +135,7 @@ export abstract class BaseAgent {
     }
   }
 
-  private async recordRun(
+  protected async recordRun(
     input: string,
     output: string,
     error: unknown,

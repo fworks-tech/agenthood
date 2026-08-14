@@ -7,17 +7,12 @@ import { contentHash } from '../utils/hash.js'
 import { loadLockfile } from '../utils/lockfile.js'
 import { resolveSkillsDir } from '../members.js'
 import { JSONFileTraceStore, loadObservabilityConfig, resolveTraceStorePath } from '../core/TraceStore.js'
+import { formatDuration } from '../utils/formatDuration.js'
 import { summarizeMemberWindows } from '../core/traceSummary.js'
 import type { TraceWindow } from '../core/traceSummary.js'
 import type { Anomaly } from '../core/AnomalyDetector.js'
 import { EpisodeLearner } from '../evals/EpisodeLearner.js'
 import { LanceDBStore } from '../memory/VectorStore.js'
-
-function formatDuration(ms: number): string {
-  if (ms < 1000) return `${ms}ms`
-  if (ms < 60000) return `${(ms / 1000).toFixed(1)}s`
-  return `${Math.floor(ms / 60000)}m ${Math.round((ms % 60000) / 1000)}s`
-}
 
 function formatPct(rate: number | null): string {
   if (rate === null) return '—'

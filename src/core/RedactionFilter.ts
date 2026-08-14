@@ -80,11 +80,10 @@ export class RedactionFilter {
     if (text === undefined) return undefined
     let result = text
     for (const rule of this.rules) {
-      const replacement = rule.replace
-      const replaced =
-        typeof replacement === 'function' ? result.replace(rule.regex, replacement) : result.replace(rule.regex, replacement)
+      // String.prototype.replace accepts function replacements at runtime, so
+      // the union only needs the string overload for typechecking
+      const replaced = result.replace(rule.regex, rule.replace as string)
       if (replaced !== result) {
-        console.debug(`[redaction] applied rule ${rule.regex} to trace payload`)
         result = replaced
       }
     }

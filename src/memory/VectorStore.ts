@@ -20,7 +20,7 @@ export interface IVectorStore {
   disconnect(): void
   add(records: VectorRecord[]): Promise<void>
   search(query: number[], topK: number, filter?: Record<string, unknown>): Promise<VectorSearchResult[]>
-  delete(filter: Record<string, unknown>): Promise<number>
+  delete(keyOrFilter: string | Record<string, unknown>): Promise<number>
   stats(): Promise<{ totalVectors: number; dimension: number; totalEntries: number; oldestEntry: Date | null }>
   getById(id: string): Promise<VectorRecord | null>
   getByKeyPrefix(prefix: string, limit?: number): Promise<VectorRecord[]>
@@ -30,6 +30,17 @@ export function escapeLike(value: string): string {
   return value.replace(/\\/g, '\\\\').replace(/%/g, '\\%').replace(/_/g, '\\_').replace(/'/g, "''")
 }
 
+/** Builds a metadata LIKE clause for the given equality filters. */
+export function toSqlFilter(filter: Record<string, unknown>): string {
+  const parts: string[] = []
+  for (const [key, value] of Object.entries(filter)) {
+    const safeKey = escapeLike(key)
+    // metadata is JSON.stringify'd, so values carry their JSON quoting
+    parts.push(`metadata LIKE '%"${safeKey}":${escapeLike(JSON.stringify(value))}%'`)
+  }
+  return parts.join(' AND ')
+}
+
 interface LanceRow {
   id: string
   vector: Float32Array
@@ -37,17 +48,6 @@ interface LanceRow {
   metadata: string
   created_at: string
   _distance?: number
-}
-
-function toSqlFilter(filter: Record<string, unknown>): string {
-  const parts: string[] = []
-  for (const [key, value] of Object.entries(filter)) {
-    const safeKey = escapeLike(key)
-    const strValue = typeof value === 'string' ? value : JSON.stringify(value)
-    const escaped = `'${escapeLike(strValue)}'`
-    parts.push(`metadata LIKE '%"${safeKey}": ${escaped}%'`)
-  }
-  return parts.join(' AND ')
 }
 
 export class LanceDBStore implements IVectorStore, IMemoryStore<VectorRecord> {

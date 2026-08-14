@@ -1,5 +1,7 @@
 export { EpisodeLearner } from "./EpisodeLearner.js"
 export type { LearningOutcome } from "./EpisodeLearner.js"
+export { EmbeddingIndex } from "./EmbeddingIndex.js"
+export type { SimilarPattern } from "./EmbeddingIndex.js"
 export { SemanticPatternMatcher } from "./SemanticPatternMatcher.js"
 export type { StoredPattern, MatchResult } from "./SemanticPatternMatcher.js"
 export { hashPattern } from "../utils/hash.js"

@@ -5,6 +5,14 @@
 
 ---
 
+## v3.19.0 — August 14, 2026
+
+### ✨ Features
+
+- **Evals:** define eval suite format with Ajv validation
+
+---
+
 ## v3.18.0 — August 14, 2026
 
 ### ✨ Features

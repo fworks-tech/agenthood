@@ -1,3 +1,10 @@
+# [3.19.0](https://github.com/fworks-tech/agenthood/compare/v3.18.0...v3.19.0) (2026-08-14)
+
+
+### Features
+
+* **evals:** define eval suite format with Ajv validation ([7d6679f](https://github.com/fworks-tech/agenthood/commit/7d6679f19fcdbb7a85f1a912a44252e62cb3f7d7)), closes [#293](https://github.com/fworks-tech/agenthood/issues/293)
+
 # [3.18.0](https://github.com/fworks-tech/agenthood/compare/v3.17.0...v3.18.0) (2026-08-14)
 
 

@@ -96,6 +96,8 @@ Every member invocation emits a trace envelope (member, duration, tokens, cost, 
 
 Evaluation: `agenthood eval <member> --suite <path>` runs the member against every task in an eval suite (`evals/benchmarks/` ships ready-made fixtures), scores each run on faithfulness, relevance, context_recall, and answer_correctness via an LLM judge, and compares the aggregates against a stored baseline in `.agenthood/baselines/<member>.json` — the command exits non-zero when a metric regresses. Use `--update-baseline` after a deliberately good run to refresh the comparison target.
 
+Redaction: trace payload text can be scrubbed before persistence via `{ "observability": { "redaction": { "enabled": true, "rules": ["<regex sources>"], "paths": ["<file roots>"] } } }` in `.agenthood/config.json`. Emails, `sk-` keys, bearer tokens, URL query values, and IP addresses are replaced with a deterministic `[REDACTED]` placeholder (preserving replay reproducibility); custom regex rules and absolute-path roots are opt-in. Redaction is disabled by default.
+
 ### Secrets and Credentials
 
 - Do NOT commit API keys, secrets, or credentials to the repository.

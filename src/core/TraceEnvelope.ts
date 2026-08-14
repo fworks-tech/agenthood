@@ -13,6 +13,7 @@ export interface CreateTraceEnvelopeInput {
   correlationId: string
   source?: TraceSource
   model?: string
+  timestamp?: string
 }
 
 export function createTraceEnvelope(input: CreateTraceEnvelopeInput): TraceEnvelope {
@@ -26,7 +27,7 @@ export function createTraceEnvelope(input: CreateTraceEnvelopeInput): TraceEnvel
     qualityScore: input.qualityScore,
     status: input.status,
     correlationId: input.correlationId,
-    timestamp: new Date().toISOString(),
+    timestamp: input.timestamp ?? new Date().toISOString(),
     source: input.source ?? "api",
   }
   if (input.model) envelope.model = input.model

@@ -5,6 +5,7 @@ import { join } from 'node:path'
 import { AgentRegistry } from '../core/AgentRegistry.ts'
 import type { ExecutionContext } from '../core/ExecutionContext.ts'
 import { Tracer } from '../core/Tracer.ts'
+import { JSONFileTraceStore } from '../core/TraceStore.ts'
 import { LLMRouter } from '../llm/LLMRouter.ts'
 import type { ILLMProvider } from '../llm/ILLMProvider.ts'
 import type { LLMConfig } from '../llm/types.ts'
@@ -59,6 +60,8 @@ export class ApplicationContext {
     const oracleAgent = this.setupOracle(llm, societyGraph)
     const memory = this.buildMemoryTiers(llm, vectorStore, societyGraph, projectPath)
 
+    const traceStore = new JSONFileTraceStore(join(projectPath, '.agenthood', 'traces', 'traces.ndjson'))
+
     this.ctx = {
       executionId: randomUUID(),
       project: {
@@ -68,7 +71,7 @@ export class ApplicationContext {
       memory,
       llm,
       prompts: new PromptBuilder(new PromptRegistry()),
-      tracer: new Tracer(1000),
+      tracer: new Tracer(1000, traceStore, 5000),
       artifacts: [],
       oracle: { ask: (q: string) => oracleAgent.ask(q, this.ctx) },
       skillsCatalog: skills.catalog || undefined,

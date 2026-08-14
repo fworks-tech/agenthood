@@ -15,6 +15,8 @@ export type {
 export { Tracer } from "./Tracer.ts"
 export { createTraceEnvelope } from "./TraceEnvelope.ts"
 export type { CreateTraceEnvelopeInput } from "./TraceEnvelope.ts"
+export { JSONFileTraceStore } from "./TraceStore.ts"
+export type { TraceStore, TraceQuery } from "./TraceStore.ts"
 export { TokenCounter } from "./TokenCounter.ts"
 export { CostEstimator } from "./CostEstimator.ts"
 export type { CostEstimate } from "./CostEstimator.ts"

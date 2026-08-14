@@ -1,0 +1,25 @@
+{
+  "name": "issue-triage",
+  "description": "Issue triage tasks targeting the-debugger and the-librarian members",
+  "metrics": ["faithfulness", "relevance", "context_recall", "answer_correctness"],
+  "tasks": [
+    {
+      "input": "Triage this bug report: 'The app crashes on startup when the config file is missing. Log shows ENOENT at config/loader.ts:42'.",
+      "expectedOutput": "A triage that identifies the missing-config crash as a high-severity startup failure, points at config/loader.ts:42, and proposes a clear error message or default config.",
+      "tags": ["member: the-debugger", "triage", "crash"],
+      "difficulty": "easy"
+    },
+    {
+      "input": "Triage this report: 'Users report the dashboard is slow only on Mondays. No errors in logs, CPU normal.'",
+      "expectedOutput": "A triage that treats Monday-only slowness as a data-volume pattern (weekly batch jobs, report generation), lists hypotheses to verify, and proposes tracing the slow endpoint with timing instrumentation.",
+      "tags": ["member: the-debugger", "triage", "performance"],
+      "difficulty": "hard"
+    },
+    {
+      "input": "Triage this documentation request: 'How do I configure the rate limiter? The README mentions it but there is no example.'",
+      "expectedOutput": "A triage that classifies this as a docs gap, locates the rate limiter configuration section, and proposes an example config with the valid options.",
+      "tags": ["member: the-librarian", "triage", "documentation"],
+      "difficulty": "medium"
+    }
+  ]
+}

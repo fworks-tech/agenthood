@@ -1,0 +1,25 @@
+{
+  "name": "docs-sync",
+  "description": "Documentation maintenance tasks targeting the-librarian member",
+  "metrics": ["faithfulness", "relevance", "context_recall", "answer_correctness"],
+  "tasks": [
+    {
+      "input": "The CLI gained a new command `agenthood status`. Update the docs that list all commands.",
+      "expectedOutput": "A docs update that adds `status` to the command list in the README and CONTRIBUTING with a one-line description and an example invocation.",
+      "tags": ["member: the-librarian", "documentation", "cli"],
+      "difficulty": "easy"
+    },
+    {
+      "input": "The environment variable GROQ_API_KEY was renamed to LLM_API_KEY. Find and update all references in the docs.",
+      "expectedOutput": "A docs pass that replaces every stale GROQ_API_KEY reference with LLM_API_KEY across README, CONTRIBUTING, and docs/, and notes the migration in the changelog.",
+      "tags": ["member: the-librarian", "documentation", "consistency"],
+      "difficulty": "medium"
+    },
+    {
+      "input": "The authentication flow changed from API-key-only to OAuth with a machine token. Rewrite the auth section of the README.",
+      "expectedOutput": "A rewrite that explains both authentication methods, shows when each is used, includes a machine-token example, and marks the old API-key flow as deprecated.",
+      "tags": ["member: the-librarian", "documentation", "architecture"],
+      "difficulty": "hard"
+    }
+  ]
+}

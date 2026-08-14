@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest'
-import { mkdtempSync, existsSync, rmSync } from 'node:fs'
+import { mkdtempSync, existsSync, rmSync, mkdirSync, writeFileSync, readFileSync } from 'node:fs'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 
@@ -155,5 +155,111 @@ describe('eval command', () => {
     } finally {
       rmSync(dir, { recursive: true, force: true })
     }
+  })
+})
+
+describe('eval --replay', () => {
+  let projectDir: string
+  const originalCwd = process.cwd()
+
+  beforeEach(() => {
+    projectDir = mkdtempSync(join(tmpdir(), 'agenthood-replay-'))
+    process.chdir(projectDir)
+    mkdirSync(join(projectDir, '.agenthood', 'traces'), { recursive: true })
+    vi.mocked(ApplicationContext.create).mockReset()
+  })
+
+  afterEach(() => {
+    process.chdir(originalCwd)
+    rmSync(projectDir, { recursive: true, force: true })
+    vi.restoreAllMocks()
+  })
+
+  function writeTrace(member: string, input: string, output: string): void {
+    const envelope = {
+      member,
+      inputHash: 'a'.repeat(64),
+      outputHash: 'b'.repeat(64),
+      durationMs: 5,
+      tokenCount: { input: 1, output: 1, total: 2 },
+      cost: 0.001,
+      qualityScore: null,
+      status: 'success',
+      correlationId: 'corr-1',
+      timestamp: new Date().toISOString(),
+      source: 'cli',
+      input,
+      output,
+    }
+    const file = join(projectDir, '.agenthood', 'traces', 'traces.ndjson')
+    const existing = existsSync(file) ? readFileSync(file, 'utf8') : ''
+    writeFileSync(file, existing + JSON.stringify(envelope) + '\n')
+  }
+
+  function stubReplayApp(llm: ILLMProvider, output = 'rerun output', embedResult: number[] = [1, 0]) {
+    vi.mocked(ApplicationContext.create).mockResolvedValue({
+      ctx: { source: undefined },
+      members: { has: (n: string) => n === 'the-reviewer' },
+      llm: {
+        ...llm,
+        embed: vi.fn().mockResolvedValue(embedResult),
+      },
+      runMemberTask: vi.fn().mockResolvedValue({ output, durationMs: 3 }),
+    } as never)
+  }
+
+  it('replays stored traces and reports drift in JSON', async () => {
+    writeTrace('the-reviewer', 'review this PR', 'looks good')
+    stubReplayApp(stubLlm())
+    const log = vi.spyOn(console, 'log').mockImplementation(() => {})
+
+    await evalMember(['the-reviewer', '--replay', '--json'])
+
+    const output = log.mock.calls.flat().join(' ')
+    const report = JSON.parse(output)
+    expect(report.replayCount).toBe(1)
+    expect(report.tasks[0].member).toBe('the-reviewer')
+    expect(report.tasks[0].newOutput).toBe('rerun output')
+    expect(report.tasks[0].similarity).not.toBeNull()
+  })
+
+  it('persists the report file under .agenthood/evals', async () => {
+    writeTrace('the-reviewer', 'review this PR', 'looks good')
+    stubReplayApp(stubLlm())
+    const log = vi.spyOn(console, 'log').mockImplementation(() => {})
+
+    await evalMember(['the-reviewer', '--replay'])
+
+    expect(log.mock.calls.flat().join(' ')).toContain('Replay Report')
+    const reportPath = join(projectDir, '.agenthood', 'evals', 'replay-report.json')
+    expect(existsSync(reportPath)).toBe(true)
+    const report = JSON.parse(readFileSync(reportPath, 'utf8'))
+    expect(report.replayCount).toBe(1)
+  })
+
+  it('redacts re-run output before persisting when redaction is enabled', async () => {
+    writeTrace('the-reviewer', 'review this PR', 'looks good')
+    mkdirSync(join(projectDir, '.agenthood'), { recursive: true })
+    writeFileSync(
+      join(projectDir, '.agenthood', 'config.json'),
+      JSON.stringify({ observability: { redaction: { enabled: true } } }),
+    )
+    stubReplayApp(stubLlm(), 'contact dev@example.com with sk-abc1234567')
+
+    await evalMember(['the-reviewer', '--replay'])
+
+    const report = JSON.parse(readFileSync(join(projectDir, '.agenthood', 'evals', 'replay-report.json'), 'utf8'))
+    expect(report.tasks[0].newOutput).toContain('[REDACTED]')
+    expect(report.tasks[0].newOutput).not.toContain('dev@example.com')
+  })
+
+  it('errors when no traces exist for the member', async () => {
+    const exit = vi.spyOn(process, 'exit').mockImplementation((() => { throw new Error('process.exit') }) as never)
+    const err = vi.spyOn(console, 'error').mockImplementation(() => {})
+
+    await expect(evalMember(['the-reviewer', '--replay'])).rejects.toThrow('process.exit')
+
+    expect(err.mock.calls.flat().join(' ')).toContain('No traces')
+    expect(exit).toHaveBeenCalledWith(1)
   })
 })

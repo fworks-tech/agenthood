@@ -128,8 +128,8 @@ describe('resolveTraceStorePath', () => {
 
   it('keeps an absolute tracePath as-is', async () => {
     const { resolveTraceStorePath } = await import('../../../src/core/TraceStore.js')
-    const path = resolveTraceStorePath('/proj', { observability: { tracePath: 'D:/custom/traces.ndjson' } })
-    expect(path).toBe('D:/custom/traces.ndjson')
+    const path = resolveTraceStorePath('/proj', { observability: { tracePath: '/custom/traces.ndjson' } })
+    expect(path).toBe('/custom/traces.ndjson')
   })
 
   it('ignores an empty or non-string tracePath', async () => {

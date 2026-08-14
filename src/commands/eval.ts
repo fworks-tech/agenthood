@@ -89,7 +89,18 @@ export const command: CommandDescriptor = {
   handler: (args) => evalMember(args),
 }
 
-export async function evalMember(args: string[] = []): Promise<void> {
+interface ParsedEvalArgs {
+  member: string | undefined
+  suitePath: string | undefined
+  baselinePath: string | undefined
+  updateBaseline: boolean
+  json: boolean
+  replay: boolean
+  replayLimit: number
+  helpRequested: boolean
+}
+
+function parseEvalArgs(args: string[]): ParsedEvalArgs {
   const positional: string[] = []
   let suitePath: string | undefined
   let baselinePath: string | undefined
@@ -127,13 +138,28 @@ export async function evalMember(args: string[] = []): Promise<void> {
       case '--help':
       case '-h':
         printUsage()
-        return
+        return { member: undefined, suitePath: undefined, baselinePath: undefined, updateBaseline: false, json: false, replay: false, replayLimit: 50, helpRequested: true }
       default:
         positional.push(args[i])
     }
   }
 
-  const member = positional[0]
+  return {
+    member: positional[0],
+    suitePath,
+    baselinePath,
+    updateBaseline,
+    json,
+    replay,
+    replayLimit,
+    helpRequested: false,
+  }
+}
+
+export async function evalMember(args: string[] = []): Promise<void> {
+  const { member, suitePath, baselinePath, updateBaseline, json, replay, replayLimit, helpRequested } = parseEvalArgs(args)
+  if (helpRequested) return
+
   if (replay) {
     if (!member) {
       printUsage()
@@ -171,6 +197,16 @@ export async function evalMember(args: string[] = []): Promise<void> {
   const judge = new LLMJudge(app.llm)
   const report = await new EvalRunner(runner, judge).run(suite, member)
 
+  await finishWithBaseline(report, member, baselinePath, updateBaseline, json)
+}
+
+async function finishWithBaseline(
+  report: EvalReport,
+  member: string,
+  baselinePath: string | undefined,
+  updateBaseline: boolean,
+  json: boolean,
+): Promise<void> {
   const baselineFile = baselinePath ?? join(process.cwd(), '.agenthood', 'baselines', `${member}.json`)
   const comparator = new BaselineComparator()
 

@@ -96,12 +96,16 @@ export abstract class BaseAgent {
   ): void {
     const usage = this.reasoningLoop.usage;
     const model = this.reasoningLoop.model || "unknown";
+    // redact before hashing so inputHash/outputHash always match the
+    // persisted (redacted) payload; Tracer.record's own pass is a no-op then
+    const safeInput = context.redactor ? context.redactor.redactText(input) : input;
+    const safeOutput = context.redactor ? context.redactor.redactText(output) : output;
     try {
       context.tracer.record(
         createTraceEnvelope({
           member: this.role,
-          input,
-          output,
+          input: safeInput,
+          output: safeOutput,
           durationMs,
           tokenCount: {
             input: usage?.promptTokens ?? 0,
@@ -138,13 +142,19 @@ export abstract class BaseAgent {
       ? "Member run completed; see decision for output summary."
       : `Run failed: ${error instanceof Error ? error.message : String(error)}`;
 
+    // decisions and provenance persist raw payloads, so the shared redactor
+    // must guard them or the redaction guarantee is only half-true
+    const redactor = context.redactor;
+    const safeInput = redactor ? redactor.redactText(input) : input;
+    const safeOutput = redactor ? redactor.redactText(output) : output;
+
     try {
       await context.memory.decisions.record({
         id,
         timestamp,
         member: this.role,
-        task: input,
-        decision: output.slice(0, 2000) || "(no output)",
+        task: safeInput,
+        decision: safeOutput.slice(0, 2000) || "(no output)",
         rationale,
         alternatives: [],
         outcome: succeeded ? "completed" : "failed",
@@ -159,7 +169,7 @@ export abstract class BaseAgent {
         agentId: this.role,
         agentType: "software_agent",
         role: "generator",
-        sourceDocument: input.slice(0, 500),
+        sourceDocument: safeInput.slice(0, 500),
         timestamp,
         confidence: succeeded ? 1 : 0,
         metadata: { decisionId: id, success: succeeded },

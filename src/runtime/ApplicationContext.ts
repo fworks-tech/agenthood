@@ -19,6 +19,7 @@ import { ProjectMemoryImpl } from '../memory/ProjectMemory.ts'
 import { ProvenanceStore } from '../memory/ProvenanceStore.ts'
 import { ShortTermMemoryImpl } from '../memory/ShortTermMemory.ts'
 import { LanceDBStore } from '../memory/VectorStore.ts'
+import type { MemberRunResult } from '../evals/EvalRunner.ts'
 import { PromptBuilder } from '../prompts/PromptBuilder.ts'
 import { PromptRegistry } from '../prompts/PromptRegistry.ts'
 import { KnowledgeGraphStore } from '../rag/KnowledgeGraphStore.ts'
@@ -126,6 +127,26 @@ export class ApplicationContext {
     if (!this.members.has(memberName)) return false
 
     const spec = this.members.get(memberName)
+    try {
+      const { output } = await this.runMemberTask(memberName, task, config)
+      console.log(`\n\u2714 ${spec.name} result:\n${output}\n`)
+    } catch (err) {
+      const msg = err instanceof Error ? err.message : String(err)
+      console.error(`Error running member "${memberName}": ${msg}`)
+      process.exit(1)
+    }
+    return true
+  }
+
+  /**
+   * Runs a member without any presentation: captures the raw output and
+   * duration for evaluation while still recording metrics and flushing
+   * traces. Throws on failure instead of exiting the process.
+   */
+  async runMemberTask(memberName: string, task: string, config: LLMConfig): Promise<MemberRunResult> {
+    if (!this.members.has(memberName)) throw new Error(`unknown member "${memberName}"`)
+
+    const spec = this.members.get(memberName)
     const memberProvider = (config.provider ?? spec.preferredProvider) as ProviderName
     const llm = await LLMRouter.createForMember(memberProvider, config)
     const sReg = new ToolRegistry()
@@ -147,17 +168,14 @@ export class ApplicationContext {
       const result = await agent.run(task, this.ctx)
       const duration = Math.round(performance.now() - startTime)
       metricsCollector.record(memberName, true, duration)
-      console.log(`\n\u2714 ${result.role} result:\n${result.output}\n`)
+      return { output: result.output, durationMs: duration }
     } catch (err) {
       const duration = Math.round(performance.now() - startTime)
       metricsCollector.record(memberName, false, duration)
-      const msg = err instanceof Error ? err.message : String(err)
+      throw err
+    } finally {
       await this.flushTraces()
-      console.error(`Error running member "${memberName}": ${msg}`)
-      process.exit(1)
     }
-    await this.flushTraces()
-    return true
   }
 
   /** Fallback for non-member agent names (core agents). */

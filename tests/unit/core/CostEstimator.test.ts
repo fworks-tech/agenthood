@@ -16,6 +16,13 @@ describe('CostEstimator', () => {
     expect(estimate.outputTokens).toBe(1_000_000)
   })
 
+  it('returns correct cost for opencode go models without warning', () => {
+    const warn = vi.spyOn(console, 'warn').mockImplementation(() => {})
+    const estimator = new CostEstimator()
+    expect(estimator.computeCost('deepseek-v4-flash', 1_000_000, 1_000_000).estimatedCost).toBe(0.42)
+    expect(warn).not.toHaveBeenCalled()
+  })
+
   it('returns fallback cost with warning for unknown models', () => {
     const warn = vi.spyOn(console, 'warn').mockImplementation(() => {})
     const estimator = new CostEstimator()

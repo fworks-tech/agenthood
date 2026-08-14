@@ -31,6 +31,13 @@ describe('TokenCounter', () => {
     expect(counter.estimateCost('llama3:8b', 500_000, 500_000)).toBe(0)
   })
 
+  it('estimates cost for opencode go models', () => {
+    // deepseek-v4-flash: $0.14/1M in, $0.28/1M out (opencode.ai/docs/go)
+    expect(counter.estimateCost('deepseek-v4-flash', 1_000_000, 1_000_000)).toBe(0.42)
+    expect(counter.estimateCost('deepseek-v4-flash', 500_000, 0)).toBe(0.07)
+    expect(counter.estimateCost('grok-4.5', 1_000_000, 1_000_000)).toBe(8)
+  })
+
   it('handles unknown models gracefully with fallback pricing', () => {
     const cost = counter.estimateCost('totally-unknown-model', 1_000_000, 1_000_000)
     expect(cost).toBe(4) // fallback $1/1M in + $3/1M out

@@ -54,6 +54,17 @@ function parseSkills(raw: Record<string, unknown>): { autoDiscover?: boolean } |
   return { autoDiscover: (skills as Record<string, unknown>).autoDiscover === true }
 }
 
+function parseSentry(raw: Record<string, unknown>): { dsn?: string } | undefined {
+  const sentry = raw.sentry
+  if (!sentry || typeof sentry !== 'object') return undefined
+  const dsn = (sentry as Record<string, unknown>).dsn
+  if (typeof dsn !== 'string' || dsn.length === 0 || !dsn.startsWith('http')) {
+    console.warn('[run] invalid sentry.dsn in config — Sentry error reporting disabled')
+    return undefined
+  }
+  return { dsn }
+}
+
 export async function loadConfig(providerOverride?: string): Promise<LLMConfig> {
   const configPath = join(process.cwd(), '.agenthood', 'config.json')
   let raw: Record<string, unknown>
@@ -73,6 +84,8 @@ export async function loadConfig(providerOverride?: string): Promise<LLMConfig> 
   if (providers) cfg.providers = providers
   const skills = parseSkills(raw)
   if (skills) cfg.skills = skills
+  const sentry = parseSentry(raw)
+  if (sentry) cfg.sentry = sentry
   if (providerOverride) cfg.provider = providerOverride
   return cfg
 }

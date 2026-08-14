@@ -92,4 +92,6 @@ export interface LLMConfig {
   probeEnabled?: boolean
   /** Skill auto-discovery toggle from .agenthood/config.json */
   skills?: { autoDiscover?: boolean }
+  /** Optional Sentry error reporting from .agenthood/config.json */
+  sentry?: { dsn?: string }
 }

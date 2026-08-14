@@ -30,4 +30,6 @@ export interface ExecutionContext {
   artifacts: Artifact[]
   oracle?: { ask(question: string): Promise<string> }
   skillsCatalog?: string
+  /** Optional Sentry error reporting configuration from .agenthood/config.json */
+  sentry?: { dsn?: string }
 }

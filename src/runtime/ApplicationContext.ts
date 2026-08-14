@@ -152,9 +152,11 @@ export class ApplicationContext {
       const duration = Math.round(performance.now() - startTime)
       metricsCollector.record(memberName, false, duration)
       const msg = err instanceof Error ? err.message : String(err)
+      await this.flushTraces()
       console.error(`Error running member "${memberName}": ${msg}`)
       process.exit(1)
     }
+    await this.flushTraces()
     return true
   }
 
@@ -166,8 +168,19 @@ export class ApplicationContext {
       console.log(`\n\u2714 ${result.role} result:\n${result.output}\n`)
     } catch (err) {
       const msg = err instanceof Error ? err.message : String(err)
+      await this.flushTraces()
       console.error(`Error running agent "${agentName}": ${msg}`)
       process.exit(1)
+    }
+    await this.flushTraces()
+  }
+
+  /** Flushes pending trace envelopes to the store before the process exits. */
+  async flushTraces(): Promise<void> {
+    try {
+      await this.ctx.tracer.flush()
+    } catch (err) {
+      console.error(`[run] trace flush failed: ${err instanceof Error ? err.message : String(err)}`)
     }
   }
 }

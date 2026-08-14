@@ -40,12 +40,17 @@ export class Tracer implements TracerInterface {
     if (this.store) this.pending.push(envelope)
   }
 
-  /** Flushes all pending envelopes to the configured store. */
+  /** Flushes all pending envelopes to the configured store. On failure the failed envelope and the rest of the batch are re-queued for the next attempt. */
   async flush(): Promise<void> {
     if (!this.store || this.pending.length === 0) return
     const batch = this.pending.splice(0)
-    for (const envelope of batch) {
-      await this.store.store(envelope)
+    for (let i = 0; i < batch.length; i++) {
+      try {
+        await this.store.store(batch[i])
+      } catch (err) {
+        this.pending.unshift(...batch.slice(i))
+        throw err
+      }
     }
   }
 

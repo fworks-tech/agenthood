@@ -1,4 +1,5 @@
 import * as lancedb from '@lancedb/lancedb'
+import { randomUUID } from 'node:crypto'
 import { Field, Float64, Schema, Utf8 } from 'apache-arrow'
 import type { TraceEnvelope } from '../core/types.js'
 import type { TraceQuery, TraceStore } from '../core/TraceStore.js'
@@ -77,7 +78,7 @@ export class LanceDBTraceStore implements TraceStore {
 
   private toRow(envelope: TraceEnvelope): TraceRow {
     return {
-      id: `${envelope.correlationId}:${envelope.timestamp}:${envelope.member}`,
+      id: `${envelope.correlationId}:${envelope.timestamp}:${envelope.member}:${randomUUID().slice(0, 8)}`,
       member: envelope.member,
       correlation_id: envelope.correlationId,
       status: envelope.status,

@@ -40,9 +40,9 @@ function summarizeEnvelopes(member: string, envelopes: TraceEnvelope[]): MemberT
   }
 }
 
-/** Aggregates traces per member. Optionally restricts to a rolling window. */
+/** Aggregates traces per member. Optionally restricts to a rolling window (0 or undefined = all time). */
 export function summarizeTraces(traces: TraceEnvelope[], windowMs?: number): MemberTraceSummary[] {
-  const cutoff = windowMs !== undefined ? Date.now() - windowMs : undefined
+  const cutoff = windowMs !== undefined && windowMs > 0 ? Date.now() - windowMs : undefined
   const filtered = cutoff !== undefined ? traces.filter((e) => new Date(e.timestamp).getTime() >= cutoff) : traces
 
   const byMember = new Map<string, TraceEnvelope[]>()

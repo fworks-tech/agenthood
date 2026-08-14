@@ -84,6 +84,15 @@ describe('summarizeTraces', () => {
     expect(summaries).toEqual([])
   })
 
+  it('treats a zero window as all time', () => {
+    const traces = [
+      makeEnvelope({ timestamp: new Date(Date.now() - 86_400_000 * 30).toISOString() }),
+      makeEnvelope(),
+    ]
+    expect(summarizeTraces(traces, 0)).toHaveLength(1)
+    expect(summarizeTraces(traces, 0)[0].callCount).toBe(2)
+  })
+
   it('returns an empty list for no traces', () => {
     expect(summarizeTraces([])).toEqual([])
   })

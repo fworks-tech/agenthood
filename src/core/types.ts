@@ -43,6 +43,7 @@ export interface Tracer {
   getRecent(n: number): TraceEnvelope[]
   getByMember(memberId: string): TraceEnvelope[]
   getByCorrelationId(id: string): TraceEnvelope[]
+  flush(): Promise<void>
 }
 
 export type ArtifactType = 'code' | 'test' | 'doc' | 'review' | 'report'

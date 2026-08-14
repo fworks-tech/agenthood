@@ -1,5 +1,41 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest'
 
+const vectorStoreMock = vi.hoisted(() => {
+  const mockQuery = vi.fn()
+  const mockOpenTable = vi.fn()
+  class MockQuery {
+    private _limit = 0
+    private _filter = ''
+    limit(n: number) {
+      this._limit = n
+      return this
+    }
+    filter(f: string) {
+      this._filter = f
+      return this
+    }
+    toArray() {
+      return mockQuery(this._limit, this._filter)
+    }
+  }
+  return {
+    mockQuery,
+    mockOpenTable,
+    MockTable: class MockTable {
+      query() {
+        return new MockQuery()
+      }
+    },
+  }
+})
+
+vi.mock('@lancedb/lancedb', () => ({
+  connect: vi.fn().mockResolvedValue({
+    openTable: vectorStoreMock.mockOpenTable,
+    createEmptyTable: vi.fn(),
+  }),
+}))
+
 vi.mock('node:fs', async (importOriginal) => {
   const actual = await importOriginal<typeof import('node:fs')>()
   return {
@@ -217,5 +253,22 @@ describe('status command', () => {
     expect(parsed.member).toBe('the-scribe')
     expect(parsed.all.callCount).toBe(1)
     expect(parsed.all.totalCost).toBeCloseTo(0.02, 4)
+  })
+})
+
+describe('status --learner', () => {
+  it('queries persisted patterns with the ltm: key prefix', async () => {
+    vectorStoreMock.mockOpenTable.mockResolvedValue(new vectorStoreMock.MockTable())
+    vectorStoreMock.mockQuery.mockResolvedValue([])
+    const log = vi.spyOn(console, 'log').mockImplementation(() => {})
+
+    await status(['--learner', '--json'])
+
+    const filters = vectorStoreMock.mockQuery.mock.calls.map((c) => c[1] as string)
+    expect(filters.some((f) => f.includes('ltm:learnings%'))).toBe(true)
+    expect(filters.some((f) => f.includes('ltm:antipatterns%'))).toBe(true)
+    expect(filters.some((f) => f.includes(`LIKE 'learnings%'`))).toBe(false)
+    const output = log.mock.calls.flat().join(' ')
+    expect(output).toContain('persisted')
   })
 })

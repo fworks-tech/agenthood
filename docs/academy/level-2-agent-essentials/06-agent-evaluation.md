@@ -26,60 +26,61 @@ The loop closes when eval scores feed back into agent behavior. An agent that sc
 
 ## How Agenthood implements it
 
-The `EvalRunner` (planned) will live in `src/evals/EvalRunner.ts`. It runs an agent against a suite, scores the four metrics, and returns a structured report. The `EpisodeLearner` (`src/evals/EpisodeLearner.ts`) is already shipped — it writes high-scoring eval results into `LongTermMemory` and reinforces `ResidualMemory` signals:
+The `EvalRunner` lives in `src/evals/EvalRunner.ts`. It runs an agent against every task in a suite, scores the four metrics through an `EvalJudge`, and returns a structured report. Three of the metrics (faithfulness, relevance, context_recall) are scored by an LLM-as-judge prompt; answer_correctness is scored with embedding cosine similarity so it costs no extra LLM calls. The `EpisodeLearner` (`src/evals/EpisodeLearner.ts`) is also shipped — it writes high-scoring eval results into `LongTermMemory` and reinforces `ResidualMemory` signals:
 
 ```typescript
-import { EvalRunner } from 'agenthood';
+import { EvalRunner, LLMJudge, loadEvalSuite } from 'agenthood';
 
-const runner = new EvalRunner({
-  agent: new DeveloperAgent(),
-  suite: './evals/developer-agent-suite.json',
-  metrics: ['faithfulness', 'relevance', 'context_recall', 'answer_correctness'],
-});
+const suite = loadEvalSuite('./evals/benchmarks/review-pr.json');
+const judge = new LLMJudge(llm);
+const runner = new EvalRunner((task) => runMember('the-reviewer', task), judge);
 
-const report = await runner.run();
+const report = await runner.run(suite, 'the-reviewer');
 
-// report.scores = {
+// report.aggregate = {
 //   faithfulness:       0.87,
 //   relevance:          0.94,
 //   context_recall:     0.81,
 //   answer_correctness: 0.92,
 // }
-// report.regression = { faithfulness: +0.04, answer_correctness: +0.08 }
 ```
 
-The `EvalRunner` compares every run to the stored baseline and flags regressions. The `EpisodeLearner` consumes the trace — which steps took the longest, which tool calls failed, which reasoning paths produced the wrong answer — and feeds it back into the agent's memory so the next run avoids the same detours.
+The `BaselineComparator` compares every run against the stored baseline (`.agenthood/baselines/<member>.json`) and flags regressions — the eval command exits non-zero when a metric drops more than the threshold. The `EpisodeLearner` consumes the trace — which steps took the longest, which tool calls failed, which reasoning paths produced the wrong answer — and feeds it back into the agent's memory so the next run avoids the same detours.
 
 ---
 
 ## Hands-on example
 
 ```bash
-# Eval suites run like tests
-npx agenthood eval the-developer --suite ./evals/developer-agent-suite.json
+# Eval suites run like tests; benchmark fixtures ship in evals/benchmarks/
+npx agenthood eval the-reviewer --suite evals/benchmarks/review-pr.json --update-baseline
 ```
 
 Expected output:
 
 ```
-Eval Suite: developer-agent-suite (12 cases)
-─────────────────────────────────────────────
-faithfulness         0.87   (+0.04 vs baseline)
-relevance            0.94   (+0.01)
-context_recall       0.81   (-0.02)  ⚠ regression
-answer_correctness   0.92   (+0.08)
-─────────────────────────────────────────────
-2 cases regressed on context_recall — see trace.
+Eval Report — the-reviewer (review-pr)
+  Suite: review-pr | Tasks: 3 | Timestamp: 2026-08-14T00:00:00.000Z
+
+  Task                                     Faith    Relv.    CtxR.    Corr.   Status
+  ---------------------------------------- -------- -------- -------- -------- ------------
+  Review this diff: ...                    0.87     0.94     0.81     0.92    completed
+  ...
+
+  Aggregate: faithfulness 0.87, relevance 0.94, context_recall 0.81, answer_correctness 0.92
+
+  No baseline at .agenthood/baselines/the-reviewer.json — run with --update-baseline to create one.
 ```
 
-The regression flag is the point. A green test suite tells you nothing about answer quality. The `EvalRunner` tells you exactly which metric dropped and on which case.
+The regression flag is the point. A green test suite tells you nothing about answer quality. The eval command tells you exactly which metric dropped and on which case, and a later run exits non-zero when quality regresses against the stored baseline.
 
 ---
 
 ## Further reading
 
 - [`src/evals/EpisodeLearner.ts`](../../../src/evals/EpisodeLearner.ts) — episode learner (shipped), writes eval results into memory
-- [`src/evals/EvalRunner.ts`](../../../src/evals/EvalRunner.ts) — evaluation runner (planned — `src/evals/EvalRunner.ts` does not exist yet)
+- [`src/evals/EvalRunner.ts`](../../../src/evals/EvalRunner.ts) — evaluation runner (shipped) with LLM-as-judge scoring
+- [`src/evals/BaselineComparator.ts`](../../../src/evals/BaselineComparator.ts) — baseline comparison and regression gating
 - [RAGAS: Automated Evaluation of Retrieval Augmented Generation](https://arxiv.org/abs/2309.15217) — the framework the four metrics derive from
 - [Evaluating LLM Applications](https://eugeneyan.com/writing/evaluating-llm-applications/) — Eugene Yan on eval strategy
 

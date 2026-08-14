@@ -27,9 +27,16 @@ The published CLI commands (for adopter projects, not for developing this repo):
 ```bash
 npx agenthood init           # Interactive initiation ceremony
 npx agenthood check          # Run Doorman health check
+npx agenthood verify         # Validate member SKILL.md integrity and lockfile
 npx agenthood list           # Show active members
 npx agenthood activate <member>
 npx agenthood deactivate <member>
+npx agenthood run <member> "<task>"   # Run a member as an LLM agent
+npx agenthood status         # Project health and member metrics (--watch, --json, --member, --learner)
+npx agenthood trace          # List recent invocation traces (--member, --limit, --since)
+npx agenthood eval <member> --suite <path>  # Run an eval suite with baseline gating
+npx agenthood health         # Runtime health checks (exit 0/1/2)
+npx agenthood workflow <name>  # Execute a workflow (e.g. review-pr)
 npx agenthood eject          # Remove Society from a project
 ```
 
@@ -50,18 +57,23 @@ Agenthood is a **multi-agent AI framework** distributed as an npm package + VS C
 | 7 — Runtime | `src/` | TypeScript CLI + autonomous runtime (`agenthood run`) |
 | 8 — Memory & RAG | `src/memory/`, `src/rag/` | Memory tiers, DecisionLog + ProvenanceStore (ADR-015), KnowledgeGraphStore, RAG pipeline, Tree-sitter, LanceDB |
 | 9 — Workflows | _not yet implemented_ | Multi-member orchestration (AgentStep, ParallelStep, HumanInLoop) — 📋 Planned |
-| 10 — Evals | `src/evals/` | EpisodeLearner shipped; EvalRunner, quality metrics — 📋 Planned |
+| 10 — Evals & Observability | `src/evals/`, `src/core/` | EvalRunner (LLM-as-judge, 4 metrics), BaselineComparator, ReplayEvaluator, EpisodeLearner, trace pipeline (Tracer, TraceStore, redaction, retention, anomaly detection) — all shipped |
 
 ### CLI source (`src/`)
 
 Entry point is `src/cli.ts` — it parses args and dispatches to `src/commands/<command>.ts`. Commands are:
 - `init.ts` — Interactive ceremony: prompts, copies skills + AGENTS.md, writes `.agenthood/config.json`
 - `setup.ts` — Self-setup for this repo (sets git hooks path, chmod, installs commit template)
-- `check.ts` — Health check validating all installed components
+- `check.ts` / `verify.ts` — Doorman health check and member-integrity validation
+- `run.ts` — Invoke a member or core agent as an LLM agent (provider override, `--detect`)
+- `status.ts` / `trace.ts` — Observability: project health + metrics, trace listing, `--learner` status
+- `eval.ts` — Run an eval suite against a member with baseline regression gating
+- `health.ts` — Runtime health checks (tracer, trace store, registry, providers)
+- `workflow.ts`, `pr-sync.ts`, `rollback.ts` — Workflows, PR sync, lockfile rollback
 - `activate.ts` / `deactivate.ts` — Copy or remove a member skill file into a project
 - `list.ts`, `oath.ts`, `eject.ts` — Utility commands
 
-The CLI's production dependencies include `@anthropic-ai/sdk`, `groq-sdk`, `openai` (LLM providers), `@lancedb/lancedb` (vector store), `ajv` (schema validation), and `tree-sitter` (code parsing). The CLI also uses Node.js built-ins (`fs`, `path`, `child_process`, `readline`, `parseArgs`).
+The CLI's production dependencies include `@anthropic-ai/sdk`, `groq-sdk`, `openai` (LLM providers), `@lancedb/lancedb` (vector store), `ajv` (schema validation), `@sentry/node` (optional error reporting, dynamically imported), and `tree-sitter` (code parsing). The CLI also uses Node.js built-ins (`fs`, `path`, `child_process`, `readline`, `parseArgs`).
 
 ### Members (`skills/`)
 

@@ -29,6 +29,8 @@ export function createTraceEnvelope(input: CreateTraceEnvelopeInput): TraceEnvel
     correlationId: input.correlationId,
     timestamp: input.timestamp ?? new Date().toISOString(),
     source: input.source ?? "api",
+    input: input.input,
+    output: input.output,
   }
   if (input.model) envelope.model = input.model
   return envelope

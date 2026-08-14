@@ -27,6 +27,8 @@ describe('createTraceEnvelope', () => {
       status: 'success',
       correlationId: 'corr-1',
       source: 'api',
+      input: 'input text',
+      output: 'output text',
     })
     expect(new Date(env.timestamp).getTime()).not.toBeNaN()
     expect(env.model).toBeUndefined()

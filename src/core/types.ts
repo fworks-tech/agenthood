@@ -34,6 +34,9 @@ export interface TraceEnvelope {
   timestamp: string
   source: TraceSource
   model?: string
+  /** Raw task text, persisted for replay-based evaluation (redaction governs later) */
+  input?: string
+  output?: string
 }
 
 export interface Tracer {

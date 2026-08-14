@@ -5,6 +5,14 @@
 
 ---
 
+## v3.22.0 — August 14, 2026
+
+### ✨ Features
+
+- **Cli:** add trace command — npx agenthood trace
+
+---
+
 ## v3.21.0 — August 14, 2026
 
 ### ✨ Features

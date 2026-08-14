@@ -1,3 +1,10 @@
+# [3.22.0](https://github.com/fworks-tech/agenthood/compare/v3.21.0...v3.22.0) (2026-08-14)
+
+
+### Features
+
+* **cli:** add trace command — npx agenthood trace ([8db2134](https://github.com/fworks-tech/agenthood/commit/8db2134627ea006769f3c40d9e43db57e6e68eba)), closes [#302](https://github.com/fworks-tech/agenthood/issues/302)
+
 # [3.21.0](https://github.com/fworks-tech/agenthood/compare/v3.20.0...v3.21.0) (2026-08-14)
 
 

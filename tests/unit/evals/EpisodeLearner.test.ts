@@ -3,8 +3,9 @@ import { createTestContext } from '../../helpers/testContext.ts'
 import type { EvalResult, LongTermMemory } from '../../../src/core/types.ts'
 import type { ExecutionContext } from '../../../src/core/ExecutionContext.ts'
 import type { ResidualMemory } from '../../../src/memory/ResidualMemory.ts'
+import type { IVectorStore } from '../../../src/memory/VectorStore.ts'
 import { EpisodeLearner } from '../../../src/evals/EpisodeLearner.js'
-import { SemanticPatternMatcher } from '../../../src/evals/SemanticPatternMatcher.js'
+import { EmbeddingIndex } from '../../../src/evals/EmbeddingIndex.js'
 import { hashPattern } from '../../../src/utils/hash.js'
 
 describe('EpisodeLearner', () => {
@@ -202,35 +203,29 @@ describe('EpisodeLearner', () => {
     expect(mockLongTerm.store).toHaveBeenCalledOnce()
   })
 
-  it('uses existing pattern key when matcher finds a semantic match', async () => {
-
-    const mockVecStore = {
+  it('uses existing pattern key when the index finds a semantic match', async () => {
+    const mockVecStore: IVectorStore = {
       connect: vi.fn(),
       add: vi.fn(),
-      search: vi.fn(),
+      search: vi.fn().mockResolvedValue([{
+        record: {
+          id: 'pattern:existing',
+          vector: [1, 0, 0],
+          content: 'learned:architect:write-code:implemented auth middleware',
+          metadata: { type: 'learned_pattern' },
+          createdAt: new Date(),
+        },
+        score: 0.9,
+      }]),
       delete: vi.fn(),
       stats: vi.fn(),
       getById: vi.fn(),
-      getByKeyPrefix: vi.fn().mockResolvedValue([
-        {
-          id: 'pattern:existing',
-          vector: [1, 0, 0],
-          content: JSON.stringify({
-            pattern: 'learned:architect:write-code:implemented auth middleware',
-            score: 0.9,
-            member: 'architect',
-            skill: 'write-code',
-          }),
-          metadata: {},
-          createdAt: new Date(),
-        },
-      ]),
+      getByKeyPrefix: vi.fn(),
     }
 
-    const matcher = new SemanticPatternMatcher(mockVecStore, 0.85)
-    await matcher.initialize()
+    const index = new EmbeddingIndex(mockVecStore, 0.85)
 
-    const learner = new EpisodeLearner(mockResidual, matcher)
+    const learner = new EpisodeLearner(mockResidual, index)
 
     context = createTestContext({
       memory: {
@@ -261,36 +256,55 @@ describe('EpisodeLearner', () => {
     expect(key).toBe(`learnings/${hashPattern('learned:architect:write-code:implemented auth middleware')}`)
   })
 
-  it('falls back to hash-based matching and adds pattern when matcher finds no match', async () => {
-    const mockVecStore = {
+  it('falls back to hash-based matching and adds the pattern when the index finds no match', async () => {
+    const mockVecStore: IVectorStore = {
+      connect: vi.fn(),
+      add: vi.fn(),
+      search: vi.fn().mockResolvedValue([]),
+      delete: vi.fn(),
+      stats: vi.fn(),
+      getById: vi.fn(),
+      getByKeyPrefix: vi.fn(),
+    }
+
+    const index = new EmbeddingIndex(mockVecStore, 0.85)
+
+    const learner = new EpisodeLearner(mockResidual, index)
+
+    const evalResult: EvalResult = {
+      episodeId: 'ep-semantic-2',
+      scores: { relevance: 0.92 },
+      metadata: { member: 'developer', skill: 'test' },
+    }
+
+    await learner.learn(evalResult, context)
+
+    expect(mockLongTerm.store).toHaveBeenCalledOnce()
+    expect(mockVecStore.add).toHaveBeenCalledOnce()
+  })
+
+  it('degrades to the hash fallback when embedding is unavailable', async () => {
+    const mockVecStore: IVectorStore = {
       connect: vi.fn(),
       add: vi.fn(),
       search: vi.fn(),
       delete: vi.fn(),
       stats: vi.fn(),
       getById: vi.fn(),
-      getByKeyPrefix: vi.fn().mockResolvedValue([
-        {
-          id: 'pattern:unrelated',
-          vector: [1, 0, 0],
-          content: JSON.stringify({
-            pattern: 'learned:other:skill:completely different episode',
-            score: 0.9,
-            member: 'other',
-            skill: 'skill',
-          }),
-          metadata: {},
-          createdAt: new Date(),
-        },
-      ]),
+      getByKeyPrefix: vi.fn(),
     }
 
-    const matcher = new SemanticPatternMatcher(mockVecStore, 0.85)
-    await matcher.initialize()
-
-    const learner = new EpisodeLearner(mockResidual, matcher)
+    const index = new EmbeddingIndex(mockVecStore, 0.85)
+    const learner = new EpisodeLearner(mockResidual, index)
 
     context = createTestContext({
+      llm: {
+        complete: vi.fn(),
+        stream: vi.fn(),
+        embed: vi.fn().mockRejectedValue(new Error('embedding unsupported')),
+        setModel: vi.fn(),
+        generate: vi.fn(),
+      },
       memory: {
         ...createTestContext().memory,
         longTerm: mockLongTerm,
@@ -307,15 +321,17 @@ describe('EpisodeLearner', () => {
     })
 
     const evalResult: EvalResult = {
-      episodeId: 'ep-semantic-2',
+      episodeId: 'ep-degraded',
       scores: { relevance: 0.92 },
       metadata: { member: 'developer', skill: 'test' },
     }
 
     await learner.learn(evalResult, context)
 
+    expect(mockVecStore.add).not.toHaveBeenCalled()
     expect(mockLongTerm.store).toHaveBeenCalledOnce()
-    expect(mockVecStore.add).toHaveBeenCalledOnce()
+    const [key] = vi.mocked(mockLongTerm.store).mock.calls[0]
+    expect(key).toMatch(/^learnings\//)
   })
 })
 

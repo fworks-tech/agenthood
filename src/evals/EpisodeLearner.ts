@@ -1,7 +1,7 @@
 import type { EvalResult } from "../core/types.js"
 import type { ExecutionContext } from "../core/ExecutionContext.js"
 import type { ResidualMemory } from "../memory/ResidualMemory.js"
-import type { SemanticPatternMatcher } from "./SemanticPatternMatcher.js"
+import type { EmbeddingIndex } from "./EmbeddingIndex.js"
 import { hashPattern } from "../utils/hash.js"
 
 export interface LearningOutcome {
@@ -28,7 +28,7 @@ const SCORE_HISTORY_CAP = 50
 
 export class EpisodeLearner {
   private residualMemory?: ResidualMemory
-  private matcher?: SemanticPatternMatcher
+  private index?: EmbeddingIndex
   private highScoreCount = 0
   private midScoreCount = 0
   private lowScoreCount = 0
@@ -37,9 +37,9 @@ export class EpisodeLearner {
   private scoreHistory: number[] = []
   private memberBreakdown: Record<string, { learned: number; antipatterns: number }> = {}
 
-  constructor(residualMemory?: ResidualMemory, matcher?: SemanticPatternMatcher) {
+  constructor(residualMemory?: ResidualMemory, index?: EmbeddingIndex) {
     this.residualMemory = residualMemory
-    this.matcher = matcher
+    this.index = index
   }
 
   /** Current learning state: band counts, totals, trend, and per-member breakdown. */
@@ -140,13 +140,21 @@ export class EpisodeLearner {
 
     let resolvedKey: string
     let residualPattern: string
-    if (this.matcher && context.llm) {
-      const matched = await this.matcher.match(data.episode, context.llm)
-      if (matched) {
-        resolvedKey = `${storeKey}/${hashPattern(matched.outcome.pattern)}`
-        residualPattern = matched.outcome.pattern
-      } else {
-        await this.matcher.addPattern(outcome, context.llm)
+    if (this.index && context.llm) {
+      try {
+        const embedding = await context.llm.embed(data.episode)
+        const similar = await this.index.findSimilar(embedding)
+        if (similar.length > 0) {
+          resolvedKey = `${storeKey}/${hashPattern(similar[0].pattern)}`
+          residualPattern = similar[0].pattern
+        } else {
+          await this.index.storePattern(pattern, await context.llm.embed(pattern))
+          resolvedKey = `${storeKey}/${hashPattern(pattern)}`
+          residualPattern = pattern
+        }
+      } catch {
+        // embedding unavailable (no provider, unsupported embed, store down):
+        // degrade to the deterministic hash key instead of failing the run
         resolvedKey = `${storeKey}/${hashPattern(pattern)}`
         residualPattern = pattern
       }

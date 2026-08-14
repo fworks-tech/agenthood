@@ -1,3 +1,10 @@
+# [3.30.0](https://github.com/fworks-tech/agenthood/compare/v3.29.0...v3.30.0) (2026-08-14)
+
+
+### Features
+
+* **observability:** stamp traces with eval baseline quality ([c3daf40](https://github.com/fworks-tech/agenthood/commit/c3daf40d85c0f11a40ddf83f0f54dfe882de1ed3)), closes [#306](https://github.com/fworks-tech/agenthood/issues/306)
+
 # [3.29.0](https://github.com/fworks-tech/agenthood/compare/v3.28.0...v3.29.0) (2026-08-14)
 
 

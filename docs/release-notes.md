@@ -5,6 +5,14 @@
 
 ---
 
+## v3.30.0 — August 14, 2026
+
+### ✨ Features
+
+- **Observability:** stamp traces with eval baseline quality
+
+---
+
 ## v3.29.0 — August 14, 2026
 
 ### ✨ Features

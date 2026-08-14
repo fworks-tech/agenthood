@@ -86,9 +86,14 @@ export class AnomalyDetector {
     if (count <= 1) return
     // leave-one-out baseline so a single outlier is compared against its peers
     const baseline = (totalCost - trace.cost) / (count - 1)
-    if (baseline > 0 && trace.cost > baseline * this.costThreshold && this.fires(member, 'cost_spike')) {
-      anomalies.push(this.anomaly('cost_spike', member, trace.cost, baseline))
-    }
+    this.checkAgainstBaseline(
+      member,
+      trace.cost,
+      baseline,
+      'cost_spike',
+      (current, base) => current > base * this.costThreshold,
+      anomalies,
+    )
   }
 
   private checkQualityDrop(
@@ -101,8 +106,27 @@ export class AnomalyDetector {
     const qualityScore = trace.qualityScore
     if (qualityScore === null || scoredCount <= 1) return
     const baseline = (totalQuality - qualityScore) / (scoredCount - 1)
-    if (qualityScore < baseline - this.qualityDrop && this.fires(member, 'quality_drop')) {
-      anomalies.push(this.anomaly('quality_drop', member, qualityScore, baseline))
+    this.checkAgainstBaseline(
+      member,
+      qualityScore,
+      baseline,
+      'quality_drop',
+      (current, base) => current < base - this.qualityDrop,
+      anomalies,
+    )
+  }
+
+  /** Shared leave-one-out baseline + cooldown + emit shape. */
+  private checkAgainstBaseline(
+    member: string,
+    current: number,
+    baseline: number,
+    type: AnomalyType,
+    exceeds: (current: number, baseline: number) => boolean,
+    anomalies: Anomaly[],
+  ): void {
+    if (baseline > 0 && exceeds(current, baseline) && this.fires(member, type)) {
+      anomalies.push(this.anomaly(type, member, current, baseline))
     }
   }
 

@@ -6,6 +6,7 @@ import type { ExecutionContext } from '../core/ExecutionContext.js'
 import type { ITool } from '../tools/ITool.js'
 import type { AgentResult } from './base/AgentResult.js'
 import { KnowledgeGraphStore } from '../rag/KnowledgeGraphStore.js'
+import { reportErrorToSentry } from '../core/sentryReporter.js'
 
 export class OracleAgent extends BaseAgent {
   role = 'the-oracle'
@@ -76,7 +77,17 @@ export class OracleAgent extends BaseAgent {
     }
     const durationMs = Math.round(performance.now() - startTime)
     this.recordTrace(input, output, durationMs, error, context)
-    if (error) throw error
+    await this.recordRun(input, output, error, context)
+    if (error) {
+      await reportErrorToSentry(error, context, {
+        member: this.role,
+        model: 'oracle',
+        durationMs,
+        status: 'error',
+        correlationId: context.correlationId ?? context.executionId,
+      })
+      throw error
+    }
     return { role: this.role, output, artifacts: context.artifacts }
   }
 }

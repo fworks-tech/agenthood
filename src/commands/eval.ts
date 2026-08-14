@@ -1,4 +1,4 @@
-import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs'
+import { existsSync, mkdirSync, writeFileSync } from 'node:fs'
 import { dirname, join } from 'node:path'
 
 import { SchemaValidationError } from '../core/SchemaValidator.js'
@@ -10,7 +10,7 @@ import { BaselineComparator } from '../evals/BaselineComparator.js'
 import type { RegressionReport } from '../evals/BaselineComparator.js'
 import { ReplayEvaluator } from '../evals/ReplayEvaluator.js'
 import type { EmbedFn, ReplayReport } from '../evals/ReplayEvaluator.js'
-import { JSONFileTraceStore } from '../core/TraceStore.js'
+import { JSONFileTraceStore, loadObservabilityConfig } from '../core/TraceStore.js'
 import { createRedactionFilterFromConfig } from '../core/RedactionFilter.js'
 import { ApplicationContext } from '../runtime/ApplicationContext.ts'
 import { loadConfig } from './run.js'
@@ -232,17 +232,6 @@ async function finishWithBaseline(
   if (comparison?.overall === 'flag') process.exit(1)
 }
 
-function readRawConfig(cwd: string): Record<string, unknown> {
-  const configPath = join(cwd, '.agenthood', 'config.json')
-  if (!existsSync(configPath)) return {}
-  try {
-    const raw = JSON.parse(readFileSync(configPath, 'utf8')) as unknown
-    return typeof raw === 'object' && raw !== null ? (raw as Record<string, unknown>) : {}
-  } catch {
-    return {}
-  }
-}
-
 function printReplaySummary(report: ReplayReport): void {
   console.log(`\n  Replay Report — ${report.members.join(', ') || 'unknown member'}`)
   console.log(`  Traces: ${report.replayCount} | Skipped: ${report.skippedCount} | Errors: ${report.errorCount} | Avg similarity: ${report.averageSimilarity ?? '—'}`)
@@ -280,7 +269,7 @@ async function runReplay(member: string, limit: number, json: boolean): Promise<
   const embed: EmbedFn = (text) => app.llm.embed(text)
   const report = await new ReplayEvaluator(runner, embed).replay(envelopes)
 
-  const redactor = createRedactionFilterFromConfig(readRawConfig(cwd))
+  const redactor = createRedactionFilterFromConfig(loadObservabilityConfig(cwd))
   for (const task of report.tasks) {
     if (task.newOutput !== undefined) task.newOutput = redactor ? redactor.redactText(task.newOutput) : task.newOutput
   }

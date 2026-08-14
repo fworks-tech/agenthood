@@ -1,6 +1,6 @@
 import { existsSync, readFileSync, mkdirSync, writeFileSync, renameSync } from 'node:fs'
 import { appendFile } from 'node:fs/promises'
-import { dirname } from 'node:path'
+import { dirname, isAbsolute, join } from 'node:path'
 import type { TraceEnvelope } from './types.js'
 
 export interface TraceQuery {
@@ -9,6 +9,32 @@ export interface TraceQuery {
   since?: string
   until?: string
   limit?: number
+}
+
+/**
+ * Resolves the trace store path from `observability.tracePath` (relative paths
+ * are resolved against the project root), defaulting to the conventional
+ * `.agenthood/traces/traces.ndjson`.
+ */
+export function resolveTraceStorePath(projectPath: string, config: Record<string, unknown> = {}): string {
+  const observability = config.observability as Record<string, unknown> | undefined
+  const tracePath = observability?.tracePath
+  if (typeof tracePath === 'string' && tracePath.trim() !== '') {
+    return isAbsolute(tracePath) ? tracePath : join(projectPath, tracePath)
+  }
+  return join(projectPath, '.agenthood', 'traces', 'traces.ndjson')
+}
+
+/** Reads the project config, or an empty object when missing/corrupt. */
+export function loadObservabilityConfig(projectPath: string): Record<string, unknown> {
+  const configPath = join(projectPath, '.agenthood', 'config.json')
+  if (!existsSync(configPath)) return {}
+  try {
+    const raw = JSON.parse(readFileSync(configPath, 'utf8')) as unknown
+    return typeof raw === 'object' && raw !== null ? (raw as Record<string, unknown>) : {}
+  } catch {
+    return {}
+  }
 }
 
 export interface TraceStore {

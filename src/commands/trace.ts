@@ -1,7 +1,6 @@
 import { existsSync } from 'node:fs'
-import { join } from 'node:path'
 import type { CommandDescriptor } from './types.js'
-import { JSONFileTraceStore } from '../core/TraceStore.js'
+import { JSONFileTraceStore, loadObservabilityConfig, resolveTraceStorePath } from '../core/TraceStore.js'
 import type { TraceEnvelope } from '../core/types.js'
 
 function formatDuration(ms: number): string {
@@ -61,7 +60,7 @@ export const command: CommandDescriptor = {
 
 export async function trace(args: string[] = []): Promise<void> {
   const cwd = process.cwd()
-  const tracesPath = join(cwd, '.agenthood', 'traces', 'traces.ndjson')
+  const tracesPath = resolveTraceStorePath(cwd, loadObservabilityConfig(cwd))
 
   let member: string | undefined
   let limit = 20

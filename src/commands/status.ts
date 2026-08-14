@@ -6,7 +6,7 @@ import { collectMemberMetrics } from './collectMetrics.js'
 import { contentHash } from '../utils/hash.js'
 import { loadLockfile } from '../utils/lockfile.js'
 import { resolveSkillsDir } from '../members.js'
-import { JSONFileTraceStore } from '../core/TraceStore.js'
+import { JSONFileTraceStore, loadObservabilityConfig, resolveTraceStorePath } from '../core/TraceStore.js'
 import { summarizeMemberWindows } from '../core/traceSummary.js'
 import type { TraceWindow } from '../core/traceSummary.js'
 import type { Anomaly } from '../core/AnomalyDetector.js'
@@ -308,7 +308,7 @@ export async function status(args: string[] = []): Promise<void> {
   const member = memberIndex >= 0 ? args[memberIndex + 1] : undefined
 
   if (member) {
-    const tracesPath = join(cwd, '.agenthood', 'traces', 'traces.ndjson')
+    const tracesPath = resolveTraceStorePath(cwd, loadObservabilityConfig(cwd))
     if (!existsSync(tracesPath)) {
       console.log(`\n  No traces recorded for "${member}" yet. Run \`agenthood run ${member} "<task>"\` first.\n`)
       return

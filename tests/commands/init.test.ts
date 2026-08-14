@@ -1,4 +1,6 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest'
+import { readFileSync } from 'node:fs'
+import { join } from 'node:path'
 
 vi.mock('node:readline', () => ({
   createInterface: vi.fn(() => ({
@@ -76,3 +78,20 @@ describe('init command', () => {
     expect(vi.mocked(copyFile)).not.toHaveBeenCalled()
   })
 })
+
+  it('scaffolds the observability config block', async () => {
+    vi.mocked(existsSync).mockImplementation((p) => typeof p === 'string' && !p.endsWith('config.json'))
+    const example = readFileSync(join(process.cwd(), '.agenthood', 'config.example.json'), 'utf8')
+    vi.mocked(readFile).mockResolvedValue(example)
+    const { init } = await import('../../src/commands/init.js')
+    await init()
+    const writeCalls = vi.mocked(writeFile).mock.calls.map((c) => c as [string, string, object])
+    const configCall = writeCalls.find(([path]) => path.includes('config.json') && !path.includes('example'))
+    expect(configCall).toBeTruthy()
+    const config = JSON.parse(configCall![1])
+    expect(config.observability).toBeDefined()
+    expect(config.observability.redaction.enabled).toBe(false)
+    expect(config.observability.retention.ttlDays).toBe(30)
+    expect(config.observability.alerts.burstThreshold).toBe(10)
+    expect(config.observability.tracePath).toContain('traces.ndjson')
+  })

@@ -21,3 +21,5 @@ export type {
 } from "./EvalRunner.js"
 export { BaselineComparator, DEFAULT_THRESHOLD } from "./BaselineComparator.js"
 export type { MetricDelta, RegressionReport, BaselineRecord } from "./BaselineComparator.js"
+export { ReplayEvaluator } from "./ReplayEvaluator.js"
+export type { ReplayTaskScore, ReplayReport, EmbedFn } from "./ReplayEvaluator.js"

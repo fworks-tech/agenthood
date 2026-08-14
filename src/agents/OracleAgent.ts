@@ -66,7 +66,17 @@ export class OracleAgent extends BaseAgent {
   }
 
   async run(input: string, context: ExecutionContext): Promise<AgentResult> {
-    const answer = await this.ask(input, context)
-    return { role: this.role, output: answer, artifacts: context.artifacts }
+    const startTime = performance.now()
+    let output = ''
+    let error: unknown = null
+    try {
+      output = await this.ask(input, context)
+    } catch (err) {
+      error = err
+    }
+    const durationMs = Math.round(performance.now() - startTime)
+    this.recordTrace(input, output, durationMs, error, context)
+    if (error) throw error
+    return { role: this.role, output, artifacts: context.artifacts }
   }
 }

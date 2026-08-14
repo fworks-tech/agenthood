@@ -65,6 +65,34 @@ describe('OracleAgent', () => {
     expect(result.role).toBe('the-oracle')
   })
 
+  it('emits a trace envelope with cost and quality fields on run', async () => {
+    const { agent, context } = mockEnv()
+    await agent.run('what is the oath?', context)
+
+    const record = vi.mocked(context.tracer.record)
+    expect(record).toHaveBeenCalledOnce()
+    const [env] = record.mock.calls[0]
+    expect(env.member).toBe('the-oracle')
+    expect(env.status).toBe('success')
+    expect(env.cost).toBeGreaterThanOrEqual(0)
+    expect(env.qualityScore).toBeNull()
+    expect(env.input).toContain('oath')
+  })
+
+  it('emits an error-status envelope and rethrows when the LLM fails', async () => {
+    const { agent, context } = mockEnv()
+    vi.mocked((agent as unknown as { llm: { complete: ReturnType<typeof vi.fn> } }).llm.complete).mockRejectedValue(
+      new Error('provider exploded'),
+    )
+
+    await expect(agent.run('what is the oath?', context)).rejects.toThrow('provider exploded')
+
+    const record = vi.mocked(context.tracer.record)
+    expect(record).toHaveBeenCalledOnce()
+    const [env] = record.mock.calls[0]
+    expect(env.status).toBe('error')
+  })
+
   it('returns system prompt without errors', async () => {
     const { agent, context } = mockEnv()
     const prompt = await agent.getSystemPrompt(context)

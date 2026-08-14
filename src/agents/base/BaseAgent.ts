@@ -87,7 +87,7 @@ export abstract class BaseAgent {
     return result;
   }
 
-  private recordTrace(
+  protected recordTrace(
     input: string,
     output: string,
     durationMs: number,

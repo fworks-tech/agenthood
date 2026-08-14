@@ -6,6 +6,9 @@ import { collectMemberMetrics } from './collectMetrics.js'
 import { contentHash } from '../utils/hash.js'
 import { loadLockfile } from '../utils/lockfile.js'
 import { resolveSkillsDir } from '../members.js'
+import { JSONFileTraceStore } from '../core/TraceStore.js'
+import { summarizeMemberWindows } from '../core/traceSummary.js'
+import type { TraceWindow } from '../core/traceSummary.js'
 
 function formatDuration(ms: number): string {
   if (ms < 1000) return `${ms}ms`
@@ -130,6 +133,31 @@ function runWatchLoop(cwd: string, stats: ProjectStats, display: (m: number, d: 
   process.on('SIGTERM', () => { clearInterval(interval); process.exit(0) })
 }
 
+function printMemberWindows(member: string, windows: TraceWindow[], json: boolean): void {
+  if (json) {
+    const payload: Record<string, unknown> = { member }
+    for (const w of windows) payload[w.label] = w.summary
+    console.log(JSON.stringify(payload, null, 2))
+    return
+  }
+
+  console.log(`\n  Trace Summary — ${member}\n`)
+  console.log(`  ${'Window'.padEnd(8)} ${'Calls'.padEnd(7)} ${'Success'.padEnd(9)} ${'Errors'.padEnd(7)} ${'Avg Dur'.padEnd(10)} ${'Cost'.padEnd(10)} Tokens`)
+  console.log(`  ${''.padEnd(8, '-')} ${''.padEnd(7, '-')} ${''.padEnd(9, '-')} ${''.padEnd(7, '-')} ${''.padEnd(10, '-')} ${''.padEnd(10, '-')} ${''.padEnd(10, '-')}`)
+  for (const w of windows) {
+    if (!w.summary) {
+      console.log(`  ${w.label.padEnd(8)} ${String(0).padEnd(7)} ${String(0).padEnd(9)} ${String(0).padEnd(7)} ${'—'.padEnd(10)} ${'$0.0000'.padEnd(10)} 0`)
+      continue
+    }
+    const s = w.summary
+    const quality = s.avgQuality === null ? '—' : s.avgQuality.toFixed(2)
+    console.log(
+      `  ${w.label.padEnd(8)} ${String(s.callCount).padEnd(7)} ${String(s.successCount).padEnd(9)} ${String(s.errorCount).padEnd(7)} ${formatDuration(s.avgDurationMs).padEnd(10)} $${s.totalCost.toFixed(4).padEnd(9)} ${s.totalTokens.total.toLocaleString()} (${quality})`,
+    )
+  }
+  console.log()
+}
+
 export const command: CommandDescriptor = {
   name: 'status',
   description: 'Show project health and member metrics',
@@ -145,6 +173,21 @@ export async function status(args: string[] = []): Promise<void> {
 
   if (isDrift) {
     reportDrift(cwd)
+    return
+  }
+
+  const memberIndex = args.indexOf('--member')
+  const member = memberIndex >= 0 ? args[memberIndex + 1] : undefined
+
+  if (member) {
+    const tracesPath = join(cwd, '.agenthood', 'traces', 'traces.ndjson')
+    if (!existsSync(tracesPath)) {
+      console.log(`\n  No traces recorded for "${member}" yet. Run \`agenthood run ${member} "<task>"\` first.\n`)
+      return
+    }
+    const store = new JSONFileTraceStore(tracesPath)
+    const windows = summarizeMemberWindows(await store.query(), member)
+    printMemberWindows(member, windows, isJson)
     return
   }
 

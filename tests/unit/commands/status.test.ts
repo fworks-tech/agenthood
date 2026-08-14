@@ -172,4 +172,50 @@ describe('status command', () => {
     expect(output).toContain('the-scribe')
     expect(exit).toHaveBeenCalledWith(0)
   })
+
+  it('shows a message when --member has no traces yet', async () => {
+    vi.mocked(existsSync).mockReturnValue(false)
+    const log = vi.spyOn(console, 'log').mockImplementation(() => {})
+
+    await status(['--member', 'the-scribe'])
+
+    expect(log.mock.calls.flat().join(' ')).toContain('No traces recorded')
+  })
+
+  it('prints a per-member window table with --member', async () => {
+    const traces = [
+      { member: 'the-scribe', cost: 0.01, qualityScore: 0.8, durationMs: 100, tokenCount: { input: 10, output: 5, total: 15 }, status: 'success', timestamp: new Date().toISOString() },
+    ].map((e) => JSON.stringify(e)).join('\n')
+    vi.mocked(existsSync).mockImplementation((path) => (path as string).includes('traces'))
+    vi.mocked(readFileSync).mockReturnValue(traces)
+
+    const log = vi.spyOn(console, 'log').mockImplementation(() => {})
+
+    await status(['--member', 'the-scribe'])
+
+    const output = log.mock.calls.flat().join(' ')
+    expect(output).toContain('Trace Summary — the-scribe')
+    expect(output).toContain('1h')
+    expect(output).toContain('24h')
+    expect(output).toContain('7d')
+    expect(output).toContain('all')
+  })
+
+  it('outputs parseable JSON with --member --json', async () => {
+    const traces = [
+      { member: 'the-scribe', cost: 0.02, qualityScore: null, durationMs: 200, tokenCount: { input: 20, output: 10, total: 30 }, status: 'success', timestamp: new Date().toISOString() },
+    ].map((e) => JSON.stringify(e)).join('\n')
+    vi.mocked(existsSync).mockImplementation((path) => (path as string).includes('traces'))
+    vi.mocked(readFileSync).mockReturnValue(traces)
+
+    const log = vi.spyOn(console, 'log').mockImplementation(() => {})
+
+    await status(['--member', 'the-scribe', '--json'])
+
+    const lastCall = log.mock.calls[log.mock.calls.length - 1][0]
+    const parsed = JSON.parse(lastCall as string)
+    expect(parsed.member).toBe('the-scribe')
+    expect(parsed.all.callCount).toBe(1)
+    expect(parsed.all.totalCost).toBeCloseTo(0.02, 4)
+  })
 })

@@ -47,6 +47,8 @@ export interface Tracer {
   getByMember(memberId: string): TraceEnvelope[]
   getByCorrelationId(id: string): TraceEnvelope[]
   flush(): Promise<void>
+  /** Number of envelopes currently held in the ring buffer */
+  readonly size: number
 }
 
 export type ArtifactType = 'code' | 'test' | 'doc' | 'review' | 'report'

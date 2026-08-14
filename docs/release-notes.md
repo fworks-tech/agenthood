@@ -5,6 +5,14 @@
 
 ---
 
+## v3.28.0 — August 14, 2026
+
+### ✨ Features
+
+- **Observability:** add redaction filter for trace payloads
+
+---
+
 ## v3.27.0 — August 14, 2026
 
 ### ✨ Features

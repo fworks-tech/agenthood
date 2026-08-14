@@ -1,3 +1,10 @@
+# [3.28.0](https://github.com/fworks-tech/agenthood/compare/v3.27.0...v3.28.0) (2026-08-14)
+
+
+### Features
+
+* **observability:** add redaction filter for trace payloads ([ae21681](https://github.com/fworks-tech/agenthood/commit/ae2168120e0d9b7976873097080fcd325c4ac131)), closes [#305](https://github.com/fworks-tech/agenthood/issues/305)
+
 # [3.27.0](https://github.com/fworks-tech/agenthood/compare/v3.26.0...v3.27.0) (2026-08-14)
 
 

@@ -12,6 +12,7 @@ import type { EvalResult } from "../../core/types.js";
 import { createTraceEnvelope } from "../../core/TraceEnvelope.js";
 import { CostEstimator } from "../../core/CostEstimator.js";
 import { getMemberQualityScore } from "../../core/qualityScore.js";
+import { reportErrorToSentry } from "../../core/sentryReporter.js";
 
 export abstract class BaseAgent {
   abstract role: string;
@@ -73,7 +74,16 @@ export abstract class BaseAgent {
 
     await this.recordRun(input, output, error, context);
 
-    if (error) throw error;
+    if (error) {
+      await reportErrorToSentry(error, context, {
+        member: this.role,
+        model: this.reasoningLoop.model || "unknown",
+        durationMs,
+        status: "error",
+        correlationId: context.correlationId ?? context.executionId,
+      });
+      throw error;
+    }
     return result;
   }
 

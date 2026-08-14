@@ -53,6 +53,7 @@ export class ApplicationContext {
     societyGraph: KnowledgeGraphStore,
     vectorStore: LanceDBStore,
     skills: { catalog: string; manifests: Map<string, ISkillManifest> },
+    sentry?: { dsn?: string },
   ) {
     this.llm = llm
     this.societyGraph = societyGraph
@@ -89,6 +90,7 @@ export class ApplicationContext {
       artifacts: [],
       oracle: { ask: (q: string) => oracleAgent.ask(q, this.ctx) },
       skillsCatalog: skills.catalog || undefined,
+      sentry,
     }
   }
 
@@ -97,7 +99,7 @@ export class ApplicationContext {
     const societyGraph = loadSocietyGraph(projectPath)
     const skills = await discoverSkills(projectPath)
     const vectorStore = await connectVectorStore(projectPath)
-    return new ApplicationContext(projectPath, llm, societyGraph, vectorStore, skills)
+    return new ApplicationContext(projectPath, llm, societyGraph, vectorStore, skills, config.sentry)
   }
 
   private setupAgents(llm: ILLMProvider, skillManifests: Map<string, ISkillManifest>): void {

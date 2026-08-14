@@ -65,6 +65,8 @@
     "typecheck": "tsc --noEmit"
   },
   "devDependencies": {
+    "@commitlint/cli": "^19.5.0",
+    "@commitlint/config-conventional": "^19.5.0",
     "@commitlint/types": "^19.0.0",
     "@eslint/js": "^9.15.0",
     "@semantic-release/changelog": "^6.0.3",
@@ -82,9 +84,7 @@
     "tsx": "^4.19.0",
     "typescript": "^5.8.0",
     "typescript-eslint": "^8.0.0",
-    "vitest": "^4.1.8",
-    "@commitlint/cli": "^19.5.0",
-    "@commitlint/config-conventional": "^19.5.0"
+    "vitest": "^4.1.8"
   },
   "packageManager": "npm@11.19.0",
   "engines": {
@@ -93,6 +93,7 @@
   "dependencies": {
     "@anthropic-ai/sdk": "0.105.0",
     "@lancedb/lancedb": "0.30.0",
+    "@sentry/node": "10.70.0",
     "ajv": "8.20.0",
     "dotenv": "17.4.2",
     "groq-sdk": "1.2.1",

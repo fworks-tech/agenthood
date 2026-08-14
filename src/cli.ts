@@ -82,6 +82,9 @@ Commands:
                             Use --watch to poll every 5 seconds
                             Use --json for machine-readable output
                             Use --drift to detect SKILL.md drift vs lockfile
+  trace                   List recent member invocation traces
+                            Use --member <name>, --limit <n>, --since <time>
+                            Use --json for machine-readable output
   workflow <name>         Execute a workflow (e.g. review-pr)
   pr-sync                 Sync PR body and post comment for new commits
   oath                    Print the Society's oath

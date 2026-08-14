@@ -5,6 +5,19 @@
 
 ---
 
+## v3.23.0 — August 14, 2026
+
+### 🐛 Bug Fixes
+
+- **Observability:** address review findings on trace pipeline
+
+### ✨ Features
+
+- **Core:** add OpenCode Go model pricing to cost estimator
+- **Metrics:** per-member cost and quality summaries
+
+---
+
 ## v3.22.0 — August 14, 2026
 
 ### ✨ Features

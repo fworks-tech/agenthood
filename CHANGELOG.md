@@ -1,3 +1,16 @@
+# [3.23.0](https://github.com/fworks-tech/agenthood/compare/v3.22.0...v3.23.0) (2026-08-14)
+
+
+### Bug Fixes
+
+* **observability:** address review findings on trace pipeline ([2df2591](https://github.com/fworks-tech/agenthood/commit/2df2591104b4b9ea497db0b5bd584079b5151ea0))
+
+
+### Features
+
+* **core:** add OpenCode Go model pricing to cost estimator ([3f9a31a](https://github.com/fworks-tech/agenthood/commit/3f9a31a12a5ce9cc6fefaf194a32f94d739ef82a))
+* **metrics:** per-member cost and quality summaries ([c572b3a](https://github.com/fworks-tech/agenthood/commit/c572b3ab0a7876212433b832bd1fdff2e52c8eee)), closes [#300](https://github.com/fworks-tech/agenthood/issues/300)
+
 # [3.22.0](https://github.com/fworks-tech/agenthood/compare/v3.21.0...v3.22.0) (2026-08-14)
 
 

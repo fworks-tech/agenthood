@@ -86,6 +86,10 @@ Commands:
   trace                   List recent member invocation traces
                             Use --member <name>, --limit <n>, --since <time>
                             Use --json for machine-readable output
+  eval <member>           Run an eval suite against a member
+                            Use --suite <path> (required), --baseline <path>
+                            Use --update-baseline to store this run as baseline
+                            Use --json for machine-readable output
   workflow <name>         Execute a workflow (e.g. review-pr)
   pr-sync                 Sync PR body and post comment for new commits
   oath                    Print the Society's oath

@@ -1,0 +1,25 @@
+{
+  "name": "review-pr",
+  "description": "PR review tasks targeting the-reviewer member",
+  "metrics": ["faithfulness", "relevance", "context_recall", "answer_correctness"],
+  "tasks": [
+    {
+      "input": "Review this diff: - function total(items) { return items.reduce((a, b) => a + b.price, 0); } + function total(items) { return items.reduce((a, b) => a + b.price, 0) + (items.length > 10 ? 1 : 0); }",
+      "expectedOutput": "A review that flags the unexplained +1 surcharge for large carts as undocumented behavior, and asks for a test and a comment.",
+      "tags": ["member: the-reviewer", "code-review", "correctness"],
+      "difficulty": "easy"
+    },
+    {
+      "input": "Review this function for security issues: function lookup(user, name) { const key = user.role + ':' + name; const row = db.query('SELECT * FROM items WHERE owner = ' + key); return row; }",
+      "expectedOutput": "A review that identifies SQL injection via string interpolation of key, recommends parameterized queries, and flags missing authorization checks on the owner column.",
+      "tags": ["member: the-reviewer", "code-review", "security"],
+      "difficulty": "hard"
+    },
+    {
+      "input": "Review this change: the team renamed `fetchUser` to `getUser` across the repo but left `tests/api/users.test.ts` calling `fetchUser`.",
+      "expectedOutput": "A review that reports the broken test references, lists the remaining stale call sites, and blocks the merge until tests are updated.",
+      "tags": ["member: the-reviewer", "code-review", "consistency"],
+      "difficulty": "medium"
+    }
+  ]
+}

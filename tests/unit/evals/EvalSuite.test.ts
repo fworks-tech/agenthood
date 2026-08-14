@@ -72,6 +72,21 @@ describe('eval suite schema', () => {
     }
   })
 
+  it('loads and validates every benchmark fixture', () => {
+    const fixtures = ['review-pr', 'issue-triage', 'docs-sync', 'ci-diagnosis']
+    for (const fixture of fixtures) {
+      const suite = loadEvalSuite(join(process.cwd(), 'evals', 'benchmarks', `${fixture}.json`))
+      expect(suite.name).toBe(fixture)
+      expect(suite.tasks.length).toBeGreaterThanOrEqual(3)
+      for (const task of suite.tasks) {
+        expect(task.input).toBeTruthy()
+        expect(task.expectedOutput).toBeTruthy()
+        expect(task.difficulty).toBeTruthy()
+        expect(task.tags?.length).toBeGreaterThan(0)
+      }
+    }
+  })
+
   it('loadEvalSuite fails with a clear error on a missing file', () => {
     expect(() => loadEvalSuite(join(process.cwd(), 'evals', 'does-not-exist.json'))).toThrow(SchemaValidationError)
   })

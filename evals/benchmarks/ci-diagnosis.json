@@ -1,0 +1,25 @@
+{
+  "name": "ci-diagnosis",
+  "description": "CI failure diagnosis tasks targeting the-operator member",
+  "metrics": ["faithfulness", "relevance", "context_recall", "answer_correctness"],
+  "tasks": [
+    {
+      "input": "Diagnose: the deploy job fails with 'permission denied' when pushing the Docker image to the registry. The token worked last week.",
+      "expectedOutput": "A diagnosis that checks the registry token expiry, rotation, and scopes, and suggests re-issuing the token or pinning it to the registry.",
+      "tags": ["member: the-operator", "ci", "deployment"],
+      "difficulty": "medium"
+    },
+    {
+      "input": "Diagnose: the test job passes locally but fails in CI with the same seed. The failure is in a date-based test.",
+      "expectedOutput": "A diagnosis that points at timezone or clock differences between the local machine and the CI runner, and suggests fixing the test to use explicit timestamps instead of now().",
+      "tags": ["member: the-operator", "ci", "flaky-test"],
+      "difficulty": "medium"
+    },
+    {
+      "input": "Diagnose: the CI pipeline is stuck in a queued state and no runner picks up the job after an infrastructure migration.",
+      "expectedOutput": "A diagnosis that verifies runner registration, connectivity, and labels after the migration, and proposes re-registering runners or re-pointing the pipeline to the new runner pool.",
+      "tags": ["member: the-operator", "ci", "infrastructure"],
+      "difficulty": "hard"
+    }
+  ]
+}

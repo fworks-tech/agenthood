@@ -1,3 +1,27 @@
+# [3.33.0](https://github.com/fworks-tech/agenthood/compare/v3.32.0...v3.33.0) (2026-08-14)
+
+
+### Bug Fixes
+
+* **agents:** emit trace envelope from OracleAgent.run ([4056ee7](https://github.com/fworks-tech/agenthood/commit/4056ee7e5d57902e4f40aec0730b374f9f60f0f3))
+* **commands:** match persisted pattern prefixes in status --learner ([d9f0da8](https://github.com/fworks-tech/agenthood/commit/d9f0da85dff41d5558486e39f246d3dcf648cf77))
+* **observability:** correct health tracer probe and add config-dependent checks ([25df73d](https://github.com/fworks-tech/agenthood/commit/25df73d5c987209f96189fe3eae0dc1855d19b68))
+* **observability:** redact decision and provenance payloads and align envelope hashing ([41ec5ed](https://github.com/fworks-tech/agenthood/commit/41ec5ed2ca6299a51b497072df68feff60c555e3))
+
+
+### Features
+
+* **cli:** add replay evaluation mode to eval command ([ae9e23a](https://github.com/fworks-tech/agenthood/commit/ae9e23a64b045199b360a2ed6c9d1a30be717bef))
+* **cli:** surface anomaly alerts in status --alerts ([ed83792](https://github.com/fworks-tech/agenthood/commit/ed83792308b2b6a831b82dab8298b009c271353e))
+* **config:** scaffold observability block in init config and make trace path configurable ([08d63f4](https://github.com/fworks-tech/agenthood/commit/08d63f43e79f6e8e74fed709bf25799cfbe3c283))
+* **core:** accumulate tool-level LLM usage into trace token counts ([853c86f](https://github.com/fworks-tech/agenthood/commit/853c86f9666e0eb55f3b886f841a2c23dea305eb))
+* **evals:** add EmbeddingIndex with ANN similarity search and upsert persistence ([986b500](https://github.com/fworks-tech/agenthood/commit/986b5003c042582c187add7292e6b4c9ad02b68e)), closes [#313](https://github.com/fworks-tech/agenthood/issues/313)
+* **evals:** add versioned re-index migration for legacy zero-vector patterns ([0be2bd8](https://github.com/fworks-tech/agenthood/commit/0be2bd817f5f68aab409d922d534f3a286550081))
+* **evals:** query embedding index before hash fallback in EpisodeLearner ([0b8ec07](https://github.com/fworks-tech/agenthood/commit/0b8ec075b9b4369f4c2deb54bfa9f7a8bf0aa664))
+* **observability:** allow source override through ExecutionContext ([191045e](https://github.com/fworks-tech/agenthood/commit/191045e3106dff9a92e6b6cdefe879fbf4afb890))
+* **observability:** wire AnomalyDetector into trace flush with alert persistence ([b8946c1](https://github.com/fworks-tech/agenthood/commit/b8946c1590f3688bbc24cca298540012f7f4bfd7))
+* **runtime:** inject EpisodeLearner with EmbeddingIndex into agent construction ([9f0b5a8](https://github.com/fworks-tech/agenthood/commit/9f0b5a800fb8b4e661f756c79f44c389b3bfe0b6))
+
 # [3.32.0](https://github.com/fworks-tech/agenthood/compare/v3.31.0...v3.32.0) (2026-08-14)
 
 

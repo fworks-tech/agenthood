@@ -5,6 +5,30 @@
 
 ---
 
+## v3.33.0 — August 14, 2026
+
+### 🐛 Bug Fixes
+
+- **Agents:** emit trace envelope from OracleAgent.run
+- **Commands:** match persisted pattern prefixes in status --learner
+- **Observability:** correct health tracer probe and add config-dependent checks
+- **Observability:** redact decision and provenance payloads and align envelope hashing
+
+### ✨ Features
+
+- **Cli:** add replay evaluation mode to eval command
+- **Cli:** surface anomaly alerts in status --alerts
+- **Config:** scaffold observability block in init config and make trace path configurable
+- **Core:** accumulate tool-level LLM usage into trace token counts
+- **Evals:** add EmbeddingIndex with ANN similarity search and upsert persistence
+- **Evals:** add versioned re-index migration for legacy zero-vector patterns
+- **Evals:** query embedding index before hash fallback in EpisodeLearner
+- **Observability:** allow source override through ExecutionContext
+- **Observability:** wire AnomalyDetector into trace flush with alert persistence
+- **Runtime:** inject EpisodeLearner with EmbeddingIndex into agent construction
+
+---
+
 ## v3.32.0 — August 14, 2026
 
 ### ✨ Features

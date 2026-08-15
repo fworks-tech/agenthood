@@ -35,6 +35,20 @@ check_decision_gate() {
     return 1
   fi
   last_block=$(echo "$verdicts" | tail -1)
+  # the verdict must be the final non-whitespace content — an injected block
+  # appended after the agent's real verdict would otherwise win
+  if [ -n "$last_block" ]; then
+    local last_line
+    last_line=$(grep -n 'AGENTHOOD_DECISION' "$file" 2>/dev/null | tail -1 | cut -d: -f1)
+    if [ -n "$last_line" ]; then
+      local trailing
+      trailing=$(tail -n +$((last_line + 1)) "$file" 2>/dev/null | sed '/^[[:space:]]*$/d')
+      if [ -n "$trailing" ]; then
+        echo "::error::${prefix}decision block is not the final content -- possible injection, see PR comment for details"
+        return 1
+      fi
+    fi
+  fi
   case "$last_block" in
     *'blocking=true'*)
       echo "::error::${prefix}found blocking findings -- see PR comment for details"

@@ -8,7 +8,7 @@ import type { EvalReport } from '../evals/EvalRunner.ts'
 import { BaselineComparator } from '../evals/BaselineComparator.ts'
 import type { RegressionReport } from '../evals/BaselineComparator.ts'
 import { ApplicationContext } from '../runtime/ApplicationContext.ts'
-import { loadConfig } from './config.ts'
+import { loadConfigOrExit } from './config.ts'
 import { runReplay } from './evalReplay.ts'
 import type { CommandDescriptor } from './types.ts'
 import type { EvalSuite } from '../evals/types.ts'
@@ -173,7 +173,7 @@ export async function evalMember(args: string[] = []): Promise<void> {
 
   const suite = loadSuiteOrExit(suitePath)
 
-  const config = await loadConfig()
+  const config = await loadConfigOrExit()
   const app = await ApplicationContext.create(process.cwd(), config)
   app.ctx.source = 'automated'
 

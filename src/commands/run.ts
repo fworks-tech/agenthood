@@ -1,7 +1,7 @@
 import type { CommandDescriptor } from './types.ts'
 import { MissingApiKeyError } from '../llm/validateApiKeys.ts'
 import { ApplicationContext } from '../runtime/ApplicationContext.ts'
-import { loadConfig } from './config.ts'
+import { loadConfigOrExit } from './config.ts'
 
 function parseFlags(args: string[]): { positional: string[]; providerOverride?: string; shouldDetect: boolean } {
   const positional: string[] = []
@@ -57,7 +57,7 @@ export async function run(args: string[]): Promise<void> {
     process.exit(1)
   }
 
-  const config = await loadConfig(providerOverride)
+  const config = await loadConfigOrExit(providerOverride)
   const task = taskParts.join(" ")
 
   try {

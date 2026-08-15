@@ -26,7 +26,7 @@ export async function check(): Promise<void> {
   collectRagChecks(results);
   const failing = printReport(results);
   // exitCode (not exit) so piped output is not truncated before flush
-  process.exitCode = failing > 0 ? 1 : undefined;
+  process.exitCode = failing > 0 ? 1 : 0;
 }
 
 function collectConfigChecks(results: CheckResult[]): void {
@@ -82,7 +82,7 @@ function collectApiKeyResult(cwd: string, results: CheckResult[]): void {
     const parsed = JSON.parse(readFileSync(configPath, 'utf8')) as Record<string, unknown>;
     rawConfig = parsed;
     const raw = parsed.provider;
-    provider = typeof raw === 'string' ? raw : (raw as { name?: string } | undefined)?.name; 
+    provider = typeof raw === 'string' ? raw : (raw as { name?: string } | undefined)?.name;
   } catch {
     return;
   }

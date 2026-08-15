@@ -70,15 +70,13 @@ export async function loadConfig(providerOverride?: string): Promise<LLMConfig> 
   } catch (err) {
     if (err instanceof SyntaxError) {
       // corrupt config must not silently fall back to defaults
-      console.error(`Invalid JSON in ${configPath}: ${(err as Error).message}`)
-      process.exit(1)
+      throw new Error(`Invalid JSON in ${configPath}: ${(err as Error).message}`)
     }
     if ((err as NodeJS.ErrnoException).code === 'ENOENT') {
       return providerOverride ? { provider: providerOverride } : {}
     }
     // unreadable config (EACCES, EISDIR, ...) must not silently fall back
-    console.error(`Cannot read ${configPath}: ${(err as Error).message}`)
-    process.exit(1)
+    throw new Error(`Cannot read ${configPath}: ${(err as Error).message}`)
   }
 
   const cfg: LLMConfig = { ...parseProviderBlock(raw), ...parseFailover(raw) }
@@ -90,4 +88,14 @@ export async function loadConfig(providerOverride?: string): Promise<LLMConfig> 
   if (sentry) cfg.sentry = sentry
   if (providerOverride) cfg.provider = providerOverride
   return cfg
+}
+
+/** CLI-facing wrapper: exits (not throws) so exit ownership stays in the command layer. */
+export async function loadConfigOrExit(providerOverride?: string): Promise<LLMConfig> {
+  try {
+    return await loadConfig(providerOverride)
+  } catch (err) {
+    console.error((err as Error).message)
+    process.exit(1)
+  }
 }

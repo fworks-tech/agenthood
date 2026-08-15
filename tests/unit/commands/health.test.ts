@@ -1,16 +1,16 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest'
 
 vi.mock('../../../src/commands/config.ts', () => ({
-  loadConfig: vi.fn(),
+  loadConfigOrExit: vi.fn(),
 }))
 
 import { health, command } from '../../../src/commands/health.ts'
-import { loadConfig } from '../../../src/commands/config.ts'
+import { loadConfigOrExit } from '../../../src/commands/config.ts'
 
 describe('health command', () => {
   beforeEach(() => {
-    vi.mocked(loadConfig).mockReset()
-    vi.mocked(loadConfig).mockResolvedValue({} as never)
+    vi.mocked(loadConfigOrExit).mockReset()
+    vi.mocked(loadConfigOrExit).mockResolvedValue({} as never)
     process.exitCode = undefined
   })
 

@@ -13,7 +13,6 @@ describe('check command', () => {
   beforeEach(() => {
     output = ''
     process.exitCode = undefined
-    vi.spyOn(process, 'exit').mockImplementation(() => undefined as never)
     vi.spyOn(console, 'log').mockImplementation((...args) => { output += args.join(' ') + '\n' })
     vi.mocked(existsSync).mockImplementation((p) =>
       typeof p === 'string' && p.includes('config.json') ? false : true

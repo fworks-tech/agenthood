@@ -195,7 +195,7 @@ export abstract class BaseAgent {
     context: ExecutionContext,
   ): Promise<void> {
     const timestamp = new Date().toISOString();
-    const id = `dec-${Date.now()}-${randomUUID().slice(0, 4)}`;
+    const id = `dec-${Date.now()}-${randomUUID().slice(0, 8)}`;
     const succeeded = error === null;
     const rationale = succeeded
       ? "Member run completed; see decision for output summary."

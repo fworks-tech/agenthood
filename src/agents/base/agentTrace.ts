@@ -30,8 +30,10 @@ function redact(context: ExecutionContext, text: string): string {
 
 /**
  * Redacts a payload, reporting failures as background errors. `mode: 'throw'`
- * fails closed (used for persisted traces/decisions); `mode: 'skip'` returns
- * undefined (used for best-effort signals like residual memory).
+ * fails closed (used for persisted traces/decisions) and rethrows
+ * `originalError` when one exists; `mode: 'skip'` returns undefined instead
+ * (used for best-effort signals like residual memory — `originalError` is
+ * ignored in that mode).
  */
 export function redactSafely(
   context: ExecutionContext,

@@ -4,9 +4,10 @@ import { join } from 'node:path'
 import { JSONFileTraceStore, loadObservabilityConfig, resolveTraceStorePath } from '../core/TraceStore.ts'
 import { healthCheck } from '../core/healthCheck.ts'
 import type { HealthReport, HealthDeps } from '../core/healthCheck.ts'
+import type { LLMConfig } from '../llm/types.ts'
 import { MemberRegistry } from '../members/index.ts'
 import { PROVIDER_KEYS } from '../llm/validateApiKeys.ts'
-import { loadConfig } from './config.ts'
+import { loadConfigOrExit } from './config.ts'
 import type { CommandDescriptor } from './types.ts'
 
 function printHelp(): void {
@@ -42,7 +43,7 @@ export const command: CommandDescriptor = {
   handler: (args) => health(args),
 }
 
-async function collectHealthDeps(cwd: string, config: Awaited<ReturnType<typeof loadConfig>>): Promise<HealthDeps> {
+async function collectHealthDeps(cwd: string, config: LLMConfig): Promise<HealthDeps> {
   const tracesPath = resolveTraceStorePath(cwd, loadObservabilityConfig(cwd))
   const store = new JSONFileTraceStore(tracesPath)
 
@@ -88,7 +89,7 @@ export async function health(args: string[] = []): Promise<void> {
     return
   }
 
-  const config = await loadConfig()
+  const config = await loadConfigOrExit()
   const report = await healthCheck(await collectHealthDeps(process.cwd(), config))
 
   if (json) {

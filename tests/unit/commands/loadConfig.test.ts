@@ -56,11 +56,18 @@ describe('loadConfig', () => {
     }
   })
 
-  it('exits with an error on corrupt JSON', async () => {
-    const errorSpy = vi.spyOn(console, 'error').mockImplementation(() => {})
+  it('throws an error on corrupt JSON', async () => {
     await withFixture('{ not json', async () => {
-      await expect(loadConfig()).rejects.toThrow('process.exit')
-      expect(errorSpy).toHaveBeenCalledWith(expect.stringContaining('Invalid JSON'))
+      await expect(loadConfig()).rejects.toThrow('Invalid JSON')
+    })
+  })
+
+  it('throws an error on an unreadable config file', async () => {
+    await withFixture('{}', async (dir) => {
+      // a directory in place of the config file reads as EISDIR, not ENOENT
+      rmSync(join(dir, '.agenthood', 'config.json'))
+      mkdirSync(join(dir, '.agenthood', 'config.json'))
+      await expect(loadConfig()).rejects.toThrow(/Cannot read/)
     })
   })
 

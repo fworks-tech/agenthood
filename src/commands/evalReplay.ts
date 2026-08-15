@@ -6,7 +6,7 @@ import { JSONFileTraceStore, loadObservabilityConfig } from '../core/TraceStore.
 import { ReplayEvaluator } from '../evals/ReplayEvaluator.ts'
 import type { EmbedFn, ReplayReport } from '../evals/ReplayEvaluator.ts'
 import { ApplicationContext } from '../runtime/ApplicationContext.ts'
-import { loadConfig } from './config.ts'
+import { loadConfigOrExit } from './config.ts'
 
 function printReplaySummary(report: ReplayReport): void {
   console.log(`\n  Replay Report — ${report.members.join(', ') || 'unknown member'}`)
@@ -33,7 +33,7 @@ export async function runReplay(member: string, limit: number, json: boolean): P
     process.exit(1)
   }
 
-  const config = await loadConfig()
+  const config = await loadConfigOrExit()
   const app = await ApplicationContext.create(cwd, config)
   app.ctx.source = 'automated'
   if (!app.members.has(member)) {

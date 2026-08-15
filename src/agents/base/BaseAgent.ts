@@ -16,6 +16,11 @@ export interface BaseAgentOptions {
   episodeLearner?: EpisodeLearner;
 }
 
+/**
+ * Base lifecycle for every agent. Intentional dependency hub: by contract it
+ * touches the LLM, tool, core, reasoning, memory, and evals layers — changing
+ * any of those surfaces is expected to flow through here.
+ */
 export abstract class BaseAgent {
   abstract role: string;
   protected abstract tools: ITool[];
@@ -66,19 +71,8 @@ export abstract class BaseAgent {
     const { output, error, durationMs } = await this.runExecutorStage(execute, systemPrompt, input);
     context.tracer.endSpan(this.role, { output });
 
-    recordAgentTrace({
-      role: this.role,
-      model: this.reasoningLoop.model || "unknown",
-      usage: this.reasoningLoop.usage,
-      toolUsage: context.usage,
-      input,
-      output,
-      durationMs,
-      error,
-      context,
-    });
+    this.recordTrace({ input, output, durationMs, error, context });
     this.recordResidual(input, context);
-
     const result: AgentResult = { role: this.role, output, artifacts: context.artifacts };
     this.learnFromRun(context);
 
@@ -114,6 +108,26 @@ export abstract class BaseAgent {
         this.toolRegistry.register(tool);
       }
     }
+  }
+
+  private recordTrace(args: {
+    input: string;
+    output: string;
+    durationMs: number;
+    error: unknown;
+    context: ExecutionContext;
+  }): void {
+    recordAgentTrace({
+      role: this.role,
+      model: this.reasoningLoop.model || "unknown",
+      usage: this.reasoningLoop.usage,
+      toolUsage: args.context.usage,
+      input: args.input,
+      output: args.output,
+      durationMs: args.durationMs,
+      error: args.error,
+      context: args.context,
+    });
   }
 
   private recordResidual(input: string, context: ExecutionContext): void {

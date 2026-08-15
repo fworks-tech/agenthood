@@ -12,6 +12,7 @@ describe('check command', () => {
 
   beforeEach(() => {
     output = ''
+    process.exitCode = undefined
     vi.spyOn(process, 'exit').mockImplementation(() => undefined as never)
     vi.spyOn(console, 'log').mockImplementation((...args) => { output += args.join(' ') + '\n' })
     vi.mocked(existsSync).mockImplementation((p) =>
@@ -21,6 +22,7 @@ describe('check command', () => {
   })
 
   afterEach(() => {
+    process.exitCode = undefined
     vi.restoreAllMocks()
   })
 
@@ -36,11 +38,11 @@ describe('check command', () => {
     expect(output).toContain('passing')
   })
 
-  it('exits with code 1 when checks fail', async () => {
+  it('sets exit code 1 when checks fail', async () => {
     vi.mocked(existsSync).mockReturnValue(false)
     const { check } = await import( '../../src/commands/check.ts')
     await check()
-    expect(vi.mocked(process.exit)).toHaveBeenCalledWith(1)
+    expect(process.exitCode).toBe(1)
   })
 
   it('reports API key check as passing when key is in environment', async () => {

@@ -24,7 +24,9 @@ export async function check(): Promise<void> {
   collectConfigChecks(results);
   collectMemoryResults(results);
   collectRagChecks(results);
-  printReport(results);
+  const failing = printReport(results);
+  // exitCode (not exit) so piped output is not truncated before flush
+  process.exitCode = failing > 0 ? 1 : undefined;
 }
 
 function collectConfigChecks(results: CheckResult[]): void {
@@ -80,7 +82,7 @@ function collectApiKeyResult(cwd: string, results: CheckResult[]): void {
     const parsed = JSON.parse(readFileSync(configPath, 'utf8')) as Record<string, unknown>;
     rawConfig = parsed;
     const raw = parsed.provider;
-    provider = typeof raw === 'string' ? raw : (raw as Record<string, unknown> | undefined)?.name as string | undefined;
+    provider = typeof raw === 'string' ? raw : (raw as { name?: string } | undefined)?.name; 
   } catch {
     return;
   }
@@ -102,7 +104,7 @@ function collectApiKeyResult(cwd: string, results: CheckResult[]): void {
   }
 }
 
-function printReport(results: CheckResult[]): void {
+function printReport(results: CheckResult[]): number {
   const passing = results.filter((r) => r.isPassed).length;
   const failing = results.filter((r) => !r.isPassed).length;
 
@@ -118,6 +120,6 @@ function printReport(results: CheckResult[]): void {
     console.log('  The Society is ready. You may proceed.\n');
   } else {
     console.log('  Run `npx agenthood init` to complete the initiation.\n');
-    process.exit(1);
   }
+  return failing;
 }

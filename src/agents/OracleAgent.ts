@@ -8,6 +8,7 @@ import type { AgentResult } from './base/AgentResult.ts'
 import type { IGraphStore } from '../rag/KnowledgeGraphStore.ts'
 import { ReadFileSkill } from '../tools/project/ReadFileSkill.ts'
 import { SearchCodebaseSkill } from '../tools/code/SearchCodebaseSkill.ts'
+import { wrapUserQuery } from './memberLore.ts'
 
 export class OracleAgent extends BaseAgent {
   role = 'the-oracle'
@@ -40,11 +41,9 @@ export class OracleAgent extends BaseAgent {
     const episodicResults = await context.memory.episodic.recall(question)
 
     const systemPrompt = await this.buildSystemPrompt(kgResults, episodicResults, context)
-    // strip both user_query delimiters (whitespace/attribute-tolerant) so a
-    // crafted question cannot break out of the trust boundary and inject
-    // instructions
-    const safeQuestion = question.replace(/<user_query[^>]*>|<\/user_query[^>]*>/gi, '')
-    const wrappedQuestion = `<user_query>\n${safeQuestion}\n</user_query>`
+    // re-wrap via the shared helper so a crafted question cannot break out
+    // of the trust boundary and inject instructions
+    const wrappedQuestion = wrapUserQuery(question)
 
     const result = await this.llm.complete({
       messages: [

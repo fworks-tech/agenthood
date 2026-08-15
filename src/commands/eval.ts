@@ -110,58 +110,51 @@ function failUsage(message: string): never {
 
 function parseEvalArgs(args: string[]): ParsedEvalArgs {
   const positional: string[] = []
-  let suitePath: string | undefined
-  let baselinePath: string | undefined
-  let updateBaseline = false
-  let json = false
-  let replay = false
-  let replayLimit = 50
+  const flags: ParsedEvalArgs = {
+    member: undefined, suitePath: undefined, baselinePath: undefined,
+    updateBaseline: false, json: false, replay: false, replayLimit: 50, helpRequested: false,
+  }
 
   for (let i = 0; i < args.length; i++) {
+    const next = (): string | undefined => args[++i]
     switch (args[i]) {
       case '--suite':
-        suitePath = args[++i]
+        flags.suitePath = next()
         break
       case '--baseline':
-        baselinePath = args[++i]
+        flags.baselinePath = next()
         break
       case '--update-baseline':
-        updateBaseline = true
+        flags.updateBaseline = true
         break
       case '--replay':
-        replay = true
+        flags.replay = true
         break
-      case '--limit': {
-        const parsed = Number.parseInt(args[++i] ?? '', 10)
-        // 0 would disable the limit (slice(-0) === slice(0), unbounded replay)
-        if (Number.isNaN(parsed) || parsed <= 0) {
-          failUsage('Invalid --limit value — expected a positive integer')
-        }
-        replayLimit = parsed
+      case '--limit':
+        flags.replayLimit = parseReplayLimit(next())
         break
-      }
       case '--json':
-        json = true
+        flags.json = true
         break
       case '--help':
       case '-h':
         printUsage()
-        return { member: undefined, suitePath: undefined, baselinePath: undefined, updateBaseline: false, json: false, replay: false, replayLimit: 50, helpRequested: true }
+        return { ...flags, helpRequested: true }
       default:
         positional.push(args[i])
     }
   }
 
-  return {
-    member: positional[0],
-    suitePath,
-    baselinePath,
-    updateBaseline,
-    json,
-    replay,
-    replayLimit,
-    helpRequested: false,
+  return { ...flags, member: positional[0] }
+}
+
+function parseReplayLimit(raw: string | undefined): number {
+  const parsed = Number.parseInt(raw ?? '', 10)
+  // 0 would disable the limit (slice(-0) === slice(0), unbounded replay)
+  if (Number.isNaN(parsed) || parsed <= 0) {
+    failUsage('Invalid --limit value — expected a positive integer')
   }
+  return parsed
 }
 
 export async function evalMember(args: string[] = []): Promise<void> {

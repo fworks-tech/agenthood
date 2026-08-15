@@ -78,6 +78,24 @@ implemented in [`src/members/MemberRegistry.ts`](../src/members/MemberRegistry.t
 | The Mailman | standard | file.write, code.write, code.refactor |
 | The Inspector | standard | file.write, code.write, code.refactor |
 
+### Core Agents (Runtime)
+
+The non-member agents wired in `ApplicationContext.setupAgents` carry narrower tool
+sets than the member profile grants above — a deliberate fail-closed choice from the
+agent lifecycle hardening wave. They only receive what their executor path needs:
+
+| Agent | Tools |
+|-------|-------|
+| DeveloperAgent | ReadFileSkill, WriteFileSkill, WriteCodeSkill, RefactorSkill, SearchCodebaseSkill, ExplainCodeSkill, SubagentTaskSkill (delegation) |
+| ArchitectAgent | ReadFileSkill, WriteFileSkill, WriteCodeSkill |
+| QAAgent | ReadFileSkill, WriteFileSkill, WriteCodeSkill |
+| ReviewerAgent | ReadFileSkill (read-only) |
+| OracleAgent | ReadFileSkill, SearchCodebaseSkill (read-only) |
+| StrategistAgent / OperatorAgent | none — pure reasoning, output rendered against a fixed format |
+
+Member execution (via `MemberAgent`) remains governed by `MemberRegistry` profile
+grants; `delegate_task` is opt-in per spec via `canDelegate`.
+
 ---
 
 ## The Reason → Act → Observe Loop

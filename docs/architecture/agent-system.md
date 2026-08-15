@@ -58,15 +58,15 @@ implemented in [`src/members/MemberRegistry.ts`](../src/members/MemberRegistry.t
 
 | Member | Permission Profile | Key Tools |
 |--------|-------------------|-----------|
-| The Scribe | standard | file.write, file.edit, git.*, terminal.run |
-| The Architect | standard | file.write, file.edit, git.*, terminal.run |
-| The Builder | standard | file.write, file.edit, git.*, terminal.run |
+| The Scribe | standard | file.write, code.write, code.refactor |
+| The Architect | standard | file.write, code.write, code.refactor |
+| The Builder | standard | file.write, code.write, code.refactor |
 | The Reviewer | restricted | file.read, file.search, code.explain |
-| The Tester | standard | file.write, file.edit, git.*, terminal.run |
-| The Debugger | standard | file.write, file.edit, git.*, terminal.run |
+| The Tester | standard | file.write, code.write, code.refactor |
+| The Debugger | standard | file.write, code.write, code.refactor |
 | The Auditor | restricted | file.read, file.search, code.explain |
-| The Herald | standard | file.write, file.edit, git.*, terminal.run |
-| The Librarian | standard | file.write, file.edit, git.*, terminal.run |
+| The Herald | standard | file.write, code.write, code.refactor |
+| The Librarian | standard | file.write, code.write, code.refactor |
 | The Doorman | restricted | file.read, file.search, code.explain |
 | The Oracle | restricted | file.read, file.search, code.explain |
 | The Envoy | restricted | file.read, file.search, code.explain |
@@ -75,8 +75,8 @@ implemented in [`src/members/MemberRegistry.ts`](../src/members/MemberRegistry.t
 | The Strategist | restricted | file.read, file.search, code.explain |
 | The Steward | restricted | file.read, file.search, code.explain |
 | The Operator | restricted | file.read, file.search, code.explain |
-| The Mailman | standard | file.write, file.edit, git.*, terminal.run |
-| The Inspector | standard | file.write, file.edit, git.*, terminal.run |
+| The Mailman | standard | file.write, code.write, code.refactor |
+| The Inspector | standard | file.write, code.write, code.refactor |
 
 ---
 

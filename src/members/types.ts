@@ -30,4 +30,6 @@ export interface MemberSpec {
   tools: string[]
   systemPrompt: string
   sourcePath: string
+  /** Opt-in: grants the delegate_task tool so the member can call other agents */
+  canDelegate?: boolean
 }

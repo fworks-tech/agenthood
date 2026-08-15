@@ -30,10 +30,10 @@ export class QAAgent extends BaseAgent {
   }
 
   protected async getSystemPrompt(context: ExecutionContext): Promise<string> {
-    const testPatterns = (await context.memory.project.getArchitecturalDecisions()).join('\n')
+    const archDecisions = await context.memory.project.getArchitecturalDecisions()
     return buildLorePrompt(context, 'qa.system', SKILL_PATH, {
-      testPatterns,
+      testPatterns: archDecisions.join('\n'),
       stack: JSON.stringify(context.project.stack ?? {}),
-    })
+    }, { archDecisions })
   }
 }

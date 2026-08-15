@@ -59,7 +59,7 @@ describe('reportErrorToSentry', () => {
     expect(init).toHaveBeenCalledWith({ dsn: DSN, tracesSampleRate: 0 })
     expect(captureException).toHaveBeenCalledWith(error, {
       tags: { member: 'test-agent', model: 'mock-model', status: 'error' },
-      extra: { durationMs: 42, correlationId: 'corr-1' },
+      extra: { durationMs: 42, correlationId: 'corr-1', message: 'boom' },
     })
   })
 

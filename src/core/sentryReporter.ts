@@ -24,9 +24,14 @@ export async function reportErrorToSentry(error: unknown, context: ExecutionCont
       Sentry.init({ dsn, tracesSampleRate: 0 })
       initializedDsn = dsn
     }
+    // the error object keeps its stack; the message is also shipped redacted
+    // so secret-shaped payloads never reach the DSN even if the provider
+    // formats the message differently
+    const msg = error instanceof Error ? error.message : String(error)
+    const safeMsg = context.redactor ? context.redactor.redactText(msg) : msg
     Sentry.captureException(error, {
       tags: { member: report.member, model: report.model, status: report.status },
-      extra: { durationMs: report.durationMs, correlationId: report.correlationId },
+      extra: { durationMs: report.durationMs, correlationId: report.correlationId, message: safeMsg },
     })
   } catch (err) {
     // reporter failures must never surface to the caller; the debug line

@@ -41,7 +41,19 @@ describe('MemberAgent tool construction', () => {
     expect(names).not.toContain('delegate_task')
   })
 
-  it('grants delegation to standard members', () => {
+  it('grants delegation to members that opt in', () => {
+    const { llm, toolRegistry, loop } = createAgentHarness()
+    const agent = new MemberAgent(
+      makeSpec({ tools: ['file.read'], permissionProfile: 'standard', canDelegate: true }),
+      llm, loop, toolRegistry,
+      { agentRegistry: {} as never },
+    )
+
+    const names = (agent as unknown as { tools: { name: string }[] }).tools.map((t) => t.name)
+    expect(names).toContain('delegate_task')
+  })
+
+  it('withholds delegation without the opt-in', () => {
     const { llm, toolRegistry, loop } = createAgentHarness()
     const agent = new MemberAgent(
       makeSpec({ tools: ['file.read'], permissionProfile: 'standard' }),
@@ -50,6 +62,6 @@ describe('MemberAgent tool construction', () => {
     )
 
     const names = (agent as unknown as { tools: { name: string }[] }).tools.map((t) => t.name)
-    expect(names).toContain('delegate_task')
+    expect(names).not.toContain('delegate_task')
   })
 })

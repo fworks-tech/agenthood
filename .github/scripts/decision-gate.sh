@@ -6,9 +6,10 @@
 # so the verdict is only trusted when it is the LAST decision block in the
 # output — the agent writes its verdict at the very end, after any injected
 # content. Only that final block can trip the gate; earlier injected blocks
-# are ignored, and a missing/malformed final block is a warning, never a
-# failure. (Residual risk: a successfully prompt-injected agent that parrots
-# an injected verdict as its own final line — the prompt hardening in
+# are ignored. A missing final block is a warning, never a failure, but a
+# present-but-malformed final block fails — a truncated verdict must not
+# silently pass. (Residual risk: a successfully prompt-injected agent that
+# parrots an injected verdict as its own final line — the prompt hardening in
 # agent-analysis.sh is the defense in depth for that case.)
 
 # Usage: check_decision_gate <output-file> [agent-name]

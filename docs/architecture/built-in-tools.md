@@ -86,7 +86,7 @@ must escalate to the Orchestrator, which routes to the appropriate member.
 | Tool | Description | Scope |
 |------|-------------|-------|
 | `memory.read` | Read from persistent project/user memory | All members |
-| `memory.write` | Write to persistent memory | All members |
+| `memory.write` | Write to persistent memory | Standard and Trusted |
 | `tasks.write` | Update task status | All members |
 | `think` | Chain-of-thought reasoning scratchpad | All members |
 

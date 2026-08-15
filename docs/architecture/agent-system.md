@@ -61,20 +61,20 @@ implemented in [`src/members/MemberRegistry.ts`](../src/members/MemberRegistry.t
 | The Scribe | standard | file.write, file.edit, git.*, terminal.run |
 | The Architect | standard | file.write, file.edit, git.*, terminal.run |
 | The Builder | standard | file.write, file.edit, git.*, terminal.run |
-| The Reviewer | restricted | file.read, file.search, memory.*, tasks.* |
+| The Reviewer | restricted | file.read, file.search, memory.read, tasks.* |
 | The Tester | standard | file.write, file.edit, git.*, terminal.run |
 | The Debugger | standard | file.write, file.edit, git.*, terminal.run |
-| The Auditor | restricted | file.read, file.search, memory.*, tasks.* |
+| The Auditor | restricted | file.read, file.search, memory.read, tasks.* |
 | The Herald | standard | file.write, file.edit, git.*, terminal.run |
 | The Librarian | standard | file.write, file.edit, git.*, terminal.run |
-| The Doorman | restricted | file.read, file.search, memory.*, tasks.* |
-| The Oracle | restricted | file.read, file.search, memory.*, tasks.* |
-| The Envoy | restricted | file.read, file.search, memory.*, tasks.* |
-| The Sentinel | restricted | file.read, file.search, memory.*, tasks.* |
-| The Warden | restricted | file.read, file.search, memory.*, tasks.* |
-| The Strategist | restricted | file.read, file.search, memory.*, tasks.* |
-| The Steward | restricted | file.read, file.search, memory.*, tasks.* |
-| The Operator | restricted | file.read, file.search, memory.*, tasks.* |
+| The Doorman | restricted | file.read, file.search, memory.read, tasks.* |
+| The Oracle | restricted | file.read, file.search, memory.read, tasks.* |
+| The Envoy | restricted | file.read, file.search, memory.read, tasks.* |
+| The Sentinel | restricted | file.read, file.search, memory.read, tasks.* |
+| The Warden | restricted | file.read, file.search, memory.read, tasks.* |
+| The Strategist | restricted | file.read, file.search, memory.read, tasks.* |
+| The Steward | restricted | file.read, file.search, memory.read, tasks.* |
+| The Operator | restricted | file.read, file.search, memory.read, tasks.* |
 | The Mailman | standard | file.write, file.edit, git.*, terminal.run |
 | The Inspector | standard | file.write, file.edit, git.*, terminal.run |
 
@@ -161,6 +161,7 @@ this repo (`src/`), per [ADR-008](../adr/ADR-008-typescript-runtime-over-python.
 | This doc | Implemented as | Status |
 |----------|----------------|--------|
 | Members (skill files) | `skills/<name>/SKILL.md` | ✅ Shipped |
+| Core agent roles (runtime) | `developer` → The Builder, `qa` → The Tester, `architect` → The Architect, `reviewer` → The Reviewer, `the-oracle` → The Oracle (`src/agents/`) | ✅ Shipped |
 | Member subagent specs (tools, permissions) | `src/members/MemberRegistry.ts` | ✅ v2.0.0 |
 | Tool scoping per member | `MemberSpec.tools` in `MemberRegistry` | ✅ v2.0.0 |
 | Permission profiles | `MemberSpec.permissions` in `MemberRegistry` | ✅ v2.0.0 |

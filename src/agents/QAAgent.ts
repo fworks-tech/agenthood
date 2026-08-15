@@ -20,8 +20,8 @@ export class QAAgent extends BaseAgent {
   role = 'qa'
   protected tools: ITool[]
 
-  constructor(llm: ILLMProvider, reasoningLoop: ReActLoop, toolRegistry: ToolRegistry, episodeLearner?: EpisodeLearner) {
-    super(llm, reasoningLoop, toolRegistry, { episodeLearner })
+  constructor(llm: ILLMProvider, reasoningLoop: ReActLoop, toolRegistry: ToolRegistry, options: { episodeLearner?: EpisodeLearner } = {}) {
+    super(llm, reasoningLoop, toolRegistry, { episodeLearner: options.episodeLearner })
     this.tools = [
       new ReadFileSkill(),
       new WriteFileSkill(),

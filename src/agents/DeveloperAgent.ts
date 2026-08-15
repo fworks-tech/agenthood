@@ -22,6 +22,8 @@ const SKILL_PATH = join(__dirname, '..', '..', 'members', 'the-builder', 'SKILL.
 
 export interface DeveloperAgentOptions extends BaseAgentOptions {
   agentRegistry: AgentRegistry
+  /** Opt-in delegation: grants the SubagentTaskSkill so the agent can call other agents. */
+  delegation?: boolean
 }
 
 export class DeveloperAgent extends BaseAgent {
@@ -42,8 +44,10 @@ export class DeveloperAgent extends BaseAgent {
       new WriteFileSkill(),
       new SearchCodebaseSkill(),
       new ExplainCodeSkill(),
-      new SubagentTaskSkill(options.agentRegistry),
     ]
+    if (options.delegation) {
+      this.tools.push(new SubagentTaskSkill(options.agentRegistry))
+    }
   }
 
   protected async getSystemPrompt(context: ExecutionContext): Promise<string> {

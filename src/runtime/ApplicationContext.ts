@@ -171,7 +171,7 @@ export class ApplicationContext {
       tReg.register(new ActivateSkillTool(skillManifests))
     }
 
-    this.agents.register(new DeveloperAgent(llm, loop, tReg, { agentRegistry: this.agents, episodeLearner: this.episodeLearner }))
+    this.agents.register(new DeveloperAgent(llm, loop, tReg, { agentRegistry: this.agents, episodeLearner: this.episodeLearner, delegation: true }))
     this.agents.register(new ArchitectAgent(llm, loop, tReg, { episodeLearner: this.episodeLearner }))
     this.agents.register(new ReviewerAgent(llm, loop, tReg, { episodeLearner: this.episodeLearner }))
     this.agents.register(new QAAgent(llm, loop, tReg, { episodeLearner: this.episodeLearner }))
@@ -179,7 +179,7 @@ export class ApplicationContext {
 
   private setupOracle(llm: ILLMProvider, societyGraph: KnowledgeGraphStore): OracleAgent {
     const oracleReg = new ToolRegistry()
-    const oracleAgent = new OracleAgent(llm, new ReActLoop(llm, oracleReg), oracleReg, societyGraph)
+    const oracleAgent = new OracleAgent(llm, new ReActLoop(llm, oracleReg), oracleReg, { knowledgeGraph: societyGraph })
     this.agents.register(oracleAgent)
     return oracleAgent
   }

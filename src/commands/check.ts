@@ -33,17 +33,12 @@ function collectConfigChecks(results: CheckResult[]): void {
   const cwd = process.cwd();
 
   collectSkillsCount(cwd, results);
-  file(results, cwd, 'AGENTS.md present', 'AGENTS.md');
+  pushFileCheck(results, cwd, 'AGENTS.md present', 'AGENTS.md');
   collectApiKeyResult(cwd, results);
 }
 
 function collectRagChecks(results: CheckResult[]): void {
-  const cwd = process.cwd();
-  file(results, cwd, 'Agenthood config found', '.agenthood/config.json');
-}
-
-function file(results: CheckResult[], cwd: string, label: string, path: string): void {
-  pushFileCheck(results, cwd, label, path);
+  pushFileCheck(results, process.cwd(), 'Agenthood config file present', '.agenthood/config.json');
 }
 
 function collectMemoryResults(results: CheckResult[]): void {
@@ -77,17 +72,15 @@ function collectApiKeyResult(cwd: string, results: CheckResult[]): void {
   if (!existsSync(configPath)) return;
 
   let provider: string | undefined;
-  let rawConfig: Record<string, unknown> | undefined;
   try {
     const parsed = JSON.parse(readFileSync(configPath, 'utf8')) as Record<string, unknown>;
-    rawConfig = parsed;
     const raw = parsed.provider;
     provider = typeof raw === 'string' ? raw : (raw as { name?: string } | undefined)?.name;
   } catch {
     return;
   }
 
-  if (!provider || !rawConfig) return;
+  if (!provider) return;
 
   const PROVIDER_KEYS: Record<string, string> = {
     groq: 'GROQ_API_KEY',

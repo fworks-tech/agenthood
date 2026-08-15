@@ -89,7 +89,7 @@ ApplicationContext at all — they are instantiated by tests or callers directly
 
 | Agent | Tools |
 |-------|-------|
-| DeveloperAgent | ReadFileSkill, WriteFileSkill, WriteCodeSkill, RefactorSkill, SearchCodebaseSkill, ExplainCodeSkill, SubagentTaskSkill (delegation) |
+| DeveloperAgent | ReadFileSkill, WriteFileSkill, WriteCodeSkill, RefactorSkill, SearchCodebaseSkill, ExplainCodeSkill, SubagentTaskSkill (delegation, opt-in) |
 | ArchitectAgent | ReadFileSkill, WriteFileSkill, WriteCodeSkill |
 | QAAgent | ReadFileSkill, WriteFileSkill, WriteCodeSkill |
 | ReviewerAgent | ReadFileSkill (read-only) |
@@ -99,7 +99,8 @@ ApplicationContext at all — they are instantiated by tests or callers directly
 Member execution (via `MemberAgent`) remains governed by `MemberRegistry` profile
 grants. `delegate_task` for members is opt-in per spec via `canDelegate`;
 DeveloperAgent's `SubagentTaskSkill` is a separate core-agent delegation path,
-not governed by member profile grants.
+not governed by member profile grants — it is also opt-in via
+`DeveloperAgentOptions.delegation` (enabled in `ApplicationContext.setupAgents`).
 
 ---
 

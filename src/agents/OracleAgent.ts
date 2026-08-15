@@ -10,18 +10,24 @@ import { ReadFileSkill } from '../tools/project/ReadFileSkill.ts'
 import { SearchCodebaseSkill } from '../tools/code/SearchCodebaseSkill.ts'
 import { wrapUserQuery, escapeXml } from './memberLore.ts'
 
+export interface OracleAgentOptions {
+  knowledgeGraph?: IGraphStore
+}
+
 export class OracleAgent extends BaseAgent {
   role = 'the-oracle'
   // restricted profile per docs/architecture/agent-system.md: read-only tools
   protected tools: ITool[] = [new ReadFileSkill(), new SearchCodebaseSkill()]
+  private readonly knowledgeGraph?: IGraphStore
 
   constructor(
     llm: ILLMProvider,
     reasoningLoop: ReActLoop,
     toolRegistry: ToolRegistry,
-    private knowledgeGraph?: IGraphStore,
+    options: OracleAgentOptions = {},
   ) {
     super(llm, reasoningLoop, toolRegistry)
+    this.knowledgeGraph = options.knowledgeGraph
   }
 
   async ask(question: string, context: ExecutionContext): Promise<string> {

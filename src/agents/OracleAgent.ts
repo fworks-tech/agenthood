@@ -5,7 +5,7 @@ import type { ToolRegistry } from '../tools/ToolRegistry.js'
 import type { ExecutionContext } from '../core/ExecutionContext.js'
 import type { ITool } from '../tools/ITool.js'
 import type { AgentResult } from './base/AgentResult.js'
-import { KnowledgeGraphStore } from '../rag/KnowledgeGraphStore.js'
+import type { IGraphStore } from '../rag/KnowledgeGraphStore.js'
 
 export class OracleAgent extends BaseAgent {
   role = 'the-oracle'
@@ -15,7 +15,7 @@ export class OracleAgent extends BaseAgent {
     llm: ILLMProvider,
     reasoningLoop: ReActLoop,
     toolRegistry: ToolRegistry,
-    private knowledgeGraph?: KnowledgeGraphStore,
+    private knowledgeGraph?: IGraphStore,
   ) {
     super(llm, reasoningLoop, toolRegistry)
   }
@@ -61,7 +61,7 @@ export class OracleAgent extends BaseAgent {
     // ask() bypasses ReActLoop.run, which is the only place that normally
     // records the responding model; capture it so traces and Sentry reports
     // carry the real model instead of the empty fallback
-    if (result.model) this.reasoningLoop.model = result.model
+    if (result.model) this.reasoningLoop.setModel(result.model)
 
     return result.content
   }

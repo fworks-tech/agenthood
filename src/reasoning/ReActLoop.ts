@@ -19,6 +19,10 @@ export class ReActLoop {
   usage: TokenUsage = { promptTokens: 0, completionTokens: 0, totalTokens: 0 }
   model = ""
 
+  setModel(model: string): void {
+    this.model = model
+  }
+
   constructor(
     private llm: ILLMProvider,
     private skillRegistry: ToolRegistry,

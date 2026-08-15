@@ -9,6 +9,10 @@ vi.mock('@sentry/node', () => ({
   captureException,
 }))
 
+function mockComplete(agent: OracleAgent): ReturnType<typeof vi.fn> {
+  return vi.mocked((agent as unknown as { llm: { complete: ReturnType<typeof vi.fn> } }).llm.complete)
+}
+
 function mockEnv(): { agent: OracleAgent; context: ExecutionContext } {
   const llm = {
     complete: vi.fn().mockResolvedValue({ content: 'The Oracle answers: use LanceDB for vector storage.' }),
@@ -19,7 +23,8 @@ function mockEnv(): { agent: OracleAgent; context: ExecutionContext } {
   }
 
   const skillRegistry = { has: vi.fn().mockReturnValue(false), register: vi.fn(), getSchemas: vi.fn().mockReturnValue([]), get: vi.fn(), list: vi.fn() } as any
-  const loop = { run: vi.fn() } as any
+  const loop = { run: vi.fn(), model: "", setModel: vi.fn() } as any
+  loop.setModel.mockImplementation((m: string) => { loop.model = m })
   const agent = new OracleAgent(llm, loop, skillRegistry)
 
   const context = {
@@ -31,6 +36,7 @@ function mockEnv(): { agent: OracleAgent; context: ExecutionContext } {
       episodic: { record: vi.fn(), recall: vi.fn().mockResolvedValue([]) },
       project: { getConventions: vi.fn().mockResolvedValue([]), getArchitecturalDecisions: vi.fn().mockResolvedValue([]) },
       decisions: { record: vi.fn(), search: vi.fn(), recent: vi.fn(), get: vi.fn() },
+      provenance: { track: vi.fn() },
     },
     llm: {} as any,
     prompts: { build: vi.fn() } as any,
@@ -88,7 +94,7 @@ describe('OracleAgent', () => {
 
   it('emits an error-status envelope and rethrows when the LLM fails', async () => {
     const { agent, context } = mockEnv()
-    vi.mocked((agent as unknown as { llm: { complete: ReturnType<typeof vi.fn> } }).llm.complete).mockRejectedValue(
+    mockComplete(agent).mockRejectedValue(
       new Error('provider exploded'),
     )
 
@@ -103,7 +109,7 @@ describe('OracleAgent', () => {
   it('reports Oracle failures to Sentry with the role as the model fallback', async () => {
     const { agent, context } = mockEnv()
     context.sentry = { dsn: 'https://public@test.ingest.sentry.io/1' }
-    vi.mocked((agent as unknown as { llm: { complete: ReturnType<typeof vi.fn> } }).llm.complete).mockRejectedValue(
+    mockComplete(agent).mockRejectedValue(
       new Error('provider exploded'),
     )
 
@@ -116,7 +122,7 @@ describe('OracleAgent', () => {
 
   it('records the responding model on the trace envelope', async () => {
     const { agent, context } = mockEnv()
-    vi.mocked((agent as unknown as { llm: { complete: ReturnType<typeof vi.fn> } }).llm.complete).mockResolvedValueOnce(
+    mockComplete(agent).mockResolvedValueOnce(
       { content: 'The Oracle answers.', model: 'claude-sonnet-4' },
     )
 

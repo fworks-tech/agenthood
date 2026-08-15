@@ -72,7 +72,9 @@ export class ReActLoop {
 
     for (let step = 0; ; step++) {
       if (step >= this.maxSteps) {
-        throw new Error(`ReActLoop: max steps (${this.maxSteps}) exceeded`)
+        // Return partial result instead of throwing to allow graceful degradation
+        const lastContent = messages[messages.length - 1]?.content ?? ''
+        return `Max steps (${this.maxSteps}) exceeded. Partial result:\n${lastContent}`
       }
       const response = await this.runStep(step, messages, context);
 

@@ -87,8 +87,12 @@ export class OracleAgent extends BaseAgent {
 
     // strip the boundary tag from retrieved content, then escape remaining
     // markup so a KB entry can never read as instructions inside the
-    // retrieved_context trust boundary
-    const safeRetrieved = escapeXml(retrievedContent.replace(/<\/?retrieved_context[^>]*>/gi, ''))
+    // retrieved_context trust boundary; handle partial tags (missing '>')
+    const safeRetrieved = escapeXml(
+      retrievedContent
+        .replace(/<\/?retrieved_context\b[^>]*>/gi, '')
+        .replace(/<\/?retrieved_context\b/gi, ''),
+    )
     return [
       base,
       ...guidance,

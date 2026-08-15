@@ -57,7 +57,9 @@ describe('ReActLoop', () => {
     const loop = new ReActLoop(llm, reg, { maxSteps: 2 })
     const ctx = createTestContext()
 
-    await expect(loop.run('system', 'loop', ctx)).rejects.toThrow(/max steps \(2\) exceeded/)
+    const result = await loop.run('system', 'loop', ctx)
+    expect(result).toContain('Max steps (2) exceeded')
+    expect(result).toContain('Partial result')
   })
 
   it('single step: LLM returns no tool calls → returns content', async () => {

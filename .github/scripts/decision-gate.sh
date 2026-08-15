@@ -55,11 +55,11 @@ check_decision_gate() {
     return 1
   fi
   case "$last_block" in
-    *'blocking=true'*)
+    *'blocking=true '*)
       echo "::error::${prefix}found blocking findings -- see PR comment for details"
       return 1
       ;;
-    *'blocking=false'*)
+    *'blocking=false '*)
       local warnings
       warnings=$(echo "$last_block" | sed -E 's/.*warnings=([0-9]+).*/\1/')
       if [ "$warnings" -gt "$threshold" ]; then

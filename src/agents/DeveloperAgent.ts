@@ -46,7 +46,9 @@ export class DeveloperAgent extends BaseAgent {
       new ExplainCodeSkill(),
     ]
     if (options.delegation) {
-      this.tools.push(new SubagentTaskSkill(options.agentRegistry))
+      // Restrict delegation to core agents that are safe to call from DeveloperAgent
+      const allowedRoles = ['architect', 'qa', 'reviewer', 'the-oracle']
+      this.tools.push(new SubagentTaskSkill(options.agentRegistry, { allowedRoles }))
     }
   }
 

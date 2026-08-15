@@ -1,21 +1,21 @@
 import { existsSync, mkdirSync, writeFileSync } from 'node:fs'
 import { dirname, join } from 'node:path'
 
-import { SchemaValidationError } from '../core/SchemaValidator.js'
-import { loadEvalSuite } from '../evals/evalSuiteSchema.js'
-import { LLMJudge } from '../evals/EvalJudge.js'
-import { EvalRunner } from '../evals/EvalRunner.js'
-import type { EvalReport, RunMemberFn } from '../evals/EvalRunner.js'
-import { BaselineComparator } from '../evals/BaselineComparator.js'
-import type { RegressionReport } from '../evals/BaselineComparator.js'
-import { ReplayEvaluator } from '../evals/ReplayEvaluator.js'
-import type { EmbedFn, ReplayReport } from '../evals/ReplayEvaluator.js'
-import { JSONFileTraceStore, loadObservabilityConfig } from '../core/TraceStore.js'
-import { createRedactionFilterFromConfig, RedactionFilter } from '../core/RedactionFilter.js'
+import { SchemaValidationError } from '../core/SchemaValidator.ts'
+import { loadEvalSuite } from '../evals/evalSuiteSchema.ts'
+import { LLMJudge } from '../evals/EvalJudge.ts'
+import { EvalRunner } from '../evals/EvalRunner.ts'
+import type { EvalReport, RunMemberFn } from '../evals/EvalRunner.ts'
+import { BaselineComparator } from '../evals/BaselineComparator.ts'
+import type { RegressionReport } from '../evals/BaselineComparator.ts'
+import { ReplayEvaluator } from '../evals/ReplayEvaluator.ts'
+import type { EmbedFn, ReplayReport } from '../evals/ReplayEvaluator.ts'
+import { JSONFileTraceStore, loadObservabilityConfig } from '../core/TraceStore.ts'
+import { createRedactionFilterFromConfig, RedactionFilter } from '../core/RedactionFilter.ts'
 import { ApplicationContext } from '../runtime/ApplicationContext.ts'
-import { loadConfig } from './run.js'
-import type { CommandDescriptor } from './types.js'
-import type { EvalSuite } from '../evals/types.js'
+import { loadConfig } from './config.ts'
+import type { CommandDescriptor } from './types.ts'
+import type { EvalSuite } from '../evals/types.ts'
 
 const METRIC_LABELS: Record<string, string> = {
   faithfulness: 'Faith',
@@ -38,17 +38,13 @@ function truncate(text: string, max: number): string {
   return text.length > max ? `${text.slice(0, max - 1)}\u2026` : text
 }
 
-function printReport(report: EvalReport, comparison: RegressionReport | null, baselinePath: string | null): void {
-  console.log(`\n  Eval Report — ${report.member} (${report.suiteName})`)
-  console.log(`  Suite: ${report.suiteName} | Tasks: ${report.tasks.length} | Timestamp: ${report.timestamp}\n`)
-
-  const labels = Object.keys(report.aggregate)
+function printScoreTable(tasks: EvalReport['tasks'], labels: string[]): void {
   const header = ['Task', ...labels.map((m) => METRIC_LABELS[m] ?? m), 'Status']
   const widths = [40, ...labels.map((m) => Math.max(METRIC_LABELS[m]?.length ?? m.length, 7)), 12]
   console.log(`  ${header.map((h, i) => h.padEnd(widths[i])).join(' ')}`)
   console.log(`  ${widths.map((w) => ''.padEnd(w, '-')).join(' ')}`)
 
-  for (const task of report.tasks) {
+  for (const task of tasks) {
     const row = [truncate(task.input, widths[0]).padEnd(widths[0])]
     for (const metric of labels) {
       const score = task.scores[metric]
@@ -57,6 +53,13 @@ function printReport(report: EvalReport, comparison: RegressionReport | null, ba
     row.push(task.status.padEnd(widths[widths.length - 1]))
     console.log(`  ${row.join(' ')}`)
   }
+}
+
+function printReport(report: EvalReport, comparison: RegressionReport | null, baselinePath: string | null): void {
+  console.log(`\n  Eval Report — ${report.member} (${report.suiteName})`)
+  console.log(`  Suite: ${report.suiteName} | Tasks: ${report.tasks.length} | Timestamp: ${report.timestamp}\n`)
+
+  printScoreTable(report.tasks, Object.keys(report.aggregate))
 
   const aggregate = Object.entries(report.aggregate)
     .map(([m, v]) => `${m} ${v.toFixed(2)}`)
@@ -130,8 +133,9 @@ function parseEvalArgs(args: string[]): ParsedEvalArgs {
         break
       case '--limit': {
         const parsed = Number.parseInt(args[++i] ?? '', 10)
-        if (Number.isNaN(parsed) || parsed < 0) {
-          failUsage('Invalid --limit value — expected a non-negative integer')
+        // 0 would disable the limit (slice(-0) === slice(0), unbounded replay)
+        if (Number.isNaN(parsed) || parsed <= 0) {
+          failUsage('Invalid --limit value — expected a positive integer')
         }
         replayLimit = parsed
         break
@@ -177,16 +181,7 @@ export async function evalMember(args: string[] = []): Promise<void> {
     process.exit(1)
   }
 
-  let suite: EvalSuite
-  try {
-    suite = loadEvalSuite(suitePath)
-  } catch (err) {
-    if (err instanceof SchemaValidationError) {
-      console.error(`Invalid eval suite: ${err.message}`)
-      process.exit(2)
-    }
-    throw err
-  }
+  const suite = loadSuiteOrExit(suitePath)
 
   const config = await loadConfig()
   const app = await ApplicationContext.create(process.cwd(), config)
@@ -202,6 +197,18 @@ export async function evalMember(args: string[] = []): Promise<void> {
   const report = await new EvalRunner(runner, judge).run(suite, member)
 
   await finishWithBaseline(report, member, baselinePath, updateBaseline, json)
+}
+
+function loadSuiteOrExit(suitePath: string): EvalSuite {
+  try {
+    return loadEvalSuite(suitePath)
+  } catch (err) {
+    if (err instanceof SchemaValidationError) {
+      console.error(`Invalid eval suite: ${err.message}`)
+      process.exit(2)
+    }
+    throw err
+  }
 }
 
 async function finishWithBaseline(

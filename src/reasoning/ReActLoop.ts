@@ -80,32 +80,42 @@ export class ReActLoop {
         return response.content;
       }
 
-      for (const toolCall of response.toolCalls) {
-        const signature = `${toolCall.name}:${JSON.stringify(toolCall.args)}`
-        const occurrences = recentCalls.filter((s) => s === signature).length
-        if (occurrences >= this.loopThreshold - 1) {
-          context.tracer.endSpan(`react-step-${step}`, { status: "loop-detected" });
-          throw new ToolLoopDetectedError(toolCall.name, occurrences + 1);
-        }
-        recentCalls.push(signature)
-        if (recentCalls.length > this.loopWindow) recentCalls.shift()
-
-        const result = await this.executeTool(toolCall, context);
-        const content = typeof result === 'string' ? result : JSON.stringify(result)
-        if (content.startsWith(SKILL_ACTIVATION_PREFIX)) {
-          const nameMatch = content.match(/<skill_content name="([^"]+)">/)
-          if (nameMatch) this.activatedSkills.add(nameMatch[1])
-        }
-        messages.push({
-          role: "tool",
-          content,
-          tool_call_id: toolCall.id,
-          name: toolCall.name,
-        });
-      }
+      await this.runToolCalls(response.toolCalls, messages, recentCalls, step, context);
 
       context.tracer.endSpan(`react-step-${step}`, {
         toolCount: response.toolCalls.length,
+      });
+    }
+  }
+
+  private async runToolCalls(
+    toolCalls: ToolCall[],
+    messages: Message[],
+    recentCalls: string[],
+    step: number,
+    context: ExecutionContext,
+  ): Promise<void> {
+    for (const toolCall of toolCalls) {
+      const signature = `${toolCall.name}:${JSON.stringify(toolCall.args)}`
+      const occurrences = recentCalls.filter((s) => s === signature).length
+      if (occurrences >= this.loopThreshold - 1) {
+        context.tracer.endSpan(`react-step-${step}`, { status: "loop-detected" });
+        throw new ToolLoopDetectedError(toolCall.name, occurrences + 1);
+      }
+      recentCalls.push(signature)
+      if (recentCalls.length > this.loopWindow) recentCalls.shift()
+
+      const result = await this.executeTool(toolCall, context);
+      const content = typeof result === 'string' ? result : JSON.stringify(result)
+      if (content.startsWith(SKILL_ACTIVATION_PREFIX)) {
+        const nameMatch = content.match(/<skill_content name="([^"]+)">/)
+        if (nameMatch) this.activatedSkills.add(nameMatch[1])
+      }
+      messages.push({
+        role: "tool",
+        content,
+        tool_call_id: toolCall.id,
+        name: toolCall.name,
       });
     }
   }

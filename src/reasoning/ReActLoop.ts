@@ -14,6 +14,13 @@ export class ToolLoopDetectedError extends Error {
   }
 }
 
+export interface ReActLoopOptions {
+  budget?: ThinkingBudget
+  compressor?: ContextCompressor
+  loopWindow?: number
+  loopThreshold?: number
+}
+
 export class ReActLoop {
   activatedSkills = new Set<string>()
   usage: TokenUsage = { promptTokens: 0, completionTokens: 0, totalTokens: 0 }
@@ -23,14 +30,21 @@ export class ReActLoop {
     this.model = model
   }
 
+  private readonly budget: ThinkingBudget
+  private readonly compressor: ContextCompressor
+  private readonly loopWindow: number
+  private readonly loopThreshold: number
+
   constructor(
     private llm: ILLMProvider,
     private skillRegistry: ToolRegistry,
-    private budget: ThinkingBudget = new ThinkingBudget(),
-    private compressor: ContextCompressor = new ContextCompressor(llm),
-    private loopWindow = 5,
-    private loopThreshold = 3,
-  ) {}
+    options: ReActLoopOptions = {},
+  ) {
+    this.budget = options.budget ?? new ThinkingBudget()
+    this.compressor = options.compressor ?? new ContextCompressor(llm)
+    this.loopWindow = options.loopWindow ?? 5
+    this.loopThreshold = options.loopThreshold ?? 3
+  }
 
   async run(
     systemPrompt: string,

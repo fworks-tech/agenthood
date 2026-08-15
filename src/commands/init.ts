@@ -1,5 +1,5 @@
-import type { CommandDescriptor } from './types.js'
-import { init } from '../init/index.js'
+import type { CommandDescriptor } from './types.ts'
+import { init } from '../init/index.ts'
 
 export { init }
 

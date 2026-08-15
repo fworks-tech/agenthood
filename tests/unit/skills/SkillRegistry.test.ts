@@ -2,9 +2,9 @@ import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest'
 import { mkdirSync, writeFileSync, rmSync, mkdtempSync } from 'node:fs'
 import { join } from 'node:path'
 import { tmpdir } from 'node:os'
-import { ToolRegistry, ToolNotFoundError } from '../../../src/tools/ToolRegistry.js'
-import type { ITool } from '../../../src/tools/ITool.js'
-import type { ExecutionContext } from '../../../src/core/ExecutionContext.js'
+import { ToolRegistry, ToolNotFoundError } from '../../../src/tools/ToolRegistry.ts'
+import type { ITool } from '../../../src/tools/ITool.ts'
+import type { ExecutionContext } from '../../../src/core/ExecutionContext.ts'
 
 function createMockSkill(name: string): ITool {
   return {

@@ -1,8 +1,8 @@
 import { readdirSync, watch as fsWatch } from 'node:fs'
 import { join } from 'node:path'
 import { pathToFileURL } from 'node:url'
-import type { ITool } from './ITool.js'
-import type { ToolSchema } from '../llm/types.js'
+import type { ITool } from './ITool.ts'
+import type { ToolSchema } from '../llm/types.ts'
 
 export class ToolNotFoundError extends Error {
   constructor(toolName: string) {

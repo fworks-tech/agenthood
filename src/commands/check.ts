@@ -1,8 +1,8 @@
 import { existsSync, readFileSync } from 'node:fs';
-import type { CommandDescriptor } from './types.js';
+import type { CommandDescriptor } from './types.ts';
 import { join, dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { MEMBER_NAMES, resolveSkillsDir } from '../members.js';
+import { MEMBER_NAMES, resolveSkillsDir } from '../members.ts';
 
 interface CheckResult {
   label: string;

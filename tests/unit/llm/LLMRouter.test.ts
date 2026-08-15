@@ -1,9 +1,9 @@
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest'
-import { LLMRouter, ComplexityScorer } from '../../../src/llm/LLMRouter.js'
-import { GroqProvider } from '../../../src/llm/providers/GroqProvider.js'
-import { OllamaProvider } from '../../../src/llm/providers/OllamaProvider.js'
-import { ProviderChain } from '../../../src/llm/ProviderFailover.js'
-import type { LLMRequest } from '../../../src/llm/types.js'
+import { LLMRouter, ComplexityScorer } from '../../../src/llm/LLMRouter.ts'
+import { GroqProvider } from '../../../src/llm/providers/GroqProvider.ts'
+import { OllamaProvider } from '../../../src/llm/providers/OllamaProvider.ts'
+import { ProviderChain } from '../../../src/llm/ProviderFailover.ts'
+import type { LLMRequest } from '../../../src/llm/types.ts'
 
 // GroqProvider now fails fast without a key — provide one for routing tests
 beforeEach(() => {

@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest'
-import { CodeHierarchicalChunkStrategy, MarkdownHierarchicalChunkStrategy } from '../../../src/rag/ChunkStrategy.js'
+import { CodeHierarchicalChunkStrategy, MarkdownHierarchicalChunkStrategy } from '../../../src/rag/ChunkStrategy.ts'
 
 describe('CodeHierarchicalChunkStrategy', () => {
   const strategy = new CodeHierarchicalChunkStrategy()

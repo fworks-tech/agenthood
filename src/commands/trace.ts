@@ -1,8 +1,8 @@
 import { existsSync } from 'node:fs'
-import type { CommandDescriptor } from './types.js'
-import { JSONFileTraceStore, loadObservabilityConfig, resolveTraceStorePath } from '../core/TraceStore.js'
-import { formatDuration } from '../utils/formatDuration.js'
-import type { TraceEnvelope } from '../core/types.js'
+import type { CommandDescriptor } from './types.ts'
+import { JSONFileTraceStore, loadObservabilityConfig, resolveTraceStorePath } from '../core/TraceStore.ts'
+import { formatDuration } from '../utils/formatDuration.ts'
+import type { TraceEnvelope } from '../core/types.ts'
 
 function resolveSince(value: string): string {
   const relative = /^(\d+)(m|h|d)$/.exec(value)

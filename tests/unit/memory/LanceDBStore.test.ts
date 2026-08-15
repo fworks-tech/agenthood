@@ -75,10 +75,10 @@ vi.mock('@lancedb/lancedb', () => ({
   }),
 }))
 
-import { LanceDBStore } from '../../../src/memory/VectorStore.js'
+import { LanceDBStore } from '../../../src/memory/VectorStore.ts'
 
 function makeRecord(
-  overrides: Partial<import('../../../src/memory/VectorStore.js').VectorRecord> = {},
+  overrides: Partial<import( '../../../src/memory/VectorStore.ts').VectorRecord> = {},
 ) {
   return {
     id: 'vec-1',
@@ -371,19 +371,19 @@ describe('LanceDBStore', () => {
 
 describe('toSqlFilter', () => {
   it('wraps string values in JSON quoting matching the stored metadata shape', async () => {
-    const { toSqlFilter } = await import('../../../src/memory/VectorStore.js')
+    const { toSqlFilter } = await import( '../../../src/memory/VectorStore.ts')
     expect(toSqlFilter({ type: 'learned_pattern' })).toBe('metadata LIKE \'%"type":"learned\\_pattern"%\'')
   })
 
   it('serializes non-string values as JSON', async () => {
-    const { toSqlFilter } = await import('../../../src/memory/VectorStore.js')
+    const { toSqlFilter } = await import( '../../../src/memory/VectorStore.ts')
     expect(toSqlFilter({ count: 3, active: true })).toBe(
       'metadata LIKE \'%"count":3%\' AND metadata LIKE \'%"active":true%\'',
     )
   })
 
   it('escapes LIKE metacharacters and single quotes in values', async () => {
-    const { toSqlFilter } = await import('../../../src/memory/VectorStore.js')
+    const { toSqlFilter } = await import( '../../../src/memory/VectorStore.ts')
     expect(toSqlFilter({ key: "a'b_c%d" })).toBe('metadata LIKE \'%"key":"a\'\'b\\_c\\%d"%\'')
   })
 })

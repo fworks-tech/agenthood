@@ -6,9 +6,9 @@ import {
   JSONFileTraceStore,
   RetentionManager,
   createRetentionPolicyFromConfig,
-} from '../../../src/core/TraceStore.js'
-import { createTraceEnvelope } from '../../../src/core/TraceEnvelope.js'
-import type { TraceEnvelope } from '../../../src/core/types.js'
+} from '../../../src/core/TraceStore.ts'
+import { createTraceEnvelope } from '../../../src/core/TraceEnvelope.ts'
+import type { TraceEnvelope } from '../../../src/core/types.ts'
 
 function envelope(member: string, timestamp: string): TraceEnvelope {
   return createTraceEnvelope({

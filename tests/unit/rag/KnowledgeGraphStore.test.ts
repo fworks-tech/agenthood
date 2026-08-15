@@ -12,8 +12,8 @@ vi.mock('node:fs', async (importOriginal) => {
 })
 
 import { existsSync, readFileSync, writeFileSync, mkdirSync } from 'node:fs'
-import { KnowledgeGraphStore } from '../../../src/rag/KnowledgeGraphStore.js'
-import type { GraphNode, GraphEdge } from '../../../src/rag/KnowledgeGraphStore.js'
+import { KnowledgeGraphStore } from '../../../src/rag/KnowledgeGraphStore.ts'
+import type { GraphNode, GraphEdge } from '../../../src/rag/KnowledgeGraphStore.ts'
 
 function makeNode(overrides: Partial<GraphNode> = {}): GraphNode {
   return {

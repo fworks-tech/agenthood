@@ -19,7 +19,7 @@ vi.mock('node:fs', async (importOriginal) => {
 
 import { execSync } from 'node:child_process'
 import { existsSync } from 'node:fs'
-import { QualityGates } from '../../../src/workflows/QualityGates.js'
+import { QualityGates } from '../../../src/workflows/QualityGates.ts'
 
 describe('QualityGates', () => {
   let gates: QualityGates

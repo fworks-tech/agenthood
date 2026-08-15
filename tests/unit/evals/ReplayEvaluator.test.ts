@@ -1,7 +1,7 @@
 import { describe, it, expect, vi } from 'vitest'
-import { ReplayEvaluator } from '../../../src/evals/ReplayEvaluator.js'
-import type { TraceEnvelope } from '../../../src/core/types.js'
-import type { RunMemberFn } from '../../../src/evals/EvalRunner.js'
+import { ReplayEvaluator } from '../../../src/evals/ReplayEvaluator.ts'
+import type { TraceEnvelope } from '../../../src/core/types.ts'
+import type { RunMemberFn } from '../../../src/evals/EvalRunner.ts'
 
 function envelope(overrides: Partial<TraceEnvelope> = {}): TraceEnvelope {
   return {

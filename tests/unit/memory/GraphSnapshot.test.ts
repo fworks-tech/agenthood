@@ -2,8 +2,8 @@ import { describe, it, expect, beforeEach, afterEach } from 'vitest'
 import { mkdtempSync, rmSync, existsSync } from 'node:fs'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
-import { GraphSnapshot } from '../../../src/memory/GraphSnapshot.js'
-import { KnowledgeGraphStore } from '../../../src/rag/KnowledgeGraphStore.js'
+import { GraphSnapshot } from '../../../src/memory/GraphSnapshot.ts'
+import { KnowledgeGraphStore } from '../../../src/rag/KnowledgeGraphStore.ts'
 
 let dir: string
 

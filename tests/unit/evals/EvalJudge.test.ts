@@ -1,7 +1,7 @@
 import { describe, it, expect, vi } from 'vitest'
-import { LLMJudge, parseJudgeScore } from '../../../src/evals/EvalJudge.js'
-import type { ILLMProvider } from '../../../src/llm/ILLMProvider.js'
-import type { LLMRequest, LLMResponse, LLMChunk } from '../../../src/llm/types.js'
+import { LLMJudge, parseJudgeScore } from '../../../src/evals/EvalJudge.ts'
+import type { ILLMProvider } from '../../../src/llm/ILLMProvider.ts'
+import type { LLMRequest, LLMResponse, LLMChunk } from '../../../src/llm/types.ts'
 
 function stubProvider(overrides: Partial<ILLMProvider> = {}): ILLMProvider {
   return {

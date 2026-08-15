@@ -1,7 +1,7 @@
 import { describe, it, expect } from 'vitest'
-import { UserProtocol } from '../../../src/workflows/protocols/UserProtocol.js'
-import { AgentProtocol } from '../../../src/workflows/protocols/AgentProtocol.js'
-import { ToolProtocol } from '../../../src/workflows/protocols/ToolProtocol.js'
+import { UserProtocol } from '../../../src/workflows/protocols/UserProtocol.ts'
+import { AgentProtocol } from '../../../src/workflows/protocols/AgentProtocol.ts'
+import { ToolProtocol } from '../../../src/workflows/protocols/ToolProtocol.ts'
 
 describe('UserProtocol', () => {
   it('returns escalate on failure', () => {

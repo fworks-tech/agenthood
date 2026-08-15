@@ -15,11 +15,11 @@ vi.mock('node:fs', async (importOriginal) => {
 })
 
 describe('PersonalisationStore', () => {
-  let PersonalisationStore: typeof import('../../../src/memory/PersonalisationStore.js').PersonalisationStore
+  let PersonalisationStore: typeof import( '../../../src/memory/PersonalisationStore.ts').PersonalisationStore
 
   beforeEach(async () => {
     vi.clearAllMocks()
-    const mod = await import('../../../src/memory/PersonalisationStore.js')
+    const mod = await import( '../../../src/memory/PersonalisationStore.ts')
     PersonalisationStore = mod.PersonalisationStore
   })
 

@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest'
-import { InMemoryStore } from '../../../src/memory/stores/InMemoryStore.js'
+import { InMemoryStore } from '../../../src/memory/stores/InMemoryStore.ts'
 
 describe('InMemoryStore', () => {
   beforeEach(() => {

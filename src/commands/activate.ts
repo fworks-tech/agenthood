@@ -5,11 +5,11 @@
  */
 
 import { copyFile, mkdir } from 'node:fs/promises';
-import type { CommandDescriptor } from './types.js';
-import { requireMember } from './memberArg.js';
+import type { CommandDescriptor } from './types.ts';
+import { requireMember } from './memberArg.ts';
 import { join, dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { resolveSkillsDir } from '../members.js';
+import { resolveSkillsDir } from '../members.ts';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const SOCIETY_ROOT = join(__dirname, '..', '..');

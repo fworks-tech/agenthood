@@ -4,9 +4,9 @@ import type { RetrievalOptions } from "./Retriever.ts"
 import type { IGraphStore } from "./KnowledgeGraphStore.ts"
 import type { ILLMProvider } from "../llm/ILLMProvider.ts"
 import type { IVectorStore } from "../memory/VectorStore.ts"
-import type { ExecutionContext } from "../core/ExecutionContext.js"
-import { RetrievalClassifier } from "../tools/rag/RetrievalClassifier.js"
-import type { RetrievalStrategy } from "../tools/rag/RetrievalClassifier.js"
+import type { ExecutionContext } from "../core/ExecutionContext.ts"
+import { RetrievalClassifier } from "../tools/rag/RetrievalClassifier.ts"
+import type { RetrievalStrategy } from "../tools/rag/RetrievalClassifier.ts"
 
 export interface AgenticRetrievalResult extends RetrievalResult {
   strategy: RetrievalStrategy

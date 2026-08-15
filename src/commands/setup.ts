@@ -7,11 +7,11 @@
  */
 
 import { chmodSync, readdirSync, existsSync } from 'node:fs'
-import type { CommandDescriptor } from './types.js'
+import type { CommandDescriptor } from './types.ts'
 import { join, dirname } from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { execSync } from 'node:child_process'
-import { PROVIDER_KEYS } from '../llm/validateApiKeys.js'
+import { PROVIDER_KEYS } from '../llm/validateApiKeys.ts'
 
 const __dirname = dirname(fileURLToPath(import.meta.url))
 const REPO_ROOT = join(__dirname, '..', '..')

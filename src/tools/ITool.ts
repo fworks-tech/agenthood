@@ -1,6 +1,6 @@
-import type { ExecutionContext } from '../core/ExecutionContext.js'
-import type { JSONSchema } from '../llm/types.js'
-import type { Artifact } from '../core/types.js'
+import type { ExecutionContext } from '../core/ExecutionContext.ts'
+import type { JSONSchema } from '../llm/types.ts'
+import type { Artifact } from '../core/types.ts'
 
 export interface ToolResult {
   success: boolean

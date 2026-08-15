@@ -15,7 +15,7 @@ import type { AgentRegistry } from '../core/AgentRegistry.ts'
 import type { ILLMProvider } from '../llm/ILLMProvider.ts'
 import type { ReActLoop } from '../reasoning/ReActLoop.ts'
 import type { ToolRegistry } from '../tools/ToolRegistry.ts'
-import type { EpisodeLearner } from '../evals/EpisodeLearner.js'
+import type { EpisodeLearner } from '../evals/EpisodeLearner.ts'
 
 const __filename = fileURLToPath(import.meta.url)
 const __dirname = dirname(__filename)

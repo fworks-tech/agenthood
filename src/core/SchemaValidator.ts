@@ -1,6 +1,6 @@
 import { Ajv } from 'ajv'
 import type { ValidateFunction, ErrorObject } from 'ajv'
-import type { JSONSchema } from '../llm/types.js'
+import type { JSONSchema } from '../llm/types.ts'
 
 const ajv = new Ajv({ allErrors: true })
 

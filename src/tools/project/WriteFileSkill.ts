@@ -1,8 +1,8 @@
 import { writeFile, mkdir, lstat, realpath } from 'node:fs/promises'
 import { resolve, dirname } from 'node:path'
-import type { ITool } from '../ITool.js'
-import type { ToolResult } from '../ITool.js'
-import type { ExecutionContext } from '../../core/ExecutionContext.js'
+import type { ITool } from '../ITool.ts'
+import type { ToolResult } from '../ITool.ts'
+import type { ExecutionContext } from '../../core/ExecutionContext.ts'
 
 export class WriteFileSkill implements ITool {
   name = 'write_file'

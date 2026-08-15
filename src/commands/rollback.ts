@@ -1,10 +1,10 @@
 import { existsSync, readFileSync } from 'node:fs'
-import type { CommandDescriptor } from './types.js'
+import type { CommandDescriptor } from './types.ts'
 import { join } from 'node:path'
 import { execFileSync } from 'node:child_process'
-import { contentHash } from '../utils/hash.js'
-import { MEMBER_NAME_RE } from '../members.js'
-import type { Lockfile } from '../utils/lockfile.js'
+import { contentHash } from '../utils/hash.ts'
+import { MEMBER_NAME_RE } from '../members.ts'
+import type { Lockfile } from '../utils/lockfile.ts'
 
 function findRevision(cwd: string, skillPath: string, lockedHash: string): string | null {
   let commits: string[]

@@ -1,6 +1,6 @@
-import { cosineSimilarity } from '../utils/cosineSimilarity.js'
-import type { TraceEnvelope } from '../core/types.js'
-import type { RunMemberFn } from './EvalRunner.js'
+import { cosineSimilarity } from '../utils/cosineSimilarity.ts'
+import type { TraceEnvelope } from '../core/types.ts'
+import type { RunMemberFn } from './EvalRunner.ts'
 
 export interface ReplayTaskScore {
   correlationId: string

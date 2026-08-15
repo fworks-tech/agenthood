@@ -1,9 +1,9 @@
 import { describe, it, expect, vi } from 'vitest'
-import { OracleAgent } from '../../../src/agents/OracleAgent.js'
-import { ReActLoop } from '../../../src/reasoning/ReActLoop.js'
-import { ToolRegistry } from '../../../src/tools/ToolRegistry.js'
+import { OracleAgent } from '../../../src/agents/OracleAgent.ts'
+import { ReActLoop } from '../../../src/reasoning/ReActLoop.ts'
+import { ToolRegistry } from '../../../src/tools/ToolRegistry.ts'
 import { createTestContext } from '../../helpers/testContext.ts'
-import type { ExecutionContext } from '../../../src/core/ExecutionContext.js'
+import type { ExecutionContext } from '../../../src/core/ExecutionContext.ts'
 
 const captureException = vi.fn()
 

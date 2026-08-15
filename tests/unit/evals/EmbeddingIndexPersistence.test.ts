@@ -2,8 +2,8 @@ import { describe, it, expect } from 'vitest'
 import { mkdtempSync, rmSync } from 'node:fs'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
-import { LanceDBStore } from '../../../src/memory/VectorStore.js'
-import { EmbeddingIndex } from '../../../src/evals/EmbeddingIndex.js'
+import { LanceDBStore } from '../../../src/memory/VectorStore.ts'
+import { EmbeddingIndex } from '../../../src/evals/EmbeddingIndex.ts'
 
 const integration = Boolean(process.env.AGENTHOOD_INTEGRATION)
 

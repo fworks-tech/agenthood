@@ -1,7 +1,7 @@
 import { describe, it, expect, vi } from 'vitest'
-import { WorkflowEngine } from '../../../src/workflows/WorkflowEngine.js'
-import type { WorkflowDefinition } from '../../../src/workflows/types.js'
-import type { ExecutionContext } from '../../../src/core/ExecutionContext.js'
+import { WorkflowEngine } from '../../../src/workflows/WorkflowEngine.ts'
+import type { WorkflowDefinition } from '../../../src/workflows/types.ts'
+import type { ExecutionContext } from '../../../src/core/ExecutionContext.ts'
 
 const mockContext: ExecutionContext = {
   executionId: 'test-123',

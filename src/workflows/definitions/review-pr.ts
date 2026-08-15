@@ -1,10 +1,10 @@
-import { DiffImpactAnalyzer } from '../DiffImpactAnalyzer.js'
-import { QualityGates } from '../QualityGates.js'
-import { WorkflowEngine } from '../WorkflowEngine.js'
-import { Tracer } from '../../core/Tracer.js'
-import type { ExecutionContext } from '../../core/ExecutionContext.js'
-import type { IProtocol } from '../protocols/IProtocol.js'
-import type { WorkflowDefinition, WorkflowStep } from '../types.js'
+import { DiffImpactAnalyzer } from '../DiffImpactAnalyzer.ts'
+import { QualityGates } from '../QualityGates.ts'
+import { WorkflowEngine } from '../WorkflowEngine.ts'
+import { Tracer } from '../../core/Tracer.ts'
+import type { ExecutionContext } from '../../core/ExecutionContext.ts'
+import type { IProtocol } from '../protocols/IProtocol.ts'
+import type { WorkflowDefinition, WorkflowStep } from '../types.ts'
 
 class ImpactProtocol implements IProtocol<unknown, unknown> {
   name = 'impact-protocol'

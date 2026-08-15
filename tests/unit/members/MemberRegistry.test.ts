@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest'
-import { MemberRegistry, MemberNotFoundError } from '../../../src/members/MemberRegistry.js'
+import { MemberRegistry, MemberNotFoundError } from '../../../src/members/MemberRegistry.ts'
 
 describe('MemberRegistry', () => {
   const registry = new MemberRegistry()

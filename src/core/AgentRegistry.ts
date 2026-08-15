@@ -1,4 +1,4 @@
-import type { BaseAgent } from '../agents/base/BaseAgent.js'
+import type { BaseAgent } from '../agents/base/BaseAgent.ts'
 
 export class AgentNotFoundError extends Error {
   constructor(role: string) {

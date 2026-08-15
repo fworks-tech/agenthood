@@ -1,6 +1,6 @@
 import { describe, it, expect } from 'vitest'
-import { WorkflowCheckpoint } from '../../../src/workflows/WorkflowCheckpoint.js'
-import type { WorkflowContext } from '../../../src/workflows/types.js'
+import { WorkflowCheckpoint } from '../../../src/workflows/WorkflowCheckpoint.ts'
+import type { WorkflowContext } from '../../../src/workflows/types.ts'
 
 function makeContext(): WorkflowContext {
   return {

@@ -2,8 +2,8 @@ import { describe, it, expect, beforeEach, afterEach } from 'vitest'
 import { mkdtempSync, rmSync, readFileSync, writeFileSync } from 'node:fs'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
-import { ProvenanceStore } from '../../../src/memory/ProvenanceStore.js'
-import type { ProvenanceEntry } from '../../../src/memory/ProvenanceStore.js'
+import { ProvenanceStore } from '../../../src/memory/ProvenanceStore.ts'
+import type { ProvenanceEntry } from '../../../src/memory/ProvenanceStore.ts'
 
 let dir: string
 let store: ProvenanceStore

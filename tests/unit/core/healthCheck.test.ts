@@ -1,6 +1,6 @@
 import { describe, it, expect } from 'vitest'
-import { healthCheck } from '../../../src/core/healthCheck.js'
-import type { HealthDeps } from '../../../src/core/healthCheck.js'
+import { healthCheck } from '../../../src/core/healthCheck.ts'
+import type { HealthDeps } from '../../../src/core/healthCheck.ts'
 
 function deps(overrides: Partial<HealthDeps> = {}): HealthDeps {
   return {

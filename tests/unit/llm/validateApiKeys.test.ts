@@ -1,6 +1,6 @@
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest'
-import { validateApiKeys, MissingApiKeyError } from '../../../src/llm/validateApiKeys.js'
-import type { LLMConfig } from '../../../src/llm/types.js'
+import { validateApiKeys, MissingApiKeyError } from '../../../src/llm/validateApiKeys.ts'
+import type { LLMConfig } from '../../../src/llm/types.ts'
 
 const ENV_VARS = ['GROQ_API_KEY', 'OPENAI_API_KEY', 'ANTHROPIC_API_KEY', 'OPENCODE_API_KEY'] as const
 const ORIGINAL: Record<string, string | undefined> = {}

@@ -1,6 +1,6 @@
 import { describe, it, expect, vi } from 'vitest'
-import { GoalChain } from '../../../src/workflows/GoalChain.js'
-import type { LongTermMemory } from '../../../src/core/types.js'
+import { GoalChain } from '../../../src/workflows/GoalChain.ts'
+import type { LongTermMemory } from '../../../src/core/types.ts'
 
 function mockMemory(): LongTermMemory {
   const store = new Map<string, unknown>()

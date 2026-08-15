@@ -1,6 +1,6 @@
-import type { ITool } from '../ITool.js'
-import type { ToolResult } from '../ITool.js'
-import type { ExecutionContext } from '../../core/ExecutionContext.js'
+import type { ITool } from '../ITool.ts'
+import type { ToolResult } from '../ITool.ts'
+import type { ExecutionContext } from '../../core/ExecutionContext.ts'
 
 export class WriteCodeSkill implements ITool {
   name = 'write_code'

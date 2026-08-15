@@ -1,4 +1,4 @@
-import type { WorkflowContext } from './types.js'
+import type { WorkflowContext } from './types.ts'
 
 export interface Checkpoint {
   id: string

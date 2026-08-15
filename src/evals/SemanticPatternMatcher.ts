@@ -1,8 +1,8 @@
-import type { IVectorStore } from '../memory/VectorStore.js'
-import type { ILLMProvider } from '../llm/ILLMProvider.js'
-import { cosineSimilarity } from '../utils/cosineSimilarity.js'
-import { hashPattern } from '../utils/hash.js'
-import type { LearningOutcome } from './EpisodeLearner.js'
+import type { IVectorStore } from '../memory/VectorStore.ts'
+import type { ILLMProvider } from '../llm/ILLMProvider.ts'
+import { cosineSimilarity } from '../utils/cosineSimilarity.ts'
+import { hashPattern } from '../utils/hash.ts'
+import type { LearningOutcome } from './EpisodeLearner.ts'
 
 export interface StoredPattern {
   outcome: LearningOutcome

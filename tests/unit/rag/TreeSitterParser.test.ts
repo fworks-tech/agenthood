@@ -1,6 +1,6 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest'
-import { TreeSitterParser, languageFromFile } from '../../../src/rag/parsers/TreeSitterParser.js'
-import type { CodeEntity } from '../../../src/rag/parsers/TreeSitterParser.js'
+import { TreeSitterParser, languageFromFile } from '../../../src/rag/parsers/TreeSitterParser.ts'
+import type { CodeEntity } from '../../../src/rag/parsers/TreeSitterParser.ts'
 
 vi.mock('tree-sitter', () => {
   const MockNode = (type: string, text: string, row: number, children: unknown[] = []) => ({

@@ -1,4 +1,4 @@
-import type { ITool } from '../tools/ITool.js'
+import type { ITool } from '../tools/ITool.ts'
 
 /** Per-tool constraints that define acceptable execution boundaries. */
 export interface RiskPolicy {

@@ -2,9 +2,9 @@ import { describe, it, expect, afterEach } from 'vitest'
 import { mkdtempSync, rmSync, readFileSync, writeFileSync } from 'node:fs'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
-import { JSONFileTraceStore } from '../../../src/core/TraceStore.js'
-import { createTraceEnvelope } from '../../../src/core/TraceEnvelope.js'
-import type { TraceEnvelope } from '../../../src/core/types.js'
+import { JSONFileTraceStore } from '../../../src/core/TraceStore.ts'
+import { createTraceEnvelope } from '../../../src/core/TraceEnvelope.ts'
+import type { TraceEnvelope } from '../../../src/core/types.ts'
 
 const dirs: string[] = []
 
@@ -116,24 +116,24 @@ describe('JSONFileTraceStore', () => {
 
 describe('resolveTraceStorePath', () => {
   it('defaults to the conventional traces path', async () => {
-    const { resolveTraceStorePath } = await import('../../../src/core/TraceStore.js')
+    const { resolveTraceStorePath } = await import( '../../../src/core/TraceStore.ts')
     expect(resolveTraceStorePath('/proj', {})).toBe(join('/proj', '.agenthood', 'traces', 'traces.ndjson'))
   })
 
   it('resolves a relative tracePath against the project root', async () => {
-    const { resolveTraceStorePath } = await import('../../../src/core/TraceStore.js')
+    const { resolveTraceStorePath } = await import( '../../../src/core/TraceStore.ts')
     const path = resolveTraceStorePath('/proj', { observability: { tracePath: 'var/traces.ndjson' } })
     expect(path).toBe(join('/proj', 'var', 'traces.ndjson'))
   })
 
   it('keeps an absolute tracePath as-is', async () => {
-    const { resolveTraceStorePath } = await import('../../../src/core/TraceStore.js')
+    const { resolveTraceStorePath } = await import( '../../../src/core/TraceStore.ts')
     const path = resolveTraceStorePath('/proj', { observability: { tracePath: '/custom/traces.ndjson' } })
     expect(path).toBe('/custom/traces.ndjson')
   })
 
   it('ignores an empty or non-string tracePath', async () => {
-    const { resolveTraceStorePath } = await import('../../../src/core/TraceStore.js')
+    const { resolveTraceStorePath } = await import( '../../../src/core/TraceStore.ts')
     expect(resolveTraceStorePath('/proj', { observability: { tracePath: '' } })).toBe(join('/proj', '.agenthood', 'traces', 'traces.ndjson'))
     expect(resolveTraceStorePath('/proj', { observability: { tracePath: 42 } })).toBe(join('/proj', '.agenthood', 'traces', 'traces.ndjson'))
   })

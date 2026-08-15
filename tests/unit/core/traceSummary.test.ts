@@ -1,7 +1,7 @@
 import { describe, it, expect } from 'vitest'
-import { summarizeTraces, summarizeMemberWindows } from '../../../src/core/traceSummary.js'
-import { createTraceEnvelope } from '../../../src/core/TraceEnvelope.js'
-import type { TraceEnvelope } from '../../../src/core/types.js'
+import { summarizeTraces, summarizeMemberWindows } from '../../../src/core/traceSummary.ts'
+import { createTraceEnvelope } from '../../../src/core/TraceEnvelope.ts'
+import type { TraceEnvelope } from '../../../src/core/types.ts'
 
 function makeEnvelope(overrides: Partial<TraceEnvelope> = {}): TraceEnvelope {
   return createTraceEnvelope({

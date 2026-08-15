@@ -23,7 +23,7 @@ describe('list command', () => {
   })
 
   it('lists all members', async () => {
-    const { list } = await import('../../src/commands/list.js')
+    const { list } = await import( '../../src/commands/list.ts')
     await list()
     const members = [
       'the-scribe', 'the-architect', 'the-reviewer', 'the-tester',
@@ -37,7 +37,7 @@ describe('list command', () => {
   })
 
   it('shows inactive status when no skill files exist', async () => {
-    const { list } = await import('../../src/commands/list.js')
+    const { list } = await import( '../../src/commands/list.ts')
     await list()
     expect(output).toContain('⬜')
     expect(output).not.toContain('✅  active')
@@ -47,20 +47,20 @@ describe('list command', () => {
     vi.mocked(existsSync).mockImplementation((p) =>
       typeof p === 'string' && p.includes('the-scribe')
     )
-    const { list } = await import('../../src/commands/list.js')
+    const { list } = await import( '../../src/commands/list.ts')
     await list()
     expect(output).toMatch(/✅\s{2}/)
     expect(output).toContain('⬜')
   })
 
   it('prints the Society heading', async () => {
-    const { list } = await import('../../src/commands/list.js')
+    const { list } = await import( '../../src/commands/list.ts')
     await list()
     expect(output).toContain('The Society')
   })
 
   it('includes permission and provider columns', async () => {
-    const { list } = await import('../../src/commands/list.js')
+    const { list } = await import( '../../src/commands/list.ts')
     await list()
     expect(output).toContain('Permission')
     expect(output).toContain('Provider')

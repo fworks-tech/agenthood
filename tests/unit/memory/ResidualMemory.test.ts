@@ -12,7 +12,7 @@ vi.mock('node:fs', async (importOriginal) => {
 })
 
 import { existsSync, readFileSync, writeFileSync, mkdirSync } from 'node:fs'
-import { ResidualMemory } from '../../../src/memory/ResidualMemory.js'
+import { ResidualMemory } from '../../../src/memory/ResidualMemory.ts'
 
 describe('ResidualMemory', () => {
   beforeEach(() => {

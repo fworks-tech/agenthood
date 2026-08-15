@@ -36,7 +36,7 @@ describe('eject command', () => {
   it('removes .agenthood and AGENTS.md', async () => {
     vi.mocked(existsSync).mockReturnValue(true)
     vi.mocked(readdirSync).mockReturnValue([] as never[])
-    const { eject } = await import('../../src/commands/eject.js')
+    const { eject } = await import( '../../src/commands/eject.ts')
     await eject()
     const removed = normalized(vi.mocked(rm))
     expect(removed.some((p) => p.endsWith('.agenthood'))).toBe(true)
@@ -51,7 +51,7 @@ describe('eject command', () => {
         ? ['the-scribe', 'the-reviewer', 'foreign-skill']
         : []) as never[]
     })
-    const { eject } = await import('../../src/commands/eject.js')
+    const { eject } = await import( '../../src/commands/eject.ts')
     await eject()
     const removed = normalized(vi.mocked(rm))
     expect(removed.some((p) => p.endsWith('.claude/skills/the-scribe'))).toBe(true)
@@ -65,7 +65,7 @@ describe('eject command', () => {
   it('leaves foreign skills dirs untouched', async () => {
     vi.mocked(existsSync).mockReturnValue(true)
     vi.mocked(readdirSync).mockReturnValue(['my-custom-skill'] as never[])
-    const { eject } = await import('../../src/commands/eject.js')
+    const { eject } = await import( '../../src/commands/eject.ts')
     await eject()
     const removed = normalized(vi.mocked(rm))
     expect(removed.some((p) => p.endsWith('.claude/skills'))).toBe(false)

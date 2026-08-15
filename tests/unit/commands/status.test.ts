@@ -48,12 +48,12 @@ vi.mock('node:fs', async (importOriginal) => {
   }
 })
 
-vi.mock('../../../src/utils/hash.js', () => ({
+vi.mock('../../../src/utils/hash.ts', () => ({
   contentHash: vi.fn(() => 'abc123'),
 }))
 
 import { existsSync, readdirSync, readFileSync, writeFileSync, mkdirSync } from 'node:fs'
-import { status } from '../../../src/commands/status.js'
+import { status } from '../../../src/commands/status.ts'
 
 describe('status command', () => {
   beforeEach(() => {

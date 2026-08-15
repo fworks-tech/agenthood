@@ -13,7 +13,7 @@ vi.mock('node:fs', async (importOriginal) => {
 })
 
 import { existsSync, readFileSync, writeFileSync, mkdirSync, readdirSync } from 'node:fs'
-import { MetricsCollector } from '../../../src/memory/MetricsCollector.js'
+import { MetricsCollector } from '../../../src/memory/MetricsCollector.ts'
 
 describe('MetricsCollector', () => {
   let collector: MetricsCollector

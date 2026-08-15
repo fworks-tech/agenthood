@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest'
-import { classifyError } from '../../../src/llm/ProviderFailover.js'
+import { classifyError } from '../../../src/llm/ProviderFailover.ts'
 import {
   AuthError,
   PaymentRequiredError,
@@ -7,7 +7,7 @@ import {
   TimeoutError,
   ServiceUnavailableError,
   ModelNotFoundError,
-} from '../../../src/llm/errors.js'
+} from '../../../src/llm/errors.ts'
 
 describe('classifyError', () => {
   it('classifies AuthError as permanent auth', () => {

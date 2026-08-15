@@ -11,10 +11,10 @@
  * on first use, not when LLMRouter is imported.
  */
 
-import type { ILLMProvider } from './ILLMProvider.js'
-import type { LLMConfig, LLMRequest, ComplexityTier, ProviderEntry } from './types.js'
-import type { ProviderName } from '../members/types.js'
-import { ProviderChain } from './ProviderFailover.js'
+import type { ILLMProvider } from './ILLMProvider.ts'
+import type { LLMConfig, LLMRequest, ComplexityTier, ProviderEntry } from './types.ts'
+import type { ProviderName } from '../members/types.ts'
+import { ProviderChain } from './ProviderFailover.ts'
 
 type ProviderFactory = (config: LLMConfig) => Promise<ILLMProvider>
 
@@ -87,31 +87,31 @@ export class LLMRouter {
 
   private static providerFactories: Record<string, ProviderFactory> = {
     anthropic: async (c) => {
-      const { AnthropicProvider } = await import('./providers/AnthropicProvider.js')
+      const { AnthropicProvider } = await import( './providers/AnthropicProvider.ts')
       return new AnthropicProvider(c)
     },
     groq: async (c) => {
-      const { GroqProvider } = await import('./providers/GroqProvider.js')
+      const { GroqProvider } = await import( './providers/GroqProvider.ts')
       return new GroqProvider(c)
     },
     openai: async (c) => {
-      const { OpenAIProvider } = await import('./providers/OpenAIProvider.js')
+      const { OpenAIProvider } = await import( './providers/OpenAIProvider.ts')
       return new OpenAIProvider(c)
     },
     ollama: async (c) => {
-      const { OllamaProvider } = await import('./providers/OllamaProvider.js')
+      const { OllamaProvider } = await import( './providers/OllamaProvider.ts')
       return new OllamaProvider(c)
     },
     opencode: async (c) => {
-      const { OpenCodeProvider } = await import('./providers/OpenCodeProvider.js')
+      const { OpenCodeProvider } = await import( './providers/OpenCodeProvider.ts')
       return new OpenCodeProvider(c)
     },
     'opencode-go': async (c) => {
-      const { OpenCodeGoProvider } = await import('./providers/OpenCodeGoProvider.js')
+      const { OpenCodeGoProvider } = await import( './providers/OpenCodeGoProvider.ts')
       return new OpenCodeGoProvider(c)
     },
     openrouter: async (c) => {
-      const { OpenRouterProvider } = await import('./providers/OpenRouterProvider.js')
+      const { OpenRouterProvider } = await import( './providers/OpenRouterProvider.ts')
       return new OpenRouterProvider(c)
     },
   }

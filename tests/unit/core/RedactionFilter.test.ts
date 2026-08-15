@@ -1,8 +1,8 @@
 import { describe, it, expect, vi } from 'vitest'
-import { RedactionFilter, createRedactionFilterFromConfig } from '../../../src/core/RedactionFilter.js'
-import { Tracer } from '../../../src/core/Tracer.js'
-import { createTraceEnvelope } from '../../../src/core/TraceEnvelope.js'
-import type { TraceEnvelope } from '../../../src/core/types.js'
+import { RedactionFilter, createRedactionFilterFromConfig } from '../../../src/core/RedactionFilter.ts'
+import { Tracer } from '../../../src/core/Tracer.ts'
+import { createTraceEnvelope } from '../../../src/core/TraceEnvelope.ts'
+import type { TraceEnvelope } from '../../../src/core/types.ts'
 
 function envelope(input: string, output = 'safe output'): TraceEnvelope {
   return createTraceEnvelope({

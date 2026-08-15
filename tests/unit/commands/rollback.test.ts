@@ -20,8 +20,8 @@ vi.mock('node:child_process', async (importOriginal) => {
 
 import { existsSync, readFileSync } from 'node:fs'
 import { execFileSync } from 'node:child_process'
-import { rollback } from '../../../src/commands/rollback.js'
-import { contentHash } from '../../../src/utils/hash.js'
+import { rollback } from '../../../src/commands/rollback.ts'
+import { contentHash } from '../../../src/utils/hash.ts'
 
 const LOCKED_CONTENT = 'locked content'
 const LOCKED_HASH = contentHash(LOCKED_CONTENT)

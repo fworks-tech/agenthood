@@ -1,4 +1,4 @@
-import type { Artifact } from '../../core/types.js'
+import type { Artifact } from '../../core/types.ts'
 
 export interface AgentResult {
   role: string

@@ -10,7 +10,7 @@ vi.mock('node:fs', async (importOriginal) => {
   }
 })
 
-vi.mock('../../../src/rag/parsers/TreeSitterParser.js', () => {
+vi.mock('../../../src/rag/parsers/TreeSitterParser.ts', () => {
   class MockTreeSitterParser {
     parse = vi.fn().mockReturnValue([
       { type: 'function', name: 'hello', startLine: 1, endLine: 3, filePath: '/test/index.ts', dependencies: [] },
@@ -27,9 +27,9 @@ vi.mock('../../../src/rag/parsers/TreeSitterParser.js', () => {
 })
 
 import { readdirSync, statSync, readFileSync } from 'node:fs'
-import { ProjectIngestion } from '../../../src/rag/ProjectIngestion.js'
-import { KnowledgeGraphStore } from '../../../src/rag/KnowledgeGraphStore.js'
-import type { Indexer } from '../../../src/rag/Indexer.js'
+import { ProjectIngestion } from '../../../src/rag/ProjectIngestion.ts'
+import { KnowledgeGraphStore } from '../../../src/rag/KnowledgeGraphStore.ts'
+import type { Indexer } from '../../../src/rag/Indexer.ts'
 
 describe('ProjectIngestion', () => {
   let ingestion: ProjectIngestion

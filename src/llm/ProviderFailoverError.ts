@@ -6,7 +6,7 @@ import {
   TimeoutError,
   ServiceUnavailableError,
   ModelNotFoundError,
-} from './errors.js'
+} from './errors.ts'
 
 /**
  * Thrown when every provider in the chain has been exhausted.

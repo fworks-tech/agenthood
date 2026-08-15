@@ -11,8 +11,8 @@ vi.mock('node:fs', async (importOriginal) => {
 })
 
 import { existsSync, readFileSync } from 'node:fs'
-import { trace, command } from '../../../src/commands/trace.js'
-import { createTraceEnvelope } from '../../../src/core/TraceEnvelope.js'
+import { trace, command } from '../../../src/commands/trace.ts'
+import { createTraceEnvelope } from '../../../src/core/TraceEnvelope.ts'
 
 const envelope = (member: string, timestamp: string, status = 'success') =>
   createTraceEnvelope({

@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest'
-import { rewriteLink, htmlTemplate } from '../../../scripts/build-academy.js'
+import { rewriteLink, htmlTemplate } from '../../../scripts/build-academy.ts'
 
 describe('rewriteLink', () => {
   describe('passthrough', () => {

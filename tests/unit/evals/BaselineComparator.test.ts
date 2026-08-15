@@ -2,8 +2,8 @@ import { describe, it, expect } from 'vitest'
 import { mkdtempSync, writeFileSync, rmSync } from 'node:fs'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
-import { BaselineComparator } from '../../../src/evals/BaselineComparator.js'
-import type { EvalReport } from '../../../src/evals/EvalRunner.js'
+import { BaselineComparator } from '../../../src/evals/BaselineComparator.ts'
+import type { EvalReport } from '../../../src/evals/EvalRunner.ts'
 
 function report(aggregate: Record<string, number>): EvalReport {
   return {

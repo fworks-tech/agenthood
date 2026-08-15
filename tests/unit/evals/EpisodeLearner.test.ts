@@ -4,9 +4,9 @@ import type { EvalResult, LongTermMemory } from '../../../src/core/types.ts'
 import type { ExecutionContext } from '../../../src/core/ExecutionContext.ts'
 import type { ResidualMemory } from '../../../src/memory/ResidualMemory.ts'
 import type { IVectorStore } from '../../../src/memory/VectorStore.ts'
-import { EpisodeLearner } from '../../../src/evals/EpisodeLearner.js'
-import { EmbeddingIndex } from '../../../src/evals/EmbeddingIndex.js'
-import { hashPattern } from '../../../src/utils/hash.js'
+import { EpisodeLearner } from '../../../src/evals/EpisodeLearner.ts'
+import { EmbeddingIndex } from '../../../src/evals/EmbeddingIndex.ts'
+import { hashPattern } from '../../../src/utils/hash.ts'
 
 describe('EpisodeLearner', () => {
   let mockLongTerm: LongTermMemory

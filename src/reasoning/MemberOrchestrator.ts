@@ -1,5 +1,5 @@
-import type { MemberTrigger, TaskStage } from "./MemberTriggers.js"
-import { MEMBER_TRIGGERS } from "./MemberTriggers.js"
+import type { MemberTrigger, TaskStage } from "./MemberTriggers.ts"
+import { MEMBER_TRIGGERS } from "./MemberTriggers.ts"
 
 export interface DetectionContext {
   userMessage: string

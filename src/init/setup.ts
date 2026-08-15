@@ -2,9 +2,9 @@ import { copyFile, mkdir, readFile, writeFile } from 'node:fs/promises'
 import { existsSync } from 'node:fs'
 import { join, dirname } from 'node:path'
 import { fileURLToPath } from 'node:url'
-import { stripConfig } from '../utils/stripConfig.js'
-import { RUNTIME_SKILL_DIRS } from '../members.js'
-import type { Runtime } from '../members.js'
+import { stripConfig } from '../utils/stripConfig.ts'
+import { RUNTIME_SKILL_DIRS } from '../members.ts'
+import type { Runtime } from '../members.ts'
 
 const __dirname = dirname(fileURLToPath(import.meta.url))
 const SOCIETY_ROOT = join(__dirname, '..', '..')

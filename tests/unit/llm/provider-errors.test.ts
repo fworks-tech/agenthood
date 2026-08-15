@@ -1,12 +1,12 @@
 import { describe, it, expect } from 'vitest'
-import { mapProviderError } from '../../../src/llm/providers/provider-errors.js'
+import { mapProviderError } from '../../../src/llm/providers/provider-errors.ts'
 import {
   AuthError,
   RateLimitedError,
   TimeoutError,
   ServiceUnavailableError,
   ModelNotFoundError,
-} from '../../../src/llm/errors.js'
+} from '../../../src/llm/errors.ts'
 
 function httpError(status: number, headers?: Record<string, string>): Error {
   const err = new Error(`http ${status}`) as Error & { status?: number; headers?: Record<string, string> }

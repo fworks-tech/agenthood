@@ -1,9 +1,9 @@
 import * as lancedb from '@lancedb/lancedb'
 import { randomUUID } from 'node:crypto'
 import { Field, Float64, Schema, Utf8 } from 'apache-arrow'
-import type { TraceEnvelope } from '../core/types.js'
-import type { TraceQuery, TraceStore } from '../core/TraceStore.js'
-import { escapeLike } from './VectorStore.js'
+import type { TraceEnvelope } from '../core/types.ts'
+import type { TraceQuery, TraceStore } from '../core/TraceStore.ts'
+import { escapeLike } from './VectorStore.ts'
 
 interface TraceRow {
   id: string

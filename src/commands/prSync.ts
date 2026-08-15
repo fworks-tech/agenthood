@@ -1,5 +1,5 @@
 import { execFileSync } from 'node:child_process'
-import type { CommandDescriptor } from './types.js'
+import type { CommandDescriptor } from './types.ts'
 import { writeFileSync, rmSync, mkdtempSync } from 'node:fs'
 import { tmpdir } from 'node:os'
 import { join, dirname } from 'node:path'

@@ -1,6 +1,6 @@
 import { describe, it, expect } from 'vitest'
-import { createTraceEnvelope } from '../../../src/core/TraceEnvelope.js'
-import { contentHash } from '../../../src/utils/hash.js'
+import { createTraceEnvelope } from '../../../src/core/TraceEnvelope.ts'
+import { contentHash } from '../../../src/utils/hash.ts'
 
 describe('createTraceEnvelope', () => {
   it('produces a complete envelope with hashes and defaults', () => {

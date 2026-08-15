@@ -1,7 +1,7 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest'
-import type { IVectorStore, VectorRecord } from '../../../src/memory/VectorStore.js'
-import type { ILLMProvider } from '../../../src/llm/ILLMProvider.js'
-import type { LearningOutcome } from '../../../src/evals/EpisodeLearner.js'
+import type { IVectorStore, VectorRecord } from '../../../src/memory/VectorStore.ts'
+import type { ILLMProvider } from '../../../src/llm/ILLMProvider.ts'
+import type { LearningOutcome } from '../../../src/evals/EpisodeLearner.ts'
 
 const mockVectorStore: IVectorStore = {
   connect: vi.fn(),
@@ -42,7 +42,7 @@ function makePatternRecord(overrides: Partial<VectorRecord> = {}): VectorRecord 
 describe('SemanticPatternMatcher', () => {
   it('returns null from match when pattern list is empty', async () => {
     vi.mocked(mockVectorStore.getByKeyPrefix).mockResolvedValue([])
-    const { SemanticPatternMatcher } = await import('../../../src/evals/SemanticPatternMatcher.js')
+    const { SemanticPatternMatcher } = await import( '../../../src/evals/SemanticPatternMatcher.ts')
     const matcher = new SemanticPatternMatcher(mockVectorStore)
     await matcher.initialize()
 
@@ -56,7 +56,7 @@ describe('SemanticPatternMatcher', () => {
     vi.mocked(mockVectorStore.getByKeyPrefix).mockResolvedValue([
       makePatternRecord({ vector: identicalVec }),
     ])
-    const { SemanticPatternMatcher } = await import('../../../src/evals/SemanticPatternMatcher.js')
+    const { SemanticPatternMatcher } = await import( '../../../src/evals/SemanticPatternMatcher.ts')
     const matcher = new SemanticPatternMatcher(mockVectorStore, 0.85)
     await matcher.initialize()
 
@@ -70,7 +70,7 @@ describe('SemanticPatternMatcher', () => {
     vi.mocked(mockVectorStore.getByKeyPrefix).mockResolvedValue([
       makePatternRecord({ vector: [1, 0, 0] }),
     ])
-    const { SemanticPatternMatcher } = await import('../../../src/evals/SemanticPatternMatcher.js')
+    const { SemanticPatternMatcher } = await import( '../../../src/evals/SemanticPatternMatcher.ts')
     const matcher = new SemanticPatternMatcher(mockVectorStore, 0.85)
     await matcher.initialize()
 
@@ -92,7 +92,7 @@ describe('SemanticPatternMatcher', () => {
         content: JSON.stringify({ pattern: 'close match', score: 0.92, member: 'a', skill: 'b' } as LearningOutcome),
       }),
     ])
-    const { SemanticPatternMatcher } = await import('../../../src/evals/SemanticPatternMatcher.js')
+    const { SemanticPatternMatcher } = await import( '../../../src/evals/SemanticPatternMatcher.ts')
     const matcher = new SemanticPatternMatcher(mockVectorStore, 0.85)
     await matcher.initialize()
 
@@ -104,7 +104,7 @@ describe('SemanticPatternMatcher', () => {
 
   it('addPattern stores the pattern in the vector store', async () => {
     vi.mocked(mockVectorStore.getByKeyPrefix).mockResolvedValue([])
-    const { SemanticPatternMatcher } = await import('../../../src/evals/SemanticPatternMatcher.js')
+    const { SemanticPatternMatcher } = await import( '../../../src/evals/SemanticPatternMatcher.ts')
     const matcher = new SemanticPatternMatcher(mockVectorStore, 0.85)
     await matcher.initialize()
 
@@ -122,7 +122,7 @@ describe('SemanticPatternMatcher', () => {
     vi.mocked(mockVectorStore.getByKeyPrefix).mockResolvedValue([
       makePatternRecord({ vector: [1, 0, 0] }),
     ])
-    const { SemanticPatternMatcher } = await import('../../../src/evals/SemanticPatternMatcher.js')
+    const { SemanticPatternMatcher } = await import( '../../../src/evals/SemanticPatternMatcher.ts')
     const matcher = new SemanticPatternMatcher(mockVectorStore, 0.85)
     await matcher.initialize()
 
@@ -135,7 +135,7 @@ describe('SemanticPatternMatcher', () => {
     vi.mocked(mockVectorStore.getByKeyPrefix).mockResolvedValue([
       makePatternRecord({ vector: [1, 0, 0] }),
     ])
-    const { SemanticPatternMatcher } = await import('../../../src/evals/SemanticPatternMatcher.js')
+    const { SemanticPatternMatcher } = await import( '../../../src/evals/SemanticPatternMatcher.ts')
     const matcher = new SemanticPatternMatcher(mockVectorStore, 0.85)
     await matcher.initialize()
 
@@ -149,7 +149,7 @@ describe('SemanticPatternMatcher', () => {
     vi.mocked(mockVectorStore.getByKeyPrefix).mockResolvedValue([
       makePatternRecord({ vector: [1, 0, 0] }),
     ])
-    const { SemanticPatternMatcher } = await import('../../../src/evals/SemanticPatternMatcher.js')
+    const { SemanticPatternMatcher } = await import( '../../../src/evals/SemanticPatternMatcher.ts')
     const matcher = new SemanticPatternMatcher(mockVectorStore, 0.85)
     await matcher.initialize()
 
@@ -160,7 +160,7 @@ describe('SemanticPatternMatcher', () => {
 
   it('retries embedder on failure then throws', async () => {
     vi.mocked(mockVectorStore.getByKeyPrefix).mockResolvedValue([])
-    const { SemanticPatternMatcher } = await import('../../../src/evals/SemanticPatternMatcher.js')
+    const { SemanticPatternMatcher } = await import( '../../../src/evals/SemanticPatternMatcher.ts')
     const matcher = new SemanticPatternMatcher(mockVectorStore, 0.85)
     await matcher.initialize()
 
@@ -172,7 +172,7 @@ describe('SemanticPatternMatcher', () => {
 
   it('retries embedder on failure in addPattern then throws', async () => {
     vi.mocked(mockVectorStore.getByKeyPrefix).mockResolvedValue([])
-    const { SemanticPatternMatcher } = await import('../../../src/evals/SemanticPatternMatcher.js')
+    const { SemanticPatternMatcher } = await import( '../../../src/evals/SemanticPatternMatcher.ts')
     const matcher = new SemanticPatternMatcher(mockVectorStore, 0.85)
     await matcher.initialize()
 

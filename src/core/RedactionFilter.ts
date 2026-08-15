@@ -1,4 +1,4 @@
-import type { TraceEnvelope } from './types.js'
+import type { TraceEnvelope } from './types.ts'
 
 export interface RedactionOptions {
   enabled?: boolean

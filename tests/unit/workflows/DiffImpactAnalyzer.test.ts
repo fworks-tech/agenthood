@@ -9,7 +9,7 @@ vi.mock('node:child_process', async (importOriginal) => {
 })
 
 import { execSync } from 'node:child_process'
-import { DiffImpactAnalyzer } from '../../../src/workflows/DiffImpactAnalyzer.js'
+import { DiffImpactAnalyzer } from '../../../src/workflows/DiffImpactAnalyzer.ts'
 
 describe('DiffImpactAnalyzer', () => {
   let analyzer: DiffImpactAnalyzer

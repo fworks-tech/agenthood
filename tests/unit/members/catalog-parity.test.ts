@@ -1,7 +1,7 @@
 import { describe, it, expect } from 'vitest'
 import { readFileSync } from 'node:fs'
 import { join } from 'node:path'
-import { MemberRegistry } from '../../../src/members/MemberRegistry.js'
+import { MemberRegistry } from '../../../src/members/MemberRegistry.ts'
 
 const repoRoot = join(import.meta.dirname, '..', '..', '..')
 

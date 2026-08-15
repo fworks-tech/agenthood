@@ -1,7 +1,7 @@
 import { mkdirSync, readFileSync, writeFileSync } from 'node:fs'
 import { dirname } from 'node:path'
 
-import type { EvalReport } from './EvalRunner.js'
+import type { EvalReport } from './EvalRunner.ts'
 
 export interface MetricDelta {
   metric: string

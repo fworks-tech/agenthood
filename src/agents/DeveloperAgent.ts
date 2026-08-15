@@ -1,4 +1,4 @@
-import { BaseAgent } from './base/BaseAgent.ts'
+import { BaseAgent, type BaseAgentOptions } from './base/BaseAgent.ts'
 import { buildLorePrompt } from './memberLore.ts'
 import { join, dirname } from 'node:path'
 import { fileURLToPath } from 'node:url'
@@ -15,15 +15,13 @@ import type { AgentRegistry } from '../core/AgentRegistry.ts'
 import type { ILLMProvider } from '../llm/ILLMProvider.ts'
 import type { ReActLoop } from '../reasoning/ReActLoop.ts'
 import type { ToolRegistry } from '../tools/ToolRegistry.ts'
-import type { EpisodeLearner } from '../evals/EpisodeLearner.ts'
 
 const __filename = fileURLToPath(import.meta.url)
 const __dirname = dirname(__filename)
 const SKILL_PATH = join(__dirname, '..', '..', 'members', 'the-builder', 'SKILL.md')
 
-export interface DeveloperAgentOptions {
+export interface DeveloperAgentOptions extends BaseAgentOptions {
   agentRegistry: AgentRegistry
-  episodeLearner?: EpisodeLearner
 }
 
 export class DeveloperAgent extends BaseAgent {
@@ -36,7 +34,7 @@ export class DeveloperAgent extends BaseAgent {
     toolRegistry: ToolRegistry,
     options: DeveloperAgentOptions,
   ) {
-    super(llm, reasoningLoop, toolRegistry, { episodeLearner: options.episodeLearner })
+    super(llm, reasoningLoop, toolRegistry, { residualMemory: options.residualMemory, episodeLearner: options.episodeLearner })
     this.tools = [
       new WriteCodeSkill(),
       new RefactorSkill(),

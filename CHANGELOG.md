@@ -1,3 +1,10 @@
+## [3.33.1](https://github.com/fworks-tech/agenthood/compare/v3.33.0...v3.33.1) (2026-08-15)
+
+
+### Bug Fixes
+
+* **agents:** restore Oracle model attribution on failures after runWithExecutor refactor ([#436](https://github.com/fworks-tech/agenthood/issues/436)) ([93754e5](https://github.com/fworks-tech/agenthood/commit/93754e52b7c7695dd1597bea3f8c3a847215e46d)), closes [#435](https://github.com/fworks-tech/agenthood/issues/435)
+
 # [3.33.0](https://github.com/fworks-tech/agenthood/compare/v3.32.0...v3.33.0) (2026-08-14)
 
 

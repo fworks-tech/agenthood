@@ -5,6 +5,14 @@
 
 ---
 
+## v3.33.1 — August 15, 2026
+
+### 🐛 Bug Fixes
+
+- **Agents:** restore Oracle model attribution on failures after runWithExecutor refactor (#436)
+
+---
+
 ## v3.33.0 — August 14, 2026
 
 ### 🐛 Bug Fixes

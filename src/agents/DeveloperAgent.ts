@@ -1,4 +1,7 @@
 import { BaseAgent } from './base/BaseAgent.ts'
+import { buildLorePrompt } from './memberLore.ts'
+import { join, dirname } from 'node:path'
+import { fileURLToPath } from 'node:url'
 import { WriteCodeSkill } from '../tools/code/WriteCodeSkill.ts'
 import { RefactorSkill } from '../tools/code/RefactorSkill.ts'
 import { ExplainCodeSkill } from '../tools/code/ExplainCodeSkill.ts'
@@ -13,6 +16,10 @@ import type { ILLMProvider } from '../llm/ILLMProvider.ts'
 import type { ReActLoop } from '../reasoning/ReActLoop.ts'
 import type { ToolRegistry } from '../tools/ToolRegistry.ts'
 import type { EpisodeLearner } from '../evals/EpisodeLearner.js'
+
+const __filename = fileURLToPath(import.meta.url)
+const __dirname = dirname(__filename)
+const SKILL_PATH = join(__dirname, '..', '..', 'members', 'the-builder', 'SKILL.md')
 
 export class DeveloperAgent extends BaseAgent {
   role = 'developer'
@@ -38,14 +45,8 @@ export class DeveloperAgent extends BaseAgent {
   }
 
   protected async getSystemPrompt(context: ExecutionContext): Promise<string> {
-    const conventions = await context.memory.project.getConventions()
-    const archDecisions = await context.memory.project.getArchitecturalDecisions()
-    const stack = context.project.stack
-
-    return context.prompts.build('developer.system', {
-      conventions: conventions.map((c) => `${c.name}: ${c.value}`).join('\n'),
-      archDecisions: archDecisions.join('\n'),
-      stack: JSON.stringify(stack ?? {}),
-    }).content
+    return buildLorePrompt(context, 'developer.system', SKILL_PATH, {
+      stack: JSON.stringify(context.project.stack ?? {}),
+    })
   }
 }

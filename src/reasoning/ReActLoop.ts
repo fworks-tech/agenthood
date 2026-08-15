@@ -1,8 +1,9 @@
 import type { ILLMProvider } from "../llm/ILLMProvider.ts"
 import type { ExecutionContext } from "../core/ExecutionContext.ts"
-import type { Message, TokenUsage, ToolCall } from "../llm/types.ts"
+import type { Message, TokenUsage, ToolCall, LLMResponse } from "../llm/types.ts"
 import { ContextCompressor } from "../core/ContextCompressor.ts"
 import { ToolRegistry, ToolNotFoundError } from "../tools/ToolRegistry.ts"
+import type { ITool } from "../tools/ITool.ts"
 import { ThinkingBudget } from "./ThinkingBudget.ts"
 import { validateSchema, SchemaValidationError } from "../core/SchemaValidator.ts"
 import { SKILL_ACTIVATION_PREFIX } from "../skills/activation/ActivateSkillTool.ts"
@@ -62,32 +63,7 @@ export class ReActLoop {
     const recentCalls: string[] = [];
 
     for (let step = 0; ; step++) {
-      this.budget.check(step);
-      context.tracer.startSpan(`react-step-${step}`);
-
-      const request = {
-        messages,
-        tools: this.skillRegistry.getSchemas(),
-      };
-
-      const modelContextWindow = this.resolveContextWindow(request)
-
-      request.messages = await this.compressor.compress(
-        messages,
-        modelContextWindow,
-        this.activatedSkills.size > 0,
-      )
-
-      const response = await this.llm.complete(request);
-      this.model = response.model || this.model;
-      this.usage.promptTokens += response.usage?.promptTokens ?? 0;
-      this.usage.completionTokens += response.usage?.completionTokens ?? 0;
-      this.usage.totalTokens += response.usage?.totalTokens ?? 0;
-      messages.push({
-        role: "assistant",
-        content: response.content,
-        toolCalls: response.toolCalls,
-      });
+      const response = await this.runStep(step, messages, context);
 
       if (!response.toolCalls || response.toolCalls.length === 0) {
         context.tracer.endSpan(`react-step-${step}`, { status: "completed" });
@@ -100,6 +76,41 @@ export class ReActLoop {
         toolCount: response.toolCalls.length,
       });
     }
+  }
+
+  private async runStep(
+    step: number,
+    messages: Message[],
+    context: ExecutionContext,
+  ): Promise<LLMResponse> {
+    this.budget.check(step);
+    context.tracer.startSpan(`react-step-${step}`);
+
+    const request = {
+      messages,
+      tools: this.skillRegistry.getSchemas(),
+    }
+
+    const modelContextWindow = this.resolveContextWindow(request)
+
+    request.messages = await this.compressor.compress(
+      messages,
+      modelContextWindow,
+      this.activatedSkills.size > 0,
+    )
+
+    const response = await this.llm.complete(request);
+    this.model = response.model || this.model;
+    this.usage.promptTokens += response.usage?.promptTokens ?? 0;
+    this.usage.completionTokens += response.usage?.completionTokens ?? 0;
+    this.usage.totalTokens += response.usage?.totalTokens ?? 0;
+    messages.push({
+      role: "assistant",
+      content: response.content,
+      toolCalls: response.toolCalls,
+    });
+
+    return response
   }
 
   private async runToolCalls(
@@ -138,30 +149,37 @@ export class ReActLoop {
     toolCall: ToolCall,
     context: ExecutionContext,
   ): Promise<string> {
+    let skill: ITool
     try {
-      const skill = this.skillRegistry.get(toolCall.name);
-
-      // Validate tool arguments against schema before execution
-      try {
-        validateSchema(toolCall.args, skill.inputSchema);
-      } catch (err) {
-        if (err instanceof SchemaValidationError) {
-          return `Error: Invalid arguments for "${toolCall.name}": ${err.message}`;
-        }
-        throw err;
-      }
-
-      const result = await skill.execute(toolCall.args, context);
-      if (!result.success) {
-        return `Error: ${result.error ?? "Unknown error"}`;
-      }
-      return result.output;
+      skill = this.skillRegistry.get(toolCall.name)
     } catch (err) {
-      if (err instanceof ToolNotFoundError) {
-        return `Error: Tool not found: "${toolCall.name}"`;
+      if (err instanceof ToolNotFoundError) return `Error: Tool not found: "${toolCall.name}"`
+      const msg = err instanceof Error ? err.message : String(err)
+      return `Error: ${msg}`
+    }
+
+    const validationError = this.validateToolArgs(toolCall, skill)
+    if (validationError) return validationError
+
+    try {
+      const result = await skill.execute(toolCall.args, context)
+      if (!result.success) return `Error: ${result.error ?? "Unknown error"}`
+      return result.output
+    } catch (err) {
+      const msg = err instanceof Error ? err.message : String(err)
+      return `Error: ${msg}`
+    }
+  }
+
+  private validateToolArgs(toolCall: ToolCall, skill: ITool): string | null {
+    try {
+      validateSchema(toolCall.args, skill.inputSchema)
+      return null
+    } catch (err) {
+      if (err instanceof SchemaValidationError) {
+        return `Error: Invalid arguments for "${toolCall.name}": ${err.message}`
       }
-      const msg = err instanceof Error ? err.message : String(err);
-      return `Error: ${msg}`;
+      throw err
     }
   }
 

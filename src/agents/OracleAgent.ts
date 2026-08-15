@@ -36,6 +36,23 @@ export class OracleAgent extends BaseAgent {
 
     const episodicResults = await context.memory.episodic.recall(question)
 
+    const systemPrompt = this.buildSystemPrompt(kgResults, episodicResults)
+    const wrappedQuestion = `<user_query>\n${question}\n</user_query>`
+
+    const result = await this.llm.complete({
+      messages: [
+        { role: 'system', content: systemPrompt },
+        { role: 'user', content: wrappedQuestion },
+      ],
+    })
+
+    return { output: result.content, model: result.model }
+  }
+
+  private buildSystemPrompt(
+    kgResults: { label: string; type: string }[],
+    episodicResults: string[],
+  ): string {
     const kgContext = kgResults.length > 0
       ? `Knowledge Graph nodes:\n${kgResults.map((n) => `- ${n.label} (${n.type})`).join('\n')}`
       : ''
@@ -56,18 +73,7 @@ export class OracleAgent extends BaseAgent {
     if (kgContext) parts.push(kgContext)
     if (episodeContext) parts.push(episodeContext)
 
-    const systemPrompt = parts.join('\n')
-
-    const wrappedQuestion = `<user_query>\n${question}\n</user_query>`
-
-    const result = await this.llm.complete({
-      messages: [
-        { role: 'system', content: systemPrompt },
-        { role: 'user', content: wrappedQuestion },
-      ],
-    })
-
-    return { output: result.content, model: result.model }
+    return parts.join('\n')
   }
 
   protected async getSystemPrompt(_context: ExecutionContext): Promise<string> {

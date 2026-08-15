@@ -144,7 +144,7 @@ describe('OracleAgent', () => {
 
     const [request] = mockComplete(agent).mock.calls[0]
     const userMessage = request.messages.find((m: { role: string }) => m.role === 'user')
-    expect(userMessage.content).not.toContain('</user_query>')
+    expect(userMessage.content.match(/<\/user_query>/g)).toHaveLength(1)
     expect(userMessage.content).toContain('injection')
   })
 

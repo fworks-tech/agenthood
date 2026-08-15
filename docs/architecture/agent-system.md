@@ -61,20 +61,20 @@ implemented in [`src/members/MemberRegistry.ts`](../src/members/MemberRegistry.t
 | The Scribe | standard | file.write, file.edit, git.*, terminal.run |
 | The Architect | standard | file.write, file.edit, git.*, terminal.run |
 | The Builder | standard | file.write, file.edit, git.*, terminal.run |
-| The Reviewer | restricted | file.read, file.search, memory.read, tasks.* |
+| The Reviewer | restricted | file.read, file.search, code.explain |
 | The Tester | standard | file.write, file.edit, git.*, terminal.run |
 | The Debugger | standard | file.write, file.edit, git.*, terminal.run |
-| The Auditor | restricted | file.read, file.search, memory.read, tasks.* |
+| The Auditor | restricted | file.read, file.search, code.explain |
 | The Herald | standard | file.write, file.edit, git.*, terminal.run |
 | The Librarian | standard | file.write, file.edit, git.*, terminal.run |
-| The Doorman | restricted | file.read, file.search, memory.read, tasks.* |
-| The Oracle | restricted | file.read, file.search, memory.read, tasks.* |
-| The Envoy | restricted | file.read, file.search, memory.read, tasks.* |
-| The Sentinel | restricted | file.read, file.search, memory.read, tasks.* |
-| The Warden | restricted | file.read, file.search, memory.read, tasks.* |
-| The Strategist | restricted | file.read, file.search, memory.read, tasks.* |
-| The Steward | restricted | file.read, file.search, memory.read, tasks.* |
-| The Operator | restricted | file.read, file.search, memory.read, tasks.* |
+| The Doorman | restricted | file.read, file.search, code.explain |
+| The Oracle | restricted | file.read, file.search, code.explain |
+| The Envoy | restricted | file.read, file.search, code.explain |
+| The Sentinel | restricted | file.read, file.search, code.explain |
+| The Warden | restricted | file.read, file.search, code.explain |
+| The Strategist | restricted | file.read, file.search, code.explain |
+| The Steward | restricted | file.read, file.search, code.explain |
+| The Operator | restricted | file.read, file.search, code.explain |
 | The Mailman | standard | file.write, file.edit, git.*, terminal.run |
 | The Inspector | standard | file.write, file.edit, git.*, terminal.run |
 

@@ -16,9 +16,12 @@ import { reportErrorToSentry, reportBackgroundFailure } from "../../core/sentryR
 
 function redact(context: ExecutionContext, text: string): string {
   // production contexts always carry a redactor built from the observability
-  // config (ApplicationContext, eval.ts); the fallback keeps test and
-  // embedding-free callers working without silently persisting raw payloads
-  return context.redactor ? context.redactor.redactText(text) : text;
+  // config (ApplicationContext, eval.ts); fail closed so a misconfigured
+  // context can never persist raw payloads silently
+  if (!context.redactor) {
+    throw new Error("[BaseAgent] redaction requires a redactor on the ExecutionContext");
+  }
+  return context.redactor.redactText(text);
 }
 
 export interface BaseAgentOptions {

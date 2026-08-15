@@ -73,29 +73,18 @@ export class MemberRegistry {
     return this.list().filter((s) => s.category === category)
   }
 
-  private static readonly toolBase = [
-    'file.read', 'file.list', 'file.search', 'memory.read',
-    'tasks.write', 'think',
-  ]
-
-  // Tiers are computed in a single closure so the spread order is fixed by
-  // const sequencing rather than by class-field declaration order.
+  // Only tools TOOL_MAP can actually construct are advertised; listing a
+  // tool here that MemberAgent cannot instantiate would silently drop it
+  // from every member run (see MemberAgent.addTool).
   private static readonly toolsByProfile: Record<PermissionProfile, string[]> = (() => {
-    const restricted = [...MemberRegistry.toolBase]
+    const restricted = ['file.read', 'file.search', 'code.explain']
     const standard = [
       ...restricted,
-      'memory.write',
-      'file.write', 'file.edit',
-      'git.status', 'git.diff', 'git.log', 'git.branch',
-      'terminal.run',
+      'file.write', 'code.write', 'code.refactor',
     ]
     const trusted = [
       ...standard,
-      'file.delete',
-      'git.commit', 'git.push', 'git.tag',
-      'code.symbols', 'code.analysis', 'code.diagnostics',
-      'search.web', 'search.vector', 'search.hybrid',
-      'debug.stacktrace', 'debug.variables', 'debug.evaluate', 'debug.control',
+      'pr_sync',
     ]
     return { restricted, standard, trusted }
   })()

@@ -11,7 +11,7 @@ import type { RegressionReport } from '../evals/BaselineComparator.js'
 import { ReplayEvaluator } from '../evals/ReplayEvaluator.js'
 import type { EmbedFn, ReplayReport } from '../evals/ReplayEvaluator.js'
 import { JSONFileTraceStore, loadObservabilityConfig } from '../core/TraceStore.js'
-import { createRedactionFilterFromConfig } from '../core/RedactionFilter.js'
+import { createRedactionFilterFromConfig, RedactionFilter } from '../core/RedactionFilter.js'
 import { ApplicationContext } from '../runtime/ApplicationContext.ts'
 import { loadConfig } from './run.js'
 import type { CommandDescriptor } from './types.js'
@@ -269,7 +269,7 @@ async function runReplay(member: string, limit: number, json: boolean): Promise<
   const embed: EmbedFn = (text) => app.llm.embed(text)
   const report = await new ReplayEvaluator(runner, embed).replay(envelopes)
 
-  const redactor = createRedactionFilterFromConfig(loadObservabilityConfig(cwd))
+  const redactor = createRedactionFilterFromConfig(loadObservabilityConfig(cwd)) ?? new RedactionFilter({ enabled: false })
   for (const task of report.tasks) {
     if (task.newOutput !== undefined) task.newOutput = redactor ? redactor.redactText(task.newOutput) : task.newOutput
   }

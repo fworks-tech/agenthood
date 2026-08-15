@@ -7,10 +7,10 @@ function toolNames(agent: DeveloperAgent): string[] {
   return (agent as unknown as { tools: { name: string }[] }).tools.map((t) => t.name)
 }
 
-function makeAgent(delegation: boolean): DeveloperAgent {
+function makeAgent(canDelegate: boolean): DeveloperAgent {
   const { llm, toolRegistry, loop } = createAgentHarness()
   const agentRegistry = { has: vi.fn().mockReturnValue(true) } as unknown as AgentRegistry
-  return new DeveloperAgent(llm, loop, toolRegistry, { agentRegistry, delegation })
+  return new DeveloperAgent(llm, loop, toolRegistry, { agentRegistry, canDelegate })
 }
 
 describe('DeveloperAgent delegation gating', () => {

@@ -75,9 +75,12 @@ export class MemberAgent extends BaseAgent {
           this.spec.permissionProfile === 'standard'
             ? ['architect', 'qa', 'reviewer', 'the-oracle']
             : []
-        const tool = new SubagentTaskSkill(this.agentRegistry, { allowedRoles })
-        tools.push(tool)
-        seen.add(tool.name)
+        // Skip adding delegation tool if allowlist is empty (fail closed)
+        if (allowedRoles.length > 0) {
+          const tool = new SubagentTaskSkill(this.agentRegistry, { allowedRoles })
+          tools.push(tool)
+          seen.add(tool.name)
+        }
       } catch (err) {
         // Construction-time error: no ExecutionContext available, log warning
         console.warn(`[members] delegation tool unavailable for "${this.role}": ${err instanceof Error ? err.message : String(err)}`)

@@ -2,7 +2,7 @@ import type { ILLMProvider } from '../../llm/ILLMProvider.ts';
 import type { ITool } from '../../tools/ITool.ts';
 import type { ExecutionContext } from '../../core/ExecutionContext.ts';
 import type { AgentResult } from './AgentResult.ts';
-import { ReActLoop } from '../../reasoning/ReActLoop.ts';
+import { ReActLoop, MaxStepsExceededError } from '../../reasoning/ReActLoop.ts';
 import { ToolRegistry } from '../../tools/ToolRegistry.ts';
 import type { ResidualMemory } from '../../memory/ResidualMemory.ts';
 import type { EpisodeLearner } from '../../evals/EpisodeLearner.ts';
@@ -98,7 +98,12 @@ export abstract class BaseAgent {
       output = executed.output;
       if (executed.model) this.reasoningLoop.setModel(executed.model);
     } catch (err) {
-      error = err;
+      if (err instanceof MaxStepsExceededError) {
+        error = err;
+        output = err.partialResult;
+      } else {
+        error = err;
+      }
     }
     return { output, error, durationMs: Math.round(performance.now() - startTime) };
   }

@@ -7,9 +7,9 @@ vi.mock('../../../src/runtime/ApplicationContext.ts', () => ({
   ApplicationContext: { create: vi.fn() },
 }))
 
-import { evalMember, command } from '../../../src/commands/eval.js'
+import { evalMember, command } from '../../../src/commands/eval.ts'
 import { ApplicationContext } from '../../../src/runtime/ApplicationContext.ts'
-import type { ILLMProvider } from '../../../src/llm/ILLMProvider.js'
+import type { ILLMProvider } from '../../../src/llm/ILLMProvider.ts'
 
 const suitePath = join(process.cwd(), 'evals', 'benchmarks', 'review-pr.json')
 

@@ -1,8 +1,8 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest'
-import { Retriever } from '../../../src/rag/Retriever.js'
-import type { ILLMProvider } from '../../../src/llm/ILLMProvider.js'
-import type { IVectorStore, VectorRecord, VectorSearchResult } from '../../../src/memory/VectorStore.js'
-import type { IGraphStore } from '../../../src/rag/KnowledgeGraphStore.js'
+import { Retriever } from '../../../src/rag/Retriever.ts'
+import type { ILLMProvider } from '../../../src/llm/ILLMProvider.ts'
+import type { IVectorStore, VectorRecord, VectorSearchResult } from '../../../src/memory/VectorStore.ts'
+import type { IGraphStore } from '../../../src/rag/KnowledgeGraphStore.ts'
 
 function makeVectorRecord(overrides: Partial<VectorRecord> = {}): VectorRecord {
   return {

@@ -2,10 +2,10 @@ import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest'
 import { mkdtempSync, rmSync } from 'node:fs'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
-import { DecisionSearch } from '../../../src/memory/DecisionSearch.js'
-import { DecisionLog } from '../../../src/memory/DecisionLog.js'
-import type { IVectorStore, VectorRecord } from '../../../src/memory/VectorStore.js'
-import type { Embedder } from '../../../src/memory/DecisionSearch.js'
+import { DecisionSearch } from '../../../src/memory/DecisionSearch.ts'
+import { DecisionLog } from '../../../src/memory/DecisionLog.ts'
+import type { IVectorStore, VectorRecord } from '../../../src/memory/VectorStore.ts'
+import type { Embedder } from '../../../src/memory/DecisionSearch.ts'
 
 class FakeVectorStore implements IVectorStore {
   records: Map<string, VectorRecord> = new Map()

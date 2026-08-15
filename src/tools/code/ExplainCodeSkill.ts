@@ -1,5 +1,5 @@
-import type { ITool, ToolResult } from '../ITool.js'
-import type { ExecutionContext } from '../../core/ExecutionContext.js'
+import type { ITool, ToolResult } from '../ITool.ts'
+import type { ExecutionContext } from '../../core/ExecutionContext.ts'
 
 export class ExplainCodeSkill implements ITool {
   name = 'explain_code'

@@ -1,5 +1,5 @@
-import type { ILLMProvider } from '../ILLMProvider.js'
-import type { LLMRequest, LLMResponse, LLMChunk, LLMConfig } from '../types.js'
+import type { ILLMProvider } from '../ILLMProvider.ts'
+import type { LLMRequest, LLMResponse, LLMChunk, LLMConfig } from '../types.ts'
 
 interface OllamaChatResponse {
   message: { content: string; role: string }

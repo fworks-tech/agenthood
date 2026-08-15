@@ -48,20 +48,20 @@ describe('init command', () => {
   })
 
   it('prints the welcome message', async () => {
-    const { init } = await import('../../src/commands/init.js')
+    const { init } = await import( '../../src/commands/init.ts')
     await init()
     expect(output).toContain('Welcome to the Agenthood')
   })
 
   it('prints the completion message', async () => {
-    const { init } = await import('../../src/commands/init.js')
+    const { init } = await import( '../../src/commands/init.ts')
     await init()
     expect(output).toContain('Society is ready')
   })
 
   it('writes agenthood config', async () => {
     vi.mocked(existsSync).mockReturnValue(false)
-    const { init } = await import('../../src/commands/init.js')
+    const { init } = await import( '../../src/commands/init.ts')
     await init()
     const writeCalls = vi.mocked(writeFile).mock.calls.map((c) => c as [string, string, object])
     const configCalls = writeCalls.filter(([path]) => path.includes('config.json'))
@@ -70,7 +70,7 @@ describe('init command', () => {
 
   it('--dry-run lists planned files without writing anything', async () => {
     vi.mocked(existsSync).mockReturnValue(false)
-    const { init } = await import('../../src/commands/init.js')
+    const { init } = await import( '../../src/commands/init.ts')
     await init(['--dry-run'])
     expect(output).toContain('Dry run')
     expect(output).toMatch(/\.agenthood[\\/]config\.json/)
@@ -83,7 +83,7 @@ describe('init command', () => {
     vi.mocked(existsSync).mockImplementation((p) => typeof p === 'string' && !p.endsWith('config.json'))
     const example = readFileSync(join(process.cwd(), '.agenthood', 'config.example.json'), 'utf8')
     vi.mocked(readFile).mockResolvedValue(example)
-    const { init } = await import('../../src/commands/init.js')
+    const { init } = await import( '../../src/commands/init.ts')
     await init()
     const writeCalls = vi.mocked(writeFile).mock.calls.map((c) => c as [string, string, object])
     const configCall = writeCalls.find(([path]) => path.includes('config.json') && !path.includes('example'))

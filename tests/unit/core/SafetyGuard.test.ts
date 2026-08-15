@@ -4,7 +4,7 @@ import {
   SafetyLimitError,
   LoopDetectedError,
   CatastrophicCommandError,
-} from '../../../src/core/SafetyGuard.js'
+} from '../../../src/core/SafetyGuard.ts'
 
 describe('SafetyGuard', () => {
   let guard: SafetyGuard

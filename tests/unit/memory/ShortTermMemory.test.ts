@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest'
-import { ShortTermMemoryImpl } from '../../../src/memory/ShortTermMemory.js'
+import { ShortTermMemoryImpl } from '../../../src/memory/ShortTermMemory.ts'
 
 describe('ShortTermMemoryImpl', () => {
   it('adds messages to the buffer', () => {

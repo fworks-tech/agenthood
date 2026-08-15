@@ -29,38 +29,38 @@ describe('setup command', () => {
   })
 
   it('prints the activation header', async () => {
-    const { setup } = await import('../../src/commands/setup.js')
+    const { setup } = await import( '../../src/commands/setup.ts')
     await setup()
     expect(output).toContain('Activating Enforcement Layer')
   })
 
   it('confirms hooks path was set', async () => {
-    const { setup } = await import('../../src/commands/setup.js')
+    const { setup } = await import( '../../src/commands/setup.ts')
     await setup()
     expect(output).toContain('git hooks path')
   })
 
   it('confirms hooks were made executable', async () => {
-    const { setup } = await import('../../src/commands/setup.js')
+    const { setup } = await import( '../../src/commands/setup.ts')
     await setup()
     expect(output).toContain('hooks made executable')
   })
 
   it('confirms commit template was set', async () => {
-    const { setup } = await import('../../src/commands/setup.js')
+    const { setup } = await import( '../../src/commands/setup.ts')
     await setup()
     expect(output).toContain('commit template')
   })
 
   it('runs git config core.hooksPath', async () => {
-    const { setup } = await import('../../src/commands/setup.js')
+    const { setup } = await import( '../../src/commands/setup.ts')
     await setup()
     const calls = vi.mocked(execSync).mock.calls.map((c) => c[0] as string)
     expect(calls.some((c) => c.includes('core.hooksPath'))).toBe(true)
   })
 
   it('runs git config commit.template', async () => {
-    const { setup } = await import('../../src/commands/setup.js')
+    const { setup } = await import( '../../src/commands/setup.ts')
     await setup()
     const calls = vi.mocked(execSync).mock.calls.map((c) => c[0] as string)
     expect(calls.some((c) => c.includes('commit.template'))).toBe(true)
@@ -68,13 +68,13 @@ describe('setup command', () => {
 
   it('calls chmodSync for each hook file', async () => {
     vi.mocked(chmodSync).mockClear()
-    const { setup } = await import('../../src/commands/setup.js')
+    const { setup } = await import( '../../src/commands/setup.ts')
     await setup()
     expect(vi.mocked(chmodSync).mock.calls.length).toBe(4)
   })
 
   it('prints the closing confidence line', async () => {
-    const { setup } = await import('../../src/commands/setup.js')
+    const { setup } = await import( '../../src/commands/setup.ts')
     await setup()
     expect(output).toContain('Ship with confidence')
   })

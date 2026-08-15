@@ -1,7 +1,7 @@
-import type { ILLMProvider } from '../llm/ILLMProvider.js'
-import type { Message } from '../llm/types.js'
-import type { RedactionFilter } from './RedactionFilter.js'
-import type { ProvenanceStore } from '../memory/ProvenanceStore.js'
+import type { ILLMProvider } from '../llm/ILLMProvider.ts'
+import type { Message } from '../llm/types.ts'
+import type { RedactionFilter } from './RedactionFilter.ts'
+import type { ProvenanceStore } from '../memory/ProvenanceStore.ts'
 import type {
   Project,
   Tracer,
@@ -12,7 +12,7 @@ import type {
   ProjectMemory,
   DecisionLog,
   TraceSource,
-} from './types.js'
+} from './types.ts'
 
 export interface ExecutionContext {
   executionId: string

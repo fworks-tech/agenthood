@@ -7,7 +7,7 @@
  */
 
 import { existsSync } from 'node:fs';
-import type { CommandDescriptor } from './types.js';
+import type { CommandDescriptor } from './types.ts';
 import { join } from 'node:path';
 import { MemberRegistry } from '../members/MemberRegistry.ts';
 import { resolveSkillsDir } from '../members.ts';

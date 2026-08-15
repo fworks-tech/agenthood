@@ -1,4 +1,4 @@
-import type { ExecutionContext } from '../../core/ExecutionContext.js'
+import type { ExecutionContext } from '../../core/ExecutionContext.ts'
 
 export interface ProtocolConfig {
   retryPolicy: {

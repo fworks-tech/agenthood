@@ -2,13 +2,13 @@ import { describe, it, expect, vi } from 'vitest'
 import {
   ProviderChain,
   AllProvidersFailedError,
-} from '../../../src/llm/ProviderFailover.js'
+} from '../../../src/llm/ProviderFailover.ts'
 import {
   AuthError,
   TimeoutError,
   ModelNotFoundError,
-} from '../../../src/llm/errors.js'
-import type { ILLMProvider } from '../../../src/llm/ILLMProvider.js'
+} from '../../../src/llm/errors.ts'
+import type { ILLMProvider } from '../../../src/llm/ILLMProvider.ts'
 
 function mockProvider(label: string, shouldFail?: boolean, models?: string[]): ILLMProvider {
   let currentModel = models?.[0] ?? `${label}-model`

@@ -1,6 +1,6 @@
 import { existsSync, mkdirSync, readFileSync, writeFileSync, readdirSync } from 'node:fs'
 import { join } from 'node:path'
-import type { CausalRelationType, DecisionLogEntry as CoreDecisionLogEntry } from '../core/types.js'
+import type { CausalRelationType, DecisionLogEntry as CoreDecisionLogEntry } from '../core/types.ts'
 
 const EDGES_FILE = 'edges.json'
 

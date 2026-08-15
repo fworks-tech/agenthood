@@ -1,7 +1,7 @@
 import { existsSync, readFileSync, mkdirSync, writeFileSync, renameSync } from 'node:fs'
 import { appendFile } from 'node:fs/promises'
 import { dirname, isAbsolute, join } from 'node:path'
-import type { TraceEnvelope } from './types.js'
+import type { TraceEnvelope } from './types.ts'
 
 export interface TraceQuery {
   member?: string

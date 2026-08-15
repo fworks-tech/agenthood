@@ -1,4 +1,4 @@
-import type { LongTermMemory } from '../core/types.js'
+import type { LongTermMemory } from '../core/types.ts'
 
 export type GoalStatus = 'pending' | 'in_progress' | 'blocked' | 'completed'
 

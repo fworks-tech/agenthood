@@ -1,6 +1,6 @@
 import { appendFile, mkdir } from 'node:fs/promises'
 import { dirname } from 'node:path'
-import type { TraceEnvelope } from './types.js'
+import type { TraceEnvelope } from './types.ts'
 
 export type AnomalyType = 'cost_spike' | 'quality_drop' | 'frequency_burst'
 

@@ -19,7 +19,7 @@ vi.mock('node:fs', async (importOriginal) => {
 
 import { execSync } from 'node:child_process'
 import { existsSync } from 'node:fs'
-import { createReviewPrWorkflow, executeReviewPrWorkflow } from '../../../../src/workflows/definitions/review-pr.js'
+import { createReviewPrWorkflow, executeReviewPrWorkflow } from '../../../../src/workflows/definitions/review-pr.ts'
 
 describe('review-pr workflow', () => {
   beforeEach(() => {

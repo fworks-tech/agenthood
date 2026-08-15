@@ -1,8 +1,8 @@
 import { randomUUID } from 'node:crypto'
 
-import type { EvalResult } from '../core/types.js'
-import type { EvalJudge } from './EvalJudge.js'
-import type { EvalSuite, EvalTask } from './types.js'
+import type { EvalResult } from '../core/types.ts'
+import type { EvalJudge } from './EvalJudge.ts'
+import type { EvalSuite, EvalTask } from './types.ts'
 
 export const DEFAULT_METRICS = ['faithfulness', 'relevance', 'context_recall', 'answer_correctness']
 

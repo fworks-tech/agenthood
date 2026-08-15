@@ -1,10 +1,10 @@
 import { describe, it, expect, vi } from 'vitest'
-import { ReActLoop, ToolLoopDetectedError } from '../../../src/reasoning/ReActLoop.js'
-import { ThinkingBudget, BudgetExceededError } from '../../../src/reasoning/ThinkingBudget.js'
-import { ToolRegistry, ToolNotFoundError } from '../../../src/tools/ToolRegistry.js'
-import { createTestContext } from '../../helpers/testContext.js'
-import type { ILLMProvider } from '../../../src/llm/ILLMProvider.js'
-import type { ITool } from '../../../src/tools/ITool.js'
+import { ReActLoop, ToolLoopDetectedError } from '../../../src/reasoning/ReActLoop.ts'
+import { ThinkingBudget, BudgetExceededError } from '../../../src/reasoning/ThinkingBudget.ts'
+import { ToolRegistry, ToolNotFoundError } from '../../../src/tools/ToolRegistry.ts'
+import { createTestContext } from '../../helpers/testContext.ts'
+import type { ILLMProvider } from '../../../src/llm/ILLMProvider.ts'
+import type { ITool } from '../../../src/tools/ITool.ts'
 
 function mockProvider(options?: { toolCalls?: { name: string; args: unknown }[] }): ILLMProvider {
   const calls = options?.toolCalls

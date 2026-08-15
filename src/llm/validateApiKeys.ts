@@ -1,4 +1,4 @@
-import type { LLMConfig, ProviderEntry } from './types.js'
+import type { LLMConfig, ProviderEntry } from './types.ts'
 
 // Central registry of API-key env vars and signup URLs, also used by
 // `agenthood setup` to print provider guidance

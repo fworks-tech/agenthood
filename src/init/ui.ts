@@ -1,5 +1,5 @@
 import { createInterface } from 'node:readline'
-import { ALL_MEMBERS } from '../members.js'
+import { ALL_MEMBERS } from '../members.ts'
 
 const RUNTIMES = ['claude-code', 'copilot', 'gemini-cli', 'other'] as const
 type Runtime = (typeof RUNTIMES)[number]

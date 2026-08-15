@@ -1,6 +1,6 @@
 import { describe, it, expect } from 'vitest'
-import { MemberOrchestrator } from '../../../src/reasoning/MemberOrchestrator.js'
-import type { DetectionContext } from '../../../src/reasoning/MemberOrchestrator.js'
+import { MemberOrchestrator } from '../../../src/reasoning/MemberOrchestrator.ts'
+import type { DetectionContext } from '../../../src/reasoning/MemberOrchestrator.ts'
 
 describe('MemberOrchestrator', () => {
   const orchestrator = new MemberOrchestrator()

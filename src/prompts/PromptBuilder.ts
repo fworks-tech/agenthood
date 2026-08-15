@@ -1,7 +1,7 @@
-import type { Message } from '../llm/types.js'
-import { PromptRegistry } from './PromptRegistry.js'
-import type { ResidualMemory } from '../memory/ResidualMemory.js'
-import type { PersonalisationStore } from '../memory/PersonalisationStore.js'
+import type { Message } from '../llm/types.ts'
+import { PromptRegistry } from './PromptRegistry.ts'
+import type { ResidualMemory } from '../memory/ResidualMemory.ts'
+import type { PersonalisationStore } from '../memory/PersonalisationStore.ts'
 
 export class PromptBuilder {
   constructor(

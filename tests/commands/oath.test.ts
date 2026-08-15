@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest'
-import { oath } from '../../src/commands/oath.js'
+import { oath } from '../../src/commands/oath.ts'
 
 describe('oath command', () => {
   let output = ''

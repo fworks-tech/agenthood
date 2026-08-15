@@ -1,7 +1,7 @@
 import { describe, it, expect, vi } from 'vitest'
-import { StrategistAgent } from '../../../src/agents/strategist/StrategistAgent.js'
-import { RedactionFilter } from '../../../src/core/RedactionFilter.js'
-import type { ExecutionContext } from '../../../src/core/ExecutionContext.js'
+import { StrategistAgent } from '../../../src/agents/strategist/StrategistAgent.ts'
+import { RedactionFilter } from '../../../src/core/RedactionFilter.ts'
+import type { ExecutionContext } from '../../../src/core/ExecutionContext.ts'
 
 function mockEnv(): { agent: StrategistAgent; context: ExecutionContext } {
   const llm = {} as any

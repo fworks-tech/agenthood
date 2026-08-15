@@ -11,8 +11,8 @@ vi.mock('node:fs', async (importOriginal) => {
 })
 
 import { existsSync, readdirSync } from 'node:fs'
-import { ProjectMemoryImpl } from '../../../src/memory/ProjectMemory.js'
-import { KnowledgeGraphStore } from '../../../src/rag/KnowledgeGraphStore.js'
+import { ProjectMemoryImpl } from '../../../src/memory/ProjectMemory.ts'
+import { KnowledgeGraphStore } from '../../../src/rag/KnowledgeGraphStore.ts'
 
 describe('ProjectMemoryImpl', () => {
   beforeEach(() => {

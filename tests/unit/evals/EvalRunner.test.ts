@@ -1,8 +1,8 @@
 import { describe, it, expect, vi } from 'vitest'
-import { EvalRunner, buildEvalResults, DEFAULT_METRICS } from '../../../src/evals/EvalRunner.js'
-import type { EvalJudge, JudgeContext } from '../../../src/evals/EvalJudge.js'
-import type { EvalSuite } from '../../../src/evals/types.js'
-import type { MemberRunResult, RunMemberFn } from '../../../src/evals/EvalRunner.js'
+import { EvalRunner, buildEvalResults, DEFAULT_METRICS } from '../../../src/evals/EvalRunner.ts'
+import type { EvalJudge, JudgeContext } from '../../../src/evals/EvalJudge.ts'
+import type { EvalSuite } from '../../../src/evals/types.ts'
+import type { MemberRunResult, RunMemberFn } from '../../../src/evals/EvalRunner.ts'
 
 const suite: EvalSuite = {
   name: 'demo-suite',

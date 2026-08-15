@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest'
-import { validateSchema, SchemaValidationError } from '../../../src/core/SchemaValidator.js'
+import { validateSchema, SchemaValidationError } from '../../../src/core/SchemaValidator.ts'
 
 describe('SchemaValidator', () => {
   describe('basic types', () => {

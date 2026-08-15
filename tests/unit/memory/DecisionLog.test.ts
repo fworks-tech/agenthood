@@ -13,8 +13,8 @@ vi.mock('node:fs', async (importOriginal) => {
 })
 
 import { existsSync, readFileSync, writeFileSync, mkdirSync, readdirSync } from 'node:fs'
-import { DecisionLog } from '../../../src/memory/DecisionLog.js'
-import type { DecisionEntry } from '../../../src/memory/DecisionLog.js'
+import { DecisionLog } from '../../../src/memory/DecisionLog.ts'
+import type { DecisionEntry } from '../../../src/memory/DecisionLog.ts'
 
 const fixtureEntry: DecisionEntry = {
   id: 'dec-20260601-001',

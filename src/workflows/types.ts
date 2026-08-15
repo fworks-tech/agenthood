@@ -1,4 +1,4 @@
-import type { IProtocol } from './protocols/IProtocol.js'
+import type { IProtocol } from './protocols/IProtocol.ts'
 
 export type StepType = 'agent' | 'human-in-loop' | 'parallel' | 'goal' | 'tool'
 

@@ -1,7 +1,7 @@
 import { describe, it, expect } from 'vitest'
-import { AnomalyDetector, createAnomalyConfigFromConfig } from '../../../src/core/AnomalyDetector.js'
-import { createTraceEnvelope } from '../../../src/core/TraceEnvelope.js'
-import type { TraceEnvelope } from '../../../src/core/types.js'
+import { AnomalyDetector, createAnomalyConfigFromConfig } from '../../../src/core/AnomalyDetector.ts'
+import { createTraceEnvelope } from '../../../src/core/TraceEnvelope.ts'
+import type { TraceEnvelope } from '../../../src/core/types.ts'
 
 function envelope(member: string, overrides: Partial<TraceEnvelope> = {}): TraceEnvelope {
   return createTraceEnvelope({
@@ -142,7 +142,7 @@ describe('appendAnomalies', () => {
     const { tmpdir } = await import('node:os')
     const { join } = await import('node:path')
     const { readFileSync } = await import('node:fs')
-    const { appendAnomalies } = await import('../../../src/core/AnomalyDetector.js')
+    const { appendAnomalies } = await import( '../../../src/core/AnomalyDetector.ts')
     const dir = mkdtempSync(join(tmpdir(), 'agenthood-alerts-'))
     const file = join(dir, 'nested', 'anomalies.ndjson')
 
@@ -164,7 +164,7 @@ describe('appendAnomalies', () => {
     const { mkdtempSync, rmSync, existsSync } = await import('node:fs')
     const { tmpdir } = await import('node:os')
     const { join } = await import('node:path')
-    const { appendAnomalies } = await import('../../../src/core/AnomalyDetector.js')
+    const { appendAnomalies } = await import( '../../../src/core/AnomalyDetector.ts')
     const dir = mkdtempSync(join(tmpdir(), 'agenthood-alerts-'))
     const file = join(dir, 'anomalies.ndjson')
 

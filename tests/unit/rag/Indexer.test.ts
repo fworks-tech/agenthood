@@ -1,7 +1,7 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest'
-import { Indexer } from '../../../src/rag/Indexer.js'
-import type { ILLMProvider } from '../../../src/llm/ILLMProvider.js'
-import type { IVectorStore, VectorRecord, VectorSearchResult } from '../../../src/memory/VectorStore.js'
+import { Indexer } from '../../../src/rag/Indexer.ts'
+import type { ILLMProvider } from '../../../src/llm/ILLMProvider.ts'
+import type { IVectorStore, VectorRecord, VectorSearchResult } from '../../../src/memory/VectorStore.ts'
 
 describe('Indexer', () => {
   let mockEmbedder: ILLMProvider

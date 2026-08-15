@@ -45,10 +45,10 @@ vi.mock('node:fs', async (importOriginal) => {
 })
 
 import { existsSync, readdirSync, readFileSync } from 'node:fs'
-import { SocietyIndexer } from '../../../src/project/SocietyIndexer.js'
-import { KnowledgeGraphStore } from '../../../src/rag/KnowledgeGraphStore.js'
-import type { ILLMProvider } from '../../../src/llm/ILLMProvider.js'
-import type { IVectorStore } from '../../../src/memory/VectorStore.js'
+import { SocietyIndexer } from '../../../src/project/SocietyIndexer.ts'
+import { KnowledgeGraphStore } from '../../../src/rag/KnowledgeGraphStore.ts'
+import type { ILLMProvider } from '../../../src/llm/ILLMProvider.ts'
+import type { IVectorStore } from '../../../src/memory/VectorStore.ts'
 
 describe('SocietyIndexer', () => {
   let knowledgeGraph: KnowledgeGraphStore

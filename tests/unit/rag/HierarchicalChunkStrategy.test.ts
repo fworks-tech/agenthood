@@ -1,6 +1,6 @@
 import { describe, it, expect } from 'vitest'
-import { MarkdownHierarchicalChunkStrategy } from '../../../src/rag/ChunkStrategy.js'
-import type { ParentChunk, ChildChunk } from '../../../src/rag/ChunkStrategy.js'
+import { MarkdownHierarchicalChunkStrategy } from '../../../src/rag/ChunkStrategy.ts'
+import type { ParentChunk, ChildChunk } from '../../../src/rag/ChunkStrategy.ts'
 
 describe('MarkdownHierarchicalChunkStrategy', () => {
   const strategy = new MarkdownHierarchicalChunkStrategy()

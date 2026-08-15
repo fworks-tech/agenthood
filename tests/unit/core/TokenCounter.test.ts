@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest'
-import { TokenCounter } from '../../../src/core/TokenCounter.js'
+import { TokenCounter } from '../../../src/core/TokenCounter.ts'
 
 describe('TokenCounter', () => {
   const counter = new TokenCounter()

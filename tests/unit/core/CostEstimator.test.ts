@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, afterEach } from 'vitest'
-import { CostEstimator } from '../../../src/core/CostEstimator.js'
+import { CostEstimator } from '../../../src/core/CostEstimator.ts'
 
 describe('CostEstimator', () => {
   afterEach(() => {

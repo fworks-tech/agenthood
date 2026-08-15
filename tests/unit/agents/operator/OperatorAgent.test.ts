@@ -1,6 +1,6 @@
 import { describe, it, expect, vi } from 'vitest'
-import { OperatorAgent } from '../../../../src/agents/operator/OperatorAgent.js'
-import { RedactionFilter } from '../../../../src/core/RedactionFilter.js'
+import { OperatorAgent } from '../../../../src/agents/operator/OperatorAgent.ts'
+import { RedactionFilter } from '../../../../src/core/RedactionFilter.ts'
 
 describe('OperatorAgent', () => {
   it('has role the-operator', () => {

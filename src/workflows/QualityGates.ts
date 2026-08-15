@@ -1,8 +1,8 @@
 import { execSync } from 'node:child_process'
 import { existsSync, readFileSync } from 'node:fs'
 import { join } from 'node:path'
-import { DiffImpactAnalyzer } from './DiffImpactAnalyzer.js'
-import type { ImpactAnalysis } from './DiffImpactAnalyzer.js'
+import { DiffImpactAnalyzer } from './DiffImpactAnalyzer.ts'
+import type { ImpactAnalysis } from './DiffImpactAnalyzer.ts'
 
 export interface GateResult {
   name: string

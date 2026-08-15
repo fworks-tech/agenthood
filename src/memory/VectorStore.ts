@@ -1,6 +1,6 @@
 import * as lancedb from '@lancedb/lancedb'
 import { Field, FixedSizeList, Float32, Schema, Utf8 } from 'apache-arrow'
-import type { IMemoryStore, RetentionPolicy } from './IMemoryStore.js'
+import type { IMemoryStore, RetentionPolicy } from './IMemoryStore.ts'
 
 export interface VectorRecord {
   id: string

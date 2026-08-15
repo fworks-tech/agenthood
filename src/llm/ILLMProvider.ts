@@ -1,4 +1,4 @@
-import type { LLMRequest, LLMResponse, LLMChunk } from './types.js'
+import type { LLMRequest, LLMResponse, LLMChunk } from './types.ts'
 
 export interface ILLMProvider {
   complete(request: LLMRequest): Promise<LLMResponse>

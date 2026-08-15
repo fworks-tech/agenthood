@@ -11,11 +11,11 @@
  * - 5 recovery strategies
  */
 
-import type { ILLMProvider } from './ILLMProvider.js'
-import type { LLMRequest, LLMResponse, LLMChunk } from './types.js'
+import type { ILLMProvider } from './ILLMProvider.ts'
+import type { LLMRequest, LLMResponse, LLMChunk } from './types.ts'
 import type { ProviderChainConfig } from './providerFailoverTypes.ts'
 import type { CircuitBreakerState } from './providerFailoverTypes.ts'
-import { classifyError, AllProvidersFailedError } from './ProviderFailoverError.js'
+import { classifyError, AllProvidersFailedError } from './ProviderFailoverError.ts'
 export { classifyError, AllProvidersFailedError }
 
 /**

@@ -1,6 +1,6 @@
-import type { ITool, ToolResult } from '../ITool.js'
-import type { ExecutionContext } from '../../core/ExecutionContext.js'
-import type { JSONSchema } from '../../llm/types.js'
+import type { ITool, ToolResult } from '../ITool.ts'
+import type { ExecutionContext } from '../../core/ExecutionContext.ts'
+import type { JSONSchema } from '../../llm/types.ts'
 
 export type RetrievalStrategy = 'skip' | 'vector' | 'graph' | 'both'
 

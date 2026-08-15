@@ -16,8 +16,8 @@ import { readdirSync } from 'node:fs';
 import { join, dirname } from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 
-import { ALL_MEMBERS } from './members.js';
-import type { CommandDescriptor } from './commands/types.js';
+import { ALL_MEMBERS } from './members.ts';
+import type { CommandDescriptor } from './commands/types.ts';
 
 async function discoverCommands(): Promise<Record<string, CommandDescriptor>> {
   const commandsDir = join(dirname(fileURLToPath(import.meta.url)), 'commands');

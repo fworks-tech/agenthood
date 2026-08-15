@@ -48,9 +48,9 @@ vi.mock('@lancedb/lancedb', () => ({
   }),
 }))
 
-import { LanceDBTraceStore } from '../../../src/memory/LanceDBTraceStore.js'
-import { createTraceEnvelope } from '../../../src/core/TraceEnvelope.js'
-import type { TraceEnvelope } from '../../../src/core/types.js'
+import { LanceDBTraceStore } from '../../../src/memory/LanceDBTraceStore.ts'
+import { createTraceEnvelope } from '../../../src/core/TraceEnvelope.ts'
+import type { TraceEnvelope } from '../../../src/core/types.ts'
 
 function makeEnvelope(overrides: Partial<TraceEnvelope> = {}): TraceEnvelope {
   return createTraceEnvelope({

@@ -1,5 +1,5 @@
 import { describe, it, expect, vi } from 'vitest'
-import { ConcurrencyQueue } from '../../../src/core/ConcurrencyQueue.js'
+import { ConcurrencyQueue } from '../../../src/core/ConcurrencyQueue.ts'
 
 describe('ConcurrencyQueue', () => {
   const delay = (ms: number) => new Promise((r) => setTimeout(r, ms))

@@ -1,8 +1,8 @@
-import type { EvalResult } from "../core/types.js"
-import type { ExecutionContext } from "../core/ExecutionContext.js"
-import type { ResidualMemory } from "../memory/ResidualMemory.js"
-import type { EmbeddingIndex } from "./EmbeddingIndex.js"
-import { hashPattern } from "../utils/hash.js"
+import type { EvalResult } from "../core/types.ts"
+import type { ExecutionContext } from "../core/ExecutionContext.ts"
+import type { ResidualMemory } from "../memory/ResidualMemory.ts"
+import type { EmbeddingIndex } from "./EmbeddingIndex.ts"
+import { hashPattern } from "../utils/hash.ts"
 
 export interface LearningOutcome {
   pattern: string

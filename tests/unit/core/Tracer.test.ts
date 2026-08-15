@@ -1,8 +1,8 @@
 import { describe, it, expect, vi } from 'vitest'
-import { Tracer } from '../../../src/core/Tracer.js'
-import { createTraceEnvelope } from '../../../src/core/TraceEnvelope.js'
-import type { TraceEnvelope } from '../../../src/core/types.js'
-import type { TraceStore } from '../../../src/core/TraceStore.js'
+import { Tracer } from '../../../src/core/Tracer.ts'
+import { createTraceEnvelope } from '../../../src/core/TraceEnvelope.ts'
+import type { TraceEnvelope } from '../../../src/core/types.ts'
+import type { TraceStore } from '../../../src/core/TraceStore.ts'
 
 function makeEnvelope(overrides: Partial<TraceEnvelope> = {}): TraceEnvelope {
   return createTraceEnvelope({

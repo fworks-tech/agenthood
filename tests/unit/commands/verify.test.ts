@@ -12,8 +12,8 @@ vi.mock('node:fs', async (importOriginal) => {
 })
 
 import { existsSync, readFileSync, readdirSync, writeFileSync } from 'node:fs'
-import { verify } from '../../../src/commands/verify.js'
-import { contentHash } from '../../../src/utils/hash.js'
+import { verify } from '../../../src/commands/verify.ts'
+import { contentHash } from '../../../src/utils/hash.ts'
 
 const VALID_SKILL = `---
 name: the-test

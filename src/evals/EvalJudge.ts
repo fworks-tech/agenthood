@@ -1,5 +1,5 @@
-import { cosineSimilarity } from '../utils/cosineSimilarity.js'
-import type { ILLMProvider } from '../llm/ILLMProvider.js'
+import { cosineSimilarity } from '../utils/cosineSimilarity.ts'
+import type { ILLMProvider } from '../llm/ILLMProvider.ts'
 
 /**
  * Context a judge needs to score a single evaluation task. `expected` is the

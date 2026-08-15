@@ -4,7 +4,7 @@
  * Prints the Society's oath. Read it. Mean it.
  */
 
-import type { CommandDescriptor } from './types.js'
+import type { CommandDescriptor } from './types.ts'
 
 export const command: CommandDescriptor = {
   name: 'oath',

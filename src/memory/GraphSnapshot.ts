@@ -1,6 +1,6 @@
 import { existsSync, mkdirSync, readdirSync } from 'node:fs'
 import { join } from 'node:path'
-import { KnowledgeGraphStore } from '../rag/KnowledgeGraphStore.js'
+import { KnowledgeGraphStore } from '../rag/KnowledgeGraphStore.ts'
 
 export interface GraphSnapshotOptions {
   snapshotsDir?: string

@@ -1,5 +1,5 @@
-import { installSkills, scaffoldConfig, planPaths } from './setup.js'
-import { promptRuntime, promptMembers } from './ui.js'
+import { installSkills, scaffoldConfig, planPaths } from './setup.ts'
+import { promptRuntime, promptMembers } from './ui.ts'
 
 export async function init(args: string[] = []): Promise<void> {
   const dryRun = args.includes('--dry-run')

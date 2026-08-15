@@ -1,7 +1,7 @@
 import { readFileSync } from 'node:fs'
-import { validateSchema, SchemaValidationError } from '../core/SchemaValidator.js'
-import type { JSONSchema } from '../llm/types.js'
-import type { EvalSuite } from './types.js'
+import { validateSchema, SchemaValidationError } from '../core/SchemaValidator.ts'
+import type { JSONSchema } from '../llm/types.ts'
+import type { EvalSuite } from './types.ts'
 
 export const EVAL_SUITE_SCHEMA: JSONSchema = {
   type: 'object',

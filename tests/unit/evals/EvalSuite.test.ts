@@ -1,6 +1,6 @@
 import { describe, it, expect } from 'vitest'
-import { validateEvalSuite, loadEvalSuite, EVAL_SUITE_SCHEMA } from '../../../src/evals/evalSuiteSchema.js'
-import { SchemaValidationError } from '../../../src/core/SchemaValidator.js'
+import { validateEvalSuite, loadEvalSuite, EVAL_SUITE_SCHEMA } from '../../../src/evals/evalSuiteSchema.ts'
+import { SchemaValidationError } from '../../../src/core/SchemaValidator.ts'
 import { join } from 'node:path'
 
 const validSuite = {

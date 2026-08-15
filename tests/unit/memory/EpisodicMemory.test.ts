@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest'
-import type { IVectorStore } from '../../../src/memory/VectorStore.js'
+import type { IVectorStore } from '../../../src/memory/VectorStore.ts'
 
 const makeMockVectorStore = (): IVectorStore => ({
   add: vi.fn().mockResolvedValue(undefined),
@@ -17,14 +17,14 @@ describe('EpisodicMemoryImpl', () => {
   })
 
   it('records an episode', async () => {
-    const { EpisodicMemoryImpl } = await import('../../../src/memory/EpisodicMemory.js')
+    const { EpisodicMemoryImpl } = await import( '../../../src/memory/EpisodicMemory.ts')
     const em = new EpisodicMemoryImpl(mockStore)
     await em.record('fixed bug in auth', 'success')
     expect(mockStore.add).toHaveBeenCalled()
   })
 
   it('recalls episodes by query', async () => {
-    const { EpisodicMemoryImpl } = await import('../../../src/memory/EpisodicMemory.js')
+    const { EpisodicMemoryImpl } = await import( '../../../src/memory/EpisodicMemory.ts')
     const em = new EpisodicMemoryImpl(mockStore)
 
     vi.mocked(mockStore.search).mockResolvedValue([
@@ -46,7 +46,7 @@ describe('EpisodicMemoryImpl', () => {
   })
 
   it('returns empty array when no matching episodes', async () => {
-    const { EpisodicMemoryImpl } = await import('../../../src/memory/EpisodicMemory.js')
+    const { EpisodicMemoryImpl } = await import( '../../../src/memory/EpisodicMemory.ts')
     const em = new EpisodicMemoryImpl(mockStore)
     vi.mocked(mockStore.search).mockResolvedValue([])
 

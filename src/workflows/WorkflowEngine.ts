@@ -1,11 +1,11 @@
 import { randomUUID } from 'node:crypto'
-import type { ExecutionContext } from '../core/ExecutionContext.js'
-import type { IProtocol } from './protocols/IProtocol.js'
-import type { WorkflowStep, WorkflowContext, WorkflowDefinition } from './types.js'
-import { UserProtocol } from './protocols/UserProtocol.js'
-import { AgentProtocol } from './protocols/AgentProtocol.js'
-import { ToolProtocol } from './protocols/ToolProtocol.js'
-import { WorkflowCheckpoint } from './WorkflowCheckpoint.js'
+import type { ExecutionContext } from '../core/ExecutionContext.ts'
+import type { IProtocol } from './protocols/IProtocol.ts'
+import type { WorkflowStep, WorkflowContext, WorkflowDefinition } from './types.ts'
+import { UserProtocol } from './protocols/UserProtocol.ts'
+import { AgentProtocol } from './protocols/AgentProtocol.ts'
+import { ToolProtocol } from './protocols/ToolProtocol.ts'
+import { WorkflowCheckpoint } from './WorkflowCheckpoint.ts'
 
 export class WorkflowEngine {
   private protocols: Map<string, IProtocol<unknown, unknown>> = new Map()

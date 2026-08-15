@@ -5,11 +5,11 @@
  */
 
 import { rm } from 'node:fs/promises';
-import type { CommandDescriptor } from './types.js';
+import type { CommandDescriptor } from './types.ts';
 import { existsSync } from 'node:fs';
 import { join } from 'node:path';
-import { resolveSkillsDir } from '../members.js';
-import { requireMember } from './memberArg.js';
+import { resolveSkillsDir } from '../members.ts';
+import { requireMember } from './memberArg.ts';
 
 export const command: CommandDescriptor = {
   name: 'deactivate',

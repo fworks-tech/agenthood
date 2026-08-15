@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest'
-import type { IVectorStore, VectorRecord, VectorSearchResult } from '../../../src/memory/VectorStore.js'
+import type { IVectorStore, VectorRecord, VectorSearchResult } from '../../../src/memory/VectorStore.ts'
 
 const makeMockVectorStore = (): IVectorStore => ({
   add: vi.fn().mockResolvedValue(undefined),
@@ -17,13 +17,13 @@ describe('LongTermMemoryImpl', () => {
   })
 
   it('imports and constructs without error', async () => {
-    const { LongTermMemoryImpl } = await import('../../../src/memory/LongTermMemory.js')
+    const { LongTermMemoryImpl } = await import( '../../../src/memory/LongTermMemory.ts')
     const ltm = new LongTermMemoryImpl(mockStore)
     expect(ltm).toBeDefined()
   })
 
   it('stores a value by key', async () => {
-    const { LongTermMemoryImpl } = await import('../../../src/memory/LongTermMemory.js')
+    const { LongTermMemoryImpl } = await import( '../../../src/memory/LongTermMemory.ts')
     const ltm = new LongTermMemoryImpl(mockStore)
     await ltm.store('myKey', { data: 'test' })
     expect(mockStore.add).toHaveBeenCalled()
@@ -32,7 +32,7 @@ describe('LongTermMemoryImpl', () => {
   })
 
   it('retrieves a stored value', async () => {
-    const { LongTermMemoryImpl } = await import('../../../src/memory/LongTermMemory.js')
+    const { LongTermMemoryImpl } = await import( '../../../src/memory/LongTermMemory.ts')
     const ltm = new LongTermMemoryImpl(mockStore)
 
     vi.mocked(mockStore.search).mockResolvedValue([{
@@ -51,7 +51,7 @@ describe('LongTermMemoryImpl', () => {
   })
 
   it('returns null for missing key', async () => {
-    const { LongTermMemoryImpl } = await import('../../../src/memory/LongTermMemory.js')
+    const { LongTermMemoryImpl } = await import( '../../../src/memory/LongTermMemory.ts')
     const ltm = new LongTermMemoryImpl(mockStore)
     vi.mocked(mockStore.search).mockResolvedValue([])
     const result = await ltm.retrieve('nonexistent')
@@ -59,7 +59,7 @@ describe('LongTermMemoryImpl', () => {
   })
 
   it('deletes a stored key', async () => {
-    const { LongTermMemoryImpl } = await import('../../../src/memory/LongTermMemory.js')
+    const { LongTermMemoryImpl } = await import( '../../../src/memory/LongTermMemory.ts')
     const ltm = new LongTermMemoryImpl(mockStore)
     const deleted = await ltm.delete('myKey')
     expect(deleted).toBe(1)

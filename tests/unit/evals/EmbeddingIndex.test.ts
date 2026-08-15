@@ -1,7 +1,7 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest'
-import type { IVectorStore, VectorRecord, VectorSearchResult } from '../../../src/memory/VectorStore.js'
-import { EmbeddingIndex, INDEX_VERSION_KEY, INDEX_CURRENT_VERSION } from '../../../src/evals/EmbeddingIndex.js'
-import { hashPattern } from '../../../src/utils/hash.js'
+import type { IVectorStore, VectorRecord, VectorSearchResult } from '../../../src/memory/VectorStore.ts'
+import { EmbeddingIndex, INDEX_VERSION_KEY, INDEX_CURRENT_VERSION } from '../../../src/evals/EmbeddingIndex.ts'
+import { hashPattern } from '../../../src/utils/hash.ts'
 
 const mockVectorStore: IVectorStore = {
   connect: vi.fn(),
@@ -167,7 +167,7 @@ describe('reindexLegacyPatterns', () => {
     const index = new EmbeddingIndex(mockVectorStore)
     const embed = vi.fn().mockResolvedValue([1, 0, 0])
 
-    const { reindexLegacyPatterns } = await import('../../../src/evals/EmbeddingIndex.js')
+    const { reindexLegacyPatterns } = await import( '../../../src/evals/EmbeddingIndex.ts')
     const migrated = await reindexLegacyPatterns(index, mockVectorStore, embed)
 
     expect(migrated).toBe(2)
@@ -192,7 +192,7 @@ describe('reindexLegacyPatterns', () => {
     const index = new EmbeddingIndex(mockVectorStore)
     const embed = vi.fn()
 
-    const { reindexLegacyPatterns } = await import('../../../src/evals/EmbeddingIndex.js')
+    const { reindexLegacyPatterns } = await import( '../../../src/evals/EmbeddingIndex.ts')
     const migrated = await reindexLegacyPatterns(index, mockVectorStore, embed)
 
     expect(migrated).toBe(0)
@@ -212,7 +212,7 @@ describe('reindexLegacyPatterns', () => {
     vi.mocked(mockVectorStore.getByKeyPrefix).mockResolvedValue([])
     const index = new EmbeddingIndex(mockVectorStore)
 
-    const { reindexLegacyPatterns } = await import('../../../src/evals/EmbeddingIndex.js')
+    const { reindexLegacyPatterns } = await import( '../../../src/evals/EmbeddingIndex.ts')
     const migrated = await reindexLegacyPatterns(index, mockVectorStore, vi.fn())
 
     expect(migrated).toBe(0)
@@ -228,7 +228,7 @@ describe('reindexLegacyPatterns', () => {
     const index = new EmbeddingIndex(mockVectorStore)
     const embed = vi.fn()
 
-    const { reindexLegacyPatterns } = await import('../../../src/evals/EmbeddingIndex.js')
+    const { reindexLegacyPatterns } = await import( '../../../src/evals/EmbeddingIndex.ts')
     const migrated = await reindexLegacyPatterns(index, mockVectorStore, embed)
 
     expect(migrated).toBe(0)
@@ -244,7 +244,7 @@ describe('reindexLegacyPatterns', () => {
     const index = new EmbeddingIndex(mockVectorStore)
     const embed = vi.fn().mockRejectedValue(new Error('provider down'))
 
-    const { reindexLegacyPatterns } = await import('../../../src/evals/EmbeddingIndex.js')
+    const { reindexLegacyPatterns } = await import( '../../../src/evals/EmbeddingIndex.ts')
     await expect(reindexLegacyPatterns(index, mockVectorStore, embed)).rejects.toThrow('provider down')
     expect(mockVectorStore.add).not.toHaveBeenCalled()
   })

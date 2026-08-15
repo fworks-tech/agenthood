@@ -1,8 +1,8 @@
 import { describe, it, expect, vi } from 'vitest'
-import { ContextCompressor } from '../../../src/core/ContextCompressor.js'
-import type { ILLMProvider } from '../../../src/llm/ILLMProvider.js'
-import type { Message } from '../../../src/llm/types.js'
-import type { LLMRequest, LLMResponse, LLMChunk } from '../../../src/llm/types.js'
+import { ContextCompressor } from '../../../src/core/ContextCompressor.ts'
+import type { ILLMProvider } from '../../../src/llm/ILLMProvider.ts'
+import type { Message } from '../../../src/llm/types.ts'
+import type { LLMRequest, LLMResponse, LLMChunk } from '../../../src/llm/types.ts'
 
 function stubProvider(contextWindow = 8192): ILLMProvider {
   return {

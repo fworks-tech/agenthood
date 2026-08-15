@@ -23,7 +23,7 @@ import { RefactorSkill } from '../tools/code/RefactorSkill.ts'
 import { PrSyncSkill } from '../tools/pr/PrSyncSkill.ts'
 import { SubagentTaskSkill } from '../tools/core/SubagentTaskSkill.ts'
 import { escapeXml, wrapProjectContext, loadProjectContext } from '../agents/memberLore.ts'
-import type { EpisodeLearner } from '../evals/EpisodeLearner.js'
+import type { EpisodeLearner } from '../evals/EpisodeLearner.ts'
 
 const TOOL_MAP: Record<string, new (...args: never[]) => ITool> = {
   'file.read': ReadFileSkill,

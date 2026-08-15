@@ -1,5 +1,5 @@
-import type { IVectorStore } from './VectorStore.js'
-import type { DecisionLog, DecisionEntry } from './DecisionLog.js'
+import type { IVectorStore } from './VectorStore.ts'
+import type { DecisionLog, DecisionEntry } from './DecisionLog.ts'
 
 export interface Embedder {
   embed(text: string): Promise<number[]>

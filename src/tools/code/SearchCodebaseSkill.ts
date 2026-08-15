@@ -1,7 +1,7 @@
 import { readdirSync, readFileSync, statSync } from 'node:fs'
 import { join, relative } from 'node:path'
-import type { ITool, ToolResult } from '../ITool.js'
-import type { ExecutionContext } from '../../core/ExecutionContext.js'
+import type { ITool, ToolResult } from '../ITool.ts'
+import type { ExecutionContext } from '../../core/ExecutionContext.ts'
 
 const IGNORED_DIRS = new Set(['node_modules', '.git', 'dist', '.next', 'coverage', '.cache'])
 const MAX_FILE_SIZE = 512 * 1024 // 512 KB — skip binary/large files

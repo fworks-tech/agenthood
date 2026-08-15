@@ -1,6 +1,6 @@
-import type { IVectorStore } from '../memory/VectorStore.js'
-import { hashPattern } from '../utils/hash.js'
-import type { LearningOutcome } from './EpisodeLearner.js'
+import type { IVectorStore } from '../memory/VectorStore.ts'
+import { hashPattern } from '../utils/hash.ts'
+import type { LearningOutcome } from './EpisodeLearner.ts'
 
 export interface SimilarPattern {
   pattern: string

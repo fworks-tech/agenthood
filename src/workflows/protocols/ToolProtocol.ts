@@ -1,7 +1,7 @@
-import type { ExecutionContext } from '../../core/ExecutionContext.js'
-import type { ITool } from '../../tools/ITool.js'
-import { RiskManager } from '../../core/RiskManager.js'
-import type { IProtocol, ProtocolConfig, FailureAction } from './IProtocol.js'
+import type { ExecutionContext } from '../../core/ExecutionContext.ts'
+import type { ITool } from '../../tools/ITool.ts'
+import { RiskManager } from '../../core/RiskManager.ts'
+import type { IProtocol, ProtocolConfig, FailureAction } from './IProtocol.ts'
 
 const DEFAULT_CONFIG: ProtocolConfig = {
   retryPolicy: { maxRetries: 1, backoffMs: 500 },

@@ -1,5 +1,5 @@
-import type { ExecutionContext } from '../../core/ExecutionContext.js'
-import type { IProtocol, ProtocolConfig, FailureAction } from './IProtocol.js'
+import type { ExecutionContext } from '../../core/ExecutionContext.ts'
+import type { IProtocol, ProtocolConfig, FailureAction } from './IProtocol.ts'
 
 const DEFAULT_CONFIG: ProtocolConfig = {
   retryPolicy: { maxRetries: 2, backoffMs: 1000 },

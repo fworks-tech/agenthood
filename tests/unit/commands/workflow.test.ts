@@ -1,6 +1,6 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest'
 
-vi.mock('../../../src/workflows/definitions/review-pr.js', () => ({
+vi.mock('../../../src/workflows/definitions/review-pr.ts', () => ({
   executeReviewPrWorkflow: vi.fn(),
 }))
 
@@ -12,8 +12,8 @@ vi.mock('node:child_process', async (importOriginal) => {
   }
 })
 
-import { workflow } from '../../../src/commands/workflow.js'
-import { executeReviewPrWorkflow } from '../../../src/workflows/definitions/review-pr.js'
+import { workflow } from '../../../src/commands/workflow.ts'
+import { executeReviewPrWorkflow } from '../../../src/workflows/definitions/review-pr.ts'
 
 describe('workflow command', () => {
   beforeEach(() => {

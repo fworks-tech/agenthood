@@ -1,6 +1,6 @@
 import { describe, it, expect } from 'vitest'
-import { FixedSizeChunkStrategy } from '../../../src/rag/ChunkStrategy.js'
-import type { Chunk } from '../../../src/rag/ChunkStrategy.js'
+import { FixedSizeChunkStrategy } from '../../../src/rag/ChunkStrategy.ts'
+import type { Chunk } from '../../../src/rag/ChunkStrategy.ts'
 
 describe('FixedSizeChunkStrategy', () => {
   const strategy = new FixedSizeChunkStrategy()

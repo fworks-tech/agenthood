@@ -1,4 +1,4 @@
-import { MEMBER_NAMES } from '../members.js'
+import { MEMBER_NAMES } from '../members.ts'
 
 /** Shared usage/unknown-member validation for activate/deactivate */
 export function requireMember(member: string | undefined, verb: string): string {

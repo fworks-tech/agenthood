@@ -1,5 +1,5 @@
-import { executeReviewPrWorkflow } from '../workflows/definitions/review-pr.js'
-import type { CommandDescriptor } from './types.js'
+import { executeReviewPrWorkflow } from '../workflows/definitions/review-pr.ts'
+import type { CommandDescriptor } from './types.ts'
 
 const WORKFLOWS: Record<string, () => Promise<string>> = {
   'review-pr': executeReviewPrWorkflow,

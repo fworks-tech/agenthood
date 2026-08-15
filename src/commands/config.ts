@@ -2,14 +2,18 @@ import { join } from 'node:path'
 import { readFile } from 'node:fs/promises'
 import type { LLMConfig, ProviderEntry } from '../llm/types.ts'
 
+function pickBlock(raw: Record<string, unknown>, key: string): Record<string, unknown> | undefined {
+  const block = raw[key]
+  if (!block || typeof block !== 'object') return undefined
+  return block as Record<string, unknown>
+}
+
 function parseProviderBlock(raw: Record<string, unknown>): { provider?: string; model?: string } {
   const provider = raw.provider
   if (typeof provider === 'string') return { provider }
-  if (provider && typeof provider === 'object') {
-    const block = provider as { name?: string; model?: string }
-    return { provider: block.name, model: block.model }
-  }
-  return {}
+  const block = pickBlock(raw, 'provider')
+  if (!block) return {}
+  return { provider: block.name as string | undefined, model: block.model as string | undefined }
 }
 
 function parseProviders(raw: Record<string, unknown>): ProviderEntry[] | undefined {
@@ -32,9 +36,8 @@ function parseProviders(raw: Record<string, unknown>): ProviderEntry[] | undefin
 }
 
 function parseFailover(raw: Record<string, unknown>): Pick<LLMConfig, 'failureThreshold' | 'cooldownMs' | 'probeEnabled'> {
-  const failover = raw.failover
-  if (!failover || typeof failover !== 'object') return {}
-  const f = failover as Record<string, unknown>
+  const f = pickBlock(raw, 'failover')
+  if (!f) return {}
   return {
     failureThreshold: f.failureThreshold as number | undefined,
     cooldownMs: f.cooldownMs as number | undefined,
@@ -43,15 +46,15 @@ function parseFailover(raw: Record<string, unknown>): Pick<LLMConfig, 'failureTh
 }
 
 function parseSkills(raw: Record<string, unknown>): { autoDiscover?: boolean } | undefined {
-  const skills = raw.skills
-  if (!skills || typeof skills !== 'object') return undefined
-  return { autoDiscover: (skills as Record<string, unknown>).autoDiscover === true }
+  const skills = pickBlock(raw, 'skills')
+  if (!skills) return undefined
+  return { autoDiscover: skills.autoDiscover === true }
 }
 
 function parseSentry(raw: Record<string, unknown>): { dsn?: string } | undefined {
-  const sentry = raw.sentry
-  if (!sentry || typeof sentry !== 'object') return undefined
-  const dsn = (sentry as Record<string, unknown>).dsn
+  const sentry = pickBlock(raw, 'sentry')
+  if (!sentry) return undefined
+  const dsn = sentry.dsn
   if (typeof dsn !== 'string' || dsn.length === 0 || !dsn.startsWith('http')) {
     console.warn('[run] invalid sentry.dsn in config — Sentry error reporting disabled')
     return undefined

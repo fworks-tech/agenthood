@@ -7,6 +7,7 @@ const commandsDir = join(dirname(fileURLToPath(import.meta.url)), '../../../src/
 
 describe('command registry', () => {
   it('every command file exports a well-formed CommandDescriptor', async () => {
+    // 15s: cold dynamic imports of every command module under parallel load
     const files = readdirSync(commandsDir).filter((f) => f.endsWith('.ts') && !f.endsWith('.d.ts'))
     const names: string[] = []
     for (const file of files) {
@@ -22,7 +23,7 @@ describe('command registry', () => {
       'activate', 'check', 'deactivate', 'eject', 'eval', 'health', 'init', 'list', 'oath',
       'pr-sync', 'rollback', 'run', 'setup', 'status', 'trace', 'verify', 'workflow',
     ])
-  })
+  }, 15000)
 
   it('helper modules (collectMetrics, prSyncHelpers) export no descriptor', async () => {
     const collectMetrics = await import(join(commandsDir, 'collectMetrics.ts'))

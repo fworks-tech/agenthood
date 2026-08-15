@@ -21,7 +21,7 @@ export class ArchitectAgent extends BaseAgent {
   protected tools: ITool[]
 
   constructor(llm: ILLMProvider, reasoningLoop: ReActLoop, toolRegistry: ToolRegistry, episodeLearner?: EpisodeLearner) {
-    super(llm, reasoningLoop, toolRegistry, undefined, episodeLearner)
+    super(llm, reasoningLoop, toolRegistry, { episodeLearner })
     this.tools = [
       new ReadFileSkill(),
       new WriteFileSkill(),

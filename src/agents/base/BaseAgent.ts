@@ -21,6 +21,11 @@ function redact(context: ExecutionContext, text: string): string {
   return context.redactor ? context.redactor.redactText(text) : text;
 }
 
+export interface BaseAgentOptions {
+  residualMemory?: ResidualMemory;
+  episodeLearner?: EpisodeLearner;
+}
+
 export abstract class BaseAgent {
   abstract role: string;
   protected abstract tools: ITool[];
@@ -28,13 +33,18 @@ export abstract class BaseAgent {
     context: ExecutionContext,
   ): Promise<string>;
 
+  protected residualMemory?: ResidualMemory;
+  protected episodeLearner?: EpisodeLearner;
+
   constructor(
     readonly llm: ILLMProvider,
     protected reasoningLoop: ReActLoop,
     protected toolRegistry: ToolRegistry,
-    protected residualMemory?: ResidualMemory,
-    protected episodeLearner?: EpisodeLearner,
-  ) {}
+    options: BaseAgentOptions = {},
+  ) {
+    this.residualMemory = options.residualMemory;
+    this.episodeLearner = options.episodeLearner;
+  }
 
   private readonly costEstimator = new CostEstimator();
 

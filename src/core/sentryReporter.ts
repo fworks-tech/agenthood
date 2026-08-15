@@ -28,8 +28,8 @@ export async function reportErrorToSentry(error: unknown, context: ExecutionCont
       tags: { member: report.member, model: report.model, status: report.status },
       extra: { durationMs: report.durationMs, correlationId: report.correlationId },
     })
-  } catch (err) {
-    console.debug(`[sentry] reporting failed: ${err instanceof Error ? err.message : String(err)}`)
+  } catch {
+    // reporter failures must never surface to the caller
   }
 }
 

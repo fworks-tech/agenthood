@@ -12,7 +12,14 @@ import type { EvalResult } from "../../core/types.js";
 import { createTraceEnvelope } from "../../core/TraceEnvelope.js";
 import { CostEstimator } from "../../core/CostEstimator.js";
 import { getMemberQualityScore } from "../../core/qualityScore.js";
-import { reportErrorToSentry } from "../../core/sentryReporter.js";
+import { reportErrorToSentry, reportBackgroundFailure } from "../../core/sentryReporter.js";
+
+function redact(context: ExecutionContext, text: string): string {
+  // production contexts always carry a redactor built from the observability
+  // config (ApplicationContext, eval.ts); the fallback keeps test and
+  // embedding-free callers working without silently persisting raw payloads
+  return context.redactor ? context.redactor.redactText(text) : text;
+}
 
 export abstract class BaseAgent {
   abstract role: string;
@@ -27,11 +34,9 @@ export abstract class BaseAgent {
     protected toolRegistry: ToolRegistry,
     protected residualMemory?: ResidualMemory,
     protected episodeLearner?: EpisodeLearner,
-  ) {
-    this.costEstimator = new CostEstimator();
-  }
+  ) {}
 
-  private readonly costEstimator: CostEstimator;
+  private readonly costEstimator = new CostEstimator();
 
   async run(input: string, context: ExecutionContext): Promise<AgentResult> {
     return this.runWithExecutor(input, context, (systemPrompt, task) =>
@@ -74,7 +79,7 @@ export abstract class BaseAgent {
 
     this.recordTrace(input, output, durationMs, error, context);
 
-    const residualInput = context.redactor ? context.redactor.redactText(input) : input;
+    const residualInput = redact(context, input);
     this.residualMemory?.record(`agent:${this.role}:${residualInput.slice(0, 80)}`, 0.5);
 
     const result: AgentResult = { role: this.role, output, artifacts: context.artifacts };
@@ -86,22 +91,30 @@ export abstract class BaseAgent {
     };
 
     this.episodeLearner?.learn(evalResult, context).catch((err) => {
-      console.error(`[BaseAgent] episode learner failed: ${err instanceof Error ? err.message : String(err)}`)
+      void reportBackgroundFailure(err, context, "episode learner failed", { member: this.role, model: this.reasoningLoop.model || this.role });
     });
 
     await this.recordRun(input, output, error, context);
 
     if (error) {
-      await reportErrorToSentry(error, context, {
-        member: this.role,
-        model: this.reasoningLoop.model || "unknown",
-        durationMs,
-        status: "error",
-        correlationId: context.correlationId ?? context.executionId,
-      });
-      throw error;
+      await this.reportFailure(error, durationMs, context);
     }
     return result;
+  }
+
+  private async reportFailure(
+    error: unknown,
+    durationMs: number,
+    context: ExecutionContext,
+  ): Promise<never> {
+    await reportErrorToSentry(error, context, {
+      member: this.role,
+      model: this.reasoningLoop.model || this.role,
+      durationMs,
+      status: "error",
+      correlationId: context.correlationId ?? context.executionId,
+    });
+    throw error;
   }
 
   protected recordTrace(
@@ -115,8 +128,8 @@ export abstract class BaseAgent {
     const model = this.reasoningLoop.model || "unknown";
     // redact before hashing so inputHash/outputHash always match the
     // persisted (redacted) payload; Tracer.record's own pass is a no-op then
-    const safeInput = context.redactor ? context.redactor.redactText(input) : input;
-    const safeOutput = context.redactor ? context.redactor.redactText(output) : output;
+    const safeInput = redact(context, input);
+    const safeOutput = redact(context, output);
     // tool-level LLM calls (WriteCode/Refactor/Explain) accumulate here
     const toolUsage = context.usage;
     const promptTokens = (usage?.promptTokens ?? 0) + (toolUsage?.promptTokens ?? 0);
@@ -147,7 +160,7 @@ export abstract class BaseAgent {
         }),
       );
     } catch (err) {
-      console.error(`[BaseAgent] trace recording failed: ${err instanceof Error ? err.message : String(err)}`)
+      void reportBackgroundFailure(err, context, "trace recording failed", { member: this.role, model: this.reasoningLoop.model || this.role });
     }
   }
 
@@ -166,9 +179,8 @@ export abstract class BaseAgent {
 
     // decisions and provenance persist raw payloads, so the shared redactor
     // must guard them or the redaction guarantee is only half-true
-    const redactor = context.redactor;
-    const safeInput = redactor ? redactor.redactText(input) : input;
-    const safeOutput = redactor ? redactor.redactText(output) : output;
+    const safeInput = redact(context, input);
+    const safeOutput = redact(context, output);
 
     try {
       await context.memory.decisions.record({
@@ -197,7 +209,7 @@ export abstract class BaseAgent {
         metadata: { decisionId: id, success: succeeded },
       });
     } catch (err) {
-      console.error(`[BaseAgent] decision/provenance recording failed: ${err instanceof Error ? err.message : String(err)}`)
+      await reportBackgroundFailure(err, context, "decision/provenance recording failed", { member: this.role, model: this.reasoningLoop.model || this.role });
     }
   }
 }

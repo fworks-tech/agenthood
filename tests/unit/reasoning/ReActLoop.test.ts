@@ -35,6 +35,13 @@ function mockProvider(options?: { toolCalls?: { name: string; args: unknown }[] 
 }
 
 describe('ReActLoop', () => {
+  it('setModel records the responding model', () => {
+    const llm = mockProvider()
+    const loop = new ReActLoop(llm, new ToolRegistry())
+    loop.setModel('claude-sonnet-4')
+    expect(loop.model).toBe('claude-sonnet-4')
+  })
+
   it('single step: LLM returns no tool calls → returns content', async () => {
     const llm = mockProvider()
     const reg = new ToolRegistry()

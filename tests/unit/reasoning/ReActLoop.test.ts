@@ -42,6 +42,24 @@ describe('ReActLoop', () => {
     expect(loop.model).toBe('claude-sonnet-4')
   })
 
+  it('stops with an error after maxSteps', async () => {
+    const llm = mockProvider({ toolCalls: [
+      { name: 'test_tool', args: { input: 'a' } },
+      { name: 'test_tool', args: { input: 'b' } },
+    ] })
+    const reg = new ToolRegistry()
+    reg.register({
+      name: 'test_tool',
+      description: 'A test tool',
+      inputSchema: { type: 'object', properties: { input: { type: 'string' } } },
+      execute: vi.fn().mockResolvedValue({ success: true, output: 'still going' }),
+    })
+    const loop = new ReActLoop(llm, reg, { maxSteps: 2 })
+    const ctx = createTestContext()
+
+    await expect(loop.run('system', 'loop', ctx)).rejects.toThrow(/max steps \(2\) exceeded/)
+  })
+
   it('single step: LLM returns no tool calls → returns content', async () => {
     const llm = mockProvider()
     const reg = new ToolRegistry()

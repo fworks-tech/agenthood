@@ -1,6 +1,7 @@
 export { BaseAgent } from './base/BaseAgent.ts'
 export type { AgentResult } from './base/AgentResult.ts'
 export { ArchitectAgent } from './ArchitectAgent.ts'
+export { DeveloperAgent } from './DeveloperAgent.ts'
 export { ReviewerAgent } from './ReviewerAgent.ts'
 export { QAAgent } from './QAAgent.ts'
 export { OracleAgent } from './OracleAgent.ts'

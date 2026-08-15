@@ -9,7 +9,7 @@ import type { ResidualMemory } from "../../memory/ResidualMemory.ts";
 import type { EpisodeLearner } from "../../evals/EpisodeLearner.ts";
 import type { EvalResult } from "../../core/types.ts";
 import { reportErrorToSentry, reportBackgroundFailure } from "../../core/sentryReporter.ts";
-import { recordAgentTrace, redactOrThrow, redactOrSkip } from "./agentTrace.ts";
+import { recordAgentTrace, redactSafely } from "./agentTrace.ts";
 
 export interface BaseAgentOptions {
   residualMemory?: ResidualMemory;
@@ -119,7 +119,7 @@ export abstract class BaseAgent {
   private recordResidual(input: string, context: ExecutionContext): void {
     // residual is a best-effort learning signal — a redaction failure must
     // not abort the run (trace recording already fails closed on it)
-    const residualInput = redactOrSkip(context, input, "residual redaction failed", { member: this.role, model: this.reasoningLoop.model || this.role });
+    const residualInput = redactSafely(context, input, "residual redaction failed", { member: this.role, model: this.reasoningLoop.model || this.role }, "skip");
     if (residualInput === undefined) return;
     this.residualMemory?.record(`agent:${this.role}:${residualInput.slice(0, 80)}`, 0.5);
   }
@@ -163,11 +163,11 @@ export abstract class BaseAgent {
     // decisions and provenance persist raw payloads, so the shared redactor
     // must guard them or the redaction guarantee is only half-true
     const report = { member: this.role, model: this.reasoningLoop.model || this.role };
-    const rationale = redactOrThrow(context, isSuccessful
+    const rationale = redactSafely(context, isSuccessful
       ? "Member run completed; see decision for output summary."
-      : `Run failed: ${error instanceof Error ? error.message : String(error)}`, "run redaction failed", report, error);
-    const safeInput = redactOrThrow(context, input, "run redaction failed", report, error);
-    const safeOutput = redactOrThrow(context, output, "run redaction failed", report, error);
+      : `Run failed: ${error instanceof Error ? error.message : String(error)}`, "run redaction failed", report, "throw", error);
+    const safeInput = redactSafely(context, input, "run redaction failed", report, "throw", error);
+    const safeOutput = redactSafely(context, output, "run redaction failed", report, "throw", error);
 
     try {
       await this.recordDecision({ id, timestamp, safeInput, safeOutput, rationale, isSuccessful, context });

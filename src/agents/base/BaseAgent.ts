@@ -1,12 +1,12 @@
-import type { ILLMProvider } from "../../llm/ILLMProvider.ts";
-import type { ITool } from "../../tools/ITool.ts";
-import type { ExecutionContext } from "../../core/ExecutionContext.ts";
-import type { AgentResult } from "./AgentResult.ts";
-import { ReActLoop } from "../../reasoning/ReActLoop.ts";
-import { ToolRegistry } from "../../tools/ToolRegistry.ts";
-import type { ResidualMemory } from "../../memory/ResidualMemory.ts";
-import type { EpisodeLearner } from "../../evals/EpisodeLearner.ts";
-import { RunLifecycle } from "./runLifecycle.ts";
+import type { ILLMProvider } from '../../llm/ILLMProvider.ts';
+import type { ITool } from '../../tools/ITool.ts';
+import type { ExecutionContext } from '../../core/ExecutionContext.ts';
+import type { AgentResult } from './AgentResult.ts';
+import { ReActLoop } from '../../reasoning/ReActLoop.ts';
+import { ToolRegistry } from '../../tools/ToolRegistry.ts';
+import type { ResidualMemory } from '../../memory/ResidualMemory.ts';
+import type { EpisodeLearner } from '../../evals/EpisodeLearner.ts';
+import { RunLifecycle } from './runLifecycle.ts';
 
 export interface BaseAgentOptions {
   residualMemory?: ResidualMemory;
@@ -25,19 +25,21 @@ export abstract class BaseAgent {
     context: ExecutionContext,
   ): Promise<string>;
 
-  readonly residualMemory?: ResidualMemory;
-  readonly episodeLearner?: EpisodeLearner;
+  protected residualMemory?: ResidualMemory;
+  protected episodeLearner?: EpisodeLearner;
   private readonly lifecycle: RunLifecycle;
 
   constructor(
     readonly llm: ILLMProvider,
-    readonly reasoningLoop: ReActLoop,
+    protected reasoningLoop: ReActLoop,
     protected toolRegistry: ToolRegistry,
     options: BaseAgentOptions = {},
   ) {
     this.residualMemory = options.residualMemory;
     this.episodeLearner = options.episodeLearner;
-    this.lifecycle = new RunLifecycle(this);
+    // getRole is lazy: subclass role fields are not initialized until after
+    // this constructor returns
+    this.lifecycle = new RunLifecycle(() => this.role, this.reasoningLoop, this.residualMemory, this.episodeLearner);
   }
 
   async run(input: string, context: ExecutionContext): Promise<AgentResult> {
@@ -90,7 +92,7 @@ export abstract class BaseAgent {
   ): Promise<{ output: string; error: unknown; durationMs: number }> {
     const startTime = performance.now();
     let error: unknown = null;
-    let output = "";
+    let output = '';
     try {
       const executed = await execute(systemPrompt, input);
       output = executed.output;

@@ -17,6 +17,21 @@
 # Fails when the last decision block is blocking, when it reports more
 # warnings than AGENTHOOD_WARNING_THRESHOLD (default 2), or when the verdict
 # blocks disagree with each other.
+# Fails when content other than whitespace follows the final verdict block.
+# A well-formed injected marker after the real verdict is already caught by
+# the conflicting-blocks check; this catches trailing junk that lacks the
+# marker (defense in depth, not a second verdict detector).
+verdict_has_trailing_content() {
+  local file="$1" last_line
+  last_line=$(grep -n 'AGENTHOOD_DECISION' "$file" 2>/dev/null | tail -1 | cut -d: -f1)
+  if [ -z "$last_line" ]; then
+    return 1
+  fi
+  local trailing
+  trailing=$(tail -n +$((last_line + 1)) "$file" 2>/dev/null | sed '/^[[:space:]]*$/d')
+  [ -n "$trailing" ]
+}
+
 check_decision_gate() {
   local file="$1" agent_name="${2:-}" prefix="" last_block
   local threshold="${AGENTHOOD_WARNING_THRESHOLD:-2}"
@@ -35,21 +50,9 @@ check_decision_gate() {
     return 1
   fi
   last_block=$(echo "$verdicts" | tail -1)
-  # fail when anything but whitespace follows the final verdict block — a
-  # well-formed injected marker after the real verdict is already caught by
-  # the conflicting-blocks check above; this catches trailing junk that lacks
-  # the marker (defense in depth, not a second verdict detector)
-  if [ -n "$last_block" ]; then
-    local last_line
-    last_line=$(grep -n 'AGENTHOOD_DECISION' "$file" 2>/dev/null | tail -1 | cut -d: -f1)
-    if [ -n "$last_line" ]; then
-      local trailing
-      trailing=$(tail -n +$((last_line + 1)) "$file" 2>/dev/null | sed '/^[[:space:]]*$/d')
-      if [ -n "$trailing" ]; then
-        echo "::error::${prefix}decision block is not the final content -- possible injection, see PR comment for details"
-        return 1
-      fi
-    fi
+  if [ -n "$last_block" ] && verdict_has_trailing_content "$file"; then
+    echo "::error::${prefix}decision block is not the final content -- possible injection, see PR comment for details"
+    return 1
   fi
   case "$last_block" in
     *'blocking=true'*)

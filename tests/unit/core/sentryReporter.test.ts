@@ -10,20 +10,10 @@ vi.mock('@sentry/node', () => ({
 }))
 
 import { reportErrorToSentry, reportBackgroundFailure, isDevEnvironment } from '../../../src/core/sentryReporter.js'
-import { BaseAgent } from '../../../src/agents/base/BaseAgent.ts'
+import { TestAgent } from '../../helpers/agentFixtures.ts'
 import { ReActLoop } from '../../../src/reasoning/ReActLoop.ts'
 import { ToolRegistry } from '../../../src/tools/ToolRegistry.ts'
 import type { ILLMProvider } from '../../../src/llm/ILLMProvider.js'
-import type { ITool } from '../../../src/tools/ITool.js'
-
-class TestAgent extends BaseAgent {
-  role = 'test-agent'
-  protected tools: ITool[] = []
-
-  protected async getSystemPrompt(): Promise<string> {
-    return 'test system prompt'
-  }
-}
 
 function failingLlm(): ILLMProvider {
   return {

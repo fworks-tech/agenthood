@@ -20,6 +20,7 @@ export interface ReActLoopOptions {
   compressor?: ContextCompressor
   loopWindow?: number
   loopThreshold?: number
+  maxSteps?: number
 }
 
 export class ReActLoop {
@@ -35,6 +36,7 @@ export class ReActLoop {
   private readonly compressor: ContextCompressor
   private readonly loopWindow: number
   private readonly loopThreshold: number
+  private readonly maxSteps: number
 
   constructor(
     private llm: ILLMProvider,
@@ -45,6 +47,7 @@ export class ReActLoop {
     this.compressor = options.compressor ?? new ContextCompressor(llm)
     this.loopWindow = options.loopWindow ?? 5
     this.loopThreshold = options.loopThreshold ?? 3
+    this.maxSteps = options.maxSteps ?? 100
   }
 
   async run(
@@ -63,6 +66,9 @@ export class ReActLoop {
     const recentCalls: string[] = [];
 
     for (let step = 0; ; step++) {
+      if (step >= this.maxSteps) {
+        throw new Error(`ReActLoop: max steps (${this.maxSteps}) exceeded`)
+      }
       const response = await this.runStep(step, messages, context);
 
       if (!response.toolCalls || response.toolCalls.length === 0) {

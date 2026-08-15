@@ -44,8 +44,8 @@ export interface BackgroundFailureOptions {
 
 /**
  * Reports a non-fatal infrastructure failure (trace, decision/provenance, or
- * learner errors) to Sentry and, in development environments, to the console
- * so local runs keep visibility without a DSN.
+ * learner errors) to Sentry and to the console when Sentry is not configured
+ * or in development, so visibility survives without a DSN.
  */
 export async function reportBackgroundFailure(
   error: unknown,
@@ -60,7 +60,7 @@ export async function reportBackgroundFailure(
     status: 'error',
     correlationId: context.correlationId ?? context.executionId,
   })
-  if (isDevEnvironment()) {
+  if (isDevEnvironment() || !context.sentry?.dsn) {
     console.error(`[${event}] ${error instanceof Error ? error.message : String(error)}`)
   }
 }

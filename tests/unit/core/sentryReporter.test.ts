@@ -144,6 +144,16 @@ describe('reportBackgroundFailure', () => {
     expect(captureException).not.toHaveBeenCalled()
     expect(consoleSpy).toHaveBeenCalledWith('[trace recording failed] trace failed')
   })
+
+  it('keeps console visibility in non-dev when no DSN is configured', async () => {
+    vi.stubEnv('NODE_ENV', 'production')
+    const context = createTestContext()
+
+    await reportBackgroundFailure(new Error('trace failed'), context, 'trace recording failed')
+
+    expect(captureException).not.toHaveBeenCalled()
+    expect(consoleSpy).toHaveBeenCalledWith('[trace recording failed] trace failed')
+  })
 })
 
 describe('BaseAgent sentry integration', () => {

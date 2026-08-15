@@ -32,3 +32,35 @@ export async function reportErrorToSentry(error: unknown, context: ExecutionCont
     console.debug(`[sentry] reporting failed: ${err instanceof Error ? err.message : String(err)}`)
   }
 }
+
+export function isDevEnvironment(env: string | undefined = process.env.NODE_ENV): boolean {
+  return env === 'development'
+}
+
+export interface BackgroundFailureOptions {
+  member?: string
+  model?: string
+}
+
+/**
+ * Reports a non-fatal infrastructure failure (trace, decision/provenance, or
+ * learner errors) to Sentry and, in development environments, to the console
+ * so local runs keep visibility without a DSN.
+ */
+export async function reportBackgroundFailure(
+  error: unknown,
+  context: ExecutionContext,
+  event: string,
+  options: BackgroundFailureOptions = {},
+): Promise<void> {
+  await reportErrorToSentry(error, context, {
+    member: options.member ?? 'system',
+    model: options.model ?? 'unknown',
+    durationMs: 0,
+    status: 'error',
+    correlationId: context.correlationId ?? context.executionId,
+  })
+  if (isDevEnvironment()) {
+    console.error(`[${event}] ${error instanceof Error ? error.message : String(error)}`)
+  }
+}

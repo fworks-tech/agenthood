@@ -1,4 +1,4 @@
-import { describe, it, expect, vi, beforeEach } from 'vitest'
+import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest'
 import { createTestContext } from '../../helpers/testContext.ts'
 
 const captureException = vi.fn()
@@ -9,7 +9,7 @@ vi.mock('@sentry/node', () => ({
   captureException,
 }))
 
-import { reportErrorToSentry } from '../../../src/core/sentryReporter.js'
+import { reportErrorToSentry, reportBackgroundFailure, isDevEnvironment } from '../../../src/core/sentryReporter.js'
 import { BaseAgent } from '../../../src/agents/base/BaseAgent.ts'
 import { ReActLoop } from '../../../src/reasoning/ReActLoop.ts'
 import { ToolRegistry } from '../../../src/tools/ToolRegistry.ts'
@@ -90,6 +90,59 @@ describe('reportErrorToSentry', () => {
     await expect(
       reportErrorToSentry(new Error('boom'), context, { member: 'm', model: 'x', durationMs: 1, status: 'error', correlationId: 'c' }),
     ).resolves.toBeUndefined()
+  })
+})
+
+describe('isDevEnvironment', () => {
+  it('is true only for the development environment', () => {
+    expect(isDevEnvironment('development')).toBe(true)
+    expect(isDevEnvironment('production')).toBe(false)
+    expect(isDevEnvironment('test')).toBe(false)
+    expect(isDevEnvironment(undefined)).toBe(false)
+  })
+})
+
+describe('reportBackgroundFailure', () => {
+  const consoleSpy = vi.spyOn(console, 'error').mockImplementation(() => {})
+
+  beforeEach(() => {
+    consoleSpy.mockClear()
+    captureException.mockClear()
+    init.mockClear()
+  })
+
+  afterEach(() => {
+    vi.unstubAllEnvs()
+  })
+
+  it('reports to Sentry and not the console in non-dev environments', async () => {
+    vi.stubEnv('NODE_ENV', 'production')
+    const context = createTestContext({ sentry: { dsn: DSN } })
+
+    await reportBackgroundFailure(new Error('trace failed'), context, 'trace recording failed', { member: 'test-agent' })
+
+    expect(captureException).toHaveBeenCalledTimes(1)
+    expect(consoleSpy).not.toHaveBeenCalled()
+  })
+
+  it('reports to Sentry and the console in development', async () => {
+    vi.stubEnv('NODE_ENV', 'development')
+    const context = createTestContext({ sentry: { dsn: DSN } })
+
+    await reportBackgroundFailure(new Error('trace failed'), context, 'trace recording failed', { member: 'test-agent' })
+
+    expect(captureException).toHaveBeenCalledTimes(1)
+    expect(consoleSpy).toHaveBeenCalledWith('[trace recording failed] trace failed')
+  })
+
+  it('keeps dev console visibility without a DSN', async () => {
+    vi.stubEnv('NODE_ENV', 'development')
+    const context = createTestContext()
+
+    await reportBackgroundFailure(new Error('trace failed'), context, 'trace recording failed')
+
+    expect(captureException).not.toHaveBeenCalled()
+    expect(consoleSpy).toHaveBeenCalledWith('[trace recording failed] trace failed')
   })
 })
 

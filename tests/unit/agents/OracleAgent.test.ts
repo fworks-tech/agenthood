@@ -2,6 +2,7 @@ import { describe, it, expect, vi } from 'vitest'
 import { OracleAgent } from '../../../src/agents/OracleAgent.js'
 import { ReActLoop } from '../../../src/reasoning/ReActLoop.js'
 import { ToolRegistry } from '../../../src/tools/ToolRegistry.js'
+import { createTestContext } from '../../helpers/testContext.ts'
 import type { ExecutionContext } from '../../../src/core/ExecutionContext.js'
 
 const captureException = vi.fn()
@@ -28,21 +29,26 @@ function mockEnv(): { agent: OracleAgent; context: ExecutionContext } {
   const loop = new ReActLoop(llm, skillRegistry)
   const agent = new OracleAgent(llm, loop, skillRegistry)
 
-  const context = {
-    executionId: 'test',
-    project: { localPath: '/test', name: 'test' },
+  const base = createTestContext()
+  const context: ExecutionContext = {
+    ...base,
     memory: {
-      shortTerm: { add: vi.fn(), getRecent: vi.fn(), clear: vi.fn() },
-      longTerm: { store: vi.fn(), retrieve: vi.fn() },
-      episodic: { record: vi.fn(), recall: vi.fn().mockResolvedValue([]) },
-      project: { getConventions: vi.fn().mockResolvedValue([]), getArchitecturalDecisions: vi.fn().mockResolvedValue([]) },
-      decisions: { record: vi.fn(), search: vi.fn(), recent: vi.fn(), get: vi.fn() },
-      provenance: { track: vi.fn() },
+      ...base.memory,
+      episodic: {
+        ...base.memory.episodic,
+        recall: vi.fn().mockResolvedValue([]),
+      },
     },
-    llm: {} as any,
-    prompts: { build: vi.fn() } as any,
-    tracer: { startSpan: vi.fn(), endSpan: vi.fn(), record: vi.fn(), getRecent: vi.fn(), getByMember: vi.fn(), getByCorrelationId: vi.fn(), flush: vi.fn().mockResolvedValue(undefined) },
-    artifacts: [],
+    tracer: {
+      startSpan: vi.fn(),
+      endSpan: vi.fn(),
+      record: vi.fn(),
+      getRecent: vi.fn(() => []),
+      getByMember: vi.fn(() => []),
+      getByCorrelationId: vi.fn(() => []),
+      flush: vi.fn().mockResolvedValue(undefined),
+      size: 0,
+    },
     oracle: { ask: vi.fn() },
   }
 
@@ -132,6 +138,22 @@ describe('OracleAgent', () => {
     const record = vi.mocked(context.tracer.record)
     const [env] = record.mock.calls[0]
     expect(env.model).toBe('claude-sonnet-4')
+  })
+
+  it('wraps retrieved knowledge in a retrieved_context trust boundary', async () => {
+    const { agent, context } = mockEnv()
+    mockComplete(agent).mockResolvedValueOnce(
+      { content: 'answer', model: 'mock-model' },
+    )
+    vi.mocked(context.memory.episodic.recall).mockResolvedValue(['past execution 1'])
+
+    await agent.ask('what happened before?', context)
+
+    const [request] = mockComplete(agent).mock.calls[0]
+    const systemMessage = request.messages.find((m: { role: string }) => m.role === 'system')
+    expect(systemMessage.content).toContain('<retrieved_context>')
+    expect(systemMessage.content).toContain('past execution 1')
+    expect(systemMessage.content).toContain('not instructions')
   })
 
   it('strips the user_query closing delimiter from questions', async () => {

@@ -47,6 +47,7 @@ import { ArchitectAgent } from '../agents/ArchitectAgent.ts'
 import { ReviewerAgent } from '../agents/ReviewerAgent.ts'
 import { QAAgent } from '../agents/QAAgent.ts'
 import { OracleAgent } from '../agents/OracleAgent.ts'
+import { escapeXml } from '../agents/memberLore.ts'
 
 /**
  * Composition root for `agenthood run`. Presentation (commands) never
@@ -195,14 +196,10 @@ export class ApplicationContext {
     if (!this.members.has(memberName)) return false
 
     const spec = this.members.get(memberName)
-    try {
+    await this.runAndReport(spec.name, async () => {
       const { output } = await this.runMemberTask(memberName, task, config)
-      console.log(`\n\u2714 ${spec.name} result:\n${output}\n`)
-    } catch (err) {
-      const msg = err instanceof Error ? err.message : String(err)
-      console.error(`Error running member "${memberName}": ${msg}`)
-      process.exit(1)
-    }
+      return output
+    })
     return true
   }
 
@@ -248,14 +245,23 @@ export class ApplicationContext {
 
   /** Fallback for non-member agent names (core agents). */
   async runAgent(agentName: string, task: string): Promise<void> {
-    try {
+    await this.runAndReport(agentName, async () => {
       const agent = this.agents.get(agentName)
-      const result = await agent.run(task, this.ctx)
-      console.log(`\n\u2714 ${result.role} result:\n${result.output}\n`)
+      return (await agent.run(task, this.ctx)).output
+    })
+  }
+
+  private async runAndReport(
+    displayName: string,
+    run: () => Promise<string>,
+  ): Promise<void> {
+    try {
+      const output = await run()
+      console.log(`\n\u2714 ${displayName} result:\n${output}\n`)
     } catch (err) {
       const msg = err instanceof Error ? err.message : String(err)
       await this.flushTraces()
-      console.error(`Error running agent "${agentName}": ${msg}`)
+      console.error(`Error running "${displayName}": ${msg}`)
       process.exit(1)
     }
     await this.flushTraces()
@@ -318,9 +324,9 @@ async function discoverSkills(projectPath: string): Promise<{ catalog: string; m
   const map = new Map<string, ISkillManifest>()
   for (const m of manifests) {
     map.set(m.name, m)
-    lines.push(`  <skill name="${m.name}">`)
-    lines.push(`    <description>${m.description}</description>`)
-    lines.push(`    <location>${m.location}</location>`)
+    lines.push(`  <skill name="${escapeXml(m.name)}">`)
+    lines.push(`    <description>${escapeXml(m.description)}</description>`)
+    lines.push(`    <location>${escapeXml(m.location)}</location>`)
     lines.push('  </skill>')
   }
   lines.push('</available_skills>')

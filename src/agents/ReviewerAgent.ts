@@ -8,7 +8,7 @@ import type { ExecutionContext } from '../core/ExecutionContext.ts'
 import type { ILLMProvider } from '../llm/ILLMProvider.ts'
 import type { ReActLoop } from '../reasoning/ReActLoop.ts'
 import type { ToolRegistry } from '../tools/ToolRegistry.ts'
-import { loadMemberLore } from './memberLore.ts'
+import { buildLorePrompt } from './memberLore.ts'
 import type { EpisodeLearner } from '../evals/EpisodeLearner.js'
 
 const __filename = fileURLToPath(import.meta.url)
@@ -28,15 +28,6 @@ export class ReviewerAgent extends BaseAgent {
   }
 
   protected async getSystemPrompt(context: ExecutionContext): Promise<string> {
-    const conventions = await context.memory.project.getConventions()
-    const archDecisions = await context.memory.project.getArchitecturalDecisions()
-
-    const template = context.prompts.build('reviewer.system', {
-      conventions: conventions.map((c) => `${c.name}: ${c.value}`).join('\n'),
-      archDecisions: archDecisions.join('\n'),
-    })
-
-    const memberLore = loadMemberLore(SKILL_PATH)
-    return memberLore ? `${template.content}\n\n---\n\n${memberLore}` : template.content
+    return buildLorePrompt(context, 'reviewer.system', SKILL_PATH)
   }
 }

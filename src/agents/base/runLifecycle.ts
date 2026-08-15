@@ -8,23 +8,23 @@ import type { ResidualMemory } from '../../memory/ResidualMemory.ts'
 import type { ReActLoop } from '../../reasoning/ReActLoop.ts'
 import { recordAgentTrace, redactSafely } from './agentTrace.ts'
 
-export interface LifecycleHost {
-  role: string
-  reasoningLoop: ReActLoop
-  residualMemory?: ResidualMemory
-  episodeLearner?: EpisodeLearner
-}
-
 /**
  * Persistence half of the agent lifecycle: tracing, residual memory, episode
  * learning, Sentry reporting, and decision/provenance recording. Kept out of
- * BaseAgent so the execution orchestration stays readable.
+ * BaseAgent so the execution orchestration stays readable. `getRole` is a
+ * closure because subclass role fields are only set after the base
+ * constructor runs.
  */
 export class RunLifecycle {
-  constructor(private readonly agent: LifecycleHost) {}
+  constructor(
+    private readonly getRole: () => string,
+    private readonly reasoningLoop: ReActLoop,
+    private readonly residualMemory?: ResidualMemory,
+    private readonly episodeLearner?: EpisodeLearner,
+  ) {}
 
   private get report(): { member: string; model: string } {
-    return { member: this.agent.role, model: this.agent.reasoningLoop.model || this.agent.role }
+    return { member: this.getRole(), model: this.reasoningLoop.model || this.getRole() }
   }
 
   recordTrace(args: {
@@ -35,9 +35,9 @@ export class RunLifecycle {
     context: ExecutionContext;
   }): void {
     recordAgentTrace({
-      role: this.agent.role,
-      model: this.agent.reasoningLoop.model || 'unknown',
-      usage: this.agent.reasoningLoop.usage,
+      role: this.getRole(),
+      model: this.reasoningLoop.model || 'unknown',
+      usage: this.reasoningLoop.usage,
       toolUsage: args.context.usage,
       input: args.input,
       output: args.output,
@@ -52,16 +52,16 @@ export class RunLifecycle {
     // not abort the run (trace recording already fails closed on it)
     const residualInput = redactSafely(context, input, { event: 'residual redaction failed', ...this.report, mode: 'skip' });
     if (residualInput === undefined) return;
-    this.agent.residualMemory?.record(`agent:${this.agent.role}:${residualInput.slice(0, 80)}`, 0.5);
+    this.residualMemory?.record(`agent:${this.getRole()}:${residualInput.slice(0, 80)}`, 0.5);
   }
 
   learnFromRun(context: ExecutionContext): void {
     const evalResult: EvalResult = {
       episodeId: context.executionId,
       scores: {},
-      metadata: { member: this.agent.role },
+      metadata: { member: this.getRole() },
     };
-    this.agent.episodeLearner?.learn(evalResult, context).catch((err) => {
+    this.episodeLearner?.learn(evalResult, context).catch((err) => {
       void reportBackgroundFailure(err, context, 'episode learner failed', this.report);
     });
   }
@@ -72,8 +72,8 @@ export class RunLifecycle {
     context: ExecutionContext,
   ): Promise<never> {
     await reportErrorToSentry(error, context, {
-      member: this.agent.role,
-      model: this.agent.reasoningLoop.model || this.agent.role,
+      member: this.getRole(),
+      model: this.reasoningLoop.model || this.getRole(),
       durationMs,
       status: 'error',
       correlationId: context.correlationId ?? context.executionId,
@@ -120,15 +120,15 @@ export class RunLifecycle {
     await args.context.memory.decisions.record({
       id: args.id,
       timestamp: args.timestamp,
-      member: this.agent.role,
-      task: args.safeInput,
+      member: this.getRole(),
+      task: args.safeInput.slice(0, 2000),
       decision: args.safeOutput.slice(0, 2000) || '(no output)',
       rationale: args.rationale,
       alternatives: [],
       outcome: args.isSuccessful ? 'completed' : 'failed',
       tags: ['run'],
       confidence: args.isSuccessful ? 1 : 0,
-      decisionMaker: this.agent.role,
+      decisionMaker: this.getRole(),
     });
   }
 
@@ -142,8 +142,8 @@ export class RunLifecycle {
     await args.context.memory.provenance.track({
       entityId: args.context.executionId,
       entityType: 'decision',
-      activityId: `run:${this.agent.role}`,
-      agentId: this.agent.role,
+      activityId: `run:${this.getRole()}`,
+      agentId: this.getRole(),
       agentType: 'software_agent',
       role: 'generator',
       sourceDocument: args.safeInput.slice(0, 500),

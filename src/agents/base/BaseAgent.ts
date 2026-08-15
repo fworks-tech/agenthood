@@ -218,9 +218,9 @@ export abstract class BaseAgent {
     const timestamp = new Date().toISOString();
     const id = `dec-${Date.now()}-${randomUUID().slice(0, 8)}`;
     const isSuccessful = error === null;
-    const rationale = isSuccessful
+    const rationale = redact(context, isSuccessful
       ? "Member run completed; see decision for output summary."
-      : `Run failed: ${error instanceof Error ? error.message : String(error)}`;
+      : `Run failed: ${error instanceof Error ? error.message : String(error)}`);
 
     // decisions and provenance persist raw payloads, so the shared redactor
     // must guard them or the redaction guarantee is only half-true

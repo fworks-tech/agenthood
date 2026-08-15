@@ -68,7 +68,7 @@ export class MemberAgent extends BaseAgent {
       this.addTool(toolName, tools, seen)
     }
 
-    if (this.agentRegistry && this.spec.permissionProfile !== 'restricted' && !seen.has('delegate_task')) {
+    if (this.agentRegistry && this.spec.canDelegate === true && !seen.has('delegate_task')) {
       try {
         const tool = new SubagentTaskSkill(this.agentRegistry)
         tools.push(tool)

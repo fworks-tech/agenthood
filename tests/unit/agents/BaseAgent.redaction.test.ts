@@ -39,6 +39,14 @@ describe('BaseAgent redaction', () => {
     expect(prov.sourceDocument).not.toContain('dev@example.com')
   })
 
+  it('fails closed when the context has no redactor', async () => {
+    const { llm, toolRegistry, loop } = createAgentHarness()
+    const context = { ...createTestContext(), redactor: undefined } as never
+
+    const agent = new TestAgent(llm, loop, toolRegistry)
+    await expect(agent.run('sensitive', context)).rejects.toThrow(/redaction requires a redactor/)
+  })
+
   it('hashes redacted payloads so inputHash matches the persisted trace text', async () => {
     const { llm, toolRegistry, loop } = createAgentHarness()
     const redactor = new RedactionFilter({ enabled: true })

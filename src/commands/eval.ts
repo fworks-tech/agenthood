@@ -100,6 +100,11 @@ interface ParsedEvalArgs {
   helpRequested: boolean
 }
 
+function failUsage(message: string): never {
+  console.error(message)
+  process.exit(1)
+}
+
 function parseEvalArgs(args: string[]): ParsedEvalArgs {
   const positional: string[] = []
   let suitePath: string | undefined
@@ -126,8 +131,7 @@ function parseEvalArgs(args: string[]): ParsedEvalArgs {
       case '--limit': {
         const parsed = Number.parseInt(args[++i] ?? '', 10)
         if (Number.isNaN(parsed) || parsed < 0) {
-          console.error('Invalid --limit value — expected a non-negative integer')
-          process.exit(1)
+          failUsage('Invalid --limit value — expected a non-negative integer')
         }
         replayLimit = parsed
         break
@@ -271,7 +275,7 @@ async function runReplay(member: string, limit: number, json: boolean): Promise<
 
   const redactor = createRedactionFilterFromConfig(loadObservabilityConfig(cwd)) ?? new RedactionFilter({ enabled: false })
   for (const task of report.tasks) {
-    if (task.newOutput !== undefined) task.newOutput = redactor ? redactor.redactText(task.newOutput) : task.newOutput
+    if (task.newOutput !== undefined) task.newOutput = redactor.redactText(task.newOutput)
   }
 
   const reportPath = join(cwd, '.agenthood', 'evals', 'replay-report.json')

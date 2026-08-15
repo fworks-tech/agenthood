@@ -28,8 +28,10 @@ export async function reportErrorToSentry(error: unknown, context: ExecutionCont
       tags: { member: report.member, model: report.model, status: report.status },
       extra: { durationMs: report.durationMs, correlationId: report.correlationId },
     })
-  } catch {
-    // reporter failures must never surface to the caller
+  } catch (err) {
+    // reporter failures must never surface to the caller; the debug line
+    // keeps the swallow path observable
+    console.debug(`[sentry] reporting failed: ${err instanceof Error ? err.message : String(err)}`)
   }
 }
 

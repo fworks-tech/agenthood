@@ -164,7 +164,7 @@ export class ApplicationContext {
       tReg.register(new ActivateSkillTool(skillManifests))
     }
 
-    this.agents.register(new DeveloperAgent(llm, loop, tReg, this.agents, this.episodeLearner))
+    this.agents.register(new DeveloperAgent(llm, loop, tReg, { agentRegistry: this.agents, episodeLearner: this.episodeLearner }))
     this.agents.register(new ArchitectAgent(llm, loop, tReg, this.episodeLearner))
     this.agents.register(new ReviewerAgent(llm, loop, tReg, this.episodeLearner))
     this.agents.register(new QAAgent(llm, loop, tReg, this.episodeLearner))

@@ -40,6 +40,8 @@ export interface MemberAgentOptions {
   episodeLearner?: EpisodeLearner
 }
 
+const warnedTools = new Set<string>()
+
 export class MemberAgent extends BaseAgent {
   role: string
   protected tools: ITool[]
@@ -90,6 +92,11 @@ export class MemberAgent extends BaseAgent {
       if (instance && !seen.has(instance.name)) {
         tools.push(instance)
         seen.add(instance.name)
+      } else if (!instance && !warnedTools.has(`${this.role}:${toolName}`)) {
+        // surfaces spec drift: the member requests a tool the registry
+        // advertises but TOOL_MAP cannot construct (once per role+name)
+        warnedTools.add(`${this.role}:${toolName}`)
+        console.warn(`[members] tool "${toolName}" requested by "${this.role}" has no implementation`)
       }
     } catch (err) {
       console.warn(`[members] tool "${toolName}" instantiation failed for "${this.role}": ${err instanceof Error ? err.message : String(err)}`)

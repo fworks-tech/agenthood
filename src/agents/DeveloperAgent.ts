@@ -21,6 +21,11 @@ const __filename = fileURLToPath(import.meta.url)
 const __dirname = dirname(__filename)
 const SKILL_PATH = join(__dirname, '..', '..', 'members', 'the-builder', 'SKILL.md')
 
+export interface DeveloperAgentOptions {
+  agentRegistry: AgentRegistry
+  episodeLearner?: EpisodeLearner
+}
+
 export class DeveloperAgent extends BaseAgent {
   role = 'developer'
   protected tools: ITool[]
@@ -29,10 +34,9 @@ export class DeveloperAgent extends BaseAgent {
     llm: ILLMProvider,
     reasoningLoop: ReActLoop,
     toolRegistry: ToolRegistry,
-    agentRegistry: AgentRegistry,
-    episodeLearner?: EpisodeLearner,
+    options: DeveloperAgentOptions,
   ) {
-    super(llm, reasoningLoop, toolRegistry, { episodeLearner })
+    super(llm, reasoningLoop, toolRegistry, { episodeLearner: options.episodeLearner })
     this.tools = [
       new WriteCodeSkill(),
       new RefactorSkill(),
@@ -40,7 +44,7 @@ export class DeveloperAgent extends BaseAgent {
       new WriteFileSkill(),
       new SearchCodebaseSkill(),
       new ExplainCodeSkill(),
-      new SubagentTaskSkill(agentRegistry),
+      new SubagentTaskSkill(options.agentRegistry),
     ]
   }
 

@@ -100,10 +100,11 @@ describe('buildLorePrompt', () => {
       expect(wrapped.split('</user_query>').length - 1).toBe(1)
     })
 
-    it('keeps unclosed tag fragments as inert text', () => {
+    it('strips unclosed tag fragments', () => {
       const wrapped = wrapUserQuery('<user_query')
-      expect(wrapped).toContain('<user_query')
-      // no second closing pair may exist: boundary ends exactly once
+      // input fragment is stripped; only wrapper's own opening tag remains
+      expect(wrapped.split('<user_query>').length - 1).toBe(1)
+      // only the wrapper's own closing pair exists
       expect(wrapped.match(/<\/user_query>/g)?.length).toBe(1)
     })
   })

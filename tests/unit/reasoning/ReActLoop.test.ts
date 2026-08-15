@@ -1,5 +1,5 @@
 import { describe, it, expect, vi } from 'vitest'
-import { ReActLoop, ToolLoopDetectedError } from '../../../src/reasoning/ReActLoop.ts'
+import { ReActLoop, ToolLoopDetectedError, MaxStepsExceededError } from '../../../src/reasoning/ReActLoop.ts'
 import { ThinkingBudget, BudgetExceededError } from '../../../src/reasoning/ThinkingBudget.ts'
 import { ToolRegistry, ToolNotFoundError } from '../../../src/tools/ToolRegistry.ts'
 import { createTestContext } from '../../helpers/testContext.ts'
@@ -57,9 +57,7 @@ describe('ReActLoop', () => {
     const loop = new ReActLoop(llm, reg, { maxSteps: 2 })
     const ctx = createTestContext()
 
-    const result = await loop.run('system', 'loop', ctx)
-    expect(result).toContain('Max steps (2) exceeded')
-    expect(result).toContain('Partial result')
+    await expect(loop.run('system', 'loop', ctx)).rejects.toThrow(MaxStepsExceededError)
   })
 
   it('single step: LLM returns no tool calls → returns content', async () => {

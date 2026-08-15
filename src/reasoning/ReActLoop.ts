@@ -15,6 +15,16 @@ export class ToolLoopDetectedError extends Error {
   }
 }
 
+export class MaxStepsExceededError extends Error {
+  readonly partialResult: string
+
+  constructor(partialResult: string, maxSteps: number) {
+    super(`Max steps (${maxSteps}) exceeded`)
+    this.name = 'MaxStepsExceededError'
+    this.partialResult = partialResult
+  }
+}
+
 export interface ReActLoopOptions {
   budget?: ThinkingBudget
   compressor?: ContextCompressor
@@ -72,9 +82,9 @@ export class ReActLoop {
 
     for (let step = 0; ; step++) {
       if (step >= this.maxSteps) {
-        // Return partial result instead of throwing to allow graceful degradation
         const lastContent = messages[messages.length - 1]?.content ?? ''
-        return `Max steps (${this.maxSteps}) exceeded. Partial result:\n${lastContent}`
+        const partialResult = `Max steps (${this.maxSteps}) exceeded. Partial result:\n${lastContent}`
+        throw new MaxStepsExceededError(partialResult, this.maxSteps)
       }
       const response = await this.runStep(step, messages, context);
 

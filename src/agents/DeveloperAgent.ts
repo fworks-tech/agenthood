@@ -23,7 +23,7 @@ const SKILL_PATH = join(__dirname, '..', '..', 'members', 'the-builder', 'SKILL.
 export interface DeveloperAgentOptions extends BaseAgentOptions {
   agentRegistry: AgentRegistry
   /** Opt-in delegation: grants the SubagentTaskSkill so the agent can call other agents. */
-  delegation?: boolean
+  canDelegate?: boolean
 }
 
 export class DeveloperAgent extends BaseAgent {
@@ -45,7 +45,7 @@ export class DeveloperAgent extends BaseAgent {
       new SearchCodebaseSkill(),
       new ExplainCodeSkill(),
     ]
-    if (options.delegation) {
+    if (options.canDelegate) {
       // Restrict delegation to core agents that are safe to call from DeveloperAgent
       const allowedRoles = ['architect', 'qa', 'reviewer', 'the-oracle']
       this.tools.push(new SubagentTaskSkill(options.agentRegistry, { allowedRoles }))

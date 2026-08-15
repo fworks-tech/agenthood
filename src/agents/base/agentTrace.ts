@@ -28,6 +28,37 @@ export function redact(context: ExecutionContext, text: string): string {
   return context.redactor.redactText(text)
 }
 
+export function redactOrThrow(
+  context: ExecutionContext,
+  text: string,
+  event: string,
+  report: { member: string; model: string },
+  originalError?: unknown,
+): string {
+  try {
+    return redact(context, text)
+  } catch (redactionError) {
+    void reportBackgroundFailure(redactionError, context, event, report)
+    // fail closed, but surface the original run error when one exists
+    if (originalError) throw originalError
+    throw redactionError
+  }
+}
+
+export function redactOrSkip(
+  context: ExecutionContext,
+  text: string,
+  event: string,
+  report: { member: string; model: string },
+): string | undefined {
+  try {
+    return redact(context, text)
+  } catch (redactionError) {
+    void reportBackgroundFailure(redactionError, context, event, report)
+    return undefined
+  }
+}
+
 const costEstimator = new CostEstimator()
 
 export function buildAgentTraceEnvelope(args: AgentTraceArgs) {
@@ -63,17 +94,8 @@ export function buildAgentTraceEnvelope(args: AgentTraceArgs) {
 export function recordAgentTrace(args: AgentTraceArgs): void {
   // redact before hashing so inputHash/outputHash always match the persisted
   // (redacted) payload; Tracer.record's own pass is a no-op then
-  let safeInput: string
-  let safeOutput: string
-  try {
-    safeInput = redact(args.context, args.input)
-    safeOutput = redact(args.context, args.output)
-  } catch (redactionError) {
-    void reportBackgroundFailure(redactionError, args.context, 'trace redaction failed', { member: args.role, model: args.model })
-    // fail closed, but surface the original run error when one exists
-    if (args.error) throw args.error
-    throw redactionError
-  }
+  const safeInput = redactOrThrow(args.context, args.input, 'trace redaction failed', { member: args.role, model: args.model }, args.error)
+  const safeOutput = redactOrThrow(args.context, args.output, 'trace redaction failed', { member: args.role, model: args.model }, args.error)
   try {
     args.context.tracer.record(buildAgentTraceEnvelope({ ...args, input: safeInput, output: safeOutput }))
   } catch (err) {

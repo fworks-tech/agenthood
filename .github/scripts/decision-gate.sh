@@ -49,14 +49,12 @@ check_decision_gate() {
       fi
       return 0
       ;;
-    *)
-      if grep -q 'AGENTHOOD_DECISION' "$file" 2>/dev/null; then
-        # a decision marker exists but its final block is malformed -- fail
-        echo "::error::${prefix}found a malformed trailing decision block -- see PR comment for details"
-        return 1
-      fi
-      echo "::warning::${prefix}output missing a valid trailing decision block -- treated as non-blocking"
-      return 0
-      ;;
   esac
+  if ! grep -q 'AGENTHOOD_DECISION' "$file" 2>/dev/null; then
+    echo "::warning::${prefix}output missing a valid trailing decision block -- treated as non-blocking"
+    return 0
+  fi
+  # a decision marker exists but its final block is malformed -- fail
+  echo "::error::${prefix}found a malformed trailing decision block -- see PR comment for details"
+  return 1
 }

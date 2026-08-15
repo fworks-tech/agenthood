@@ -1,15 +1,15 @@
 import { randomUUID } from "node:crypto";
-import type { ILLMProvider } from "../../llm/ILLMProvider.js";
-import type { ITool } from "../../tools/ITool.js";
-import type { ExecutionContext } from "../../core/ExecutionContext.js";
-import type { AgentResult } from "./AgentResult.js";
-import { ReActLoop } from "../../reasoning/ReActLoop.js";
-import { ToolRegistry } from "../../tools/ToolRegistry.js";
-import type { ResidualMemory } from "../../memory/ResidualMemory.js";
-import type { EpisodeLearner } from "../../evals/EpisodeLearner.js";
-import type { EvalResult } from "../../core/types.js";
-import { reportErrorToSentry, reportBackgroundFailure } from "../../core/sentryReporter.js";
-import { recordAgentTrace, redact } from "./agentTrace.js";
+import type { ILLMProvider } from "../../llm/ILLMProvider.ts";
+import type { ITool } from "../../tools/ITool.ts";
+import type { ExecutionContext } from "../../core/ExecutionContext.ts";
+import type { AgentResult } from "./AgentResult.ts";
+import { ReActLoop } from "../../reasoning/ReActLoop.ts";
+import { ToolRegistry } from "../../tools/ToolRegistry.ts";
+import type { ResidualMemory } from "../../memory/ResidualMemory.ts";
+import type { EpisodeLearner } from "../../evals/EpisodeLearner.ts";
+import type { EvalResult } from "../../core/types.ts";
+import { reportErrorToSentry, reportBackgroundFailure } from "../../core/sentryReporter.ts";
+import { recordAgentTrace, redactOrThrow, redactOrSkip } from "./agentTrace.ts";
 
 export interface BaseAgentOptions {
   residualMemory?: ResidualMemory;
@@ -66,7 +66,17 @@ export abstract class BaseAgent {
     const { output, error, durationMs } = await this.runExecutorStage(execute, systemPrompt, input);
     context.tracer.endSpan(this.role, { output });
 
-    this.recordTrace(input, output, durationMs, error, context);
+    recordAgentTrace({
+      role: this.role,
+      model: this.reasoningLoop.model || "unknown",
+      usage: this.reasoningLoop.usage,
+      toolUsage: context.usage,
+      input,
+      output,
+      durationMs,
+      error,
+      context,
+    });
     this.recordResidual(input, context);
 
     const result: AgentResult = { role: this.role, output, artifacts: context.artifacts };
@@ -107,15 +117,10 @@ export abstract class BaseAgent {
   }
 
   private recordResidual(input: string, context: ExecutionContext): void {
-    let residualInput: string;
-    try {
-      residualInput = redact(context, input);
-    } catch (err) {
-      // residual is a best-effort learning signal — a redaction failure must
-      // not abort the run (recordTrace already fails closed on it)
-      void reportBackgroundFailure(err, context, "residual redaction failed", { member: this.role, model: this.reasoningLoop.model || this.role });
-      return;
-    }
+    // residual is a best-effort learning signal — a redaction failure must
+    // not abort the run (trace recording already fails closed on it)
+    const residualInput = redactOrSkip(context, input, "residual redaction failed", { member: this.role, model: this.reasoningLoop.model || this.role });
+    if (residualInput === undefined) return;
     this.residualMemory?.record(`agent:${this.role}:${residualInput.slice(0, 80)}`, 0.5);
   }
 
@@ -145,26 +150,6 @@ export abstract class BaseAgent {
     throw error;
   }
 
-  protected recordTrace(
-    input: string,
-    output: string,
-    durationMs: number,
-    error: unknown,
-    context: ExecutionContext,
-  ): void {
-    recordAgentTrace({
-      role: this.role,
-      model: this.reasoningLoop.model || "unknown",
-      usage: this.reasoningLoop.usage,
-      toolUsage: context.usage,
-      input,
-      output,
-      durationMs,
-      error,
-      context,
-    });
-  }
-
   protected async recordRun(
     input: string,
     output: string,
@@ -177,21 +162,12 @@ export abstract class BaseAgent {
 
     // decisions and provenance persist raw payloads, so the shared redactor
     // must guard them or the redaction guarantee is only half-true
-    let rationale: string;
-    let safeInput: string;
-    let safeOutput: string;
-    try {
-      rationale = redact(context, isSuccessful
-        ? "Member run completed; see decision for output summary."
-        : `Run failed: ${error instanceof Error ? error.message : String(error)}`);
-      safeInput = redact(context, input);
-      safeOutput = redact(context, output);
-    } catch (redactionError) {
-      void reportBackgroundFailure(redactionError, context, "run redaction failed", { member: this.role, model: this.reasoningLoop.model || this.role });
-      // fail closed, but surface the original run error when one exists
-      if (error) throw error;
-      throw redactionError;
-    }
+    const report = { member: this.role, model: this.reasoningLoop.model || this.role };
+    const rationale = redactOrThrow(context, isSuccessful
+      ? "Member run completed; see decision for output summary."
+      : `Run failed: ${error instanceof Error ? error.message : String(error)}`, "run redaction failed", report, error);
+    const safeInput = redactOrThrow(context, input, "run redaction failed", report, error);
+    const safeOutput = redactOrThrow(context, output, "run redaction failed", report, error);
 
     try {
       await this.recordDecision({ id, timestamp, safeInput, safeOutput, rationale, isSuccessful, context });

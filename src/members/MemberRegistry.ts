@@ -12,6 +12,7 @@ import { join, dirname } from 'node:path'
 import { fileURLToPath } from 'node:url'
 import type { MemberSpec, PermissionProfile, MemberCategory } from './types.ts'
 import { rawSpecs } from './member-specs.ts'
+import { stripFrontmatter } from '../agents/memberLore.ts'
 
 const __filename = fileURLToPath(import.meta.url)
 const __dirname = dirname(__filename)
@@ -36,7 +37,7 @@ export class MemberRegistry {
       if (existsSync(skillPath)) {
         const content = readFileSync(skillPath, 'utf-8')
         // Strip YAML front-matter (--- ... ---) leaving only the prompt body
-        const body = content.replace(/^---[\s\S]*?---\n*/, '').trim()
+        const body = stripFrontmatter(content).trim()
         systemPrompt = body
       }
 

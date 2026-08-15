@@ -4,7 +4,7 @@ import type { ExecutionContext } from '../core/ExecutionContext.ts'
 export function loadMemberLore(skillPath: string): string {
   if (!existsSync(skillPath)) return ''
   const content = readFileSync(skillPath, 'utf-8')
-  return content.replace(/^---[\s\S]*?---\n*/, '').trim()
+  return stripFrontmatter(content).trim()
 }
 
 export function escapeXml(text: string): string {
@@ -13,10 +13,18 @@ export function escapeXml(text: string): string {
     .replace(/</g, '&lt;')
     .replace(/>/g, '&gt;')
     .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#39;')
 }
 
 export function wrapProjectContext(text: string): string {
-  return `<project_context>\n${text}\n</project_context>`
+  // strip the boundary tag so repo-sourced content cannot break out of the
+  // project_context trust boundary and pose as instructions
+  const safe = text.replace(/<\/?project_context\s*>/gi, '')
+  return `<project_context>\n${safe}\n</project_context>`
+}
+
+export function stripFrontmatter(content: string): string {
+  return content.replace(/^---[\s\S]*?---\n*/, '')
 }
 
 /**

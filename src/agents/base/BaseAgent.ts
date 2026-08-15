@@ -225,33 +225,55 @@ export abstract class BaseAgent {
     const safeOutput = redact(context, output);
 
     try {
-      await context.memory.decisions.record({
-        id,
-        timestamp,
-        member: this.role,
-        task: safeInput,
-        decision: safeOutput.slice(0, 2000) || "(no output)",
-        rationale,
-        alternatives: [],
-        outcome: succeeded ? "completed" : "failed",
-        tags: ["run"],
-        confidence: succeeded ? 1 : 0,
-        decisionMaker: this.role,
-      });
-      await context.memory.provenance.track({
-        entityId: context.executionId,
-        entityType: "decision",
-        activityId: `run:${this.role}`,
-        agentId: this.role,
-        agentType: "software_agent",
-        role: "generator",
-        sourceDocument: safeInput.slice(0, 500),
-        timestamp,
-        confidence: succeeded ? 1 : 0,
-        metadata: { decisionId: id, success: succeeded },
-      });
+      await this.recordDecision(id, timestamp, safeInput, safeOutput, rationale, succeeded, context);
+      await this.trackRunProvenance(id, timestamp, safeInput, succeeded, context);
     } catch (err) {
       await reportBackgroundFailure(err, context, "decision/provenance recording failed", { member: this.role, model: this.reasoningLoop.model || this.role });
     }
+  }
+
+  private async recordDecision(
+    id: string,
+    timestamp: string,
+    safeInput: string,
+    safeOutput: string,
+    rationale: string,
+    succeeded: boolean,
+    context: ExecutionContext,
+  ): Promise<void> {
+    await context.memory.decisions.record({
+      id,
+      timestamp,
+      member: this.role,
+      task: safeInput,
+      decision: safeOutput.slice(0, 2000) || "(no output)",
+      rationale,
+      alternatives: [],
+      outcome: succeeded ? "completed" : "failed",
+      tags: ["run"],
+      confidence: succeeded ? 1 : 0,
+      decisionMaker: this.role,
+    });
+  }
+
+  private async trackRunProvenance(
+    id: string,
+    timestamp: string,
+    safeInput: string,
+    succeeded: boolean,
+    context: ExecutionContext,
+  ): Promise<void> {
+    await context.memory.provenance.track({
+      entityId: context.executionId,
+      entityType: "decision",
+      activityId: `run:${this.role}`,
+      agentId: this.role,
+      agentType: "software_agent",
+      role: "generator",
+      sourceDocument: safeInput.slice(0, 500),
+      timestamp,
+      confidence: succeeded ? 1 : 0,
+      metadata: { decisionId: id, success: succeeded },
+    });
   }
 }

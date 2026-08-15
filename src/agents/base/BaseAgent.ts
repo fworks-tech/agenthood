@@ -1,28 +1,15 @@
 import { randomUUID } from "node:crypto";
-import { join } from "node:path";
-import type { ILLMProvider } from "../../llm/ILLMProvider.ts";
-import type { ITool } from "../../tools/ITool.ts";
-import type { ExecutionContext } from "../../core/ExecutionContext.ts";
-import type { AgentResult } from "./AgentResult.ts";
-import { ReActLoop } from "../../reasoning/ReActLoop.ts";
-import { ToolRegistry } from "../../tools/ToolRegistry.ts";
-import type { ResidualMemory } from "../../memory/ResidualMemory.ts";
-import type { EpisodeLearner } from "../../evals/EpisodeLearner.ts";
-import type { EvalResult } from "../../core/types.ts";
-import { createTraceEnvelope } from "../../core/TraceEnvelope.ts";
-import { CostEstimator } from "../../core/CostEstimator.ts";
-import { getMemberQualityScore } from "../../core/qualityScore.ts";
-import { reportErrorToSentry, reportBackgroundFailure } from "../../core/sentryReporter.ts";
-
-function redact(context: ExecutionContext, text: string): string {
-  // production contexts always carry a redactor built from the observability
-  // config (ApplicationContext, eval.ts); fail closed so a misconfigured
-  // context can never persist raw payloads silently
-  if (!context.redactor) {
-    throw new Error("[BaseAgent] redaction requires a redactor on the ExecutionContext");
-  }
-  return context.redactor.redactText(text);
-}
+import type { ILLMProvider } from "../../llm/ILLMProvider.js";
+import type { ITool } from "../../tools/ITool.js";
+import type { ExecutionContext } from "../../core/ExecutionContext.js";
+import type { AgentResult } from "./AgentResult.js";
+import { ReActLoop } from "../../reasoning/ReActLoop.js";
+import { ToolRegistry } from "../../tools/ToolRegistry.js";
+import type { ResidualMemory } from "../../memory/ResidualMemory.js";
+import type { EpisodeLearner } from "../../evals/EpisodeLearner.js";
+import type { EvalResult } from "../../core/types.js";
+import { reportErrorToSentry, reportBackgroundFailure } from "../../core/sentryReporter.js";
+import { recordAgentTrace, redact } from "./agentTrace.js";
 
 export interface BaseAgentOptions {
   residualMemory?: ResidualMemory;
@@ -48,8 +35,6 @@ export abstract class BaseAgent {
     this.residualMemory = options.residualMemory;
     this.episodeLearner = options.episodeLearner;
   }
-
-  private readonly costEstimator = new CostEstimator();
 
   async run(input: string, context: ExecutionContext): Promise<AgentResult> {
     return this.runWithExecutor(input, context, async (systemPrompt, task) => {
@@ -167,62 +152,16 @@ export abstract class BaseAgent {
     error: unknown,
     context: ExecutionContext,
   ): void {
-    // redact before hashing so inputHash/outputHash always match the
-    // persisted (redacted) payload; Tracer.record's own pass is a no-op then
-    let safeInput: string;
-    let safeOutput: string;
-    try {
-      safeInput = redact(context, input);
-      safeOutput = redact(context, output);
-    } catch (redactionError) {
-      void reportBackgroundFailure(redactionError, context, "trace redaction failed", { member: this.role, model: this.reasoningLoop.model || this.role });
-      // fail closed, but surface the original run error when one exists
-      if (error) throw error;
-      throw redactionError;
-    }
-    try {
-      context.tracer.record(
-        this.buildTraceEnvelope({ input: safeInput, output: safeOutput, durationMs, error, context }),
-      );
-    } catch (err) {
-      void reportBackgroundFailure(err, context, "trace recording failed", { member: this.role, model: this.reasoningLoop.model || this.role });
-    }
-  }
-
-  private buildTraceEnvelope(args: {
-    input: string;
-    output: string;
-    durationMs: number;
-    error: unknown;
-    context: ExecutionContext;
-  }): ReturnType<typeof createTraceEnvelope> {
-    const usage = this.reasoningLoop.usage;
-    const model = this.reasoningLoop.model || "unknown";
-    // tool-level LLM calls (WriteCode/Refactor/Explain) accumulate here
-    const toolUsage = args.context.usage;
-    const promptTokens = (usage?.promptTokens ?? 0) + (toolUsage?.promptTokens ?? 0);
-    const completionTokens = (usage?.completionTokens ?? 0) + (toolUsage?.completionTokens ?? 0);
-    const totalTokens = (usage?.totalTokens ?? 0) + (toolUsage?.totalTokens ?? 0);
-    return createTraceEnvelope({
-      member: this.role,
-      input: args.input,
-      output: args.output,
-      durationMs: args.durationMs,
-      tokenCount: {
-        input: promptTokens,
-        output: completionTokens,
-        total: totalTokens,
-      },
-      cost: this.costEstimator.computeCost(
-        model,
-        promptTokens,
-        completionTokens,
-      ).estimatedCost,
-      qualityScore: getMemberQualityScore(this.role, join(args.context.project.localPath, '.agenthood', 'baselines')),
-      status: args.error ? "error" : "success",
-      correlationId: args.context.correlationId ?? args.context.executionId,
-      source: args.context.source,
-      model,
+    recordAgentTrace({
+      role: this.role,
+      model: this.reasoningLoop.model || "unknown",
+      usage: this.reasoningLoop.usage,
+      toolUsage: context.usage,
+      input,
+      output,
+      durationMs,
+      error,
+      context,
     });
   }
 

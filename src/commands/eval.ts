@@ -1,19 +1,15 @@
-import { existsSync, mkdirSync, writeFileSync } from 'node:fs'
-import { dirname, join } from 'node:path'
+import { join } from 'node:path'
 
 import { SchemaValidationError } from '../core/SchemaValidator.ts'
 import { loadEvalSuite } from '../evals/evalSuiteSchema.ts'
 import { LLMJudge } from '../evals/EvalJudge.ts'
 import { EvalRunner } from '../evals/EvalRunner.ts'
-import type { EvalReport, RunMemberFn } from '../evals/EvalRunner.ts'
+import type { EvalReport } from '../evals/EvalRunner.ts'
 import { BaselineComparator } from '../evals/BaselineComparator.ts'
 import type { RegressionReport } from '../evals/BaselineComparator.ts'
-import { ReplayEvaluator } from '../evals/ReplayEvaluator.ts'
-import type { EmbedFn, ReplayReport } from '../evals/ReplayEvaluator.ts'
-import { JSONFileTraceStore, loadObservabilityConfig } from '../core/TraceStore.ts'
-import { createRedactionFilterFromConfig, RedactionFilter } from '../core/RedactionFilter.ts'
 import { ApplicationContext } from '../runtime/ApplicationContext.ts'
 import { loadConfig } from './config.ts'
+import { runReplay } from './evalReplay.ts'
 import type { CommandDescriptor } from './types.ts'
 import type { EvalSuite } from '../evals/types.ts'
 
@@ -96,11 +92,17 @@ interface ParsedEvalArgs {
   member: string | undefined
   suitePath: string | undefined
   baselinePath: string | undefined
-  updateBaseline: boolean
-  json: boolean
-  replay: boolean
+  shouldUpdateBaseline: boolean
+  shouldJson: boolean
+  shouldReplay: boolean
   replayLimit: number
   helpRequested: boolean
+}
+
+const BOOLEAN_FLAGS: Record<string, 'shouldUpdateBaseline' | 'shouldJson' | 'shouldReplay'> = {
+  '--json': 'shouldJson',
+  '--replay': 'shouldReplay',
+  '--update-baseline': 'shouldUpdateBaseline',
 }
 
 function failUsage(message: string): never {
@@ -108,33 +110,28 @@ function failUsage(message: string): never {
   process.exit(1)
 }
 
-function parseEvalArgs(args: string[]): ParsedEvalArgs {
+export function parseEvalArgs(args: string[]): ParsedEvalArgs {
   const positional: string[] = []
   const flags: ParsedEvalArgs = {
     member: undefined, suitePath: undefined, baselinePath: undefined,
-    updateBaseline: false, json: false, replay: false, replayLimit: 50, helpRequested: false,
+    shouldUpdateBaseline: false, shouldJson: false, shouldReplay: false, replayLimit: 50, helpRequested: false,
   }
 
   for (let i = 0; i < args.length; i++) {
-    const next = (): string | undefined => args[++i]
+    const booleanFlag = BOOLEAN_FLAGS[args[i]]
+    if (booleanFlag) {
+      flags[booleanFlag] = true
+      continue
+    }
     switch (args[i]) {
       case '--suite':
-        flags.suitePath = next()
+        flags.suitePath = args[++i]
         break
       case '--baseline':
-        flags.baselinePath = next()
-        break
-      case '--update-baseline':
-        flags.updateBaseline = true
-        break
-      case '--replay':
-        flags.replay = true
+        flags.baselinePath = args[++i]
         break
       case '--limit':
-        flags.replayLimit = parseReplayLimit(next())
-        break
-      case '--json':
-        flags.json = true
+        flags.replayLimit = parseReplayLimit(args[++i])
         break
       case '--help':
       case '-h':
@@ -148,7 +145,7 @@ function parseEvalArgs(args: string[]): ParsedEvalArgs {
   return { ...flags, member: positional[0] }
 }
 
-function parseReplayLimit(raw: string | undefined): number {
+export function parseReplayLimit(raw: string | undefined): number {
   const parsed = Number.parseInt(raw ?? '', 10)
   // 0 would disable the limit (slice(-0) === slice(0), unbounded replay)
   if (Number.isNaN(parsed) || parsed <= 0) {
@@ -158,15 +155,15 @@ function parseReplayLimit(raw: string | undefined): number {
 }
 
 export async function evalMember(args: string[] = []): Promise<void> {
-  const { member, suitePath, baselinePath, updateBaseline, json, replay, replayLimit, helpRequested } = parseEvalArgs(args)
+  const { member, suitePath, baselinePath, shouldUpdateBaseline, shouldJson, shouldReplay, replayLimit, helpRequested } = parseEvalArgs(args)
   if (helpRequested) return
 
-  if (replay) {
+  if (shouldReplay) {
     if (!member) {
       printUsage()
       process.exit(1)
     }
-    await runReplay(member, replayLimit, json)
+    await runReplay(member, replayLimit, shouldJson)
     return
   }
   if (!member || !suitePath) {
@@ -189,7 +186,7 @@ export async function evalMember(args: string[] = []): Promise<void> {
   const judge = new LLMJudge(app.llm)
   const report = await new EvalRunner(runner, judge).run(suite, member)
 
-  await finishWithBaseline(report, member, baselinePath, updateBaseline, json)
+  await finishWithBaseline(report, member, baselinePath, shouldUpdateBaseline, shouldJson)
 }
 
 function loadSuiteOrExit(suitePath: string): EvalSuite {
@@ -236,55 +233,3 @@ async function finishWithBaseline(
   if (comparison?.overall === 'flag') process.exit(1)
 }
 
-function printReplaySummary(report: ReplayReport): void {
-  console.log(`\n  Replay Report — ${report.members.join(', ') || 'unknown member'}`)
-  console.log(`  Traces: ${report.replayCount} | Skipped: ${report.skippedCount} | Errors: ${report.errorCount} | Avg similarity: ${report.averageSimilarity ?? '—'}`)
-  console.log(`  Report saved: .agenthood/evals/replay-report.json\n`)
-}
-
-/**
- * Re-runs the member against stored trace inputs and reports output drift.
- * Re-run outputs are passed through the redactor before persisting/printing.
- */
-async function runReplay(member: string, limit: number, json: boolean): Promise<void> {
-  const cwd = process.cwd()
-  const tracesPath = join(cwd, '.agenthood', 'traces', 'traces.ndjson')
-  if (!existsSync(tracesPath)) {
-    console.error('No traces recorded yet. Run `agenthood run <member> "<task>"` first.')
-    process.exit(1)
-  }
-
-  let envelopes = await new JSONFileTraceStore(tracesPath).query()
-  envelopes = envelopes.filter((e) => e.member === member).slice(-limit)
-  if (envelopes.length === 0) {
-    console.error(`No traces for member "${member}".`)
-    process.exit(1)
-  }
-
-  const config = await loadConfig()
-  const app = await ApplicationContext.create(cwd, config)
-  app.ctx.source = 'automated'
-  if (!app.members.has(member)) {
-    console.error(`Unknown member: "${member}"`)
-    process.exit(1)
-  }
-
-  const runner: RunMemberFn = (task) => app.runMemberTask(member, task, config)
-  const embed: EmbedFn = (text) => app.llm.embed(text)
-  const report = await new ReplayEvaluator(runner, embed).replay(envelopes)
-
-  const redactor = createRedactionFilterFromConfig(loadObservabilityConfig(cwd)) ?? new RedactionFilter({ enabled: false })
-  for (const task of report.tasks) {
-    if (task.newOutput !== undefined) task.newOutput = redactor.redactText(task.newOutput)
-  }
-
-  const reportPath = join(cwd, '.agenthood', 'evals', 'replay-report.json')
-  mkdirSync(dirname(reportPath), { recursive: true })
-  writeFileSync(reportPath, JSON.stringify(report, null, 2), { mode: 0o600 })
-
-  if (json) {
-    console.log(JSON.stringify(report, null, 2))
-    return
-  }
-  printReplaySummary(report)
-}

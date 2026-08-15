@@ -20,7 +20,7 @@ describe('buildLorePrompt', () => {
     })
 
     await buildLorePrompt(context, 'developer.system', '/nonexistent/SKILL.md', {
-      stack: '{}',
+      vars: { stack: '{}' },
     })
 
     const vars = build.mock.calls[0][1]

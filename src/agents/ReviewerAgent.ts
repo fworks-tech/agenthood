@@ -1,6 +1,6 @@
 import { join, dirname } from 'node:path'
 import { fileURLToPath } from 'node:url'
-import { BaseAgent } from './base/BaseAgent.ts'
+import { BaseAgent, type BaseAgentOptions } from './base/BaseAgent.ts'
 import { ReadFileSkill } from '../tools/project/ReadFileSkill.ts'
 import type { ITool } from '../tools/ITool.ts'
 import type { ExecutionContext } from '../core/ExecutionContext.ts'
@@ -8,7 +8,6 @@ import type { ILLMProvider } from '../llm/ILLMProvider.ts'
 import type { ReActLoop } from '../reasoning/ReActLoop.ts'
 import type { ToolRegistry } from '../tools/ToolRegistry.ts'
 import { buildLorePrompt } from './memberLore.ts'
-import type { EpisodeLearner } from '../evals/EpisodeLearner.js'
 
 const __filename = fileURLToPath(import.meta.url)
 const __dirname = dirname(__filename)
@@ -18,7 +17,7 @@ export class ReviewerAgent extends BaseAgent {
   role = 'reviewer'
   protected tools: ITool[]
 
-  constructor(llm: ILLMProvider, reasoningLoop: ReActLoop, toolRegistry: ToolRegistry, options: { episodeLearner?: EpisodeLearner } = {}) {
+  constructor(llm: ILLMProvider, reasoningLoop: ReActLoop, toolRegistry: ToolRegistry, options: BaseAgentOptions = {}) {
     super(llm, reasoningLoop, toolRegistry, { episodeLearner: options.episodeLearner })
     this.tools = [
       new ReadFileSkill(),

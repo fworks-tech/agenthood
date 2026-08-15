@@ -51,6 +51,7 @@ export class MemberRegistry {
         tools: this.defaultTools(raw.permissionProfile),
         systemPrompt,
         sourcePath: skillPath,
+        canDelegate: raw.canDelegate,
       })
     }
   }

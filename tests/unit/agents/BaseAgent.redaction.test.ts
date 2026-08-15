@@ -1,8 +1,10 @@
 import { describe, it, expect, vi } from 'vitest'
-import { TestAgent, createAgentHarness } from '../../helpers/agentFixtures.ts'
+import { TestAgent, createAgentHarness, createMockLLM } from '../../helpers/agentFixtures.ts'
 import { createTestContext } from '../../helpers/testContext.ts'
 import { RedactionFilter } from '../../../src/core/RedactionFilter.ts'
-import { contentHash } from '../../../src/utils/hash.js'
+import { ReActLoop } from '../../../src/reasoning/ReActLoop.ts'
+import { ToolRegistry } from '../../../src/tools/ToolRegistry.ts'
+import { contentHash } from '../../../src/utils/hash.ts'
 
 describe('BaseAgent redaction', () => {
   it('redacts decision and provenance payloads when a redactor is configured', async () => {
@@ -45,6 +47,18 @@ describe('BaseAgent redaction', () => {
 
     const agent = new TestAgent(llm, loop, toolRegistry)
     await expect(agent.run('sensitive', context)).rejects.toThrow(/redaction requires a redactor/)
+  })
+
+  it('surfaces the original run error instead of the redaction error', async () => {
+    const llm = {
+      ...createMockLLM(),
+      complete: vi.fn().mockRejectedValue(new Error('original boom')),
+    }
+    const loop = new ReActLoop(llm, new ToolRegistry())
+    const context = { ...createTestContext(), redactor: undefined } as never
+
+    const agent = new TestAgent(llm, loop, new ToolRegistry())
+    await expect(agent.run('sensitive', context)).rejects.toThrow('original boom')
   })
 
   it('hashes redacted payloads so inputHash matches the persisted trace text', async () => {

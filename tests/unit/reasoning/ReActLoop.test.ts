@@ -84,7 +84,7 @@ describe('ReActLoop', () => {
     const reg = new ToolRegistry()
     reg.register(skill)
     const budget = new ThinkingBudget(3)
-    const loop = new ReActLoop(llm, reg, budget)
+    const loop = new ReActLoop(llm, reg, { budget })
     const ctx = createTestContext()
 
     await expect(loop.run('system', 'loop', ctx)).rejects.toThrow(BudgetExceededError)
@@ -117,7 +117,7 @@ describe('ReActLoop', () => {
     })
     const reg = new ToolRegistry()
     reg.register(skill)
-    const loop = new ReActLoop(llm, reg, undefined, undefined, 5, 3)
+    const loop = new ReActLoop(llm, reg, { loopWindow: 5, loopThreshold: 3 })
     const ctx = createTestContext()
 
     await expect(loop.run('system', 'read foo thrice', ctx)).rejects.toThrow(ToolLoopDetectedError)
@@ -165,7 +165,7 @@ describe('ReActLoop', () => {
     const llm = mockProvider({ toolCalls: calls })
     const reg = new ToolRegistry()
     reg.register(skill)
-    const loop = new ReActLoop(llm, reg, undefined, undefined, 3, 3)
+    const loop = new ReActLoop(llm, reg, { loopWindow: 3, loopThreshold: 3 })
     const ctx = createTestContext()
 
     const result = await loop.run('system', 'read files', ctx)
@@ -188,7 +188,7 @@ describe('ReActLoop', () => {
     })
     const reg = new ToolRegistry()
     reg.register(skill)
-    const loop = new ReActLoop(llm, reg, undefined, undefined, 5, 2)
+    const loop = new ReActLoop(llm, reg, { loopWindow: 5, loopThreshold: 2 })
     const ctx = createTestContext()
 
     await expect(loop.run('system', 'loop', ctx)).rejects.toThrow(ToolLoopDetectedError)

@@ -1,5 +1,7 @@
 import { describe, it, expect, vi } from 'vitest'
 import { OracleAgent } from '../../../src/agents/OracleAgent.js'
+import { ReActLoop } from '../../../src/reasoning/ReActLoop.js'
+import { ToolRegistry } from '../../../src/tools/ToolRegistry.js'
 import type { ExecutionContext } from '../../../src/core/ExecutionContext.js'
 
 const captureException = vi.fn()
@@ -10,7 +12,7 @@ vi.mock('@sentry/node', () => ({
 }))
 
 function mockComplete(agent: OracleAgent): ReturnType<typeof vi.fn> {
-  return vi.mocked((agent as unknown as { llm: { complete: ReturnType<typeof vi.fn> } }).llm.complete)
+  return vi.mocked(agent.llm.complete)
 }
 
 function mockEnv(): { agent: OracleAgent; context: ExecutionContext } {
@@ -22,9 +24,8 @@ function mockEnv(): { agent: OracleAgent; context: ExecutionContext } {
     setModel: vi.fn(),
   }
 
-  const skillRegistry = { has: vi.fn().mockReturnValue(false), register: vi.fn(), getSchemas: vi.fn().mockReturnValue([]), get: vi.fn(), list: vi.fn() } as any
-  const loop = { run: vi.fn(), model: "", setModel: vi.fn() } as any
-  loop.setModel.mockImplementation((m: string) => { loop.model = m })
+  const skillRegistry = new ToolRegistry()
+  const loop = new ReActLoop(llm, skillRegistry)
   const agent = new OracleAgent(llm, loop, skillRegistry)
 
   const context = {

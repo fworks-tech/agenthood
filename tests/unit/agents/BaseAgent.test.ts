@@ -67,7 +67,7 @@ describe('BaseAgent', () => {
   })
 
   it('calls EpisodeLearner.learn() after run() completes when injected', async () => {
-    const agent = new TestAgent(llm, loop, toolRegistry, mockResidual, mockLearner)
+    const agent = new TestAgent(llm, loop, toolRegistry, { residualMemory: mockResidual, episodeLearner: mockLearner })
     const context = createTestContext({
       memory: {
         ...createTestContext().memory,
@@ -92,7 +92,7 @@ describe('BaseAgent', () => {
       }),
     }
 
-    const agent = new TestAgent(llm, loop, toolRegistry, mockResidual, slowLearner)
+    const agent = new TestAgent(llm, loop, toolRegistry, { residualMemory: mockResidual, episodeLearner: slowLearner })
     const context = createTestContext({
       memory: {
         ...createTestContext().memory,
@@ -130,7 +130,7 @@ describe('BaseAgent', () => {
       learn: vi.fn().mockRejectedValue(new Error('eval failed')),
     }
 
-    const agent = new TestAgent(llm, loop, toolRegistry, mockResidual, brokenLearner)
+    const agent = new TestAgent(llm, loop, toolRegistry, { residualMemory: mockResidual, episodeLearner: brokenLearner })
     const context = createTestContext({
       memory: {
         ...createTestContext().memory,

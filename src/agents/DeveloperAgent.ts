@@ -25,7 +25,7 @@ export class DeveloperAgent extends BaseAgent {
     agentRegistry: AgentRegistry,
     episodeLearner?: EpisodeLearner,
   ) {
-    super(llm, reasoningLoop, toolRegistry, undefined, episodeLearner);
+    super(llm, reasoningLoop, toolRegistry, { episodeLearner });
     this.tools = [
       new WriteCodeSkill(),
       new RefactorSkill(),

@@ -37,7 +37,10 @@ export class OracleAgent extends BaseAgent {
     const episodicResults = await context.memory.episodic.recall(question)
 
     const systemPrompt = this.buildSystemPrompt(kgResults, episodicResults)
-    const wrappedQuestion = `<user_query>\n${question}\n</user_query>`
+    // strip the closing delimiter so a crafted question cannot break out of
+    // the <user_query> trust boundary and inject instructions
+    const safeQuestion = question.replace(/<\/user_query>/gi, '')
+    const wrappedQuestion = `<user_query>\n${safeQuestion}\n</user_query>`
 
     const result = await this.llm.complete({
       messages: [

@@ -1,11 +1,11 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest'
 
-vi.mock('../../../src/commands/run.js', () => ({
+vi.mock('../../../src/commands/config.ts', () => ({
   loadConfig: vi.fn(),
 }))
 
-import { health, command } from '../../../src/commands/health.js'
-import { loadConfig } from '../../../src/commands/run.js'
+import { health, command } from '../../../src/commands/health.ts'
+import { loadConfig } from '../../../src/commands/config.ts'
 
 describe('health command', () => {
   beforeEach(() => {

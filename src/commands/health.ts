@@ -1,13 +1,13 @@
 import { existsSync } from 'node:fs'
 import { join } from 'node:path'
 
-import { JSONFileTraceStore, loadObservabilityConfig, resolveTraceStorePath } from '../core/TraceStore.js'
+import { JSONFileTraceStore, loadObservabilityConfig, resolveTraceStorePath } from '../core/TraceStore.ts'
 import { healthCheck } from '../core/healthCheck.ts'
 import type { HealthReport, HealthDeps } from '../core/healthCheck.ts'
 import { MemberRegistry } from '../members/index.ts'
 import { PROVIDER_KEYS } from '../llm/validateApiKeys.ts'
-import { loadConfig } from './run.js'
-import type { CommandDescriptor } from './types.js'
+import { loadConfig } from './config.ts'
+import type { CommandDescriptor } from './types.ts'
 
 function printHelp(): void {
   console.log(`Usage:

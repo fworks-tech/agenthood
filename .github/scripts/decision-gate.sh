@@ -18,6 +18,11 @@
 check_decision_gate() {
   local file="$1" agent_name="${2:-}" prefix="" last_block
   local threshold="${AGENTHOOD_WARNING_THRESHOLD:-2}"
+  # coerce an invalid threshold to the default; a non-numeric value would
+  # otherwise break the comparison and a huge value would disable the gate
+  if ! [[ "$threshold" =~ ^[0-9]+$ ]]; then
+    threshold=2
+  fi
   [ -n "$agent_name" ] && prefix="$agent_name "
   last_block=$(grep -oE '<!--AGENTHOOD_DECISION: blocking=(true|false) warnings=[0-9]+-->' "$file" 2>/dev/null | tail -1)
   case "$last_block" in

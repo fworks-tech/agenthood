@@ -1,5 +1,4 @@
 import { randomUUID } from 'node:crypto'
-import { existsSync } from 'node:fs'
 import { join } from 'node:path'
 
 import { AgentRegistry } from '../core/AgentRegistry.ts'
@@ -38,7 +37,6 @@ import { PromptBuilder } from '../prompts/PromptBuilder.ts'
 import { PromptRegistry } from '../prompts/PromptRegistry.ts'
 import { KnowledgeGraphStore } from '../rag/KnowledgeGraphStore.ts'
 import { ReActLoop } from '../reasoning/ReActLoop.ts'
-import { SkillDiscovery } from '../skills/discovery/SkillDiscovery.ts'
 import type { ISkillManifest } from '../skills/discovery/ISkillManifest.ts'
 import { ActivateSkillTool } from '../skills/activation/ActivateSkillTool.ts'
 import { ToolRegistry } from '../tools/ToolRegistry.ts'
@@ -47,12 +45,9 @@ import { ArchitectAgent } from '../agents/ArchitectAgent.ts'
 import { ReviewerAgent } from '../agents/ReviewerAgent.ts'
 import { QAAgent } from '../agents/QAAgent.ts'
 import { OracleAgent } from '../agents/OracleAgent.ts'
-import { escapeXml } from '../agents/memberLore.ts'
+import { connectVectorStore, discoverSkills, loadSocietyGraph } from './contextSetup.ts'
 
-/**
- * Composition root for `agenthood run`. Presentation (commands) never
- * instantiates infrastructure — it consumes one of these.
- */
+/** Composition root for `agenthood run` — commands consume one of these. */
 export interface ApplicationContextOptions {
   societyGraph: KnowledgeGraphStore
   vectorStore: LanceDBStore
@@ -302,50 +297,4 @@ export class ApplicationContext {
       console.warn(`[run] anomaly persistence failed: ${err instanceof Error ? err.message : String(err)}`)
     }
   }
-}
-
-async function connectVectorStore(projectPath: string): Promise<LanceDBStore> {
-  const vectorStore = new LanceDBStore(1536)
-  const memoryPath = join(projectPath, '.agenthood', 'memory')
-  try {
-    await vectorStore.connect(memoryPath)
-  } catch (e) {
-    console.warn(`[run] vector store unavailable: ${(e as Error)?.message ?? e}`)
-  }
-  return vectorStore
-}
-
-function loadSocietyGraph(projectPath: string): KnowledgeGraphStore {
-  const graph = new KnowledgeGraphStore()
-  const graphPath = join(projectPath, '.agenthood', 'society-graph.json')
-  if (existsSync(graphPath)) {
-    try {
-      graph.load(graphPath)
-    } catch (e) {
-      console.warn(`[run] society graph unavailable: ${(e as Error)?.message ?? e}`)
-    }
-  }
-  return graph
-}
-
-async function discoverSkills(projectPath: string): Promise<{ catalog: string; manifests: Map<string, ISkillManifest> }> {
-  const discovery = new SkillDiscovery()
-  const manifests = discovery.discover(projectPath)
-  if (manifests.length === 0) return { catalog: '', manifests: new Map() }
-
-  const lines: string[] = ['', '<available_skills>']
-  const map = new Map<string, ISkillManifest>()
-  for (const m of manifests) {
-    map.set(m.name, m)
-    lines.push(`  <skill name="${escapeXml(m.name)}">`)
-    lines.push(`    <description>${escapeXml(m.description)}</description>`)
-    lines.push(`    <location>${escapeXml(m.location)}</location>`)
-    lines.push('  </skill>')
-  }
-  lines.push('</available_skills>')
-  lines.push('')
-  lines.push('When a task matches a skill\'s description, call the activate_skill tool with the skill\'s name to load its full instructions.')
-  lines.push('')
-
-  return { catalog: lines.join('\n'), manifests: map }
 }

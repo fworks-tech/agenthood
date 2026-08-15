@@ -1,8 +1,8 @@
 import { randomUUID } from 'node:crypto'
-import type { ExecutionContext } from '../../src/core/ExecutionContext.js'
-import type { ProvenanceEntry } from '../../src/memory/ProvenanceStore.js'
-import { Tracer } from '../../src/core/Tracer.js'
-import { RedactionFilter } from '../../src/core/RedactionFilter.js'
+import type { ExecutionContext } from '../../src/core/ExecutionContext.ts'
+import type { ProvenanceEntry } from '../../src/memory/ProvenanceStore.ts'
+import { Tracer } from '../../src/core/Tracer.ts'
+import { RedactionFilter } from '../../src/core/RedactionFilter.ts'
 
 export function createTestContext(overrides?: Partial<ExecutionContext>): ExecutionContext {
   return {
@@ -53,7 +53,7 @@ export function createTestContext(overrides?: Partial<ExecutionContext>): Execut
         verifyChain: async () => ({ valid: true }),
       },
     },
-    llm: overrides?.llm ?? {
+    llm: {
       complete: async () => ({
         content: 'mock response',
         usage: { promptTokens: 0, completionTokens: 0, totalTokens: 0 },
@@ -65,12 +65,12 @@ export function createTestContext(overrides?: Partial<ExecutionContext>): Execut
       },
       embed: async () => [0],
     },
-    prompts: overrides?.prompts ?? {
+    prompts: {
       build: () => ({ role: 'system' as const, content: 'mock prompt' }),
     },
     // disabled redactor matches production context shape while no-op'ing
-    redactor: overrides?.redactor ?? new RedactionFilter({ enabled: false }),
-    tracer: overrides?.tracer ?? new Tracer(),
+    redactor: new RedactionFilter({ enabled: false }),
+    tracer: new Tracer(),
     artifacts: [],
     ...overrides,
   }

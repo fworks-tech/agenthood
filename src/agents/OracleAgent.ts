@@ -8,7 +8,7 @@ import type { AgentResult } from './base/AgentResult.ts'
 import type { IGraphStore } from '../rag/KnowledgeGraphStore.ts'
 import { ReadFileSkill } from '../tools/project/ReadFileSkill.ts'
 import { SearchCodebaseSkill } from '../tools/code/SearchCodebaseSkill.ts'
-import { wrapUserQuery } from './memberLore.ts'
+import { wrapUserQuery, escapeXml } from './memberLore.ts'
 
 export class OracleAgent extends BaseAgent {
   role = 'the-oracle'
@@ -79,9 +79,10 @@ export class OracleAgent extends BaseAgent {
     const retrievedContent = [kgContext, episodeContext].filter(Boolean).join('\n')
     if (!retrievedContent) return [base, ...guidance].join('\n')
 
-    // strip the boundary tag from retrieved content so a KB entry cannot
-    // break out of retrieved_context and pose as instructions
-    const safeRetrieved = retrievedContent.replace(/<\/?retrieved_context[^>]*>/gi, '')
+    // strip the boundary tag from retrieved content, then escape remaining
+    // markup so a KB entry can never read as instructions inside the
+    // retrieved_context trust boundary
+    const safeRetrieved = escapeXml(retrievedContent.replace(/<\/?retrieved_context[^>]*>/gi, ''))
     return [
       base,
       ...guidance,

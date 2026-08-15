@@ -29,9 +29,10 @@ text — a verifier comparing hash to payload would always fail.
    over the exact text that is persisted. `Tracer.record`'s own pass remains
    as a safety net for other recorders; it is idempotent on already-redacted
    text (placeholders match no rules).
-3. **Opt-in semantics unchanged.** Redaction still applies only when
-   `observability.redaction.enabled` is true; disabled installs see no
-   behavioral change.
+3. **Default-enabled.** Redaction applies whenever `observability.redaction.enabled`
+   is not explicitly `false`; unconfigured installs redact with the built-in
+   rules (emails, `sk-` keys, bearer tokens, URL query values, IP addresses).
+   Set `"enabled": false` to opt out.
 
 ## Alternatives Considered
 
@@ -48,5 +49,6 @@ text — a verifier comparing hash to payload would always fail.
   the intended trade-off for replayable, PII-safe stores.
 - Hash integrity: any tool comparing `inputHash` to persisted `input` now
   verifies cleanly.
-- Behavior change is visible only when redaction is enabled; the default
-  (disabled) config is untouched.
+- Behavior change applies to every install by default (raw payloads are
+  scrubbed unless redaction is explicitly disabled); operators who rely on
+  raw persisted text can opt out via config.

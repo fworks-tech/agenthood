@@ -76,10 +76,16 @@ describe('RedactionFilter', () => {
     expect(result.input).toBe('mail [REDACTED] from [REDACTED]')
   })
 
-  it('passes through unchanged when disabled', () => {
-    const filter = new RedactionFilter()
+  it('passes through unchanged when explicitly disabled', () => {
+    const filter = new RedactionFilter({ enabled: false })
     const env = envelope('user@example.com sk-abc123def456ghi789')
     expect(filter.redact(env)).toBe(env)
+  })
+
+  it('is enabled by default when constructed without options', () => {
+    const filter = new RedactionFilter()
+    expect(filter.enabled()).toBe(true)
+    expect(filter.redact(envelope('mail user@example.com')).input).toContain('[REDACTED]')
   })
 
   it('preserves all non-sensitive envelope structure', () => {
@@ -113,6 +119,11 @@ describe('createRedactionFilterFromConfig', () => {
     })
     expect(filter?.enabled()).toBe(true)
     expect(filter?.redact(envelope('SECRET value')).input).toBe('[REDACTED] value')
+  })
+
+  it('defaults to enabled when the block omits the flag', () => {
+    const filter = createRedactionFilterFromConfig({ observability: { redaction: { rules: ['\\bSECRET\\b'] } } })
+    expect(filter?.enabled()).toBe(true)
   })
 
   it('builds a disabled filter when enabled is false', () => {

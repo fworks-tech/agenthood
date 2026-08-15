@@ -39,21 +39,24 @@ export abstract class BaseAgent {
   private readonly costEstimator = new CostEstimator();
 
   async run(input: string, context: ExecutionContext): Promise<AgentResult> {
-    return this.runWithExecutor(input, context, (systemPrompt, task) =>
-      this.reasoningLoop.run(systemPrompt, task, context),
-    )
+    return this.runWithExecutor(input, context, async (systemPrompt, task) => {
+      const output = await this.reasoningLoop.run(systemPrompt, task, context);
+      return { output, model: this.reasoningLoop.model || undefined };
+    })
   }
 
   /**
    * Shared invocation lifecycle: tool registration, decay, prompt, timing,
    * tracing, learning, decision/provenance recording, and Sentry reporting.
    * Subclasses that execute differently (e.g. Oracle's retrieval-first ask)
-   * supply the executor and inherit the whole lifecycle.
+   * supply the executor and inherit the whole lifecycle. Executors return the
+   * responding model so attribution is recorded centrally, not by poking the
+   * loop from the agent layer.
    */
   protected async runWithExecutor(
     input: string,
     context: ExecutionContext,
-    execute: (systemPrompt: string, input: string) => Promise<string>,
+    execute: (systemPrompt: string, input: string) => Promise<{ output: string; model?: string }>,
   ): Promise<AgentResult> {
     for (const tool of this.tools) {
       if (!this.toolRegistry.has(tool.name)) {
@@ -67,10 +70,12 @@ export abstract class BaseAgent {
     context.tracer.startSpan(this.role);
 
     const startTime = performance.now();
-    let output = "";
     let error: unknown = null;
+    let output = "";
     try {
-      output = await execute(systemPrompt, input);
+      const executed = await execute(systemPrompt, input);
+      output = executed.output;
+      if (executed.model) this.reasoningLoop.setModel(executed.model);
     } catch (err) {
       error = err;
     }

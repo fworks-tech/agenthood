@@ -21,6 +21,15 @@ export class OracleAgent extends BaseAgent {
   }
 
   async ask(question: string, context: ExecutionContext): Promise<string> {
+    return (await this.askWithModel(question, context)).output
+  }
+
+  // returns the responding model so the shared executor contract can record
+  // it centrally; public ask() unwraps for context.oracle.ask consumers
+  private async askWithModel(
+    question: string,
+    context: ExecutionContext,
+  ): Promise<{ output: string; model?: string }> {
     const kgResults = this.knowledgeGraph
       ? this.knowledgeGraph.search(question).slice(0, 5)
       : []
@@ -58,12 +67,7 @@ export class OracleAgent extends BaseAgent {
       ],
     })
 
-    // ask() bypasses ReActLoop.run, which is the only place that normally
-    // records the responding model; capture it so traces and Sentry reports
-    // carry the real model instead of the empty fallback
-    if (result.model) this.reasoningLoop.setModel(result.model)
-
-    return result.content
+    return { output: result.content, model: result.model }
   }
 
   protected async getSystemPrompt(_context: ExecutionContext): Promise<string> {
@@ -73,6 +77,6 @@ export class OracleAgent extends BaseAgent {
   async run(input: string, context: ExecutionContext): Promise<AgentResult> {
     // the shared system prompt is deliberately ignored: ask() assembles its
     // own retrieval-grounded prompt from the knowledge graph and episodic memory
-    return this.runWithExecutor(input, context, (_systemPrompt, task) => this.ask(task, context))
+    return this.runWithExecutor(input, context, (_systemPrompt, task) => this.askWithModel(task, context))
   }
 }

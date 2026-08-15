@@ -48,7 +48,7 @@ export class MemberAgent extends BaseAgent {
     private agentRegistry?: AgentRegistry,
     episodeLearner?: EpisodeLearner,
   ) {
-    super(llm, reasoningLoop, toolRegistry, undefined, episodeLearner)
+    super(llm, reasoningLoop, toolRegistry, { episodeLearner })
     this.role = spec.name
     this.tools = this.buildTools()
   }

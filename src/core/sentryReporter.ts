@@ -1,4 +1,4 @@
-import type { ExecutionContext } from './ExecutionContext.js'
+import type { ExecutionContext } from './ExecutionContext.ts'
 
 export interface SentryReportContext {
   member: string
@@ -24,14 +24,16 @@ export async function reportErrorToSentry(error: unknown, context: ExecutionCont
       Sentry.init({ dsn, tracesSampleRate: 0 })
       initializedDsn = dsn
     }
-    // the error object keeps its stack; the message is also shipped redacted
-    // so secret-shaped payloads never reach the DSN even if the provider
-    // formats the message differently
+    // the error message is redacted before transmission so secret-shaped
+    // payloads never reach the DSN; the stack is preserved when possible
     const msg = error instanceof Error ? error.message : String(error)
     const safeMsg = context.redactor ? context.redactor.redactText(msg) : msg
-    Sentry.captureException(error, {
+    const safeError = context.redactor
+      ? Object.assign(new Error(safeMsg), { stack: error instanceof Error ? error.stack : undefined })
+      : error
+    Sentry.captureException(safeError, {
       tags: { member: report.member, model: report.model, status: report.status },
-      extra: { durationMs: report.durationMs, correlationId: report.correlationId, message: safeMsg },
+      extra: { durationMs: report.durationMs, correlationId: report.correlationId },
     })
   } catch (err) {
     // reporter failures must never surface to the caller; the debug line

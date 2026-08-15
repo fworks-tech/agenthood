@@ -1,8 +1,6 @@
-import { BaseAgent } from '../base/BaseAgent.ts'
-import { USER_QUERY_GUARD, wrapUserQuery } from '../memberLore.ts'
-import type { ExecutionContext } from '../../core/ExecutionContext.js'
-import type { ITool } from '../../tools/ITool.js'
-import type { AgentResult } from '../base/AgentResult.js'
+import { WrappedTaskAgent } from '../wrappedTaskAgent.ts'
+import type { ExecutionContext } from '../../core/ExecutionContext.ts'
+import type { ITool } from '../../tools/ITool.ts'
 
 const OUTPUT_FORMAT = [
   '## Symptom', '',
@@ -12,26 +10,16 @@ const OUTPUT_FORMAT = [
   '## Escalation',
 ].join('\n')
 
-
-function prepareOperatorInput(input: string): string {
-  // strip injected user_query delimiters so crafted input cannot break out
-  // of the trust boundary, then re-wrap so the guard in the system prompt
-  // describes reality
-  return `Triage the following runtime situation and produce an operation report.\n\n${wrapUserQuery(input)}\n\nOutput format:\n${OUTPUT_FORMAT}\n`
-}
-
-export class OperatorAgent extends BaseAgent {
+export class OperatorAgent extends WrappedTaskAgent {
   role = 'the-operator'
   protected tools: ITool[] = []
+  protected readonly taskIntro = 'Triage the following runtime situation and produce an operation report.'
+  protected readonly outputFormat = OUTPUT_FORMAT
+  protected readonly guardSuffix = ' Triage the situation and report on it.'
 
   protected async getSystemPrompt(_context: ExecutionContext): Promise<string> {
-    return [
+    return this.buildSystemPrompt(
       'You are the Operator, a Society Member that manages runtime health, deployment verification, rollback execution, incident triage, and monitoring. You do not debug — you triage. You do not design — you execute. Your output is consumed by The Debugger when escalation is needed.',
-      USER_QUERY_GUARD,
-    ].join('\n')
-  }
-
-  async run(input: string, context: ExecutionContext): Promise<AgentResult> {
-    return super.run(prepareOperatorInput(input), context)
+    )
   }
 }

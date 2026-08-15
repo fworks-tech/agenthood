@@ -14,6 +14,8 @@ export interface RawSpec {
    * Shared tokens between members = lane overlap (verify --strict).
    */
   ownedDecisions: string[]
+  /** Opt-in: grants the delegate_task tool so the member can call other agents */
+  canDelegate?: boolean
 }
 
 export const rawSpecs: RawSpec[] = [

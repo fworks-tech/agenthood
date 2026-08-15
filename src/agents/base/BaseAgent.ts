@@ -1,18 +1,18 @@
 import { randomUUID } from "node:crypto";
 import { join } from "node:path";
-import type { ILLMProvider } from "../../llm/ILLMProvider.js";
-import type { ITool } from "../../tools/ITool.js";
-import type { ExecutionContext } from "../../core/ExecutionContext.js";
-import type { AgentResult } from "./AgentResult.js";
-import { ReActLoop } from "../../reasoning/ReActLoop.js";
-import { ToolRegistry } from "../../tools/ToolRegistry.js";
-import type { ResidualMemory } from "../../memory/ResidualMemory.js";
-import type { EpisodeLearner } from "../../evals/EpisodeLearner.js";
-import type { EvalResult } from "../../core/types.js";
-import { createTraceEnvelope } from "../../core/TraceEnvelope.js";
-import { CostEstimator } from "../../core/CostEstimator.js";
-import { getMemberQualityScore } from "../../core/qualityScore.js";
-import { reportErrorToSentry, reportBackgroundFailure } from "../../core/sentryReporter.js";
+import type { ILLMProvider } from "../../llm/ILLMProvider.ts";
+import type { ITool } from "../../tools/ITool.ts";
+import type { ExecutionContext } from "../../core/ExecutionContext.ts";
+import type { AgentResult } from "./AgentResult.ts";
+import { ReActLoop } from "../../reasoning/ReActLoop.ts";
+import { ToolRegistry } from "../../tools/ToolRegistry.ts";
+import type { ResidualMemory } from "../../memory/ResidualMemory.ts";
+import type { EpisodeLearner } from "../../evals/EpisodeLearner.ts";
+import type { EvalResult } from "../../core/types.ts";
+import { createTraceEnvelope } from "../../core/TraceEnvelope.ts";
+import { CostEstimator } from "../../core/CostEstimator.ts";
+import { getMemberQualityScore } from "../../core/qualityScore.ts";
+import { reportErrorToSentry, reportBackgroundFailure } from "../../core/sentryReporter.ts";
 
 function redact(context: ExecutionContext, text: string): string {
   // production contexts always carry a redactor built from the observability
@@ -122,7 +122,15 @@ export abstract class BaseAgent {
   }
 
   private recordResidual(input: string, context: ExecutionContext): void {
-    const residualInput = redact(context, input);
+    let residualInput: string;
+    try {
+      residualInput = redact(context, input);
+    } catch (err) {
+      // residual is a best-effort learning signal — a redaction failure must
+      // not abort the run (recordTrace already fails closed on it)
+      void reportBackgroundFailure(err, context, "residual redaction failed", { member: this.role, model: this.reasoningLoop.model || this.role });
+      return;
+    }
     this.residualMemory?.record(`agent:${this.role}:${residualInput.slice(0, 80)}`, 0.5);
   }
 
@@ -161,8 +169,17 @@ export abstract class BaseAgent {
   ): void {
     // redact before hashing so inputHash/outputHash always match the
     // persisted (redacted) payload; Tracer.record's own pass is a no-op then
-    const safeInput = redact(context, input);
-    const safeOutput = redact(context, output);
+    let safeInput: string;
+    let safeOutput: string;
+    try {
+      safeInput = redact(context, input);
+      safeOutput = redact(context, output);
+    } catch (redactionError) {
+      void reportBackgroundFailure(redactionError, context, "trace redaction failed", { member: this.role, model: this.reasoningLoop.model || this.role });
+      // fail closed, but surface the original run error when one exists
+      if (error) throw error;
+      throw redactionError;
+    }
     try {
       context.tracer.record(
         this.buildTraceEnvelope({ input: safeInput, output: safeOutput, durationMs, error, context }),
@@ -218,14 +235,24 @@ export abstract class BaseAgent {
     const timestamp = new Date().toISOString();
     const id = `dec-${Date.now()}-${randomUUID().slice(0, 8)}`;
     const isSuccessful = error === null;
-    const rationale = redact(context, isSuccessful
-      ? "Member run completed; see decision for output summary."
-      : `Run failed: ${error instanceof Error ? error.message : String(error)}`);
 
     // decisions and provenance persist raw payloads, so the shared redactor
     // must guard them or the redaction guarantee is only half-true
-    const safeInput = redact(context, input);
-    const safeOutput = redact(context, output);
+    let rationale: string;
+    let safeInput: string;
+    let safeOutput: string;
+    try {
+      rationale = redact(context, isSuccessful
+        ? "Member run completed; see decision for output summary."
+        : `Run failed: ${error instanceof Error ? error.message : String(error)}`);
+      safeInput = redact(context, input);
+      safeOutput = redact(context, output);
+    } catch (redactionError) {
+      void reportBackgroundFailure(redactionError, context, "run redaction failed", { member: this.role, model: this.reasoningLoop.model || this.role });
+      // fail closed, but surface the original run error when one exists
+      if (error) throw error;
+      throw redactionError;
+    }
 
     try {
       await this.recordDecision({ id, timestamp, safeInput, safeOutput, rationale, isSuccessful, context });

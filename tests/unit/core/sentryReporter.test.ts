@@ -1,5 +1,6 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest'
 import { createTestContext } from '../../helpers/testContext.ts'
+import { RedactionFilter } from '../../../src/core/RedactionFilter.ts'
 
 const captureException = vi.fn()
 const init = vi.fn()
@@ -9,11 +10,11 @@ vi.mock('@sentry/node', () => ({
   captureException,
 }))
 
-import { reportErrorToSentry, reportBackgroundFailure, isDevEnvironment } from '../../../src/core/sentryReporter.js'
+import { reportErrorToSentry, reportBackgroundFailure, isDevEnvironment } from '../../../src/core/sentryReporter.ts'
 import { TestAgent } from '../../helpers/agentFixtures.ts'
 import { ReActLoop } from '../../../src/reasoning/ReActLoop.ts'
 import { ToolRegistry } from '../../../src/tools/ToolRegistry.ts'
-import type { ILLMProvider } from '../../../src/llm/ILLMProvider.js'
+import type { ILLMProvider } from '../../../src/llm/ILLMProvider.ts'
 
 function failingLlm(): ILLMProvider {
   return {
@@ -57,10 +58,27 @@ describe('reportErrorToSentry', () => {
     })
 
     expect(init).toHaveBeenCalledWith({ dsn: DSN, tracesSampleRate: 0 })
-    expect(captureException).toHaveBeenCalledWith(error, {
+    expect(captureException).toHaveBeenCalledWith(expect.objectContaining({ message: 'boom' }), {
       tags: { member: 'test-agent', model: 'mock-model', status: 'error' },
-      extra: { durationMs: 42, correlationId: 'corr-1', message: 'boom' },
+      extra: { durationMs: 42, correlationId: 'corr-1' },
     })
+  })
+
+  it('redacts the shipped error message when a redactor is configured', async () => {
+    const context = createTestContext({
+      sentry: { dsn: DSN },
+      redactor: new RedactionFilter({ enabled: true }),
+    })
+    await reportErrorToSentry(new Error('sk-abcdef12 leaked'), context, {
+      member: 'test-agent',
+      model: 'mock-model',
+      durationMs: 42,
+      status: 'error',
+      correlationId: 'corr-1',
+    })
+
+    const [safeError] = captureException.mock.calls[0]
+    expect(safeError.message).toBe('[REDACTED] leaked')
   })
 
   it('initializes Sentry only once per DSN', async () => {

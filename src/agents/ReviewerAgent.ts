@@ -2,7 +2,6 @@ import { join, dirname } from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { BaseAgent } from './base/BaseAgent.ts'
 import { ReadFileSkill } from '../tools/project/ReadFileSkill.ts'
-import { WriteFileSkill } from '../tools/project/WriteFileSkill.ts'
 import type { ITool } from '../tools/ITool.ts'
 import type { ExecutionContext } from '../core/ExecutionContext.ts'
 import type { ILLMProvider } from '../llm/ILLMProvider.ts'
@@ -23,7 +22,6 @@ export class ReviewerAgent extends BaseAgent {
     super(llm, reasoningLoop, toolRegistry, { episodeLearner })
     this.tools = [
       new ReadFileSkill(),
-      new WriteFileSkill(),
     ]
   }
 

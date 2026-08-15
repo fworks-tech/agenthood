@@ -75,7 +75,7 @@ export class MemberRegistry {
 
   private static readonly toolBase = [
     'file.read', 'file.list', 'file.search', 'memory.read',
-    'memory.write', 'tasks.write', 'think',
+    'tasks.write', 'think',
   ]
 
   // Tiers are computed in a single closure so the spread order is fixed by
@@ -84,6 +84,7 @@ export class MemberRegistry {
     const restricted = [...MemberRegistry.toolBase]
     const standard = [
       ...restricted,
+      'memory.write',
       'file.write', 'file.edit',
       'git.status', 'git.diff', 'git.log', 'git.branch',
       'terminal.run',

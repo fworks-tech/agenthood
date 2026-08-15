@@ -82,11 +82,11 @@ describe('ReviewerAgent', () => {
   })
 
   describe('skills', () => {
-    it('registers read_file and write_file skills', async () => {
+    it('registers read_file only (reviewer is restricted)', async () => {
       const context = createTestContext()
       await agent.run('test', context)
       expect(skillRegistry.has('read_file')).toBe(true)
-      expect(skillRegistry.has('write_file')).toBe(true)
+      expect(skillRegistry.has('write_file')).toBe(false)
     })
 
     it('does not register write_code (reviewer is read-only)', async () => {

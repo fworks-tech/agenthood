@@ -18,7 +18,7 @@ export class ReviewerAgent extends BaseAgent {
   protected tools: ITool[]
 
   constructor(llm: ILLMProvider, reasoningLoop: ReActLoop, toolRegistry: ToolRegistry, options: BaseAgentOptions = {}) {
-    super(llm, reasoningLoop, toolRegistry, { episodeLearner: options.episodeLearner })
+    super(llm, reasoningLoop, toolRegistry, { residualMemory: options.residualMemory, episodeLearner: options.episodeLearner })
     this.tools = [
       new ReadFileSkill(),
     ]

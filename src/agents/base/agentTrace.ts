@@ -28,44 +28,38 @@ function redact(context: ExecutionContext, text: string): string {
   return context.redactor.redactText(text)
 }
 
-/**
- * Redacts a payload, reporting failures as background errors. `mode: 'throw'`
- * fails closed (used for persisted traces/decisions) and rethrows
- * `originalError` when one exists; `mode: 'skip'` returns undefined instead
- * (used for best-effort signals like residual memory — `originalError` is
- * ignored in that mode).
- */
+export interface RedactSafelyOptions {
+  event: string
+  member: string
+  model: string
+  /** 'throw' fails closed (persisted traces/decisions); 'skip' returns undefined (best-effort signals). */
+  mode?: 'throw' | 'skip'
+  /** Rethrown instead of the redaction error when the run already failed ('throw' mode only). */
+  originalError?: unknown
+}
+
 export function redactSafely(
   context: ExecutionContext,
   text: string,
-  event: string,
-  report: { member: string; model: string },
-  mode: 'skip',
-  originalError?: unknown,
-): string | undefined
-export function redactSafely(
-  context: ExecutionContext,
-  text: string,
-  event: string,
-  report: { member: string; model: string },
-  mode?: 'throw',
-  originalError?: unknown,
+  options: RedactSafelyOptions & { mode?: 'throw' },
 ): string
 export function redactSafely(
   context: ExecutionContext,
   text: string,
-  event: string,
-  report: { member: string; model: string },
-  mode: 'throw' | 'skip' = 'throw',
-  originalError?: unknown,
+  options: RedactSafelyOptions & { mode: 'skip' },
+): string | undefined
+export function redactSafely(
+  context: ExecutionContext,
+  text: string,
+  options: RedactSafelyOptions,
 ): string | undefined {
   try {
     return redact(context, text)
   } catch (redactionError) {
-    void reportBackgroundFailure(redactionError, context, event, report)
-    if (mode === 'skip') return undefined
+    void reportBackgroundFailure(redactionError, context, options.event, { member: options.member, model: options.model })
+    if (options.mode === 'skip') return undefined
     // fail closed, but surface the original run error when one exists
-    if (originalError) throw originalError
+    if (options.originalError) throw options.originalError
     throw redactionError
   }
 }
@@ -105,8 +99,8 @@ function buildAgentTraceEnvelope(args: AgentTraceArgs) {
 export function recordAgentTrace(args: AgentTraceArgs): void {
   // redact before hashing so inputHash/outputHash always match the persisted
   // (redacted) payload; Tracer.record's own pass is a no-op then
-  const safeInput = redactSafely(args.context, args.input, 'trace redaction failed', { member: args.role, model: args.model }, 'throw', args.error)
-  const safeOutput = redactSafely(args.context, args.output, 'trace redaction failed', { member: args.role, model: args.model }, 'throw', args.error)
+  const safeInput = redactSafely(args.context, args.input, { event: 'trace redaction failed', member: args.role, model: args.model, originalError: args.error })
+  const safeOutput = redactSafely(args.context, args.output, { event: 'trace redaction failed', member: args.role, model: args.model, originalError: args.error })
   try {
     args.context.tracer.record(buildAgentTraceEnvelope({ ...args, input: safeInput, output: safeOutput }))
   } catch (err) {

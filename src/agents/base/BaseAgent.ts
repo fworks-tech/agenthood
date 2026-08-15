@@ -1,4 +1,3 @@
-import { randomUUID } from "node:crypto";
 import type { ILLMProvider } from "../../llm/ILLMProvider.ts";
 import type { ITool } from "../../tools/ITool.ts";
 import type { ExecutionContext } from "../../core/ExecutionContext.ts";
@@ -7,9 +6,7 @@ import { ReActLoop } from "../../reasoning/ReActLoop.ts";
 import { ToolRegistry } from "../../tools/ToolRegistry.ts";
 import type { ResidualMemory } from "../../memory/ResidualMemory.ts";
 import type { EpisodeLearner } from "../../evals/EpisodeLearner.ts";
-import type { EvalResult } from "../../core/types.ts";
-import { reportErrorToSentry, reportBackgroundFailure } from "../../core/sentryReporter.ts";
-import { recordAgentTrace, redactSafely } from "./agentTrace.ts";
+import { RunLifecycle } from "./runLifecycle.ts";
 
 export interface BaseAgentOptions {
   residualMemory?: ResidualMemory;
@@ -28,17 +25,19 @@ export abstract class BaseAgent {
     context: ExecutionContext,
   ): Promise<string>;
 
-  protected residualMemory?: ResidualMemory;
-  protected episodeLearner?: EpisodeLearner;
+  readonly residualMemory?: ResidualMemory;
+  readonly episodeLearner?: EpisodeLearner;
+  private readonly lifecycle: RunLifecycle;
 
   constructor(
     readonly llm: ILLMProvider,
-    protected reasoningLoop: ReActLoop,
+    readonly reasoningLoop: ReActLoop,
     protected toolRegistry: ToolRegistry,
     options: BaseAgentOptions = {},
   ) {
     this.residualMemory = options.residualMemory;
     this.episodeLearner = options.episodeLearner;
+    this.lifecycle = new RunLifecycle(this);
   }
 
   async run(input: string, context: ExecutionContext): Promise<AgentResult> {
@@ -71,15 +70,15 @@ export abstract class BaseAgent {
     const { output, error, durationMs } = await this.runExecutorStage(execute, systemPrompt, input);
     context.tracer.endSpan(this.role, { output });
 
-    this.recordTrace({ input, output, durationMs, error, context });
-    this.recordResidual(input, context);
+    this.lifecycle.recordTrace({ input, output, durationMs, error, context });
+    this.lifecycle.recordResidual(input, context);
     const result: AgentResult = { role: this.role, output, artifacts: context.artifacts };
-    this.learnFromRun(context);
+    this.lifecycle.learnFromRun(context);
 
-    await this.recordRun(input, output, error, context);
+    await this.lifecycle.recordRun(input, output, error, context);
 
     if (error) {
-      await this.reportFailure(error, durationMs, context);
+      await this.lifecycle.reportFailure(error, durationMs, context);
     }
     return result;
   }
@@ -108,131 +107,5 @@ export abstract class BaseAgent {
         this.toolRegistry.register(tool);
       }
     }
-  }
-
-  private recordTrace(args: {
-    input: string;
-    output: string;
-    durationMs: number;
-    error: unknown;
-    context: ExecutionContext;
-  }): void {
-    recordAgentTrace({
-      role: this.role,
-      model: this.reasoningLoop.model || "unknown",
-      usage: this.reasoningLoop.usage,
-      toolUsage: args.context.usage,
-      input: args.input,
-      output: args.output,
-      durationMs: args.durationMs,
-      error: args.error,
-      context: args.context,
-    });
-  }
-
-  private recordResidual(input: string, context: ExecutionContext): void {
-    // residual is a best-effort learning signal — a redaction failure must
-    // not abort the run (trace recording already fails closed on it)
-    const residualInput = redactSafely(context, input, "residual redaction failed", { member: this.role, model: this.reasoningLoop.model || this.role }, "skip");
-    if (residualInput === undefined) return;
-    this.residualMemory?.record(`agent:${this.role}:${residualInput.slice(0, 80)}`, 0.5);
-  }
-
-  private learnFromRun(context: ExecutionContext): void {
-    const evalResult: EvalResult = {
-      episodeId: context.executionId,
-      scores: {},
-      metadata: { member: this.role },
-    };
-    this.episodeLearner?.learn(evalResult, context).catch((err) => {
-      void reportBackgroundFailure(err, context, "episode learner failed", { member: this.role, model: this.reasoningLoop.model || this.role });
-    });
-  }
-
-  private async reportFailure(
-    error: unknown,
-    durationMs: number,
-    context: ExecutionContext,
-  ): Promise<never> {
-    await reportErrorToSentry(error, context, {
-      member: this.role,
-      model: this.reasoningLoop.model || this.role,
-      durationMs,
-      status: "error",
-      correlationId: context.correlationId ?? context.executionId,
-    });
-    throw error;
-  }
-
-  protected async recordRun(
-    input: string,
-    output: string,
-    error: unknown,
-    context: ExecutionContext,
-  ): Promise<void> {
-    const timestamp = new Date().toISOString();
-    const id = `dec-${Date.now()}-${randomUUID().slice(0, 8)}`;
-    const isSuccessful = error === null;
-
-    // decisions and provenance persist raw payloads, so the shared redactor
-    // must guard them or the redaction guarantee is only half-true
-    const report = { member: this.role, model: this.reasoningLoop.model || this.role };
-    const rationale = redactSafely(context, isSuccessful
-      ? "Member run completed; see decision for output summary."
-      : `Run failed: ${error instanceof Error ? error.message : String(error)}`, "run redaction failed", report, "throw", error);
-    const safeInput = redactSafely(context, input, "run redaction failed", report, "throw", error);
-    const safeOutput = redactSafely(context, output, "run redaction failed", report, "throw", error);
-
-    try {
-      await this.recordDecision({ id, timestamp, safeInput, safeOutput, rationale, isSuccessful, context });
-      await this.trackRunProvenance({ id, timestamp, safeInput, isSuccessful, context });
-    } catch (err) {
-      await reportBackgroundFailure(err, context, "decision/provenance recording failed", { member: this.role, model: this.reasoningLoop.model || this.role });
-    }
-  }
-
-  private async recordDecision(args: {
-    id: string;
-    timestamp: string;
-    safeInput: string;
-    safeOutput: string;
-    rationale: string;
-    isSuccessful: boolean;
-    context: ExecutionContext;
-  }): Promise<void> {
-    await args.context.memory.decisions.record({
-      id: args.id,
-      timestamp: args.timestamp,
-      member: this.role,
-      task: args.safeInput,
-      decision: args.safeOutput.slice(0, 2000) || "(no output)",
-      rationale: args.rationale,
-      alternatives: [],
-      outcome: args.isSuccessful ? "completed" : "failed",
-      tags: ["run"],
-      confidence: args.isSuccessful ? 1 : 0,
-      decisionMaker: this.role,
-    });
-  }
-
-  private async trackRunProvenance(args: {
-    id: string;
-    timestamp: string;
-    safeInput: string;
-    isSuccessful: boolean;
-    context: ExecutionContext;
-  }): Promise<void> {
-    await args.context.memory.provenance.track({
-      entityId: args.context.executionId,
-      entityType: "decision",
-      activityId: `run:${this.role}`,
-      agentId: this.role,
-      agentType: "software_agent",
-      role: "generator",
-      sourceDocument: args.safeInput.slice(0, 500),
-      timestamp: args.timestamp,
-      confidence: args.isSuccessful ? 1 : 0,
-      metadata: { decisionId: args.id, success: args.isSuccessful },
-    });
   }
 }

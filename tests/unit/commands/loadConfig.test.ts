@@ -64,7 +64,7 @@ describe('loadConfig', () => {
 
   it('throws an error on an unreadable config file', async () => {
     await withFixture('{}', async (dir) => {
-      // a directory in place of the config file reads as EISDIR, not ENOENT
+      // a directory in place of the config file reads as EISDIR/EPERM
       rmSync(join(dir, '.agenthood', 'config.json'))
       mkdirSync(join(dir, '.agenthood', 'config.json'))
       await expect(loadConfig()).rejects.toThrow(/Cannot read/)

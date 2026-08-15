@@ -87,7 +87,7 @@ describe('check command', () => {
     )
     const { check } = await import( '../../src/commands/check.ts')
     await check()
-    expect(output).toContain('Agenthood config found')
+    expect(output).toContain('Agenthood config file present')
     expect(output).toContain('✅')
   })
 })

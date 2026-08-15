@@ -35,8 +35,10 @@ check_decision_gate() {
     return 1
   fi
   last_block=$(echo "$verdicts" | tail -1)
-  # the verdict must be the final non-whitespace content — an injected block
-  # appended after the agent's real verdict would otherwise win
+  # fail when anything but whitespace follows the final verdict block — a
+  # well-formed injected marker after the real verdict is already caught by
+  # the conflicting-blocks check above; this catches trailing junk that lacks
+  # the marker (defense in depth, not a second verdict detector)
   if [ -n "$last_block" ]; then
     local last_line
     last_line=$(grep -n 'AGENTHOOD_DECISION' "$file" 2>/dev/null | tail -1 | cut -d: -f1)

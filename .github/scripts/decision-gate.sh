@@ -12,10 +12,11 @@
 # agent-analysis.sh is the defense in depth for that case.)
 
 # Usage: check_decision_gate <output-file> [agent-name]
-# Fails only when the last decision block is exactly
-# <!--AGENTHOOD_DECISION: blocking=true warnings=N-->.
+# Fails when the last decision block is blocking, or when it reports more
+# warnings than AGENTHOOD_WARNING_THRESHOLD (default 2).
 check_decision_gate() {
   local file="$1" agent_name="${2:-}" prefix="" last_block
+  local threshold="${AGENTHOOD_WARNING_THRESHOLD:-2}"
   [ -n "$agent_name" ] && prefix="$agent_name "
   last_block=$(grep -oE '<!--AGENTHOOD_DECISION: blocking=(true|false) warnings=[0-9]+-->' "$file" 2>/dev/null | tail -1)
   case "$last_block" in
@@ -24,6 +25,12 @@ check_decision_gate() {
       return 1
       ;;
     *'blocking=false'*)
+      local warnings
+      warnings=$(echo "$last_block" | sed -E 's/.*warnings=([0-9]+).*/\1/')
+      if [ "$warnings" -gt "$threshold" ]; then
+        echo "::error::${prefix}found $warnings warnings (threshold: $threshold) -- see PR comment for details"
+        return 1
+      fi
       return 0
       ;;
     *)

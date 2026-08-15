@@ -30,7 +30,7 @@ export class ArchitectAgent extends BaseAgent {
 
   protected async getSystemPrompt(context: ExecutionContext): Promise<string> {
     return buildLorePrompt(context, 'architect.system', SKILL_PATH, {
-      stack: JSON.stringify(context.project.stack ?? {}),
+      vars: { stack: JSON.stringify(context.project.stack ?? {}) },
     })
   }
 }

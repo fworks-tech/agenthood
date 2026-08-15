@@ -50,7 +50,7 @@ export class DeveloperAgent extends BaseAgent {
 
   protected async getSystemPrompt(context: ExecutionContext): Promise<string> {
     return buildLorePrompt(context, 'developer.system', SKILL_PATH, {
-      stack: JSON.stringify(context.project.stack ?? {}),
+      vars: { stack: JSON.stringify(context.project.stack ?? {}) },
     })
   }
 }

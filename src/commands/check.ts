@@ -30,18 +30,18 @@ export async function check(): Promise<void> {
 function collectConfigChecks(results: CheckResult[]): void {
   const cwd = process.cwd();
 
-  const file = (label: string, path: string) => pushFileCheck(results, cwd, label, path);
-
   collectSkillsCount(cwd, results);
-  file('AGENTS.md present', 'AGENTS.md');
+  file(results, cwd, 'AGENTS.md present', 'AGENTS.md');
   collectApiKeyResult(cwd, results);
 }
 
 function collectRagChecks(results: CheckResult[]): void {
   const cwd = process.cwd();
-  const file = (label: string, path: string) => pushFileCheck(results, cwd, label, path);
+  file(results, cwd, 'Agenthood config found', '.agenthood/config.json');
+}
 
-  file('Agenthood config found', '.agenthood/config.json');
+function file(results: CheckResult[], cwd: string, label: string, path: string): void {
+  pushFileCheck(results, cwd, label, path);
 }
 
 function collectMemoryResults(results: CheckResult[]): void {

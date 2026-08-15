@@ -19,7 +19,7 @@ export function escapeXml(text: string): string {
 export function wrapProjectContext(text: string): string {
   // strip the boundary tag so repo-sourced content cannot break out of the
   // project_context trust boundary and pose as instructions
-  const safe = text.replace(/<\/?project_context\s*>/gi, '')
+  const safe = text.replace(/<\/?project_context[^>]*>/gi, '')
   return `<project_context>\n${safe}\n</project_context>`
 }
 

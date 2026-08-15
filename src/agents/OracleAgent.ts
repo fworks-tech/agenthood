@@ -77,12 +77,12 @@ export class OracleAgent extends BaseAgent {
       ? `Past executions:\n${episodicResults.map((r) => `- ${r}`).join('\n')}`
       : ''
 
-    const retrieved = [kgContext, episodeContext].filter(Boolean).join('\n')
-    if (!retrieved) return [base, ...guidance].join('\n')
+    const retrievedContent = [kgContext, episodeContext].filter(Boolean).join('\n')
+    if (!retrievedContent) return [base, ...guidance].join('\n')
 
     // strip the boundary tag from retrieved content so a KB entry cannot
     // break out of retrieved_context and pose as instructions
-    const safeRetrieved = retrieved.replace(/<\/?retrieved_context\s*>/gi, '')
+    const safeRetrieved = retrievedContent.replace(/<\/?retrieved_context[^>]*>/gi, '')
     return [
       base,
       ...guidance,

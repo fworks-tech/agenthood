@@ -161,9 +161,14 @@ export async function run(args: string[]): Promise<void> {
     await runDetection(app, task)
   }
 
-  const handled = await app.runMember(agentName, task, config)
-  if (!handled) {
-    await app.runAgent(agentName, task)
+  try {
+    const handled = await app.runMember(agentName, task, config)
+    if (!handled) {
+      await app.runAgent(agentName, task)
+    }
+  } catch {
+    // the error is already logged by runAndReport; exit is the CLI's job
+    process.exit(1)
   }
 
   app.snapshotSocietyGraph()

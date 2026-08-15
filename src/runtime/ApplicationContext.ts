@@ -165,9 +165,9 @@ export class ApplicationContext {
     }
 
     this.agents.register(new DeveloperAgent(llm, loop, tReg, { agentRegistry: this.agents, episodeLearner: this.episodeLearner }))
-    this.agents.register(new ArchitectAgent(llm, loop, tReg, this.episodeLearner))
-    this.agents.register(new ReviewerAgent(llm, loop, tReg, this.episodeLearner))
-    this.agents.register(new QAAgent(llm, loop, tReg, this.episodeLearner))
+    this.agents.register(new ArchitectAgent(llm, loop, tReg, { episodeLearner: this.episodeLearner }))
+    this.agents.register(new ReviewerAgent(llm, loop, tReg, { episodeLearner: this.episodeLearner }))
+    this.agents.register(new QAAgent(llm, loop, tReg, { episodeLearner: this.episodeLearner }))
   }
 
   private setupOracle(llm: ILLMProvider, societyGraph: KnowledgeGraphStore): OracleAgent {
@@ -262,7 +262,8 @@ export class ApplicationContext {
       const msg = err instanceof Error ? err.message : String(err)
       await this.flushTraces()
       console.error(`Error running "${displayName}": ${msg}`)
-      process.exit(1)
+      // the exit decision belongs to the CLI caller, not the library
+      throw err
     }
     await this.flushTraces()
   }

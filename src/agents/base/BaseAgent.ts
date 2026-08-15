@@ -94,7 +94,7 @@ export abstract class BaseAgent {
     if (error) {
       await reportErrorToSentry(error, context, {
         member: this.role,
-        model: this.reasoningLoop.model || "unknown",
+        model: this.reasoningLoop.model || this.role,
         durationMs,
         status: "error",
         correlationId: context.correlationId ?? context.executionId,

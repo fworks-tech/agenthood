@@ -58,6 +58,11 @@ export class OracleAgent extends BaseAgent {
       ],
     })
 
+    // ask() bypasses ReActLoop.run, which is the only place that normally
+    // records the responding model; capture it so traces and Sentry reports
+    // carry the real model instead of the empty fallback
+    if (result.model) this.reasoningLoop.model = result.model
+
     return result.content
   }
 
@@ -66,6 +71,8 @@ export class OracleAgent extends BaseAgent {
   }
 
   async run(input: string, context: ExecutionContext): Promise<AgentResult> {
+    // the shared system prompt is deliberately ignored: ask() assembles its
+    // own retrieval-grounded prompt from the knowledge graph and episodic memory
     return this.runWithExecutor(input, context, (_systemPrompt, task) => this.ask(task, context))
   }
 }

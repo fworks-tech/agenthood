@@ -127,7 +127,8 @@ alerts the member and requires it to justify continued editing or stop.
 | Tool | Restricted | Standard | Trusted |
 |------|-----------|---------|---------|
 | `file.read` / `file.list` / `file.search` | ✅ | ✅ | ✅ |
-| `memory.read` / `memory.write` / `tasks.write` / `think` | ✅ | ✅ | ✅ |
+| `memory.read` / `tasks.write` / `think` | ✅ | ✅ | ✅ |
+| `memory.write` | ❌ | ✅ | ✅ |
 | `file.write` / `file.edit` | ❌ | ✅ | ✅ |
 | `terminal.run` | ❌ | ✅ | ✅ |
 | `git.status` / `git.diff` / `git.log` / `git.branch` | ❌ | ✅ | ✅ |

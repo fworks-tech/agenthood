@@ -27,6 +27,16 @@ export function stripFrontmatter(content: string): string {
   return content.replace(/^---[\s\S]*?---\n*/, '')
 }
 
+/** Renders escaped project conventions and ADRs as bullet lines. */
+export async function loadProjectContext(context: ExecutionContext): Promise<string> {
+  const conventions = await context.memory.project.getConventions()
+  const archDecisions = await context.memory.project.getArchitecturalDecisions()
+  return [
+    ...conventions.map((c) => `- Convention: ${escapeXml(c.name)} = ${escapeXml(c.value)}`),
+    ...archDecisions.map((ad) => `- ADR: ${escapeXml(ad)}`),
+  ].join('\n')
+}
+
 /**
  * Assembles the shared member prompt: project conventions and architectural
  * decisions as template vars, then the member's SKILL.md lore appended as a

@@ -26,10 +26,15 @@ export interface ReActLoopOptions {
 export class ReActLoop {
   activatedSkills = new Set<string>()
   usage: TokenUsage = { promptTokens: 0, completionTokens: 0, totalTokens: 0 }
-  model = ""
+  private _model = ""
+
+  /** Responding model of the most recent step; the loop owns the write. */
+  get model(): string {
+    return this._model
+  }
 
   setModel(model: string): void {
-    this.model = model
+    this._model = model
   }
 
   private readonly budget: ThinkingBudget
@@ -61,7 +66,7 @@ export class ReActLoop {
     ];
 
     this.usage = { promptTokens: 0, completionTokens: 0, totalTokens: 0 };
-    this.model = "";
+    this._model = "";
 
     const recentCalls: string[] = [];
 
@@ -106,7 +111,7 @@ export class ReActLoop {
     )
 
     const response = await this.llm.complete(request);
-    this.model = response.model || this.model;
+    this._model = response.model || this._model;
     this.usage.promptTokens += response.usage?.promptTokens ?? 0;
     this.usage.completionTokens += response.usage?.completionTokens ?? 0;
     this.usage.totalTokens += response.usage?.totalTokens ?? 0;

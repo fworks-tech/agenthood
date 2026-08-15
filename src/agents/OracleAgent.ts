@@ -6,10 +6,13 @@ import type { ExecutionContext } from '../core/ExecutionContext.js'
 import type { ITool } from '../tools/ITool.js'
 import type { AgentResult } from './base/AgentResult.js'
 import type { IGraphStore } from '../rag/KnowledgeGraphStore.js'
+import { ReadFileSkill } from '../tools/project/ReadFileSkill.js'
+import { SearchCodebaseSkill } from '../tools/code/SearchCodebaseSkill.js'
 
 export class OracleAgent extends BaseAgent {
   role = 'the-oracle'
-  protected tools: ITool[] = []
+  // restricted profile per docs/architecture/agent-system.md: read-only tools
+  protected tools: ITool[] = [new ReadFileSkill(), new SearchCodebaseSkill()]
 
   constructor(
     llm: ILLMProvider,

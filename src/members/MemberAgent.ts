@@ -28,27 +28,31 @@ const TOOL_MAP: Record<string, new (...args: never[]) => ITool> = {
   'file.read': ReadFileSkill,
   'file.write': WriteFileSkill,
   'file.search': SearchCodebaseSkill,
-  'code.grep': SearchCodebaseSkill,
   'code.write': WriteCodeSkill,
   'code.refactor': RefactorSkill,
   'code.explain': ExplainCodeSkill,
-  'tasks.read': ExplainCodeSkill,
   'pr_sync': PrSyncSkill,
+}
+
+export interface MemberAgentOptions {
+  agentRegistry?: AgentRegistry
+  episodeLearner?: EpisodeLearner
 }
 
 export class MemberAgent extends BaseAgent {
   role: string
   protected tools: ITool[]
+  private agentRegistry?: AgentRegistry
 
   constructor(
     private spec: MemberSpec,
     llm: ILLMProvider,
     reasoningLoop: ReActLoop,
     toolRegistry: ToolRegistry,
-    private agentRegistry?: AgentRegistry,
-    episodeLearner?: EpisodeLearner,
+    options: MemberAgentOptions = {},
   ) {
-    super(llm, reasoningLoop, toolRegistry, { episodeLearner })
+    super(llm, reasoningLoop, toolRegistry, { episodeLearner: options.episodeLearner })
+    this.agentRegistry = options.agentRegistry
     this.role = spec.name
     this.tools = this.buildTools()
   }

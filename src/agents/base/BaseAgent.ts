@@ -58,11 +58,7 @@ export abstract class BaseAgent {
     context: ExecutionContext,
     execute: (systemPrompt: string, input: string) => Promise<{ output: string; model?: string }>,
   ): Promise<AgentResult> {
-    for (const tool of this.tools) {
-      if (!this.toolRegistry.has(tool.name)) {
-        this.toolRegistry.register(tool);
-      }
-    }
+    this.registerTools();
 
     this.residualMemory?.decay();
 
@@ -83,21 +79,10 @@ export abstract class BaseAgent {
     context.tracer.endSpan(this.role, { output });
 
     this.recordTrace(input, output, durationMs, error, context);
-
-    const residualInput = redact(context, input);
-    this.residualMemory?.record(`agent:${this.role}:${residualInput.slice(0, 80)}`, 0.5);
+    this.recordResidual(input, context);
 
     const result: AgentResult = { role: this.role, output, artifacts: context.artifacts };
-
-    const evalResult: EvalResult = {
-      episodeId: context.executionId,
-      scores: {},
-      metadata: { member: this.role },
-    };
-
-    this.episodeLearner?.learn(evalResult, context).catch((err) => {
-      void reportBackgroundFailure(err, context, "episode learner failed", { member: this.role, model: this.reasoningLoop.model || this.role });
-    });
+    this.learnFromRun(context);
 
     await this.recordRun(input, output, error, context);
 
@@ -105,6 +90,30 @@ export abstract class BaseAgent {
       await this.reportFailure(error, durationMs, context);
     }
     return result;
+  }
+
+  private registerTools(): void {
+    for (const tool of this.tools) {
+      if (!this.toolRegistry.has(tool.name)) {
+        this.toolRegistry.register(tool);
+      }
+    }
+  }
+
+  private recordResidual(input: string, context: ExecutionContext): void {
+    const residualInput = redact(context, input);
+    this.residualMemory?.record(`agent:${this.role}:${residualInput.slice(0, 80)}`, 0.5);
+  }
+
+  private learnFromRun(context: ExecutionContext): void {
+    const evalResult: EvalResult = {
+      episodeId: context.executionId,
+      scores: {},
+      metadata: { member: this.role },
+    };
+    this.episodeLearner?.learn(evalResult, context).catch((err) => {
+      void reportBackgroundFailure(err, context, "episode learner failed", { member: this.role, model: this.reasoningLoop.model || this.role });
+    });
   }
 
   private async reportFailure(

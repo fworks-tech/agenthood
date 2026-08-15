@@ -75,17 +75,7 @@ export abstract class BaseAgent {
     const systemPrompt = await this.getSystemPrompt(context);
     context.tracer.startSpan(this.role);
 
-    const startTime = performance.now();
-    let error: unknown = null;
-    let output = "";
-    try {
-      const executed = await execute(systemPrompt, input);
-      output = executed.output;
-      if (executed.model) this.reasoningLoop.setModel(executed.model);
-    } catch (err) {
-      error = err;
-    }
-    const durationMs = Math.round(performance.now() - startTime);
+    const { output, error, durationMs } = await this.runExecutorStage(execute, systemPrompt, input);
     context.tracer.endSpan(this.role, { output });
 
     this.recordTrace(input, output, durationMs, error, context);
@@ -100,6 +90,24 @@ export abstract class BaseAgent {
       await this.reportFailure(error, durationMs, context);
     }
     return result;
+  }
+
+  private async runExecutorStage(
+    execute: (systemPrompt: string, input: string) => Promise<{ output: string; model?: string }>,
+    systemPrompt: string,
+    input: string,
+  ): Promise<{ output: string; error: unknown; durationMs: number }> {
+    const startTime = performance.now();
+    let error: unknown = null;
+    let output = "";
+    try {
+      const executed = await execute(systemPrompt, input);
+      output = executed.output;
+      if (executed.model) this.reasoningLoop.setModel(executed.model);
+    } catch (err) {
+      error = err;
+    }
+    return { output, error, durationMs: Math.round(performance.now() - startTime) };
   }
 
   private registerTools(): void {
@@ -148,44 +156,54 @@ export abstract class BaseAgent {
     error: unknown,
     context: ExecutionContext,
   ): void {
-    const usage = this.reasoningLoop.usage;
-    const model = this.reasoningLoop.model || "unknown";
     // redact before hashing so inputHash/outputHash always match the
     // persisted (redacted) payload; Tracer.record's own pass is a no-op then
     const safeInput = redact(context, input);
     const safeOutput = redact(context, output);
-    // tool-level LLM calls (WriteCode/Refactor/Explain) accumulate here
-    const toolUsage = context.usage;
-    const promptTokens = (usage?.promptTokens ?? 0) + (toolUsage?.promptTokens ?? 0);
-    const completionTokens = (usage?.completionTokens ?? 0) + (toolUsage?.completionTokens ?? 0);
-    const totalTokens = (usage?.totalTokens ?? 0) + (toolUsage?.totalTokens ?? 0);
     try {
       context.tracer.record(
-        createTraceEnvelope({
-          member: this.role,
-          input: safeInput,
-          output: safeOutput,
-          durationMs,
-          tokenCount: {
-            input: promptTokens,
-            output: completionTokens,
-            total: totalTokens,
-          },
-          cost: this.costEstimator.computeCost(
-            model,
-            promptTokens,
-            completionTokens,
-          ).estimatedCost,
-          qualityScore: getMemberQualityScore(this.role, join(context.project.localPath, '.agenthood', 'baselines')),
-          status: error ? "error" : "success",
-          correlationId: context.correlationId ?? context.executionId,
-          source: context.source,
-          model,
-        }),
+        this.buildTraceEnvelope({ input: safeInput, output: safeOutput, durationMs, error, context }),
       );
     } catch (err) {
       void reportBackgroundFailure(err, context, "trace recording failed", { member: this.role, model: this.reasoningLoop.model || this.role });
     }
+  }
+
+  private buildTraceEnvelope(args: {
+    input: string;
+    output: string;
+    durationMs: number;
+    error: unknown;
+    context: ExecutionContext;
+  }): ReturnType<typeof createTraceEnvelope> {
+    const usage = this.reasoningLoop.usage;
+    const model = this.reasoningLoop.model || "unknown";
+    // tool-level LLM calls (WriteCode/Refactor/Explain) accumulate here
+    const toolUsage = args.context.usage;
+    const promptTokens = (usage?.promptTokens ?? 0) + (toolUsage?.promptTokens ?? 0);
+    const completionTokens = (usage?.completionTokens ?? 0) + (toolUsage?.completionTokens ?? 0);
+    const totalTokens = (usage?.totalTokens ?? 0) + (toolUsage?.totalTokens ?? 0);
+    return createTraceEnvelope({
+      member: this.role,
+      input: args.input,
+      output: args.output,
+      durationMs: args.durationMs,
+      tokenCount: {
+        input: promptTokens,
+        output: completionTokens,
+        total: totalTokens,
+      },
+      cost: this.costEstimator.computeCost(
+        model,
+        promptTokens,
+        completionTokens,
+      ).estimatedCost,
+      qualityScore: getMemberQualityScore(this.role, join(args.context.project.localPath, '.agenthood', 'baselines')),
+      status: args.error ? "error" : "success",
+      correlationId: args.context.correlationId ?? args.context.executionId,
+      source: args.context.source,
+      model,
+    });
   }
 
   protected async recordRun(

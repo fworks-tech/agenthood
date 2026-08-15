@@ -38,12 +38,10 @@ must escalate to the Orchestrator, which routes to the appropriate member.
 | `file.delete` | Delete a file (requires approval) | Trusted profile (no member currently) |
 | `file.list` | List directory contents | All members |
 | `file.search` | Glob pattern file search | All members |
-
 ### Code Intelligence
 
 | Tool | Description | Scope |
 |------|-------------|-------|
-| `code.grep` | Ripgrep content search with regex | All members |
 | `code.symbols` | Extract symbols, functions, classes | Trusted profile (no member currently) |
 | `code.analysis` | Full codebase structural analysis | Trusted profile (no member currently) |
 | `code.diagnostics` | Read linter/compiler diagnostics | Trusted profile (no member currently) |
@@ -89,7 +87,6 @@ must escalate to the Orchestrator, which routes to the appropriate member.
 |------|-------------|-------|
 | `memory.read` | Read from persistent project/user memory | All members |
 | `memory.write` | Write to persistent memory | All members |
-| `tasks.read` | Read current task list | All members |
 | `tasks.write` | Update task status | All members |
 | `think` | Chain-of-thought reasoning scratchpad | All members |
 
@@ -130,8 +127,7 @@ alerts the member and requires it to justify continued editing or stop.
 | Tool | Restricted | Standard | Trusted |
 |------|-----------|---------|---------|
 | `file.read` / `file.list` / `file.search` | ✅ | ✅ | ✅ |
-| `code.grep` | ✅ | ✅ | ✅ |
-| `memory.read` / `memory.write` / `tasks.read` / `tasks.write` / `think` | ✅ | ✅ | ✅ |
+| `memory.read` / `memory.write` / `tasks.write` / `think` | ✅ | ✅ | ✅ |
 | `file.write` / `file.edit` | ❌ | ✅ | ✅ |
 | `terminal.run` | ❌ | ✅ | ✅ |
 | `git.status` / `git.diff` / `git.log` / `git.branch` | ❌ | ✅ | ✅ |

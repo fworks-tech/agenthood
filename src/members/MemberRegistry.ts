@@ -73,8 +73,8 @@ export class MemberRegistry {
   }
 
   private static readonly toolBase = [
-    'file.read', 'file.list', 'file.search', 'code.grep', 'memory.read',
-    'memory.write', 'tasks.read', 'tasks.write', 'think',
+    'file.read', 'file.list', 'file.search', 'memory.read',
+    'memory.write', 'tasks.write', 'think',
   ]
 
   // Tiers are computed in a single closure so the spread order is fixed by

@@ -5,16 +5,18 @@
 # Injection model: the analysis prompt embeds untrusted material (git diffs),
 # so the verdict is only trusted when it is the LAST decision block in the
 # output — the agent writes its verdict at the very end, after any injected
-# content. Only that final block can trip the gate; earlier injected blocks
-# are ignored. A missing final block is a warning, never a failure, but a
-# present-but-malformed final block fails — a truncated verdict must not
-# silently pass. (Residual risk: a successfully prompt-injected agent that
-# parrots an injected verdict as its own final line — the prompt hardening in
-# agent-analysis.sh is the defense in depth for that case.)
+# content. Only that final block can trip the gate. If the output contains
+# MULTIPLE blocks with different verdicts, an injected block fought the real
+# one — fail closed on ambiguity. A missing final block is a warning, never a
+# failure, but a present-but-malformed final block fails — a truncated verdict
+# must not silently pass. (Residual risk: a successfully prompt-injected agent
+# that parrots a single verdict as its own final line — the prompt hardening
+# in agent-analysis.sh is the defense in depth for that case.)
 
 # Usage: check_decision_gate <output-file> [agent-name]
-# Fails when the last decision block is blocking, or when it reports more
-# warnings than AGENTHOOD_WARNING_THRESHOLD (default 2).
+# Fails when the last decision block is blocking, when it reports more
+# warnings than AGENTHOOD_WARNING_THRESHOLD (default 2), or when the verdict
+# blocks disagree with each other.
 check_decision_gate() {
   local file="$1" agent_name="${2:-}" prefix="" last_block
   local threshold="${AGENTHOOD_WARNING_THRESHOLD:-2}"
@@ -24,7 +26,15 @@ check_decision_gate() {
     threshold=2
   fi
   [ -n "$agent_name" ] && prefix="$agent_name "
-  last_block=$(grep -oE '<!--AGENTHOOD_DECISION: blocking=(true|false) warnings=[0-9]+-->' "$file" 2>/dev/null | tail -1)
+  local verdicts
+  verdicts=$(grep -oE '<!--AGENTHOOD_DECISION: blocking=(true|false) warnings=[0-9]+-->' "$file" 2>/dev/null | sed '/^$/d')
+  local distinct
+  distinct=$(echo "$verdicts" | sort -u | wc -l)
+  if [ "$distinct" -gt 1 ]; then
+    echo "::error::${prefix}found conflicting decision blocks -- possible injection, see PR comment for details"
+    return 1
+  fi
+  last_block=$(echo "$verdicts" | tail -1)
   case "$last_block" in
     *'blocking=true'*)
       echo "::error::${prefix}found blocking findings -- see PR comment for details"

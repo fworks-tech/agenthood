@@ -31,8 +31,10 @@ const URL_QUERY_REPLACE = (match: string): string => {
 
 /**
  * Strips PII and secrets from trace payload text before it is persisted.
- * Opt-in via `.agenthood/config.json`; replacements use a deterministic
- * placeholder so replay-based evaluation keeps reproducible inputs.
+ * Enabled by default with built-in rules; opt out via
+ * `.agenthood/config.json` (`observability.redaction.enabled = false`).
+ * Replacements use a deterministic placeholder so replay-based evaluation
+ * keeps reproducible inputs.
  */
 export class RedactionFilter {
   private readonly rules: Rule[] = []
@@ -59,7 +61,7 @@ export class RedactionFilter {
   }
 
   enabled(): boolean {
-    return this.options.enabled === true
+    return this.options.enabled !== false
   }
 
   /** Redacts a single text payload; returns it untouched when disabled. */
@@ -108,7 +110,7 @@ export function createRedactionFilterFromConfig(raw: unknown): RedactionFilter |
   if (typeof redaction !== 'object' || redaction === null) return undefined
   const r = redaction as Record<string, unknown>
   return new RedactionFilter({
-    enabled: r.enabled === true,
+    enabled: r.enabled !== false,
     rules: Array.isArray(r.rules) ? r.rules.filter((x): x is string => typeof x === 'string') : undefined,
     paths: Array.isArray(r.paths) ? r.paths.filter((x): x is string => typeof x === 'string') : undefined,
   })

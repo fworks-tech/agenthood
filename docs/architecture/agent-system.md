@@ -80,9 +80,12 @@ implemented in [`src/members/MemberRegistry.ts`](../src/members/MemberRegistry.t
 
 ### Core Agents (Runtime)
 
-The non-member agents wired in `ApplicationContext.setupAgents` carry narrower tool
-sets than the member profile grants above — a deliberate fail-closed choice from the
-agent lifecycle hardening wave. They only receive what their executor path needs:
+The standalone core-agent classes carry narrower tool sets than the member
+profile grants below — a deliberate fail-closed choice from the agent lifecycle
+hardening wave. They only receive what their executor path needs: Developer,
+Architect, QA, and Reviewer are wired in `ApplicationContext.setupAgents`,
+Oracle in `setupOracle`, and Strategist/Operator are not wired into the
+ApplicationContext at all — they are instantiated by tests or callers directly.
 
 | Agent | Tools |
 |-------|-------|
@@ -94,7 +97,9 @@ agent lifecycle hardening wave. They only receive what their executor path needs
 | StrategistAgent / OperatorAgent | none — pure reasoning, output rendered against a fixed format |
 
 Member execution (via `MemberAgent`) remains governed by `MemberRegistry` profile
-grants; `delegate_task` is opt-in per spec via `canDelegate`.
+grants. `delegate_task` for members is opt-in per spec via `canDelegate`;
+DeveloperAgent's `SubagentTaskSkill` is a separate core-agent delegation path,
+not governed by member profile grants.
 
 ---
 

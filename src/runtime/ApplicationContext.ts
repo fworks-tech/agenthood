@@ -85,9 +85,9 @@ export class ApplicationContext {
 
     const projectConfig = loadObservabilityConfig(projectPath)
     const traceStore = new JSONFileTraceStore(resolveTraceStorePath(projectPath, projectConfig))
-    // always provide a redactor (disabled when unconfigured) so the agent
-    // layer's fail-closed redaction never trips on a plain project
-    const redactor = createRedactionFilterFromConfig(projectConfig) ?? new RedactionFilter({ enabled: false })
+    // always provide a redactor (enabled by default) so raw payloads never
+    // reach disk without scrubbing on a plain project
+    const redactor = createRedactionFilterFromConfig(projectConfig) ?? new RedactionFilter()
     this.anomalyDetector = new AnomalyDetector(createAnomalyConfigFromConfig(projectConfig))
 
     const retentionPolicy = createRetentionPolicyFromConfig(projectConfig)

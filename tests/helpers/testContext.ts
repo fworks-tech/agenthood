@@ -2,6 +2,7 @@ import { randomUUID } from 'node:crypto'
 import type { ExecutionContext } from '../../src/core/ExecutionContext.js'
 import type { ProvenanceEntry } from '../../src/memory/ProvenanceStore.js'
 import { Tracer } from '../../src/core/Tracer.js'
+import { RedactionFilter } from '../../src/core/RedactionFilter.js'
 
 export function createTestContext(overrides?: Partial<ExecutionContext>): ExecutionContext {
   return {
@@ -67,6 +68,8 @@ export function createTestContext(overrides?: Partial<ExecutionContext>): Execut
     prompts: overrides?.prompts ?? {
       build: () => ({ role: 'system' as const, content: 'mock prompt' }),
     },
+    // disabled redactor matches production context shape while no-op'ing
+    redactor: overrides?.redactor ?? new RedactionFilter({ enabled: false }),
     tracer: overrides?.tracer ?? new Tracer(),
     artifacts: [],
     ...overrides,

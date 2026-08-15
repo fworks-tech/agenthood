@@ -166,9 +166,11 @@ export async function run(args: string[]): Promise<void> {
     if (!handled) {
       await app.runAgent(agentName, task)
     }
-  } catch {
-    // the error is already logged by runAndReport; exit is the CLI's job
-    process.exit(1)
+  } catch (err) {
+    const msg = err instanceof Error ? err.message : String(err)
+    console.error(`Error running "${agentName}": ${msg}`)
+    // exitCode (not exit) so piped stderr is not truncated before flush
+    process.exitCode = 1
   }
 
   app.snapshotSocietyGraph()

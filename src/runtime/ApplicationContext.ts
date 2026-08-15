@@ -4,7 +4,7 @@ import { join } from 'node:path'
 
 import { AgentRegistry } from '../core/AgentRegistry.ts'
 import type { ExecutionContext } from '../core/ExecutionContext.ts'
-import { createRedactionFilterFromConfig } from '../core/RedactionFilter.ts'
+import { createRedactionFilterFromConfig, RedactionFilter } from '../core/RedactionFilter.ts'
 import { AnomalyDetector, appendAnomalies, createAnomalyConfigFromConfig } from '../core/AnomalyDetector.ts'
 import { Tracer } from '../core/Tracer.ts'
 import {
@@ -53,6 +53,13 @@ import { escapeXml } from '../agents/memberLore.ts'
  * Composition root for `agenthood run`. Presentation (commands) never
  * instantiates infrastructure — it consumes one of these.
  */
+export interface ApplicationContextOptions {
+  societyGraph: KnowledgeGraphStore
+  vectorStore: LanceDBStore
+  skills: { catalog: string; manifests: Map<string, ISkillManifest> }
+  sentry?: { dsn?: string }
+}
+
 export class ApplicationContext {
   readonly ctx: ExecutionContext
   readonly societyGraph: KnowledgeGraphStore
@@ -67,11 +74,9 @@ export class ApplicationContext {
   private constructor(
     projectPath: string,
     llm: ILLMProvider,
-    societyGraph: KnowledgeGraphStore,
-    vectorStore: LanceDBStore,
-    skills: { catalog: string; manifests: Map<string, ISkillManifest> },
-    sentry?: { dsn?: string },
+    options: ApplicationContextOptions,
   ) {
+    const { societyGraph, vectorStore, skills, sentry } = options
     this.llm = llm
     this.societyGraph = societyGraph
     this.agents = new AgentRegistry()
@@ -85,7 +90,9 @@ export class ApplicationContext {
 
     const projectConfig = loadObservabilityConfig(projectPath)
     const traceStore = new JSONFileTraceStore(resolveTraceStorePath(projectPath, projectConfig))
-    const redactor = createRedactionFilterFromConfig(projectConfig)
+    // always provide a redactor (disabled when unconfigured) so the agent
+    // layer's fail-closed redaction never trips on a plain project
+    const redactor = createRedactionFilterFromConfig(projectConfig) ?? new RedactionFilter({ enabled: false })
     this.anomalyDetector = new AnomalyDetector(createAnomalyConfigFromConfig(projectConfig))
 
     const retentionPolicy = createRetentionPolicyFromConfig(projectConfig)
@@ -121,7 +128,12 @@ export class ApplicationContext {
     const societyGraph = loadSocietyGraph(projectPath)
     const skills = await discoverSkills(projectPath)
     const vectorStore = await connectVectorStore(projectPath)
-    const app = new ApplicationContext(projectPath, llm, societyGraph, vectorStore, skills, config.sentry)
+    const app = new ApplicationContext(projectPath, llm, {
+      societyGraph,
+      vectorStore,
+      skills,
+      sentry: config.sentry,
+    })
     try {
       await reindexLegacyPatterns(new EmbeddingIndex(vectorStore), vectorStore, (text) => llm.embed(text))
     } catch (err) {
@@ -172,7 +184,9 @@ export class ApplicationContext {
 
   private setupOracle(llm: ILLMProvider, societyGraph: KnowledgeGraphStore): OracleAgent {
     const oracleReg = new ToolRegistry()
-    return new OracleAgent(llm, new ReActLoop(llm, oracleReg), oracleReg, societyGraph)
+    const oracleAgent = new OracleAgent(llm, new ReActLoop(llm, oracleReg), oracleReg, societyGraph)
+    this.agents.register(oracleAgent)
+    return oracleAgent
   }
 
   private buildMemoryTiers(
@@ -259,10 +273,8 @@ export class ApplicationContext {
       const output = await run()
       console.log(`\n\u2714 ${displayName} result:\n${output}\n`)
     } catch (err) {
-      const msg = err instanceof Error ? err.message : String(err)
       await this.flushTraces()
-      console.error(`Error running "${displayName}": ${msg}`)
-      // the exit decision belongs to the CLI caller, not the library
+      // logging and exit belong to the CLI caller; surface the error here
       throw err
     }
     await this.flushTraces()

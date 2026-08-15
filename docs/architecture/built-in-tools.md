@@ -34,61 +34,21 @@ must escalate to the Orchestrator, which routes to the appropriate member.
 |------|-------------|-------|
 | `file.read` | Read file contents | All members |
 | `file.write` | Write or overwrite a file | Standard profile (9 members) |
-| `file.edit` | Targeted string replacement in a file | Standard profile (9 members) |
-| `file.delete` | Delete a file (requires approval) | Trusted profile (no member currently) |
-| `file.list` | List directory contents | All members |
 | `file.search` | Glob pattern file search | All members |
+
 ### Code Intelligence
 
 | Tool | Description | Scope |
 |------|-------------|-------|
-| `code.symbols` | Extract symbols, functions, classes | Trusted profile (no member currently) |
-| `code.analysis` | Full codebase structural analysis | Trusted profile (no member currently) |
-| `code.diagnostics` | Read linter/compiler diagnostics | Trusted profile (no member currently) |
+| `code.explain` | Explain a code region | All members |
+| `code.write` | Write code changes | Standard profile (9 members) |
+| `code.refactor` | Refactor code | Standard profile (9 members) |
 
-### Terminal
-
-| Tool | Description | Scope |
-|------|-------------|-------|
-| `terminal.run` | Execute a shell command | Standard profile (9 members) |
-
-### Git
+### PR Sync
 
 | Tool | Description | Scope |
 |------|-------------|-------|
-| `git.diff` | Show staged or unstaged changes | Standard profile (9 members) |
-| `git.log` | Commit history with formatting | Standard profile (9 members) |
-| `git.status` | Working tree status | Standard profile (9 members) |
-| `git.branch` | List, create, switch branches | Standard profile (9 members) |
-| `git.commit` | Create a commit (requires approval) | Trusted profile (no member currently) |
-| `git.push` | Push to remote (requires approval) | Trusted profile (no member currently) |
-| `git.tag` | Create a version tag (requires approval) | Trusted profile (no member currently) |
-
-### Search & Knowledge
-
-| Tool | Description | Scope |
-|------|-------------|-------|
-| `search.web` | Web search for current information | Trusted profile (no member currently) |
-| `search.vector` | Semantic search across indexed codebase | Trusted profile (no member currently) |
-| `search.hybrid` | Vector + keyword + temporal decay | Trusted profile (no member currently) |
-
-### Debug
-
-| Tool | Description | Scope |
-|------|-------------|-------|
-| `debug.stacktrace` | Parse and analyze a stack trace | Trusted profile (no member currently) |
-| `debug.variables` | Inspect runtime variable state | Trusted profile (no member currently) |
-| `debug.evaluate` | Evaluate an expression in debug context | Trusted profile (no member currently) |
-| `debug.control` | Step/continue/pause debugger | Trusted profile (no member currently) |
-
-### Memory & State
-
-| Tool | Description | Scope |
-|------|-------------|-------|
-| `memory.read` | Read from persistent project/user memory | All members |
-| `memory.write` | Write to persistent memory | Standard and Trusted |
-| `tasks.write` | Update task status | All members |
-| `think` | Chain-of-thought reasoning scratchpad | All members |
+| `pr_sync` | Sync a pull request | Trusted profile (no member currently) |
 
 ### External (MCP)
 
@@ -126,17 +86,9 @@ alerts the member and requires it to justify continued editing or stop.
 
 | Tool | Restricted | Standard | Trusted |
 |------|-----------|---------|---------|
-| `file.read` / `file.list` / `file.search` | ✅ | ✅ | ✅ |
-| `memory.read` / `tasks.write` / `think` | ✅ | ✅ | ✅ |
-| `memory.write` | ❌ | ✅ | ✅ |
-| `file.write` / `file.edit` | ❌ | ✅ | ✅ |
-| `terminal.run` | ❌ | ✅ | ✅ |
-| `git.status` / `git.diff` / `git.log` / `git.branch` | ❌ | ✅ | ✅ |
-| `file.delete` | ❌ | ❌ | ✅ (approval) |
-| `git.commit` / `git.push` / `git.tag` | ❌ | ❌ | ✅ (approval) |
-| `code.symbols` / `code.analysis` / `code.diagnostics` | ❌ | ❌ | ✅ |
-| `search.web` / `search.vector` / `search.hybrid` | ❌ | ❌ | ✅ |
-| `debug.*` | ❌ | ❌ | ✅ |
+| `file.read` / `file.search` / `code.explain` | ✅ | ✅ | ✅ |
+| `file.write` / `code.write` / `code.refactor` | ❌ | ✅ | ✅ |
+| `pr_sync` | ❌ | ❌ | ✅ |
 
 **Profile membership (canonical in `member-specs.ts`):**
 - **Standard (9):** Scribe, Architect, Builder, Tester, Debugger, Herald, Librarian, Mailman, Inspector

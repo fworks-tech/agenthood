@@ -43,7 +43,7 @@ export class OracleAgent extends BaseAgent {
     // strip both user_query delimiters (whitespace/attribute-tolerant) so a
     // crafted question cannot break out of the trust boundary and inject
     // instructions
-    const safeQuestion = question.replace(/<user_query[^>]*>|<\/user_query\s*>/gi, '')
+    const safeQuestion = question.replace(/<user_query[^>]*>|<\/user_query[^>]*>/gi, '')
     const wrappedQuestion = `<user_query>\n${safeQuestion}\n</user_query>`
 
     const result = await this.llm.complete({

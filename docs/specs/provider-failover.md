@@ -1,5 +1,10 @@
 # Spec: Provider Failover with Circuit Breaker
 
+> **⚠️ Superseded** — [architecture/provider-failover.md](../architecture/provider-failover.md)
+> is the canonical, current description of the shipped implementation
+> (thresholds, provider roster, models, and config schema). This spec is kept
+> as the historical design record from the original issue.
+
 **Status:** Implemented (v2.0.0)  
 **Issue:** #161  
 **Architecture Doc:** [architecture/provider-failover.md](../architecture/provider-failover.md)
@@ -139,7 +144,6 @@ For network errors and timeouts:
 
 The following are explicitly **NOT included** in this spec:
 
-- **Credential proxy** — API key injection via localhost proxy (separate feature)
 - **Credential proxy** — API key injection via localhost proxy (separate feature)
 - **Thread checkpoint** — Persisting conversation state for cross-provider continuity (separate feature, may not be needed)
 - **Provider cost tracking** — Monitoring token usage and costs per provider (separate feature)
@@ -302,25 +306,23 @@ Add to `.agenthood/config.json`:
 
 ```json
 {
-  "llm": {
-    "providers": [
-      {
-        "name": "anthropic",
-        "model": "claude-sonnet-4-20250514",
-        "apiKey": "...",
-        "models": ["claude-sonnet-4-20250514", "claude-haiku-3-20250301"]
-      },
-      {
-        "name": "groq",
-        "model": "llama-3.3-70b-versatile",
-        "apiKey": "..."
-      }
-    ],
-    "failover": {
-      "failureThreshold": 1,
-      "cooldownMs": 30000,
-      "probeEnabled": true
+  "providers": [
+    {
+      "name": "anthropic",
+      "model": "claude-sonnet-5",
+      "apiKey": "...",
+      "models": ["claude-sonnet-5", "claude-haiku-4-5"]
+    },
+    {
+      "name": "groq",
+      "model": "llama-3.3-70b-versatile",
+      "apiKey": "..."
     }
+  ],
+  "failover": {
+    "failureThreshold": 1,
+    "cooldownMs": 30000,
+    "probeEnabled": true
   }
 }
 ```

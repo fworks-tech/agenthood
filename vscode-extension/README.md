@@ -11,8 +11,8 @@ Shows how many Society members are active in your project.
 Click to open the member list.
 
 ```
-🏛️ 16/16   ← all members active
-🏛️ 3/16    ← partial activation
+🏛️ 19/19   ← all members active
+🏛️ 3/19    ← partial activation
 ```
 
 ### 🎛️ Command Palette
@@ -104,7 +104,7 @@ npm run package  # Creates .vsix file
 - Ensure you have `.gitmessage` or `commitlint.config.ts` in your workspace
 - Verify Agenthood is initialized: `npx agenthood init`
 
-### Status bar shows 0/16 members
+### Status bar shows 0/19 members
 - Check that member skill files exist in `.agenthood/skills/` or `.claude/skills/`
 - Run `npx agenthood list` to verify setup
 

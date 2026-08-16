@@ -180,7 +180,7 @@ Structured learning path from "what is a prompt?" to "ship agents to production.
 
 - [Conventional Commits](https://www.conventionalcommits.org/)
 - [addyosmani/agent-skills](https://github.com/addyosmani/agent-skills)
-- [groq-sdk](https://github.com/groq/groq-typescript) — default free LLM provider
+- [opencode](https://github.com/sst/opencode) — default free LLM provider
 - [semantic-release](https://github.com/semantic-release/semantic-release)
 - [commitlint](https://commitlint.js.org/)
 

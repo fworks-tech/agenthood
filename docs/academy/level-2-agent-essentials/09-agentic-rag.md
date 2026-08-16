@@ -46,7 +46,7 @@ const agenticRag = new AgenticRAG({
 const answer = await agenticRag.query('How does BaseAgent relate to ReActLoop?');
 // decision: "relationship question → route to graph store"
 // retrieval: graphStore.query('BaseAgent', 'ReActLoop')
-// answer: "BaseAgent.run() delegates to ReActLoop.execute() — see src/agents/base/BaseAgent.ts:12"
+// answer: "BaseAgent.run() delegates to RunLifecycle.runStage, which executes the ReActLoop — see src/agents/base/BaseAgent.ts"
 ```
 
 The `RetrievalClassifier` is what makes it agentic. It inspects the query, the current context, and the available sources, and emits a routing decision: `retrieve:vector`, `retrieve:graph`, `retrieve:direct`, or `skip`. The `AgenticRAG` orchestrator executes the decision and attaches provenance to the result.

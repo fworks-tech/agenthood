@@ -51,5 +51,5 @@ The Sentinel CI workflow guards against this.
 
 - [.githooks/commit-msg](https://github.com/fworks-tech/agenthood/blob/main/.githooks/commit-msg) — bash enforcement hook
 - [conventions/commitlint.config.ts](https://github.com/fworks-tech/agenthood/blob/main/docs/conventions/commitlint.config.ts) — Node.js enforcement config
-- [.github/workflows/sentinel.yml](https://github.com/fworks-tech/agenthood/blob/main/.github/workflows/sentinel.yml) — drift detection
+- [.github/workflows/pr.yml](https://github.com/fworks-tech/agenthood/blob/main/.github/workflows/pr.yml) — the `sentinel` job — member-structure drift detection
 - [ADR-002](ADR-002-conventional-commits-standard.md) — why Conventional Commits

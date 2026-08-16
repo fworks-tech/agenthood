@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest'
-import { rewriteLink, htmlTemplate } from '../../../scripts/build-academy.ts'
+import { rewriteLink, htmlTemplate, renderLink } from '../../../scripts/build-academy.ts'
 
 describe('rewriteLink', () => {
   describe('passthrough', () => {
@@ -112,6 +112,46 @@ describe('rewriteLink', () => {
       expect(result).toContain('github.com')
       expect(result).toContain('rituals')
     })
+  })
+})
+
+describe('renderLink', () => {
+  it('renders a plain anchor with its rewritten href', () => {
+    expect(
+      renderLink({ href: 'https://example.com', title: 'Example', text: 'example text' }, '', true),
+    ).toBe('<a href="https://example.com" title="Example">example text</a>')
+  })
+
+  it('omits the title attribute when absent', () => {
+    expect(renderLink({ href: '#section', title: null, text: 'jump' }, '', true)).toBe(
+      '<a href="#section">jump</a>',
+    )
+  })
+
+  it('escapes a title that could break out of the attribute', () => {
+    const out = renderLink(
+      { href: 'https://example.com', title: 'x" onmouseover="alert(1)', text: 't' },
+      '',
+      true,
+    )
+    expect(out).toContain('title="x&quot; onmouseover=&quot;alert(1)"')
+    expect(out).not.toContain(' onmouseover="')
+  })
+
+  it('escapes a href that could break out of the attribute', () => {
+    const out = renderLink(
+      { href: 'https://example.com/" onmouseover="x', title: null, text: 't' },
+      '',
+      true,
+    )
+    expect(out).toContain('href="https://example.com/&quot; onmouseover=&quot;x"')
+    expect(out).not.toContain(' onmouseover="')
+  })
+
+  it('keeps the rewritten markdown link behavior', () => {
+    expect(
+      renderLink({ href: 'getting-started.md#some-section', title: null, text: 'get' }, 'academy', true),
+    ).toBe('<a href="getting-started/#some-section">get</a>')
   })
 })
 

@@ -5,6 +5,14 @@
 
 ---
 
+## v3.34.1 — August 16, 2026
+
+### 🐛 Bug Fixes
+
+- resolve auditor follow-up warnings for scripts and delegation (#442)
+
+---
+
 ## v3.34.0 — August 16, 2026
 
 ### 🐛 Bug Fixes

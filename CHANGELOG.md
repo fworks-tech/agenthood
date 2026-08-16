@@ -1,3 +1,10 @@
+## [3.34.1](https://github.com/fworks-tech/agenthood/compare/v3.34.0...v3.34.1) (2026-08-16)
+
+
+### Bug Fixes
+
+* resolve auditor follow-up warnings for scripts and delegation ([#442](https://github.com/fworks-tech/agenthood/issues/442)) ([b5b39e7](https://github.com/fworks-tech/agenthood/commit/b5b39e7ee7907e78e855f88b590d0fa2f14e8145))
+
 # [3.34.0](https://github.com/fworks-tech/agenthood/compare/v3.33.1...v3.34.0) (2026-08-16)
 
 

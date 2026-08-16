@@ -5,6 +5,34 @@
 
 ---
 
+## v3.34.0 — August 16, 2026
+
+### 🐛 Bug Fixes
+
+- **Agents:** align docs with memory.write scoping, unify constructors, delegate exit to CLI
+- **Agents:** align member tool grants with permission docs and close delegation boundaries
+- **Agents:** apply review findings on trust boundaries and redaction
+- **Agents:** close user_query injection, raise decision id entropy, align DeveloperAgent style
+- **Agents:** delimit retrieved and project context as untrusted data
+- **Agents:** escape retrieved context, redact traces by default, fail gate on ambiguous verdicts
+- **Agents:** fail redaction closed, trim advertised tools, and delegate run errors to the CLI
+- **Agents:** forward residualMemory through agent option bags
+- **Agents:** restore user_query directive and close remaining trust-boundary escapes
+- **Agents:** restrict delegation to read-only roles
+- **Agents:** share redaction helpers, label prompt boundaries, and flatten the review gate
+- **Agents:** share user_query wrapping, opt-in delegation, and redact sentry payloads
+- **Ci:** harden decision gate and test-changed script against review findings
+- **Members:** fail closed on empty tools and gate delegation for restricted members
+- **Reasoning:** bound ReActLoop iterations with a maxSteps guard
+- **Scripts:** escape academy site title
+- **Scripts:** guard flag-like test paths and signal-death exits
+
+### ✨ Features
+
+- **Observability:** keep background-failure console visibility without a DSN
+
+---
+
 ## v3.33.1 — August 15, 2026
 
 ### 🐛 Bug Fixes

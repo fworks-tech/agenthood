@@ -1,3 +1,31 @@
+# [3.34.0](https://github.com/fworks-tech/agenthood/compare/v3.33.1...v3.34.0) (2026-08-16)
+
+
+### Bug Fixes
+
+* **agents:** align docs with memory.write scoping, unify constructors, delegate exit to CLI ([897c71e](https://github.com/fworks-tech/agenthood/commit/897c71eed5f7cd49ae872b8a148c015391128fa7))
+* **agents:** align member tool grants with permission docs and close delegation boundaries ([ba35194](https://github.com/fworks-tech/agenthood/commit/ba3519402a488d05684d0099d47825e3a8c9a731))
+* **agents:** apply review findings on trust boundaries and redaction ([b8f1147](https://github.com/fworks-tech/agenthood/commit/b8f11475a9f8f1e94a0509d7ad976b1890f864d9))
+* **agents:** close user_query injection, raise decision id entropy, align DeveloperAgent style ([3cd8f1f](https://github.com/fworks-tech/agenthood/commit/3cd8f1f8be23ad0c8469d02cc486b221a1bf8459))
+* **agents:** delimit retrieved and project context as untrusted data ([6526ab6](https://github.com/fworks-tech/agenthood/commit/6526ab67fdd82b8092c890f5da69ac813f301b1c))
+* **agents:** escape retrieved context, redact traces by default, fail gate on ambiguous verdicts ([4a9afe2](https://github.com/fworks-tech/agenthood/commit/4a9afe28a544b37e387c5b9e72d245a7554bbf79))
+* **agents:** fail redaction closed, trim advertised tools, and delegate run errors to the CLI ([a515deb](https://github.com/fworks-tech/agenthood/commit/a515deb9b915ec5d13d967fec118c87952570395))
+* **agents:** forward residualMemory through agent option bags ([ce7773e](https://github.com/fworks-tech/agenthood/commit/ce7773e3eb7cd1f5f0b57ee30280f1bc1bc196e3))
+* **agents:** restore user_query directive and close remaining trust-boundary escapes ([50578c7](https://github.com/fworks-tech/agenthood/commit/50578c7f065e2303149d8d263fb5e2fb4a88fece))
+* **agents:** restrict delegation to read-only roles ([582137c](https://github.com/fworks-tech/agenthood/commit/582137cb72ccf4cd5d9fafd23a6b61a57016e905))
+* **agents:** share redaction helpers, label prompt boundaries, and flatten the review gate ([cea25d0](https://github.com/fworks-tech/agenthood/commit/cea25d0b0c17b2efedcf924e67fecc628c8332fc))
+* **agents:** share user_query wrapping, opt-in delegation, and redact sentry payloads ([06ebfd8](https://github.com/fworks-tech/agenthood/commit/06ebfd834d8e09f26ed172f5bf291efe3e611c66))
+* **ci:** harden decision gate and test-changed script against review findings ([36663a7](https://github.com/fworks-tech/agenthood/commit/36663a75d412c0c759fa957f18d97e9270425d8a))
+* **members:** fail closed on empty tools and gate delegation for restricted members ([6fe44fb](https://github.com/fworks-tech/agenthood/commit/6fe44fbedc787b14fb65ba273c10684193dc411e))
+* **reasoning:** bound ReActLoop iterations with a maxSteps guard ([734757b](https://github.com/fworks-tech/agenthood/commit/734757b9c22e5fa076b8a0964c35de74312f6b14))
+* **scripts:** escape academy site title ([f0b11bb](https://github.com/fworks-tech/agenthood/commit/f0b11bb3ca2651f9bc24d04eafa9ac261ace6ac4))
+* **scripts:** guard flag-like test paths and signal-death exits ([bacd2ad](https://github.com/fworks-tech/agenthood/commit/bacd2ad4a9b05732493681bab2e9225d754b2201))
+
+
+### Features
+
+* **observability:** keep background-failure console visibility without a DSN ([89e00b6](https://github.com/fworks-tech/agenthood/commit/89e00b655fcf3a9e32829b5144cbd86d1e058a4e))
+
 ## [3.33.1](https://github.com/fworks-tech/agenthood/compare/v3.33.0...v3.33.1) (2026-08-15)
 
 

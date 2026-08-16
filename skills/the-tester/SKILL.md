@@ -68,11 +68,16 @@ Balance test types to maximize confidence per second of test run time:
    - The happy path (expected input → expected output)
    - Edge cases (null, empty, zero, max values, empty collections)
    - Error paths (what happens when dependencies fail)
+   - Side effects, where applicable: external calls made correctly, state changes, interactions with dependencies
 3. Write tests in this order: happy path → edge cases → error paths
-4. Name tests descriptively: `it('returns null when user does not exist')`
-5. Assert on behavior, not implementation:
+4. Use the AAA pattern in every test — Arrange, Act, Assert — with the act section kept to a single line
+5. Generate 5–8 focused cases covering the most important scenarios with realistic data, not just simple examples
+6. Name tests descriptively: `it('returns null when user does not exist')`
+7. Group related tests in describe/context blocks; mock external dependencies cleanly
+8. Assert on behavior, not implementation:
    - ✅ `expect(result).toEqual({ id: 1, name: 'Alice' })`
    - ❌ `expect(mockDb.findOne).toHaveBeenCalledWith({ id: 1 })`
+   - Exception: side-effect tests may assert that external calls happened correctly — that is their behavior
 
 ### Writing Regression Tests
 

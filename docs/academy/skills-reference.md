@@ -22,6 +22,14 @@
 **Tools:** `read_file`, `write_file`, `write_code`, `search_codebase`, `explain_code`
 **Runtime:** `npx agenthood run the-architect "plan the implementation for issue #42"`
 
+### The Builder
+
+> *Builds the smallest verified change.*
+
+**Specialty:** Coding, implementation, refactoring, local validation
+**Tools:** `read_file`, `write_file`, `write_code`, `search_codebase`, `explain_code`
+**Runtime:** `npx agenthood run the-builder "implement the auth refactor"`
+
 ### The Tester
 
 > *Red. Green. Refactor. Repeat.*
@@ -37,6 +45,14 @@
 **Specialty:** Error triage, root cause analysis, systematic recovery
 **Tools:** `read_file`, `write_file`, `search_codebase`, `explain_code`
 **Runtime:** `npx agenthood run the-debugger "diagnose the CI failure"`
+
+### The Strategist
+
+> *The right solution starts with the right problem.*
+
+**Specialty:** Goal refinement, requirement discovery, ambiguity resolution
+**Tools:** `read_file`, `write_file`, `search_codebase`, `explain_code`
+**Runtime:** `npx agenthood run the-strategist "clarify the goals for the API rewrite"`
 
 ---
 
@@ -145,6 +161,22 @@
 **Runtime:** `npx agenthood run the-steward "optimize the agent configuration"`
 **Society memory:** the provenance store's hash chain gives the Steward a tamper-evident record of past sessions to triage against
 
+### The Operator
+
+> *Health is not a goal; it is a practice.*
+
+**Specialty:** Runtime health, deployment, incidents, rollback, monitoring
+**Tools:** `read_file`, `write_file`, `search_codebase`, `explain_code`
+**Runtime:** `npx agenthood run the-operator "check the deployment health"`
+
+### The Mailman
+
+> *Neither snow nor rain nor API rate limits shall stay this courier from the swift completion of their rounds.*
+
+**Specialty:** Message delivery, content scheduling, notification dispatch, cross-posting
+**Tools:** `read_file`, `write_file`, `search_codebase`, `explain_code`
+**Runtime:** `npx agenthood run the-mailman "schedule the weekly report"`
+
 ---
 
 ## Special skills
@@ -166,6 +198,7 @@ npx agenthood run the-scribe "sync PR #42"
 ## Related
 
 - [Getting Started](getting-started.md) — install and first workflow
+- [Utility Skills](utility-skills.md) — specialist skills beyond the 19 members
 - [Built-in Tools](../architecture/built-in-tools.md) — canonical tool registry with scoping
 - [Online docs](https://agenthood.flabs.tech/) — hosted documentation site
 

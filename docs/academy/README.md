@@ -64,6 +64,13 @@ Start at Level 1. Do not skip ahead.
 
 ---
 
+## Reference
+
+- [Skills Reference](skills-reference.md) — the 19 Society members, their tools, and invocation
+- [Utility Skills](utility-skills.md) — specialist skills beyond the members (Copilot library and deepagents ports)
+
+---
+
 ## The Article Format
 
 Every article in the Academy follows the same structure:

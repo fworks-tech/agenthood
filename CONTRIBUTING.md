@@ -116,7 +116,7 @@ Trace path: `{ "observability": { "tracePath": ".agenthood/traces/traces.ndjson"
 
 Replay evaluation: `agenthood eval <member> --replay [--limit N]` re-runs stored envelopes against their inputs and reports output drift via embedding similarity to `.agenthood/evals/replay-report.json`; re-run outputs pass through the redactor.
 
-Redaction scope: the redactor also guards decision (`task`/`decision`) and provenance (`sourceDocument`) payloads, and trace hashes are computed over the redacted text so `inputHash` matches the persisted payload (see ADR-018).
+Redaction scope: the redactor also guards decision (`task`/`decision`) and provenance (`sourceDocument`) payloads, and trace hashes are computed over the redacted text so `inputHash` matches the persisted payload (see [ADR-018](docs/adr/ADR-018-redaction-scope-for-decisions.md)).
 
 Error reporting: setting `{ "sentry": { "dsn": "https://..." } }` in `.agenthood/config.json` sends member run failures to Sentry (member, model, status, duration, correlation id). The integration is dynamically imported and never loaded when the DSN is absent. Never commit a real DSN to the repository.
 

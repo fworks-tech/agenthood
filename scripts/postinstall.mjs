@@ -1,3 +1,6 @@
+// Runs `agenthood setup` only when explicitly opted in via AGENTHOOD_AUTO_SETUP=1
+// AND the CLI is already built. Default installs are a no-op: no network
+// calls, no setup writes, and CI installs with `--ignore-scripts` skip it too.
 import { existsSync } from "node:fs"
 import { spawnSync } from "node:child_process"
 import { fileURLToPath } from "node:url"

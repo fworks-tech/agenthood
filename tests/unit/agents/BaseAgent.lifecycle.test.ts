@@ -1,6 +1,7 @@
 import { describe, it, expect, vi } from 'vitest'
 import { TestAgent, createAgentHarness } from '../../helpers/agentFixtures.ts'
 import { createTestContext } from '../../helpers/testContext.ts'
+import { RunLifecycle } from '../../../src/agents/base/runLifecycle.ts'
 import type { EpisodeLearner } from '../../../src/evals/EpisodeLearner.ts'
 import type { ILLMProvider } from '../../../src/llm/ILLMProvider.ts'
 import { ReActLoop, MaxStepsExceededError } from '../../../src/reasoning/ReActLoop.ts'
@@ -209,5 +210,60 @@ describe('BaseAgent lifecycle', () => {
     expect(recordDecision).toHaveBeenCalledOnce()
     const [entry] = recordDecision.mock.calls[0]
     expect(entry).toMatchObject({ outcome: 'failed', confidence: 0 })
+  })
+})
+
+describe('RunLifecycle.runStage', () => {
+  function lifecycleFor(): { lifecycle: RunLifecycle; loop: ReActLoop } {
+    const { loop } = createAgentHarness()
+    return { lifecycle: new RunLifecycle(() => 'test-agent', loop), loop }
+  }
+
+  it('returns output, a null error, and a duration on success', async () => {
+    const { lifecycle } = lifecycleFor()
+    const executed = await lifecycle.runStage(
+      async () => ({ output: 'ok', model: undefined }),
+      'prompt',
+      'task',
+    )
+    expect(executed.output).toBe('ok')
+    expect(executed.error).toBeNull()
+    expect(executed.durationMs).toBeGreaterThanOrEqual(0)
+  })
+
+  it('attributes the responding model to the loop', async () => {
+    const { lifecycle, loop } = lifecycleFor()
+    await lifecycle.runStage(
+      async () => ({ output: 'x', model: 'attributed-model' }),
+      'prompt',
+      'task',
+    )
+    expect(loop.model).toBe('attributed-model')
+  })
+
+  it('returns the partial result for MaxStepsExceededError without rethrowing', async () => {
+    const { lifecycle } = lifecycleFor()
+    const executed = await lifecycle.runStage(
+      async () => {
+        throw new MaxStepsExceededError('partial-output', 1)
+      },
+      'prompt',
+      'task',
+    )
+    expect(executed.output).toBe('partial-output')
+    expect(executed.error).toBeInstanceOf(MaxStepsExceededError)
+  })
+
+  it('captures a hard failure as error without rethrowing', async () => {
+    const { lifecycle } = lifecycleFor()
+    const executed = await lifecycle.runStage(
+      async () => {
+        throw new Error('boom')
+      },
+      'prompt',
+      'task',
+    )
+    expect(executed.output).toBe('')
+    expect((executed.error as Error).message).toBe('boom')
   })
 })

@@ -28,7 +28,8 @@ interface TrackRunProvenanceArgs {
 }
 
 /**
- * Persistence half of the agent lifecycle: tracing, residual memory, episode
+ * Execution and persistence halves of the agent lifecycle: loop execution with
+ * timing and soft-failure handling, tracing, residual memory, episode
  * learning, Sentry reporting, and decision/provenance recording. Kept out of
  * BaseAgent so the execution orchestration stays readable. `getRole` is a
  * closure because subclass role fields are only set after the base
@@ -44,6 +45,31 @@ export class RunLifecycle {
 
   private get report(): { member: string; model: string } {
     return { member: this.getRole(), model: this.reasoningLoop.model || this.getRole() }
+  }
+
+  /**
+   * Runs the agent's executor with timing and soft-failure handling. A hard
+   * failure is returned (never thrown) so the caller records it and decides
+   * whether to rethrow; MaxStepsExceededError carries a partial result that
+   * must still reach the caller.
+   */
+  async runStage(
+    execute: (systemPrompt: string, input: string) => Promise<{ output: string; model?: string }>,
+    systemPrompt: string,
+    input: string,
+  ): Promise<{ output: string; error: unknown; durationMs: number }> {
+    const startTime = performance.now()
+    let error: unknown = null
+    let output = ''
+    try {
+      const executed = await execute(systemPrompt, input)
+      output = executed.output
+      if (executed.model) this.reasoningLoop.setModel(executed.model)
+    } catch (err) {
+      error = err
+      if (err instanceof MaxStepsExceededError) output = err.partialResult
+    }
+    return { output, error, durationMs: Math.round(performance.now() - startTime) }
   }
 
   recordTrace(args: {

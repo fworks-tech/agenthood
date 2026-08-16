@@ -6,6 +6,7 @@ import { reportErrorToSentry, reportBackgroundFailure } from '../../core/sentryR
 import type { EpisodeLearner } from '../../evals/EpisodeLearner.ts'
 import type { ResidualMemory } from '../../memory/ResidualMemory.ts'
 import type { ReActLoop } from '../../reasoning/ReActLoop.ts'
+import { MaxStepsExceededError } from '../../reasoning/ReActLoop.ts'
 import { recordAgentTrace, redactSafely } from './agentTrace.ts'
 
 interface RecordDecisionArgs {
@@ -89,6 +90,10 @@ export class RunLifecycle {
     durationMs: number,
     context: ExecutionContext,
   ): Promise<never> {
+    // MaxStepsExceededError is a soft failure — don't report to Sentry
+    if (error instanceof MaxStepsExceededError) {
+      throw error
+    }
     await reportErrorToSentry(error, context, {
       member: this.getRole(),
       model: this.reasoningLoop.model || this.getRole(),
@@ -106,7 +111,7 @@ export class RunLifecycle {
     context: ExecutionContext,
   ): Promise<void> {
     const timestamp = new Date().toISOString()
-    const id = `dec-${Date.now()}-${randomUUID().slice(0, 8)}`
+    const id = `dec-${Date.now()}-${randomUUID()}`
     const isSuccessful = error === null
 
     // decisions and provenance persist raw payloads, so the shared redactor

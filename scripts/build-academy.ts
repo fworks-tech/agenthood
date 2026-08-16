@@ -9,6 +9,13 @@ const SRC_DIRS = ['docs/academy', 'docs/adr']
 const OUT_DIR = join(ROOT, 'site')
 const GITHUB_BLOB = 'https://github.com/fworks-tech/agenthood/blob/main'
 
+// build-progress output is deliberate (this is a build script); ACADEMY_QUIET
+// silences it for callers that want a clean stdout
+const QUIET = process.env.ACADEMY_QUIET === '1'
+const LOG = (message: string): void => {
+  if (!QUIET) console.log(message)
+}
+
 /** Recursively walk a directory and return all `.md` file paths. */
 function walk(dir: string): string[] {
   const files: string[] = []
@@ -129,6 +136,21 @@ export function rewriteLink(href: string, fileDir: string, sourceIsIndex: boolea
   return GITHUB_BLOB + '/' + ghPath + (anchor ? '#' + anchor : '')
 }
 
+/**
+ * Render a markdown link to its HTML anchor. href and title are interpolated
+ * into attribute values, so they are HTML-escaped — a doc value containing
+ * `" onmouseover="...` must not break out of the attribute.
+ */
+export function renderLink(
+  link: { href: string; title?: string | null; text: string },
+  fileDir: string,
+  sourceIsIndex: boolean,
+): string {
+  const rewritten = rewriteLink(link.href, fileDir, sourceIsIndex)
+  const titleAttr = link.title ? ` title="${escapeHtml(link.title)}"` : ''
+  return `<a href="${escapeHtml(rewritten)}"${titleAttr}>${link.text}</a>`
+}
+
 /** Convert a single markdown file to HTML and write it to the site output directory. */
 function convertMarkdown(filePath: string): void {
   const content = readFileSync(filePath, 'utf-8')
@@ -141,9 +163,7 @@ function convertMarkdown(filePath: string): void {
 
   const renderer = new Renderer()
   renderer.link = function ({ href, title, text }) {
-    const rewritten = rewriteLink(href, fileDir, isIndex)
-    const titleAttr = title ? ` title="${title}"` : ''
-    return `<a href="${rewritten}"${titleAttr}>${text}</a>`
+    return renderLink({ href, title, text }, fileDir, isIndex)
   }
 
   // marked passes raw HTML through unsanitized. That is safe here: the input
@@ -159,14 +179,19 @@ function convertMarkdown(filePath: string): void {
 
   ensureDir(outPath)
   writeFileSync(outPath, htmlTemplate(title, html))
-  console.log('  →', relative(OUT_DIR, outPath))
+  LOG(`  → ${relative(OUT_DIR, outPath)}`)
 }
 
 /** Build the entire Academy site: walk source dirs, convert all markdown files, write to site/. */
 function build(): void {
-  console.log('Building Academy site...\n')
+  LOG('Building Academy site...\n')
 
-  if (existsSync(OUT_DIR)) rmSync(OUT_DIR, { recursive: true })
+  if (existsSync(OUT_DIR)) {
+    // OUT_DIR is derived from ROOT so it cannot equal ROOT, but refuse to
+    // recurse-wipe if a future edit ever lets them alias
+    if (resolve(OUT_DIR) === ROOT) throw new Error(`refusing to wipe the repo root (${ROOT})`)
+    rmSync(OUT_DIR, { recursive: true })
+  }
 
   const files = SRC_DIRS
     .flatMap((d) => walk(join(ROOT, d)))
@@ -176,7 +201,7 @@ function build(): void {
     convertMarkdown(file)
   }
 
-  console.log('\nDone —', files.length, 'pages built to site/')
+  LOG(`\nDone — ${files.length} pages built to site/`)
 }
 
 if (isMain()) {

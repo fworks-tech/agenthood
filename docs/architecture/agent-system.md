@@ -102,6 +102,17 @@ DeveloperAgent's `SubagentTaskSkill` is a separate core-agent delegation path,
 not governed by member profile grants — it is also opt-in via
 `DeveloperAgentOptions.canDelegate` (enabled in `ApplicationContext.setupAgents`).
 
+Delegation is bounded at two levels. First, the role allowlist (`DELEGATION_ALLOWED_ROLES`)
+admits only read-only analysis roles — never write-capable agents. Second, tool
+isolation: every agent and each member run constructs its own `ToolRegistry` +
+`ReActLoop` (`ApplicationContext.setupAgents`, `runMemberTask`), so a delegated
+subagent's tool schemas are always its own load-out and never the caller's write
+tools. The delegated task itself travels inside an untrusted `<delegated_task>`
+boundary, and the only surface genuinely shared is the `ExecutionContext`
+(memory, tracer, artifacts). A compromise of the caller therefore cannot reach
+writes through delegation that the caller could not already reach with its own
+tools.
+
 ---
 
 ## The Reason → Act → Observe Loop

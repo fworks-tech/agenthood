@@ -22,10 +22,6 @@ export class AgentRegistry {
     return agent
   }
 
-  list(): string[] {
-    return Array.from(this.agents.keys())
-  }
-
   has(role: string): boolean {
     return this.agents.has(role)
   }

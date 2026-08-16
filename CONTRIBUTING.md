@@ -15,6 +15,15 @@ npm install
 
 The postinstall script is a no-op unless `AGENTHOOD_AUTO_SETUP=1` is set. CI always runs `npm ci --ignore-scripts`.
 
+### Dependencies
+
+Production dependencies are exact-pinned (`0.105.0`, not `^`) so installs are
+reproducible from the lockfile. `@lancedb/lancedb` and `tree-sitter` fetch
+native binaries at install time; CI installs with `npm ci --ignore-scripts`, so
+no install-time code executes on runners. The Auditor dependency gate
+(`.github/scripts/audit-check.sh`) fails on any open vulnerability in production
+dependencies and on high/critical ones in the dev scope.
+
 ### Build
 
 ```bash

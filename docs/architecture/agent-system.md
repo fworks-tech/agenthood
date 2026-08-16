@@ -100,7 +100,7 @@ Member execution (via `MemberAgent`) remains governed by `MemberRegistry` profil
 grants. `delegate_task` for members is opt-in per spec via `canDelegate`;
 DeveloperAgent's `SubagentTaskSkill` is a separate core-agent delegation path,
 not governed by member profile grants — it is also opt-in via
-`DeveloperAgentOptions.delegation` (enabled in `ApplicationContext.setupAgents`).
+`DeveloperAgentOptions.canDelegate` (enabled in `ApplicationContext.setupAgents`).
 
 ---
 

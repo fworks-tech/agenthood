@@ -3,7 +3,7 @@ import { TestAgent, createAgentHarness } from '../../helpers/agentFixtures.ts'
 import { createTestContext } from '../../helpers/testContext.ts'
 import type { EpisodeLearner } from '../../../src/evals/EpisodeLearner.ts'
 import type { ILLMProvider } from '../../../src/llm/ILLMProvider.ts'
-import { ReActLoop } from '../../../src/reasoning/ReActLoop.ts'
+import { ReActLoop, MaxStepsExceededError } from '../../../src/reasoning/ReActLoop.ts'
 import { ToolRegistry } from '../../../src/tools/ToolRegistry.ts'
 
 describe('BaseAgent lifecycle', () => {
@@ -164,5 +164,50 @@ describe('BaseAgent lifecycle', () => {
     expect(trackProvenance).toHaveBeenCalledOnce()
     const [prov] = trackProvenance.mock.calls[0]
     expect(prov.metadata).toMatchObject({ success: false })
+  })
+
+  it('returns the partial result when max steps are exceeded (soft failure, no rethrow)', async () => {
+    const { llm } = createAgentHarness()
+    const recordDecision = vi.fn().mockResolvedValue(undefined)
+    const trackProvenance = vi.fn().mockResolvedValue(undefined)
+    const loopingLlm: ILLMProvider = {
+      ...llm,
+      complete: vi.fn().mockResolvedValue({
+        content: 'partial output',
+        usage: { promptTokens: 5, completionTokens: 5, totalTokens: 10 },
+        model: 'mock-model',
+        toolCalls: [{ id: '1', name: 'test_tool', args: { input: 'a' } }],
+      }),
+    }
+    const reg = new ToolRegistry()
+    reg.register({
+      name: 'test_tool',
+      description: 'A test tool',
+      inputSchema: { type: 'object', properties: { input: { type: 'string' } } },
+      execute: vi.fn().mockResolvedValue({ success: true, output: 'still going' }),
+    })
+    const loopingLoop = new ReActLoop(loopingLlm, reg, { maxSteps: 1 })
+    const agent = new TestAgent(loopingLlm, loopingLoop, reg)
+    const context = createTestContext({
+      memory: {
+        ...createTestContext().memory,
+        decisions: {
+          ...createTestContext().memory.decisions,
+          record: recordDecision,
+        },
+        provenance: {
+          ...createTestContext().memory.provenance,
+          track: trackProvenance,
+        },
+      },
+    })
+
+    const result = await agent.run('test task', context)
+
+    expect(result.output).toContain('Max steps (1) exceeded')
+    expect(result.output).toContain('still going')
+    expect(recordDecision).toHaveBeenCalledOnce()
+    const [entry] = recordDecision.mock.calls[0]
+    expect(entry).toMatchObject({ outcome: 'failed', confidence: 0 })
   })
 })

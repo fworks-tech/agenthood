@@ -13,6 +13,7 @@ import type { ITool } from '../tools/ITool.ts'
 import type { ReActLoop } from '../reasoning/ReActLoop.ts'
 import type { ToolRegistry } from '../tools/ToolRegistry.ts'
 import type { ILLMProvider } from '../llm/ILLMProvider.ts'
+import { DELEGATION_ALLOWED_ROLES } from '../agents/delegationRoles.ts'
 import type { AgentRegistry } from '../core/AgentRegistry.ts'
 import { ReadFileSkill } from '../tools/project/ReadFileSkill.ts'
 import { WriteFileSkill } from '../tools/project/WriteFileSkill.ts'
@@ -73,7 +74,7 @@ export class MemberAgent extends BaseAgent {
         // Restrict delegation based on permission profile
         const allowedRoles =
           this.spec.permissionProfile === 'standard'
-            ? ['architect', 'qa', 'reviewer', 'the-oracle']
+            ? [...DELEGATION_ALLOWED_ROLES]
             : []
         // Skip adding delegation tool if allowlist is empty (fail closed)
         if (allowedRoles.length > 0) {

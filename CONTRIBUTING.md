@@ -77,7 +77,9 @@ type(scope)!: subject
 
 Hooks are installed by `npx agenthood init` and enforce the format automatically:
 - `.githooks/commit-msg` — local validation (types, breaking-change `!`, subject rules); stock `git revert` messages pass through
+- `.githooks/pre-commit` — blocks commits to main, audits secrets, checks file sizes
 - `.githooks/pre-push` — blocks pushes to `main` and requires `type/issue-NUMBER-...` branch names; the issue-existence check is advisory only
+- `.githooks/prepare-commit-msg` — installs the commit message template
 - CI re-validates the same rules in the PR workflow (`docs/conventions/commitlint.config.ts`)
 
 ### Pull Requests

@@ -11,7 +11,7 @@ Nine articles. The foundation. Start here.
 | # | Article | Agenthood Component |
 |---|---------|---------------------|
 | 1 | [Generative AI Introduction](01-generative-ai-introduction.md) | The Society's position in the GenAI ecosystem |
-| 2 | [Basics of LLMs](02-basics-of-llms.md) | `ILLMProvider`, 4 providers |
+| 2 | [Basics of LLMs](02-basics-of-llms.md) | `ILLMProvider`, 7 providers |
 | 3 | [Prompt Engineering](03-prompt-engineering.md) | `PromptBuilder`, member `SKILL.md` files |
 | 4 | [LLM Parameters](04-llm-parameters.md) | `LLMRequest` type |
 | 5 | [Chunking Strategies](05-chunking-strategies.md) | `ChunkStrategy`, `FixedSizeChunkStrategy`, `MarkdownHierarchicalChunkStrategy` |

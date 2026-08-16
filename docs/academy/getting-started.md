@@ -87,7 +87,7 @@ npx agenthood pr-sync --pr 42
 npx agenthood pr-sync --pr 42 --dry-run
 
 # Context-aware — The Scribe loads your conventions and ADRs first
-agenthood run the-scribe "sync PR #42"
+npx agenthood run the-scribe "sync PR #42"
 ```
 
 On each run, The Scribe detects new commits since the last sync, updates the `## What Changed` section, and posts a reviewer comment. Your `## Why` and `## How to Test` sections are never touched.
@@ -103,14 +103,18 @@ The Society reads from `.agenthood/config.json`, scaffolded by `init`:
 ```json
 {
   "version": "1",
-  "runtime": "agenthood/agents",
+  "runtime": "claude-code",
   "members": ["the-scribe", "the-architect", "the-reviewer", "..."],
   "hooks": { "hooksPath": ".githooks" },
   "conventions": {
     "commitTemplate": ".gitmessage",
     "commitlintConfig": "commitlint.config.ts"
   },
-  "providers": [{ "name": "groq", "model": "llama-3.3-70b-versatile", "priority": 1 }],
+  "providers": [
+    { "name": "opencode", "model": "deepseek-v4-flash", "priority": 1 },
+    { "name": "opencode-go", "model": "deepseek-v4-flash", "priority": 2 },
+    { "name": "anthropic", "model": "claude-sonnet-5", "priority": 3 }
+  ],
   "qualityGates": { "typescript": true, "tests": true, "lint": true }
 }
 ```
@@ -121,10 +125,10 @@ The runtime automatically loads variables from a `.env` file in your project roo
 
 | Variable | Required for | Default |
 |----------|-------------|---------|
-| `GROQ_API_KEY` | Runtime mode (free at console.groq.com) | — |
+| `GROQ_API_KEY` | Runtime mode fallback (free at console.groq.com) | — |
+| `OPENCODE_API_KEY` | Runtime mode default provider (opencode, free tier at opencode.ai) | — |
 | `ANTHROPIC_API_KEY` | Runtime mode, high-complexity tasks | — |
 | `OPENAI_API_KEY` | Runtime mode (fallback provider) | — |
-| `OPENCODE_API_KEY` | OpenCode / OpenCodeGo provider | — |
 | `GITHUB_TOKEN` | PR sync (auto-set in CI) | — |
 
 No API key is needed for skill-file mode or for `pr-sync` in CI.

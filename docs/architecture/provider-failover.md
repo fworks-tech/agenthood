@@ -16,7 +16,7 @@ The human sees the work continue. The Society handles the plumbing.
 
 ## Supported Providers
 
-The Agenthood runtime is **LLM-agnostic**. The six providers below are implemented
+The Agenthood runtime is **LLM-agnostic**. The seven providers below are implemented
 in [`src/llm/providers/`](../src/llm/providers/). Any member can run on any provider.
 
 | Provider | Default model | Notes |
@@ -62,7 +62,7 @@ Primary → Fallback 1 → Fallback 2 → ... → Error (all exhausted)
 
 **Example chain:**
 ```
-OpenCode (Zen/Go) → Claude Sonnet 4.6 → GPT-4o → Groq → Ollama
+OpenCode (Zen/Go) → Claude Sonnet 5 → GPT-5.4 → Groq → Ollama
 ```
 
 Thread continuity is preserved across failovers via checkpoint-based `thread_id`.

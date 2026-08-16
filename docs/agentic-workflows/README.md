@@ -70,23 +70,24 @@ Please follow the triage steps from the triage-issues.agent.md template.
 
 ## Executing Workflows via the Runtime
 
-With the TypeScript runtime, workflows can be executed autonomously
-rather than pasted into an AI assistant manually.
+With the TypeScript runtime, the `review-pr` workflow can be executed
+autonomously rather than pasted into an AI assistant manually:
 
 ```bash
-# Requires orchestrator (planned — `src/orchestrator/` does not exist yet)
-npx agenthood run workflow review-pr --pr 42
-npx agenthood run workflow triage-issues
-npx agenthood run workflow diagnose-ci --run-id <id>
-npx agenthood run workflow sync-docs
+npx agenthood workflow review-pr
 ```
+
+Only `review-pr` is registered as a runtime workflow
+(`src/workflows/definitions/review-pr.ts`). The other `.agent.md` templates
+(`triage-issues`, `diagnose-ci`, `sync-docs`) run manually via an AI assistant
+until the orchestrator ships.
 
 The runtime reads the `on:`, `members:`, and `safe-outputs:` frontmatter
 from each `.agent.md` file to configure the execution graph and
 set `interrupt_on` gates appropriately. In CI environments, pass `--mode ci`
 to disable interactive approval gates for actions marked `safe-outputs`.
 
-The orchestrator (`src/orchestrator/`) is not yet implemented. The manual-prompt approach below remains the workflow.
+The orchestrator (`src/orchestrator/`) is not yet implemented. The manual-prompt approach above remains the workflow.
 
 ---
 
@@ -106,7 +107,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - run: npm install -g agenthood
-      - run: npx agenthood run workflow review-pr --pr ${{ github.event.pull_request.number }} --mode ci
+      - run: npx agenthood workflow review-pr
         env:
           ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

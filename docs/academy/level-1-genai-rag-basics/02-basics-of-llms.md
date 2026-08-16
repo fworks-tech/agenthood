@@ -31,7 +31,7 @@ In production, you cannot rely on an LLM to self-correct without explicit instru
 
 ## How Agenthood implements it
 
-Agenthood abstracts the complexities of LLMs behind the `ILLMProvider` interface, allowing you to swap between the 4 major providers (Anthropic, OpenAI, Google, and local models) without rewriting your agent logic.
+Agenthood abstracts the complexities of LLMs behind the `ILLMProvider` interface, allowing you to swap between the 7 shipped providers (OpenCode Go, OpenCode Zen, Anthropic, Groq, OpenAI, OpenRouter, and Ollama) without rewriting your agent logic.
 
 The `ILLMProvider` interface is implemented at `src/llm/ILLMProvider.ts` (shipped in v2.0.0):
 

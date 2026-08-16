@@ -127,21 +127,19 @@ For the failover chain with model fallback:
 
 ```json
 {
-  "llm": {
-    "providers": [
-      {
-        "name": "opencode",
-        "model": "opencode-pro",
-        "apiKey": "...",
-        "models": ["opencode-pro", "opencode-lite"]
-      },
-      {
-        "name": "groq",
-        "model": "llama-3.3-70b-versatile",
-        "apiKey": "..."
-      }
-    ]
-  }
+  "providers": [
+    {
+      "name": "opencode",
+      "model": "opencode-pro",
+      "apiKey": "...",
+      "models": ["opencode-pro", "opencode-lite"]
+    },
+    {
+      "name": "groq",
+      "model": "llama-3.3-70b-versatile",
+      "apiKey": "..."
+    }
+  ]
 }
 ```
 

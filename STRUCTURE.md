@@ -55,6 +55,7 @@ agenthood/
 │   ├── agent-system.md
 │   ├── built-in-tools.md
 │   ├── concurrency-and-queues.md
+│   ├── decision-intelligence.md
 │   ├── operating-modes.md
 │   └── provider-failover.md
 │
@@ -91,7 +92,6 @@ agenthood/
 │   ├── actions/agent-analysis/        ← Shared composite action for LLM agent checks in CI
 │   ├── actions/setup-env/             ← Shared composite action: Node + npm ci (after checkout)
 │   └── workflows/                     ← CI enforcement
-│   ├── commitlint.yml               ← The Doorman — standalone commitlint CI for target projects
 │   ├── distribution.yml             ← The Envoy — Skills.sh, SkillsMP, traction badges
 │   ├── herald.yml                   ← The Herald — CI summary comment on PRs
 │   ├── pr.yml                       ← The Doorman, Auditor, Scribe, Warden, Librarian, Sentinel, Tester — PR standards (10 checks merged)

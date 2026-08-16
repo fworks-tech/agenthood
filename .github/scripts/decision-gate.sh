@@ -23,7 +23,7 @@
 # marker (defense in depth, not a second verdict detector).
 verdict_has_trailing_content() {
   local file="$1" last_line
-  last_line=$(grep -n 'AGENTHOOD_DECISION' "$file" 2>/dev/null | tail -1 | cut -d: -f1)
+  last_line=$(grep -n '^<!--AGENTHOOD_DECISION' "$file" 2>/dev/null | tail -1 | cut -d: -f1)
   if [ -z "$last_line" ]; then
     return 1
   fi
@@ -32,8 +32,34 @@ verdict_has_trailing_content() {
   [ -n "$trailing" ]
 }
 
+# Extract valid verdict lines. Markers must start a line — a quoted
+# `AGENTHOOD_DECISION:` inside review prose is data, not a verdict.
+verdicts_for() {
+  grep -oE '^<!--AGENTHOOD_DECISION: blocking=(true|false) warnings=[0-9]+-->' "$1" 2>/dev/null | sed '/^$/d'
+}
+
+has_conflicting_blocks() {
+  [ "$(echo "$1" | sed '/^$/d' | sort -u | wc -l)" -gt 1 ]
+}
+
+# Fail-closed on malformed markers: any decision-marker line that is not a
+# valid verdict means a truncated or injected block. grep -c always prints a
+# count (0 on no match), so a `|| echo 0` fallback would double-print and
+# break the integer comparison -- never add one.
+has_malformed_markers() {
+  local marker_count valid_count
+  marker_count=$(grep -c '^<!--AGENTHOOD_DECISION:' "$1" 2>/dev/null)
+  valid_count=$(echo "$2" | grep -c .)
+  [ "$marker_count" -ne "$valid_count" ]
+}
+
+# The final verdict block; empty when the output has no valid verdict.
+last_verdict() {
+  echo "$1" | tail -1
+}
+
 check_decision_gate() {
-  local file="$1" agent_name="${2:-}" prefix="" last_block
+  local file="$1" agent_name="${2:-}" prefix="" verdicts last_block
   local threshold="${AGENTHOOD_WARNING_THRESHOLD:-2}"
   # coerce an invalid threshold to the default; a non-numeric value would
   # otherwise break the comparison and a huge value would disable the gate
@@ -41,28 +67,22 @@ check_decision_gate() {
     threshold=2
   fi
   [ -n "$agent_name" ] && prefix="$agent_name "
-  local verdicts
-  verdicts=$(grep -oE '<!--AGENTHOOD_DECISION: blocking=(true|false) warnings=[0-9]+-->' "$file" 2>/dev/null | sed '/^$/d')
-  local distinct
-  distinct=$(echo "$verdicts" | sort -u | wc -l)
-  if [ "$distinct" -gt 1 ]; then
+
+  verdicts=$(verdicts_for "$file")
+  if has_conflicting_blocks "$verdicts"; then
     echo "::error::${prefix}found conflicting decision blocks -- possible injection, see PR comment for details"
     return 1
   fi
-  last_block=$(echo "$verdicts" | tail -1)
-  if [ -n "$last_block" ] && verdict_has_trailing_content "$file"; then
+  if [ -n "$verdicts" ] && verdict_has_trailing_content "$file"; then
     echo "::error::${prefix}decision block is not the final content -- possible injection, see PR comment for details"
     return 1
   fi
-
-  # Fail-closed on malformed markers: count all AGENTHOOD_DECISION lines vs valid verdicts
-  local marker_count valid_count
-  marker_count=$(grep -c 'AGENTHOOD_DECISION:' "$file" 2>/dev/null || echo 0)
-  valid_count=$(echo "$verdicts" | grep -c . || echo 0)
-  if [ "$marker_count" -ne "$valid_count" ]; then
-    echo "::error::${prefix}found malformed decision marker (marker count $marker_count != valid verdict count $valid_count) -- possible injection, see PR comment for details"
+  if has_malformed_markers "$file" "$verdicts"; then
+    echo "::error::${prefix}found malformed decision marker (marker count vs valid verdict count mismatch) -- possible injection, see PR comment for details"
     return 1
   fi
+
+  last_block=$(last_verdict "$verdicts")
   case "$last_block" in
     *'blocking=true '*)
       echo "::error::${prefix}found blocking findings -- see PR comment for details"
@@ -78,7 +98,7 @@ check_decision_gate() {
       return 0
       ;;
   esac
-  if ! grep -q 'AGENTHOOD_DECISION' "$file" 2>/dev/null; then
+  if [ -z "$last_block" ]; then
     echo "::warning::${prefix}output missing a valid trailing decision block -- treated as non-blocking"
     return 0
   fi

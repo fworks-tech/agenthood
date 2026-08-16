@@ -1,3 +1,14 @@
+# [3.35.0](https://github.com/fworks-tech/agenthood/compare/v3.34.1...v3.35.0) (2026-08-16)
+
+
+### Features
+
+* **skills:** merge Copilot review, readme, api-doc, and unit-test patterns into existing members ([#449](https://github.com/fworks-tech/agenthood/issues/449)) ([3cecb97](https://github.com/fworks-tech/agenthood/commit/3cecb9721f46da5d333e3816871c0863acad1594))
+* **skills:** port bug-fix-teammate, cleanup-specialist, pull-request-assistant from Copilot library ([#447](https://github.com/fworks-tech/agenthood/issues/447)) ([97f7df9](https://github.com/fworks-tech/agenthood/commit/97f7df9a6952ad8c3b54d0a5d18b013a26e9911a))
+* **skills:** port concept-explainer, issue-manager, onboarding-plan from Copilot library ([#445](https://github.com/fworks-tech/agenthood/issues/445)) ([a774db4](https://github.com/fworks-tech/agenthood/commit/a774db449815295fe8bb90b0f9463f9853eab173))
+* **skills:** port implementation-planner, debugging-tutor, accessibility-auditor from Copilot library ([#446](https://github.com/fworks-tech/agenthood/issues/446)) ([b5df0f1](https://github.com/fworks-tech/agenthood/commit/b5df0f1f933d4212975f594ea1ce51ed4df9a307))
+* **skills:** port remember skill from deepagents ([#448](https://github.com/fworks-tech/agenthood/issues/448)) ([5973b28](https://github.com/fworks-tech/agenthood/commit/5973b28956b8faa2eb1023b5c4d5b1a875ecc667))
+
 ## [3.34.1](https://github.com/fworks-tech/agenthood/compare/v3.34.0...v3.34.1) (2026-08-16)
 
 

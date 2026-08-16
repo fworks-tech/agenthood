@@ -5,6 +5,18 @@
 
 ---
 
+## v3.35.0 — August 16, 2026
+
+### ✨ Features
+
+- **Skills:** merge Copilot review, readme, api-doc, and unit-test patterns into existing members (#449)
+- **Skills:** port bug-fix-teammate, cleanup-specialist, pull-request-assistant from Copilot library (#447)
+- **Skills:** port concept-explainer, issue-manager, onboarding-plan from Copilot library (#445)
+- **Skills:** port implementation-planner, debugging-tutor, accessibility-auditor from Copilot library (#446)
+- **Skills:** port remember skill from deepagents (#448)
+
+---
+
 ## v3.34.1 — August 16, 2026
 
 ### 🐛 Bug Fixes

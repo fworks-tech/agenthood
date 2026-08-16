@@ -89,10 +89,12 @@ export class RunLifecycle {
     error: unknown,
     durationMs: number,
     context: ExecutionContext,
-  ): Promise<never> {
-    // MaxStepsExceededError is a soft failure — don't report to Sentry
+  ): Promise<void> {
+    // MaxStepsExceededError is a soft failure: skip Sentry and return so the
+    // caller delivers the partial result. Every other error is reported and
+    // rethrown.
     if (error instanceof MaxStepsExceededError) {
-      throw error
+      return
     }
     await reportErrorToSentry(error, context, {
       member: this.getRole(),

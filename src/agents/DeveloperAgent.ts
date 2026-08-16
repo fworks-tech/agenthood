@@ -15,6 +15,7 @@ import type { AgentRegistry } from '../core/AgentRegistry.ts'
 import type { ILLMProvider } from '../llm/ILLMProvider.ts'
 import type { ReActLoop } from '../reasoning/ReActLoop.ts'
 import type { ToolRegistry } from '../tools/ToolRegistry.ts'
+import { DELEGATION_ALLOWED_ROLES } from './delegationRoles.ts'
 
 const __filename = fileURLToPath(import.meta.url)
 const __dirname = dirname(__filename)
@@ -46,9 +47,7 @@ export class DeveloperAgent extends BaseAgent {
       new ExplainCodeSkill(),
     ]
     if (options.canDelegate) {
-      // Restrict delegation to core agents that are safe to call from DeveloperAgent
-      const allowedRoles = ['architect', 'qa', 'reviewer', 'the-oracle']
-      this.tools.push(new SubagentTaskSkill(options.agentRegistry, { allowedRoles }))
+      this.tools.push(new SubagentTaskSkill(options.agentRegistry, { allowedRoles: [...DELEGATION_ALLOWED_ROLES] }))
     }
   }
 

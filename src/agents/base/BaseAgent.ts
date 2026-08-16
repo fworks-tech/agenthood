@@ -2,7 +2,8 @@ import type { ILLMProvider } from '../../llm/ILLMProvider.ts';
 import type { ITool } from '../../tools/ITool.ts';
 import type { ExecutionContext } from '../../core/ExecutionContext.ts';
 import type { AgentResult } from './AgentResult.ts';
-import { ReActLoop, MaxStepsExceededError } from '../../reasoning/ReActLoop.ts';
+import type { ReActLoop } from '../../reasoning/ReActLoop.ts';
+import { MaxStepsExceededError } from '../../reasoning/ReActLoop.ts';
 import { RunLifecycle } from './runLifecycle.ts';
 import { ToolRegistry } from '../../tools/ToolRegistry.ts';
 import type { ResidualMemory } from '../../memory/ResidualMemory.ts';
@@ -77,15 +78,11 @@ export abstract class BaseAgent {
     const result: AgentResult = { role: this.role, output, artifacts: context.artifacts };
     this.lifecycle.learnFromRun(context);
 
-    // MaxStepsExceededError is a soft failure — record the run but don't report to Sentry
-    if (error instanceof MaxStepsExceededError) {
-      await this.lifecycle.recordRun(input, output, error, context);
-      return result;
-    }
-
     await this.lifecycle.recordRun(input, output, error, context);
 
     if (error) {
+      // reportFailure rethrows hard failures; soft failures (MaxStepsExceededError)
+      // return so the partial result is delivered
       await this.lifecycle.reportFailure(error, durationMs, context);
     }
     return result;

@@ -9,6 +9,13 @@ const SRC_DIRS = ['docs/academy', 'docs/adr']
 const OUT_DIR = join(ROOT, 'site')
 const GITHUB_BLOB = 'https://github.com/fworks-tech/agenthood/blob/main'
 
+// build-progress output is deliberate (this is a build script); ACADEMY_QUIET
+// silences it for callers that want a clean stdout
+const QUIET = process.env.ACADEMY_QUIET === '1'
+const LOG = (message: string): void => {
+  if (!QUIET) console.log(message)
+}
+
 /** Recursively walk a directory and return all `.md` file paths. */
 function walk(dir: string): string[] {
   const files: string[] = []
@@ -172,14 +179,19 @@ function convertMarkdown(filePath: string): void {
 
   ensureDir(outPath)
   writeFileSync(outPath, htmlTemplate(title, html))
-  console.log('  →', relative(OUT_DIR, outPath))
+  LOG(`  → ${relative(OUT_DIR, outPath)}`)
 }
 
 /** Build the entire Academy site: walk source dirs, convert all markdown files, write to site/. */
 function build(): void {
-  console.log('Building Academy site...\n')
+  LOG('Building Academy site...\n')
 
-  if (existsSync(OUT_DIR)) rmSync(OUT_DIR, { recursive: true })
+  if (existsSync(OUT_DIR)) {
+    // OUT_DIR is derived from ROOT so it cannot equal ROOT, but refuse to
+    // recurse-wipe if a future edit ever lets them alias
+    if (resolve(OUT_DIR) === ROOT) throw new Error(`refusing to wipe the repo root (${ROOT})`)
+    rmSync(OUT_DIR, { recursive: true })
+  }
 
   const files = SRC_DIRS
     .flatMap((d) => walk(join(ROOT, d)))
@@ -189,7 +201,7 @@ function build(): void {
     convertMarkdown(file)
   }
 
-  console.log('\nDone —', files.length, 'pages built to site/')
+  LOG(`\nDone — ${files.length} pages built to site/`)
 }
 
 if (isMain()) {

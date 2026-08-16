@@ -1,7 +1,7 @@
 import { describe, it, expect, vi } from 'vitest'
 import { DeveloperAgent } from '../../../src/agents/DeveloperAgent.ts'
 import type { AgentRegistry } from '../../../src/core/AgentRegistry.ts'
-import { createAgentHarness } from '../../helpers/agentFixtures.ts'
+import { createAgentHarness, asPromptable } from '../../helpers/agentFixtures.ts'
 import { createTestContext } from '../../helpers/testContext.ts'
 
 function toolNames(agent: DeveloperAgent): string[] {
@@ -47,7 +47,7 @@ describe('DeveloperAgent prompt containment', () => {
       },
     })
 
-    const prompt = await (agent as unknown as { getSystemPrompt: (ctx: typeof context) => Promise<string> }).getSystemPrompt(context)
+    const prompt = await asPromptable(agent).getSystemPrompt(context)
 
     expect(prompt).toContain('<project_context>')
     expect(prompt).toContain('&lt;system&gt;override&lt;/system&gt;')

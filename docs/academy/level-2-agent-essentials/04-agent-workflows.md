@@ -26,22 +26,27 @@ Human-in-the-loop checkpoints are the other non-negotiable. An autonomous workfl
 
 ## How Agenthood implements it
 
-The `WorkflowEngine` (planned — `src/workflows/` does not exist yet) will live in `src/workflows/WorkflowEngine.ts`. It executes a graph of typed steps, each with a defined input and output contract:
+The `WorkflowEngine` (shipped — `src/workflows/WorkflowEngine.ts`) executes a graph of typed steps, each with a defined input and output contract. Workflows are declared as data — a `WorkflowDefinition` of `WorkflowStep`s (types: `agent`, `human-in-loop`, `parallel`, `goal`, `tool`) — then executed by the engine:
 
 ```typescript
-import { WorkflowEngine, AgentStep, ParallelStep, HumanInLoopStep } from 'agenthood';
+import { WorkflowEngine, type WorkflowDefinition } from 'agenthood';
 
-const workflow = new WorkflowEngine()
-  .step(new AgentStep('the-architect', { task: 'plan the auth refactor' }))
-  .step(new HumanInLoopStep({ gate: 'approve-plan' }))
-  .step(new AgentStep('the-tester',    { task: 'write tests for the plan' }))
-  .step(new ParallelStep([
-      new AgentStep('the-developer', { task: 'implement the refactor' }),
-      new AgentStep('the-librarian', { task: 'update the docs' }),
-  ]))
-  .step(new AgentStep('the-reviewer', { task: 'review the changes' }));
+const planAndBuild: WorkflowDefinition = {
+  name: 'plan-and-build',
+  description: 'Plan, test, implement, and review a change',
+  steps: [
+    { name: 'plan', type: 'agent', agentName: 'the-architect', task: 'plan the auth refactor' },
+    { name: 'approve', type: 'human-in-loop', task: 'approve the plan' },
+    { name: 'test', type: 'agent', agentName: 'the-tester', task: 'write tests for the plan' },
+    { name: 'implement-and-doc', type: 'parallel', subSteps: [
+      { name: 'implement', type: 'agent', agentName: 'the-developer', task: 'implement the refactor' },
+      { name: 'docs', type: 'agent', agentName: 'the-librarian', task: 'update the docs' },
+    ]},
+    { name: 'review', type: 'agent', agentName: 'the-reviewer', task: 'review the changes' },
+  ],
+};
 
-const result = await workflow.run();
+const result = await new WorkflowEngine().run(planAndBuild);
 ```
 
 Each step produces a typed output that the next step consumes. The `HumanInLoopStep` pauses execution and emits an approval request — the workflow does not advance until the gate is resolved. `ParallelStep` runs its children concurrently and merges results when all complete.
@@ -72,7 +77,7 @@ The Steward routes the task through the appropriate members: Architect plans, Te
 ## Further reading
 
 - [ADR-005 — Orchestrator pattern over peer-to-peer](../../adr/ADR-005-orchestrator-pattern.md) — why workflows are orchestrated, not peer-to-peer
-- [`src/workflows/WorkflowEngine.ts`](../../../src/workflows/WorkflowEngine.ts) — workflow orchestration (planned)
+- [`src/workflows/WorkflowEngine.ts`](../../../src/workflows/WorkflowEngine.ts) — workflow orchestration (shipped; see also `definitions/review-pr.ts` for a shipped workflow)
 - [Patterns for Building LLM-based Systems & Products](https://eugeneyan.com/writing/llm-patterns/) — Eugene Yan's pattern catalog
 
 

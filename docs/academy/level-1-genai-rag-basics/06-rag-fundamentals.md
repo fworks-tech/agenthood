@@ -53,13 +53,13 @@ The Society retrieves facts before it speaks.
 
 ## Hands-on example
 
-The structural retrieval layer (`KnowledgeGraphStore`) is available now. The full indexing and embedding pipeline is planned for a subsequent milestone, at which point you will be able to:
+The structural retrieval layer (`KnowledgeGraphStore`) is available now, alongside the indexing and embedding pipeline (`Indexer`, `ProjectIngestion`, `ChunkStrategy`). There is no dedicated CLI subcommand — use the API directly:
 
 ```bash
-# Index the current repository (future milestone)
+# Index the current repository
 # No dedicated CLI subcommand — use the API directly (see src/rag/Indexer.ts)
 
-# Query the codebase (future milestone)
+# Query the codebase
 # No dedicated CLI subcommand — use the API directly (see src/rag/Retriever.ts)
 ```
 

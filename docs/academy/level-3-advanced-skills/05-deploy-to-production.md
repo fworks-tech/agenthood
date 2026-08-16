@@ -10,7 +10,7 @@ Deploying an agent to production is the step that turns a working prototype into
 
 The production layer has three parts. An **API** that exposes the agent as an HTTP endpoint — so users and other systems can call it without a CLI. **Auth middleware** that identifies the caller and scopes what they can access — so one user's agent run cannot read another user's context. **Rate limiting** that bounds how many requests a user can make in a window — so one runaway client does not exhaust the LLM budget for everyone.
 
-These are the same concerns as any production API, plus one that is agent-specific: per-user context isolation. A multi-tenant agent must not share memory between users. User A's episodic memory, project memory, and long-term facts must be scoped to user A. Sharing memory across users is not a performance optimization — it is a security boundary violation. The v3.0.0 API layer enforces this at the memory tier, not at the API edge, so the isolation holds even if the API is bypassed.
+These are the same concerns as any production API, plus one that is agent-specific: per-user context isolation. A multi-tenant agent must not share memory between users. User A's episodic memory, project memory, and long-term facts must be scoped to user A. Sharing memory across users is not a performance optimization — it is a security boundary violation. The HTTP API layer enforces this at the memory tier, not at the API edge, so the isolation holds even if the API is bypassed.
 
 ---
 
@@ -28,7 +28,7 @@ The runbook is the one teams skip and regret. What do you do when the agent star
 
 ## How Agenthood implements it
 
-The v3.0.0 API layer (planned, tracked in the [M9 — Platform milestone](https://github.com/fworks-tech/agenthood/milestone/11) and the [M4 — Foundation milestone](https://github.com/fworks-tech/agenthood/milestone/3)) ships the production scaffold. The API is Express-based, with auth and rate limiting as composable middleware:
+The HTTP API layer is planned — tracked in the [M9 — Platform milestone](https://github.com/fworks-tech/agenthood/milestone/11) — and will ship the production scaffold. The API is Express-based, with auth and rate limiting as composable middleware:
 
 > **Real-world example:** The [Agenthood Studio playground](https://agenthood.flabs.tech/studio/playground) implements these patterns today — server-side rate limiting with Upstash Redis (falling back to in-memory), Content-Security-Policy headers, SSRF-protected proxy for Ollama and self-hosted providers, structured logging with field-level redaction, turnstile CAPTCHA gating on the chat API, and model validation against a known set. See the [source](https://github.com/fworks-tech/agenthood-site) and [architecture ADR](https://github.com/fworks-tech/agenthood-site/blob/main/docs/adr/002-studio-architecture.md).
 
@@ -66,7 +66,7 @@ The `memory: { isolation: 'per-user' }` setting is the agent-specific part. It t
 ## Hands-on example
 
 ```bash
-# Once the v3.0.0 API ships, deploy and call it like any HTTP service
+# Once the HTTP API layer ships (M9), deploy and call it like any HTTP service
 agenthood serve --port 3000
 
 # Authenticated request — the agent runs scoped to the caller

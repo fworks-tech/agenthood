@@ -26,7 +26,7 @@ Goal chains solve the other production problem: long tasks that do not fit in on
 
 ## How Agenthood implements it
 
-Two components handle autonomy: `GoalChain` in `src/workflows/GoalChain.ts` and the Rituals layer (both planned — `src/workflows/` does not exist yet):
+Two components handle autonomy: `GoalChain` (shipped — `src/workflows/GoalChain.ts`) and the Rituals layer (planned — scheduled automation manifests, not yet implemented):
 
 ```typescript
 import { GoalChain } from 'agenthood';
@@ -102,7 +102,7 @@ The briefing appeared in Slack at 8am without anyone typing a query. That is wha
 
 ## Further reading
 
-- [`src/workflows/GoalChain.ts`](../../../src/workflows/GoalChain.ts) — persistent multi-session goal tracking (planned)
+- [`src/workflows/GoalChain.ts`](../../../src/workflows/GoalChain.ts) — persistent multi-session goal tracking (shipped)
 - [Rituals layer](../../rituals/) — scheduled automation manifests (planned)
 - [The Little Manual of API Design](https://web.archive.org/web/20240421073800/https://apisyouwonthate.com/books/the-little-manual-of-api-design) — design principles for durable integration surfaces
 

@@ -8,6 +8,13 @@ import type { BaseAgent } from "../../../src/agents/base/BaseAgent.ts"
 import type { AgentResult } from "../../../src/agents/base/AgentResult.ts"
 import type { ExecutionContext } from "../../../src/core/ExecutionContext.ts"
 import { createTestContext } from "../../helpers/testContext.ts"
+import { ReviewerAgent } from "../../../src/agents/ReviewerAgent.ts"
+import { ReActLoop } from "../../../src/reasoning/ReActLoop.ts"
+import { ToolRegistry } from "../../../src/tools/ToolRegistry.ts"
+import { ReadFileSkill } from "../../../src/tools/project/ReadFileSkill.ts"
+import { WriteFileSkill } from "../../../src/tools/project/WriteFileSkill.ts"
+import { WriteCodeSkill } from "../../../src/tools/code/WriteCodeSkill.ts"
+import { createMockLLM } from "../../helpers/agentFixtures.ts"
 
 function createMockAgent(
   role: string,
@@ -258,6 +265,38 @@ describe("SubagentTaskSkill", () => {
       await skill.execute({ role: "agent", task: "task" }, context);
 
       expect(agent.run).toHaveBeenCalled();
+    });
+  });
+
+  describe("tool isolation", () => {
+    it("keeps a delegated subagent on its read-only tool surface", async () => {
+      // caller side: a broad, write-capable registry
+      const callerReg = new ToolRegistry();
+      callerReg.register(new WriteFileSkill());
+      callerReg.register(new WriteCodeSkill());
+
+      // subagent side: a restricted reviewer with its own registry + loop,
+      // mirroring ApplicationContext.setupAgents (one ToolRegistry per agent)
+      const llm = createMockLLM();
+      const reviewerReg = new ToolRegistry();
+      const reviewer = new ReviewerAgent(llm, new ReActLoop(llm, reviewerReg), reviewerReg);
+      reviewerReg.register(new ReadFileSkill());
+
+      const agents = new AgentRegistry();
+      agents.register(reviewer);
+      const delegated = new SubagentTaskSkill(agents, { allowedRoles: ["reviewer"] });
+
+      const result = await delegated.execute(
+        { role: "reviewer", task: "review x" },
+        createTestContext(),
+      );
+
+      expect(result.success).toBe(true);
+      expect(callerReg.getSchemas().map((s) => s.name)).toEqual(
+        expect.arrayContaining(["write_file", "write_code"]),
+      );
+      // the delegated reviewer's surface is its own — caller tools never leak in
+      expect(reviewerReg.getSchemas().map((s) => s.name)).toEqual(["read_file"]);
     });
   });
 

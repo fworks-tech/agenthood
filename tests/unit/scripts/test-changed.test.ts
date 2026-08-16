@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest'
-import { findTestFilesForSource, getTestFiles } from '../../../scripts/test-changed.mjs'
+import { findTestFilesForSource, getTestFiles, rejectFlagLikePaths } from '../../../scripts/test-changed.mjs'
 
 const fakeIndex = new Map([
   ['utils', ['tests/unit/utils/format.test.ts']],
@@ -56,5 +56,19 @@ describe('getTestFiles', () => {
   it('finds real tests for a changed source file in this repo', () => {
     const files = getTestFiles(['src/agents/base/BaseAgent.ts'])
     expect(files).toContain('tests/unit/agents/BaseAgent.lifecycle.test.ts')
+  })
+})
+
+describe('rejectFlagLikePaths', () => {
+  it('passes ordinary paths through unchanged', () => {
+    expect(rejectFlagLikePaths(['tests/unit/utils/format.test.ts'])).toEqual([
+      'tests/unit/utils/format.test.ts',
+    ])
+  })
+
+  it('rejects a path that would parse as a CLI flag', () => {
+    expect(() => rejectFlagLikePaths(['-c', 'tests/unit/utils/format.test.ts'])).toThrow(
+      /flag-like paths/,
+    )
   })
 })

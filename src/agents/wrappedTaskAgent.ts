@@ -3,6 +3,11 @@ import { USER_QUERY_GUARD, wrapUserQuery } from './memberLore.ts'
 import type { ExecutionContext } from '../core/ExecutionContext.ts'
 import type { AgentResult } from './base/AgentResult.ts'
 
+/** Render a list of `## `-headed sections as the shared output-format block. */
+export function buildOutputFormat(headers: string[]): string {
+  return headers.map((h) => `## ${h}`).join('\n\n')
+}
+
 /**
  * Shared skeleton for agents whose task is a single wrapped user query
  * rendered against a fixed output format (currently the Strategist and the

@@ -133,6 +133,10 @@ function convertMarkdown(filePath: string): void {
     return `<a href="${rewritten}"${titleAttr}>${text}</a>`
   }
 
+  // marked passes raw HTML through unsanitized. That is safe here: the input
+  // is this repo's own trusted docs, rendered once to static HTML at build
+  // time (never runtime, never untrusted input). Do not reuse for HTML that
+  // embeds user or LLM-supplied content without sanitizing.
   const html = marked.parse(content, { renderer, mangle: false, headerIds: true }) as string
 
   const title = content.split('\n')[0]?.replace(/^#\s*/, '') || 'Agenthood Academy'

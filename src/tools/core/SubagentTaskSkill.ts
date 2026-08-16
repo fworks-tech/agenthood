@@ -4,16 +4,16 @@ import type { ExecutionContext } from "../../core/ExecutionContext.ts"
 import type { AgentRegistry } from "../../core/AgentRegistry.ts"
 import { AgentNotFoundError } from "../../core/AgentRegistry.ts"
 
-const inputSchema: JSONSchema = {
-  type: "object",
+export const subagentTaskInputSchema: JSONSchema = {
+  type: 'object',
   properties: {
     role: {
-      type: "string",
-      description: "Agent role to delegate to (e.g. developer, reviewer)",
+      type: 'string',
+      description: 'Agent role to delegate to (e.g. developer, reviewer)',
     },
-    task: { type: "string", description: "Task description for the subagent" },
+    task: { type: 'string', description: 'Task description for the subagent' },
   },
-  required: ["role", "task"],
+  required: ['role', 'task'],
 }
 
 export interface SubagentTaskSkillOptions {
@@ -22,10 +22,10 @@ export interface SubagentTaskSkillOptions {
 }
 
 export class SubagentTaskSkill implements ITool {
-  name = "delegate_task"
+  name = 'delegate_task'
   description =
-    "Delegate a task to a specialized subagent. Use this for work that needs focused expertise or isolated context (e.g. code review, architecture planning, debugging). Returns the subagent output."
-  inputSchema = inputSchema
+    'Delegate a task to a specialized subagent. Use this for work that needs focused expertise or isolated context (e.g. code review, architecture planning, debugging). Returns the subagent output.'
+  inputSchema = subagentTaskInputSchema
 
   constructor(
     private agentRegistry: AgentRegistry,
@@ -61,10 +61,12 @@ export class SubagentTaskSkill implements ITool {
       }
     } catch (err) {
       if (err instanceof AgentNotFoundError) {
+        // fail closed: do not disclose the registered-role surface to the
+        // calling agent — role names are for the orchestration layer to know
         return {
           success: false,
-          output: "",
-          error: `No agent found for role "${role}". Available: ${this.agentRegistry.list().join(", ")}`,
+          output: '',
+          error: `No agent found for role "${role}".`,
         }
       }
       const msg = err instanceof Error ? err.message : String(err)

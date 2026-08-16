@@ -3,10 +3,10 @@ import type { ITool } from '../../tools/ITool.ts';
 import type { ExecutionContext } from '../../core/ExecutionContext.ts';
 import type { AgentResult } from './AgentResult.ts';
 import { ReActLoop, MaxStepsExceededError } from '../../reasoning/ReActLoop.ts';
+import { RunLifecycle } from './runLifecycle.ts';
 import { ToolRegistry } from '../../tools/ToolRegistry.ts';
 import type { ResidualMemory } from '../../memory/ResidualMemory.ts';
 import type { EpisodeLearner } from '../../evals/EpisodeLearner.ts';
-import { RunLifecycle } from './runLifecycle.ts';
 
 export interface BaseAgentOptions {
   residualMemory?: ResidualMemory;
@@ -77,6 +77,12 @@ export abstract class BaseAgent {
     const result: AgentResult = { role: this.role, output, artifacts: context.artifacts };
     this.lifecycle.learnFromRun(context);
 
+    // MaxStepsExceededError is a soft failure — record the run but don't report to Sentry
+    if (error instanceof MaxStepsExceededError) {
+      await this.lifecycle.recordRun(input, output, error, context);
+      return result;
+    }
+
     await this.lifecycle.recordRun(input, output, error, context);
 
     if (error) {
@@ -98,12 +104,8 @@ export abstract class BaseAgent {
       output = executed.output;
       if (executed.model) this.reasoningLoop.setModel(executed.model);
     } catch (err) {
-      if (err instanceof MaxStepsExceededError) {
-        error = err;
-        output = err.partialResult;
-      } else {
-        error = err;
-      }
+      error = err;
+      if (err instanceof MaxStepsExceededError) output = err.partialResult;
     }
     return { output, error, durationMs: Math.round(performance.now() - startTime) };
   }

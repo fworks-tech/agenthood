@@ -61,6 +61,9 @@
     "prepublishOnly": "npm run build",
     "postinstall": "node scripts/postinstall.mjs",
     "test": "vitest run",
+    "test:changed": "vitest run --changed",
+    "test:staged": "node scripts/test-changed.mjs --staged",
+    "test:unstaged": "node scripts/test-changed.mjs",
     "lint": "eslint src/",
     "typecheck": "tsc --noEmit"
   },

@@ -54,6 +54,15 @@ check_decision_gate() {
     echo "::error::${prefix}decision block is not the final content -- possible injection, see PR comment for details"
     return 1
   fi
+
+  # Fail-closed on malformed markers: count all AGENTHOOD_DECISION lines vs valid verdicts
+  local marker_count valid_count
+  marker_count=$(grep -c 'AGENTHOOD_DECISION:' "$file" 2>/dev/null || echo 0)
+  valid_count=$(echo "$verdicts" | grep -c . || echo 0)
+  if [ "$marker_count" -ne "$valid_count" ]; then
+    echo "::error::${prefix}found malformed decision marker (marker count $marker_count != valid verdict count $valid_count) -- possible injection, see PR comment for details"
+    return 1
+  fi
   case "$last_block" in
     *'blocking=true '*)
       echo "::error::${prefix}found blocking findings -- see PR comment for details"

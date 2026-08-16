@@ -12,16 +12,23 @@ audit_fail_on() {
   # $1 label, $2 minimum severity to fail on, $3 exempt npm's own bundled deps
   local label="$1" min_level="$2" exempt_npm="$3"
   shift 3
-  local json
-  json=$(npm audit --json "$@" 2>/dev/null || true)
+  local json err_file err_text
+  # capture stderr instead of discarding it: the empty-output and malformed
+  # fallbacks are only accurate when a real registry/network error is visible
+  err_file=$(mktemp)
+  json=$(npm audit --json "$@" 2>"$err_file" || true)
+  err_text=$(<"$err_file")
+  rm -f "$err_file"
 
   if [ -z "$json" ]; then
-    echo "::error::The Auditor: npm audit ($label) produced no output (registry unreachable?)."
+    echo "::error::The Auditor: npm audit ($label) produced no output (registry unreachable?):"
+    [ -n "$err_text" ] && echo "$err_text"
     exit 1
   fi
 
   if ! node -e "JSON.parse(process.argv[1])" "$json" 2>/dev/null; then
-    echo "::error::The Auditor: npm audit ($label) output is not valid JSON."
+    echo "::error::The Auditor: npm audit ($label) output is not valid JSON:"
+    [ -n "$err_text" ] && echo "$err_text"
     exit 1
   fi
 

@@ -21,6 +21,44 @@ The Builder sits in the middle of the development pipeline — The Strategist de
 - When a nearby file or test is the clearest anchor for the work
 - When a change is small enough to review in one pass — larger work goes back to The Architect for splitting
 
+## Repo Conventions the CI Enforces
+
+These rules come from the Doorman (commit hooks), the Warden (lint/size/complexity),
+and the Auditor (security/audit gates). Ship them on the first pass:
+
+- **Style:** single quotes, no semicolons, LF endings — in source *and* test files.
+  Match the nearest sibling file exactly; never introduce a new style island.
+- **Commit types:** only `feat | fix | docs | test | refactor | ci | chore | revert`.
+  The commit-msg hook rejects anything else (no `build`, no `style`, no `wip`).
+- **Shared test helpers:** `tests/helpers/agentFixtures.ts` already provides
+  `createAgentHarness`, `createMockLLM`, `createAgentInstance`, `asPromptable`,
+  `expectRegisteredSkills`, `expectUntrustedBoundary`, `createMockAgent`. Import
+  them; never copy a mock factory or a `beforeEach`/`skills` block into a test
+  file — duplication is a Warden warning that grows on every round.
+- **Deterministic assertions:** never guard an `expect` behind `if (...) { }`.
+  A guarded assertion is vacuous — it passes when the condition is absent.
+  Assert the deterministic contract (trust-boundary tags, guard text, exported
+  constants), not environment-dependent content such as SKILL.md lore.
+- **Import the literal, don't repeat it:** when a source module exports a
+  constant (e.g. `subagentTaskInputSchema`), assert against it directly
+  instead of restating the literal.
+- **Shell scripts (`.github/scripts/`, `scripts/`):** named constants for magic
+  values (severity levels, exemption flags), one concern per function and keep
+  each function under ~40 lines, surface captured stderr on failure paths, and
+  run `bash -n <file>` after every edit.
+- **File discipline:** keep files under ~300 lines and functions under ~40.
+  When a test file approaches the limit, extract to a shared helper — the
+  answer to growth is reuse, not a new file.
+- **Fail-closed surfaces:** agent-facing error messages must not enumerate
+  registry or role contents. If removing the last caller of a public method
+  leaves it dead, remove the method too.
+- **The decision gate:** the Warden/Auditor analyses fail the gate when their
+  `warnings=N` verdict exceeds the threshold (2). Treat every reported warning
+  as a checklist item and fix the genuine ones. When repeated rounds keep
+  failing on style or accepted-and-documented residual items, escalate the gate
+  policy (threshold, prompt bounding) to a human — never raise a threshold or
+  edit the review prompts unilaterally.
+
 ## Process
 
 ### 1. Find the Owning Surface
@@ -46,6 +84,7 @@ Read the nearest source files, tests, and instructions that directly control the
 - Follow `AGENTS.md`: always run tests before considering a task complete
 - Write or update the tests the change touches — a change without a regression test invites The Reviewer to send it back
 - Run lint, typecheck, and build gates where the repository provides them — The Doorman enforces them in CI either way
+- For script edits run `bash -n`; for doc changes run `.github/scripts/librarian-check.sh`; for dependency-touching changes run `.github/scripts/audit-check.sh`
 
 ### 4. Repair Before Expanding
 
@@ -71,6 +110,11 @@ Read the nearest source files, tests, and instructions that directly control the
 - Comments that explain what the code does instead of why
 - Adding abstractions the task does not demand
 - Widening the change's scope to make validation pass
+- Guarded assertions (`if (cond) { expect(...) }`) that pass vacuously
+- Duplicating a mock factory or fixture block that `tests/helpers/agentFixtures.ts` already provides
+- Leaving a public method dead after removing its last caller
+- Using a commit type outside the Doorman's allowed set
+- Raising a CI gate threshold or editing review prompts to make a failing gate pass
 - Handing off to The Reviewer with failing tests or unresolved `[blocking]` findings
 - Pushing or merging without explicit user confirmation
 
@@ -94,6 +138,7 @@ Before handing off the change:
 - [ ] A focused validation step was run after the edit — tests, lint, and typecheck where the repository provides them
 - [ ] Tests were written or updated alongside the change
 - [ ] No comments explaining *what* — only *why* when non-obvious
-- [ ] The result matches the repository's existing conventions
+- [ ] The result matches the repository's existing conventions (single quotes, no semicolons, shared fixtures)
+- [ ] No guarded or vacuous assertions were introduced
 - [ ] The change has been reviewed by The Reviewer and every `[blocking]` finding is resolved
 - [ ] No push or merge was performed without explicit user confirmation

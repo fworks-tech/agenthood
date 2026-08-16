@@ -3,7 +3,6 @@ import type { ITool } from '../../tools/ITool.ts';
 import type { ExecutionContext } from '../../core/ExecutionContext.ts';
 import type { AgentResult } from './AgentResult.ts';
 import type { ReActLoop } from '../../reasoning/ReActLoop.ts';
-import { MaxStepsExceededError } from '../../reasoning/ReActLoop.ts';
 import { RunLifecycle } from './runLifecycle.ts';
 import { ToolRegistry } from '../../tools/ToolRegistry.ts';
 import type { ResidualMemory } from '../../memory/ResidualMemory.ts';
@@ -70,7 +69,7 @@ export abstract class BaseAgent {
     const systemPrompt = await this.getSystemPrompt(context);
     context.tracer.startSpan(this.role);
 
-    const { output, error, durationMs } = await this.runExecutorStage(execute, systemPrompt, input);
+    const { output, error, durationMs } = await this.lifecycle.runStage(execute, systemPrompt, input);
     context.tracer.endSpan(this.role, { output });
 
     this.lifecycle.recordTrace({ input, output, durationMs, error, context });
@@ -86,25 +85,6 @@ export abstract class BaseAgent {
       await this.lifecycle.reportFailure(error, durationMs, context);
     }
     return result;
-  }
-
-  private async runExecutorStage(
-    execute: (systemPrompt: string, input: string) => Promise<{ output: string; model?: string }>,
-    systemPrompt: string,
-    input: string,
-  ): Promise<{ output: string; error: unknown; durationMs: number }> {
-    const startTime = performance.now();
-    let error: unknown = null;
-    let output = '';
-    try {
-      const executed = await execute(systemPrompt, input);
-      output = executed.output;
-      if (executed.model) this.reasoningLoop.setModel(executed.model);
-    } catch (err) {
-      error = err;
-      if (err instanceof MaxStepsExceededError) output = err.partialResult;
-    }
-    return { output, error, durationMs: Math.round(performance.now() - startTime) };
   }
 
   private registerTools(): void {

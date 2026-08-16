@@ -1,8 +1,8 @@
-import type { ITool, ToolResult } from "../ITool.ts"
-import type { JSONSchema } from "../../llm/types.ts"
-import type { ExecutionContext } from "../../core/ExecutionContext.ts"
-import type { AgentRegistry } from "../../core/AgentRegistry.ts"
-import { AgentNotFoundError } from "../../core/AgentRegistry.ts"
+import type { ITool, ToolResult } from '../ITool.ts'
+import type { JSONSchema } from '../../llm/types.ts'
+import type { ExecutionContext } from '../../core/ExecutionContext.ts'
+import type { AgentRegistry } from '../../core/AgentRegistry.ts'
+import { AgentNotFoundError } from '../../core/AgentRegistry.ts'
 
 export const subagentTaskInputSchema: JSONSchema = {
   type: 'object',
@@ -42,8 +42,8 @@ export class SubagentTaskSkill implements ITool {
     if (this.options.allowedRoles && !this.options.allowedRoles.includes(role)) {
       return {
         success: false,
-        output: "",
-        error: `Delegation to role "${role}" is not allowed. Allowed roles: ${this.options.allowedRoles.join(", ")}`,
+        output: '',
+        error: `Delegation to role "${role}" is not allowed. Allowed roles: ${this.options.allowedRoles.join(', ')}`,
       }
     }
 
@@ -70,7 +70,7 @@ export class SubagentTaskSkill implements ITool {
         }
       }
       const msg = err instanceof Error ? err.message : String(err)
-      return { success: false, output: "", error: `Subagent failed: ${msg}` }
+      return { success: false, output: '', error: `Subagent failed: ${msg}` }
     }
   }
 }

@@ -78,6 +78,8 @@ The regression flag is the point. A green test suite tells you nothing about ans
 
 ## Further reading
 
+- [ADR-014 — EvalResult in core types](../../adr/ADR-014-evalresult-in-core-types.md) — why evaluation results live in the core type layer
+- [ADR-016 — LLM-judge evaluation pipeline](../../adr/ADR-016-llm-judge-evaluation-pipeline.md) — the LLM-as-judge scoring design
 - [`src/evals/EpisodeLearner.ts`](../../../src/evals/EpisodeLearner.ts) — episode learner (shipped), writes eval results into memory
 - [`src/evals/EvalRunner.ts`](../../../src/evals/EvalRunner.ts) — evaluation runner (shipped) with LLM-as-judge scoring
 - [`src/evals/BaselineComparator.ts`](../../../src/evals/BaselineComparator.ts) — baseline comparison and regression gating

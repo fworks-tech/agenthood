@@ -19,11 +19,13 @@ A RACI (Responsible / Accountable / Consulted / Informed) matrix documenting all
 |--------|------|-----------------|---------|--------|-------------|
 | **The Scribe** | Written communication | Commit messages, PR descriptions, changelogs | Reviewer (what changed), Herald (version context) | Tester, Doorman | Architect |
 | **The Architect** | Design & planning | Specs, ADRs, task decomposition, branch scope | Oracle (prior art), Strategist (requirements) | Tester, Reviewer, Scribe | Strategist |
+| **The Builder** | Implementation | Smallest verified change, local validation, handoff | Architect (spec), Tester (test contract) | Reviewer, Scribe | Architect |
 | **The Reviewer** | Code quality | Review criteria, approval gates, diff analysis | Tester (test results), Auditor (security findings) | Scribe, Architect | Auditor |
 | **The Tester** | Test coverage | TDD process, coverage targets, test types | Architect (spec), Reviewer (areas changed) | Debugger, Scribe | Architect |
 | **The Debugger** | Error recovery | Root cause protocol, investigation steps | Tester (failing tests), Reviewer (recent changes) | Auditor, Scribe | Operator |
 | **The Auditor** | Security | OWASP, secrets, dependency vulnerabilities | Warden (smells), Librarian (history) | Reviewer, Debugger | Sentinel |
 | **The Herald** | Releases | Semver, changelogs, release notes | Scribe (commit log), Librarian (docs status) | All | Strategist |
+| **The Mailman** | Delivery | Delivery schedule, channel routing, dispatch | Herald (release timing), Librarian (content) | All | Steward |
 | **The Librarian** | Documentation | ADR storage, doc sync, knowledge management | Architect (decisions), Oracle (naming) | Herald, Sentinel | Oracle |
 | **The Doorman** | Enforcement | Hook setup, lint, validation, health checks | Sentinel (drift), Warden (complexity) | All | Sentinel |
 | **The Oracle** | Society knowledge | Member templates, naming, registration maps | Sentinel (drift data), Librarian (docs) | All | Sentinel |

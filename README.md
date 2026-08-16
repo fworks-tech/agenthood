@@ -170,6 +170,7 @@ Structured learning path from "what is a prompt?" to "ship agents to production.
 
 - [Getting Started](docs/academy/getting-started.md) — install, first commit, CI, configuration
 - [Skills Reference](docs/academy/skills-reference.md) — all members, their tools, and invocation
+- [Utility Skills](docs/academy/utility-skills.md) — specialist skills beyond the members
 - [Level 1: GenAI & RAG Basics](docs/academy/level-1-genai-rag-basics/) — LLMs, prompt engineering, RAG
 - [Level 2: AI Agent Essentials](docs/academy/level-2-agent-essentials/) — memory, planning, multi-agent systems
 - [Level 3: Advanced Agent Skills](docs/academy/level-3-advanced-skills/) — integration, performance, deployment

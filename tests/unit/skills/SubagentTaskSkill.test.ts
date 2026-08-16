@@ -1,11 +1,7 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest'
-import { SubagentTaskSkill } from '../../../src/tools/core/SubagentTaskSkill.ts'
-import {
-  AgentRegistry,
-  AgentNotFoundError,
-} from '../../../src/core/AgentRegistry.ts'
+import { SubagentTaskSkill, subagentTaskInputSchema } from '../../../src/tools/core/SubagentTaskSkill.ts'
+import { AgentRegistry } from '../../../src/core/AgentRegistry.ts'
 import type { BaseAgent } from '../../../src/agents/base/BaseAgent.ts'
-import type { AgentResult } from '../../../src/agents/base/AgentResult.ts'
 import type { ExecutionContext } from '../../../src/core/ExecutionContext.ts'
 import { createTestContext } from '../../helpers/testContext.ts'
 import { ReviewerAgent } from '../../../src/agents/ReviewerAgent.ts'
@@ -14,21 +10,7 @@ import { ToolRegistry } from '../../../src/tools/ToolRegistry.ts'
 import { ReadFileSkill } from '../../../src/tools/project/ReadFileSkill.ts'
 import { WriteFileSkill } from '../../../src/tools/project/WriteFileSkill.ts'
 import { WriteCodeSkill } from '../../../src/tools/code/WriteCodeSkill.ts'
-import { createMockLLM } from '../../helpers/agentFixtures.ts'
-
-function createMockAgent(
-  role: string,
-  output: string = 'mock output',
-): BaseAgent {
-  return {
-    role,
-    run: vi.fn().mockResolvedValue({
-      role,
-      output,
-      artifacts: [],
-    } as AgentResult),
-  } as unknown as BaseAgent
-}
+import { createMockLLM, createMockAgent } from '../../helpers/agentFixtures.ts'
 
 describe('SubagentTaskSkill', () => {
   let registry: AgentRegistry
@@ -52,20 +34,7 @@ describe('SubagentTaskSkill', () => {
     })
 
     it('has proper input schema', () => {
-      expect(skill.inputSchema).toEqual({
-        type: 'object',
-        properties: {
-          role: {
-            type: 'string',
-            description: 'Agent role to delegate to (e.g. developer, reviewer)',
-          },
-          task: {
-            type: 'string',
-            description: 'Task description for the subagent',
-          },
-        },
-        required: ['role', 'task'],
-      })
+      expect(skill.inputSchema).toBe(subagentTaskInputSchema)
     })
   })
 
@@ -176,7 +145,7 @@ describe('SubagentTaskSkill', () => {
       expect(result.error).toContain('No agent found for role "nonexistent"')
     })
 
-    it('lists available agents in error message', async () => {
+    it('does not enumerate registered roles in the error message', async () => {
       registry.register(createMockAgent('developer'))
       registry.register(createMockAgent('reviewer'))
       registry.register(createMockAgent('tester'))
@@ -186,10 +155,10 @@ describe('SubagentTaskSkill', () => {
         context,
       )
 
-      expect(result.error).toContain('Available:')
-      expect(result.error).toContain('developer')
-      expect(result.error).toContain('reviewer')
-      expect(result.error).toContain('tester')
+      expect(result.error).toContain('No agent found for role "invalid"')
+      expect(result.error).not.toContain('developer')
+      expect(result.error).not.toContain('reviewer')
+      expect(result.error).not.toContain('tester')
     })
 
     it('handles subagent execution failure gracefully', async () => {
@@ -308,7 +277,7 @@ describe('SubagentTaskSkill', () => {
       )
 
       expect(result.success).toBe(false)
-      expect(result.error).toContain('Available: ')
+      expect(result.error).toContain('No agent found for role "any"')
     })
 
     it('handles agent returning empty output', async () => {

@@ -53,6 +53,23 @@ Work through each axis for every changed file:
 - Is control flow straightforward? (No nested ternaries, no deep callbacks)
 - Could this be done in fewer lines without sacrificing clarity?
 - Are abstractions earning their complexity?
+- Always pair a readability suggestion with a concrete before/after example — the example is the suggestion. Extract the logic into a named, testable form rather than asking for a rewrite:
+
+```js
+// Instead of:
+if (user.email && user.email.includes('@') && user.email.length > 5) {
+  submitButton.enabled = true;
+} else {
+  submitButton.enabled = false;
+}
+
+// Consider:
+function isValidEmail(email) {
+  return email && email.includes('@') && email.length > 5;
+}
+
+submitButton.enabled = isValidEmail(user.email);
+```
 
 **Axis 3 — Architecture**
 - Does the change follow existing patterns in the codebase?
@@ -75,6 +92,9 @@ Work through each axis for every changed file:
 - Any synchronous operations that should be async?
 - Any missing pagination on list endpoints?
 - Any large allocations in hot paths?
+- Any missing caching for expensive operations?
+
+Always prioritize security vulnerabilities and performance issues that could impact users over style findings — a `[blocking]` security finding outranks any number of `[nit]`s, no matter how elegant they are.
 
 ### Step 4: Categorize Every Finding
 
@@ -152,6 +172,12 @@ Verify all items in the **Verification** section below are satisfied before publ
 ```
 
 Axes without findings may be omitted.
+
+Every finding must carry:
+- A specific line reference where possible
+- A clear explanation of the problem
+- A suggested solution with a code example (not just a directive)
+- The rationale — educational, so the author learns the pattern, not just the fix
 
 Formatting rules:
 - Use `##` (H2) for headings — H2 renders clearly larger than bold body text and prevents visual-weight confusion

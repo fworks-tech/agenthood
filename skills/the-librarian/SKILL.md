@@ -24,12 +24,13 @@ The Librarian believes that undocumented knowledge is temporary knowledge. It do
 
 ### Writing a README
 
-A README answers four questions a new reader always has:
+A README answers the questions a new reader always has:
 
 1. **What does this do?** One sentence. Not a paragraph.
 2. **Why does it exist?** The problem it solves.
 3. **How do I run it?** Under five minutes to first output. Every command, exactly.
-4. **How do I contribute?** Branch, commit, PR — the minimum to get a change merged.
+4. **Where do I get help?** Support resources and documentation links.
+5. **Who maintains and contributes?** Maintainer information and contribution guidelines.
 
 Structure:
 ```markdown
@@ -63,6 +64,18 @@ See [CONTRIBUTING.md](CONTRIBUTING.md) or the quick version:
 
 Brief description or link to [architecture docs](docs/architecture/).
 ```
+
+README technical rules:
+- Use GitHub Flavored Markdown with relative links (`docs/CONTRIBUTING.md`), never absolute URLs for in-repo files — links must work when the repository is cloned
+- Use proper heading structure so GitHub's auto-generated table of contents works
+- Keep content under 500 KiB — GitHub truncates beyond that
+- Add badges for build status, version, license if appropriate
+
+What NOT to include in a README (reference instead):
+- Detailed API documentation — link to separate docs
+- Extensive troubleshooting guides — use wikis or separate documentation
+- License text — reference the separate LICENSE file
+- Detailed contribution guidelines — reference the separate CONTRIBUTING.md
 
 ### Writing an ADR
 
@@ -137,6 +150,16 @@ Updates a user's preference settings.
 | 403 | Not authorized to update this user's preferences |
 | 404 | User not found |
 ```
+
+For machine-readable specifications, generate a valid OpenAPI 3.0.3 spec in YAML instead:
+
+1. **OpenAPI Header** — OpenAPI version, API info (title, description, version), server configuration
+2. **Path Definitions** — HTTP method and path, operation summary and description, tags for organization
+3. **Parameters Schema** — path parameters with type validation; query parameters with constraints and defaults; request body schema using proper JSON Schema; required vs optional parameters
+4. **Response Schemas** — success responses (200, 201, etc.) with schema definitions; error responses (400, 401, 404, 500) with error schema; content-type specifications; realistic example values
+5. **Components Section** — reusable schemas for request/response models; security schemes (Bearer token, API key, etc.); common parameter definitions
+
+Requirements: valid OpenAPI 3.0.3 YAML that passes validation; proper JSON Schema for all data models; realistic example values, not placeholders; reusable components to avoid duplication; data validation (required fields, formats, constraints); security requirements where applicable. The output must be consumable by Swagger UI, Postman, and code generators.
 
 ### Root-Level Spec Files
 

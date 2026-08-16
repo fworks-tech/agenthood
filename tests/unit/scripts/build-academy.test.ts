@@ -123,9 +123,16 @@ describe('htmlTemplate', () => {
     expect(result).toContain('<main><p>Test body</p></main>')
   })
 
-  it('escapes nothing — passes values through verbatim', () => {
-    const result = htmlTemplate('Foo & Bar', '<script>evil()</script>')
-    expect(result).toContain('Foo & Bar')
+  it('escapes the title but passes the rendered body through verbatim', () => {
+    const result = htmlTemplate('</title><script>alert(1)</script>', '<script>evil()</script>')
+    expect(result).toContain('&lt;/title&gt;&lt;script&gt;alert(1)&lt;/script&gt;')
+    expect(result).not.toContain('</title><script>')
     expect(result).toContain('<script>evil()</script>')
+  })
+
+  it('escapes ampersands and quotes in the title', () => {
+    expect(htmlTemplate('Foo & "Bar"', '')).toContain(
+      '<title>Foo &amp; &quot;Bar&quot; — Agenthood Academy</title>',
+    )
   })
 })

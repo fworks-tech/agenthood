@@ -52,14 +52,27 @@ hr { border: none; border-top: 1px solid #27272a; margin: 2rem 0; }
 main { min-height: 60vh; }
 `
 
+/** Escape text for a literal HTML context (element content or attribute). */
+function escapeHtml(text: string): string {
+  return text
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#39;')
+}
+
 /** Wrap HTML body content in a full document with dark‑theme styling and a titled <head>. */
 export function htmlTemplate(title: string, body: string): string {
+  // title is derived from the first H1 of a markdown file, so it is rendered
+  // into <head> raw when the file content is trusted — but escape anyway so a
+  // doc containing `</title><script>` cannot break out of the element
   return `<!DOCTYPE html>
 <html lang="en">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>${title} — Agenthood Academy</title>
+<title>${escapeHtml(title)} — Agenthood Academy</title>
 <style>${CSS}</style>
 </head>
 <body>

@@ -80,6 +80,20 @@ export function getTestFiles(changedFiles, index = buildTestIndex()) {
   return Array.from(testFiles)
 }
 
+const FLAG_LIKE_PATH = /^-/
+
+// A test path must never look like a CLI flag: vitest would parse it as an
+// option, not a file. Our derivation cannot produce one today, but a future
+// change could map a source named `-c` onto a tests/ path that starts with a
+// dash — fail loudly instead of handing vitest an option.
+export function rejectFlagLikePaths(testFiles) {
+  const flagLike = testFiles.filter((f) => FLAG_LIKE_PATH.test(f))
+  if (flagLike.length > 0) {
+    throw new Error(`Refusing to run tests with flag-like paths: ${flagLike.join(', ')}`)
+  }
+  return testFiles
+}
+
 async function main() {
   const args = process.argv.slice(2)
   const staged = args.includes('--staged')
@@ -88,7 +102,7 @@ async function main() {
   const diffResult = spawnSync(diffCmd[0], diffCmd.slice(1), { encoding: 'utf-8' })
   const changedFiles = diffResult.stdout.trim().split('\n').filter(Boolean)
 
-  const testFiles = getTestFiles(changedFiles)
+  const testFiles = rejectFlagLikePaths(getTestFiles(changedFiles))
 
   if (testFiles.length === 0) {
     console.log(staged ? 'No staged TypeScript files with matching tests' : 'No unstaged TypeScript files with matching tests')
@@ -97,7 +111,9 @@ async function main() {
 
   console.log(`Running tests for: ${testFiles.join(', ')}`)
   const result = spawnSync('npx', ['vitest', 'run', ...testFiles], { stdio: 'inherit' })
-  process.exit(result.status ?? 0)
+  // a null status means the child died to a signal, not a normal exit — that
+  // is a failure, not success
+  process.exit(result.status ?? 1)
 }
 
 const isDirectRun = process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href

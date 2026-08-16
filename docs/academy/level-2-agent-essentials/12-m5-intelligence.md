@@ -101,7 +101,7 @@ Phase 1 implements keyword-based member detection and stage routing, used by The
 
 ## What comes next
 
-The M5 gap items — `WorkflowEngine` orchestration, `TreeOfThought` branching, and full `ParallelStep` support — remain planned for subsequent milestones. `MemberOrchestrator` Phase 2 (dependency-based routing) and Phase 3 (learned routing from past run data) are also on the roadmap.
+The M5 gap items have narrowed since this article was written: `WorkflowEngine` shipped (`src/workflows/`), while `TreeOfThought` branching and full `ParallelStep` support remain planned for subsequent milestones. `MemberOrchestrator` Phase 2 (dependency-based routing) and Phase 3 (learned routing from past run data) are also on the roadmap.
 
 ---
 

@@ -1,20 +1,18 @@
-import { WrappedTaskAgent } from '../wrappedTaskAgent.ts'
+import { WrappedTaskAgent, buildOutputFormat } from '../wrappedTaskAgent.ts'
 import type { ExecutionContext } from '../../core/ExecutionContext.ts'
 import type { ITool } from '../../tools/ITool.ts'
-
-const OUTPUT_FORMAT = [
-  '## Problem Statement', '',
-  '## Success Criteria', '',
-  '## Ranked Priorities', '',
-  '## Risks and Constraints', '',
-  '## Suggested Handoff',
-].join('\n')
 
 export class StrategistAgent extends WrappedTaskAgent {
   role = 'the-strategist'
   protected tools: ITool[] = []
   protected readonly taskIntro = 'Transform the following goal into a structured brief.'
-  protected readonly outputFormat = OUTPUT_FORMAT
+  protected readonly outputFormat = buildOutputFormat([
+    'Problem Statement',
+    'Success Criteria',
+    'Ranked Priorities',
+    'Risks and Constraints',
+    'Suggested Handoff',
+  ])
   protected readonly guardSuffix = ' Structure the goal into the brief below.'
 
   protected async getSystemPrompt(_context: ExecutionContext): Promise<string> {

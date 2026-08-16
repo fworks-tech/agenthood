@@ -1,20 +1,18 @@
-import { WrappedTaskAgent } from '../wrappedTaskAgent.ts'
+import { WrappedTaskAgent, buildOutputFormat } from '../wrappedTaskAgent.ts'
 import type { ExecutionContext } from '../../core/ExecutionContext.ts'
 import type { ITool } from '../../tools/ITool.ts'
-
-const OUTPUT_FORMAT = [
-  '## Symptom', '',
-  '## Health Indicators', '',
-  '## Action Taken', '',
-  '## Outcome', '',
-  '## Escalation',
-].join('\n')
 
 export class OperatorAgent extends WrappedTaskAgent {
   role = 'the-operator'
   protected tools: ITool[] = []
   protected readonly taskIntro = 'Triage the following runtime situation and produce an operation report.'
-  protected readonly outputFormat = OUTPUT_FORMAT
+  protected readonly outputFormat = buildOutputFormat([
+    'Symptom',
+    'Health Indicators',
+    'Action Taken',
+    'Outcome',
+    'Escalation',
+  ])
   protected readonly guardSuffix = ' Triage the situation and report on it.'
 
   protected async getSystemPrompt(_context: ExecutionContext): Promise<string> {

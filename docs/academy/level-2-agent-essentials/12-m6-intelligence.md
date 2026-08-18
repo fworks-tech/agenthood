@@ -1,12 +1,12 @@
-# M5 — Intelligence: What Shipped
+# M6 — Intelligence: What Shipped
 
-> *M5 turns planned reasoning into shipped code. The Society no longer just plans — it decides, retrieves, and routes.*
+> *M6 turns planned reasoning into shipped code. The Society no longer just plans — it decides, retrieves, and routes.*
 
 ---
 
 ## What shipped
 
-The M5 milestone ("Intelligence") delivered four features that close the gap between the Academy's architecture docs and working code:
+The M6 milestone ("Intelligence") delivered four features that close the gap between the Academy's architecture docs and working code:
 
 | Component | File | Status |
 |-----------|------|--------|
@@ -101,7 +101,7 @@ Phase 1 implements keyword-based member detection and stage routing, used by The
 
 ## What comes next
 
-The M5 gap items have narrowed since this article was written: `WorkflowEngine` shipped (`src/workflows/`), while `TreeOfThought` branching and full `ParallelStep` support remain planned for subsequent milestones. `MemberOrchestrator` Phase 2 (dependency-based routing) and Phase 3 (learned routing from past run data) are also on the roadmap.
+The M6 gap items have narrowed since this article was written: `WorkflowEngine` shipped (`src/workflows/`), while `TreeOfThought` branching and full `ParallelStep` support remain planned for subsequent milestones. `MemberOrchestrator` Phase 2 (dependency-based routing) and Phase 3 (learned routing from past run data) are also on the roadmap.
 
 ---
 

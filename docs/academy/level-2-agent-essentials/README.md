@@ -21,7 +21,7 @@ Twelve articles. The concepts where most people quit. Do not quit here.
 | 9 | [Agentic RAG](09-agentic-rag.md) | `AgenticRAG`, `RetrievalClassifier` |
 | 10 | [Action Planning](10-action-planning.md) | `PlanSkill` (planned), `ArchitectAgent` |
 | 11 | [Safety and Guardrails](11-safety-and-guardrails.md) | `RiskManager`, `ThinkingBudget`, `SafetyGuard` |
-| 12 | [M5 — Intelligence](12-m5-intelligence.md) | `MarkdownHierarchicalChunkStrategy`, `AgenticRAG`, `MemberOrchestrator`, Governance docs |
+| 12 | [M6 — Intelligence](12-m6-intelligence.md) | `MarkdownHierarchicalChunkStrategy`, `AgenticRAG`, `MemberOrchestrator`, Governance docs |
 
 ---
 

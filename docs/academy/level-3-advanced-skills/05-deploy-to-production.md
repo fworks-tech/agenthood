@@ -28,7 +28,7 @@ The runbook is the one teams skip and regret. What do you do when the agent star
 
 ## How Agenthood implements it
 
-The HTTP API layer is planned — tracked in the [M9 — Platform milestone](https://github.com/fworks-tech/agenthood/milestone/11) — and will ship the production scaffold. The API is Express-based, with auth and rate limiting as composable middleware:
+The HTTP API layer is planned — tracked in the [M12 — Platform milestone](https://github.com/fworks-tech/agenthood/milestone/11) — and will ship the production scaffold. The API is Express-based, with auth and rate limiting as composable middleware:
 
 > **Real-world example:** The [Agenthood Studio playground](https://agenthood.flabs.tech/studio/playground) implements these patterns today — server-side rate limiting with Upstash Redis (falling back to in-memory), Content-Security-Policy headers, SSRF-protected proxy for Ollama and self-hosted providers, structured logging with field-level redaction, turnstile CAPTCHA gating on the chat API, and model validation against a known set. See the [source](https://github.com/fworks-tech/agenthood-site) and [architecture ADR](https://github.com/fworks-tech/agenthood-site/blob/main/docs/adr/002-studio-architecture.md).
 
@@ -66,7 +66,7 @@ The `memory: { isolation: 'per-user' }` setting is the agent-specific part. It t
 ## Hands-on example
 
 ```bash
-# Once the HTTP API layer ships (M9), deploy and call it like any HTTP service
+# Once the HTTP API layer ships (M12), deploy and call it like any HTTP service
 agenthood serve --port 3000
 
 # Authenticated request — the agent runs scoped to the caller
@@ -108,7 +108,7 @@ The production runbook for an Agenthood deployment covers the failure modes that
 ## Further reading
 
 - [M4 — Foundation milestone](https://github.com/fworks-tech/agenthood/milestone/3) — the base infrastructure milestone
-- [M9 — Platform milestone](https://github.com/fworks-tech/agenthood/milestone/11) — the API and multi-tenancy milestone
+- [M12 — Platform milestone](https://github.com/fworks-tech/agenthood/milestone/11) — the API and multi-tenancy milestone
 - [The Twelve-Factor App](https://12factor.net/) — production deployment principles that apply to agent services too
 
 

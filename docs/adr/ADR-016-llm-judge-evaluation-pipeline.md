@@ -5,7 +5,7 @@
 
 ## Context
 
-The M7 Observability milestone needed an evaluation engine (issues #310, #311,
+The M8 Observability milestone needed an evaluation engine (issues #310, #311,
 #308, #298, #314) so the Society could measure — not just observe — member
 output quality. Three constraints shaped the design:
 

@@ -8,7 +8,7 @@
 Issue #305 shipped redaction for trace envelopes: `Tracer.record` runs the
 `RedactionFilter` over `envelope.input`/`envelope.output` before persistence,
 so `.agenthood/traces/traces.ndjson` never contains raw PII or secrets. The
-M7 audit that preceded this work found the guarantee was only half-true:
+M8 audit that preceded this work found the guarantee was only half-true:
 `RunLifecycle.recordRun` persists the **raw** input and output — unredacted —
 into `DecisionLog` files (`.agenthood/decisions/*.json`) and into the
 ProvenanceStore chain. The same audit found a second integrity wart:

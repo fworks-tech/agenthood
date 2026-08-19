@@ -1,3 +1,10 @@
+## [3.35.1](https://github.com/fworks-tech/agenthood/compare/v3.35.0...v3.35.1) (2026-08-19)
+
+
+### Bug Fixes
+
+* **milestones:** leave CHANGELOG.md and release notes to semantic-release ([f613b56](https://github.com/fworks-tech/agenthood/commit/f613b561f72f2aa4de787a825eb04a43863838fa))
+
 # [3.35.0](https://github.com/fworks-tech/agenthood/compare/v3.34.1...v3.35.0) (2026-08-16)
 
 

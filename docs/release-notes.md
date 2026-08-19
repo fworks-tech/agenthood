@@ -5,6 +5,14 @@
 
 ---
 
+## v3.35.1 — August 19, 2026
+
+### 🐛 Bug Fixes
+
+- **Milestones:** leave CHANGELOG.md and release notes to semantic-release
+
+---
+
 ## v3.35.0 — August 16, 2026
 
 ### ✨ Features

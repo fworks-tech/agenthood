@@ -885,7 +885,7 @@
 
 ### 🐛 Bug Fixes
 
-- **Skill:** normalize SKILL.md structure for milestone M2 (#183)
+- **Skill:** normalize SKILL.md structure for milestone M1 (#183)
 
 ---
 

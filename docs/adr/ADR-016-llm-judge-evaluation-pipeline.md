@@ -45,7 +45,7 @@ replay support:
 |--------|---------------|-------------|
 | JSON-mode judge output | Structured parsing, no regex | Providers have no JSON mode; would need a provider-specific shim |
 | LLM score for answer_correctness | Uniform metric implementation | Doubles judge cost per task; cosine is deterministic and free |
-| Batch baseline from the evaluated window itself | No extra state | A single outlier can never exceed 3× the mean of a batch that includes itself — leave-one-out peer baselines are used instead |
+| Batch baseline from the evaluated window itself | No extra state | Judging a run against the mean of its own batch is circular — a poor run drags the baseline down with it. Baselines are instead persisted from prior runs to `.agenthood/baselines/<member>.json` and compared against on the next run |
 | Redact with varying-length substitutes | Stronger privacy | Breaks replay reproducibility (#314) — replay input would change between runs |
 | Replay without persisted raw text | Avoids PII surface | Impossible: envelopes stored only hashes (#314 acceptance requires re-running the same inputs) |
 

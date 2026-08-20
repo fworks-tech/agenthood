@@ -1,3 +1,20 @@
+# [3.36.0](https://github.com/fworks-tech/agenthood/compare/v3.35.1...v3.36.0) (2026-08-20)
+
+
+### Bug Fixes
+
+* **core:** require distinct markers before propagation fires ([8621b53](https://github.com/fworks-tech/agenthood/commit/8621b5334867e5a9efc8836e07a2fb89dc09fbd4))
+* **security:** complete runtime split, flatten delegation nesting, and escape user_query boundary ([d43cd1b](https://github.com/fworks-tech/agenthood/commit/d43cd1bfe8e9890b762e9a7ef479929d86c636d8))
+
+
+### Features
+
+* **agents:** add mind virus immunity warning to system prompts ([cdeedf8](https://github.com/fworks-tech/agenthood/commit/cdeedf85f3f744568dacb78b32d9ca036c6797fd))
+* **core:** add injection-time SKILL.md integrity check ([41faff5](https://github.com/fworks-tech/agenthood/commit/41faff55408234b1beecbe76146fc6b5442f98d4))
+* **core:** add viral-persona and propagation anomaly signals ([23d66b2](https://github.com/fworks-tech/agenthood/commit/23d66b22ea60c3d1e47f4f3de8bf908f7b6ca56d))
+* **security:** complete mind virus defense — corrupt lockfile handling, marker clamp, redaction default, and test coverage for 461 fixes ([44b97ce](https://github.com/fworks-tech/agenthood/commit/44b97ce4af25122366dea395b9536880160dfb28))
+* **tools:** forbid message propagation in delegated tasks ([9f57f32](https://github.com/fworks-tech/agenthood/commit/9f57f327172dac5fc8d19d9d1a36bb6f36de2d20))
+
 ## [3.35.1](https://github.com/fworks-tech/agenthood/compare/v3.35.0...v3.35.1) (2026-08-19)
 
 

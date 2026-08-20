@@ -5,6 +5,23 @@
 
 ---
 
+## v3.36.0 — August 20, 2026
+
+### 🐛 Bug Fixes
+
+- **Core:** require distinct markers before propagation fires
+- **Security:** complete runtime split, flatten delegation nesting, and escape user_query boundary
+
+### ✨ Features
+
+- **Agents:** add mind virus immunity warning to system prompts
+- **Core:** add injection-time SKILL.md integrity check
+- **Core:** add viral-persona and propagation anomaly signals
+- **Security:** complete mind virus defense — corrupt lockfile handling, marker clamp, redaction default, and test coverage for 461 fixes
+- **Tools:** forbid message propagation in delegated tasks
+
+---
+
 ## v3.35.1 — August 19, 2026
 
 ### 🐛 Bug Fixes

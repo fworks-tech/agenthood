@@ -27,7 +27,6 @@ import { ProjectMemoryImpl } from '../memory/ProjectMemory.ts'
 import { ProvenanceStore } from '../memory/ProvenanceStore.ts'
 import { ShortTermMemoryImpl } from '../memory/ShortTermMemory.ts'
 import { LanceDBStore } from '../memory/VectorStore.ts'
-import type { MemberRunResult } from '../evals/EvalRunner.ts'
 import { MemberOrchestrator } from '../reasoning/MemberOrchestrator.ts'
 import type { DetectionResult } from '../reasoning/MemberOrchestrator.ts'
 import { validateApiKeys } from '../llm/validateApiKeys.ts'
@@ -209,23 +208,4 @@ export class ApplicationContext {
     }
   }
 
-  /** Member-specific executor: preferred provider + its own tool loop */
-  async runMember(memberName: string, task: string, config: LLMConfig): Promise<boolean> {
-    return this.runner.runMember(memberName, task, config)
-  }
-
-  /** Runs a member without presentation; records metrics and flushes traces. */
-  async runMemberTask(memberName: string, task: string, config: LLMConfig): Promise<MemberRunResult> {
-    return this.runner.runMemberTask(memberName, task, config)
-  }
-
-  /** Fallback for non-member agent names (core agents). */
-  async runAgent(agentName: string, task: string): Promise<void> {
-    return this.runner.runAgent(agentName, task)
-  }
-
-  /** Flushes pending trace envelopes to the store before the process exits. */
-  async flushTraces(): Promise<void> {
-    return this.runner.flushTraces()
-  }
 }

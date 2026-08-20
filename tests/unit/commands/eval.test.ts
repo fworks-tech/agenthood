@@ -34,7 +34,7 @@ function stubApp(llm: ILLMProvider, runTask = async () => ({ output: 'a thorough
     ctx: { source: undefined },
     members: { has: (n: string) => n === 'the-reviewer' },
     llm,
-    runMemberTask: runTask,
+    runner: { runMemberTask: runTask },
   }
 }
 
@@ -238,7 +238,7 @@ describe('eval --replay', () => {
         ...llm,
         embed: vi.fn().mockResolvedValue(embedResult),
       },
-      runMemberTask: vi.fn().mockResolvedValue({ output, durationMs: 3 }),
+      runner: { runMemberTask: vi.fn().mockResolvedValue({ output, durationMs: 3 }) },
     } as never)
   }
 

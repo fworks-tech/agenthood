@@ -78,9 +78,9 @@ export async function run(args: string[]): Promise<void> {
   }
 
   try {
-    const handled = await app.runMember(agentName, task, config)
+    const handled = await app.runner.runMember(agentName, task, config)
     if (!handled) {
-      await app.runAgent(agentName, task)
+      await app.runner.runAgent(agentName, task)
     }
   } catch (err) {
     const msg = err instanceof Error ? err.message : String(err)

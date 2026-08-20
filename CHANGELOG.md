@@ -1,3 +1,10 @@
+# [3.37.0](https://github.com/fworks-tech/agenthood/compare/v3.36.0...v3.37.0) (2026-08-20)
+
+
+### Features
+
+* **skills:** add conversational style section to all Society members ([#463](https://github.com/fworks-tech/agenthood/issues/463)) ([ca618d4](https://github.com/fworks-tech/agenthood/commit/ca618d44396b86d1d0434c4552bdf8a0e9217bf2))
+
 # [3.36.0](https://github.com/fworks-tech/agenthood/compare/v3.35.1...v3.36.0) (2026-08-20)
 
 

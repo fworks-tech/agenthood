@@ -5,6 +5,14 @@
 
 ---
 
+## v3.37.0 — August 20, 2026
+
+### ✨ Features
+
+- **Skills:** add conversational style section to all Society members (#463)
+
+---
+
 ## v3.36.0 — August 20, 2026
 
 ### 🐛 Bug Fixes

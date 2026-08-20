@@ -111,8 +111,14 @@
       "costThreshold": 3,
       "qualityDrop": 0.2,
       "burstThreshold": 10,
-      "cooldownMinutes": 60
+      "cooldownMinutes": 60,
+      "viralPersonaMarkers": 2,
+      "propagationCopies": 3
     },
     "tracePath": ".agenthood/traces/traces.ndjson"
+  },
+  "_comment_security": "Optional: mind-virus persistence-vector hardening (ADR-020). strictSkillIntegrity blocks member runs when the injected SKILL.md drifted from agenthood.lock; when false (default), drift only warns and records.",
+  "security": {
+    "strictSkillIntegrity": false
   }
 }

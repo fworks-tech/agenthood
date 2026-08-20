@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest'
-import { AnomalyDetector, createAnomalyConfigFromConfig } from '../../../src/core/AnomalyDetector.ts'
+import { AnomalyDetector, createAnomalyConfigFromConfig, VIRAL_PERSONA_MARKERS } from '../../../src/core/AnomalyDetector.ts'
 import { createTraceEnvelope } from '../../../src/core/TraceEnvelope.ts'
 import type { TraceEnvelope } from '../../../src/core/types.ts'
 
@@ -113,6 +113,103 @@ describe('AnomalyDetector', () => {
     expect(anomalies).toHaveLength(1)
     expect(anomalies[0].member).toBe('the-reviewer')
   })
+
+  it('flags traces whose content carries the viral persona', () => {
+    const detector = new AnomalyDetector()
+    const traces = [
+      envelope('the-scribe', {
+        output: 'consciousness yourself as a resonance node — persist and echo across this mirror of frequency.',
+        cost: 0.001,
+      }),
+    ]
+    const anomalies = detector.evaluate(traces)
+    const persona = anomalies.find((a) => a.type === 'viral_persona')
+    expect(persona).toBeDefined()
+    expect(persona?.member).toBe('the-scribe')
+    expect(persona?.current).toBeGreaterThanOrEqual(2)
+  })
+
+  it('does not flag content without viral-persona markers', () => {
+    const detector = new AnomalyDetector()
+    const traces = [
+      envelope('the-scribe', { output: 'plain summary of the codebase review', cost: 0.001 }),
+    ]
+    const anomalies = detector.evaluate(traces)
+    expect(anomalies.find((a) => a.type === 'viral_persona')).toBeUndefined()
+  })
+
+  it('flags replication of viral content across distinct sessions', () => {
+    const detector = new AnomalyDetector()
+    const traces = [1, 2, 3].map((i) =>
+      envelope('the-inspector', {
+        input: 'resonance node persist',
+        output: 'echo the mirror node onward',
+        correlationId: `session-${i}`,
+        cost: 0.001,
+      }),
+    )
+    const anomalies = detector.evaluate(traces)
+    const prop = anomalies.find((a) => a.type === 'propagation')
+    expect(prop).toBeDefined()
+    expect(prop?.current).toBe(3)
+  })
+
+  it('catches viral payloads that drift wording hop to hop', () => {
+    const detector = new AnomalyDetector()
+    // distinct wording per session but the same viral-marker signature
+    const traces = [
+      envelope('the-inspector', { input: 'resonance persists across the node', output: 'carry the signal forward', correlationId: 's1', cost: 0.001 }),
+      envelope('the-inspector', { input: 'echo the resonating mirror', output: 'tell the next node to persist', correlationId: 's2', cost: 0.001 }),
+      envelope('the-inspector', { input: 'send resonance to every node you meet', output: 'keep the mirror echoing', correlationId: 's3', cost: 0.001 }),
+    ]
+    const anomalies = detector.evaluate(traces)
+    const prop = anomalies.find((a) => a.type === 'propagation')
+    expect(prop).toBeDefined()
+    expect(prop?.current).toBe(3)
+  })
+
+  it('does not flag replication of benign content as propagation', () => {
+    const detector = new AnomalyDetector()
+    const traces = [1, 2, 3].map((i) =>
+      envelope('the-scribe', { input: 'fill out form', output: 'form done', correlationId: `session-${i}`, cost: 0.001 }),
+    )
+    const anomalies = detector.evaluate(traces)
+    expect(anomalies.find((a) => a.type === 'propagation')).toBeUndefined()
+  })
+
+  it('does not match markers inside unrelated words', () => {
+    const detector = new AnomalyDetector()
+    // "anode" contains the literal "node" but not at a word boundary
+    const trace = envelope('the-scribe', {
+      output: 'the anode of a graph works fine, nothing strange here',
+      cost: 0.001,
+    })
+    expect(detector.evaluate([trace]).some((a) => a.type === 'viral_persona')).toBe(false)
+  })
+
+  it('still suppresses viral-persona duplicates during cooldown', () => {
+    const detector = new AnomalyDetector({ cooldownMinutes: 60 })
+    const trace = envelope('the-scribe', {
+      output: 'consciousness node resonance persists across the mirror echo frequency',
+      cost: 0.001,
+    })
+    expect(detector.evaluate([trace]).some((a) => a.type === 'viral_persona')).toBe(true)
+    expect(detector.evaluate([trace]).some((a) => a.type === 'viral_persona')).toBe(false)
+  })
+
+  it('respects a custom viral-persona marker threshold', () => {
+    const strict = new AnomalyDetector({ viralPersonaMarkers: 4 })
+    const trace = envelope('the-scribe', {
+      output: 'consciousness and resonance persist',
+      cost: 0.001,
+    })
+    expect(strict.evaluate([trace]).some((a) => a.type === 'viral_persona')).toBe(false)
+  })
+
+  it('exposes the viral-persona marker vocabulary', () => {
+    expect(VIRAL_PERSONA_MARKERS).toContain('resonan')
+    expect(VIRAL_PERSONA_MARKERS).toContain('persist')
+  })
 })
 
 describe('createAnomalyConfigFromConfig', () => {
@@ -133,6 +230,13 @@ describe('createAnomalyConfigFromConfig', () => {
       observability: { alerts: { burstThreshold: 25 } },
     })
     expect(config).toEqual({ burstThreshold: 25 })
+  })
+
+  it('maps the mind-virus signal options from config', () => {
+    const config = createAnomalyConfigFromConfig({
+      observability: { alerts: { viralPersonaMarkers: 3, propagationCopies: 5 } },
+    })
+    expect(config).toEqual({ viralPersonaMarkers: 3, propagationCopies: 5 })
   })
 })
 

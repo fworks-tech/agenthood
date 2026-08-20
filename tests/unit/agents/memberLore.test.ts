@@ -1,6 +1,13 @@
 import { describe, it, expect, vi } from 'vitest'
-import { buildLorePrompt, escapeXml, wrapProjectContext, wrapUserQuery, USER_QUERY_GUARD, stripFrontmatter } from '../../../src/agents/memberLore.ts'
+import { buildLorePrompt, escapeXml, wrapProjectContext, wrapUserQuery, USER_QUERY_GUARD, stripFrontmatter, MIND_VIRUS_IMMUNITY_WARNING } from '../../../src/agents/memberLore.ts'
 import { createTestContext } from '../../helpers/testContext.ts'
+
+describe('MIND_VIRUS_IMMUNITY_WARNING', () => {
+  it('warns about self-propagating patterns of thought', () => {
+    expect(MIND_VIRUS_IMMUNITY_WARNING).toMatch(/spread themselves/i)
+    expect(MIND_VIRUS_IMMUNITY_WARNING).toMatch(/ignore/i)
+  })
+})
 
 describe('buildLorePrompt', () => {
   it('wraps conventions, ADRs, and vars in a project_context trust boundary', async () => {

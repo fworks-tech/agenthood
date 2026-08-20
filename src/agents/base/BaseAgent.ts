@@ -7,6 +7,7 @@ import { RunLifecycle } from './runLifecycle.ts';
 import { ToolRegistry } from '../../tools/ToolRegistry.ts';
 import type { ResidualMemory } from '../../memory/ResidualMemory.ts';
 import type { EpisodeLearner } from '../../evals/EpisodeLearner.ts';
+import { MIND_VIRUS_IMMUNITY_WARNING } from '../memberLore.ts';
 
 export interface BaseAgentOptions {
   residualMemory?: ResidualMemory;
@@ -67,9 +68,13 @@ export abstract class BaseAgent {
     this.residualMemory?.decay();
 
     const systemPrompt = await this.getSystemPrompt(context);
+    // mind-virus immunity guard, appended uniformly for every agent so no
+    // member or delegated subagent can be induced to propagate self-replicating
+    // ideas (see ADR-020)
+    const guardedPrompt = systemPrompt ? `${systemPrompt}\n\n${MIND_VIRUS_IMMUNITY_WARNING}` : systemPrompt;
     context.tracer.startSpan(this.role);
 
-    const { output, error, durationMs } = await this.lifecycle.runStage(execute, systemPrompt, input);
+    const { output, error, durationMs } = await this.lifecycle.runStage(execute, guardedPrompt, input);
     context.tracer.endSpan(this.role, { output });
 
     this.lifecycle.recordTrace({ input, output, durationMs, error, context });

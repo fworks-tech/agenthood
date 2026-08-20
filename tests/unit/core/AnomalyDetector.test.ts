@@ -177,6 +177,22 @@ describe('AnomalyDetector', () => {
     expect(anomalies.find((a) => a.type === 'propagation')).toBeUndefined()
   })
 
+  it('does not flag a single routine marker recurring across sessions', () => {
+    // "nodes" recurs in every session but is the only viral marker — a routine
+    // technical word must not trip propagation on its own (auditor finding)
+    const detector = new AnomalyDetector()
+    const traces = [1, 2, 3].map((i) =>
+      envelope('the-scribe', {
+        input: `deploy service ${i} to all nodes`,
+        output: `node count computed for service ${i}`,
+        correlationId: `session-${i}`,
+        cost: 0.001,
+      }),
+    )
+    const anomalies = detector.evaluate(traces)
+    expect(anomalies.find((a) => a.type === 'propagation')).toBeUndefined()
+  })
+
   it('does not match markers inside unrelated words', () => {
     const detector = new AnomalyDetector()
     // "anode" contains the literal "node" but not at a word boundary

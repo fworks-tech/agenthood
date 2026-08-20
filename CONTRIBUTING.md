@@ -116,7 +116,7 @@ Alerts: `{ "observability": { "alerts": { "costThreshold": 3, "qualityDrop": 0.2
 
 Trace path: `{ "observability": { "tracePath": ".agenthood/traces/traces.ndjson" } }` relocates the trace store (relative paths resolve against the project root); the runtime, `trace`, `status`, and `health` commands all honor it.
 
-Mind-virus hardening: `{ "security": { "strictSkillIntegrity": false } }` controls the injection-time integrity check that hashes each member's injected `SKILL.md` against `agenthood.lock` when its system prompt is assembled (see ADR-020). Drift is recorded durably into decision/provenance stores and warns by default; set `strictSkillIntegrity` to `true` to block the run instead (after the audit entry is recorded). A missing lockfile silently skips the check.
+Mind-virus hardening: `{ "security": { "strictSkillIntegrity": false } }` controls the injection-time integrity check that hashes each member's injected `SKILL.md` against `agenthood.lock` when its system prompt is assembled (see ADR-020). Drift is recorded durably into decision/provenance stores and warns by default; set `strictSkillIntegrity` to `true` to block the run instead (after the audit entry is recorded). A **corrupt** lockfile (unreadable/invalid JSON) is treated like drift — it warns and records, and blocks under strict mode — while a missing lockfile silently skips the check.
 
 Replay evaluation: `agenthood eval <member> --replay [--limit N]` re-runs stored envelopes against their inputs and reports output drift via embedding similarity to `.agenthood/evals/replay-report.json`; re-run outputs pass through the redactor.
 

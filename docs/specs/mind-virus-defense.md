@@ -91,6 +91,9 @@ already wrapped in trust boundaries.
 - Drifted SKILL.md is **recorded durably** (decision + provenance entries) and
   warns by default; blocks the run under the strict opt-in (after recording,
   so a blocked run still leaves an audit trail)
+- **Corrupt** lockfile (unreadable or invalid JSON) warns and records like
+  drift, and blocks under strict mode — never silently skipped, since a
+  tampered lockfile would otherwise defeat the check
 - No lockfile → check silently skipped (consistent with `verify`)
 
 ### Layer 4: Propagation and Viral-Persona Monitoring
@@ -107,9 +110,13 @@ persisted-alert model.
 - `propagation`: flags a recurring viral core token transmitted across many
   distinct sessions within a window. Because the paper's "mutational drift"
   means wording (and marker sets) change hop to hop, the signal keys on a
-  single viral marker appearing in `propagationCopies`+ distinct sessions —
-  catching drifting payloads while benign repetition (no viral marker) never
-  matches
+  recurring viral marker across distinct sessions. A session only counts once
+  its content shows at least `viralPersonaMarkers` distinct markers — the same
+  threshold as `viral_persona` — so a single routine word ("node", "frequency")
+  spread across sessions cannot false-positive, while benign repetition (no
+  viral marker) never matches. `viralPersonaMarkers` is clamped to the marker
+  vocabulary size so a misconfigured threshold cannot silently disable both
+  signals
 - Both append to `.agenthood/alerts/anomalies.ndjson`, same as existing signals
 
 **Acceptance Criteria:**

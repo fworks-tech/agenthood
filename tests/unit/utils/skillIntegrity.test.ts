@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest'
-import { mkdtempSync, rmSync, writeFileSync } from 'node:fs'
+import { mkdtempSync, mkdirSync, rmSync, writeFileSync } from 'node:fs'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 import { checkSkillIntegrity, recordSkillIntegrityDrift, SkillIntegrityError } from '../../../src/utils/skillIntegrity.ts'
@@ -37,6 +37,18 @@ describe('checkSkillIntegrity', () => {
     expect(checkSkillIntegrity('the-tester', join(dir, 'SKILL.md'), { lockfilePath: dir })).toBe('drift')
   })
 
+  it('returns corrupt when the lockfile is not valid JSON', () => {
+    writeFileSync(join(dir, 'agenthood.lock'), '{ not json', 'utf8')
+    expect(checkSkillIntegrity('the-tester', join(dir, 'SKILL.md'), { lockfilePath: dir })).toBe('corrupt')
+  })
+
+  it('returns corrupt when the lockfile is unreadable', () => {
+    // a directory in place of the lockfile reads as EISDIR/EPERM
+    writeFileSync(join(dir, 'SKILL.md'), 'body', 'utf8')
+    mkdirSync(join(dir, 'agenthood.lock'))
+    expect(checkSkillIntegrity('the-tester', join(dir, 'SKILL.md'), { lockfilePath: dir })).toBe('corrupt')
+  })
+
   it('is pure: never throws even on drift', () => {
     against('tampered body', contentHash('original body'))
     expect(() => checkSkillIntegrity('the-tester', join(dir, 'SKILL.md'), { lockfilePath: dir })).not.toThrow()
@@ -54,11 +66,17 @@ describe('checkSkillIntegrity', () => {
 })
 
 describe('SkillIntegrityError', () => {
-  it('carries an actionable message', () => {
-    const err = new SkillIntegrityError('the-tester')
+  it('carries an actionable drift message', () => {
+    const err = new SkillIntegrityError('the-tester', 'drift')
     expect(err.name).toBe('SkillIntegrityError')
     expect(err.message).toMatch(/drifted/i)
     expect(err.message).toMatch(/verify --update-lock/)
+  })
+
+  it('carries a distinct corrupt-lockfile message', () => {
+    const err = new SkillIntegrityError('the-tester', 'corrupt')
+    expect(err.message).toMatch(/corrupt/i)
+    expect(err.message).toMatch(/lockfile/i)
   })
 })
 

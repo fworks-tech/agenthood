@@ -90,7 +90,7 @@ describe('init command', () => {
     expect(configCall).toBeTruthy()
     const config = JSON.parse(configCall![1])
     expect(config.observability).toBeDefined()
-    expect(config.observability.redaction.enabled).toBe(false)
+    expect(config.observability.redaction.enabled).toBe(true)
     expect(config.observability.retention.ttlDays).toBe(30)
     expect(config.observability.alerts.burstThreshold).toBe(10)
     expect(config.observability.tracePath).toContain('traces.ndjson')

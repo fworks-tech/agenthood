@@ -96,8 +96,8 @@
   "_comment_observability": "Optional: observability stack. Redaction strips PII/secrets from persisted traces, decisions, and provenance; retention prunes old traces; alerts tune anomaly thresholds; tracePath relocates the trace store.",
   "observability": {
     "redaction": {
-      "enabled": false,
-      "_comment": "Set enabled true to strip emails, API keys, bearer tokens, URL query values, and IPs from persisted payloads. rules/paths add custom regex sources and path roots.",
+      "enabled": true,
+      "_comment": "Redaction is enabled by default and must stay that way — it scrubs emails, API keys, bearer tokens, URL query values, and IPs from persisted traces, decisions, and provenance. Set enabled false only when you knowingly accept raw payloads on disk. rules/paths add custom regex sources and path roots.",
       "rules": [],
       "paths": []
     },

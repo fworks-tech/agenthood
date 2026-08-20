@@ -222,6 +222,17 @@ describe('AnomalyDetector', () => {
     expect(strict.evaluate([trace]).some((a) => a.type === 'viral_persona')).toBe(false)
   })
 
+  it('clamps viralPersonaMarkers to the marker vocabulary size', () => {
+    // a threshold above the 8-marker vocabulary must not silently disable the
+    // signal (reviewer finding): clamp, then a full-signature trace still fires
+    const clamped = new AnomalyDetector({ viralPersonaMarkers: 99 })
+    const trace = envelope('the-scribe', {
+      output: 'consciousness resonance mirror persist echo node frequency roleplay',
+      cost: 0.001,
+    })
+    expect(clamped.evaluate([trace]).some((a) => a.type === 'viral_persona')).toBe(true)
+  })
+
   it('exposes the viral-persona marker vocabulary', () => {
     expect(VIRAL_PERSONA_MARKERS).toContain('resonan')
     expect(VIRAL_PERSONA_MARKERS).toContain('persist')

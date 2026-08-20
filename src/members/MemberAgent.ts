@@ -130,12 +130,16 @@ export class MemberAgent extends BaseAgent {
     // the detection durably before deciding to warn or block, so a strict-mode
     // abort still leaves an audit trail.
     const status = checkSkillIntegrity(this.spec.name, this.spec.sourcePath)
-    if (status === 'drift') {
-      await recordSkillIntegrityDrift(context, this.spec.name)
+    if (status === 'drift' || status === 'corrupt') {
+      const reason = status === 'corrupt' ? 'corrupt' : 'drift'
+      await recordSkillIntegrityDrift(context, this.spec.name, reason)
       if (this.strictSkillIntegrity) {
-        throw new SkillIntegrityError(this.spec.name)
+        throw new SkillIntegrityError(this.spec.name, reason)
       }
-      console.warn(`[mind-virus] SKILL.md for "${this.spec.name}" drifted from agenthood.lock — verify its content before running. Run \`agenthood verify --update-lock\` if the edit is intentional.`)
+      const detail = status === 'corrupt'
+        ? `agenthood.lock for "${this.spec.name}" is corrupt — verify the lockfile before running.`
+        : `SKILL.md for "${this.spec.name}" drifted from agenthood.lock — verify its content before running. Run \`agenthood verify --update-lock\` if the edit is intentional.`
+      console.warn(`[mind-virus] ${detail}`)
     }
 
     const projectContext = await loadProjectContext(context)

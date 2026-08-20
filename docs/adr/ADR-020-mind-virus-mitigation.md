@@ -70,7 +70,10 @@ paper's findings to Agenthood's existing surfaces:
    and surface drift. Drift is **recorded durably** (decision + provenance
    entries) and warns by default (compatible with normal skill editing); a
    strict opt-in blocks the run — after recording, so a blocked run still
-   leaves an audit trail. Existing trust boundaries on project context,
+   leaves an audit trail. A **corrupt** lockfile (unreadable or invalid JSON)
+   is treated as suspicious rather than silently skipped — it warns and records
+   like drift, and blocks under strict mode — since tampering may also leave
+   the lock unreadable. Existing trust boundaries on project context,
    `<retrieved_context>`, and the skills catalog remain the safeguard for all
    other injected file-derived content.
 

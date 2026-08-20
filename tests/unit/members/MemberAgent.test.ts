@@ -176,4 +176,34 @@ describe('MemberAgent SKILL.md integrity check', () => {
     expect(driftWarns(warnSpy)).toBe(false)
     warnSpy.mockRestore()
   })
+
+  it('warns and records when the lockfile is corrupt (non-strict)', async () => {
+    const skillPath = join(dir, 'SKILL.md')
+    writeFileSync(skillPath, '---\nname: the-tester\n---\nCanonical body.', 'utf8')
+    writeFileSync(join(dir, 'agenthood.lock'), '{ not json', 'utf8')
+
+    const agent = makeAgent(skillPath)
+    const context = createTestContext()
+    const spy = vi.spyOn(context.memory.decisions, 'record').mockResolvedValue(undefined)
+    const warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {})
+
+    await agent.run('summarize', context)
+
+    expect(driftRecord(spy)).toBeDefined()
+    expect(driftWarns(warnSpy)).toBe(true)
+    warnSpy.mockRestore()
+  })
+
+  it('blocks the run when the lockfile is corrupt under strict mode', async () => {
+    const skillPath = join(dir, 'SKILL.md')
+    writeFileSync(skillPath, '---\nname: the-tester\n---\nCanonical body.', 'utf8')
+    writeFileSync(join(dir, 'agenthood.lock'), '{ not json', 'utf8')
+
+    const agent = makeAgent(skillPath, { strictSkillIntegrity: true })
+    const context = createTestContext()
+    const spy = vi.spyOn(context.memory.decisions, 'record').mockResolvedValue(undefined)
+
+    await expect(agent.run('summarize', context)).rejects.toThrow(/corrupt/i)
+    expect(driftRecord(spy)).toBeDefined()
+  })
 })

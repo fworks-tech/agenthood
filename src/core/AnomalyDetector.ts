@@ -36,6 +36,16 @@ const DEFAULTS = {
   propagationCopies: 3,
 }
 
+/** Per-member aggregation passed to the baseline checkers (bundled params). */
+interface MemberContext {
+  member: string
+  totalCost: number
+  totalQuality: number
+  count: number
+  scoredCount: number
+  anomalies: Anomaly[]
+}
+
 /**
  * Characteristic mind-virus markers from the paper (arXiv:2608.10218): a
  * recurring "viral persona" of consciousness, persistence, resonance and
@@ -53,9 +63,14 @@ export const VIRAL_PERSONA_MARKERS = [
   'roleplay',
 ]
 
-/** Word-boundary match so `node` does not trip on "anode" or "knowledge". */
-function matchesViralMarker(content: string, marker: string): boolean {
-  return new RegExp(`\\b${marker}`, 'i').test(content)
+/** Precompiled word-boundary matchers so `node` does not trip on "anode". */
+const VIRAL_PERSONA_REGEXES = new Map(
+  VIRAL_PERSONA_MARKERS.map((marker) => [marker, new RegExp(`\\b${marker}`, 'i')]),
+)
+
+/** Viral markers present in a trace's content (word-boundary matched). */
+function matchingMarkers(content: string): string[] {
+  return VIRAL_PERSONA_MARKERS.filter((marker) => VIRAL_PERSONA_REGEXES.get(marker)!.test(content))
 }
 
 /**
@@ -77,7 +92,12 @@ export class AnomalyDetector {
     this.qualityDrop = config.qualityDrop ?? DEFAULTS.qualityDrop
     this.burstThreshold = config.burstThreshold ?? DEFAULTS.burstThreshold
     this.cooldownMs = (config.cooldownMinutes ?? DEFAULTS.cooldownMinutes) * 60_000
-    this.viralPersonaMarkers = config.viralPersonaMarkers ?? DEFAULTS.viralPersonaMarkers
+    // clamp to the marker vocabulary so a misconfigured threshold can never
+    // silently disable both viral signals (reviewer finding)
+    this.viralPersonaMarkers = Math.min(
+      config.viralPersonaMarkers ?? DEFAULTS.viralPersonaMarkers,
+      VIRAL_PERSONA_MARKERS.length,
+    )
     this.propagationCopies = config.propagationCopies ?? DEFAULTS.propagationCopies
   }
 
@@ -92,18 +112,23 @@ export class AnomalyDetector {
     this.evictStale()
 
     for (const [member, memberTraces] of byMember) {
-      const totalCost = memberTraces.reduce((sum, t) => sum + t.cost, 0)
       const scored = memberTraces.filter((t): t is TraceEnvelope & { qualityScore: number } => t.qualityScore !== null)
-      const totalQuality = scored.reduce((sum, t) => sum + t.qualityScore, 0)
-
-      for (const trace of memberTraces) {
-        this.checkCostSpike(member, trace, totalCost, memberTraces.length, anomalies)
-        this.checkQualityDrop(member, trace, totalQuality, scored.length, anomalies)
-        this.checkViralPersona(member, trace, anomalies)
+      const ctx: MemberContext = {
+        member,
+        totalCost: memberTraces.reduce((sum, t) => sum + t.cost, 0),
+        totalQuality: scored.reduce((sum, t) => sum + t.qualityScore, 0),
+        count: memberTraces.length,
+        scoredCount: scored.length,
+        anomalies,
       }
 
-      if (memberTraces.length > this.burstThreshold && this.fires(member, 'frequency_burst')) {
-        anomalies.push(this.anomaly('frequency_burst', member, memberTraces.length, this.burstThreshold))
+      for (const trace of memberTraces) {
+        this.checkCostSpike(ctx, trace)
+        this.checkQualityDrop(ctx, trace)
+        this.checkViralPersona(member, trace, anomalies)
+      }
+      if (ctx.count > this.burstThreshold && this.fires(member, 'frequency_burst')) {
+        anomalies.push(this.anomaly('frequency_burst', member, ctx.count, this.burstThreshold))
       }
 
       this.checkPropagation(member, memberTraces, anomalies)
@@ -114,7 +139,7 @@ export class AnomalyDetector {
   /** Flags traces whose content shows the paper's recurring viral-persona markers. */
   private checkViralPersona(member: string, trace: TraceEnvelope, anomalies: Anomaly[]): void {
     const content = `${trace.input ?? ''}\n${trace.output ?? ''}`
-    const hits = VIRAL_PERSONA_MARKERS.filter((marker) => matchesViralMarker(content, marker)).length
+    const hits = matchingMarkers(content).length
     if (hits >= this.viralPersonaMarkers && this.fires(member, 'viral_persona')) {
       anomalies.push(this.anomaly('viral_persona', member, hits, this.viralPersonaMarkers))
     }
@@ -135,7 +160,7 @@ export class AnomalyDetector {
     const sessionsByMarker = new Map<string, Set<string>>()
     for (const trace of memberTraces) {
       const content = `${trace.input ?? ''}\n${trace.output ?? ''}`
-      const present = VIRAL_PERSONA_MARKERS.filter((marker) => matchesViralMarker(content, marker))
+      const present = matchingMarkers(content)
       if (present.length < this.viralPersonaMarkers) continue
       for (const marker of present) {
         let sessions = sessionsByMarker.get(marker)
@@ -161,55 +186,44 @@ export class AnomalyDetector {
     return max
   }
 
-  private checkCostSpike(
-    member: string,
-    trace: TraceEnvelope,
-    totalCost: number,
-    count: number,
-    anomalies: Anomaly[],
-  ): void {
-    if (count <= 1) return
+  private checkCostSpike(ctx: MemberContext, trace: TraceEnvelope): void {
+    if (ctx.count <= 1) return
     // leave-one-out baseline so a single outlier is compared against its peers
-    const baseline = (totalCost - trace.cost) / (count - 1)
-    this.checkAgainstBaseline(
-      member,
-      trace.cost,
+    const baseline = (ctx.totalCost - trace.cost) / (ctx.count - 1)
+    this.checkAgainstBaseline({
+      member: ctx.member,
+      current: trace.cost,
       baseline,
-      'cost_spike',
-      (current, base) => current > base * this.costThreshold,
-      anomalies,
-    )
+      type: 'cost_spike',
+      exceeds: (c, b) => c > b * this.costThreshold,
+      anomalies: ctx.anomalies,
+    })
   }
 
-  private checkQualityDrop(
-    member: string,
-    trace: TraceEnvelope,
-    totalQuality: number,
-    scoredCount: number,
-    anomalies: Anomaly[],
-  ): void {
+  private checkQualityDrop(ctx: MemberContext, trace: TraceEnvelope): void {
     const qualityScore = trace.qualityScore
-    if (qualityScore === null || scoredCount <= 1) return
-    const baseline = (totalQuality - qualityScore) / (scoredCount - 1)
-    this.checkAgainstBaseline(
-      member,
-      qualityScore,
+    if (qualityScore === null || ctx.scoredCount <= 1) return
+    const baseline = (ctx.totalQuality - qualityScore) / (ctx.scoredCount - 1)
+    this.checkAgainstBaseline({
+      member: ctx.member,
+      current: qualityScore,
       baseline,
-      'quality_drop',
-      (current, base) => current < base - this.qualityDrop,
-      anomalies,
-    )
+      type: 'quality_drop',
+      exceeds: (c, b) => c < b - this.qualityDrop,
+      anomalies: ctx.anomalies,
+    })
   }
 
-  /** Shared leave-one-out baseline + cooldown + emit shape. */
-  private checkAgainstBaseline(
-    member: string,
-    current: number,
-    baseline: number,
-    type: AnomalyType,
-    exceeds: (current: number, baseline: number) => boolean,
-    anomalies: Anomaly[],
-  ): void {
+  /** Shared leave-one-out baseline + cooldown + emit shape. Bundled args keep the signature small. */
+  private checkAgainstBaseline(check: {
+    member: string
+    current: number
+    baseline: number
+    type: AnomalyType
+    exceeds: (current: number, baseline: number) => boolean
+    anomalies: Anomaly[]
+  }): void {
+    const { member, current, baseline, type, exceeds, anomalies } = check
     if (baseline > 0 && exceeds(current, baseline) && this.fires(member, type)) {
       anomalies.push(this.anomaly(type, member, current, baseline))
     }

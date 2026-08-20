@@ -4,7 +4,7 @@ import { join } from 'node:path'
 import { AgentRegistry } from '../core/AgentRegistry.ts'
 import type { ExecutionContext } from '../core/ExecutionContext.ts'
 import { createRedactionFilterFromConfig, RedactionFilter } from '../core/RedactionFilter.ts'
-import { AnomalyDetector, appendAnomalies, createAnomalyConfigFromConfig } from '../core/AnomalyDetector.ts'
+import { AnomalyDetector, createAnomalyConfigFromConfig } from '../core/AnomalyDetector.ts'
 import { Tracer } from '../core/Tracer.ts'
 import {
   JSONFileTraceStore,
@@ -18,13 +18,11 @@ import { EpisodeLearner } from '../evals/EpisodeLearner.ts'
 import { LLMRouter } from '../llm/LLMRouter.ts'
 import type { ILLMProvider } from '../llm/ILLMProvider.ts'
 import type { LLMConfig } from '../llm/types.ts'
-import { MemberRegistry, MemberAgent } from '../members/index.ts'
-import type { ProviderName } from '../members/types.ts'
+import { MemberRegistry } from '../members/index.ts'
 import { DecisionLog } from '../memory/DecisionLog.ts'
 import { EpisodicMemoryImpl } from '../memory/EpisodicMemory.ts'
 import { GraphSnapshot } from '../memory/GraphSnapshot.ts'
 import { LongTermMemoryImpl } from '../memory/LongTermMemory.ts'
-import { MetricsCollector } from '../memory/MetricsCollector.ts'
 import { ProjectMemoryImpl } from '../memory/ProjectMemory.ts'
 import { ProvenanceStore } from '../memory/ProvenanceStore.ts'
 import { ShortTermMemoryImpl } from '../memory/ShortTermMemory.ts'
@@ -45,6 +43,7 @@ import { ArchitectAgent } from '../agents/ArchitectAgent.ts'
 import { ReviewerAgent } from '../agents/ReviewerAgent.ts'
 import { QAAgent } from '../agents/QAAgent.ts'
 import { OracleAgent } from '../agents/OracleAgent.ts'
+import { MemberRunner } from './MemberRunner.ts'
 import { connectVectorStore, discoverSkills, loadSocietyGraph } from './contextSetup.ts'
 
 /** Composition root for `agenthood run` — commands consume one of these. */
@@ -61,6 +60,7 @@ export class ApplicationContext {
   readonly agents: AgentRegistry
   readonly members: MemberRegistry
   readonly llm: ILLMProvider
+  readonly runner: MemberRunner
   private retentionManager?: RetentionManager
   private readonly episodeLearner: EpisodeLearner
   private readonly anomalyDetector: AnomalyDetector
@@ -116,6 +116,15 @@ export class ApplicationContext {
       redactor,
       usage: { promptTokens: 0, completionTokens: 0, totalTokens: 0 },
     }
+
+    this.runner = new MemberRunner({
+      agents: this.agents,
+      members: this.members,
+      episodeLearner: this.episodeLearner,
+      anomalyDetector: this.anomalyDetector,
+      alertsPath: this.alertsPath,
+    })
+    this.runner.ctx = this.ctx
   }
 
   static async create(projectPath: string, config: LLMConfig): Promise<ApplicationContext> {
@@ -202,99 +211,21 @@ export class ApplicationContext {
 
   /** Member-specific executor: preferred provider + its own tool loop */
   async runMember(memberName: string, task: string, config: LLMConfig): Promise<boolean> {
-    if (!this.members.has(memberName)) return false
-
-    const spec = this.members.get(memberName)
-    await this.runAndReport(spec.name, async () => {
-      const { output } = await this.runMemberTask(memberName, task, config)
-      return output
-    })
-    return true
+    return this.runner.runMember(memberName, task, config)
   }
 
-  /**
-   * Runs a member without any presentation: captures the raw output and
-   * duration for evaluation while still recording metrics and flushing
-   * traces. Throws on failure instead of exiting the process.
-   */
+  /** Runs a member without presentation; records metrics and flushes traces. */
   async runMemberTask(memberName: string, task: string, config: LLMConfig): Promise<MemberRunResult> {
-    if (!this.members.has(memberName)) throw new Error(`unknown member "${memberName}"`)
-
-    const spec = this.members.get(memberName)
-    const memberProvider = (config.provider ?? spec.preferredProvider) as ProviderName
-    const llm = await LLMRouter.createForMember(memberProvider, config)
-    const sReg = new ToolRegistry()
-    const loop = new ReActLoop(llm, sReg)
-
-    if (config.skills?.autoDiscover === true) {
-      try {
-        await sReg.discover(join(process.cwd(), 'src', 'skills'))
-      } catch (e) {
-        console.warn(`[run] skill auto-discovery failed: ${(e as Error)?.message ?? e}`)
-      }
-    }
-
-    const agent = new MemberAgent(spec, llm, loop, sReg, { agentRegistry: this.agents, episodeLearner: this.episodeLearner, strictSkillIntegrity: config.security?.strictSkillIntegrity })
-    const metricsCollector = new MetricsCollector(join(process.cwd(), '.agenthood', 'metrics'))
-    const startTime = performance.now()
-
-    try {
-      const result = await agent.run(task, this.ctx)
-      const duration = Math.round(performance.now() - startTime)
-      metricsCollector.record(memberName, true, duration)
-      return { output: result.output, durationMs: duration }
-    } catch (err) {
-      const duration = Math.round(performance.now() - startTime)
-      metricsCollector.record(memberName, false, duration)
-      throw err
-    } finally {
-      await this.flushTraces()
-    }
+    return this.runner.runMemberTask(memberName, task, config)
   }
 
   /** Fallback for non-member agent names (core agents). */
   async runAgent(agentName: string, task: string): Promise<void> {
-    await this.runAndReport(agentName, async () => {
-      const agent = this.agents.get(agentName)
-      return (await agent.run(task, this.ctx)).output
-    })
-  }
-
-  private async runAndReport(
-    displayName: string,
-    run: () => Promise<string>,
-  ): Promise<void> {
-    try {
-      const output = await run()
-      console.log(`\n\u2714 ${displayName} result:\n${output}\n`)
-    } catch (err) {
-      await this.flushTraces()
-      // logging and exit belong to the CLI caller; surface the error here
-      throw err
-    }
-    await this.flushTraces()
+    return this.runner.runAgent(agentName, task)
   }
 
   /** Flushes pending trace envelopes to the store before the process exits. */
   async flushTraces(): Promise<void> {
-    try {
-      await this.ctx.tracer.flush()
-      await this.evaluateAnomalies()
-    } catch (err) {
-      console.error(`[run] trace flush failed: ${err instanceof Error ? err.message : String(err)}`)
-    }
-  }
-
-  /** Scores the recent in-process envelopes and appends any anomalies. */
-  private async evaluateAnomalies(): Promise<void> {
-    const recent = this.ctx.tracer.getRecent(this.ctx.tracer.size)
-    if (recent.length === 0) return
-    const anomalies = this.anomalyDetector.evaluate(recent)
-    if (anomalies.length === 0) return
-    try {
-      await appendAnomalies(this.alertsPath, anomalies)
-    } catch (err) {
-      console.warn(`[run] anomaly persistence failed: ${err instanceof Error ? err.message : String(err)}`)
-    }
+    return this.runner.flushTraces()
   }
 }

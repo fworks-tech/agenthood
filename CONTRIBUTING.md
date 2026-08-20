@@ -112,9 +112,11 @@ Redaction: trace payload text is scrubbed before persistence by default. Emails,
 
 Retention: `{ "observability": { "retention": { "ttlDays": 30, "maxEntries": 100000, "exportEnabled": true, "exportPath": "./traces/export" } } }` bounds the trace store — traces older than `ttlDays` and beyond `maxEntries` (oldest first) are pruned hourly, and pruned data is exported to NDJSON before deletion when `exportEnabled` is set. `ttlDays: 0` disables pruning.
 
-Alerts: `{ "observability": { "alerts": { "costThreshold": 3, "qualityDrop": 0.2, "burstThreshold": 10, "cooldownMinutes": 60 } } }` tunes anomaly detection. On every trace flush the detector scores the batch against per-member leave-one-out baselines and appends cost spikes, quality drops, and bursts to `.agenthood/alerts/anomalies.ndjson`, surfaced by `agenthood status --alerts`. All thresholds default to the values above when the block is absent.
+Alerts: `{ "observability": { "alerts": { "costThreshold": 3, "qualityDrop": 0.2, "burstThreshold": 10, "cooldownMinutes": 60, "viralPersonaMarkers": 2, "propagationCopies": 3 } } }` tunes anomaly detection. On every trace flush the detector scores the batch against per-member leave-one-out baselines and appends cost spikes, quality drops, bursts, and — for mind-virus defense (see ADR-020) — `viral_persona` (recurring consciousness/persistence/resonance theme markers) and `propagation` (a viral core token replicated across many distinct sessions) to `.agenthood/alerts/anomalies.ndjson`, surfaced by `agenthood status --alerts`. All thresholds default to the values above when the block is absent.
 
 Trace path: `{ "observability": { "tracePath": ".agenthood/traces/traces.ndjson" } }` relocates the trace store (relative paths resolve against the project root); the runtime, `trace`, `status`, and `health` commands all honor it.
+
+Mind-virus hardening: `{ "security": { "strictSkillIntegrity": false } }` controls the injection-time integrity check that hashes each member's injected `SKILL.md` against `agenthood.lock` when its system prompt is assembled (see ADR-020). Drift is recorded durably into decision/provenance stores and warns by default; set `strictSkillIntegrity` to `true` to block the run instead (after the audit entry is recorded). A missing lockfile silently skips the check.
 
 Replay evaluation: `agenthood eval <member> --replay [--limit N]` re-runs stored envelopes against their inputs and reports output drift via embedding similarity to `.agenthood/evals/replay-report.json`; re-run outputs pass through the redactor.
 

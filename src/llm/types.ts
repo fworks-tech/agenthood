@@ -94,4 +94,6 @@ export interface LLMConfig {
   skills?: { autoDiscover?: boolean }
   /** Optional Sentry error reporting from .agenthood/config.json */
   sentry?: { dsn?: string }
+  /** Mind-virus persistence-vector hardening from .agenthood/config.json (ADR-020) */
+  security?: { strictSkillIntegrity?: boolean }
 }

@@ -182,7 +182,7 @@ export async function evalMember(args: string[] = []): Promise<void> {
     process.exit(1)
   }
 
-  const runner = (task: string) => app.runMemberTask(member, task, config)
+  const runner = (task: string) => app.runner.runMemberTask(member, task, config)
   const judge = new LLMJudge(app.llm)
   const report = await new EvalRunner(runner, judge).run(suite, member)
 

@@ -74,23 +74,8 @@ export class MemberAgent extends BaseAgent {
       this.addTool(toolName, tools, seen)
     }
 
-    if (this.agentRegistry && this.spec.canDelegate === true && !seen.has('delegate_task')) {
-      try {
-        // Restrict delegation based on permission profile
-        const allowedRoles =
-          this.spec.permissionProfile === 'standard'
-            ? [...DELEGATION_ALLOWED_ROLES]
-            : []
-        // Skip adding delegation tool if allowlist is empty (fail closed)
-        if (allowedRoles.length > 0) {
-          const tool = new SubagentTaskSkill(this.agentRegistry, { allowedRoles })
-          tools.push(tool)
-          seen.add(tool.name)
-        }
-      } catch (err) {
-        // Construction-time error: no ExecutionContext available, log warning
-        console.warn(`[members] delegation tool unavailable for "${this.role}": ${err instanceof Error ? err.message : String(err)}`)
-      }
+    if (this.addDelegationTool(tools, seen)) {
+      // delegation tool added successfully
     }
 
     // fail closed: members without instantiable tools get read-only access
@@ -99,6 +84,33 @@ export class MemberAgent extends BaseAgent {
     }
 
     return tools
+  }
+
+  private addDelegationTool(tools: ITool[], seen: Set<string>): boolean {
+    // Guard clause 1: check if delegation is possible
+    if (!this.agentRegistry || this.spec.canDelegate !== true || seen.has('delegate_task')) {
+      return false
+    }
+
+    // Guard clause 2: check permission profile
+    const allowedRoles = this.spec.permissionProfile === 'standard'
+      ? [...DELEGATION_ALLOWED_ROLES]
+      : []
+
+    // Guard clause 3: fail closed if no allowed roles
+    if (allowedRoles.length === 0) {
+      return false
+    }
+
+    try {
+      const tool = new SubagentTaskSkill(this.agentRegistry, { allowedRoles })
+      tools.push(tool)
+      seen.add(tool.name)
+      return true
+    } catch (err) {
+      console.warn(`[members] delegation tool unavailable for "${this.role}": ${err instanceof Error ? err.message : String(err)}`)
+      return false
+    }
   }
 
   private addTool(toolName: string, tools: ITool[], seen: Set<string>): void {

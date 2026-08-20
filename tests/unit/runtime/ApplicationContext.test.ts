@@ -128,7 +128,7 @@ describe('ApplicationContext run pipeline', () => {
   it('runs a core agent end-to-end, emitting and flushing a trace', async () => {
     const app = await ApplicationContext.create(projectDir, {} as never)
 
-    await app.runAgent('developer', 'implement login')
+    await app.runner.runAgent('developer', 'implement login')
 
     expect(app.ctx.tracer.getRecent(1)[0].member).toBe('developer')
     expect(app.ctx.tracer.getRecent(1)[0].status).toBe('success')
@@ -148,7 +148,7 @@ describe('ApplicationContext run pipeline', () => {
     )
     const app = await ApplicationContext.create(projectDir, {} as never)
 
-    await expect(app.runMemberTask('the-builder', 'write a test', {} as never)).rejects.toThrow('provider exploded')
+    await expect(app.runner.runMemberTask('the-builder', 'write a test', {} as never)).rejects.toThrow('provider exploded')
 
     const env = app.ctx.tracer.getRecent(1)[0]
     expect(env.member).toBe('the-builder')
@@ -161,7 +161,7 @@ describe('ApplicationContext run pipeline', () => {
     const app = await ApplicationContext.create(projectDir, {} as never)
     app.ctx.source = 'cli'
 
-    await app.runMemberTask('the-builder', 'write a test', {} as never)
+    await app.runner.runMemberTask('the-builder', 'write a test', {} as never)
 
     const env = app.ctx.tracer.getRecent(1)[0]
     expect(env.source).toBe('cli')

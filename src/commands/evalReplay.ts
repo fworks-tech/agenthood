@@ -41,7 +41,7 @@ export async function runReplay(member: string, limit: number, json: boolean): P
     process.exit(1)
   }
 
-  const runner = (task: string) => app.runMemberTask(member, task, config)
+  const runner = (task: string) => app.runner.runMemberTask(member, task, config)
   const embed: EmbedFn = (text) => app.llm.embed(text)
   const report = await new ReplayEvaluator(runner, embed).replay(envelopes)
 

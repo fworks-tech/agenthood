@@ -125,16 +125,19 @@ export class AnomalyDetector {
    * sessions. The paper's "mutational drift" means the payload's wording (and
    * marker set) can change hop to hop, so propagation is keyed on a recurring
    * viral core token: the number of distinct sessions whose content carries a
-   * given viral marker. When one token recurs across >= propagationCopies
-   * sessions, the member is replicating an idea onward. Benign repetition never
-   * matches because it carries no viral marker.
+   * given viral marker. A session only counts once its content shows at least
+   * `viralPersonaMarkers` distinct markers — the same threshold as
+   * viral_persona — so a single routine word ("node", "frequency") spread
+   * across sessions cannot false-positive. Benign repetition never matches
+   * because it carries no viral marker.
    */
   private checkPropagation(member: string, memberTraces: TraceEnvelope[], anomalies: Anomaly[]): void {
     const sessionsByMarker = new Map<string, Set<string>>()
     for (const trace of memberTraces) {
       const content = `${trace.input ?? ''}\n${trace.output ?? ''}`
-      for (const marker of VIRAL_PERSONA_MARKERS) {
-        if (!matchesViralMarker(content, marker)) continue
+      const present = VIRAL_PERSONA_MARKERS.filter((marker) => matchesViralMarker(content, marker))
+      if (present.length < this.viralPersonaMarkers) continue
+      for (const marker of present) {
         let sessions = sessionsByMarker.get(marker)
         if (!sessions) {
           sessions = new Set()

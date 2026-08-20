@@ -62,6 +62,12 @@ function parseSentry(raw: Record<string, unknown>): { dsn?: string } | undefined
   return { dsn }
 }
 
+function parseSecurity(raw: Record<string, unknown>): { strictSkillIntegrity?: boolean } | undefined {
+  const security = pickBlock(raw, 'security')
+  if (!security) return undefined
+  return { strictSkillIntegrity: security.strictSkillIntegrity === true }
+}
+
 export async function loadConfig(providerOverride?: string): Promise<LLMConfig> {
   const configPath = join(process.cwd(), '.agenthood', 'config.json')
   let raw: Record<string, unknown>
@@ -86,6 +92,8 @@ export async function loadConfig(providerOverride?: string): Promise<LLMConfig> 
   if (skills) cfg.skills = skills
   const sentry = parseSentry(raw)
   if (sentry) cfg.sentry = sentry
+  const security = parseSecurity(raw)
+  if (security) cfg.security = security
   if (providerOverride) cfg.provider = providerOverride
   return cfg
 }

@@ -24,6 +24,7 @@ import { RefactorSkill } from '../tools/code/RefactorSkill.ts'
 import { PrSyncSkill } from '../tools/pr/PrSyncSkill.ts'
 import { SubagentTaskSkill } from '../tools/core/SubagentTaskSkill.ts'
 import { escapeXml, wrapProjectContext, loadProjectContext, wrapSkillsCatalog, SKILLS_CATALOG_GUARD } from '../agents/memberLore.ts'
+import { checkSkillIntegrity, recordSkillIntegrityDrift, SkillIntegrityError } from '../utils/skillIntegrity.ts'
 import type { EpisodeLearner } from '../evals/EpisodeLearner.ts'
 
 const TOOL_MAP: Record<string, new (...args: never[]) => ITool> = {
@@ -39,6 +40,8 @@ const TOOL_MAP: Record<string, new (...args: never[]) => ITool> = {
 export interface MemberAgentOptions {
   agentRegistry?: AgentRegistry
   episodeLearner?: EpisodeLearner
+  /** Strict mode blocks the run when the injected SKILL.md drifts from agenthood.lock (ADR-020). */
+  strictSkillIntegrity?: boolean
 }
 
 const warnedTools = new Set<string>()
@@ -47,6 +50,7 @@ export class MemberAgent extends BaseAgent {
   role: string
   protected tools: ITool[]
   private agentRegistry?: AgentRegistry
+  private readonly strictSkillIntegrity: boolean
 
   constructor(
     private spec: MemberSpec,
@@ -57,6 +61,7 @@ export class MemberAgent extends BaseAgent {
   ) {
     super(llm, reasoningLoop, toolRegistry, { episodeLearner: options.episodeLearner })
     this.agentRegistry = options.agentRegistry
+    this.strictSkillIntegrity = options.strictSkillIntegrity === true
     this.role = spec.name
     this.tools = this.buildTools()
   }
@@ -120,6 +125,19 @@ export class MemberAgent extends BaseAgent {
   }
 
   protected async getSystemPrompt(context: ExecutionContext): Promise<string> {
+    // injection-time persistence-vector check (ADR-020): the member SKILL.md is
+    // injected into the prompt, so surface drift from agenthood.lock now. Record
+    // the detection durably before deciding to warn or block, so a strict-mode
+    // abort still leaves an audit trail.
+    const status = checkSkillIntegrity(this.spec.name, this.spec.sourcePath)
+    if (status === 'drift') {
+      await recordSkillIntegrityDrift(context, this.spec.name)
+      if (this.strictSkillIntegrity) {
+        throw new SkillIntegrityError(this.spec.name)
+      }
+      console.warn(`[mind-virus] SKILL.md for "${this.spec.name}" drifted from agenthood.lock — verify its content before running. Run \`agenthood verify --update-lock\` if the edit is intentional.`)
+    }
+
     const projectContext = await loadProjectContext(context)
 
     const parts: string[] = [

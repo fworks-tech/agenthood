@@ -45,6 +45,20 @@ describe('loadConfig', () => {
     })
   })
 
+  it('parses the security block strict flag from config', async () => {
+    await withFixture(JSON.stringify({ security: { strictSkillIntegrity: true } }), async () => {
+      const cfg = await loadConfig()
+      expect(cfg.security).toEqual({ strictSkillIntegrity: true })
+    })
+  })
+
+  it('omits the security block when absent', async () => {
+    await withFixture(JSON.stringify({ provider: { name: 'opencode' } }), async () => {
+      const cfg = await loadConfig()
+      expect(cfg.security).toBeUndefined()
+    })
+  })
+
   it('returns empty config when the file is missing', async () => {
     const dir = mkdtempSync(join(tmpdir(), 'agenthood-nocfg-'))
     const cwdSpy = vi.spyOn(process, 'cwd').mockReturnValue(dir)

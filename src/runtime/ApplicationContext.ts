@@ -234,7 +234,7 @@ export class ApplicationContext {
       }
     }
 
-    const agent = new MemberAgent(spec, llm, loop, sReg, { agentRegistry: this.agents, episodeLearner: this.episodeLearner })
+    const agent = new MemberAgent(spec, llm, loop, sReg, { agentRegistry: this.agents, episodeLearner: this.episodeLearner, strictSkillIntegrity: config.security?.strictSkillIntegrity })
     const metricsCollector = new MetricsCollector(join(process.cwd(), '.agenthood', 'metrics'))
     const startTime = performance.now()
 

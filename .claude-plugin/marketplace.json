@@ -5,13 +5,13 @@
     "email": "inbox@flabs.tech"
   },
   "metadata": {
-    "description": "The Agenthood Society — 19 specialized agent skills for the full software engineering lifecycle: architecture, TDD, implementation, debugging, code review, security audit, commit messages, changelogs, documentation, institutional knowledge, cross-provider validation, drift detection, code smell enforcement, context stewardship, message delivery, visual inspection, runtime operations, goal refinement, and release management.",
+    "description": "The Agenthood Society — 20 specialized agent skills for the full software engineering lifecycle: architecture, TDD, implementation, debugging, code review, security audit, commit messages, changelogs, documentation, institutional knowledge, cross-provider validation, drift detection, code smell enforcement, context stewardship, first-in-line intent routing, message delivery, visual inspection, runtime operations, goal refinement, and release management.",
     "version": "3.13.6"
   },
   "plugins": [
     {
       "name": "agenthood-all",
-      "description": "All 19 Agenthood members — every skill for every stage of the engineering lifecycle. Architecture, TDD, implementation, debugging, code review, security audit, commit messages and PR descriptions, changelogs, documentation, institutional knowledge, cross-provider translation, structural drift detection, code smell enforcement, context management, message delivery, visual inspection, goal refinement, runtime operations, and release management.",
+      "description": "All 20 Agenthood members — every skill for every stage of the engineering lifecycle. Architecture, TDD, implementation, debugging, code review, security audit, commit messages and PR descriptions, changelogs, documentation, institutional knowledge, cross-provider translation, structural drift detection, code smell enforcement, context management, first-in-line intent routing, message delivery, visual inspection, goal refinement, runtime operations, and release management.",
       "source": "./",
       "strict": false,
       "skills": [
@@ -32,6 +32,7 @@
         "./skills/the-envoy",
         "./skills/the-steward",
         "./skills/the-builder",
+        "./skills/the-mediator",
         "./skills/the-mailman",
         "./skills/the-inspector"
       ]

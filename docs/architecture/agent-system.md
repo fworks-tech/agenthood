@@ -74,6 +74,7 @@ implemented in [`src/members/MemberRegistry.ts`](../src/members/MemberRegistry.t
 | The Warden | restricted | file.read, file.search, code.explain |
 | The Strategist | restricted | file.read, file.search, code.explain |
 | The Steward | restricted | file.read, file.search, code.explain |
+| The Mediator | restricted | file.read, file.search, code.explain |
 | The Operator | restricted | file.read, file.search, code.explain |
 | The Mailman | standard | file.write, code.write, code.refactor |
 | The Inspector | standard | file.write, code.write, code.refactor |

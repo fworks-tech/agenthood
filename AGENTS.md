@@ -57,6 +57,7 @@ Load skills from `skills/` to activate specialized agents:
 - `the-sentinel` — Society document integrity, cross-member contradiction detection, structural drift
 - `the-warden` — code smell detection, complexity enforcement, architectural boundary violations
 - `the-steward` — context economy, member routing, provider cache strategy, session triage
+- `the-mediator` — first-in-line intent routing, handoff sequencing
 - `the-operator` — runtime health, deployment, incidents, rollback, monitoring
 - `the-strategist` — goal refinement, requirement discovery, ambiguity resolution
 - `the-mailman` — message delivery, content scheduling, notification dispatch, cross-posting

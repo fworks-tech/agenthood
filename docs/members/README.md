@@ -23,6 +23,7 @@ Each has a skill file that your agent runtime loads to activate them.
 | [The Sentinel](../../skills/the-sentinel/SKILL.md) | *The Society cannot enforce standards it no longer understands.* | `skills/the-sentinel/SKILL.md` |
 | [The Warden](../../skills/the-warden/SKILL.md) | *The chaos does not arrive all at once. I am here for the accumulation.* | `skills/the-warden/SKILL.md` |
 | [The Strategist](../../skills/the-strategist/SKILL.md) | *The right solution starts with the right problem.* | `skills/the-strategist/SKILL.md` |
+| [The Mediator](../../skills/the-mediator/SKILL.md) | *First in line — intent routing* | `skills/the-mediator/SKILL.md` |
 | [The Operator](../../skills/the-operator/SKILL.md) | *Health is not a goal; it is a practice.* | `skills/the-operator/SKILL.md` |
 | [The Steward](../../skills/the-steward/SKILL.md) | *I was born from the situation I exist to prevent.* | `skills/the-steward/SKILL.md` |
 | [The Inspector](../../skills/the-inspector/SKILL.md) | *Every pixel accounted for. Every boundary crossed with intent.* | `skills/the-inspector/SKILL.md` |

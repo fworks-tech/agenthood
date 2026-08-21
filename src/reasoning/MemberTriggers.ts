@@ -122,6 +122,13 @@ export const MEMBER_TRIGGERS: MemberTrigger[] = [
     stages: [],
   },
   {
+    name: 'the-mediator',
+    keywords: ['classify', 'route', 'triage', 'intake', 'handoff', 'orchestrate', 'first in line'],
+    filePatterns: [],
+    contexts: ['session_start', 'prompt_received', 'ambiguous_request', 'handoff_needed'],
+    stages: ['spec'],
+  },
+  {
     name: 'the-operator',
     keywords: ['rollback', 'deploy', 'incident', 'runtime health', 'monitor', 'drift', 'lockfile', 'verify', 'unhealthy'],
     filePatterns: ['docs/members/**/*.md', 'skills/**/*.md', 'agenthood.lock'],

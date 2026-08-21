@@ -44,7 +44,7 @@ export const rawSpecs: RawSpec[] = [
     category: 'engineering',
     permissionProfile: 'standard',
     preferredProvider: 'anthropic',
-    ownedDecisions: ['Smallest verified change', 'Local validation', 'Handoff'],
+    ownedDecisions: ['Smallest verified change', 'Local validation', 'Handover'],
   },
   {
     name: 'the-reviewer',
@@ -171,6 +171,15 @@ export const rawSpecs: RawSpec[] = [
     permissionProfile: 'restricted',
     preferredProvider: 'anthropic',
     ownedDecisions: ['Deployment', 'Incidents', 'Rollback', 'Monitoring'],
+  },
+  {
+    name: 'the-mediator',
+    description: 'Listens to user prompts first, classifies intent, and hands off to the right specialist',
+    tagline: 'First in line — intent routing',
+    category: 'lifecycle',
+    permissionProfile: 'restricted',
+    preferredProvider: 'anthropic',
+    ownedDecisions: ['Intake', 'Intent classification', 'Handoff sequencing', 'Orchestration entry'],
   },
   {
     name: 'the-mailman',

@@ -136,6 +136,14 @@
 
 ## Lifecycle
 
+### The Mediator
+
+> *First in line — intent routing.*
+
+**Specialty:** Intent classification, first-line handoff, orchestration entry
+**Tools:** `read_file`, `write_file`, `search_codebase`, `explain_code`
+**Runtime:** `npx agenthood run the-mediator "classify this request and route it to the right member"`
+
 ### The Herald
 
 > *Announces with ceremony. Ships with precision.*
@@ -198,7 +206,7 @@ npx agenthood run the-scribe "sync PR #42"
 ## Related
 
 - [Getting Started](getting-started.md) — install and first workflow
-- [Utility Skills](utility-skills.md) — specialist skills beyond the 19 members
+- [Utility Skills](utility-skills.md) — specialist skills beyond the 20 members
 - [Built-in Tools](../architecture/built-in-tools.md) — canonical tool registry with scoping
 - [Online docs](https://agenthood.flabs.tech/) — hosted documentation site
 

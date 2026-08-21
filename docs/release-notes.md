@@ -5,6 +5,14 @@
 
 ---
 
+## v3.37.1 — August 21, 2026
+
+### 🐛 Bug Fixes
+
+- **Core:** clean up MemberAgent delegation smell and sanitize the-mailman (#469)
+
+---
+
 ## v3.37.0 — August 20, 2026
 
 ### ✨ Features

@@ -1,3 +1,10 @@
+## [3.37.1](https://github.com/fworks-tech/agenthood/compare/v3.37.0...v3.37.1) (2026-08-21)
+
+
+### Bug Fixes
+
+* **core:** clean up MemberAgent delegation smell and sanitize the-mailman ([#469](https://github.com/fworks-tech/agenthood/issues/469)) ([1a209ae](https://github.com/fworks-tech/agenthood/commit/1a209aebd3cb854bff9af876980d39663bbceeab))
+
 # [3.37.0](https://github.com/fworks-tech/agenthood/compare/v3.36.0...v3.37.0) (2026-08-20)
 
 

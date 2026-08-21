@@ -19,6 +19,11 @@ const __dirname = dirname(__filename)
 const SOCIETY_ROOT = join(__dirname, '..', '..')
 const MEMBERS_DIR = join(SOCIETY_ROOT, 'skills')
 
+const SHARED_STYLE_PATH = join(MEMBERS_DIR, '_shared', 'CONVERSATIONAL-STYLE.md')
+export const sharedConversationalStyle = existsSync(SHARED_STYLE_PATH)
+  ? readFileSync(SHARED_STYLE_PATH, 'utf-8').trim()
+  : ''
+
 export class MemberNotFoundError extends Error {
   constructor(name: string) {
     super(`Member not found: "${name}"`)

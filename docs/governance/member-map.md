@@ -32,9 +32,9 @@ A RACI (Responsible / Accountable / Consulted / Informed) matrix documenting all
 | **The Envoy** | Provider translation | Skill format mapping, Bootstrap, Skill matrix | Oracle (template spec), Sentinel (consistency) | All | Steward |
 | **The Sentinel** | Society integrity | Member consistency, contradiction detection, drift | Oracle (template), Warden (code quality) | All | Steward |
 | **The Warden** | Code health | Smell identification, Architectural decay, Complexity | Sentinel (member structure), Auditor (security) | Reviewer, Architect | Sentinel |
-| **The Steward** | Context economy | Member routing, cache strategy, session triage | Envoy (provider limits), Oracle (member load) | All | — |
+| **The Steward** | Context economy | Load routing, cache strategy, session triage | Envoy (provider limits), Oracle (member load) | All | — |
 | **The Strategist** | Requirement discovery | Problem statements, Success measures, Ranked priorities | Oracle (prior art), Architect (feasibility) | Architect, Herald | — |
-| *The Mediator* | Workflow orchestration | Sequencing, handoffs, conflict resolution | Steward (member routing), Architect (task structure) | All | Steward |
+| *The Mediator* | Workflow orchestration | Sequencing, handoffs, conflict resolution | Steward (load routing), Architect (task structure) | All | Steward |
 | **The Operator** | Runtime health | Deployment, incidents, rollback, monitoring | Debugger (failures), Herald (releases) | All | — |
 | **The Inspector** | Visual-reasoning benchmarking | Pixel-level analysis, Multi-panel correspondence | Tester (benchmark design), Oracle (naming conventions) | Reviewer, Sentinel | Steward |
 

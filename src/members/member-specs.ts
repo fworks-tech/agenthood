@@ -156,12 +156,12 @@ export const rawSpecs: RawSpec[] = [
   },
   {
     name: 'the-steward',
-    description: 'Monitors context window capacity, routes tasks to the minimal required member set',
-    tagline: 'Context and routing',
+    description: 'Monitors context window capacity and routes member loads to the minimal required set',
+    tagline: 'Context economy and load routing',
     category: 'lifecycle',
     permissionProfile: 'restricted',
     preferredProvider: 'groq',
-    ownedDecisions: ['Member routing', 'Cache strategy', 'Session triage'],
+    ownedDecisions: ['Load routing', 'Cache strategy', 'Session triage'],
   },
   {
     name: 'the-operator',

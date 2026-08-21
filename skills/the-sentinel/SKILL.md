@@ -123,7 +123,7 @@ decision token between two members.
 | The Envoy | Provider translation | Skill format mapping, bootstrap, skill matrix |
 | The Sentinel | Society integrity | Member consistency, contradiction detection, drift |
 | The Warden | Code health | Smell identification, architectural decay, complexity |
-| The Steward | Context economy | Member routing, cache strategy, session triage |
+| The Steward | Context economy | Load routing, cache strategy, session triage |
 | The Operator | Runtime health | Deployment, incidents, rollback, monitoring |
 | The Inspector | Visual verification | Pixel-level analysis, multi-panel correspondence |
 | The Mailman | Delivery | Message dispatch, content scheduling, cross-posting |

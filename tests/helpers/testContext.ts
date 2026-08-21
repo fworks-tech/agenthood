@@ -3,6 +3,7 @@ import type { ExecutionContext } from '../../src/core/ExecutionContext.ts'
 import type { ProvenanceEntry } from '../../src/memory/ProvenanceStore.ts'
 import { Tracer } from '../../src/core/Tracer.ts'
 import { RedactionFilter } from '../../src/core/RedactionFilter.ts'
+import { RunEventBus } from '../../src/core/RunEventBus.ts'
 
 export function createTestContext(overrides?: Partial<ExecutionContext>): ExecutionContext {
   return {
@@ -71,6 +72,7 @@ export function createTestContext(overrides?: Partial<ExecutionContext>): Execut
     // disabled redactor matches production context shape while no-op'ing
     redactor: new RedactionFilter({ enabled: false }),
     tracer: new Tracer(),
+    events: new RunEventBus(),
     artifacts: [],
     ...overrides,
   }

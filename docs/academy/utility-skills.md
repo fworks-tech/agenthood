@@ -1,6 +1,6 @@
 # Utility Skills
 
-> *Beyond the Society's 19 members: specialist skills for tasks no member owns.*
+> *Beyond the Society's 20 members: specialist skills for tasks no member owns.*
 
 The [Skills Reference](skills-reference.md) documents the Society members — the 19 roles the runtime can invoke with `npx agenthood run`. This page documents the utility skills: specialist capability files that any agent runtime loads from `skills/`, ported from the GitHub Copilot customization library and the deepagents project. They have no runtime invocation (they are not registered members) — they activate when their `description` matches the task at hand.
 
@@ -138,7 +138,7 @@ The [Skills Reference](skills-reference.md) documents the Society members — th
 
 ## Related
 
-- [Skills Reference](skills-reference.md) — the 19 Society members and their invocation
+- [Skills Reference](skills-reference.md) — the 20 Society members and their invocation
 - [Built-in Tools](../architecture/built-in-tools.md) — canonical tool registry with scoping
 - [Getting Started](getting-started.md) — install and first workflow
 

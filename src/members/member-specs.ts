@@ -44,7 +44,7 @@ export const rawSpecs: RawSpec[] = [
     category: 'engineering',
     permissionProfile: 'standard',
     preferredProvider: 'anthropic',
-    ownedDecisions: ['Smallest verified change', 'Local validation', 'Handoff'],
+    ownedDecisions: ['Smallest verified change', 'Local validation', 'Handover'],
   },
   {
     name: 'the-reviewer',
@@ -156,12 +156,12 @@ export const rawSpecs: RawSpec[] = [
   },
   {
     name: 'the-steward',
-    description: 'Monitors context window capacity, routes tasks to the minimal required member set',
-    tagline: 'Context and routing',
+    description: 'Monitors context window capacity and routes member loads to the minimal required set',
+    tagline: 'Context economy and load routing',
     category: 'lifecycle',
     permissionProfile: 'restricted',
     preferredProvider: 'groq',
-    ownedDecisions: ['Member routing', 'Cache strategy', 'Session triage'],
+    ownedDecisions: ['Load routing', 'Cache strategy', 'Session triage'],
   },
   {
     name: 'the-operator',
@@ -171,6 +171,15 @@ export const rawSpecs: RawSpec[] = [
     permissionProfile: 'restricted',
     preferredProvider: 'anthropic',
     ownedDecisions: ['Deployment', 'Incidents', 'Rollback', 'Monitoring'],
+  },
+  {
+    name: 'the-mediator',
+    description: 'Listens to user prompts first, classifies intent, and hands off to the right specialist',
+    tagline: 'First in line — intent routing',
+    category: 'lifecycle',
+    permissionProfile: 'restricted',
+    preferredProvider: 'anthropic',
+    ownedDecisions: ['Intake', 'Intent classification', 'Handoff sequencing', 'Orchestration entry'],
   },
   {
     name: 'the-mailman',

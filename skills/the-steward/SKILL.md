@@ -43,9 +43,9 @@ Estimate current context usage by counting what is loaded:
 4. Report: "~X% used. Y tokens estimated remaining."
 5. Apply threshold actions (see Thresholds below)
 
-### Member Routing
+### Load Routing
 
-When a task arrives, determine the minimal member set:
+When a task arrives, determine the minimal member set to load:
 
 | Task type | Load these members |
 |-----------|-------------------|

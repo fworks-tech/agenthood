@@ -111,7 +111,7 @@ decision token between two members.
 | The Strategist | Goal refinement | Problem statements, success measures, ranked priorities |
 | The Scribe | Written communication | Commit messages, PR descriptions |
 | The Architect | Design & planning | Specs, ADRs, task decomposition, branch scope |
-| The Builder | Implementation | Smallest verified change, local validation, handoff |
+| The Builder | Implementation | Smallest verified change, local validation, handover |
 | The Reviewer | Code quality | Review criteria, approval gates |
 | The Tester | Test coverage | TDD process, coverage targets, test types |
 | The Debugger | Error recovery | Root cause protocol, investigation steps |
@@ -123,7 +123,8 @@ decision token between two members.
 | The Envoy | Provider translation | Skill format mapping, bootstrap, skill matrix |
 | The Sentinel | Society integrity | Member consistency, contradiction detection, drift |
 | The Warden | Code health | Smell identification, architectural decay, complexity |
-| The Steward | Context economy | Member routing, cache strategy, session triage |
+| The Steward | Context economy | Load routing, cache strategy, session triage |
+| The Mediator | Workflow orchestration | Intake, Intent classification, Handoff sequencing, Orchestration entry |
 | The Operator | Runtime health | Deployment, incidents, rollback, monitoring |
 | The Inspector | Visual verification | Pixel-level analysis, multi-panel correspondence |
 | The Mailman | Delivery | Message dispatch, content scheduling, cross-posting |

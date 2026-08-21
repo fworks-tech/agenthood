@@ -51,6 +51,7 @@ Every role a real software team needs — available as a skill file with impecca
 | 👁️ | [The Sentinel](skills/the-sentinel/SKILL.md) | Integrity, cross-member contradiction detection |
 | ⚖️ | [The Warden](skills/the-warden/SKILL.md) | Code health, complexity enforcement |
 | 🧭 | [The Steward](skills/the-steward/SKILL.md) | Context economy, provider cache strategies |
+| 🚦 | [The Mediator](skills/the-mediator/SKILL.md) | First-in-line intent routing, handoff sequencing |
 | 🎯 | [The Strategist](skills/the-strategist/SKILL.md) | Goal refinement, requirement discovery |
 | 🩺 | [The Operator](skills/the-operator/SKILL.md) | Runtime health, deployments, rollback |
 | 👁️ | [The Inspector](skills/the-inspector/SKILL.md) | Visual-reasoning benchmarking, pixel analysis |
@@ -111,7 +112,7 @@ For a full walkthrough — install, commands, CI pipeline, and next steps — se
 See the [CHANGELOG.md](CHANGELOG.md) for the full version history.
 
 ### Playground (agenthood-site)
-[**Agenthood Studio**](https://agenthood.flabs.tech/studio/playground) — a browser-based chat interface for all 19 Society members. Features configurable provider backend (Anthropic, OpenAI, Groq, Ollama, OpenCode), SSE streaming, turnstile CAPTCHA, session-scoped config persistence, Upstash Redis rate limiting, and structured logging with field-level redaction. [Source](https://github.com/fworks-tech/agenthood-site)
+[**Agenthood Studio**](https://agenthood.flabs.tech/studio/playground) — a browser-based chat interface for all 20 Society members. Features configurable provider backend (Anthropic, OpenAI, Groq, Ollama, OpenCode), SSE streaming, turnstile CAPTCHA, session-scoped config persistence, Upstash Redis rate limiting, and structured logging with field-level redaction. [Source](https://github.com/fworks-tech/agenthood-site)
 
 ---
 

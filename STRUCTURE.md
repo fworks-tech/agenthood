@@ -28,7 +28,8 @@ agenthood/
 │   ├── the-envoy/
 │   ├── the-sentinel/
 │   ├── the-warden/
-│   └── the-steward/
+│   ├── the-steward/
+│   └── the-mediator/
 │
 ├── docs/rituals/                         ← Scheduled automations
 │   ├── morning-briefing.md

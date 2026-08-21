@@ -6,6 +6,7 @@ import type { ExecutionContext } from '../core/ExecutionContext.ts'
 import { createRedactionFilterFromConfig, RedactionFilter } from '../core/RedactionFilter.ts'
 import { AnomalyDetector, createAnomalyConfigFromConfig } from '../core/AnomalyDetector.ts'
 import { Tracer } from '../core/Tracer.ts'
+import { RunEventBus } from '../core/RunEventBus.ts'
 import {
   JSONFileTraceStore,
   RetentionManager,
@@ -60,6 +61,8 @@ export class ApplicationContext {
   readonly members: MemberRegistry
   readonly llm: ILLMProvider
   readonly runner: MemberRunner
+  /** Execution event feed external hosts subscribe to (atlaslink) */
+  readonly events: RunEventBus
   private retentionManager?: RetentionManager
   private readonly episodeLearner: EpisodeLearner
   private readonly anomalyDetector: AnomalyDetector
@@ -98,6 +101,8 @@ export class ApplicationContext {
       this.retentionManager.start()
     }
 
+    this.events = new RunEventBus()
+
     this.ctx = {
       executionId: randomUUID(),
       project: {
@@ -108,6 +113,7 @@ export class ApplicationContext {
       llm,
       prompts: new PromptBuilder(new PromptRegistry()),
       tracer: new Tracer(1000, traceStore, 5000, redactor),
+      events: this.events,
       artifacts: [],
       oracle: { ask: (q: string) => oracleAgent.ask(q, this.ctx) },
       skillsCatalog: skills.catalog || undefined,

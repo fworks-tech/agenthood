@@ -19,7 +19,7 @@ A RACI (Responsible / Accountable / Consulted / Informed) matrix documenting all
 |--------|------|-----------------|---------|--------|-------------|
 | **The Scribe** | Written communication | Commit messages, PR descriptions | Reviewer (what changed), Herald (version context) | Tester, Doorman | Architect |
 | **The Architect** | Design & planning | Specs, ADRs, task decomposition, branch scope | Oracle (prior art), Strategist (requirements) | Tester, Reviewer, Scribe | Strategist |
-| **The Builder** | Implementation | Smallest verified change, local validation, handoff | Architect (spec), Tester (test contract) | Reviewer, Scribe | Architect |
+| **The Builder** | Implementation | Smallest verified change, local validation, handover | Architect (spec), Tester (test contract) | Reviewer, Scribe | Architect |
 | **The Reviewer** | Code quality | Review criteria, Approval gates | Tester (test results), Auditor (security findings) | Scribe, Architect | Auditor |
 | **The Tester** | Test coverage | TDD process, coverage targets, test types | Architect (spec), Reviewer (areas changed) | Debugger, Scribe | Architect |
 | **The Debugger** | Error recovery | Root cause protocol, investigation steps | Tester (failing tests), Reviewer (recent changes) | Auditor, Scribe | Operator |
@@ -32,13 +32,13 @@ A RACI (Responsible / Accountable / Consulted / Informed) matrix documenting all
 | **The Envoy** | Provider translation | Skill format mapping, Bootstrap, Skill matrix | Oracle (template spec), Sentinel (consistency) | All | Steward |
 | **The Sentinel** | Society integrity | Member consistency, contradiction detection, drift | Oracle (template), Warden (code quality) | All | Steward |
 | **The Warden** | Code health | Smell identification, Architectural decay, Complexity | Sentinel (member structure), Auditor (security) | Reviewer, Architect | Sentinel |
-| **The Steward** | Context economy | Member routing, cache strategy, session triage | Envoy (provider limits), Oracle (member load) | All | — |
+| **The Steward** | Context economy | Load routing, cache strategy, session triage | Envoy (provider limits), Oracle (member load) | All | — |
 | **The Strategist** | Requirement discovery | Problem statements, Success measures, Ranked priorities | Oracle (prior art), Architect (feasibility) | Architect, Herald | — |
-| *The Mediator* | Workflow orchestration | Sequencing, handoffs, conflict resolution | Steward (member routing), Architect (task structure) | All | Steward |
+| **The Mediator** | Workflow orchestration / first-in-line | Intake, Intent classification, Handoff sequencing, Orchestration entry | Steward (load routing), Architect (task structure) | All | Steward |
 | **The Operator** | Runtime health | Deployment, incidents, rollback, monitoring | Debugger (failures), Herald (releases) | All | — |
 | **The Inspector** | Visual-reasoning benchmarking | Pixel-level analysis, Multi-panel correspondence | Tester (benchmark design), Oracle (naming conventions) | Reviewer, Sentinel | Steward |
 
-*Italic rows = planned but not yet shipped. Strategist and Operator shipped in M7 (PR #288). Inspector shipped in M8.*
+*All members are shipped. Strategist and Operator shipped in M7 (PR #288). Inspector shipped in M8. Mediator shipped as first-in-line intent routing.*
 
 ## Lane Boundaries
 

@@ -13,6 +13,7 @@ import type { AgentRegistry } from '../core/AgentRegistry.ts'
 import type { EpisodeLearner } from '../evals/EpisodeLearner.ts'
 import { ReActLoop } from '../reasoning/ReActLoop.ts'
 import { ToolRegistry } from '../tools/ToolRegistry.ts'
+import { redactEventText } from '../core/RunEventBus.ts'
 
 export interface MemberRunnerDeps {
   agents: AgentRegistry
@@ -70,15 +71,44 @@ export class MemberRunner {
     const agent = new MemberAgent(spec, llm, loop, sReg, { agentRegistry: this.deps.agents, episodeLearner: this.deps.episodeLearner, strictSkillIntegrity: config.security?.strictSkillIntegrity })
     const metricsCollector = new MetricsCollector(join(process.cwd(), '.agenthood', 'metrics'))
     const startTime = performance.now()
+    const timestamp = new Date().toISOString()
+    const events = this.ctx.events
 
     try {
+      events.emit({
+        type: 'run.started',
+        executionId: this.ctx.executionId,
+        member: spec.name,
+        correlationId: this.ctx.correlationId,
+        timestamp,
+        task: redactEventText(this.ctx, task),
+      })
+
       const result = await agent.run(task, this.ctx)
       const duration = Math.round(performance.now() - startTime)
       metricsCollector.record(memberName, true, duration)
+      events.emit({
+        type: 'run.finished',
+        executionId: this.ctx.executionId,
+        member: spec.name,
+        correlationId: this.ctx.correlationId,
+        timestamp: new Date().toISOString(),
+        output: redactEventText(this.ctx, result.output),
+        durationMs: duration,
+      })
       return { output: result.output, durationMs: duration }
     } catch (err) {
       const duration = Math.round(performance.now() - startTime)
       metricsCollector.record(memberName, false, duration)
+      events.emit({
+        type: 'run.failed',
+        executionId: this.ctx.executionId,
+        member: spec.name,
+        correlationId: this.ctx.correlationId,
+        timestamp: new Date().toISOString(),
+        error: redactEventText(this.ctx, err instanceof Error ? err.message : String(err)),
+        durationMs: duration,
+      })
       throw err
     } finally {
       await this.flushTraces()

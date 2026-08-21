@@ -2,6 +2,7 @@ import { randomUUID } from 'node:crypto'
 
 import type { ExecutionContext } from '../../core/ExecutionContext.ts'
 import type { EvalResult } from '../../core/types.ts'
+import type { ProvenanceEntry } from '../../memory/ProvenanceStore.ts'
 import { reportErrorToSentry, reportBackgroundFailure } from '../../core/sentryReporter.ts'
 import type { EpisodeLearner } from '../../evals/EpisodeLearner.ts'
 import type { ResidualMemory } from '../../memory/ResidualMemory.ts'
@@ -153,7 +154,24 @@ export class RunLifecycle {
 
     try {
       await this.recordDecision({ id, timestamp, safeInput, safeOutput, rationale, isSuccessful, context })
-      await this.trackRunProvenance({ id, timestamp, safeInput, isSuccessful, context })
+      context.events.emit({
+        type: 'decision.recorded',
+        executionId: context.executionId,
+        member: this.getRole(),
+        correlationId: context.correlationId,
+        timestamp,
+        decisionId: id,
+        outcome: isSuccessful ? 'completed' : 'failed',
+      })
+      const provenance = await this.trackRunProvenance({ id, timestamp, safeInput, isSuccessful, context })
+      context.events.emit({
+        type: 'provenance.recorded',
+        executionId: context.executionId,
+        member: this.getRole(),
+        correlationId: context.correlationId,
+        timestamp,
+        checksum: provenance?.checksum ?? '',
+      })
     } catch (err) {
       await reportBackgroundFailure(err, context, 'decision/provenance recording failed', this.report)
     }
@@ -175,8 +193,8 @@ export class RunLifecycle {
     })
   }
 
-  private async trackRunProvenance(args: TrackRunProvenanceArgs): Promise<void> {
-    await args.context.memory.provenance.track({
+  private async trackRunProvenance(args: TrackRunProvenanceArgs): Promise<ProvenanceEntry | undefined> {
+    return args.context.memory.provenance.track({
       entityId: args.context.executionId,
       entityType: 'decision',
       activityId: `run:${this.getRole()}`,

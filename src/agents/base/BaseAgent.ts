@@ -45,6 +45,7 @@ export abstract class BaseAgent {
 
   async run(input: string, context: ExecutionContext): Promise<AgentResult> {
     return this.runWithExecutor(input, context, async (systemPrompt, task) => {
+      this.reasoningLoop.setMember?.(this.role);
       const output = await this.reasoningLoop.run(systemPrompt, task, context);
       return { output, model: this.reasoningLoop.model || undefined };
     })

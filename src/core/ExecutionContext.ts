@@ -1,6 +1,7 @@
 import type { ILLMProvider } from '../llm/ILLMProvider.ts'
 import type { Message } from '../llm/types.ts'
 import type { RedactionFilter } from './RedactionFilter.ts'
+import type { RunEventBus } from './RunEventBus.ts'
 import type { ProvenanceStore } from '../memory/ProvenanceStore.ts'
 import type {
   Project,
@@ -31,6 +32,8 @@ export interface ExecutionContext {
   llm: ILLMProvider
   prompts: { build(templateName: string, variables: Record<string, unknown>): Message }
   tracer: Tracer
+  /** Execution-lifecycle event feed external hosts (e.g. atlaslink) subscribe to */
+  events: RunEventBus
   artifacts: Artifact[]
   oracle?: { ask(question: string): Promise<string> }
   skillsCatalog?: string

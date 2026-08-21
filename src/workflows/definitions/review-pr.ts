@@ -2,6 +2,7 @@ import { DiffImpactAnalyzer } from '../DiffImpactAnalyzer.ts'
 import { QualityGates } from '../QualityGates.ts'
 import { WorkflowEngine } from '../WorkflowEngine.ts'
 import { Tracer } from '../../core/Tracer.ts'
+import { RunEventBus } from '../../core/RunEventBus.ts'
 import type { ExecutionContext } from '../../core/ExecutionContext.ts'
 import type { IProtocol } from '../protocols/IProtocol.ts'
 import type { WorkflowDefinition, WorkflowStep } from '../types.ts'
@@ -120,6 +121,7 @@ export async function executeReviewPrWorkflow(): Promise<string> {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     prompts: {} as any,
     tracer: new Tracer(),
+    events: new RunEventBus(),
     artifacts: [],
   }
 

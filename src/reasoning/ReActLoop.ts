@@ -6,6 +6,7 @@ import { ToolRegistry, ToolNotFoundError } from "../tools/ToolRegistry.ts"
 import type { ITool } from "../tools/ITool.ts"
 import { ThinkingBudget } from "./ThinkingBudget.ts"
 import { validateSchema, SchemaValidationError } from "../core/SchemaValidator.ts"
+import { redactEventText } from "../core/RunEventBus.ts"
 import { SKILL_ACTIVATION_PREFIX } from "../skills/activation/ActivateSkillTool.ts"
 
 export class ToolLoopDetectedError extends Error {
@@ -45,6 +46,17 @@ export class ReActLoop {
 
   setModel(model: string): void {
     this._model = model
+  }
+
+  private _member = ""
+
+  /** Member identity of the current run, stamped by the owning agent. */
+  get member(): string {
+    return this._member
+  }
+
+  setMember(member: string): void {
+    this._member = member
   }
 
   private readonly budget: ThinkingBudget
@@ -133,6 +145,17 @@ export class ReActLoop {
       toolCalls: response.toolCalls,
     });
 
+    context.events.emit({
+      type: "reasoning",
+      executionId: context.executionId,
+      member: this._member,
+      correlationId: context.correlationId,
+      timestamp: new Date().toISOString(),
+      step,
+      content: redactEventText(context, response.content),
+      model: response.model,
+    });
+
     return response
   }
 
@@ -153,7 +176,20 @@ export class ReActLoop {
       recentCalls.push(signature)
       if (recentCalls.length > this.loopWindow) recentCalls.shift()
 
+      context.events.emit({
+        type: "tool.called",
+        executionId: context.executionId,
+        member: this._member,
+        correlationId: context.correlationId,
+        timestamp: new Date().toISOString(),
+        step,
+        name: toolCall.name,
+        args: redactEventText(context, JSON.stringify(toolCall.args ?? {})),
+      });
+
+      const toolStart = performance.now()
       const result = await this.executeTool(toolCall, context);
+      const durationMs = Math.round(performance.now() - toolStart)
       const content = typeof result === 'string' ? result : JSON.stringify(result)
       if (content.startsWith(SKILL_ACTIVATION_PREFIX)) {
         const nameMatch = content.match(/<skill_content name="([^"]+)">/)
@@ -164,6 +200,18 @@ export class ReActLoop {
         content,
         tool_call_id: toolCall.id,
         name: toolCall.name,
+      });
+
+      context.events.emit({
+        type: "tool.result",
+        executionId: context.executionId,
+        member: this._member,
+        correlationId: context.correlationId,
+        timestamp: new Date().toISOString(),
+        step,
+        name: toolCall.name,
+        output: redactEventText(context, content),
+        durationMs,
       });
     }
   }

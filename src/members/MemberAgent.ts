@@ -45,13 +45,12 @@ export interface MemberAgentOptions {
   strictSkillIntegrity?: boolean
 }
 
-const warnedTools = new Set<string>()
-
 export class MemberAgent extends BaseAgent {
   role: string
   protected tools: ITool[]
   private agentRegistry?: AgentRegistry
   private readonly strictSkillIntegrity: boolean
+  private readonly warnedTools = new Set<string>()
 
   constructor(
     private spec: MemberSpec,
@@ -75,9 +74,7 @@ export class MemberAgent extends BaseAgent {
       this.addTool(toolName, tools, seen)
     }
 
-    if (this.addDelegationTool(tools, seen)) {
-      // delegation tool added successfully
-    }
+    this.addDelegationTool(tools, seen)
 
     // fail closed: members without instantiable tools get read-only access
     if (tools.length === 0) {
@@ -87,10 +84,10 @@ export class MemberAgent extends BaseAgent {
     return tools
   }
 
-  private addDelegationTool(tools: ITool[], seen: Set<string>): boolean {
+  private addDelegationTool(tools: ITool[], seen: Set<string>): void {
     // Guard clause 1: check if delegation is possible
     if (!this.agentRegistry || this.spec.canDelegate !== true || seen.has('delegate_task')) {
-      return false
+      return
     }
 
     // Guard clause 2: check permission profile
@@ -100,17 +97,15 @@ export class MemberAgent extends BaseAgent {
 
     // Guard clause 3: fail closed if no allowed roles
     if (allowedRoles.length === 0) {
-      return false
+      return
     }
 
     try {
       const tool = new SubagentTaskSkill(this.agentRegistry, { allowedRoles })
       tools.push(tool)
       seen.add(tool.name)
-      return true
     } catch (err) {
       console.warn(`[members] delegation tool unavailable for "${this.role}": ${err instanceof Error ? err.message : String(err)}`)
-      return false
     }
   }
 
@@ -120,10 +115,10 @@ export class MemberAgent extends BaseAgent {
       if (instance && !seen.has(instance.name)) {
         tools.push(instance)
         seen.add(instance.name)
-      } else if (!instance && !warnedTools.has(`${this.role}:${toolName}`)) {
+      } else if (!instance && !this.warnedTools.has(`${this.role}:${toolName}`)) {
         // surfaces spec drift: the member requests a tool the registry
         // advertises but TOOL_MAP cannot construct (once per role+name)
-        warnedTools.add(`${this.role}:${toolName}`)
+        this.warnedTools.add(`${this.role}:${toolName}`)
         console.warn(`[members] tool "${toolName}" requested by "${this.role}" has no implementation`)
       }
     } catch (err) {

@@ -5,6 +5,18 @@
 
 ---
 
+## v3.38.0 — August 21, 2026
+
+### 🐛 Bug Fixes
+
+- **Ci:** remove stray Githubfx gitlink that broke CI checkout (#483)
+
+### ✨ Features
+
+- **Members:** reframe steward load routing and add the-mediator (#482) #474
+
+---
+
 ## v3.37.1 — August 21, 2026
 
 ### 🐛 Bug Fixes

@@ -1,3 +1,15 @@
+# [3.38.0](https://github.com/fworks-tech/agenthood/compare/v3.37.1...v3.38.0) (2026-08-21)
+
+
+### Bug Fixes
+
+* **ci:** remove stray Githubfx gitlink that broke CI checkout ([#483](https://github.com/fworks-tech/agenthood/issues/483)) ([4e53cc8](https://github.com/fworks-tech/agenthood/commit/4e53cc8cb3c33ef5a4e7166162e9056a1207fb30))
+
+
+### Features
+
+* **members:** reframe steward load routing and add the-mediator ([#482](https://github.com/fworks-tech/agenthood/issues/482)) ([7c22904](https://github.com/fworks-tech/agenthood/commit/7c2290449d501021c5a61441d92f68e09db31a3b)), closes [#474](https://github.com/fworks-tech/agenthood/issues/474) [#474](https://github.com/fworks-tech/agenthood/issues/474)
+
 ## [3.37.1](https://github.com/fworks-tech/agenthood/compare/v3.37.0...v3.37.1) (2026-08-21)
 
 

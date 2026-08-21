@@ -7,6 +7,9 @@ dist/node_modules/
 .env
 *.local
 
+# Stray nested vercel-labs/fx clone — was committed as a gitlink with no .gitmodules and broke CI checkout
+/Githubfx/
+
 # Build output
 dist/
 

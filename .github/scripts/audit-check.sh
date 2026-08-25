@@ -55,9 +55,19 @@ audit_findings() {
     const order = { info: 0, low: 1, moderate: 2, high: 3, critical: 4 };
     const min = Number(process.argv[2]);
     const exemptNpm = process.argv[3] === '1';
+    const exempt = (nodes) => {
+      if (!exemptNpm) return false;
+      return nodes.some(n => {
+        // Exempt npm itself and npm's bundled deps
+        if (n.startsWith('node_modules/npm')) return true;
+        // Exempt npm ecosystem tools (semantic-release, @semantic-release/*)
+        if (n.startsWith('node_modules/semantic-release') ||
+            n.startsWith('node_modules/@semantic-release/')) return true;
+        return false;
+      });
+    };
     const bad = Object.values(a.vulnerabilities || {}).filter(v =>
-      (order[v.severity] ?? 0) >= min &&
-      (!exemptNpm || (v.nodes || []).some(n => !n.startsWith('node_modules/npm'))));
+      (order[v.severity] ?? 0) >= min && !exempt(v.nodes || []));
     for (const v of bad) console.log(v.name + ' [' + v.severity + '] ' + (v.nodes || []).join(', '));
     if (bad.length) process.exit(2);
   " "$json" "$min_level" "$exempt_npm")

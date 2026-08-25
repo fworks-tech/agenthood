@@ -95,7 +95,7 @@ export class ProviderChain implements ILLMProvider {
   }
 
   async stream(request: LLMRequest): Promise<AsyncGenerator<LLMChunk>> {
-    return this.withActiveProviders(async (provider, name) => {
+    return this.withActiveProviders(async (provider) => {
       const gen = await provider.stream(request)
       const first = await gen.next()
       if (first.done) return emptyGenerator()

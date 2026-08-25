@@ -66,9 +66,13 @@ audit_findings() {
       n.startsWith('node_modules/@semantic-release/');
     // Report any advisory where at least one node is NOT exempt — a mixed-node
     // advisory (real project dep + npm bundled dep) must still fail the gate.
+    // A missing/empty node list is treated as non-exempt (fail closed: lack of
+    // data must not silently pass the gate).
+    // Note: when exemptNpm is false (--omit=dev pass), severity is the only
+    // filter — the !exemptNpm short-circuit keeps that pass unaffected.
     const bad = Object.values(a.vulnerabilities || {}).filter(v =>
       (order[v.severity] ?? 0) >= min &&
-      (!exemptNpm || (v.nodes || []).some(n => !isExemptNode(n))));
+      (!exemptNpm || !(v.nodes || []).length || (v.nodes || []).some(n => !isExemptNode(n))));
     for (const v of bad) console.log(v.name + ' [' + v.severity + '] ' + (v.nodes || []).join(', '));
     if (bad.length) process.exit(2);
   " "$json" "$min_level" "$exempt_npm")

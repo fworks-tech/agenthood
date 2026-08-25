@@ -23,7 +23,7 @@ import { ExplainCodeSkill } from '../tools/code/ExplainCodeSkill.ts'
 import { RefactorSkill } from '../tools/code/RefactorSkill.ts'
 import { PrSyncSkill } from '../tools/pr/PrSyncSkill.ts'
 import { SubagentTaskSkill } from '../tools/core/SubagentTaskSkill.ts'
-import { escapeXml, wrapProjectContext, loadProjectContext, wrapSkillsCatalog, SKILLS_CATALOG_GUARD } from '../agents/memberLore.ts'
+import { escapeXml, wrapProjectContext, loadProjectContext, wrapSkillsCatalog, SKILLS_CATALOG_GUARD, wrapSkillContent, SKILL_CONTENT_GUARD } from '../agents/memberLore.ts'
 import { checkSkillIntegrity, recordSkillIntegrityDrift, SkillIntegrityError } from '../utils/skillIntegrity.ts'
 import { sharedConversationalStyle } from './MemberRegistry.ts'
 import type { EpisodeLearner } from '../evals/EpisodeLearner.ts'
@@ -160,7 +160,7 @@ export class MemberAgent extends BaseAgent {
       '',
     ]
     if (this.spec.systemPrompt) {
-      parts.push(this.spec.systemPrompt)
+      parts.push(SKILL_CONTENT_GUARD, '', wrapSkillContent(this.spec.systemPrompt))
     }
     if (sharedConversationalStyle) {
       parts.push('', sharedConversationalStyle)

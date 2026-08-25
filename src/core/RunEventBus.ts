@@ -9,7 +9,7 @@ export interface RunEventBase {
 
 export type RunEvent =
   | (RunEventBase & { type: 'run.started'; task: string })
-  | (RunEventBase & { type: 'reasoning'; step: number; content: string; model?: string })
+  | (RunEventBase & { type: 'reasoning'; step: number; content: string; model?: string; promptTokens?: number; completionTokens?: number; stepCost?: number; contextWindow?: number; contextUtil?: number })
   | (RunEventBase & { type: 'tool.called'; step: number; name: string; args: unknown })
   | (RunEventBase & { type: 'tool.result'; step: number; name: string; output: string; durationMs: number })
   | (RunEventBase & { type: 'decision.recorded'; decisionId: string; outcome: string })

@@ -2,12 +2,15 @@ import type { ILLMProvider } from "../llm/ILLMProvider.ts"
 import type { ExecutionContext } from "../core/ExecutionContext.ts"
 import type { Message, TokenUsage, ToolCall, LLMResponse } from "../llm/types.ts"
 import { ContextCompressor } from "../core/ContextCompressor.ts"
+import { CostEstimator } from "../core/CostEstimator.ts"
 import { ToolRegistry, ToolNotFoundError } from "../tools/ToolRegistry.ts"
 import type { ITool } from "../tools/ITool.ts"
 import { ThinkingBudget } from "./ThinkingBudget.ts"
 import { validateSchema, SchemaValidationError } from "../core/SchemaValidator.ts"
 import { redactEventText } from "../core/RunEventBus.ts"
 import { SKILL_ACTIVATION_PREFIX } from "../skills/activation/ActivateSkillTool.ts"
+
+const costEstimator = new CostEstimator()
 
 export class ToolLoopDetectedError extends Error {
   constructor(toolName: string, count: number) {
@@ -136,14 +139,22 @@ export class ReActLoop {
 
     const response = await this.llm.complete(request);
     this._model = response.model || this._model;
-    this.usage.promptTokens += response.usage?.promptTokens ?? 0;
-    this.usage.completionTokens += response.usage?.completionTokens ?? 0;
+    const promptTokens = response.usage?.promptTokens ?? 0;
+    const completionTokens = response.usage?.completionTokens ?? 0;
+    this.usage.promptTokens += promptTokens;
+    this.usage.completionTokens += completionTokens;
     this.usage.totalTokens += response.usage?.totalTokens ?? 0;
     messages.push({
       role: "assistant",
       content: response.content,
       toolCalls: response.toolCalls,
     });
+
+    const stepCost = costEstimator.computeCost(this._model, promptTokens, completionTokens).estimatedCost
+    const reasoning = redactEventText(context, response.content)
+    console.info(`[step ${step}] ${this._model} · ${promptTokens}+${completionTokens} tok · $${stepCost} · ${reasoning}`)
+
+    const contextUtil = modelContextWindow > 0 ? Math.min(promptTokens / modelContextWindow, 1) : undefined
 
     context.events.emit({
       type: "reasoning",
@@ -152,8 +163,13 @@ export class ReActLoop {
       correlationId: context.correlationId,
       timestamp: new Date().toISOString(),
       step,
-      content: redactEventText(context, response.content),
+      content: reasoning,
       model: response.model,
+      promptTokens,
+      completionTokens,
+      stepCost,
+      contextWindow: modelContextWindow,
+      contextUtil,
     });
 
     return response

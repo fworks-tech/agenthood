@@ -33,6 +33,7 @@ export { classifyError, AllProvidersFailedError }
  */
 export class ProviderChain implements ILLMProvider {
   private circuitBreakers = new Map<string, CircuitBreakerState>()
+  private announcedPrimary = new Set<string>()
   private providerNames: string[]
   readonly modelMap: Map<string, string[]>
 
@@ -66,7 +67,7 @@ export class ProviderChain implements ILLMProvider {
         continue
       }
 
-      console.info(i === 0 ? `Using ${name} (primary)` : `${errors[errors.length - 1]?.split(':')[0] ?? 'previous'} failed, falling back to ${name}`)
+      this.announce(name, i === 0)
 
       try {
         const result = await this.executeWithStrategy(provider, request, i)
@@ -109,7 +110,7 @@ export class ProviderChain implements ILLMProvider {
         continue
       }
 
-      console.info(errors.length === 0 ? `Using ${name} (primary)` : `${errors[errors.length - 1]?.split(':')[0] ?? 'previous'} failed, falling back to ${name}`)
+      this.announce(name, errors.length === 0)
 
       const models = this.modelMap.get(name)
       const fallbackModels = models && models.length > 1 ? models.slice(1) : undefined
@@ -162,7 +163,7 @@ export class ProviderChain implements ILLMProvider {
     for (const provider of active) {
       const name = this.providerName(provider)
 
-      console.info(errors.length === 0 ? `Using ${name} (primary)` : `${errors[errors.length - 1]?.split(':')[0] ?? 'previous'} failed, falling back to ${name}`)
+      this.announce(name, errors.length === 0)
 
       const models = this.modelMap.get(name)
       const fallbackModels = models && models.length > 1 ? models.slice(1) : undefined
@@ -329,6 +330,21 @@ export class ProviderChain implements ILLMProvider {
     return idx >= 0 && idx < this.providerNames.length
       ? this.providerNames[idx]
       : provider.constructor.name.replace('Provider', '').toLowerCase()
+  }
+
+  /**
+   * Announces a provider transition exactly once. The "Using X (primary)"
+   * line is emitted a single time per chain instance; fallbacks stay
+   * per-call so operator logs show every hop without 20 identical lines.
+   */
+  private announce(name: string, isPrimary: boolean): void {
+    if (isPrimary) {
+      if (this.announcedPrimary.has(name)) return
+      this.announcedPrimary.add(name)
+      console.info(`Using ${name} (primary)`)
+      return
+    }
+    console.info(`${name} failed, falling back to next provider`)
   }
 
   private freshState(): CircuitBreakerState {

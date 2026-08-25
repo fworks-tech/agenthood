@@ -67,7 +67,7 @@ export class ProviderChain implements ILLMProvider {
         continue
       }
 
-      console.info(i === 0 ? `Using ${name} (primary)` : `${errors[errors.length - 1]?.split(':')[0] ?? 'previous'} failed, falling back to ${name}`)
+      this.announce(name, i === 0)
 
       try {
         const result = await this.executeWithStrategy(provider, request, i)

@@ -133,22 +133,7 @@ export class MemberAgent extends BaseAgent {
   }
 
   protected async getSystemPrompt(context: ExecutionContext): Promise<string> {
-    // injection-time persistence-vector check (ADR-020): the member SKILL.md is
-    // injected into the prompt, so surface drift from agenthood.lock now. Record
-    // the detection durably before deciding to warn or block, so a strict-mode
-    // abort still leaves an audit trail.
-    const status = checkSkillIntegrity(this.spec.name, this.spec.sourcePath)
-    if (status === 'drift' || status === 'corrupt') {
-      const reason = status === 'corrupt' ? 'corrupt' : 'drift'
-      await recordSkillIntegrityDrift(context, this.spec.name, reason)
-      if (this.strictSkillIntegrity) {
-        throw new SkillIntegrityError(this.spec.name, reason)
-      }
-      const detail = status === 'corrupt'
-        ? `agenthood.lock for "${this.spec.name}" is corrupt — verify the lockfile before running.`
-        : `SKILL.md for "${this.spec.name}" drifted from agenthood.lock — verify its content before running. Run \`agenthood verify --update-lock\` if the edit is intentional.`
-      console.warn(`[mind-virus] ${detail}`)
-    }
+    await this.verifySkillIntegrity(context)
 
     const projectContext = await loadProjectContext(context)
 
@@ -182,5 +167,24 @@ export class MemberAgent extends BaseAgent {
     }
 
     return parts.join('\n')
+  }
+
+  /**
+   * ADR-020 drift check: surfaces SKILL.md drift from agenthood.lock at
+   * injection time. Records detection durably before warning or blocking.
+   */
+  private async verifySkillIntegrity(context: ExecutionContext): Promise<void> {
+    const status = checkSkillIntegrity(this.spec.name, this.spec.sourcePath)
+    if (status !== 'drift' && status !== 'corrupt') return
+
+    const reason = status === 'corrupt' ? 'corrupt' : 'drift'
+    await recordSkillIntegrityDrift(context, this.spec.name, reason)
+    if (this.strictSkillIntegrity) {
+      throw new SkillIntegrityError(this.spec.name, reason)
+    }
+    const detail = status === 'corrupt'
+      ? `agenthood.lock for "${this.spec.name}" is corrupt — verify the lockfile before running.`
+      : `SKILL.md for "${this.spec.name}" drifted from agenthood.lock — verify its content before running. Run \`agenthood verify --update-lock\` if the edit is intentional.`
+    console.warn(`[mind-virus] ${detail}`)
   }
 }

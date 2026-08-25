@@ -150,11 +150,22 @@ export class ReActLoop {
       toolCalls: response.toolCalls,
     });
 
+    this.emitReasoningEvent(context, step, response, promptTokens, completionTokens, modelContextWindow);
+
+    return response
+  }
+
+  private emitReasoningEvent(
+    context: ExecutionContext,
+    step: number,
+    response: LLMResponse,
+    promptTokens: number,
+    completionTokens: number,
+    contextWindow: number,
+  ): void {
     const stepCost = costEstimator.computeCost(this._model, promptTokens, completionTokens).estimatedCost
     const reasoning = redactEventText(context, response.content)
     console.info(`[step ${step}] ${this._model} · ${promptTokens}+${completionTokens} tok · $${stepCost} · ${reasoning}`)
-
-    const contextUtil = modelContextWindow > 0 ? Math.min(promptTokens / modelContextWindow, 1) : undefined
 
     context.events.emit({
       type: "reasoning",
@@ -168,11 +179,9 @@ export class ReActLoop {
       promptTokens,
       completionTokens,
       stepCost,
-      contextWindow: modelContextWindow,
-      contextUtil,
+      contextWindow,
+      contextUtil: contextWindow > 0 ? Math.min(promptTokens / contextWindow, 1) : undefined,
     });
-
-    return response
   }
 
   private async runToolCalls(

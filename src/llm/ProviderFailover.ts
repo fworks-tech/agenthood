@@ -67,7 +67,7 @@ export class ProviderChain implements ILLMProvider {
         continue
       }
 
-      this.announce(name, i === 0)
+      console.info(i === 0 ? `Using ${name} (primary)` : `${errors[errors.length - 1]?.split(':')[0] ?? 'previous'} failed, falling back to ${name}`)
 
       try {
         const result = await this.executeWithStrategy(provider, request, i)
@@ -95,6 +95,25 @@ export class ProviderChain implements ILLMProvider {
   }
 
   async stream(request: LLMRequest): Promise<AsyncGenerator<LLMChunk>> {
+    return this.withActiveProviders(async (provider, name) => {
+      const gen = await provider.stream(request)
+      const first = await gen.next()
+      if (first.done) return emptyGenerator()
+      return firstChunkGenerator(first.value, gen)
+    })
+  }
+
+  async embed(text: string): Promise<number[]> {
+    return this.withActiveProviders(async (provider) => provider.embed(text))
+  }
+
+  /**
+   * Shared failover loop for stream/embed. Iterates active providers,
+   * tries each with model fallbacks, and handles breaker tripping.
+   */
+  private async withActiveProviders<T>(
+    attempt: (provider: ILLMProvider, name: string) => Promise<T>,
+  ): Promise<T> {
     const errors: string[] = []
     const active = this.activeProviders()
 
@@ -106,76 +125,19 @@ export class ProviderChain implements ILLMProvider {
       const name = this.providerName(provider)
       const breaker = this.circuitBreakers.get(name)!
 
-      if (breaker.state === 'OPEN') {
-        continue
-      }
+      if (breaker.state === 'OPEN') continue
 
       this.announce(name, errors.length === 0)
 
-      const models = this.modelMap.get(name)
-      const fallbackModels = models && models.length > 1 ? models.slice(1) : undefined
+      const fallbackModels = this.modelMap.get(name)
+      const models = fallbackModels && fallbackModels.length > 1 ? fallbackModels.slice(1) : undefined
       let lastError: unknown
 
-      for (let attempt = 0; attempt <= (fallbackModels?.length ?? 0); attempt++) {
-        if (attempt > 0 && fallbackModels) {
-          provider.setModel(fallbackModels[attempt - 1])
-        }
+      for (let i = 0; i <= (models?.length ?? 0); i++) {
+        if (i > 0 && models) provider.setModel(models[i - 1])
 
         try {
-          const gen = await provider.stream(request)
-          const first = await gen.next()
-
-          if (first.done) {
-            this.onSuccess(name)
-            return emptyGenerator()
-          }
-
-          this.onSuccess(name)
-          return firstChunkGenerator(first.value, gen)
-        } catch (err) {
-          lastError = err
-          const classified = classifyError(err)
-          if (classified.permanent && classified.category !== 'model_not_found') break
-        }
-      }
-
-      if (lastError) {
-        const classified = classifyError(lastError)
-        const msg = lastError instanceof Error ? lastError.message : String(lastError)
-        errors.push(`${name}: ${msg}`)
-
-        if (classified.permanent) {
-          this.tripBreaker(name, Infinity)
-        } else if (classified.retryable) {
-          this.tripBreaker(name, classified.cooldownMs)
-        }
-      }
-    }
-
-    console.info('All providers exhausted')
-    throw new AllProvidersFailedError(errors)
-  }
-
-  async embed(text: string): Promise<number[]> {
-    const errors: string[] = []
-    const active = this.activeProviders()
-
-    for (const provider of active) {
-      const name = this.providerName(provider)
-
-      this.announce(name, errors.length === 0)
-
-      const models = this.modelMap.get(name)
-      const fallbackModels = models && models.length > 1 ? models.slice(1) : undefined
-      let lastError: unknown
-
-      for (let attempt = 0; attempt <= (fallbackModels?.length ?? 0); attempt++) {
-        if (attempt > 0 && fallbackModels) {
-          provider.setModel(fallbackModels[attempt - 1])
-        }
-
-        try {
-          const result = await provider.embed(text)
+          const result = await attempt(provider, name)
           this.onSuccess(name)
           return result
         } catch (err) {
@@ -186,20 +148,24 @@ export class ProviderChain implements ILLMProvider {
       }
 
       if (lastError) {
-        const classified = classifyError(lastError)
-        const msg = lastError instanceof Error ? lastError.message : String(lastError)
-        errors.push(`${name}: ${msg}`)
-
-        if (classified.permanent) {
-          this.tripBreaker(name, Infinity)
-        } else if (classified.retryable) {
-          this.tripBreaker(name, classified.cooldownMs)
-        }
+        this.recordProviderFailure(name, lastError, errors)
       }
     }
 
     console.info('All providers exhausted')
     throw new AllProvidersFailedError(errors)
+  }
+
+  private recordProviderFailure(name: string, err: unknown, errors: string[]): void {
+    const classified = classifyError(err)
+    const msg = err instanceof Error ? err.message : String(err)
+    errors.push(`${name}: ${msg}`)
+
+    if (classified.permanent) {
+      this.tripBreaker(name, Infinity)
+    } else if (classified.retryable) {
+      this.tripBreaker(name, classified.cooldownMs)
+    }
   }
 
   static buildChain(

@@ -91,6 +91,8 @@ export class SkillDiscovery {
     try {
       return statSync(fullPath)
     } catch (err) {
+      // dangling symlinks (statSync ENOENT) are an expected condition, not a defect
+      if ((err as NodeJS.ErrnoException).code === 'ENOENT') return undefined
       console.warn(`[SkillDiscovery] cannot stat ${fullPath}: ${(err as Error)?.message ?? err}`)
       return undefined
     }

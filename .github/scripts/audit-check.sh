@@ -30,9 +30,11 @@ audit_fail_on() {
   err_file=$(mktemp)
   err_file_target="$err_file"
   json=$(npm audit --json "$@" 2>"$err_file" || true)
-  err_file_target=""
   audit_output_check "$label" "$json" "$(<"$err_file")"
+  # clear the trap target only after the file is gone, so the EXIT trap can
+  # still clean it if audit_findings exits the script early
   rm -f "$err_file"
+  err_file_target=""
   audit_findings "$label" "$min_level" "$exempt_npm" "$json"
 }
 
@@ -52,40 +54,13 @@ audit_output_check() {
 
 audit_findings() {
   local label="$1" min_level="$2" exempt_npm="$3" json="$4"
-  local findings status
-  # guard the command substitution: under `set -e` a nonzero node exit (1 or 2)
-  # would abort the script before `status=$?` runs, leaving the ::error::
-  # branches below unreachable. `set +e` lets branch normalize the exit code.
+  local find findings status
+  # route the filter through the shared .mjs helper so the shell layer reduces
+  # to two branches. under `set -e` a nonzero node exit (1 or 2) would abort
+  # before `status=$?` runs, so guard with `set +e` and re-enable afterwards.
+  find="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)/audit-filter.mjs"
   set +e
-  findings=$(node -e "
-    const a = JSON.parse(process.argv[1]);
-    if (a.error) {
-      console.error('npm audit error:', a.error.code || '', a.error.summary || '');
-      process.exit(1);
-    }
-    const order = { info: 0, low: 1, moderate: 2, high: 3, critical: 4 };
-    const min = Number(process.argv[2]);
-    const exemptNpm = process.argv[3] === '1';
-    // An advisory node is exempt when it lives inside npm, npm's bundled deps,
-    // or the dev-only semantic-release toolchain (semantic-release and its
-    // @semantic-release/* plugins). Exact-path matching keeps the gate from
-    // silently exempting a sibling package like semantic-release-foo.
-    const isExemptNode = (n) =>
-      n === 'node_modules/npm' || n.startsWith('node_modules/npm/') ||
-      n === 'node_modules/semantic-release' || n.startsWith('node_modules/semantic-release/') ||
-      n.startsWith('node_modules/@semantic-release/');
-    // Report any advisory where at least one node is NOT exempt — a mixed-node
-    // advisory (real project dep + npm bundled dep) must still fail the gate.
-    // A missing/empty node list is treated as non-exempt (fail closed: lack of
-    // data must not silently pass the gate).
-    // Note: when exemptNpm is false (--omit=dev pass), severity is the only
-    // filter — the !exemptNpm short-circuit keeps that pass unaffected.
-    const bad = Object.values(a.vulnerabilities || {}).filter(v =>
-      (order[v.severity] ?? 0) >= min &&
-      (!exemptNpm || !(v.nodes || []).length || (v.nodes || []).some(n => !isExemptNode(n))));
-    for (const v of bad) console.log(v.name + ' [' + v.severity + '] ' + (v.nodes || []).join(', '));
-    if (bad.length) process.exit(2);
-  " "$json" "$min_level" "$exempt_npm")
+  findings=$(node "$find" "$json" "$min_level" "$exempt_npm")
   status=$?
   set -e
 

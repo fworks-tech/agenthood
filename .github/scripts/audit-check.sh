@@ -54,13 +54,13 @@ audit_output_check() {
 
 audit_findings() {
   local label="$1" min_level="$2" exempt_npm="$3" json="$4"
-  local find findings status
+  local filter findings status
   # route the filter through the shared .mjs helper so the shell layer reduces
   # to two branches. under `set -e` a nonzero node exit (1 or 2) would abort
   # before `status=$?` runs, so guard with `set +e` and re-enable afterwards.
-  find="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)/audit-filter.mjs"
+  filter="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)/audit-filter.mjs"
   set +e
-  findings=$(node "$find" "$json" "$min_level" "$exempt_npm")
+  findings=$(node "$filter" "$json" "$min_level" "$exempt_npm")
   status=$?
   set -e
 

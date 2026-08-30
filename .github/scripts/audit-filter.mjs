@@ -18,7 +18,16 @@
 // mixed advisory must never pass), and a missing/empty node list is treated as
 // non-exempt (fail closed: lack of data must not silently pass).
 
-const audit = JSON.parse(process.argv[2])
+let audit
+try {
+  audit = JSON.parse(process.argv[2])
+} catch {
+  // audit_output_check validates JSON first, so this is unreachable in
+  // normal CI flow; treat malformed input as an upstream error (exit 1)
+  // with a distinct message so the branch is not mislabeled as a vuln
+  console.error('npm audit error: malformed JSON')
+  process.exit(1)
+}
 const min = Number(process.argv[3])
 const exemptNpm = process.argv[4] === '1'
 

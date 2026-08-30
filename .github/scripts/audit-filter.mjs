@@ -21,11 +21,18 @@
 let audit
 try {
   audit = JSON.parse(process.argv[2])
-  if (audit === null || typeof audit !== 'object') throw new SyntaxError('not an object')
+  if (audit === null || typeof audit !== 'object' || Array.isArray(audit)) throw new SyntaxError('not an object')
+  if (
+    audit.vulnerabilities !== undefined &&
+    (audit.vulnerabilities === null ||
+      typeof audit.vulnerabilities !== 'object' ||
+      Array.isArray(audit.vulnerabilities))
+  )
+    throw new SyntaxError('bad vulnerabilities')
 } catch {
   // audit_output_check validates JSON first, so this is unreachable in
-  // normal CI flow; treat malformed or primitive input as an upstream
-  // error (exit 1) with a distinct message so the branch is not
+  // normal CI flow; treat malformed, primitive, or array input as an
+  // upstream error (exit 1) with a distinct message so the branch is not
   // mislabeled as a vuln
   console.error('npm audit error: malformed JSON')
   process.exit(1)

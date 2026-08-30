@@ -44,6 +44,10 @@ const TOOL_MAP: Record<string, new (...args: never[]) => ITool> = {
 // GitHub and is reserved for the 'trusted' profile alone.
 const WRITE_TOOLS = new Set(['file.write', 'code.write', 'code.refactor'])
 const TRUSTED_TOOLS = new Set(['pr_sync'])
+// Read-only tools are safe for every profile. Anything not classified below is
+// denied — a future tool that touches state but is NOT added to WRITE_TOOLS /
+// TRUSTED_TOOLS fails closed (never silently granted to restricted members).
+const READ_ONLY_TOOLS = new Set(['file.read', 'file.search', 'code.explain'])
 
 export interface MemberAgentOptions {
   agentRegistry?: AgentRegistry
@@ -78,7 +82,16 @@ export class MemberAgent extends BaseAgent {
     const seen = new Set<string>()
 
     for (const toolName of this.spec.tools) {
-      if (!this.isToolPermitted(toolName)) continue
+      if (!this.isToolPermitted(toolName)) {
+        // surfaces spec/profile drift: the member requested a tool its
+        // permission profile does not authorize (once per role+name)
+        const key = `${this.role}:${toolName}`
+        if (!this.warnedTools.has(key)) {
+          this.warnedTools.add(key)
+          console.warn(`[members] tool "${toolName}" denied for "${this.role}" by permission profile`)
+        }
+        continue
+      }
       this.addTool(toolName, tools, seen)
     }
 
@@ -92,11 +105,17 @@ export class MemberAgent extends BaseAgent {
     return tools
   }
 
-  /** Denies a member a tool its permission profile does not authorize. */
+  /**
+   * Denies a member a tool its permission profile does not authorize.
+   * Fail-closed: a tool not classified as read-only, write, or trusted is
+   * denied for every profile, so an unclassified state-touching tool can
+   * never leak to a restricted member.
+   */
   private isToolPermitted(toolName: string): boolean {
     if (WRITE_TOOLS.has(toolName)) return this.spec.permissionProfile === 'standard' || this.spec.permissionProfile === 'trusted'
     if (TRUSTED_TOOLS.has(toolName)) return this.spec.permissionProfile === 'trusted'
-    return true
+    if (READ_ONLY_TOOLS.has(toolName)) return true
+    return false
   }
 
   private addDelegationTool(tools: ITool[], seen: Set<string>): void {

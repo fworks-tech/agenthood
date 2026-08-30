@@ -142,13 +142,20 @@ Before confirming the task is done:
 
 **Step 5 — Registration checklist**
 
-When a new member is added, update all of these:
+When a new member is added, update all of these (canonical list — see `skills/the-oracle/SKILL.md` Step 5 if this drifts):
 
 | File | Change |
 |------|--------|
+| `skills/the-<name>/SKILL.md` | The canonical skill file (YAML frontmatter + body, all six Sentinel-required sections) |
+| `docs/members/the-<name>/README.md` | Identity card, links to `../../skills/the-<name>/SKILL.md` |
 | `docs/members/README.md` | Add row to member table; update member count |
 | `AGENTS.md` | Add bullet to `## The Members` list |
-| `README.md` (root) | Add row to member table; add `the-<name>/` to structure tree |
+| `README.md` (root) | Add row to member table; update member count in prose |
+| `STRUCTURE.md` | Add `the-<name>/` to the `docs/members/` tree |
+| `docs/members/registry.json` | Add member entry with `stage` and `priority` |
+| `src/members/member-specs.ts` | Add `RawSpec` (name, description, tagline, category, permission profile, preferred provider) |
+| `src/reasoning/MemberTriggers.ts` | Add trigger entry (keywords, file patterns, stages) for detection and routing |
+| `tests/unit/members/MemberRegistry.test.ts` | Update member count and category expectations |
 | `C:/Users/<user>/.claude/CLAUDE.md` | Add trigger row to Active Member Skills table if the member should be globally active |
 
 ### Naming a New Member

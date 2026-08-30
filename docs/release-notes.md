@@ -5,6 +5,14 @@
 
 ---
 
+## v3.39.1 — August 30, 2026
+
+### 🐛 Bug Fixes
+
+- **Agenthood:** correct agent count 19 -> 20 in package description
+
+---
+
 ## v3.39.0 — August 30, 2026
 
 ### 🐛 Bug Fixes

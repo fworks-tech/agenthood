@@ -1,3 +1,10 @@
+## [3.39.1](https://github.com/fworks-tech/agenthood/compare/v3.39.0...v3.39.1) (2026-08-30)
+
+
+### Bug Fixes
+
+* **agenthood:** correct agent count 19 -> 20 in package description ([cd977b3](https://github.com/fworks-tech/agenthood/commit/cd977b3b291f2e931c7580414baef76ac11f4319))
+
 # [3.39.0](https://github.com/fworks-tech/agenthood/compare/v3.38.1...v3.39.0) (2026-08-30)
 
 

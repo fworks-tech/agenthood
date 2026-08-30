@@ -16,6 +16,11 @@ import type { LLMConfig, LLMRequest, ComplexityTier, ProviderEntry } from './typ
 import type { ProviderName } from '../members/types.ts'
 import { ProviderChain } from './ProviderFailover.ts'
 
+const PROVIDER_DEFAULT_PRIORITY = 999
+function sortProvidersByPriority(a: ProviderEntry, b: ProviderEntry) {
+  return (a.priority ?? PROVIDER_DEFAULT_PRIORITY) - (b.priority ?? PROVIDER_DEFAULT_PRIORITY)
+}
+
 type ProviderFactory = (config: LLMConfig) => Promise<ILLMProvider>
 
 /** Heuristic set of chain-of-thought triggers in system prompts.
@@ -144,7 +149,7 @@ export class LLMRouter {
     const entries = config.providers ?? []
     if (entries.length === 0) return LLMRouter.create(config)
 
-    const sorted = [...entries].sort((a, b) => (a.priority ?? 999) - (b.priority ?? 999))
+    const sorted = [...entries].sort(sortProvidersByPriority)
 
     const instances: ILLMProvider[] = []
     const names: string[] = []
@@ -189,6 +194,39 @@ export class LLMRouter {
     config: LLMConfig,
   ): Promise<ILLMProvider> {
     LLMRouter.config = config
+    if (config.providers?.length) {
+      // preference beats priority — member ask overrides operator order
+      const sorted = [...config.providers].sort(sortProvidersByPriority)
+      const prefEntry = sorted.find((e) => e.name === preferredProvider)
+      const orderedEntries: ProviderEntry[] = prefEntry
+        ? [prefEntry, ...sorted.filter((e) => e.name !== preferredProvider)]
+        : [{ name: preferredProvider } as ProviderEntry, ...sorted]
+      const instances: ILLMProvider[] = []
+      const names: string[] = []
+      const modelMap = new Map<string, string[]>()
+      for (const entry of orderedEntries) {
+        const factory = LLMRouter.providerFactories[entry.name]
+        if (!factory) continue
+        try {
+          const inst = await factory(LLMRouter.entryToConfig(entry, config))
+          instances.push(inst)
+          names.push(entry.name)
+          if (entry.models && entry.models.length > 1) {
+            modelMap.set(entry.name, entry.models)
+          }
+        } catch {
+          // Provider init failed, skip to fallback
+        }
+      }
+      if (instances.length > 0) {
+        return new ProviderChain(
+          instances,
+          names,
+          LLMRouter.buildChainConfig(config),
+          modelMap.size > 0 ? modelMap : undefined,
+        )
+      }
+    }
     const order: ProviderName[] = [preferredProvider, 'groq', 'openai', 'ollama']
     return LLMRouter.buildProviderChain(order, config)
   }

@@ -21,7 +21,14 @@ export class MissingApiKeyError extends Error {
 
 function resolveConfigKey(config: LLMConfig, provider: string): string | undefined {
   const entry: ProviderEntry | undefined = config.providers?.find((p) => p.name === provider)
+  if (config.providers?.length) {
+    return entry?.apiKey
+  }
   return entry?.apiKey ?? config.apiKey
+}
+
+function sortProviders(a: ProviderEntry, b: ProviderEntry) {
+  return (a.priority ?? 999) - (b.priority ?? 999)
 }
 
 function primaryProvider(config: LLMConfig): string {
@@ -29,23 +36,32 @@ function primaryProvider(config: LLMConfig): string {
   // No explicit provider block: validate the first entry of the failover
   // chain (ascending priority), not a hardcoded groq default
   if (config.providers?.length) {
-    return [...config.providers].sort((a, b) => (a.priority ?? 0) - (b.priority ?? 0))[0].name
+    return [...config.providers].sort(sortProviders)[0].name
   }
   return 'groq'
 }
 
 export function validateApiKeys(config: LLMConfig): void {
-  const provider = primaryProvider(config)
-  const keyInfo = PROVIDER_KEYS[provider]
-
-  if (!keyInfo) {
-    return
-  }
-
-  const configKey = resolveConfigKey(config, provider)
-  const envKey = process.env[keyInfo.envVar]
-
-  if (!envKey && !configKey) {
-    throw new MissingApiKeyError(provider, keyInfo.envVar, keyInfo.signupUrl)
+  const sorted = config.providers?.length
+    ? [...config.providers].sort(sortProviders).map((p) => p.name)
+    : []
+  const primary = primaryProvider(config)
+  const providers = sorted.length ? (sorted.includes(primary) ? sorted : [primary, ...sorted]) : [primary]
+  const seen = new Set<string>()
+  for (const provider of providers) {
+    if (seen.has(provider)) continue
+    seen.add(provider)
+    const keyInfo = PROVIDER_KEYS[provider]
+    if (!keyInfo) continue
+    const configKey = resolveConfigKey(config, provider)
+    const envKey = process.env[keyInfo.envVar]
+    if (!envKey && !configKey) {
+      if (provider === primary) {
+        throw new MissingApiKeyError(provider, keyInfo.envVar, keyInfo.signupUrl)
+      }
+      console.warn(
+        `[validateApiKeys] ${keyInfo.envVar} not set for fallback provider "${provider}" — skipping. Get a key at ${keyInfo.signupUrl}`,
+      )
+    }
   }
 }

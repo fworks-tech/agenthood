@@ -196,10 +196,11 @@ export class ProviderChain implements ILLMProvider {
   ): Promise<LLMResponse> {
     let lastError: unknown
 
-    for (let retry = 0; retry < 3; retry++) {
+    // cheap failover — 250ms base, capped, so 5-provider chain stays well under 60s Vercel budget
+    for (let retry = 0; retry < 2; retry++) {
       try {
         if (retry > 0) {
-          await sleep(1000 * Math.pow(2, retry - 1 + index))
+          await sleep(250 * Math.pow(2, retry - 1 + Math.min(index, 1)))
         }
         return await provider.complete(request)
       } catch (err) {

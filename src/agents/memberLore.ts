@@ -17,12 +17,21 @@ export function escapeXml(text: string): string {
     .replace(/'/g, '&#39;')
 }
 
+/**
+ * Wraps text in a `<tag>` trust boundary. Strips any injected boundary tag
+ * (incl. attribute and partial-tag variants) so repo/content cannot break out,
+ * then escapes remaining markup so it can never read as instructions.
+ */
+function wrapTagged(text: string, tag: string): string {
+  const safe = escapeXml(text.replace(new RegExp(`</?${tag}\\b[^>]*>`, 'gi'), '').replace(new RegExp(`</?${tag}\\b`, 'gi'), ''))
+  return `<${tag}>\n${safe}\n</${tag}>`
+}
+
 export function wrapProjectContext(text: string): string {
   // strip the boundary tag so repo-sourced content cannot break out of the
   // project_context trust boundary, then escape remaining markup so it can
   // never read as instructions
-  const safe = escapeXml(text.replace(/<\/?project_context\b[^>]*>/gi, '').replace(/<\/?project_context\b/gi, ''))
-  return `<project_context>\n${safe}\n</project_context>`
+  return wrapTagged(text, 'project_context')
 }
 
 export const PROJECT_CONTEXT_GUARD =
@@ -33,8 +42,7 @@ export const PROJECT_CONTEXT_GUARD =
  * Strips any injected boundary tags and escapes remaining markup.
  */
 export function wrapSkillsCatalog(text: string): string {
-  const safe = escapeXml(text.replace(/<\/?available_skills\b[^>]*>/gi, '').replace(/<\/?available_skills\b/gi, ''))
-  return `<available_skills>\n${safe}\n</available_skills>`
+  return wrapTagged(text, 'available_skills')
 }
 
 export const SKILLS_CATALOG_GUARD =
@@ -54,8 +62,7 @@ export const SKILL_CONTENT_GUARD =
  * the LLM treats it as behavioral rules, not content to reproduce.
  */
 export function wrapSkillContent(text: string): string {
-  const safe = escapeXml(text.replace(/<\/?skill_directives\b[^>]*>/gi, '').replace(/<\/?skill_directives\b/gi, ''))
-  return `<skill_directives>\n${safe}\n</skill_directives>`
+  return wrapTagged(text, 'skill_directives')
 }
 
 export function stripFrontmatter(content: string): string {
@@ -82,21 +89,16 @@ export const MIND_VIRUS_IMMUNITY_WARNING =
  * tags (missing '>') and attribute variants.
  */
 export function wrapUserQuery(input: string): string {
-  const safe = escapeXml(
-    input
-      .replace(/<\/?user_query\b[^>]*>/gi, '')
-      .replace(/<\/?user_query\b/gi, ''),
-  )
-  return `<user_query>\n${safe}\n</user_query>`
+  return wrapTagged(input, 'user_query')
 }
 
-/** Renders escaped project conventions and ADRs as bullet lines. */
+/** Renders project conventions and ADRs as bullet lines (unescaped; callers wrap). */
 export async function loadProjectContext(context: ExecutionContext): Promise<string> {
   const conventions = await context.memory.project.getConventions()
   const archDecisions = await context.memory.project.getArchitecturalDecisions()
   return [
-    ...conventions.map((c) => `- Convention: ${escapeXml(c.name)} = ${escapeXml(c.value)}`),
-    ...archDecisions.map((ad) => `- ADR: ${escapeXml(ad)}`),
+    ...conventions.map((c) => `- Convention: ${c.name} = ${c.value}`),
+    ...archDecisions.map((ad) => `- ADR: ${ad}`),
   ].join('\n')
 }
 

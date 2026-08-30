@@ -16,6 +16,10 @@ SEVERITY_INFO=0
 EXEMPT_NPM=1
 NO_EXEMPT=0
 
+# remove the temp file even when audit_output_check exits the script early
+err_file_target=""
+trap 'rm -f "$err_file_target"' EXIT
+
 audit_fail_on() {
   # $1 label, $2 min severity, $3 exempt npm's own bundled deps
   local label="$1" min_level="$2" exempt_npm="$3"
@@ -24,7 +28,9 @@ audit_fail_on() {
   # capture stderr instead of discarding it: the empty-output and malformed
   # fallbacks are only accurate when a real registry/network error is visible
   err_file=$(mktemp)
+  err_file_target="$err_file"
   json=$(npm audit --json "$@" 2>"$err_file" || true)
+  err_file_target=""
   audit_output_check "$label" "$json" "$(<"$err_file")"
   rm -f "$err_file"
   audit_findings "$label" "$min_level" "$exempt_npm" "$json"
@@ -47,6 +53,10 @@ audit_output_check() {
 audit_findings() {
   local label="$1" min_level="$2" exempt_npm="$3" json="$4"
   local findings status
+  # guard the command substitution: under `set -e` a nonzero node exit (1 or 2)
+  # would abort the script before `status=$?` runs, leaving the ::error::
+  # branches below unreachable. `set +e` lets branch normalize the exit code.
+  set +e
   findings=$(node -e "
     const a = JSON.parse(process.argv[1]);
     if (a.error) {
@@ -77,6 +87,7 @@ audit_findings() {
     if (bad.length) process.exit(2);
   " "$json" "$min_level" "$exempt_npm")
   status=$?
+  set -e
 
   if [ "$status" -eq 1 ]; then
     echo "::error::The Auditor: npm audit ($label) reported an upstream error."

@@ -38,6 +38,13 @@ const TOOL_MAP: Record<string, new (...args: never[]) => ITool> = {
   'pr_sync': PrSyncSkill,
 }
 
+// Tools that can mutate project state require at least a 'standard' profile;
+// the registry derives spec.tools from the profile, so this is defense-in-depth
+// against a hand-built spec carrying an over-broad tool list. pr_sync writes to
+// GitHub and is reserved for the 'trusted' profile alone.
+const WRITE_TOOLS = new Set(['file.write', 'code.write', 'code.refactor'])
+const TRUSTED_TOOLS = new Set(['pr_sync'])
+
 export interface MemberAgentOptions {
   agentRegistry?: AgentRegistry
   episodeLearner?: EpisodeLearner
@@ -71,6 +78,7 @@ export class MemberAgent extends BaseAgent {
     const seen = new Set<string>()
 
     for (const toolName of this.spec.tools) {
+      if (!this.isToolPermitted(toolName)) continue
       this.addTool(toolName, tools, seen)
     }
 
@@ -82,6 +90,13 @@ export class MemberAgent extends BaseAgent {
     }
 
     return tools
+  }
+
+  /** Denies a member a tool its permission profile does not authorize. */
+  private isToolPermitted(toolName: string): boolean {
+    if (WRITE_TOOLS.has(toolName)) return this.spec.permissionProfile === 'standard' || this.spec.permissionProfile === 'trusted'
+    if (TRUSTED_TOOLS.has(toolName)) return this.spec.permissionProfile === 'trusted'
+    return true
   }
 
   private addDelegationTool(tools: ITool[], seen: Set<string>): void {
@@ -185,6 +200,6 @@ export class MemberAgent extends BaseAgent {
     const detail = status === 'corrupt'
       ? `agenthood.lock for "${this.spec.name}" is corrupt — verify the lockfile before running.`
       : `SKILL.md for "${this.spec.name}" drifted from agenthood.lock — verify its content before running. Run \`agenthood verify --update-lock\` if the edit is intentional.`
-    console.warn(`[mind-virus] ${detail}`)
+    console.warn(`[skill-integrity] ${detail}`)
   }
 }

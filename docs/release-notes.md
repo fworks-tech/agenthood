@@ -5,6 +5,22 @@
 
 ---
 
+## v3.38.1 — August 30, 2026
+
+### 🐛 Bug Fixes
+
+- **Audit:** fail-closed tool gating, testable filter, and doc reconciliation
+- **Audit:** harden audit filter against array and bad vulnerabilities shape
+- **Ci:** exempt npm ecosystem tools from dependency audit, closes [hi#severity](https://github.com/hi/issues/severity)
+- **Ci:** fail closed on empty-node advisories in audit gate
+- **Ci:** restore mixed-node advisory reporting in audit gate
+- **Members:** address auditor and reviewer findings on member tool gating
+- **Members:** prevent LLM from echoing SKILL.md content in responses
+- **Review:** address reviewer warnings on 6906423
+- **Review:** sync institutional-knowledge steps 2/4 with oracle and harden audit filter
+
+---
+
 ## v3.38.0 — August 21, 2026
 
 ### 🐛 Bug Fixes

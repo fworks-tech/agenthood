@@ -1,3 +1,18 @@
+## [3.38.1](https://github.com/fworks-tech/agenthood/compare/v3.38.0...v3.38.1) (2026-08-30)
+
+
+### Bug Fixes
+
+* **audit:** fail-closed tool gating, testable filter, and doc reconciliation ([7001ae3](https://github.com/fworks-tech/agenthood/commit/7001ae30178ce92c99ff91c1fceb19127c367cd9))
+* **audit:** harden audit filter against array and bad vulnerabilities shape ([65863e1](https://github.com/fworks-tech/agenthood/commit/65863e100106d948803cdc5803fadf283a3ce54c))
+* **ci:** exempt npm ecosystem tools from dependency audit ([8608af8](https://github.com/fworks-tech/agenthood/commit/8608af8dad9c3fc35bc56841e522780e59af628c)), closes [hi#severity](https://github.com/hi/issues/severity)
+* **ci:** fail closed on empty-node advisories in audit gate ([e98b892](https://github.com/fworks-tech/agenthood/commit/e98b892ab03dc20da7f725e5f09f87da8675468f))
+* **ci:** restore mixed-node advisory reporting in audit gate ([722e49f](https://github.com/fworks-tech/agenthood/commit/722e49fea338e36789cbe740b7bd3bd63c45459f))
+* **members:** address auditor and reviewer findings on member tool gating ([f0fdc32](https://github.com/fworks-tech/agenthood/commit/f0fdc328c654ee8e1ebb8a2bfdbd61b49e1118a1))
+* **members:** prevent LLM from echoing SKILL.md content in responses ([364c1a8](https://github.com/fworks-tech/agenthood/commit/364c1a86782d5c4eeeba1be3723d4176ed0a491e)), closes [#473](https://github.com/fworks-tech/agenthood/issues/473)
+* **review:** address reviewer warnings on 6906423 ([c1422f9](https://github.com/fworks-tech/agenthood/commit/c1422f90d68a3fbc84542c74b79a1cd7c40d2538))
+* **review:** sync institutional-knowledge steps 2/4 with oracle and harden audit filter ([b3f5425](https://github.com/fworks-tech/agenthood/commit/b3f5425b06b114e06eefd3a0f58ce01915583ff2))
+
 # [3.38.0](https://github.com/fworks-tech/agenthood/compare/v3.37.1...v3.38.0) (2026-08-21)
 
 

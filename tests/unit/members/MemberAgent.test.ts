@@ -70,6 +70,36 @@ describe('MemberAgent tool construction', () => {
     const names = (agent as unknown as { tools: { name: string }[] }).tools.map((t) => t.name)
     expect(names).not.toContain('delegate_task')
   })
+
+  it('denies write tools to restricted profiles', () => {
+    const { llm, toolRegistry, loop } = createAgentHarness()
+    const agent = new MemberAgent(
+      makeSpec({ tools: ['file.write', 'code.write', 'code.refactor'], permissionProfile: 'restricted' }),
+      llm, loop, toolRegistry,
+    )
+
+    const names = (agent as unknown as { tools: { name: string }[] }).tools.map((t) => t.name)
+    expect(names).not.toContain('write_file')
+    expect(names).not.toContain('write_code')
+  })
+
+  it('grants write tools to trusted profiles and reserves pr_sync for trusted only', () => {
+    const { llm, toolRegistry, loop } = createAgentHarness()
+    const trusted = new MemberAgent(
+      makeSpec({ tools: ['file.write', 'pr_sync'], permissionProfile: 'trusted' }),
+      llm, loop, toolRegistry,
+    )
+    const trustedNames = (trusted as unknown as { tools: { name: string }[] }).tools.map((t) => t.name)
+    expect(trustedNames).toContain('write_file')
+    expect(trustedNames).toContain('pr_sync')
+
+    const standard = new MemberAgent(
+      makeSpec({ tools: ['pr_sync'], permissionProfile: 'standard' }),
+      llm, loop, toolRegistry,
+    )
+    const standardNames = (standard as unknown as { tools: { name: string }[] }).tools.map((t) => t.name)
+    expect(standardNames).not.toContain('pr_sync')
+  })
 })
 
 describe('MemberAgent mind-virus immunity warning', () => {
@@ -120,7 +150,7 @@ describe('MemberAgent SKILL.md integrity check', () => {
   }
 
   function driftWarns(warnSpy: ReturnType<typeof vi.spyOn>): boolean {
-    return warnSpy.mock.calls.some(([m]) => String(m).includes('[mind-virus]'))
+    return warnSpy.mock.calls.some(([m]) => String(m).includes('[skill-integrity]'))
   }
 
   it('records drift durably and warns (non-strict) without throwing', async () => {

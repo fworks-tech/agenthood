@@ -224,7 +224,7 @@ When asked which layer a new addition belongs to:
 
 - Spending tokens exploring `skills/` to understand format when The Oracle is available
 - Proposing a name without checking against existing members for overlap
-- Adding a new member without updating all four registration files
+- Adding a new member without updating every file in the Step 5 registration checklist (11 files)
 - Writing a member whose specialty overlaps with an existing member's lane
 - A member README that describes what the skill file does instead of who the member is
 
@@ -234,7 +234,7 @@ When asked which layer a new addition belongs to:
 |----------------|----------------------|
 | "I'll just read a few member files to understand the format" | The Oracle has already read them all. One query costs one turn. Exploration costs ten. |
 | "The name sounds fine to me" | The register matters. A name that breaks the noble-noun pattern breaks the Society's voice across every future README, PR description, and commit message that references it. |
-| "I only need to create the two files" | Four files require updates. The ones you skip will be missing from every agent's awareness of the Society. |
+| "I only need to create the two files" | All 11 registration files require updates. The ones you skip will be missing from every agent's awareness of the Society. |
 
 ## Verification
 
@@ -242,6 +242,6 @@ The Oracle's answer is complete when:
 
 - [ ] The member name is validated against the convention and existing names
 - [ ] The full two-file template is provided
-- [ ] All four registration files are listed with the exact change required
+- [ ] Every file in the Step 5 registration checklist is listed with the exact change required
 - [ ] The member's specialty does not overlap with an existing member's lane
 - [ ] The layer classification is confirmed

@@ -170,7 +170,7 @@ When a new member is added, update all of these:
 | `src/members/member-specs.ts` | Add `RawSpec` (name, description, tagline, category, permission profile, preferred provider) |
 | `src/reasoning/MemberTriggers.ts` | Add trigger entry (keywords, file patterns, stages) for detection and routing |
 | `tests/unit/members/MemberRegistry.test.ts` | Update member count and category expectations |
-| `C:/Users/<user>/.claude/CLAUDE.md` | Add trigger row to Active Member Skills table if the member should be globally active |
+| `~/.claude/CLAUDE.md` (user-local, optional) | Add trigger row to Active Member Skills table if the member should be globally active |
 
 ### Naming a New Member
 

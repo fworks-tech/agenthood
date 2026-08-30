@@ -92,4 +92,28 @@ describe('audit-filter.mjs', () => {
     )
     expect(res.code).toBe(0)
   })
+
+  it('treats primitive or array JSON as malformed (exit 1)', () => {
+    expect(runFilter(null as unknown as object, 3, 1).code).toBe(1)
+    expect(runFilter([] as unknown as object, 3, 1).code).toBe(1)
+    // raw primitive JSON "null" is passed as string 'null' via JSON.stringify(null)
+    // and also via direct string; both should be exit 1
+    const rawNull = (() => {
+      try {
+        const out = execFileSync('node', [filter, 'null', '3', '1'], { encoding: 'utf8' })
+        return { code: 0, output: out }
+      } catch (e) {
+        const err = e as { status?: number; stdout?: string; stderr?: string }
+        return { code: err.status ?? 1, output: `${err.stdout ?? ''}${err.stderr ?? ''}` }
+      }
+    })()
+    expect(rawNull.code).toBe(1)
+    expect(rawNull.output).toContain('malformed JSON')
+  })
+
+  it('treats non-object vulnerabilities as malformed (exit 1)', () => {
+    expect(runFilter({ vulnerabilities: 'garbage' as unknown as object }, 3, 1).code).toBe(1)
+    expect(runFilter({ vulnerabilities: [] as unknown as object }, 3, 1).code).toBe(1)
+    expect(runFilter({ vulnerabilities: null as unknown as object }, 3, 1).code).toBe(1)
+  })
 })

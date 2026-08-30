@@ -5,6 +5,19 @@
 
 ---
 
+## v3.39.0 — August 30, 2026
+
+### 🐛 Bug Fixes
+
+- **Llm:** remove unused name parameter in stream callback
+- **Llm:** use announce() in complete() for consistent logging
+
+### ✨ Features
+
+- **Runtime:** add RunEventBus tests and enrich reasoning telemetry
+
+---
+
 ## v3.38.1 — August 30, 2026
 
 ### 🐛 Bug Fixes

@@ -1,3 +1,16 @@
+# [3.39.0](https://github.com/fworks-tech/agenthood/compare/v3.38.1...v3.39.0) (2026-08-30)
+
+
+### Bug Fixes
+
+* **llm:** remove unused name parameter in stream callback ([10879b9](https://github.com/fworks-tech/agenthood/commit/10879b9de17152bfb2542c8f506ddd3b786770a2))
+* **llm:** use announce() in complete() for consistent logging ([192f772](https://github.com/fworks-tech/agenthood/commit/192f772a9b538ce2ddc6b2e3d698724902d3375b))
+
+
+### Features
+
+* **runtime:** add RunEventBus tests and enrich reasoning telemetry ([96d5478](https://github.com/fworks-tech/agenthood/commit/96d54780afa2daf273e1eb983de65e6a1db42ea8)), closes [#474](https://github.com/fworks-tech/agenthood/issues/474)
+
 ## [3.38.1](https://github.com/fworks-tech/agenthood/compare/v3.38.0...v3.38.1) (2026-08-30)
 
 

@@ -42,10 +42,13 @@ Apply the naming convention:
 **Step 2 — Directory and file structure**
 
 ```
+docs/members/the-<name>/
+└── README.md          ← Identity card (no frontmatter)
 skills/the-<name>/
-├── README.md          ← Identity card (no frontmatter)
 └── SKILL.md           ← Adopter-facing skill file (YAML frontmatter + body)
 ```
+
+`skills/` is the canonical home for skill files (see `skills/the-oracle/SKILL.md` Step 2); `docs/members/<name>/README.md` must link to `../../skills/<name>/SKILL.md`.
 
 **Step 3 — Skill file template**
 
@@ -137,12 +140,12 @@ Before confirming the task is done:
 
 ## Skill File
 
-→ [\`SKILL.md\`](SKILL.md) — load this into your agent runtime
+→ [\`SKILL.md\`](../../skills/the-<name>/SKILL.md) — load this into your agent runtime
 ```
 
 **Step 5 — Registration checklist**
 
-When a new member is added, update all of these (canonical list — see `skills/the-oracle/SKILL.md` Step 5 if this drifts):
+When a new member is added, create or update all of these (2 new files + 9 registry/config updates; canonical list — see `skills/the-oracle/SKILL.md` Step 5 if this drifts):
 
 | File | Change |
 |------|--------|
@@ -153,10 +156,10 @@ When a new member is added, update all of these (canonical list — see `skills/
 | `README.md` (root) | Add row to member table; update member count in prose |
 | `STRUCTURE.md` | Add `the-<name>/` to the `docs/members/` tree |
 | `docs/members/registry.json` | Add member entry with `stage` and `priority` |
-| `src/members/member-specs.ts` | Add `RawSpec` (name, description, tagline, category, permission profile, preferred provider) |
+| `src/members/member-specs.ts` | Add `RawSpec` (name, description, tagline, category, permissionProfile, preferredProvider, `ownedDecisions` — required; `canDelegate` optional, see `RawSpec` interface) |
 | `src/reasoning/MemberTriggers.ts` | Add trigger entry (keywords, file patterns, stages) for detection and routing |
 | `tests/unit/members/MemberRegistry.test.ts` | Update member count and category expectations |
-| `C:/Users/<user>/.claude/CLAUDE.md` | Add trigger row to Active Member Skills table if the member should be globally active |
+| `~/.claude/CLAUDE.md` (user-local, optional) | Add trigger row to Active Member Skills table if the member should be globally active |
 
 ### Naming a New Member
 

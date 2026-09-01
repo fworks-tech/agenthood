@@ -5,6 +5,14 @@
 
 ---
 
+## v3.39.2 — September 1, 2026
+
+### 🐛 Bug Fixes
+
+- **Llm:** harden provider failover priority, per-entry keys and cheap retry
+
+---
+
 ## v3.39.1 — August 30, 2026
 
 ### 🐛 Bug Fixes

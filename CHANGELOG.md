@@ -1,3 +1,10 @@
+## [3.39.2](https://github.com/fworks-tech/agenthood/compare/v3.39.1...v3.39.2) (2026-09-01)
+
+
+### Bug Fixes
+
+* **llm:** harden provider failover priority, per-entry keys and cheap retry ([7ab930d](https://github.com/fworks-tech/agenthood/commit/7ab930db3ecbc3ce05922b7f5dba19304f7c5571))
+
 ## [3.39.1](https://github.com/fworks-tech/agenthood/compare/v3.39.0...v3.39.1) (2026-08-30)
 
 

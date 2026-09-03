@@ -19,6 +19,8 @@ The Society steps through. The Society steps back. Nothing leaks.
 | [slack.md](slack.md) | Post briefings, alerts, and release announcements | The Herald, The Doorman |
 | [sentry.md](sentry.md) | Read error events, link to commits and PRs | The Debugger, The Auditor |
 
+Workflow: [sentry-opencode-debugging.agent.md](../agentic-workflows/sentry-opencode-debugging.agent.md).
+
 ---
 
 ## How Connectors Work

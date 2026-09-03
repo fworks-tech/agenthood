@@ -1,9 +1,9 @@
-import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest'
+import { describe, it, expect, beforeEach, afterEach } from 'vitest'
 import { LLMRouter, ComplexityScorer } from '../../../src/llm/LLMRouter.ts'
 import { GroqProvider } from '../../../src/llm/providers/GroqProvider.ts'
 import { OllamaProvider } from '../../../src/llm/providers/OllamaProvider.ts'
 import { ProviderChain } from '../../../src/llm/ProviderFailover.ts'
-import type { LLMRequest } from '../../../src/llm/types.ts'
+import type { ILLMProvider, LLMRequest } from '../../../src/llm/types.ts'
 
 // GroqProvider now fails fast without a key — provide one for routing tests
 beforeEach(() => {
@@ -111,6 +111,41 @@ describe('LLMRouter', () => {
   it('createForMember with ollama builds a chain', async () => {
     const provider = await LLMRouter.createForMember('ollama', {})
     expect(provider).toBeInstanceOf(ProviderChain)
+  })
+
+  describe('entry chains — shared buildChainFromEntries', () => {
+    function chainProviders(chain: unknown): ILLMProvider[] {
+      return (chain as unknown as { providers: ILLMProvider[] }).providers
+    }
+
+    it('fromConfig builds a chain from configured entries', async () => {
+      const provider = await LLMRouter.fromConfig({ providers: [{ name: 'ollama' }] })
+      expect(provider).toBeInstanceOf(ProviderChain)
+    })
+
+    it('fromConfig skips unknown entries and still builds a chain', async () => {
+      const provider = await LLMRouter.fromConfig({
+        providers: [{ name: 'nope' }, { name: 'ollama' }],
+      })
+      expect(provider).toBeInstanceOf(ProviderChain)
+    })
+
+    it('fromConfig orders the chain by entry priority', async () => {
+      const chain = await LLMRouter.fromConfig({
+        providers: [
+          { name: 'groq', priority: 2 },
+          { name: 'ollama', priority: 1 },
+        ],
+      })
+      expect(chainProviders(chain)[0]).toBeInstanceOf(OllamaProvider)
+    })
+
+    it('createForMember puts member preference ahead of operator priority', async () => {
+      const chain = await LLMRouter.createForMember('ollama', {
+        providers: [{ name: 'groq', priority: 1 }],
+      })
+      expect(chainProviders(chain)[0]).toBeInstanceOf(OllamaProvider)
+    })
   })
 
   describe('route — dynamic strategy', () => {

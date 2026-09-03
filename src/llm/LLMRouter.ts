@@ -154,12 +154,33 @@ export class LLMRouter {
     if (entries.length === 0) return LLMRouter.create(config)
 
     const sorted = [...entries].sort(sortProvidersByPriority)
+    const { instances, names, modelMap } = await LLMRouter.buildChainFromEntries(sorted, config)
 
+    if (instances.length === 0) return LLMRouter.create(config)
+
+    return new ProviderChain(
+      instances,
+      names,
+      LLMRouter.buildChainConfig(config),
+      modelMap.size > 0 ? modelMap : undefined,
+    )
+  }
+
+  /**
+   * Instantiate providers for pre-ordered entries, skipping unknown names
+   * and failed inits. Shared by fromConfig (priority order) and
+   * createForMember (member-preference order) — the only difference between
+   * the two paths is the entry ordering, decided by the caller.
+   */
+  private static async buildChainFromEntries(
+    entries: ProviderEntry[],
+    config: LLMConfig,
+  ): Promise<{ instances: ILLMProvider[]; names: string[]; modelMap: Map<string, string[]> }> {
     const instances: ILLMProvider[] = []
     const names: string[] = []
     const modelMap = new Map<string, string[]>()
 
-    for (const entry of sorted) {
+    for (const entry of entries) {
       const factory = LLMRouter.providerFactories[entry.name]
       if (!factory) continue
       try {
@@ -170,22 +191,11 @@ export class LLMRouter {
           modelMap.set(entry.name, entry.models)
         }
       } catch {
-        // Provider init failed, skip
+        // Provider init failed, skip to fallback
       }
     }
 
-    if (instances.length === 0) return LLMRouter.create(config)
-
-    return new ProviderChain(
-      instances,
-      names,
-      {
-        failureThreshold: config.failureThreshold,
-        cooldownMs: config.cooldownMs,
-        probeEnabled: config.probeEnabled,
-      },
-      modelMap.size > 0 ? modelMap : undefined,
-    )
+    return { instances, names, modelMap }
   }
 
   /**
@@ -205,23 +215,10 @@ export class LLMRouter {
       const orderedEntries: ProviderEntry[] = prefEntry
         ? [prefEntry, ...sorted.filter((e) => e.name !== preferredProvider)]
         : [{ name: preferredProvider } as ProviderEntry, ...sorted]
-      const instances: ILLMProvider[] = []
-      const names: string[] = []
-      const modelMap = new Map<string, string[]>()
-      for (const entry of orderedEntries) {
-        const factory = LLMRouter.providerFactories[entry.name]
-        if (!factory) continue
-        try {
-          const inst = await factory(LLMRouter.entryToConfig(entry, config))
-          instances.push(inst)
-          names.push(entry.name)
-          if (entry.models && entry.models.length > 1) {
-            modelMap.set(entry.name, entry.models)
-          }
-        } catch {
-          // Provider init failed, skip to fallback
-        }
-      }
+      const { instances, names, modelMap } = await LLMRouter.buildChainFromEntries(
+        orderedEntries,
+        config,
+      )
       if (instances.length > 0) {
         return new ProviderChain(
           instances,

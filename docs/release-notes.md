@@ -5,6 +5,14 @@
 
 ---
 
+## v3.41.0 — September 3, 2026
+
+### ✨ Features
+
+- **Hitl:** ask_human park primitive with test stub provider (#502)
+
+---
+
 ## v3.40.0 — September 3, 2026
 
 ### ✨ Features

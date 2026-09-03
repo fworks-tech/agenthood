@@ -1,3 +1,10 @@
+# [3.41.0](https://github.com/fworks-tech/agenthood/compare/v3.40.0...v3.41.0) (2026-09-03)
+
+
+### Features
+
+* **hitl:** ask_human park primitive with test stub provider ([#502](https://github.com/fworks-tech/agenthood/issues/502)) ([7e02577](https://github.com/fworks-tech/agenthood/commit/7e025772045044670835f97d4415b5c2763691ea))
+
 # [3.40.0](https://github.com/fworks-tech/agenthood/compare/v3.39.2...v3.40.0) (2026-09-03)
 
 

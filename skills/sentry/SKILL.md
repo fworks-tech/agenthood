@@ -1,6 +1,6 @@
 ---
 name: sentry
-description: Monitor and debug application errors via the Sentry CLI. Use when triaging production errors or managing releases.
+description: Monitor and debug application errors via Sentry MCP and CLI. Use when triaging production errors or managing releases.
 metadata:
   category: monitoring
   dependencies:
@@ -23,7 +23,26 @@ metadata:
     type: api-key
 ---
 
-# sentry-cli
+# sentry
+
+Use the hosted Sentry MCP in OpenCode for triage; use `sentry-cli` for releases and source maps.
+
+## MCP use (primary)
+
+Hosted endpoint `https://mcp.sentry.dev/mcp` via OAuth — see `docs/portals/sentry.md` for setup.
+
+- Find orgs/projects: `find_organizations`, `find_projects`
+- Triage: `search_issues` (filter by impact, time range; sort by impact), then `get_issue_details` for the full stack trace
+- Correlate the issue `release` tag with `git log` before forming a hypothesis
+- Verify access with: `What organizations do I have access to in Sentry?`
+
+## Seer escalation
+
+- Use `begin_seer_issue_fix` only for systemic issues (recurring across releases, unclear root cause after Step 4)
+- Targeted single-issue fixes stay in the Debugger five-step protocol — no Seer
+- Record the Seer plan link in the PR description
+
+## CLI use (releases, source maps)
 
 Use `sentry-cli` for Sentry error monitoring.
 

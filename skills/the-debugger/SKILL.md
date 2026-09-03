@@ -129,3 +129,12 @@ The debugging session is complete when:
 - [ ] The regression test fails on unfixed code and passes on fixed code
 - [ ] PR description documents the root cause
 - [ ] The fix has been reviewed by The Reviewer
+
+## Appendix: Sentry flow (OpenCode hosted MCP)
+
+Maps the five-step protocol onto Sentry tools — see `docs/portals/sentry.md` for setup.
+
+- Step 1 — read with `get_issue_details` (full stack trace, events, release tag), not the issue list row
+- Prioritize with `search_issues`: filter by impact (users affected) and time range, sort by impact
+- Correlate the issue `release` tag with `git log` for that tag before forming the hypothesis
+- Step 5 — systemic issues escalate via `begin_seer_issue_fix` per the criteria in `docs/portals/sentry.md`; targeted fixes stay in-protocol

@@ -4,6 +4,13 @@
     "paths": ["skills"]
   },
   "instructions": ["AGENTS.md"],
+  "mcp": {
+    "sentry": {
+      "type": "remote",
+      "url": "https://mcp.sentry.dev/mcp",
+      "oauth": {}
+    }
+  },
   "agent": {
     "the-steward": {
       "description": "Route tasks to the minimal set of Agenthood members. Start here for any Agenthood task.",

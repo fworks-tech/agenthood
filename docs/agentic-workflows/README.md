@@ -44,6 +44,7 @@ This decision is documented in [ADR-001](../adr/ADR-001-markdown-skills-over-cod
 | [review-pr.agent.md](review-pr.agent.md) | PR opened or ready for review | The Reviewer | Five-axis review with structured findings |
 | [diagnose-ci-failure.agent.md](diagnose-ci-failure.agent.md) | CI run fails | The Debugger | Root cause diagnosis posted as a PR comment |
 | [sync-docs.agent.md](sync-docs.agent.md) | Merge to main | The Librarian | Checks for stale docs and opens a follow-up PR |
+| [sentry-opencode-debugging.agent.md](sentry-opencode-debugging.agent.md) | Production error in Sentry | The Debugger | Verify → search → details → fix → Seer? → regression test |
 
 ---
 

@@ -137,4 +137,4 @@ Maps the five-step protocol onto Sentry tools — see `docs/portals/sentry.md` f
 - Step 1 — read with `get_issue_details` (full stack trace, events, release tag), not the issue list row
 - Prioritize with `search_issues`: filter by impact (users affected) and time range, sort by impact
 - Correlate the issue `release` tag with `git log` for that tag before forming the hypothesis
-- Step 5 — systemic issues (recurring across releases, root cause still unclear after Step 4) escalate via `begin_seer_issue_fix`; targeted fixes stay in-protocol
+- Step 5 — systemic issues escalate via `begin_seer_issue_fix` per the criteria in `docs/portals/sentry.md`; targeted fixes stay in-protocol

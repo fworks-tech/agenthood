@@ -82,6 +82,14 @@ Get the full details and stack trace for Sentry issue <issue-id>.
 - Tag releases in Sentry with the same version as git tags (`sentry-cli releases new <version>`)
 - After a deploy, search issues filtered by the release tag before declaring the release stable
 
+## Seer escalation criteria
+
+- Escalate via `begin_seer_issue_fix` only when the issue is systemic:
+  recurring across releases, or root cause still unclear after Step 4 of the
+  Debugger five-step protocol
+- Targeted single-issue fixes stay in-protocol — no Seer
+- Record the Seer plan link in the PR description
+
 ## Auth and timeout remedies
 
 - `401 / expired token` — re-run `opencode mcp auth sentry`, then retry the verify prompt

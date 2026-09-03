@@ -38,8 +38,7 @@ Hosted endpoint `https://mcp.sentry.dev/mcp` via OAuth — see `docs/portals/sen
 
 ## Seer escalation
 
-- Use `begin_seer_issue_fix` only for systemic issues (recurring across releases, unclear root cause after Step 4)
-- Targeted single-issue fixes stay in the Debugger five-step protocol — no Seer
+- Escalation criteria live in `docs/portals/sentry.md` ("Seer escalation criteria")
 - Record the Seer plan link in the PR description
 
 ## CLI use (releases, source maps)

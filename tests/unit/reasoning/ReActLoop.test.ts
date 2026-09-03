@@ -2,6 +2,8 @@ import { describe, it, expect, vi } from 'vitest'
 import { ReActLoop, ToolLoopDetectedError, MaxStepsExceededError } from '../../../src/reasoning/ReActLoop.ts'
 import { ThinkingBudget, BudgetExceededError } from '../../../src/reasoning/ThinkingBudget.ts'
 import { ToolRegistry, ToolNotFoundError } from '../../../src/tools/ToolRegistry.ts'
+import { AskHumanTool } from '../../../src/tools/human/AskHumanTool.ts'
+import { AskHumanSignal } from '../../../src/tools/human/AskHumanSignal.ts'
 import { createTestContext } from '../../helpers/testContext.ts'
 import type { ILLMProvider } from '../../../src/llm/ILLMProvider.ts'
 import type { ITool } from '../../../src/tools/ITool.ts'
@@ -210,5 +212,19 @@ describe('ReActLoop', () => {
     const ctx = createTestContext()
 
     await expect(loop.run('system', 'loop', ctx)).rejects.toThrow(ToolLoopDetectedError)
+  })
+
+  it('AskHumanSignal escapes the loop instead of becoming model context', async () => {
+    const llm = mockProvider({
+      toolCalls: [{ name: 'ask_human', args: { questions: [{ label: 'Proceed?' }] } }],
+    })
+    const reg = new ToolRegistry()
+    reg.register(new AskHumanTool())
+    const loop = new ReActLoop(llm, reg)
+    const ctx = createTestContext()
+
+    const err = await loop.run('system', 'blocked', ctx).catch((e) => e)
+    expect(err).toBeInstanceOf(AskHumanSignal)
+    expect(err.questions).toEqual({ questions: [{ label: 'Proceed?' }] })
   })
 })

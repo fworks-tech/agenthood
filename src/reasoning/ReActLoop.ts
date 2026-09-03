@@ -4,6 +4,7 @@ import type { Message, TokenUsage, ToolCall, LLMResponse } from "../llm/types.ts
 import { ContextCompressor } from "../core/ContextCompressor.ts"
 import { CostEstimator } from "../core/CostEstimator.ts"
 import { ToolRegistry, ToolNotFoundError } from "../tools/ToolRegistry.ts"
+import { AskHumanSignal } from "../tools/human/AskHumanSignal.ts"
 import type { ITool } from "../tools/ITool.ts"
 import { ThinkingBudget } from "./ThinkingBudget.ts"
 import { validateSchema, SchemaValidationError } from "../core/SchemaValidator.ts"
@@ -262,6 +263,9 @@ export class ReActLoop {
       if (!result.success) return `Error: ${result.error ?? "Unknown error"}`
       return result.output
     } catch (err) {
+      // a parked run has no tool result to observe — the host persists the
+      // question and releases the slot, so the signal must escape the loop
+      if (err instanceof AskHumanSignal) throw err
       const msg = err instanceof Error ? err.message : String(err)
       return `Error: ${msg}`
     }

@@ -1,4 +1,5 @@
 import type { ExecutionContext } from './ExecutionContext.ts'
+import type { AskHumanQuestions } from '../tools/human/AskHumanSignal.ts'
 
 export interface RunEventBase {
   executionId: string
@@ -16,6 +17,7 @@ export type RunEvent =
   | (RunEventBase & { type: 'provenance.recorded'; checksum: string })
   | (RunEventBase & { type: 'run.finished'; output: string; durationMs: number })
   | (RunEventBase & { type: 'run.failed'; error: string; durationMs: number })
+  | (RunEventBase & { type: 'run.awaiting_input'; question: AskHumanQuestions })
 
 export type RunEventListener = (event: RunEvent) => void
 

@@ -5,7 +5,7 @@ usage: Copy the steps below into an OpenCode session with the Sentry hosted MCP 
 on:
   workflow_dispatch: {}
 permissions:
-  issues: read
+  issues: write
   pull-requests: write
 safe-outputs:
   - add-comment
@@ -34,14 +34,15 @@ Portal setup: `docs/portals/sentry.md`.
 
 5. **Systemic? escalate to Seer** — check the escalation criteria in
    `docs/portals/sentry.md` ("Seer escalation criteria"); if met, run
-   `begin_seer_issue_fix` and record the plan link in a comment
+   `begin_seer_issue_fix` and record the plan link in the PR description
 
 6. **Regression test** — write a test that fails on unfixed code and passes on fixed code;
    document the root cause in the PR description
 
 ## Notes
 
-- Scoped to issue reads + comment writes; sibling templates still use `read-all`
+- Scoped to issue/PR reads and comment writes (`issues: write` covers issue
+  comments in GHA); sibling templates still use `read-all`
   (migrate them separately if the Society adopts least-privilege frontmatter)
 - Does not modify the `src/portals/` runtime — MCP tools only
 - If the hosted endpoint is unreachable, fall back to the legacy npx stdio config in `docs/portals/sentry.md`

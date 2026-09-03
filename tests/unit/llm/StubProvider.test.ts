@@ -15,7 +15,7 @@ describe('StubProvider', () => {
   it('replays scripted steps in order, then empty content', async () => {
     process.env[STUB_PROVIDER_ENV] = '1'
     StubProvider.enqueueScript([
-      { content: '', toolCalls: [{ id: 'call-1', name: 'ask_human', args: { questions: [{ label: 'Proceed?' }] } }] },
+      { content: '', toolCalls: [{ id: 'call-1', name: 'ask_human', args: { question: 'Proceed?', context: 'scope' } }] },
       { content: 'done' },
     ])
     const stub = new StubProvider({})

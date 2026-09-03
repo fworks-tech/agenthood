@@ -5,6 +5,14 @@
 
 ---
 
+## v3.40.0 — September 3, 2026
+
+### ✨ Features
+
+- **Hitl:** add ask_human park primitive for park-and-resume hosts (#501)
+
+---
+
 ## v3.39.2 — September 1, 2026
 
 ### 🐛 Bug Fixes

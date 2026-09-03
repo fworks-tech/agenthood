@@ -1,3 +1,10 @@
+# [3.40.0](https://github.com/fworks-tech/agenthood/compare/v3.39.2...v3.40.0) (2026-09-03)
+
+
+### Features
+
+* **hitl:** add ask_human park primitive for park-and-resume hosts ([#501](https://github.com/fworks-tech/agenthood/issues/501)) ([fed6d76](https://github.com/fworks-tech/agenthood/commit/fed6d761fd8b3e554bafdb52e8ef98128ac43610)), closes [#496](https://github.com/fworks-tech/agenthood/issues/496)
+
 ## [3.39.2](https://github.com/fworks-tech/agenthood/compare/v3.39.1...v3.39.2) (2026-09-01)
 
 

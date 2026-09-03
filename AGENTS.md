@@ -14,6 +14,7 @@ to understand the Society's standards before taking any action in a repository.
 - Subject: imperative, lowercase, ≤150 chars, no trailing period
 - One logical change per commit — if in doubt, split it
 - Never write: `fix stuff`, `wip`, `update`, `changes`, `misc`, `asdf`
+- Never add `Co-Authored-By` footers — commits carry the author's identity only
 
 ## Branch Standards
 

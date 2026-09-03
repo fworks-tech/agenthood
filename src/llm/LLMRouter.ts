@@ -119,6 +119,10 @@ export class LLMRouter {
       const { OpenRouterProvider } = await import( './providers/OpenRouterProvider.ts')
       return new OpenRouterProvider(c)
     },
+    stub: async (c) => {
+      const { StubProvider } = await import( './providers/StubProvider.ts')
+      return new StubProvider(c)
+    },
   }
 
   private static instances = new Map<string, ILLMProvider>()

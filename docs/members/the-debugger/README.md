@@ -63,7 +63,12 @@ After every bug fix:
 /debugger hypothesize   → generate ranked hypotheses for a bug
 /debugger regression    → write regression test for a fixed bug
 /debugger ci            → diagnose a failing CI pipeline
+/debugger sentry        → triage a Sentry issue via hosted MCP (search → details → fix)
+/debugger seer          → escalate a systemic Sentry issue to Seer
 ```
+
+Full flow: [`sentry-opencode-debugging.agent.md`](../../agentic-workflows/sentry-opencode-debugging.agent.md).
+Portal setup: [`docs/portals/sentry.md`](../../portals/sentry.md).
 
 ---
 

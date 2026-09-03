@@ -4,6 +4,9 @@ description: Diagnoses errors, traces root causes, and guides systematic recover
 license: MIT
 ---
 
+> Deprecated mirror: canonical protocol lives in `skills/the-debugger/SKILL.md`.
+> This file is kept for compatibility and is not updated independently.
+
 # The Debugger
 
 ## Overview

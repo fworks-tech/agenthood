@@ -35,8 +35,10 @@ describe('MemberAgent tool construction', () => {
     const agent = new MemberAgent(makeSpec({ tools: ['tasks.read', 'code.grep'] }), llm, loop, toolRegistry)
 
     const names = toolNames(agent)
-    expect(names).toHaveLength(1)
+    expect(names).toHaveLength(2)
     expect(names[0]).toBe('read_file')
+    // every member also gets ask_human regardless of spec.tools
+    expect(names).toContain('ask_human')
   })
 
   it('does not grant delegation to restricted members', () => {
@@ -85,6 +87,17 @@ describe('MemberAgent tool construction', () => {
     expect(names).not.toContain('refactor')
   })
 
+  it('grants ask_human to every profile regardless of spec.tools', () => {
+    const { llm, toolRegistry, loop } = createAgentHarness()
+    for (const permissionProfile of ['restricted', 'standard', 'trusted'] as const) {
+      const agent = new MemberAgent(
+        makeSpec({ tools: ['file.read'], permissionProfile }),
+        llm, loop, toolRegistry,
+      )
+      expect(toolNames(agent)).toContain('ask_human')
+    }
+  })
+
   it('denies read-only-equivalent tools that an unknown name requests', () => {
     const { llm, toolRegistry, loop } = createAgentHarness()
     // a tool name that is not classified read-only/write/trusted must be denied
@@ -93,8 +106,9 @@ describe('MemberAgent tool construction', () => {
       makeSpec({ tools: ['db.write', 'config.delete'], permissionProfile: 'trusted' }),
       llm, loop, toolRegistry,
     )
-    // fail-closed leaves no instantiable tools; the fallback grants read-only.
-    expect(toolNames(agent)).toEqual(['read_file'])
+    // fail-closed leaves no instantiable tools; the fallback grants read-only,
+    // and every member additionally gets ask_human.
+    expect(toolNames(agent)).toEqual(['read_file', 'ask_human'])
   })
 
   it('grants write tools to trusted profiles and reserves pr_sync for trusted only', () => {

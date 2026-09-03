@@ -13,6 +13,7 @@ import type { AgentRegistry } from '../core/AgentRegistry.ts'
 import type { EpisodeLearner } from '../evals/EpisodeLearner.ts'
 import { ReActLoop } from '../reasoning/ReActLoop.ts'
 import { ToolRegistry } from '../tools/ToolRegistry.ts'
+import { AskHumanSignal, AskHumanTool } from '../tools/human/AskHumanTool.ts'
 import { redactEventText } from '../core/RunEventBus.ts'
 
 export interface MemberRunnerDeps {
@@ -58,6 +59,7 @@ export class MemberRunner {
     const memberProvider = (config.provider ?? spec.preferredProvider) as ProviderName
     const llm = await LLMRouter.createForMember(memberProvider, config)
     const sReg = new ToolRegistry()
+    if (!sReg.has('ask_human')) sReg.register(new AskHumanTool())
     const loop = new ReActLoop(llm, sReg)
 
     if (config.skills?.autoDiscover === true) {
@@ -99,6 +101,22 @@ export class MemberRunner {
       return { output: result.output, durationMs: duration }
     } catch (err) {
       const duration = Math.round(performance.now() - startTime)
+      // a parked run is awaiting human input, not a failure: emit the park
+      // event (redacted), skip the failure metrics write, and rethrow so the
+      // host can resume the run when the reply arrives
+      if (err instanceof AskHumanSignal) {
+        events.emit({
+          type: 'run.awaiting_input',
+          executionId: this.ctx.executionId,
+          member: spec.name,
+          correlationId: this.ctx.correlationId,
+          timestamp: new Date().toISOString(),
+          question: redactEventText(this.ctx, err.payload.question),
+          ...(err.payload.context !== undefined ? { context: redactEventText(this.ctx, err.payload.context) } : {}),
+          durationMs: duration,
+        })
+        throw err
+      }
       metricsCollector.record(memberName, false, duration)
       events.emit({
         type: 'run.failed',

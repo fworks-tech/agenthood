@@ -9,6 +9,7 @@ import { ThinkingBudget } from "./ThinkingBudget.ts"
 import { validateSchema, SchemaValidationError } from "../core/SchemaValidator.ts"
 import { redactEventText } from "../core/RunEventBus.ts"
 import { SKILL_ACTIVATION_PREFIX } from "../skills/activation/ActivateSkillTool.ts"
+import { AskHumanSignal } from "../tools/human/AskHumanTool.ts"
 
 const costEstimator = new CostEstimator()
 
@@ -262,6 +263,8 @@ export class ReActLoop {
       if (!result.success) return `Error: ${result.error ?? "Unknown error"}`
       return result.output
     } catch (err) {
+      // park, don't stringify: the host resumes the run when the human replies
+      if (err instanceof AskHumanSignal) throw err
       const msg = err instanceof Error ? err.message : String(err)
       return `Error: ${msg}`
     }

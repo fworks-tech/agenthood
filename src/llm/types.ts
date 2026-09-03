@@ -30,6 +30,7 @@ export interface JSONSchema {
 export interface JSONSchemaProperty {
   type: string
   description?: string
+  maxLength?: number
 }
 
 export interface TokenUsage {

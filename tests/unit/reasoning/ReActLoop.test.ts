@@ -211,4 +211,24 @@ describe('ReActLoop', () => {
 
     await expect(loop.run('system', 'loop', ctx)).rejects.toThrow(ToolLoopDetectedError)
   })
+
+  it('rethrows AskHumanSignal instead of stringifying it into a tool result', async () => {
+    const { AskHumanSignal } = await import('../../../src/tools/human/AskHumanTool.ts')
+    const signal = new AskHumanSignal({ question: 'Which env should I deploy to?', context: 'deploy thread' })
+    const skill: ITool = {
+      name: 'ask_human',
+      description: 'Asks the human room',
+      inputSchema: { type: 'object', properties: { question: { type: 'string' } }, required: ['question'] },
+      execute: vi.fn().mockRejectedValue(signal),
+    }
+
+    const llm = mockProvider({ toolCalls: [{ name: 'ask_human', args: { question: 'Which env should I deploy to?' } }] })
+    const reg = new ToolRegistry()
+    reg.register(skill)
+    const loop = new ReActLoop(llm, reg)
+    const ctx = createTestContext()
+
+    const err = await loop.run('system', 'ask the human', ctx).catch((e) => e)
+    expect(err).toBe(signal)
+  })
 })

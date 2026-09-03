@@ -8,6 +8,7 @@ import type { EpisodeLearner } from '../../evals/EpisodeLearner.ts'
 import type { ResidualMemory } from '../../memory/ResidualMemory.ts'
 import type { ReActLoop } from '../../reasoning/ReActLoop.ts'
 import { MaxStepsExceededError } from '../../reasoning/ReActLoop.ts'
+import { AskHumanSignal } from '../../tools/human/AskHumanTool.ts'
 import { recordAgentTrace, redactSafely } from './agentTrace.ts'
 
 interface RecordDecisionArgs {
@@ -67,6 +68,9 @@ export class RunLifecycle {
       output = executed.output
       if (executed.model) this.reasoningLoop.setModel(executed.model)
     } catch (err) {
+      // a parked run is neither success nor failure: skip the failed
+      // trace/decision/provenance writes and let the host resume it later
+      if (err instanceof AskHumanSignal) throw err
       error = err
       if (err instanceof MaxStepsExceededError) output = err.partialResult
     }
@@ -122,6 +126,10 @@ export class RunLifecycle {
     // rethrown.
     if (error instanceof MaxStepsExceededError) {
       return
+    }
+    // a parked run is not a failure: rethrow without Sentry or metrics noise
+    if (error instanceof AskHumanSignal) {
+      throw error
     }
     await reportErrorToSentry(error, context, {
       member: this.getRole(),

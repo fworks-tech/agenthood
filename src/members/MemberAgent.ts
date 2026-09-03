@@ -22,6 +22,7 @@ import { SearchCodebaseSkill } from '../tools/code/SearchCodebaseSkill.ts'
 import { ExplainCodeSkill } from '../tools/code/ExplainCodeSkill.ts'
 import { RefactorSkill } from '../tools/code/RefactorSkill.ts'
 import { PrSyncSkill } from '../tools/pr/PrSyncSkill.ts'
+import { AskHumanTool } from '../tools/human/AskHumanTool.ts'
 import { SubagentTaskSkill } from '../tools/core/SubagentTaskSkill.ts'
 import { escapeXml, wrapProjectContext, loadProjectContext, wrapSkillsCatalog, SKILLS_CATALOG_GUARD, wrapSkillContent, SKILL_CONTENT_GUARD } from '../agents/memberLore.ts'
 import { checkSkillIntegrity, recordSkillIntegrityDrift, SkillIntegrityError } from '../utils/skillIntegrity.ts'
@@ -29,6 +30,7 @@ import { sharedConversationalStyle } from './MemberRegistry.ts'
 import type { EpisodeLearner } from '../evals/EpisodeLearner.ts'
 
 const TOOL_MAP: Record<string, new (...args: never[]) => ITool> = {
+  'ask_human': AskHumanTool,
   'file.read': ReadFileSkill,
   'file.write': WriteFileSkill,
   'file.search': SearchCodebaseSkill,
@@ -47,7 +49,8 @@ const TRUSTED_TOOLS = new Set(['pr_sync'])
 // Read-only tools are safe for every profile. Anything not classified below is
 // denied — a future tool that touches state but is NOT added to WRITE_TOOLS /
 // TRUSTED_TOOLS fails closed (never silently granted to restricted members).
-const READ_ONLY_TOOLS = new Set(['file.read', 'file.search', 'code.explain'])
+// ask_human only asks, never mutates state, so every member gets it.
+const READ_ONLY_TOOLS = new Set(['ask_human', 'file.read', 'file.search', 'code.explain'])
 
 export interface MemberAgentOptions {
   agentRegistry?: AgentRegistry
@@ -95,12 +98,19 @@ export class MemberAgent extends BaseAgent {
       this.addTool(toolName, tools, seen)
     }
 
-    this.addDelegationTool(tools, seen)
-
     // fail closed: members without instantiable tools get read-only access
     if (tools.length === 0) {
       tools.push(new ReadFileSkill())
     }
+
+    // every member can park for human input regardless of spec.tools/profile
+    const askHuman = new AskHumanTool()
+    if (!seen.has(askHuman.name)) {
+      tools.push(askHuman)
+      seen.add(askHuman.name)
+    }
+
+    this.addDelegationTool(tools, seen)
 
     return tools
   }

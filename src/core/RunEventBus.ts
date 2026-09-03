@@ -16,6 +16,7 @@ export type RunEvent =
   | (RunEventBase & { type: 'provenance.recorded'; checksum: string })
   | (RunEventBase & { type: 'run.finished'; output: string; durationMs: number })
   | (RunEventBase & { type: 'run.failed'; error: string; durationMs: number })
+  | (RunEventBase & { type: 'run.awaiting_input'; question: string; context?: string; durationMs: number })
 
 export type RunEventListener = (event: RunEvent) => void
 

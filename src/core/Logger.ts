@@ -59,7 +59,7 @@ export class Logger implements AgenthoodLogger {
   private readonly source: TraceSource
   private readonly correlationId: string
   private readonly events?: RunEventBus
-  private readonly redactor?: RedactionFilter
+  private readonly redactor: RedactionFilter
 
   constructor(options: LoggerOptions = {}) {
     const projectPath = options.projectPath ?? process.cwd()
@@ -94,7 +94,15 @@ export class Logger implements AgenthoodLogger {
 
     // Persist and emit the redacted form so secrets never reach the store or
     // the live bus; a deterministic placeholder keeps replay faithful.
-    const stored = this.redactor ? this.redactor.redact(envelope) : envelope
+    // Redaction is best-effort: a failure degrades to an unredacted entry plus
+    // a warning, never a throw to the caller (logging must not break callers).
+    let stored: TraceEnvelope
+    try {
+      stored = this.redactor.redact(envelope)
+    } catch (err) {
+      console.warn(`[logger] redaction failed, persisting unredacted: ${err instanceof Error ? err.message : String(err)}`)
+      stored = envelope
+    }
 
     this.events?.emit({
       type: 'log.created',

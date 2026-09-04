@@ -105,6 +105,50 @@ describe('RedactionFilter', () => {
     const env = envelope('plain task text')
     expect(filter.redact(env)).toBe(env)
   })
+
+  it('redacts strings inside nested metadata and preserves non-plain values', () => {
+    const filter = new RedactionFilter({ enabled: true })
+    const createdAt = new Date('2026-01-01T00:00:00.000Z')
+    const err = new Error('boom')
+    const env: TraceEnvelope = {
+      ...envelope('task'),
+      message: 'user@example.com hit an error',
+      metadata: { owner: 'dev@example.com', createdAt, err },
+    }
+
+    const redacted = filter.redact(env)
+    expect(redacted.message).toBe('[REDACTED] hit an error')
+    expect((redacted.metadata as Record<string, unknown>).owner).toBe('[REDACTED]')
+    expect(redacted.metadata?.createdAt).toBe(createdAt)
+    expect(redacted.metadata?.err).toBe(err)
+  })
+
+  it('returns the original envelope when nested metadata is unchanged', () => {
+    const filter = new RedactionFilter({ enabled: true })
+    const env: TraceEnvelope = {
+      ...envelope('task'),
+      message: 'plain log',
+      metadata: { count: 3, nested: { ok: true } },
+    }
+
+    expect(filter.redact(env)).toBe(env)
+  })
+
+  it('does not recurse forever on circular metadata', () => {
+    const filter = new RedactionFilter({ enabled: true })
+    const circular: Record<string, unknown> = { label: 'self' }
+    circular.self = circular
+    const env: TraceEnvelope = {
+      ...envelope('task'),
+      message: 'user@example.com',
+      metadata: { circular },
+    }
+
+    const redacted = filter.redact(env)
+    const meta = redacted.metadata as { circular: Record<string, unknown> }
+    expect(meta.circular.label).toBe('self')
+    expect(meta.circular.self).toBe(circular)
+  })
 })
 
 describe('createRedactionFilterFromConfig', () => {

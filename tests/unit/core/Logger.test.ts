@@ -1,4 +1,4 @@
-import { describe, it, expect, beforeEach, afterEach } from 'vitest'
+import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest'
 import { mkdtempSync, rmSync, readFileSync, existsSync } from 'node:fs'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
@@ -106,5 +106,27 @@ describe('Logger', () => {
 
     const [entry] = readEntries()
     expect(entry.message).toBe('key [REDACTED] leaked')
+  })
+
+  it('preserves non-plain metadata values through the persisted entry', async () => {
+    const logger = new Logger({ projectPath: dir, redactor: new RedactionFilter() })
+    const createdAt = new Date('2026-01-01T00:00:00.000Z')
+
+    await logger.warn('complex', undefined, { createdAt })
+
+    // Date survives the JSON round-trip as its ISO string rather than being
+    // flattened to {} by the redactor (the serialization is JSON's job)
+    const [entry] = readEntries()
+    expect(entry.metadata?.createdAt).toBe('2026-01-01T00:00:00.000Z')
+  })
+
+  it('survives circular metadata without throwing (entry degrades with a warning)', async () => {
+    const logger = new Logger({ projectPath: dir, redactor: new RedactionFilter() })
+    const circular: Record<string, unknown> = { label: 'self' }
+    circular.self = circular
+    const errorSpy = vi.spyOn(console, 'error').mockImplementation(() => {})
+
+    await expect(logger.warn('cyclic', undefined, { circular })).resolves.toBeUndefined()
+    expect(errorSpy).toHaveBeenCalled()
   })
 })

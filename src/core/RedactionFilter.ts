@@ -86,24 +86,41 @@ export class RedactionFilter {
   }
 
   private redactMetadata(metadata: Record<string, unknown>): Record<string, unknown> {
-    const out: Record<string, unknown> = {}
-    for (const [key, value] of Object.entries(metadata)) {
-      out[key] = this.redactValue(value)
-    }
-    return out
+    const seen = new Set<object>()
+    const out = this.redactValue(metadata, seen)
+    return out === metadata ? metadata : (out as Record<string, unknown>)
   }
 
-  private redactValue(value: unknown): unknown {
+  private redactValue(value: unknown, seen: Set<object>): unknown {
     if (typeof value === 'string') return this.applyRules(value)
-    if (Array.isArray(value)) return value.map((item) => this.redactValue(item))
-    if (typeof value === 'object' && value !== null) {
-      const out: Record<string, unknown> = {}
-      for (const [key, nested] of Object.entries(value as Record<string, unknown>)) {
-        out[key] = this.redactValue(nested)
+    if (typeof value !== 'object' || value === null) return value
+    // non-plain values are preserved, not flattened (Date/RegExp/Error and
+    // anything with a custom prototype carry meaning beyond enumerable keys)
+    if (value instanceof Date || value instanceof RegExp || value instanceof Error) return value
+    // cycle guard: a self-referential metadata tree must not recurse forever
+    if (seen.has(value)) return value
+    seen.add(value)
+
+    let changed = false
+    if (Array.isArray(value)) {
+      const out: unknown[] = []
+      for (const item of value) {
+        const next = this.redactValue(item, seen)
+        if (next !== item) changed = true
+        out.push(next)
       }
-      return out
+      return changed ? out : value
     }
-    return value
+
+    const out: Record<string, unknown> = {}
+    for (const [key, nested] of Object.entries(value as Record<string, unknown>)) {
+      const next = this.redactValue(nested, seen)
+      if (next !== nested) changed = true
+      out[key] = next
+    }
+    // return the original object when nothing changed so callers can cheaply
+    // detect "no redaction happened" instead of deep-comparing every entry
+    return changed ? out : value
   }
 
   private applyRules(text: string | undefined): string | undefined {

@@ -91,7 +91,9 @@ build_comment_body() {
     fi
 
     if [ -s "$analysis_file" ]; then
-      grep -v "^Error running\|^Using \|^opencode-go\|^groq\|^ollama\|^All providers\|^$" "$analysis_file" | grep -v -iE '(api[_-]?key|token|secret|password|credential|bearer|pat|jwt)' || true
+      # Drop runtime step-telemetry rows (`[step N] model · tok · $cost`) —
+      # they belong in CI job logs, not in the review comment.
+      grep -v "^Error running\|^Using \|^opencode-go\|^groq\|^ollama\|^All providers\|^\[step \|^$" "$analysis_file" | grep -v -iE '(api[_-]?key|token|secret|password|credential|bearer|pat|jwt)' || true
     fi
 
     if [ ! -s "$analysis_file" ] && [ ! -s "$error_file" ]; then

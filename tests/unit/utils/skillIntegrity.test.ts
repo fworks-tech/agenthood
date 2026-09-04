@@ -59,6 +59,13 @@ describe('checkSkillIntegrity', () => {
     expect(checkSkillIntegrity('the-tester', join(dir, 'SKILL.md'), { lockfilePath: dir })).toBe('no-lockfile')
   })
 
+  it('returns no-lockfile when the lockfile exists but lacks the member entry', () => {
+    // attacker deleting a member's entry must degrade to gate-OFF, not clean
+    writeFileSync(join(dir, 'SKILL.md'), 'body', 'utf8')
+    lockfiles({ version: 1, members: {} })
+    expect(checkSkillIntegrity('the-tester', join(dir, 'SKILL.md'), { lockfilePath: dir })).toBe('no-lockfile')
+  })
+
   it('returns missing when the skill file does not exist', () => {
     lockfiles({ version: 1, members: { 'the-tester': { version: contentHash('x') } } })
     expect(checkSkillIntegrity('the-tester', join(dir, 'absent', 'SKILL.md'), { lockfilePath: dir })).toBe('missing')

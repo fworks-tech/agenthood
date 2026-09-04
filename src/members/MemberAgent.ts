@@ -25,7 +25,7 @@ import { PrSyncSkill } from '../tools/pr/PrSyncSkill.ts'
 import { AskHumanTool } from '../tools/human/AskHumanTool.ts'
 import { SubagentTaskSkill } from '../tools/core/SubagentTaskSkill.ts'
 import { escapeXml, wrapProjectContext, loadProjectContext, wrapSkillsCatalog, SKILLS_CATALOG_GUARD, wrapSkillContent, SKILL_CONTENT_GUARD } from '../agents/memberLore.ts'
-import { checkSkillIntegrity, recordSkillIntegrityDrift, SkillIntegrityError } from '../utils/skillIntegrity.ts'
+import { checkSkillIntegrity, describeIntegrityFailure, recordSkillIntegrityDrift, SkillIntegrityError } from '../utils/skillIntegrity.ts'
 import type { SkillIntegrityFailure } from '../utils/skillIntegrity.ts'
 import { sharedConversationalStyle } from './MemberRegistry.ts'
 import type { EpisodeLearner } from '../evals/EpisodeLearner.ts'
@@ -230,12 +230,12 @@ export class MemberAgent extends BaseAgent {
       throw new SkillIntegrityError(this.spec.name, status)
     }
 
-    const detail: Record<SkillIntegrityFailure, string> = {
-      corrupt: `agenthood.lock for "${this.spec.name}" is corrupt — verify the lockfile before running.`,
-      drift: `SKILL.md for "${this.spec.name}" drifted from agenthood.lock — verify its content before running. Run \`agenthood verify --update-lock\` if the edit is intentional.`,
-      'no-lockfile': `no agenthood.lock entry for "${this.spec.name}" — the integrity gate is OFF. Run \`agenthood verify\` to lock SKILL.md hashes.`,
-      missing: `SKILL.md for "${this.spec.name}" is missing on disk — cannot verify integrity.`,
+    const guidance: Record<SkillIntegrityFailure, string> = {
+      corrupt: 'verify the lockfile before running.',
+      drift: 'verify its content before running. Run `agenthood verify --update-lock` if the edit is intentional.',
+      'no-lockfile': 'the integrity gate is OFF. Run `agenthood verify` to lock SKILL.md hashes.',
+      missing: 'cannot verify integrity.',
     }
-    console.warn(`[skill-integrity] ${detail[status]}`)
+    console.warn(`[skill-integrity] ${describeIntegrityFailure(this.spec.name, status)} — ${guidance[status]}`)
   }
 }

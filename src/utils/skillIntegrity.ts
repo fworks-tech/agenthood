@@ -47,18 +47,38 @@ export function checkSkillIntegrity(
   return 'drift'
 }
 
+/**
+ * Single source for mapping an integrity failure reason to its canonical
+ * human phrase. Every consumer (SkillIntegrityError, the durable record, and
+ * the console warning) composes from this so the operator-facing vocabulary
+ * cannot drift between spellings.
+ */
+export function describeIntegrityFailure(member: string, reason: SkillIntegrityFailure): string {
+  switch (reason) {
+    case 'corrupt':
+      return `agenthood.lock for "${member}" is corrupt`
+    case 'drift':
+      return `SKILL.md for "${member}" drifted from agenthood.lock`
+    case 'no-lockfile':
+      return `no agenthood.lock entry for "${member}"`
+    case 'missing':
+      return `SKILL.md for "${member}" is missing on disk`
+  }
+}
+
 /** Thrown by the caller when strict mode turns a detected integrity failure into a hard block. */
 export class SkillIntegrityError extends Error {
   constructor(member: string, reason: SkillIntegrityFailure) {
-    super(
-      reason === 'corrupt'
-        ? `[mind-virus] agenthood.lock for "${member}" is corrupt — refusing to run (strict mode). Fix or regenerate the lockfile.`
-        : reason === 'drift'
-          ? `[mind-virus] SKILL.md for "${member}" drifted from agenthood.lock — refusing to run (strict mode). Run \`agenthood verify --update-lock\` if the edit is intentional.`
-          : reason === 'no-lockfile'
-            ? `[mind-virus] no agenthood.lock entry for "${member}" — the integrity gate is OFF, refusing to run (strict mode). Run \`agenthood verify\` to generate the lockfile.`
-            : `[mind-virus] SKILL.md for "${member}" is missing on disk — refusing to run (strict mode). Restore the skill file or regenerate the lockfile.`,
-    )
+    const gate = reason === 'no-lockfile' || reason === 'missing'
+      ? 'refusing to run (strict mode) — the integrity gate is OFF'
+      : 'refusing to run (strict mode)'
+    const guidance: Record<SkillIntegrityFailure, string> = {
+      corrupt: 'Fix or regenerate the lockfile.',
+      drift: 'Run `agenthood verify --update-lock` if the edit is intentional.',
+      'no-lockfile': 'Run `agenthood verify` to generate the lockfile.',
+      missing: 'Restore the skill file or regenerate the lockfile.',
+    }
+    super(`[mind-virus] ${describeIntegrityFailure(member, reason)} — ${gate}. ${guidance[reason]}`)
     this.name = 'SkillIntegrityError'
   }
 }
@@ -73,13 +93,8 @@ export async function recordSkillIntegrityDrift(
   member: string,
   reason: SkillIntegrityFailure = 'drift',
 ): Promise<void> {
-  const detail = reason === 'corrupt'
-    ? `agenthood.lock for "${member}" is corrupt`
-    : reason === 'drift'
-      ? `SKILL.md for "${member}" drifted from agenthood.lock`
-      : reason === 'no-lockfile'
-        ? `no agenthood.lock entry for "${member}" — integrity gate is OFF`
-        : `SKILL.md for "${member}" is missing on disk`
+  const gateNote = reason === 'no-lockfile' ? ' — integrity gate is OFF' : ''
+  const detail = `${describeIntegrityFailure(member, reason)}${gateNote}`
   try {
     const timestamp = new Date().toISOString()
     const id = `dec-${Date.now()}-${randomUUID()}`

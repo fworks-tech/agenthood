@@ -5,6 +5,14 @@
 
 ---
 
+## v3.42.0 — September 4, 2026
+
+### ✨ Features
+
+- **Logging:** add structured log API and agenthood log command on trace store (#507)
+
+---
+
 ## v3.41.1 — September 4, 2026
 
 ### 🐛 Bug Fixes

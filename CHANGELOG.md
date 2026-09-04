@@ -1,3 +1,10 @@
+# [3.42.0](https://github.com/fworks-tech/agenthood/compare/v3.41.1...v3.42.0) (2026-09-04)
+
+
+### Features
+
+* **logging:** add structured log API and agenthood log command on trace store ([#507](https://github.com/fworks-tech/agenthood/issues/507)) ([e5bbd52](https://github.com/fworks-tech/agenthood/commit/e5bbd5204f8a819f3cceba9894edd4b9ef88162a))
+
 ## [3.41.1](https://github.com/fworks-tech/agenthood/compare/v3.41.0...v3.41.1) (2026-09-04)
 
 

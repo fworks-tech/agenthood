@@ -87,6 +87,9 @@ Commands:
   trace                   List recent member invocation traces
                             Use --member <name>, --limit <n>, --since <time>
                             Use --json for machine-readable output
+  log                     List recent log entries (debug/info/warn/error)
+                            Use --level <level>, --member <name>, --limit <n>
+                            Use --since <time> or --json for machine-readable output
   health                  Check runtime health (tracer, store, registry, providers)
                             Exit codes: 0 healthy, 1 degraded, 2 unhealthy
   eval <member>           Run an eval suite against a member

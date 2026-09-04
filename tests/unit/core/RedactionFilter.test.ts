@@ -105,6 +105,83 @@ describe('RedactionFilter', () => {
     const env = envelope('plain task text')
     expect(filter.redact(env)).toBe(env)
   })
+
+  it('redacts strings inside nested metadata and preserves non-plain values', () => {
+    const filter = new RedactionFilter({ enabled: true })
+    const createdAt = new Date('2026-01-01T00:00:00.000Z')
+    const err = new Error('boom')
+    const env: TraceEnvelope = {
+      ...envelope('task'),
+      message: 'user@example.com hit an error',
+      metadata: { owner: 'dev@example.com', createdAt, err },
+    }
+
+    const redacted = filter.redact(env)
+    expect(redacted.message).toBe('[REDACTED] hit an error')
+    expect((redacted.metadata as Record<string, unknown>).owner).toBe('[REDACTED]')
+    expect(redacted.metadata?.createdAt).toBe(createdAt)
+    expect(redacted.metadata?.err).toBe(err)
+  })
+
+  it('returns the original envelope when nested metadata is unchanged', () => {
+    const filter = new RedactionFilter({ enabled: true })
+    const env: TraceEnvelope = {
+      ...envelope('task'),
+      message: 'plain log',
+      metadata: { count: 3, nested: { ok: true } },
+    }
+
+    expect(filter.redact(env)).toBe(env)
+  })
+
+  it('does not recurse forever on circular metadata and redacts inside the cycle', () => {
+    const filter = new RedactionFilter({ enabled: true })
+    const circular: Record<string, unknown> = { owner: 'dev@example.com' }
+    circular.self = circular
+    const env: TraceEnvelope = {
+      ...envelope('task'),
+      message: 'plain',
+      metadata: { circular },
+    }
+
+    const redacted = filter.redact(env)
+    const meta = redacted.metadata as { circular: Record<string, unknown> }
+    // the cycle resolves to the redacted copy, and the secret inside it is scrubbed
+    expect(meta.circular.owner).toBe('[REDACTED]')
+    expect(meta.circular.self).toBe(meta.circular)
+  })
+
+  it('redacts a shared reference at every occurrence (diamond, no leak)', () => {
+    const filter = new RedactionFilter({ enabled: true })
+    const shared = { owner: 'dev@example.com' }
+    const env: TraceEnvelope = {
+      ...envelope('task'),
+      message: 'plain',
+      metadata: { primary: shared, backup: shared },
+    }
+
+    const redacted = filter.redact(env)
+    const meta = redacted.metadata as { primary: Record<string, unknown>; backup: Record<string, unknown> }
+    expect(meta.primary.owner).toBe('[REDACTED]')
+    expect(meta.backup.owner).toBe('[REDACTED]')
+  })
+
+  it('preserves class instances and other non-plain values without flattening', () => {
+    const filter = new RedactionFilter({ enabled: true })
+    class Custom {
+      constructor(readonly tag: string, readonly email = 'dev@example.com') {}
+    }
+    const instance = new Custom('profile')
+    const env: TraceEnvelope = {
+      ...envelope('task'),
+      message: 'plain',
+      metadata: { instance },
+    }
+
+    const redacted = filter.redact(env)
+    expect(redacted.metadata?.instance).toBe(instance)
+    expect(redacted.metadata?.instance).toBeInstanceOf(Custom)
+  })
 })
 
 describe('createRedactionFilterFromConfig', () => {

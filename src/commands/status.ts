@@ -309,7 +309,7 @@ export async function status(args: string[] = []): Promise<void> {
       return
     }
     const store = new JSONFileTraceStore(tracesPath)
-    const windows = summarizeMemberWindows(await store.query(), member)
+    const windows = summarizeMemberWindows((await store.query()).filter((e) => e.entryType !== 'log'), member)
     printMemberWindows(member, windows, isJson)
     return
   }

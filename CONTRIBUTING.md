@@ -95,6 +95,7 @@ The `agenthood` CLI auto-discovers commands from `src/commands/` — each file e
 
 - `agenthood run <member> "<task>"` — invoke a member or core agent. Runs exit with code 1 on failure (via `process.exitCode`, so piped stderr is not truncated); the error is logged by the command, not the library — library callers calling `ApplicationContext.runMember`/`runAgent` receive the thrown error instead of a process exit.
 - `agenthood trace` — list recent invocation traces (`--member`, `--limit`, `--since`, `--json`)
+- `agenthood log` — list recent structured log entries (`--level`, `--member`, `--limit`, `--since`, `--json`)
 - `agenthood status` — project health and member metrics (`--watch`, `--json`, `--drift`, `--member`, `--learner`)
 - `agenthood eval <member> --suite <path>` — run an eval suite against a member (`--baseline`, `--update-baseline`, `--json`)
 - `agenthood health` — runtime health checks (`--json`; exit 0 healthy / 1 degraded / 2 unhealthy)
@@ -104,7 +105,7 @@ Adding a command means adding a file in `src/commands/` and documenting it here.
 
 ### Observability
 
-Every member invocation emits a trace envelope (member, duration, tokens, cost, quality, status, correlation id). Traces are flushed to `.agenthood/traces/traces.ndjson`; `agenthood status --member <name>` aggregates them into per-member cost/quality summaries over 1h/24h/7d/all windows, and `agenthood trace` lists recent envelopes. Costs come from the static pricing table in `src/core/modelPricing.ts` (unknown models fall back with a warning).
+Every member invocation emits a trace envelope (member, duration, tokens, cost, quality, status, correlation id). Traces are flushed to `.agenthood/traces/traces.ndjson`; `agenthood status --member <name>` aggregates them into per-member cost/quality summaries over 1h/24h/7d/all windows, and `agenthood trace` lists recent envelopes. Structured log entries written through the `Logger` API (`src/core/Logger.ts`) share the same NDJSON store and retention policy — they are `TraceEnvelope`s with `entryType: "log"` plus a `level` (debug/info/warn/error) and `message`; `agenthood log` lists them and `--level` filters by severity. `message`/`metadata` are redacted at write time through the same `observability.redaction` rules as trace payloads, and `trace`, `status`, `health`, and eval replay ignore log entries. Costs come from the static pricing table in `src/core/modelPricing.ts` (unknown models fall back with a warning).
 
 Evaluation: `agenthood eval <member> --suite <path>` runs the member against every task in an eval suite (`evals/benchmarks/` ships ready-made fixtures), scores each run on faithfulness, relevance, context_recall, and answer_correctness via an LLM judge, and compares the aggregates against a stored baseline in `.agenthood/baselines/<member>.json` — the command exits non-zero when a metric regresses. Use `--update-baseline` after a deliberately good run to refresh the comparison target.
 
@@ -114,7 +115,7 @@ Retention: `{ "observability": { "retention": { "ttlDays": 30, "maxEntries": 100
 
 Alerts: `{ "observability": { "alerts": { "costThreshold": 3, "qualityDrop": 0.2, "burstThreshold": 10, "cooldownMinutes": 60, "viralPersonaMarkers": 2, "propagationCopies": 3 } } }` tunes anomaly detection. On every trace flush the detector scores the batch against per-member leave-one-out baselines and appends cost spikes, quality drops, bursts, and — for mind-virus defense (see ADR-020) — `viral_persona` (recurring consciousness/persistence/resonance theme markers) and `propagation` (a viral core token replicated across many distinct sessions) to `.agenthood/alerts/anomalies.ndjson`, surfaced by `agenthood status --alerts`. All thresholds default to the values above when the block is absent.
 
-Trace path: `{ "observability": { "tracePath": ".agenthood/traces/traces.ndjson" } }` relocates the trace store (relative paths resolve against the project root); the runtime, `trace`, `status`, and `health` commands all honor it.
+Trace path: `{ "observability": { "tracePath": ".agenthood/traces/traces.ndjson" } }` relocates the trace store (relative paths resolve against the project root); the runtime, `trace`, `log`, `status`, and `health` commands all honor it.
 
 Mind-virus hardening: `{ "security": { "strictSkillIntegrity": false } }` controls the injection-time integrity check that hashes each member's injected `SKILL.md` against `agenthood.lock` when its system prompt is assembled (see ADR-020). Drift is recorded durably into decision/provenance stores and warns by default; set `strictSkillIntegrity` to `true` to block the run instead (after the audit entry is recorded). A **corrupt** lockfile (unreadable/invalid JSON) is treated like drift — it warns and records, and blocks under strict mode. A **missing lockfile entry** — or a wholly absent `agenthood.lock`, or a missing skill file — is no longer silent: it warns, records a durable audit entry, and also blocks under strict mode, so an operator always sees when the integrity gate is off.
 

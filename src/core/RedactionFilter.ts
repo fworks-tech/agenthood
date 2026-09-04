@@ -74,8 +74,65 @@ export class RedactionFilter {
     if (!this.enabled()) return envelope
     const input = this.applyRules(envelope.input)
     const output = this.applyRules(envelope.output)
-    if (input === envelope.input && output === envelope.output) return envelope
-    return { ...envelope, input, output }
+    const message = this.applyRules(envelope.message)
+    const metadata = envelope.metadata ? this.redactMetadata(envelope.metadata) : undefined
+    if (
+      input === envelope.input
+      && output === envelope.output
+      && message === envelope.message
+      && metadata === envelope.metadata
+    ) return envelope
+    return { ...envelope, input, output, message, metadata }
+  }
+
+  private redactMetadata(metadata: Record<string, unknown>): Record<string, unknown> {
+    const memo = new Map<object, unknown>()
+    const out = this.redactValue(metadata, memo)
+    return out === metadata ? metadata : (out as Record<string, unknown>)
+  }
+
+  private redactValue(value: unknown, memo: Map<object, unknown>): unknown {
+    if (typeof value === 'string') return this.applyRules(value)
+    if (typeof value !== 'object' || value === null) return value
+    // non-plain values are preserved verbatim, never flattened: JSON already
+    // serializes Date/RegExp/class instances; reconstructing them from
+    // enumerable keys would silently drop their prototype and hidden state
+    if (!isPlainObject(value) && !Array.isArray(value)) return value
+    // memo (not a plain Set) so a shared reference appearing twice is
+    // redacted once and both sites return the same result — a diamond must
+    // not leak the unredacted original at its second occurrence. The
+    // in-progress placeholder is the *output* object so a cycle's back
+    // reference resolves to the redacted copy, not the plaintext original.
+    const cached = memo.get(value)
+    if (cached !== undefined) return cached
+
+    if (Array.isArray(value)) {
+      const out: unknown[] = []
+      memo.set(value, out)
+      let changed = false
+      for (const item of value) {
+        const next = this.redactValue(item, memo)
+        if (next !== item) changed = true
+        out.push(next)
+      }
+      const result = changed ? out : value
+      memo.set(value, result)
+      return result
+    }
+
+    const out: Record<string, unknown> = {}
+    memo.set(value, out)
+    let changed = false
+    for (const [key, nested] of Object.entries(value as Record<string, unknown>)) {
+      const next = this.redactValue(nested, memo)
+      if (next !== nested) changed = true
+      out[key] = next
+    }
+    // return the original object when nothing changed so callers can cheaply
+    // detect "no redaction happened" instead of deep-comparing every entry
+    const result = changed ? out : value
+    memo.set(value, result)
+    return result
   }
 
   private applyRules(text: string | undefined): string | undefined {
@@ -96,6 +153,13 @@ export class RedactionFilter {
 
 function escapeRegExp(source: string): string {
   return source.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
+}
+
+/** True for objects whose prototype is Object.prototype or null (i.e. JSON-like). */
+function isPlainObject(value: unknown): value is Record<string, unknown> {
+  if (typeof value !== 'object' || value === null) return false
+  const proto = Object.getPrototypeOf(value)
+  return proto === Object.prototype || proto === null
 }
 
 /**

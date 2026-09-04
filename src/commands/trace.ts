@@ -1,23 +1,10 @@
 import { existsSync } from 'node:fs'
 import type { CommandDescriptor } from './types.ts'
+import { parseStoreInspectArgs } from './args.ts'
 import { JSONFileTraceStore, loadObservabilityConfig, resolveTraceStorePath } from '../core/TraceStore.ts'
+import { createRedactionFilterFromConfig } from '../core/RedactionFilter.ts'
 import { formatDuration } from '../utils/formatDuration.ts'
 import type { TraceEnvelope } from '../core/types.ts'
-
-function resolveSince(value: string): string {
-  const relative = /^(\d+)(m|h|d)$/.exec(value)
-  if (relative) {
-    const multiplier = relative[2] === 'm' ? 60_000 : relative[2] === 'h' ? 3_600_000 : 86_400_000
-    return new Date(Date.now() - Number(relative[1]) * multiplier).toISOString()
-  }
-  const ts = Date.parse(value)
-  if (Number.isNaN(ts)) {
-    console.error(`Invalid --since value: "${value}" — use an ISO date or 1h/24h/7d`)
-    process.exit(1)
-    return ''
-  }
-  return new Date(ts).toISOString()
-}
 
 function printTable(traces: TraceEnvelope[]): void {
   const header = `${'Member'.padEnd(20)} ${'Timestamp'.padEnd(24)} ${'Duration'.padEnd(10)} ${'Cost'.padEnd(10)} ${'Quality'.padEnd(9)} Status`
@@ -57,39 +44,11 @@ export async function trace(args: string[] = []): Promise<void> {
   const cwd = process.cwd()
   const tracesPath = resolveTraceStorePath(cwd, loadObservabilityConfig(cwd))
 
-  let member: string | undefined
-  let limit = 20
-  let since: string | undefined
-  let json = false
-
-  for (let i = 0; i < args.length; i++) {
-    const arg = args[i]
-    switch (arg) {
-      case '--member':
-        member = args[++i]
-        break
-      case '--limit': {
-        const parsed = Number.parseInt(args[++i] ?? '', 10)
-        if (Number.isNaN(parsed) || parsed < 0) {
-          console.error('Invalid --limit value — expected a non-negative integer')
-          process.exit(1)
-        }
-        limit = parsed
-        break
-      }
-      case '--since':
-        since = resolveSince(args[++i] ?? '')
-        break
-      case '--json':
-        json = true
-        break
-      case '--help':
-      case '-h':
-        printHelp()
-        return
-      default:
-        break
-    }
+  const parsed = parseStoreInspectArgs(args)
+  const { member, limit, since, json } = parsed
+  if (parsed.help) {
+    printHelp()
+    return
   }
 
   if (!existsSync(tracesPath)) {
@@ -98,10 +57,12 @@ export async function trace(args: string[] = []): Promise<void> {
   }
 
   const store = new JSONFileTraceStore(tracesPath)
-  const result = await store.query({ member, since, limit })
+  const result = (await store.query({ member, since, limit })).filter((e) => e.entryType !== 'log')
 
   if (json) {
-    console.log(JSON.stringify({ traces: result }, null, 2))
+    const redactor = createRedactionFilterFromConfig(loadObservabilityConfig(cwd))
+    const sanitized = result.map((e) => (redactor ? redactor.redact(e) : e))
+    console.log(JSON.stringify({ traces: sanitized }, null, 2))
     return
   }
 

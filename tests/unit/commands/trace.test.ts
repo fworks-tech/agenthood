@@ -131,6 +131,24 @@ describe('trace command', () => {
     expect(parsed.traces[0].member).toBe('the-reviewer')
   })
 
+  it('excludes log entries from trace output', async () => {
+    const logEntry = {
+      ...envelope('the-scribe', '2026-07-01T09:30:00.000Z'),
+      entryType: 'log',
+      level: 'warn',
+      message: 'drift detected',
+    }
+    vi.mocked(existsSync).mockReturnValue(true)
+    vi.mocked(readFileSync).mockReturnValue(`${tracesNdjson}\n${JSON.stringify(logEntry)}`)
+    const logSpy = vi.spyOn(console, 'log').mockImplementation(() => {})
+
+    await trace()
+
+    const output = logSpy.mock.calls.flat().join(' ')
+    expect(output).toContain('the-scribe')
+    expect(output).not.toContain('drift detected')
+  })
+
   it('rejects invalid --since values', async () => {
     const exit = vi.spyOn(process, 'exit').mockImplementation(() => undefined as never)
     const error = vi.spyOn(console, 'error').mockImplementation(() => {})

@@ -128,5 +128,6 @@ describe('Logger', () => {
 
     await expect(logger.warn('cyclic', undefined, { circular })).resolves.toBeUndefined()
     expect(errorSpy).toHaveBeenCalled()
+    errorSpy.mockRestore()
   })
 })

@@ -1,6 +1,6 @@
 import { existsSync } from 'node:fs'
 import type { CommandDescriptor } from './types.ts'
-import { parseLimit, resolveSince } from './args.ts'
+import { parseStoreInspectArgs } from './args.ts'
 import { JSONFileTraceStore, loadObservabilityConfig, resolveTraceStorePath } from '../core/TraceStore.ts'
 import { createRedactionFilterFromConfig } from '../core/RedactionFilter.ts'
 import type { LogLevel, TraceEnvelope } from '../core/types.ts'
@@ -58,36 +58,17 @@ export async function log(args: string[] = []): Promise<void> {
   const tracesPath = resolveTraceStorePath(cwd, loadObservabilityConfig(cwd))
 
   let level: LogLevel | undefined
-  let member: string | undefined
-  let limit = 20
-  let since: string | undefined
-  let json = false
-
-  for (let i = 0; i < args.length; i++) {
-    const arg = args[i]
-    switch (arg) {
-      case '--level':
-        level = parseLevel(args[++i])
-        break
-      case '--member':
-        member = args[++i]
-        break
-      case '--limit':
-        limit = parseLimit(args[++i])
-        break
-      case '--since':
-        since = resolveSince(args[++i] ?? '')
-        break
-      case '--json':
-        json = true
-        break
-      case '--help':
-      case '-h':
-        printHelp()
-        return
-      default:
-        break
+  const parsed = parseStoreInspectArgs(args, (flag, value) => {
+    if (flag === '--level') {
+      level = parseLevel(value)
+      return true
     }
+    return false
+  })
+  const { member, limit, since, json } = parsed
+  if (parsed.help) {
+    printHelp()
+    return
   }
 
   if (!existsSync(tracesPath)) {

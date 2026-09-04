@@ -149,6 +149,38 @@ describe('RedactionFilter', () => {
     expect(meta.circular.label).toBe('self')
     expect(meta.circular.self).toBe(circular)
   })
+
+  it('redacts a shared reference at every occurrence (diamond, no leak)', () => {
+    const filter = new RedactionFilter({ enabled: true })
+    const shared = { owner: 'dev@example.com' }
+    const env: TraceEnvelope = {
+      ...envelope('task'),
+      message: 'plain',
+      metadata: { primary: shared, backup: shared },
+    }
+
+    const redacted = filter.redact(env)
+    const meta = redacted.metadata as { primary: Record<string, unknown>; backup: Record<string, unknown> }
+    expect(meta.primary.owner).toBe('[REDACTED]')
+    expect(meta.backup.owner).toBe('[REDACTED]')
+  })
+
+  it('preserves class instances and other non-plain values without flattening', () => {
+    const filter = new RedactionFilter({ enabled: true })
+    class Custom {
+      constructor(readonly tag: string, readonly email = 'dev@example.com') {}
+    }
+    const instance = new Custom('profile')
+    const env: TraceEnvelope = {
+      ...envelope('task'),
+      message: 'plain',
+      metadata: { instance },
+    }
+
+    const redacted = filter.redact(env)
+    expect(redacted.metadata?.instance).toBe(instance)
+    expect(redacted.metadata?.instance).toBeInstanceOf(Custom)
+  })
 })
 
 describe('createRedactionFilterFromConfig', () => {

@@ -41,8 +41,10 @@ type PluginConfig = Config & { skills?: { paths?: string[]; urls?: string[] } }
 // crash plugin load — the server() guard below skips tool registration.
 export const memberNames: string[] = (() => {
   try {
-    return readdirSync(join(PACKAGE_ROOT, 'skills'))
-      .filter((d) => d.startsWith('the-'))
+    const skillsDir = join(PACKAGE_ROOT, 'skills')
+    return readdirSync(skillsDir, { withFileTypes: true })
+      .filter((d) => d.isDirectory() && d.name.startsWith('the-') && existsSync(join(skillsDir, d.name, 'SKILL.md')))
+      .map((d) => d.name)
       .sort()
   } catch {
     return []

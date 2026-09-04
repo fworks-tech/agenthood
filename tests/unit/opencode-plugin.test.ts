@@ -28,7 +28,7 @@ describe('agenthood opencode plugin', () => {
     const hooks = await pluginModule.server()
     const def = hooks.tool?.['agenthood_run_member']
     expect(def).toBeDefined()
-    expect(def?.description).toContain('the-reviewer')
+    expect(def?.description).toContain(memberNames.join(', '))
     expect(def?.args.member).toBeDefined()
     expect(def?.args.task).toBeDefined()
   })

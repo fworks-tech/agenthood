@@ -111,9 +111,7 @@ const server: Plugin = async () => {
           agenthood_run_member: {
             description:
               'Run an Agenthood Society member as a real agent on a task (enforced behavior + audit trail). '
-              + 'Members: the-builder, the-reviewer, the-warden, the-tester, the-debugger, the-auditor, '
-              + 'the-architect, the-scribe, the-doorman, the-sentinel, the-oracle, the-librarian, the-herald, '
-              + 'the-envoy, the-steward, the-mediator, the-strategist, the-operator, the-mailman, the-inspector. '
+              + `Members: ${memberNames.join(', ')}. `
               + 'Use the-steward to route ambiguous tasks to the minimal member set first.',
             args: {
               member: z.enum(memberNames as [string, ...string[]]),

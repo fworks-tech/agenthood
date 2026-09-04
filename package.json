@@ -36,6 +36,10 @@
   "author": "Fabio Ritzel Borges <fritzelborges@gmail.com>",
   "type": "module",
   "main": "./dist/cli.js",
+  "exports": {
+    ".": "./dist/cli.js",
+    "./server": "./dist/opencode-plugin.js"
+  },
   "bin": {
     "agenthood": "dist/cli.js"
   },
@@ -72,6 +76,7 @@
     "@commitlint/config-conventional": "^19.5.0",
     "@commitlint/types": "^19.0.0",
     "@eslint/js": "^9.15.0",
+    "@opencode-ai/plugin": "^1.17.15",
     "@semantic-release/changelog": "^6.0.3",
     "@semantic-release/exec": "^7.1.0",
     "@semantic-release/git": "^10.0.1",
@@ -104,6 +109,7 @@
     "tree-sitter": "0.21.1",
     "tree-sitter-go": "0.23.2",
     "tree-sitter-python": "0.23.2",
-    "tree-sitter-typescript": "0.23.2"
+    "tree-sitter-typescript": "0.23.2",
+    "zod": "4.1.8"
   }
 }

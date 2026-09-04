@@ -139,6 +139,32 @@ Agenthood is agent-agnostic. The skill files work with:
 
 The TypeScript runtime (`agenthood run`) supports OpenCode (default, per `.agenthood/config.json`), Groq (free tier at [console.groq.com](https://console.groq.com)), Anthropic, OpenAI, and Ollama for fully offline execution.
 
+### opencode plugin
+
+Install once, use everywhere — no per-project config needed:
+
+```bash
+npm i -g agenthood   # or: npm i -g agenthood@3.41.1 (pinned)
+```
+
+```jsonc
+// ~/.config/opencode/opencode.jsonc  (global scope)
+{
+  "$schema": "https://opencode.ai/config.json",
+  "plugin": ["agenthood"]
+}
+```
+
+```jsonc
+// ./opencode.json  (project scope — same one-liner)
+{
+  "$schema": "https://opencode.ai/config.json",
+  "plugin": ["agenthood"]
+}
+```
+
+The plugin wires the Society into opencode: all 20 member skills (`skills/`), `AGENTS.md` instructions, a primary `the-steward` router agent, and an `agenthood_run_member` tool that executes a member as a real runtime agent (enforced behavior + audit trail). After adding or updating the plugin entry, **quit and restart opencode** — config is loaded once at startup, not hot-reloaded.
+
 The [Agenthood Studio playground](https://agenthood.flabs.tech/studio/playground) exercises the same runtime through a browser UI — every chat request runs through `agenthood/dist/llm` with provider routing, failover, and streaming.
 
 ---

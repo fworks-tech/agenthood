@@ -100,16 +100,16 @@ export class RedactionFilter {
     if (!isPlainObject(value) && !Array.isArray(value)) return value
     // memo (not a plain Set) so a shared reference appearing twice is
     // redacted once and both sites return the same result — a diamond must
-    // not leak the unredacted original at its second occurrence
+    // not leak the unredacted original at its second occurrence. The
+    // in-progress placeholder is the *output* object so a cycle's back
+    // reference resolves to the redacted copy, not the plaintext original.
     const cached = memo.get(value)
     if (cached !== undefined) return cached
-    // placeholder while in progress: a self-referential tree resolves the
-    // cycle to the original instead of recursing forever
-    memo.set(value, value)
 
-    let changed = false
     if (Array.isArray(value)) {
       const out: unknown[] = []
+      memo.set(value, out)
+      let changed = false
       for (const item of value) {
         const next = this.redactValue(item, memo)
         if (next !== item) changed = true
@@ -121,6 +121,8 @@ export class RedactionFilter {
     }
 
     const out: Record<string, unknown> = {}
+    memo.set(value, out)
+    let changed = false
     for (const [key, nested] of Object.entries(value as Record<string, unknown>)) {
       const next = this.redactValue(nested, memo)
       if (next !== nested) changed = true

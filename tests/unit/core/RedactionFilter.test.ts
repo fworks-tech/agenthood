@@ -134,20 +134,21 @@ describe('RedactionFilter', () => {
     expect(filter.redact(env)).toBe(env)
   })
 
-  it('does not recurse forever on circular metadata', () => {
+  it('does not recurse forever on circular metadata and redacts inside the cycle', () => {
     const filter = new RedactionFilter({ enabled: true })
-    const circular: Record<string, unknown> = { label: 'self' }
+    const circular: Record<string, unknown> = { owner: 'dev@example.com' }
     circular.self = circular
     const env: TraceEnvelope = {
       ...envelope('task'),
-      message: 'user@example.com',
+      message: 'plain',
       metadata: { circular },
     }
 
     const redacted = filter.redact(env)
     const meta = redacted.metadata as { circular: Record<string, unknown> }
-    expect(meta.circular.label).toBe('self')
-    expect(meta.circular.self).toBe(circular)
+    // the cycle resolves to the redacted copy, and the secret inside it is scrubbed
+    expect(meta.circular.owner).toBe('[REDACTED]')
+    expect(meta.circular.self).toBe(meta.circular)
   })
 
   it('redacts a shared reference at every occurrence (diamond, no leak)', () => {

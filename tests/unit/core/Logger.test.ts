@@ -87,4 +87,24 @@ describe('Logger', () => {
     const evt = events[0] as { message: string }
     expect(evt.message).toBe('key [REDACTED] leaked')
   })
+
+  it('redacts nested metadata values', async () => {
+    const logger = new Logger({ projectPath: dir, redactor: new RedactionFilter() })
+    await logger.warn('deep', undefined, {
+      user: { email: 'dev@example.com', aliases: ['a@example.com', 'b@example.com'] },
+    })
+
+    const [entry] = readEntries()
+    expect(entry.metadata).toEqual({
+      user: { email: '[REDACTED]', aliases: ['[REDACTED]', '[REDACTED]'] },
+    })
+  })
+
+  it('redacts by default when config has no observability block (fails closed)', async () => {
+    const logger = new Logger({ projectPath: dir })
+    await logger.info('key sk-abc1234567 leaked')
+
+    const [entry] = readEntries()
+    expect(entry.message).toBe('key [REDACTED] leaked')
+  })
 })

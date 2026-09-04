@@ -88,9 +88,22 @@ export class RedactionFilter {
   private redactMetadata(metadata: Record<string, unknown>): Record<string, unknown> {
     const out: Record<string, unknown> = {}
     for (const [key, value] of Object.entries(metadata)) {
-      out[key] = typeof value === 'string' ? this.applyRules(value) : value
+      out[key] = this.redactValue(value)
     }
     return out
+  }
+
+  private redactValue(value: unknown): unknown {
+    if (typeof value === 'string') return this.applyRules(value)
+    if (Array.isArray(value)) return value.map((item) => this.redactValue(item))
+    if (typeof value === 'object' && value !== null) {
+      const out: Record<string, unknown> = {}
+      for (const [key, nested] of Object.entries(value as Record<string, unknown>)) {
+        out[key] = this.redactValue(nested)
+      }
+      return out
+    }
+    return value
   }
 
   private applyRules(text: string | undefined): string | undefined {

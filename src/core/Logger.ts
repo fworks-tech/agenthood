@@ -68,7 +68,9 @@ export class Logger implements AgenthoodLogger {
     this.source = options.source ?? 'cli'
     this.correlationId = options.correlationId ?? randomUUID()
     this.events = options.events
-    this.redactor = options.redactor ?? createRedactionFilterFromConfig(config)
+    // always provide a redactor (enabled by default) so raw payloads never
+    // reach the store/bus even when config carries no observability block
+    this.redactor = options.redactor ?? createRedactionFilterFromConfig(config) ?? new RedactionFilter()
   }
 
   async log(level: LogLevel, message: string, member?: string, metadata?: Record<string, unknown>): Promise<void> {

@@ -144,7 +144,7 @@ The TypeScript runtime (`agenthood run`) supports OpenCode (default, per `.agent
 Install once, use everywhere — no per-project config needed:
 
 ```bash
-npm i -g agenthood   # or: npm i -g agenthood@3.41.1 (pinned)
+npm i -g agenthood   # or: npm i -g agenthood@3.42.0 (pinned)
 ```
 
 ```jsonc

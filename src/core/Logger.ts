@@ -11,8 +11,8 @@
  */
 
 import { randomUUID } from 'node:crypto'
-import { contentHash } from '../utils/hash.ts'
 import { JSONFileTraceStore, loadObservabilityConfig, resolveTraceStorePath } from './TraceStore.ts'
+import { createRedactionFilterFromConfig, RedactionFilter } from './RedactionFilter.ts'
 import type { TraceEnvelope, TraceSource, LogLevel } from './types.ts'
 import type { RunEventBus } from './RunEventBus.ts'
 
@@ -26,6 +26,8 @@ export interface LoggerOptions {
   correlationId?: string
   /** Optional live bus — emits `log.created` when provided. */
   events?: RunEventBus
+  /** Overrides the redactor derived from config (test seam, explicit policy). */
+  redactor?: RedactionFilter
 }
 
 export interface AgenthoodLogger {
@@ -57,13 +59,16 @@ export class Logger implements AgenthoodLogger {
   private readonly source: TraceSource
   private readonly correlationId: string
   private readonly events?: RunEventBus
+  private readonly redactor?: RedactionFilter
 
   constructor(options: LoggerOptions = {}) {
     const projectPath = options.projectPath ?? process.cwd()
-    this.filePath = resolveTraceStorePath(projectPath, options.config ?? loadObservabilityConfig(projectPath))
+    const config = options.config ?? loadObservabilityConfig(projectPath)
+    this.filePath = resolveTraceStorePath(projectPath, config)
     this.source = options.source ?? 'cli'
     this.correlationId = options.correlationId ?? randomUUID()
     this.events = options.events
+    this.redactor = options.redactor ?? createRedactionFilterFromConfig(config)
   }
 
   async log(level: LogLevel, message: string, member?: string, metadata?: Record<string, unknown>): Promise<void> {
@@ -73,8 +78,8 @@ export class Logger implements AgenthoodLogger {
       level,
       message,
       metadata,
-      inputHash: contentHash(''),
-      outputHash: contentHash(''),
+      inputHash: '',
+      outputHash: '',
       durationMs: 0,
       tokenCount: { input: 0, output: 0, total: 0 },
       cost: 0,
@@ -85,18 +90,22 @@ export class Logger implements AgenthoodLogger {
       source: this.source,
     }
 
+    // Persist and emit the redacted form so secrets never reach the store or
+    // the live bus; a deterministic placeholder keeps replay faithful.
+    const stored = this.redactor ? this.redactor.redact(envelope) : envelope
+
     this.events?.emit({
       type: 'log.created',
       executionId: this.correlationId,
-      member: envelope.member,
+      member: stored.member,
       correlationId: this.correlationId,
-      timestamp: envelope.timestamp,
+      timestamp: stored.timestamp,
       level,
-      message,
+      message: stored.message ?? '',
     })
 
     try {
-      await storeFor(this.filePath).store(envelope)
+      await storeFor(this.filePath).store(stored)
     } catch (err) {
       console.error(`[logger] failed to persist ${level} log entry: ${err instanceof Error ? err.message : String(err)}`)
     }

@@ -74,8 +74,23 @@ export class RedactionFilter {
     if (!this.enabled()) return envelope
     const input = this.applyRules(envelope.input)
     const output = this.applyRules(envelope.output)
-    if (input === envelope.input && output === envelope.output) return envelope
-    return { ...envelope, input, output }
+    const message = this.applyRules(envelope.message)
+    const metadata = envelope.metadata ? this.redactMetadata(envelope.metadata) : undefined
+    if (
+      input === envelope.input
+      && output === envelope.output
+      && message === envelope.message
+      && metadata === envelope.metadata
+    ) return envelope
+    return { ...envelope, input, output, message, metadata }
+  }
+
+  private redactMetadata(metadata: Record<string, unknown>): Record<string, unknown> {
+    const out: Record<string, unknown> = {}
+    for (const [key, value] of Object.entries(metadata)) {
+      out[key] = typeof value === 'string' ? this.applyRules(value) : value
+    }
+    return out
   }
 
   private applyRules(text: string | undefined): string | undefined {

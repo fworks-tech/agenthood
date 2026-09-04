@@ -1,12 +1,14 @@
 import { existsSync } from 'node:fs'
 import type { CommandDescriptor } from './types.ts'
+import { parseLimit, resolveSince } from './args.ts'
 import { JSONFileTraceStore, loadObservabilityConfig, resolveTraceStorePath } from '../core/TraceStore.ts'
+import { createRedactionFilterFromConfig } from '../core/RedactionFilter.ts'
 import type { LogLevel, TraceEnvelope } from '../core/types.ts'
 
 const LOG_LEVELS: LogLevel[] = ['debug', 'info', 'warn', 'error']
 
 function isLogEnvelope(e: TraceEnvelope): boolean {
-  return e.entryType === 'log' || e.level !== undefined
+  return e.entryType === 'log'
 }
 
 function parseLevel(value: string | undefined): LogLevel | undefined {
@@ -15,21 +17,6 @@ function parseLevel(value: string | undefined): LogLevel | undefined {
   if (LOG_LEVELS.includes(level)) return level
   console.error(`Invalid --level value: "${value}" — use one of ${LOG_LEVELS.join(', ')}`)
   process.exit(1)
-}
-
-function resolveSince(value: string): string {
-  const relative = /^(\d+)(m|h|d)$/.exec(value)
-  if (relative) {
-    const multiplier = relative[2] === 'm' ? 60_000 : relative[2] === 'h' ? 3_600_000 : 86_400_000
-    return new Date(Date.now() - Number(relative[1]) * multiplier).toISOString()
-  }
-  const ts = Date.parse(value)
-  if (Number.isNaN(ts)) {
-    console.error(`Invalid --since value: "${value}" — use an ISO date or 1h/24h/7d`)
-    process.exit(1)
-    return ''
-  }
-  return new Date(ts).toISOString()
 }
 
 function printTable(logs: TraceEnvelope[]): void {
@@ -85,15 +72,9 @@ export async function log(args: string[] = []): Promise<void> {
       case '--member':
         member = args[++i]
         break
-      case '--limit': {
-        const parsed = Number.parseInt(args[++i] ?? '', 10)
-        if (Number.isNaN(parsed) || parsed < 0) {
-          console.error('Invalid --limit value — expected a non-negative integer')
-          process.exit(1)
-        }
-        limit = parsed
+      case '--limit':
+        limit = parseLimit(args[++i])
         break
-      }
       case '--since':
         since = resolveSince(args[++i] ?? '')
         break
@@ -120,7 +101,9 @@ export async function log(args: string[] = []): Promise<void> {
   result = result.slice(0, limit)
 
   if (json) {
-    console.log(JSON.stringify({ entries: result }, null, 2))
+    const redactor = createRedactionFilterFromConfig(loadObservabilityConfig(cwd))
+    const sanitized = result.map((e) => (redactor ? redactor.redact(e) : e))
+    console.log(JSON.stringify({ entries: sanitized }, null, 2))
     return
   }
 

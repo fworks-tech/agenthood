@@ -103,7 +103,7 @@ npx agenthood log --member the-scribe --limit 50
 npx agenthood log --since 1h --json    # jq-friendly NDJSON output
 ```
 
-Programmatically, the runtime's `Logger` (in `src/core/Logger.ts`) writes the same entries: `log(level, message, member?)` plus `debug`/`info`/`warn`/`error` helpers. Existing `console.*` calls keep working — `log()` is the recommended replacement, not a breaking migration. Logs also publish `log.created` events on the `RunEventBus` when the logger is wired to one.
+Programmatically, the runtime's `Logger` (in `src/core/Logger.ts`) writes the same entries: `log(level, message, member?)` plus `debug`/`info`/`warn`/`error` helpers. Log `message` and `metadata` payloads pass through the same redaction rules as traces (`observability.redaction`) before they are persisted or published. Existing `console.*` calls keep working — `log()` is the recommended replacement, not a breaking migration. Logs also publish `log.created` events on the `RunEventBus` when the logger is wired to one.
 
 Set one of these in a `.env` file in your project root (loaded automatically by the runtime) — and add `.env` to your `.gitignore` so keys never get committed. The default provider follows the `providers` list in `.agenthood/config.json` (opencode primary, Groq among the fallbacks) — set the keys for the providers you want available:
 

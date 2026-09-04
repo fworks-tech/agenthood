@@ -4,6 +4,7 @@ import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 import { Logger } from '../../../src/core/Logger.ts'
 import { RunEventBus } from '../../../src/core/RunEventBus.ts'
+import { RedactionFilter } from '../../../src/core/RedactionFilter.ts'
 import type { TraceEnvelope } from '../../../src/core/types.ts'
 
 describe('Logger', () => {
@@ -71,5 +72,19 @@ describe('Logger', () => {
     expect(evt.type).toBe('log.created')
     expect(evt.level).toBe('warn')
     expect(evt.message).toBe('watch out')
+  })
+
+  it('redacts secrets from message and metadata before persisting and emitting', async () => {
+    const bus = new RunEventBus()
+    const events: unknown[] = []
+    bus.subscribe((e) => events.push(e))
+    const logger = new Logger({ projectPath: dir, events: bus, redactor: new RedactionFilter() })
+    await logger.info('key sk-abc1234567 leaked', 'the-scribe', { owner: 'dev@example.com' })
+
+    const [entry] = readEntries()
+    expect(entry.message).toBe('key [REDACTED] leaked')
+    expect(entry.metadata).toEqual({ owner: '[REDACTED]' })
+    const evt = events[0] as { message: string }
+    expect(evt.message).toBe('key [REDACTED] leaked')
   })
 })

@@ -85,11 +85,25 @@ npx agenthood run the-architect "plan the implementation for issue #42"
 npx agenthood verify                    # validate member SKILL.md integrity
 npx agenthood status --watch            # live project health monitoring
 npx agenthood trace                     # list recent invocation traces
+npx agenthood log                       # list recent structured log entries
 npx agenthood health                    # runtime health checks (exit 0/1/2)
 npx agenthood eval the-reviewer --suite evals/benchmarks/review-pr.json  # scored eval with baseline gating
 npx agenthood rollback the-scribe       # restore SKILL.md from lockfile
 npx agenthood workflow review-pr        # execute the review-pr workflow
 ```
+
+#### Structured logging
+
+Log entries are persisted to the same NDJSON store as traces (`.agenthood/traces/traces.ndjson`) and share its retention policy:
+
+```bash
+npx agenthood log                      # recent entries (default limit 20)
+npx agenthood log --level warn         # filter by debug|info|warn|error
+npx agenthood log --member the-scribe --limit 50
+npx agenthood log --since 1h --json    # jq-friendly NDJSON output
+```
+
+Programmatically, the runtime's `Logger` (in `src/core/Logger.ts`) writes the same entries: `log(level, message, member?)` plus `debug`/`info`/`warn`/`error` helpers. Existing `console.*` calls keep working — `log()` is the recommended replacement, not a breaking migration. Logs also publish `log.created` events on the `RunEventBus` when the logger is wired to one.
 
 Set one of these in a `.env` file in your project root (loaded automatically by the runtime) — and add `.env` to your `.gitignore` so keys never get committed. The default provider follows the `providers` list in `.agenthood/config.json` (opencode primary, Groq among the fallbacks) — set the keys for the providers you want available:
 

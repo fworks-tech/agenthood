@@ -26,7 +26,7 @@ export async function runReplay(member: string, limit: number, json: boolean): P
     process.exit(1)
   }
 
-  let envelopes = await new JSONFileTraceStore(tracesPath).query()
+  let envelopes = (await new JSONFileTraceStore(tracesPath).query()).filter((e) => e.entryType !== 'log')
   envelopes = envelopes.filter((e) => e.member === member).slice(-limit)
   if (envelopes.length === 0) {
     console.error(`No traces for member "${member}".`)

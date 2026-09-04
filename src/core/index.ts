@@ -13,6 +13,9 @@ export type {
   ProjectMemory,
 } from "./types.ts"
 export { Tracer } from "./Tracer.ts"
+export { Logger } from "./Logger.ts"
+export type { LoggerOptions, AgenthoodLogger } from "./Logger.ts"
+export type { LogLevel } from "./types.ts"
 export { createTraceEnvelope } from "./TraceEnvelope.ts"
 export type { CreateTraceEnvelopeInput } from "./TraceEnvelope.ts"
 export { JSONFileTraceStore, RetentionManager, createRetentionPolicyFromConfig } from "./TraceStore.ts"

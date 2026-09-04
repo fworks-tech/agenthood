@@ -51,7 +51,7 @@ async function collectHealthDeps(cwd: string, config: LLMConfig): Promise<Health
   let traceCount = 0
   let storeOk = true
   try {
-    traceCount = (await store.query()).length
+    traceCount = (await store.query()).filter((e) => e.entryType !== 'log').length
   } catch {
     storeOk = false
   }

@@ -17,6 +17,8 @@ export interface Convention {
 
 export type TraceSource = 'cli' | 'playground' | 'api' | 'automated'
 
+export type LogLevel = 'debug' | 'info' | 'warn' | 'error'
+
 export interface TraceEnvelope {
   member: string
   inputHash: string
@@ -34,6 +36,14 @@ export interface TraceEnvelope {
   timestamp: string
   source: TraceSource
   model?: string
+  /** Discriminates log entries from member-invocation traces in the same NDJSON store. Defaults to 'trace' for backwards compatibility. */
+  entryType?: 'trace' | 'log'
+  /** Present on log entries ('debug' | 'info' | 'warn' | 'error'). */
+  level?: LogLevel
+  /** Present on log entries. */
+  message?: string
+  /** Optional structured context attached to a log entry. */
+  metadata?: Record<string, unknown>
   /** Raw task text, persisted for replay-based evaluation (redaction governs later) */
   input?: string
   output?: string

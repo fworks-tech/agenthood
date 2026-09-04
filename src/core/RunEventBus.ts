@@ -17,6 +17,7 @@ export type RunEvent =
   | (RunEventBase & { type: 'run.finished'; output: string; durationMs: number })
   | (RunEventBase & { type: 'run.failed'; error: string; durationMs: number })
   | (RunEventBase & { type: 'run.awaiting_input'; question: string; context?: string; durationMs: number })
+  | (RunEventBase & { type: 'log.created'; level: 'debug' | 'info' | 'warn' | 'error'; message: string })
 
 export type RunEventListener = (event: RunEvent) => void
 

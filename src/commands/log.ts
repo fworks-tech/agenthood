@@ -1,8 +1,21 @@
 import { existsSync } from 'node:fs'
 import type { CommandDescriptor } from './types.ts'
 import { JSONFileTraceStore, loadObservabilityConfig, resolveTraceStorePath } from '../core/TraceStore.ts'
-import { formatDuration } from '../utils/formatDuration.ts'
-import type { TraceEnvelope } from '../core/types.ts'
+import type { LogLevel, TraceEnvelope } from '../core/types.ts'
+
+const LOG_LEVELS: LogLevel[] = ['debug', 'info', 'warn', 'error']
+
+function isLogEnvelope(e: TraceEnvelope): boolean {
+  return e.entryType === 'log' || e.level !== undefined
+}
+
+function parseLevel(value: string | undefined): LogLevel | undefined {
+  const level = value?.toLowerCase() as LogLevel | undefined
+  if (level === undefined) return undefined
+  if (LOG_LEVELS.includes(level)) return level
+  console.error(`Invalid --level value: "${value}" — use one of ${LOG_LEVELS.join(', ')}`)
+  process.exit(1)
+}
 
 function resolveSince(value: string): string {
   const relative = /^(\d+)(m|h|d)$/.exec(value)
@@ -19,44 +32,45 @@ function resolveSince(value: string): string {
   return new Date(ts).toISOString()
 }
 
-function printTable(traces: TraceEnvelope[]): void {
-  const header = `${'Member'.padEnd(20)} ${'Timestamp'.padEnd(24)} ${'Duration'.padEnd(10)} ${'Cost'.padEnd(10)} ${'Quality'.padEnd(9)} Status`
+function printTable(logs: TraceEnvelope[]): void {
+  const header = `${'Level'.padEnd(7)} ${'Timestamp'.padEnd(24)} ${'Member'.padEnd(20)} Message`
   console.log(`\n  ${header}`)
-  console.log(`  ${''.padEnd(20, '-')} ${''.padEnd(24, '-')} ${''.padEnd(10, '-')} ${''.padEnd(10, '-')} ${''.padEnd(9, '-')} ${''.padEnd(8, '-')}`)
-  for (const t of traces) {
-    const member = t.member.length > 18 ? `${t.member.slice(0, 18)}…` : t.member
-    const timestamp = new Date(t.timestamp).toISOString().slice(0, 19)
-    const quality = t.qualityScore === null ? '—' : t.qualityScore.toFixed(2)
-    console.log(`  ${member.padEnd(20)} ${timestamp.padEnd(24)} ${formatDuration(t.durationMs).padEnd(10)} $${t.cost.toFixed(4).padEnd(9)} ${quality.padEnd(9)} ${t.status}`)
+  console.log(`  ${''.padEnd(7, '-')} ${''.padEnd(24, '-')} ${''.padEnd(20, '-')} ${''.padEnd(8, '-')}`)
+  for (const l of logs) {
+    const member = l.member.length > 18 ? `${l.member.slice(0, 18)}…` : l.member
+    const timestamp = new Date(l.timestamp).toISOString().slice(0, 19)
+    console.log(`  ${(l.level ?? 'info').toUpperCase().padEnd(7)} ${timestamp.padEnd(24)} ${member.padEnd(20)} ${l.message ?? ''}`)
   }
   console.log()
 }
 
 function printHelp(): void {
   console.log(`Usage:
-  npx agenthood trace [options]
+  npx agenthood log [options]
 
-Inspect recent member invocation traces from the observability store.
+Inspect recent log entries from the observability store.
 
 Options:
+  --level <level>   Filter by level: debug, info, warn, error
   --member <name>   Filter by member name
-  --limit <n>       Maximum number of traces (default 20)
-  --since <time>    Only traces newer than <time> (ISO date or 1h/24h/7d)
+  --limit <n>       Maximum number of entries (default 20)
+  --since <time>    Only entries newer than <time> (ISO date or 1h/24h/7d)
   --json            Machine-readable JSON output
   --help            Show this help
 `)
 }
 
 export const command: CommandDescriptor = {
-  name: 'trace',
-  description: 'List recent member invocation traces',
-  handler: (args) => trace(args),
+  name: 'log',
+  description: 'List recent log entries',
+  handler: (args) => log(args),
 }
 
-export async function trace(args: string[] = []): Promise<void> {
+export async function log(args: string[] = []): Promise<void> {
   const cwd = process.cwd()
   const tracesPath = resolveTraceStorePath(cwd, loadObservabilityConfig(cwd))
 
+  let level: LogLevel | undefined
   let member: string | undefined
   let limit = 20
   let since: string | undefined
@@ -65,6 +79,9 @@ export async function trace(args: string[] = []): Promise<void> {
   for (let i = 0; i < args.length; i++) {
     const arg = args[i]
     switch (arg) {
+      case '--level':
+        level = parseLevel(args[++i])
+        break
       case '--member':
         member = args[++i]
         break
@@ -93,20 +110,22 @@ export async function trace(args: string[] = []): Promise<void> {
   }
 
   if (!existsSync(tracesPath)) {
-    console.log('No traces recorded yet. Run `agenthood run <member> "<task>"` first.')
+    console.log('No log entries recorded yet.')
     return
   }
 
   const store = new JSONFileTraceStore(tracesPath)
-  const result = (await store.query({ member, since, limit })).filter((e) => e.entryType !== 'log')
+  let result = (await store.query({ member, since })).filter(isLogEnvelope)
+  if (level) result = result.filter((e) => e.level === level)
+  result = result.slice(0, limit)
 
   if (json) {
-    console.log(JSON.stringify({ traces: result }, null, 2))
+    console.log(JSON.stringify({ entries: result }, null, 2))
     return
   }
 
   if (result.length === 0) {
-    console.log('No traces match the given filters.')
+    console.log('No log entries match the given filters.')
     return
   }
 

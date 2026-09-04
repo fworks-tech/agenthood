@@ -51,7 +51,10 @@ export function checkSkillIntegrity(
  * Single source for mapping an integrity failure reason to its canonical
  * human phrase. Every consumer (SkillIntegrityError, the durable record, and
  * the console warning) composes from this so the operator-facing vocabulary
- * cannot drift between spellings.
+ * cannot drift between spellings. Per-surface *guidance* text intentionally
+ * differs (a strict-mode throw tells the operator what to fix; a warning
+ * tells them the run continued and how to re-lock) — only the reason phrases
+ * are centralized here.
  */
 export function describeIntegrityFailure(member: string, reason: SkillIntegrityFailure): string {
   switch (reason) {
@@ -69,7 +72,9 @@ export function describeIntegrityFailure(member: string, reason: SkillIntegrityF
 /** Thrown by the caller when strict mode turns a detected integrity failure into a hard block. */
 export class SkillIntegrityError extends Error {
   constructor(member: string, reason: SkillIntegrityFailure) {
-    const gate = reason === 'no-lockfile' || reason === 'missing'
+    // only no-lockfile means the gate itself is off; missing means the lockfile
+    // has an entry but the SKILL.md file is gone, so the gate IS on
+    const gate = reason === 'no-lockfile'
       ? 'refusing to run (strict mode) — the integrity gate is OFF'
       : 'refusing to run (strict mode)'
     const guidance: Record<SkillIntegrityFailure, string> = {

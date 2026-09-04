@@ -5,6 +5,8 @@ import type { ExecutionContext } from '../core/ExecutionContext.ts'
 import { contentHash } from './hash.ts'
 
 export type SkillIntegrityStatus = 'clean' | 'drift' | 'corrupt' | 'no-lockfile' | 'missing'
+/** Reasons that surface the integrity gate as inactive or violated — everything except 'clean'. */
+export type SkillIntegrityFailure = 'drift' | 'corrupt' | 'no-lockfile' | 'missing'
 
 export interface SkillIntegrityOptions {
   lockfilePath?: string
@@ -45,14 +47,43 @@ export function checkSkillIntegrity(
   return 'drift'
 }
 
-/** Thrown by the caller when strict mode turns detected drift/corruption into a hard block. */
+/**
+ * Single source for mapping an integrity failure reason to its canonical
+ * human phrase. Every consumer (SkillIntegrityError, the durable record, and
+ * the console warning) composes from this so the operator-facing vocabulary
+ * cannot drift between spellings. Per-surface *guidance* text intentionally
+ * differs (a strict-mode throw tells the operator what to fix; a warning
+ * tells them the run continued and how to re-lock) — only the reason phrases
+ * are centralized here.
+ */
+export function describeIntegrityFailure(member: string, reason: SkillIntegrityFailure): string {
+  switch (reason) {
+    case 'corrupt':
+      return `agenthood.lock for "${member}" is corrupt`
+    case 'drift':
+      return `SKILL.md for "${member}" drifted from agenthood.lock`
+    case 'no-lockfile':
+      return `no agenthood.lock entry for "${member}"`
+    case 'missing':
+      return `SKILL.md for "${member}" is missing on disk`
+  }
+}
+
+/** Thrown by the caller when strict mode turns a detected integrity failure into a hard block. */
 export class SkillIntegrityError extends Error {
-  constructor(member: string, reason: 'drift' | 'corrupt') {
-    super(
-      reason === 'corrupt'
-        ? `[mind-virus] agenthood.lock for "${member}" is corrupt — refusing to run (strict mode). Fix or regenerate the lockfile.`
-        : `[mind-virus] SKILL.md for "${member}" drifted from agenthood.lock — refusing to run (strict mode). Run \`agenthood verify --update-lock\` if the edit is intentional.`,
-    )
+  constructor(member: string, reason: SkillIntegrityFailure) {
+    // only no-lockfile means the gate itself is off; missing means the lockfile
+    // has an entry but the SKILL.md file is gone, so the gate IS on
+    const gate = reason === 'no-lockfile'
+      ? 'refusing to run (strict mode) — the integrity gate is OFF'
+      : 'refusing to run (strict mode)'
+    const guidance: Record<SkillIntegrityFailure, string> = {
+      corrupt: 'Fix or regenerate the lockfile.',
+      drift: 'Run `agenthood verify --update-lock` if the edit is intentional.',
+      'no-lockfile': 'Run `agenthood verify` to generate the lockfile.',
+      missing: 'Restore the skill file or regenerate the lockfile.',
+    }
+    super(`[mind-virus] ${describeIntegrityFailure(member, reason)} — ${gate}. ${guidance[reason]}`)
     this.name = 'SkillIntegrityError'
   }
 }
@@ -65,11 +96,10 @@ export class SkillIntegrityError extends Error {
 export async function recordSkillIntegrityDrift(
   context: ExecutionContext,
   member: string,
-  reason: 'drift' | 'corrupt' = 'drift',
+  reason: SkillIntegrityFailure = 'drift',
 ): Promise<void> {
-  const detail = reason === 'corrupt'
-    ? `agenthood.lock for "${member}" is corrupt`
-    : `SKILL.md for "${member}" drifted from agenthood.lock`
+  const gateNote = reason === 'no-lockfile' ? ' — integrity gate is OFF' : ''
+  const detail = `${describeIntegrityFailure(member, reason)}${gateNote}`
   try {
     const timestamp = new Date().toISOString()
     const id = `dec-${Date.now()}-${randomUUID()}`

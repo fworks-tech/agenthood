@@ -1,3 +1,10 @@
+## [3.41.1](https://github.com/fworks-tech/agenthood/compare/v3.41.0...v3.41.1) (2026-09-04)
+
+
+### Bug Fixes
+
+* **security:** surface absent-lockfile and missing-skill integrity states ([#506](https://github.com/fworks-tech/agenthood/issues/506)) ([acc0b95](https://github.com/fworks-tech/agenthood/commit/acc0b95c3f91d67dd64edd5d67a3bbc72838839b))
+
 # [3.41.0](https://github.com/fworks-tech/agenthood/compare/v3.40.0...v3.41.0) (2026-09-03)
 
 

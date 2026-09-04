@@ -241,7 +241,7 @@ describe('MemberAgent SKILL.md integrity check', () => {
     expect(driftRecord(spy)).toBeDefined()
   })
 
-  it('is a silent no-op when the lockfile is absent', async () => {
+  it('warns and records when the lockfile is absent (non-strict)', async () => {
     const skillPath = join(dir, 'SKILL.md')
     writeFileSync(skillPath, '---\nname: the-tester\n---\nCanonical body.', 'utf8')
 
@@ -252,8 +252,38 @@ describe('MemberAgent SKILL.md integrity check', () => {
 
     await agent.run('summarize', context)
 
-    expect(driftRecord(spy)).toBeUndefined()
-    expect(driftWarns(warnSpy)).toBe(false)
+    expect(driftRecord(spy)).toBeDefined()
+    expect(driftWarns(warnSpy)).toBe(true)
+    warnSpy.mockRestore()
+  })
+
+  it('blocks the run when the lockfile is absent under strict mode', async () => {
+    const skillPath = join(dir, 'SKILL.md')
+    writeFileSync(skillPath, '---\nname: the-tester\n---\nCanonical body.', 'utf8')
+
+    const agent = makeAgent(skillPath, { strictSkillIntegrity: true })
+    const context = createTestContext()
+    const spy = vi.spyOn(context.memory.decisions, 'record').mockResolvedValue(undefined)
+
+    await expect(agent.run('summarize', context)).rejects.toThrow(/gate is OFF/i)
+    expect(driftRecord(spy)).toBeDefined()
+  })
+
+  it('warns and records when the skill file is missing (non-strict)', async () => {
+    writeFileSync(join(dir, 'agenthood.lock'), JSON.stringify({
+      version: 1,
+      members: { 'the-tester': { version: contentHash('anything') } },
+    }), 'utf8')
+
+    const agent = makeAgent(join(dir, 'absent', 'SKILL.md'))
+    const context = createTestContext()
+    const spy = vi.spyOn(context.memory.decisions, 'record').mockResolvedValue(undefined)
+    const warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {})
+
+    await agent.run('summarize', context)
+
+    expect(driftRecord(spy)).toBeDefined()
+    expect(driftWarns(warnSpy)).toBe(true)
     warnSpy.mockRestore()
   })
 

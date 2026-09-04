@@ -2,7 +2,7 @@ import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest'
 import { mkdtempSync, mkdirSync, rmSync, writeFileSync } from 'node:fs'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
-import { checkSkillIntegrity, recordSkillIntegrityDrift, SkillIntegrityError } from '../../../src/utils/skillIntegrity.ts'
+import { checkSkillIntegrity, describeIntegrityFailure, recordSkillIntegrityDrift, SkillIntegrityError } from '../../../src/utils/skillIntegrity.ts'
 import { createTestContext } from '../../helpers/testContext.ts'
 import { contentHash } from '../../../src/utils/hash.ts'
 
@@ -54,8 +54,15 @@ describe('checkSkillIntegrity', () => {
     expect(() => checkSkillIntegrity('the-tester', join(dir, 'SKILL.md'), { lockfilePath: dir })).not.toThrow()
   })
 
-  it('skips silently without a lockfile', () => {
+  it('returns no-lockfile when the lockfile is absent', () => {
     writeFileSync(join(dir, 'SKILL.md'), 'body', 'utf8')
+    expect(checkSkillIntegrity('the-tester', join(dir, 'SKILL.md'), { lockfilePath: dir })).toBe('no-lockfile')
+  })
+
+  it('returns no-lockfile when the lockfile exists but lacks the member entry', () => {
+    // attacker deleting a member's entry must degrade to gate-OFF, not clean
+    writeFileSync(join(dir, 'SKILL.md'), 'body', 'utf8')
+    lockfiles({ version: 1, members: {} })
     expect(checkSkillIntegrity('the-tester', join(dir, 'SKILL.md'), { lockfilePath: dir })).toBe('no-lockfile')
   })
 
@@ -77,6 +84,29 @@ describe('SkillIntegrityError', () => {
     const err = new SkillIntegrityError('the-tester', 'corrupt')
     expect(err.message).toMatch(/corrupt/i)
     expect(err.message).toMatch(/lockfile/i)
+  })
+
+  it('labels only no-lockfile as the integrity gate being OFF', () => {
+    const noLock = new SkillIntegrityError('the-tester', 'no-lockfile')
+    expect(noLock.message).toMatch(/no agenthood\.lock entry/i)
+    expect(noLock.message).toMatch(/gate is OFF/i)
+    expect(noLock.message).toMatch(/verify/)
+  })
+
+  it('does not claim the gate is OFF when the skill file is missing', () => {
+    const missing = new SkillIntegrityError('the-tester', 'missing')
+    expect(missing.message).toMatch(/is missing on disk/i)
+    expect(missing.message).toMatch(/restore the skill file/i)
+    expect(missing.message).not.toMatch(/gate is OFF/i)
+  })
+})
+
+describe('describeIntegrityFailure', () => {
+  it('maps each reason to its canonical phrase', () => {
+    expect(describeIntegrityFailure('the-tester', 'drift')).toBe('SKILL.md for "the-tester" drifted from agenthood.lock')
+    expect(describeIntegrityFailure('the-tester', 'corrupt')).toBe('agenthood.lock for "the-tester" is corrupt')
+    expect(describeIntegrityFailure('the-tester', 'no-lockfile')).toBe('no agenthood.lock entry for "the-tester"')
+    expect(describeIntegrityFailure('the-tester', 'missing')).toBe('SKILL.md for "the-tester" is missing on disk')
   })
 })
 

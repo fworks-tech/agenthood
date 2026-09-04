@@ -5,6 +5,14 @@
 
 ---
 
+## v3.41.1 — September 4, 2026
+
+### 🐛 Bug Fixes
+
+- **Security:** surface absent-lockfile and missing-skill integrity states (#506)
+
+---
+
 ## v3.41.0 — September 3, 2026
 
 ### ✨ Features

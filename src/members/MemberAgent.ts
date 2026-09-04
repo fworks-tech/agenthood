@@ -26,6 +26,7 @@ import { AskHumanTool } from '../tools/human/AskHumanTool.ts'
 import { SubagentTaskSkill } from '../tools/core/SubagentTaskSkill.ts'
 import { escapeXml, wrapProjectContext, loadProjectContext, wrapSkillsCatalog, SKILLS_CATALOG_GUARD, wrapSkillContent, SKILL_CONTENT_GUARD } from '../agents/memberLore.ts'
 import { checkSkillIntegrity, recordSkillIntegrityDrift, SkillIntegrityError } from '../utils/skillIntegrity.ts'
+import type { SkillIntegrityFailure } from '../utils/skillIntegrity.ts'
 import { sharedConversationalStyle } from './MemberRegistry.ts'
 import type { EpisodeLearner } from '../evals/EpisodeLearner.ts'
 
@@ -216,19 +217,25 @@ export class MemberAgent extends BaseAgent {
   /**
    * ADR-020 drift check: surfaces SKILL.md drift from agenthood.lock at
    * injection time. Records detection durably before warning or blocking.
+   * Absent lockfile entries and missing skill files are surfaced too — the
+   * integrity gate being OFF is itself a warning an operator must see
+   * (A09: a silently inert persistence-vector control is worse than none).
    */
   private async verifySkillIntegrity(context: ExecutionContext): Promise<void> {
     const status = checkSkillIntegrity(this.spec.name, this.spec.sourcePath)
-    if (status !== 'drift' && status !== 'corrupt') return
+    if (status === 'clean') return
 
-    const reason = status === 'corrupt' ? 'corrupt' : 'drift'
-    await recordSkillIntegrityDrift(context, this.spec.name, reason)
+    await recordSkillIntegrityDrift(context, this.spec.name, status)
     if (this.strictSkillIntegrity) {
-      throw new SkillIntegrityError(this.spec.name, reason)
+      throw new SkillIntegrityError(this.spec.name, status)
     }
-    const detail = status === 'corrupt'
-      ? `agenthood.lock for "${this.spec.name}" is corrupt — verify the lockfile before running.`
-      : `SKILL.md for "${this.spec.name}" drifted from agenthood.lock — verify its content before running. Run \`agenthood verify --update-lock\` if the edit is intentional.`
-    console.warn(`[skill-integrity] ${detail}`)
+
+    const detail: Record<SkillIntegrityFailure, string> = {
+      corrupt: `agenthood.lock for "${this.spec.name}" is corrupt — verify the lockfile before running.`,
+      drift: `SKILL.md for "${this.spec.name}" drifted from agenthood.lock — verify its content before running. Run \`agenthood verify --update-lock\` if the edit is intentional.`,
+      'no-lockfile': `no agenthood.lock entry for "${this.spec.name}" — the integrity gate is OFF. Run \`agenthood verify\` to lock SKILL.md hashes.`,
+      missing: `SKILL.md for "${this.spec.name}" is missing on disk — cannot verify integrity.`,
+    }
+    console.warn(`[skill-integrity] ${detail[status]}`)
   }
 }

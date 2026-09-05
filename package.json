@@ -104,7 +104,7 @@
     "@sentry/node": "10.70.0",
     "ajv": "8.20.0",
     "dotenv": "17.4.2",
-    "groq-sdk": "1.2.1",
+    "groq-sdk": "1.6.0",
     "openai": "6.44.0",
     "tree-sitter": "0.21.1",
     "tree-sitter-go": "0.23.2",

@@ -36,6 +36,7 @@ export interface ReActLoopOptions {
   loopWindow?: number
   loopThreshold?: number
   maxSteps?: number
+  onStepComplete?: (step: number, messages: Message[], usage: TokenUsage, model: string) => void
 }
 
 export class ReActLoop {
@@ -68,6 +69,7 @@ export class ReActLoop {
   private readonly loopWindow: number
   private readonly loopThreshold: number
   private readonly maxSteps: number
+  private readonly onStepComplete?: (step: number, messages: Message[], usage: TokenUsage, model: string) => void
 
   constructor(
     private llm: ILLMProvider,
@@ -79,6 +81,7 @@ export class ReActLoop {
     this.loopWindow = options.loopWindow ?? 5
     this.loopThreshold = options.loopThreshold ?? 3
     this.maxSteps = options.maxSteps ?? 100
+    this.onStepComplete = options.onStepComplete
   }
 
   async run(
@@ -110,6 +113,8 @@ export class ReActLoop {
       }
 
       await this.runToolCalls(response.toolCalls, messages, recentCalls, step, context);
+
+      this.onStepComplete?.(step, messages, { ...this.usage }, this._model);
 
       context.tracer.endSpan(`react-step-${step}`, {
         toolCount: response.toolCalls.length,

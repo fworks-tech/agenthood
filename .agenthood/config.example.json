@@ -44,19 +44,19 @@
   "_comment_provider": "Optional: preferred LLM provider and model. Members use this when they can select their own model.",
   "provider": {
     "name": "opencode",
-    "model": "deepseek-v4-flash"
+    "model": "mimo-v2.5"
   },
 
   "_comment_providers": "Optional: Ordered list of LLM providers for failover. First = primary, subsequent = fallbacks. Each provider can specify fallback models for model downgrade on failure.",
   "providers": [
     {
       "name": "opencode",
-      "model": "deepseek-v4-flash",
+      "model": "mimo-v2.5",
       "priority": 1
     },
     {
       "name": "opencode-go",
-      "model": "deepseek-v4-flash",
+      "model": "mimo-v2.5",
       "priority": 2
     },
     {

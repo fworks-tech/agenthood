@@ -111,8 +111,8 @@ The Society reads from `.agenthood/config.json`, scaffolded by `init`:
     "commitlintConfig": "commitlint.config.ts"
   },
   "providers": [
-    { "name": "opencode", "model": "deepseek-v4-flash", "priority": 1 },
-    { "name": "opencode-go", "model": "deepseek-v4-flash", "priority": 2 },
+    { "name": "opencode", "model": "mimo-v2.5", "priority": 1 },
+    { "name": "opencode-go", "model": "mimo-v2.5", "priority": 2 },
     { "name": "anthropic", "model": "claude-sonnet-5", "priority": 3 }
   ],
   "qualityGates": { "typescript": true, "tests": true, "lint": true }

@@ -5,6 +5,14 @@
 
 ---
 
+## v3.44.0 — September 5, 2026
+
+### ✨ Features
+
+- **Ci:** dedupe analysis comments and post inline review findings (#684)
+
+---
+
 ## v3.43.0 — September 5, 2026
 
 ### ✨ Features

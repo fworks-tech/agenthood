@@ -1,3 +1,10 @@
+# [3.44.0](https://github.com/fworks-tech/agenthood/compare/v3.43.0...v3.44.0) (2026-09-05)
+
+
+### Features
+
+* **ci:** dedupe analysis comments and post inline review findings ([#684](https://github.com/fworks-tech/agenthood/issues/684)) ([a01271b](https://github.com/fworks-tech/agenthood/commit/a01271b0775e6f09d06d9b359a07fd74c4a34bef))
+
 # [3.43.0](https://github.com/fworks-tech/agenthood/compare/v3.42.0...v3.43.0) (2026-09-05)
 
 

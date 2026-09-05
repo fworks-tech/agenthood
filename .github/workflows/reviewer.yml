@@ -54,7 +54,7 @@ jobs:
             <!--AGENTHOOD_INLINE
             [{"path":"<file>","line":<int>,"body":"<one-line finding>"}]
             -->
-            Only reference lines that are part of this diff.
+            Use the exact file path and new-side line number from the diff. If you cannot pinpoint the line, omit the finding from the inline block (it stays in your report). Never guess line numbers.
 
             End your report with: <!--AGENTHOOD_DECISION: blocking=true warnings=N--> or <!--AGENTHOOD_DECISION: blocking=false warnings=N-->
 

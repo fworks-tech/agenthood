@@ -12,7 +12,7 @@ fi
 BASE_SHA="${RANGE%%...*}"
 HEAD_SHA="${RANGE#*...}"
 [ -z "$HEAD_SHA" ] && HEAD_SHA="$BASE_SHA"
-export HEAD_SHA
+export BASE_SHA HEAD_SHA
 
 temp_dir="$(mktemp -d "${RUNNER_TEMP:-/tmp}/agent-analysis.XXXXXX")"
 trap 'rm -rf "$temp_dir"' EXIT

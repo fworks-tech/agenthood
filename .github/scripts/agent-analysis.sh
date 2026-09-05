@@ -12,12 +12,14 @@ fi
 BASE_SHA="${RANGE%%...*}"
 HEAD_SHA="${RANGE#*...}"
 [ -z "$HEAD_SHA" ] && HEAD_SHA="$BASE_SHA"
+export BASE_SHA HEAD_SHA
 
 temp_dir="$(mktemp -d "${RUNNER_TEMP:-/tmp}/agent-analysis.XXXXXX")"
 trap 'rm -rf "$temp_dir"' EXIT
 analysis_file="${temp_dir}/${AGENT_NAME}_analysis.txt"
 error_file="${temp_dir}/${AGENT_NAME}_errors.txt"
 body_file="${temp_dir}/${AGENT_NAME}_body.md"
+summary_file="${temp_dir}/${AGENT_NAME}_summary.md"
 NAME_DISPLAY=$(echo "$AGENT_NAME" | sed 's/-/ /g; s/\b\(.\)/\u\1/g')
 > "$error_file"
 
@@ -40,7 +42,11 @@ validate_prerequisites() {
 
   MAX_FILES="${MAX_FILES:-15}"
   # `|| true`: head exits early when there are more lines, SIGPIPE-ing echo
+  TOTAL_FILES=$(echo "$CHANGED" | wc -l)
   CHANGED=$(echo "$CHANGED" | head -"$MAX_FILES" || true)
+  if [ "$TOTAL_FILES" -gt "$MAX_FILES" ]; then
+    TRUNCATED_NOTICE="(files truncated at $MAX_FILES of $TOTAL_FILES listed files — list incomplete, findings cover only the files above)"
+  fi
 
   SAFE_CHANGED=$(echo "$CHANGED" | grep -v '[^-_./a-zA-Z0-9]' || true)
   if [ -z "$SAFE_CHANGED" ]; then
@@ -57,6 +63,27 @@ validate_prerequisites() {
 
 build_task() {
   TASK="${PROMPT_TEMPLATE//%s/$SAFE_CHANGED}"
+  if [ -n "${TRUNCATED_NOTICE:-}" ]; then
+    TASK="$TASK
+
+$TRUNCATED_NOTICE"
+  fi
+  # Standard report contract, hoisted here so the workflow templates cannot
+  # drift (each template previously carried its own verbatim copy).
+  TASK="$TASK
+
+End your report with: <!--AGENTHOOD_DECISION: blocking=true warnings=N--> or <!--AGENTHOOD_DECISION: blocking=false warnings=N-->
+
+Count check: N must equal the number of warning bullets you actually listed; an empty warnings section means warnings=0."
+  if [ "${INLINE_FINDINGS:-false}" = "true" ]; then
+    TASK="$TASK
+
+For each actionable finding with a location, emit an inline block before the decision marker (omit it if you have no line-specific findings):
+<!--AGENTHOOD_INLINE
+[{\"path\":\"<file>\",\"line\":<int>,\"body\":\"<one-line finding>\"}]
+-->
+Use the exact file path and new-side line number from the diff — added lines and unchanged context lines inside a hunk are both pinnable. If you cannot pinpoint the line, omit the finding from the inline block (it stays in your report). Never guess line numbers."
+  fi
   if [ "${INCLUDE_DIFF:-false}" = "true" ]; then
     # Cap at ~100KB of complete lines so TASK stays under the kernel
     # per-argument limit (MAX_ARG_STRLEN=128KB) without splitting a line.
@@ -90,15 +117,13 @@ build_comment_body() {
       echo ""
     fi
 
-    if [ -s "$analysis_file" ]; then
-      # Drop runtime step-telemetry rows (`[step N] model · tok · $cost`) —
-      # they belong in CI job logs, not in the review comment.
-      grep -v "^Error running\|^Using \|^opencode-go\|^groq\|^ollama\|^All providers\|^\[step \|^$" "$analysis_file" | grep -v -iE '(api[_-]?key|token|secret|password|credential|bearer|pat|jwt)' || true
+    if [ -s "$summary_file" ]; then
+      grep -v -iE '(api[_-]?key|token|secret|password|credential|bearer|pat|jwt)' "$summary_file" || true
     fi
 
-    if [ ! -s "$analysis_file" ] && [ ! -s "$error_file" ]; then
+    if [ ! -s "$summary_file" ] && [ ! -s "$error_file" ]; then
       echo "*No analysis output produced.*"
-    elif [ ! -s "$analysis_file" ] && [ -s "$error_file" ]; then
+    elif [ ! -s "$summary_file" ] && [ -s "$error_file" ]; then
       echo ""
       echo "*Agent analysis failed. Review the error details above.*"
     fi
@@ -117,6 +142,11 @@ rc=0
 node dist/cli.js run "$AGENT_NAME" "$TASK" --provider opencode-go \
   1> "$analysis_file" \
   2>> "$error_file" || rc=$?
+
+# Strip the final-report block down to the summary (deduping the `[step N]`
+# reasoning leak) and post any `<!--AGENTHOOD_INLINE` findings as review
+# comments. Failures must not drop the comment, hence `|| true`.
+node .github/scripts/format-analysis.mjs "$analysis_file" "$summary_file" || true
 
 build_comment_body
 

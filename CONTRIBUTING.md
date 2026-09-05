@@ -94,6 +94,7 @@ Hooks are installed by `npx agenthood init` and enforce the format automatically
 The `agenthood` CLI auto-discovers commands from `src/commands/` — each file exports a `command` descriptor. Key commands:
 
 - `agenthood run <member> "<task>"` — invoke a member or core agent. Runs exit with code 1 on failure (via `process.exitCode`, so piped stderr is not truncated); the error is logged by the command, not the library — library callers calling `ApplicationContext.runMember`/`runAgent` receive the thrown error instead of a process exit.
+  - A `--` separator ends flag parsing, so a task beginning with `-` is always treated as data (the opencode plugin passes it).
 - `agenthood trace` — list recent invocation traces (`--member`, `--limit`, `--since`, `--json`)
 - `agenthood log` — list recent structured log entries (`--level`, `--member`, `--limit`, `--since`, `--json`)
 - `agenthood status` — project health and member metrics (`--watch`, `--json`, `--drift`, `--member`, `--learner`)

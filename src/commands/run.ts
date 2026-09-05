@@ -3,12 +3,18 @@ import { MissingApiKeyError } from '../llm/validateApiKeys.ts'
 import { ApplicationContext } from '../runtime/ApplicationContext.ts'
 import { loadConfigOrExit } from './config.ts'
 
-function parseFlags(args: string[]): { positional: string[]; providerOverride?: string; shouldDetect: boolean } {
+export function parseFlags(args: string[]): { positional: string[]; providerOverride?: string; shouldDetect: boolean } {
   const positional: string[] = []
   let providerOverride: string | undefined
   let shouldDetect = false
 
   for (let i = 0; i < args.length; i++) {
+    // `--` ends flag parsing so a task beginning with `-` (e.g. from the
+    // opencode plugin) is always data, never a flag
+    if (args[i] === '--') {
+      positional.push(...args.slice(i + 1))
+      break
+    }
     if (args[i] === '--provider' && i + 1 < args.length) {
       providerOverride = args[++i]
     } else if (args[i] === '--detect') {

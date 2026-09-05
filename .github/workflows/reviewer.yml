@@ -25,7 +25,7 @@ jobs:
           node-version: 24
           cache: npm
 
-      - run: npm audit --audit-level=high || echo "::warning::npm audit found vulnerabilities"
+      - run: .github/scripts/audit-check.sh
 
       - name: Resolve PR number and diff range
         id: context

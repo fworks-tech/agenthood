@@ -57,17 +57,31 @@ export const memberNames: string[] = (() => {
 const MAX_OUTPUT = 200_000
 const MAX_STDERR = 16_000
 
-function appendCapped(current: string, chunk: Buffer, max: number, label: string): string {
+export function appendCapped(current: string, chunk: Buffer, max: number, label: string): string {
+  // idempotent: once capped, further chunks are dropped without re-slicing
+  // or appending another marker
+  if (current.endsWith(`[${label} truncated]`)) return current
   const next = current + chunk.toString()
   return next.length > max ? `${next.slice(0, max)}\n[${label} truncated]` : next
 }
 
+export interface CollectedOutput {
+  stdout: string
+  stderr: string
+  code: number | null
+  spawnError?: string
+}
+
 /** Collects a spawned member run's stdout/stderr until close or spawn error. */
-function collectOutput(child: ChildProcess, abort: AbortSignal): Promise<{ stdout: string; stderr: string; code: number | null }> {
+export function collectOutput(child: ChildProcess, abort: AbortSignal): Promise<CollectedOutput> {
   return new Promise((resolve) => {
     const onAbort = () => child.kill()
     abort.addEventListener('abort', onAbort, { once: true })
-    const done = (result: { stdout: string; stderr: string; code: number | null }) => {
+    // `error` and `close` can both fire for one spawn failure; settle once
+    let settled = false
+    const done = (result: CollectedOutput) => {
+      if (settled) return
+      settled = true
       abort.removeEventListener('abort', onAbort)
       resolve(result)
     }
@@ -81,7 +95,7 @@ function collectOutput(child: ChildProcess, abort: AbortSignal): Promise<{ stdou
       stderr = appendCapped(stderr, chunk, MAX_STDERR, 'stderr')
     })
     child.on('close', (code) => done({ stdout, stderr, code }))
-    child.on('error', (err) => done({ stdout, stderr: `${stderr}\nfailed to spawn agenthood: ${err.message}`, code: null }))
+    child.on('error', (err) => done({ stdout, stderr, code: null, spawnError: err.message }))
   })
 }
 
@@ -93,7 +107,9 @@ async function runMember(member: string, task: string, directory: string, abort:
     cwd: directory,
     stdio: ['ignore', 'pipe', 'pipe'],
   })
-  const { stdout, stderr, code } = await collectOutput(child, abort)
+  const { stdout, stderr, code, spawnError } = await collectOutput(child, abort)
+  // spawn failures keep the historical plain-text format (no [stderr] wrapper)
+  if (spawnError) return `failed to spawn agenthood: ${spawnError}`
   const body = stdout.trim() || 'no output'
   const err = stderr.trim() ? `\n[stderr]\n${stderr.trim()}` : ''
   const status = typeof code === 'number' && code !== 0 ? `\n[exit code ${code}]` : ''

@@ -1,5 +1,6 @@
 import { describe, it, expect } from 'vitest'
-import pluginModule, { memberNames } from '../../src/opencode-plugin.ts'
+import { EventEmitter } from 'node:events'
+import pluginModule, { appendCapped, collectOutput, memberNames } from '../../src/opencode-plugin.ts'
 import { rawSpecs } from '../../src/members/member-specs.ts'
 import type { Config } from '@opencode-ai/plugin'
 
@@ -35,7 +36,65 @@ describe('agenthood opencode plugin', () => {
   })
 
   it('matches the member list against the canonical registry (single manifest)', () => {
+    // Intentional direction: the registry is truth. A spec without a shipped
+    // SKILL.md fails here on purpose — the tool enum derives from skills/ and
+    // the two must stay in sync (a member with no skill file cannot run).
     const registryNames = rawSpecs.map((s) => s.name).sort()
     expect(memberNames).toEqual(registryNames)
+  })
+
+  it('appendCapped caps once and drops further chunks without extra markers', () => {
+    const capped = appendCapped('abc', Buffer.from('defgh'), 5, 'output')
+    expect(capped).toBe('abcde\n[output truncated]')
+    expect(appendCapped(capped, Buffer.from('more'), 5, 'output')).toBe(capped)
+  })
+
+  it('appendCapped passes through under the cap', () => {
+    expect(appendCapped('ab', Buffer.from('cd'), 10, 'output')).toBe('abcd')
+  })
+
+  function fakeChild(): EventEmitter & { stdout: EventEmitter; stderr: EventEmitter; kill: () => boolean } {
+    const child = new EventEmitter() as EventEmitter & {
+      stdout: EventEmitter
+      stderr: EventEmitter
+      kill: () => boolean
+    }
+    child.stdout = new EventEmitter()
+    child.stderr = new EventEmitter()
+    child.kill = () => true
+    return child
+  }
+
+  it('collectOutput resolves buffered streams on close', async () => {
+    const child = fakeChild()
+    const pending = collectOutput(child, new AbortController().signal)
+    child.stdout.emit('data', Buffer.from('hello '))
+    child.stderr.emit('data', Buffer.from('warn'))
+    child.stdout.emit('data', Buffer.from('world'))
+    child.emit('close', 0)
+    await expect(pending).resolves.toEqual({ stdout: 'hello world', stderr: 'warn', code: 0 })
+  })
+
+  it('collectOutput surfaces spawn errors with a null code', async () => {
+    const child = fakeChild()
+    const pending = collectOutput(child, new AbortController().signal)
+    child.emit('error', new Error('ENOENT'))
+    child.emit('close', -2)
+    await expect(pending).resolves.toEqual({ stdout: '', stderr: '', code: null, spawnError: 'ENOENT' })
+  })
+
+  it('collectOutput kills the child when aborted', async () => {
+    const child = fakeChild()
+    let killed = false
+    child.kill = () => {
+      killed = true
+      return true
+    }
+    const controller = new AbortController()
+    const pending = collectOutput(child, controller.signal)
+    controller.abort()
+    child.emit('close', null)
+    await pending
+    expect(killed).toBe(true)
   })
 })

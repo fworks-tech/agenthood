@@ -7,7 +7,7 @@
 
 import { existsSync, readFileSync, mkdirSync, writeFileSync, cpSync, rmSync, readdirSync } from 'node:fs'
 import { join } from 'node:path'
-import { execSync } from 'node:child_process'
+import { execFileSync } from 'node:child_process'
 import type { CommandDescriptor } from './types.ts'
 import { resolveSkillsDir } from '../members.ts'
 import { SkillParser } from '../skills/discovery/SkillParser.ts'
@@ -54,12 +54,12 @@ function toGitUrl(url: string): string {
 }
 
 function cloneRepo(url: string, dest: string): void {
-  execSync(`git clone --depth 1 "${url}" "${dest}"`, { stdio: 'pipe' })
+  execFileSync('git', ['clone', '--depth', '1', url, dest], { stdio: 'pipe' })
 }
 
 function downloadUrl(url: string, dest: string): void {
   mkdirSync(dest, { recursive: true })
-  execSync(`curl -fsSL "${url}" -o "${join(dest, 'SKILL.md')}"`, { stdio: 'pipe' })
+  execFileSync('curl', ['-fsSL', url, '-o', join(dest, 'SKILL.md')], { stdio: 'pipe' })
 }
 
 function findSkillMd(dir: string): string | null {
@@ -86,25 +86,26 @@ export const command: CommandDescriptor = {
 }
 
 export async function install(args: string[]): Promise<void> {
+  const dryRun = args.includes('--dry-run')
   const source = args.filter((a) => !a.startsWith('--'))[0]
   if (!source) {
-    console.error('\nUsage: agenthood install <url-or-git-repo>\n')
+    console.error('\nUsage: agenthood install <url-or-git-repo> [--dry-run]\n')
     console.error('Examples:')
     console.error('  agenthood install https://github.com/user/repo')
     console.error('  agenthood install https://example.com/skill/SKILL.md')
-    console.error('  agenthood install git@github.com:user/repo.git\n')
+    console.error('  agenthood install git@github.com:user/repo.git')
+    console.error('  agenthood install https://github.com/user/repo --dry-run\n')
     process.exit(1)
     return
   }
 
   const cwd = process.cwd()
   const skillsDir = resolveSkillsDir(cwd)
-  mkdirSync(skillsDir, { recursive: true })
+
+  console.log(`\n  Installing from ${source}...`)
 
   const tmpDir = join(skillsDir, '.install-tmp')
   mkdirSync(tmpDir, { recursive: true })
-
-  console.log(`\n  Installing from ${source}...`)
 
   try {
     const isGit = isGitUrl(source) || isGithubUrl(source)
@@ -135,6 +136,14 @@ export async function install(args: string[]): Promise<void> {
 
     const name = String(frontmatter.name)
     const destDir = join(skillsDir, name)
+
+    if (dryRun) {
+      console.log(`\n  Dry run — would install "${name}" from ${source}`)
+      console.log(`  Destination: ${destDir}\n`)
+      return
+    }
+
+    mkdirSync(skillsDir, { recursive: true })
 
     if (existsSync(destDir)) {
       console.error(`  ✗ Skill "${name}" already exists. Use a different name or remove it first.`)

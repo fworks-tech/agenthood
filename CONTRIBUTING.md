@@ -101,7 +101,8 @@ The `agenthood` CLI auto-discovers commands from `src/commands/` — each file e
 - `agenthood eval <member> --suite <path>` — run an eval suite against a member (`--baseline`, `--update-baseline`, `--json`)
 - `agenthood health` — runtime health checks (`--json`; exit 0 healthy / 1 degraded / 2 unhealthy)
 - `agenthood check` / `verify` — health and member-integrity validation
-- `agenthood install <url>` — install a skill from a URL or git repository
+- `agenthood install <url>` — install a skill from a URL or git repository (`--dry-run` to preview)
+- `agenthood publish` — publish skills to GitHub for skills.sh indexing (`--dry-run` to preview)
 - `agenthood mcp` — start an MCP server on stdio, exposing skills as MCP tools for external agents (Claude Code, Cursor, etc.)
 
 Adding a command means adding a file in `src/commands/` and documenting it here.

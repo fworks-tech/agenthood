@@ -13,6 +13,7 @@ Each skill is a complete, working `SKILL.md` that follows the conventions in [CO
 | [postgres](postgres/SKILL.md) | Database | Schema design, query optimization, migrations, connection pooling |
 | [redis](redis/SKILL.md) | Caching | Caching strategies, rate limiting, pub/sub, queue management |
 | [api](api/SKILL.md) | REST API | Endpoint design, authentication, error handling, pagination |
+| [mcp-github](mcp-github/SKILL.md) | MCP Integration | PR review, CI checks, GitHub API via MCP server |
 
 ## Using These Examples
 

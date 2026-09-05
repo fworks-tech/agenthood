@@ -1,13 +1,7 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest'
-import { EventEmitter } from 'node:events'
 import pluginModule, { runMember } from '../../src/opencode-plugin.ts'
+import type { FakeChild } from '../helpers/opencodePluginFixtures.ts'
 import { fakeChild } from '../helpers/opencodePluginFixtures.ts'
-
-type FakeChild = EventEmitter & {
-  stdout: EventEmitter
-  stderr: EventEmitter
-  kill: () => boolean
-}
 
 const state = vi.hoisted(() => ({
   cliExists: true,
@@ -43,10 +37,10 @@ beforeEach(() => {
 })
 
 describe('runMember', () => {
-  const deps = (overrides: Partial<{ existsCli: () => boolean; spawn: () => FakeChild }> = {}) => ({
+  const deps = (overrides: Partial<{ existsCli: () => boolean; spawnProcess: () => FakeChild }> = {}) => ({
     existsCli: overrides.existsCli ?? (() => true),
     spawnProcess:
-      overrides.spawn ??
+      overrides.spawnProcess ??
       (() => {
         throw new Error('must not spawn')
       }),
@@ -126,7 +120,7 @@ describe('runMember', () => {
             checked.push('cli')
             return true
           },
-          spawn: () => {
+          spawnProcess: () => {
             setImmediate(() => child.emit('close', 0))
             return child
           },

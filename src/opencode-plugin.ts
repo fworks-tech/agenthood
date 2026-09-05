@@ -67,8 +67,8 @@ export function discoverMemberNames(
   try {
     return fs
       .readdir(skillsDir)
-      .filter((d) => d.isDirectory() && d.name.startsWith('the-') && fs.exists(join(skillsDir, d.name, 'SKILL.md')))
-      .map((d) => d.name)
+      .filter((entry) => entry.isDirectory() && entry.name.startsWith('the-') && fs.exists(join(skillsDir, entry.name, 'SKILL.md')))
+      .map((entry) => entry.name)
       .sort()
   } catch (err) {
     fs.warn(`[agenthood] skills dir unreadable (${skillsDir}), member tool disabled: ${err instanceof Error ? err.message : String(err)}`)
@@ -124,10 +124,10 @@ export function collectOutput(child: ChildProcess, abort: AbortSignal): Promise<
     const onAbort = () => child.kill()
     abort.addEventListener('abort', onAbort, { once: true })
     // `error` and `close` can both fire for one spawn failure; settle once
-    let settled = false
+    let isSettled = false
     const done = (result: CollectedOutput) => {
-      if (settled) return
-      settled = true
+      if (isSettled) return
+      isSettled = true
       abort.removeEventListener('abort', onAbort)
       resolve(result)
     }
@@ -173,6 +173,24 @@ export async function runMember(member: string, task: string, options: RunMember
   return formatRunResult(await collectOutput(child, options.abort))
 }
 
+/** `agenthood_run_member` tool executor: spawns the CLI in the caller's project. */
+export async function executeRunMember(
+  { member, task }: { member: string; task: string },
+  context: ToolContext,
+): Promise<ToolResult> {
+  return {
+    title: `agenthood run ${member}`,
+    output: await runMember(member, task, {
+      directory: context.directory,
+      abort: context.abort,
+      dependencies: {
+        existsCli: existsSync,
+        spawnProcess: (command, args, options) => spawn(command, args, { ...options, stdio: ['ignore', 'pipe', 'pipe'] }),
+      },
+    }),
+  }
+}
+
 export function buildRunMemberTool(names: string[]): Record<string, ToolDefinition> {
   if (names.length === 0) return {}
   return {
@@ -185,20 +203,7 @@ export function buildRunMemberTool(names: string[]): Record<string, ToolDefiniti
         member: z.enum(names as [string, ...string[]]),
         task: z.string().describe('Task for the member, e.g. "write a commit message for the current diff"'),
       },
-            execute: async (
-              { member, task }: { member: string; task: string },
-              context: ToolContext,
-            ): Promise<ToolResult> => ({
-              title: `agenthood run ${member}`,
-              output: await runMember(member, task, {
-                directory: context.directory,
-                abort: context.abort,
-                dependencies: {
-                  existsCli: existsSync,
-                  spawnProcess: (command, args, options) => spawn(command, args, { ...options, stdio: ['ignore', 'pipe', 'pipe'] }),
-                },
-              }),
-            }),
+      execute: executeRunMember,
     },
   }
 }

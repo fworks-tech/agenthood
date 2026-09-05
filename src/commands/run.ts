@@ -3,10 +3,11 @@ import { MissingApiKeyError } from '../llm/validateApiKeys.ts'
 import { ApplicationContext } from '../runtime/ApplicationContext.ts'
 import { loadConfigOrExit } from './config.ts'
 
-export function parseFlags(args: string[]): { positional: string[]; providerOverride?: string; shouldDetect: boolean } {
+export function parseFlags(args: string[]): { positional: string[]; providerOverride?: string; shouldDetect: boolean; resumeFrom?: string } {
   const positional: string[] = []
   let providerOverride: string | undefined
   let shouldDetect = false
+  let resumeFrom: string | undefined
 
   for (let i = 0; i < args.length; i++) {
     // `--` ends flag parsing so a task beginning with `-` (e.g. from the
@@ -19,18 +20,21 @@ export function parseFlags(args: string[]): { positional: string[]; providerOver
       providerOverride = args[++i]
     } else if (args[i] === '--detect') {
       shouldDetect = true
+    } else if (args[i] === '--resume' && i + 1 < args.length) {
+      resumeFrom = args[++i]
     } else {
       positional.push(args[i])
     }
   }
 
-  return { positional, providerOverride, shouldDetect }
+  return { positional, providerOverride, shouldDetect, resumeFrom }
 }
 
 function printUsage(): void {
   console.error('Usage: agenthood run <agent> "<task description>"')
   console.error('  --provider <name>   Override LLM provider (e.g. groq, anthropic, ollama, openrouter)')
   console.error('  --detect            Auto-detect members for this task')
+  console.error('  --resume <id>       Resume from a checkpoint')
 }
 
 async function runDetection(app: ApplicationContext, task: string): Promise<void> {
@@ -49,7 +53,7 @@ export const command: CommandDescriptor = {
 }
 
 export async function run(args: string[]): Promise<void> {
-  const { positional, providerOverride, shouldDetect } = parseFlags(args)
+  const { positional, providerOverride, shouldDetect, resumeFrom } = parseFlags(args)
   const [agentName, ...taskParts] = positional
 
   if (!agentName || taskParts.length === 0) {
@@ -84,7 +88,7 @@ export async function run(args: string[]): Promise<void> {
   }
 
   try {
-    const handled = await app.runner.runMember(agentName, task, config)
+    const handled = await app.runner.runMember(agentName, task, config, resumeFrom)
     if (!handled) {
       await app.runner.runAgent(agentName, task)
     }

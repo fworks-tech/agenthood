@@ -15,6 +15,7 @@ import { ReActLoop } from '../reasoning/ReActLoop.ts'
 import { ToolRegistry } from '../tools/ToolRegistry.ts'
 import { AskHumanSignal, AskHumanTool } from '../tools/human/AskHumanTool.ts'
 import { redactEventText } from '../core/RunEventBus.ts'
+import { RunCheckpoint, type CheckpointData } from '../checkpoint/RunCheckpoint.ts'
 
 export interface MemberRunnerDeps {
   agents: AgentRegistry
@@ -36,12 +37,12 @@ export class MemberRunner {
   constructor(private readonly deps: MemberRunnerDeps) {}
 
   /** Member-specific executor: preferred provider + its own tool loop */
-  async runMember(memberName: string, task: string, config: LLMConfig): Promise<boolean> {
+  async runMember(memberName: string, task: string, config: LLMConfig, resumeFrom?: string): Promise<boolean> {
     if (!this.deps.members.has(memberName)) return false
 
     const spec = this.deps.members.get(memberName)
     await this.runAndReport(spec.name, async () => {
-      const { output } = await this.runMemberTask(memberName, task, config)
+      const { output } = await this.runMemberTask(memberName, task, config, resumeFrom)
       return output
     })
     return true
@@ -51,8 +52,10 @@ export class MemberRunner {
    * Runs a member without any presentation: captures the raw output and
    * duration for evaluation while still recording metrics and flushing
    * traces. Throws on failure instead of exiting the process.
+   *
+   * @param resumeFrom - optional checkpoint ID to resume from
    */
-  async runMemberTask(memberName: string, task: string, config: LLMConfig): Promise<MemberRunResult> {
+  async runMemberTask(memberName: string, task: string, config: LLMConfig, resumeFrom?: string): Promise<MemberRunResult> {
     if (!this.deps.members.has(memberName)) throw new Error(`unknown member "${memberName}"`)
 
     const spec = this.deps.members.get(memberName)
@@ -60,7 +63,43 @@ export class MemberRunner {
     const llm = await LLMRouter.createForMember(memberProvider, config)
     const sReg = new ToolRegistry()
     if (!sReg.has('ask_human')) sReg.register(new AskHumanTool())
-    const loop = new ReActLoop(llm, sReg)
+
+    const checkpointStore = new RunCheckpoint(process.cwd())
+    const checkpointId = resumeFrom ?? RunCheckpoint.generateId(this.ctx.correlationId ?? crypto.randomUUID())
+
+    let checkpointData: CheckpointData
+    if (resumeFrom) {
+      const existing = checkpointStore.load(resumeFrom)
+      if (!existing) throw new Error(`checkpoint "${resumeFrom}" not found`)
+      checkpointData = existing
+      console.log(`\n  Resuming from step ${checkpointData.step} (checkpoint ${resumeFrom})\n`)
+    } else {
+      checkpointData = {
+        id: checkpointId,
+        member: spec.name,
+        task,
+        step: 0,
+        messages: [],
+        usage: { promptTokens: 0, completionTokens: 0, totalTokens: 0 },
+        model: '',
+        activatedSkills: [],
+        status: 'running',
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString(),
+      }
+      checkpointStore.save(checkpointData)
+    }
+
+    const loop = new ReActLoop(llm, sReg, {
+      onStepComplete: (step, messages, usage, model) => {
+        checkpointData.step = step
+        checkpointData.messages = messages.map((m) => ({ role: m.role, content: m.content, toolCallId: m.tool_call_id }))
+        checkpointData.usage = { ...usage }
+        checkpointData.model = model
+        checkpointData.activatedSkills = Array.from(loop.activatedSkills)
+        checkpointStore.save(checkpointData)
+      },
+    })
 
     if (config.skills?.autoDiscover === true) {
       try {
@@ -89,6 +128,7 @@ export class MemberRunner {
       const result = await agent.run(task, this.ctx)
       const duration = Math.round(performance.now() - startTime)
       metricsCollector.record(memberName, true, duration)
+      checkpointStore.updateStatus(checkpointId, 'completed')
       events.emit({
         type: 'run.finished',
         executionId: this.ctx.executionId,
@@ -118,6 +158,7 @@ export class MemberRunner {
         throw err
       }
       metricsCollector.record(memberName, false, duration)
+      checkpointStore.updateStatus(checkpointId, 'failed')
       events.emit({
         type: 'run.failed',
         executionId: this.ctx.executionId,

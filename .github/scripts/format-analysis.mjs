@@ -21,7 +21,7 @@ import { execFileSync } from 'node:child_process'
 const [, , analysisPath, summaryPath] = process.argv
 
 const telemetryPrefix = '^Error running|^Using |^opencode-go|^groq|^ollama|^All providers|^\\[step |^$'
-const INLINE_BLOCK = /<!--AGENTHOOD_INLINE\s*([\s\S]*?)-->/
+const INLINE_PATTERN = '<!--AGENTHOOD_INLINE\\s*([\\s\\S]*?)-->'
 
 export function formatSummary(raw) {
   // keep only the final report block; fall back to stripping telemetry noise
@@ -37,15 +37,15 @@ export function formatSummary(raw) {
 }
 
 export function extractInlineFindings(raw) {
-  const match = raw.match(INLINE_BLOCK)
-  if (!match) return []
-  try {
-    const parsed = JSON.parse(match[1])
-    return Array.isArray(parsed) ? parsed : []
-  } catch {
-    console.warn('[inline] unparseable AGENTHOOD_INLINE block')
-    return []
+  // agents sometimes echo the prompt's empty sample block — take the first
+  // block that parses as a non-empty array
+  for (const match of raw.matchAll(new RegExp(INLINE_PATTERN, 'g'))) {
+    try {
+      const parsed = JSON.parse(match[1])
+      if (Array.isArray(parsed) && parsed.length > 0) return parsed
+    } catch { /* try the next block */ }
   }
+  return []
 }
 
 async function postReviewComments(findings) {
@@ -134,7 +134,7 @@ function hunkSpans(path, range, cache) {
 
 const raw = readFileSync(analysisPath, 'utf8')
 const findings = extractInlineFindings(raw)
-const summary = formatSummary(raw.replace(INLINE_BLOCK, ''))
+const summary = formatSummary(raw.replace(new RegExp(INLINE_PATTERN, 'g'), ''))
 writeFileSync(summaryPath, summary)
 
 if (findings.length > 0) {

@@ -42,7 +42,11 @@ validate_prerequisites() {
 
   MAX_FILES="${MAX_FILES:-15}"
   # `|| true`: head exits early when there are more lines, SIGPIPE-ing echo
+  TOTAL_FILES=$(echo "$CHANGED" | wc -l)
   CHANGED=$(echo "$CHANGED" | head -"$MAX_FILES" || true)
+  if [ "$TOTAL_FILES" -gt "$MAX_FILES" ]; then
+    TRUNCATED_NOTICE="(files truncated at $MAX_FILES of $TOTAL_FILES changed files — list incomplete, findings cover only the files above)"
+  fi
 
   SAFE_CHANGED=$(echo "$CHANGED" | grep -v '[^-_./a-zA-Z0-9]' || true)
   if [ -z "$SAFE_CHANGED" ]; then
@@ -59,6 +63,27 @@ validate_prerequisites() {
 
 build_task() {
   TASK="${PROMPT_TEMPLATE//%s/$SAFE_CHANGED}"
+  if [ -n "${TRUNCATED_NOTICE:-}" ]; then
+    TASK="$TASK
+
+$TRUNCATED_NOTICE"
+  fi
+  # Standard report contract, hoisted here so the workflow templates cannot
+  # drift (each template previously carried its own verbatim copy).
+  TASK="$TASK
+
+End your report with: <!--AGENTHOOD_DECISION: blocking=true warnings=N--> or <!--AGENTHOOD_DECISION: blocking=false warnings=N-->
+
+Count check: N must equal the number of warning bullets you actually listed; an empty warnings section means warnings=0."
+  if [ "${INLINE_FINDINGS:-false}" = "true" ]; then
+    TASK="$TASK
+
+For each actionable finding with a location, emit an inline block before the decision marker (omit it if you have no line-specific findings):
+<!--AGENTHOOD_INLINE
+[{\"path\":\"<file>\",\"line\":<int>,\"body\":\"<one-line finding>\"}]
+-->
+Use the exact file path and new-side line number from the diff — added lines and unchanged context lines inside a hunk are both pinnable. If you cannot pinpoint the line, omit the finding from the inline block (it stays in your report). Never guess line numbers."
+  fi
   if [ "${INCLUDE_DIFF:-false}" = "true" ]; then
     # Cap at ~100KB of complete lines so TASK stays under the kernel
     # per-argument limit (MAX_ARG_STRLEN=128KB) without splitting a line.

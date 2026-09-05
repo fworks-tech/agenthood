@@ -22,6 +22,10 @@ inputs:
     description: Append the full git diff (capped at 100KB) to the prompt as untrusted data
     required: false
     default: "false"
+  inline-findings:
+    description: Instruct the agent to emit structured inline findings for line-pinned review comments
+    required: false
+    default: "false"
   api-key:
     description: OPENCODE_API_KEY for agent analysis
     required: false
@@ -42,6 +46,7 @@ runs:
         RANGE: ${{ inputs.range }}
         MAX_FILES: ${{ inputs.max-files }}
         INCLUDE_DIFF: ${{ inputs.include-diff }}
+        INLINE_FINDINGS: ${{ inputs.inline-findings }}
         OPENCODE_API_KEY: ${{ inputs.api-key }}
         GH_TOKEN: ${{ github.token }}
       run: .github/scripts/agent-analysis.sh

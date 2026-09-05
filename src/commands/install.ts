@@ -86,25 +86,26 @@ export const command: CommandDescriptor = {
 }
 
 export async function install(args: string[]): Promise<void> {
+  const dryRun = args.includes('--dry-run')
   const source = args.filter((a) => !a.startsWith('--'))[0]
   if (!source) {
-    console.error('\nUsage: agenthood install <url-or-git-repo>\n')
+    console.error('\nUsage: agenthood install <url-or-git-repo> [--dry-run]\n')
     console.error('Examples:')
     console.error('  agenthood install https://github.com/user/repo')
     console.error('  agenthood install https://example.com/skill/SKILL.md')
-    console.error('  agenthood install git@github.com:user/repo.git\n')
+    console.error('  agenthood install git@github.com:user/repo.git')
+    console.error('  agenthood install https://github.com/user/repo --dry-run\n')
     process.exit(1)
     return
   }
 
   const cwd = process.cwd()
   const skillsDir = resolveSkillsDir(cwd)
-  mkdirSync(skillsDir, { recursive: true })
+
+  console.log(`\n  Installing from ${source}...`)
 
   const tmpDir = join(skillsDir, '.install-tmp')
   mkdirSync(tmpDir, { recursive: true })
-
-  console.log(`\n  Installing from ${source}...`)
 
   try {
     const isGit = isGitUrl(source) || isGithubUrl(source)
@@ -135,6 +136,14 @@ export async function install(args: string[]): Promise<void> {
 
     const name = String(frontmatter.name)
     const destDir = join(skillsDir, name)
+
+    if (dryRun) {
+      console.log(`\n  Dry run — would install "${name}" from ${source}`)
+      console.log(`  Destination: ${destDir}\n`)
+      return
+    }
+
+    mkdirSync(skillsDir, { recursive: true })
 
     if (existsSync(destDir)) {
       console.error(`  ✗ Skill "${name}" already exists. Use a different name or remove it first.`)

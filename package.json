@@ -38,7 +38,15 @@
   "main": "./dist/cli.js",
   "exports": {
     ".": "./dist/cli.js",
-    "./server": "./dist/opencode-plugin.js"
+    "./server": "./dist/opencode-plugin.js",
+    "./dist/commands/config.js": "./dist/commands/config.js",
+    "./dist/core/RunEventBus.js": "./dist/core/RunEventBus.js",
+    "./dist/core/types.js": "./dist/core/types.js",
+    "./dist/llm/providers/StubProvider.js": "./dist/llm/providers/StubProvider.js",
+    "./dist/llm/types.js": "./dist/llm/types.js",
+    "./dist/llm/validateApiKeys.js": "./dist/llm/validateApiKeys.js",
+    "./dist/runtime/ApplicationContext.js": "./dist/runtime/ApplicationContext.js",
+    "./dist/tools/human/AskHumanTool.js": "./dist/tools/human/AskHumanTool.js"
   },
   "bin": {
     "agenthood": "dist/cli.js"
@@ -101,6 +109,7 @@
   "dependencies": {
     "@anthropic-ai/sdk": "0.123.0",
     "@lancedb/lancedb": "0.30.0",
+    "@modelcontextprotocol/server": "2.0.0",
     "@sentry/node": "10.70.0",
     "ajv": "8.20.0",
     "dotenv": "17.4.2",

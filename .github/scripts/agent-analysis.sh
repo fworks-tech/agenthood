@@ -12,12 +12,14 @@ fi
 BASE_SHA="${RANGE%%...*}"
 HEAD_SHA="${RANGE#*...}"
 [ -z "$HEAD_SHA" ] && HEAD_SHA="$BASE_SHA"
+export HEAD_SHA
 
 temp_dir="$(mktemp -d "${RUNNER_TEMP:-/tmp}/agent-analysis.XXXXXX")"
 trap 'rm -rf "$temp_dir"' EXIT
 analysis_file="${temp_dir}/${AGENT_NAME}_analysis.txt"
 error_file="${temp_dir}/${AGENT_NAME}_errors.txt"
 body_file="${temp_dir}/${AGENT_NAME}_body.md"
+summary_file="${temp_dir}/${AGENT_NAME}_summary.md"
 NAME_DISPLAY=$(echo "$AGENT_NAME" | sed 's/-/ /g; s/\b\(.\)/\u\1/g')
 > "$error_file"
 
@@ -90,15 +92,13 @@ build_comment_body() {
       echo ""
     fi
 
-    if [ -s "$analysis_file" ]; then
-      # Drop runtime step-telemetry rows (`[step N] model · tok · $cost`) —
-      # they belong in CI job logs, not in the review comment.
-      grep -v "^Error running\|^Using \|^opencode-go\|^groq\|^ollama\|^All providers\|^\[step \|^$" "$analysis_file" | grep -v -iE '(api[_-]?key|token|secret|password|credential|bearer|pat|jwt)' || true
+    if [ -s "$summary_file" ]; then
+      grep -v -iE '(api[_-]?key|token|secret|password|credential|bearer|pat|jwt)' "$summary_file" || true
     fi
 
-    if [ ! -s "$analysis_file" ] && [ ! -s "$error_file" ]; then
+    if [ ! -s "$summary_file" ] && [ ! -s "$error_file" ]; then
       echo "*No analysis output produced.*"
-    elif [ ! -s "$analysis_file" ] && [ -s "$error_file" ]; then
+    elif [ ! -s "$summary_file" ] && [ -s "$error_file" ]; then
       echo ""
       echo "*Agent analysis failed. Review the error details above.*"
     fi
@@ -117,6 +117,11 @@ rc=0
 node dist/cli.js run "$AGENT_NAME" "$TASK" --provider opencode-go \
   1> "$analysis_file" \
   2>> "$error_file" || rc=$?
+
+# Strip the final-report block down to the summary (deduping the `[step N]`
+# reasoning leak) and post any `<!--AGENTHOOD_INLINE` findings as review
+# comments. Failures must not drop the comment, hence `|| true`.
+node .github/scripts/format-analysis.mjs "$analysis_file" "$summary_file" || true
 
 build_comment_body
 

@@ -130,6 +130,26 @@ describe('runMember', () => {
     expect(checked).toEqual(['cli'])
     expect(out).toBe('no output')
   })
+
+  it('kills and reports a CLI that never closes', async () => {
+    const child = fakeChild()
+    let killed = false
+    child.kill = () => {
+      killed = true
+      return true
+    }
+    const out = await runMember('the-oracle', 'task', {
+      directory: '/proj',
+      abort: new AbortController().signal,
+      timeoutMs: 20,
+      dependencies: deps({
+        existsCli: () => true,
+        spawnProcess: () => child,
+      }),
+    })
+    expect(killed).toBe(true)
+    expect(out).toContain('[timed out]')
+  })
 })
 
 describe('server tool execute', () => {

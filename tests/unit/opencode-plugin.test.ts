@@ -8,7 +8,7 @@ import pluginModule, {
   collectOutput,
   discoverMemberNames,
   formatRunResult,
-  memberNames,
+  getMemberNames,
   wireAgenthoodConfig,
 } from '../../src/opencode-plugin.ts'
 import type { PluginConfig } from '../../src/opencode-plugin.ts'
@@ -36,7 +36,7 @@ describe('agenthood opencode plugin', () => {
     const hooks = await pluginModule.server()
     const def = hooks.tool?.['agenthood_run_member']
     expect(def).toBeDefined()
-    expect(def?.description).toContain(memberNames.join(', '))
+    expect(def?.description).toContain(getMemberNames().join(', '))
     expect(def?.args.member).toBeDefined()
     expect(def?.args.task).toBeDefined()
   })
@@ -46,7 +46,7 @@ describe('agenthood opencode plugin', () => {
     // SKILL.md fails here on purpose — the tool enum derives from skills/ and
     // the two must stay in sync (a member with no skill file cannot run).
     const registryNames = rawSpecs.map((s) => s.name).sort()
-    expect(memberNames).toEqual(registryNames)
+    expect(getMemberNames()).toEqual(registryNames)
   })
 })
 
@@ -104,7 +104,7 @@ describe('discoverMemberNames', () => {
   })
 
   it('reads the shipped skills dir by default', () => {
-    expect(discoverMemberNames(join(repoRoot, 'skills'))).toEqual(memberNames)
+    expect(discoverMemberNames(join(repoRoot, 'skills'))).toEqual(getMemberNames())
   })
 
   it('routes default-filesystem failures to console.warn', () => {

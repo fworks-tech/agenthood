@@ -76,7 +76,13 @@ export function discoverMemberNames(
   }
 }
 
-export const memberNames: string[] = discoverMemberNames(join(PACKAGE_ROOT, 'skills'))
+// Computed lazily so importing the plugin never pays for the fs scan when the
+// tool is never registered (memoized per process).
+let cachedMemberNames: string[] | undefined
+export function getMemberNames(): string[] {
+  cachedMemberNames ??= discoverMemberNames(join(PACKAGE_ROOT, 'skills'))
+  return cachedMemberNames
+}
 
 // Mutation is the opencode `config`-hook contract (the hook returns void);
 // the includes-guards keep repeated invocations idempotent.
@@ -116,18 +122,23 @@ export interface CollectedOutput {
   stderr: string
   code: number | null
   spawnError?: string
+  timedOut?: boolean
 }
 
-/** Collects a spawned member run's stdout/stderr until close or spawn error. */
-export function collectOutput(child: ChildProcess, abort: AbortSignal): Promise<CollectedOutput> {
+const DEFAULT_RUN_TIMEOUT_MS = 60_000
+
+/** Collects a spawned member run's stdout/stderr until close, spawn error, or timeout. */
+export function collectOutput(child: ChildProcess, abort: AbortSignal, timeoutMs = DEFAULT_RUN_TIMEOUT_MS): Promise<CollectedOutput> {
   return new Promise((resolve) => {
     const onAbort = () => child.kill()
     abort.addEventListener('abort', onAbort, { once: true })
     // `error` and `close` can both fire for one spawn failure; settle once
     let isSettled = false
+    let watchdog: NodeJS.Timeout | undefined
     const done = (result: CollectedOutput) => {
       if (isSettled) return
       isSettled = true
+      clearTimeout(watchdog)
       abort.removeEventListener('abort', onAbort)
       resolve(result)
     }
@@ -142,14 +153,20 @@ export function collectOutput(child: ChildProcess, abort: AbortSignal): Promise<
     })
     child.on('close', (code) => done({ stdout, stderr, code }))
     child.on('error', (err) => done({ stdout, stderr, code: null, spawnError: err.message }))
+    // watchdog: a CLI whose streams never close must not hang the tool call
+    watchdog = setTimeout(() => {
+      child.kill()
+      done({ stdout, stderr, code: null, timedOut: true })
+    }, timeoutMs)
   })
 }
 
-export function formatRunResult({ stdout, stderr, code, spawnError }: CollectedOutput): string {
+export function formatRunResult({ stdout, stderr, code, spawnError, timedOut }: CollectedOutput): string {
   // spawn failures keep the historical plain-text format (no [stderr] wrapper)
   if (spawnError) return `failed to spawn agenthood: ${spawnError}`
   const body = stdout.trim() || 'no output'
   const err = stderr.trim() ? `\n[stderr]\n${stderr.trim()}` : ''
+  if (timedOut) return `${body}${err}\n[timed out]`
   const status = typeof code === 'number' && code !== 0 ? `\n[exit code ${code}]` : ''
   return `${body}${err}${status}`
 }
@@ -163,6 +180,7 @@ export interface RunMemberOptions {
   directory: string
   abort: AbortSignal
   dependencies: RunMemberDependencies
+  timeoutMs?: number
 }
 
 /** Runs `agenthood run <member> "<task>"` in the caller's project and streams the result. */
@@ -170,7 +188,7 @@ export async function runMember(member: string, task: string, options: RunMember
   if (!options.dependencies.existsCli(CLI)) return `agenthood CLI not found at ${CLI} — run \`npm run build\` in the agenthood package.`
 
   const child = options.dependencies.spawnProcess(process.execPath, [CLI, 'run', member, task], { cwd: options.directory })
-  return formatRunResult(await collectOutput(child, options.abort))
+  return formatRunResult(await collectOutput(child, options.abort, options.timeoutMs ?? DEFAULT_RUN_TIMEOUT_MS))
 }
 
 /** `agenthood_run_member` tool executor: spawns the CLI in the caller's project. */
@@ -217,7 +235,7 @@ const server: Plugin = async () => {
         instructionsPath: join(PACKAGE_ROOT, 'AGENTS.md'),
       })
     },
-    tool: buildRunMemberTool(memberNames),
+    tool: buildRunMemberTool(getMemberNames()),
   }
   return hooks
 }

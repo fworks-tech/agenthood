@@ -1,11 +1,7 @@
 import { describe, it, expect } from 'vitest'
 import pluginModule, { memberNames } from '../../src/opencode-plugin.ts'
-
-type HookConfig = {
-  skills?: { paths?: string[]; urls?: string[] }
-  instructions?: string[]
-  agent?: Record<string, { description?: string; mode?: string }>
-}
+import { rawSpecs } from '../../src/members/member-specs.ts'
+import type { Config } from '@opencode-ai/plugin'
 
 describe('agenthood opencode plugin', () => {
   it('default-exports a PluginModule with id and server', () => {
@@ -15,13 +11,18 @@ describe('agenthood opencode plugin', () => {
 
   it('config hook wires the skills dir, AGENTS.md, and the-steward agent', async () => {
     const hooks = await pluginModule.server()
-    const cfg: HookConfig = { skills: {}, instructions: [], agent: {} }
-    await hooks.config?.(cfg as never)
+    const cfg = {} as Config
+    await hooks.config?.(cfg)
 
-    expect(cfg.skills?.paths?.some((p) => p.endsWith('skills'))).toBe(true)
-    expect(cfg.instructions?.some((i) => i.endsWith('AGENTS.md'))).toBe(true)
-    expect(cfg.agent?.['the-steward']?.mode).toBe('primary')
-    expect(cfg.agent?.['the-steward']?.description).toBeTruthy()
+    const merged = cfg as Config & {
+      skills?: { paths?: string[] }
+      instructions?: string[]
+      agent?: Record<string, { description?: string; mode?: string }>
+    }
+    expect(merged.skills?.paths?.some((p) => p.endsWith('skills'))).toBe(true)
+    expect(merged.instructions?.some((i) => i.endsWith('AGENTS.md'))).toBe(true)
+    expect(merged.agent?.['the-steward']?.mode).toBe('primary')
+    expect(merged.agent?.['the-steward']?.description).toBeTruthy()
   })
 
   it('registers agenthood_run_member with a member enum and task string', async () => {
@@ -33,10 +34,8 @@ describe('agenthood opencode plugin', () => {
     expect(def?.args.task).toBeDefined()
   })
 
-  it('derives the member list from the shipped skills directory', () => {
-    expect(memberNames).toContain('the-reviewer')
-    expect(memberNames).toContain('the-warden')
-    expect(memberNames).toContain('the-builder')
-    expect(memberNames).toHaveLength(20)
+  it('matches the member list against the canonical registry (single manifest)', () => {
+    const registryNames = rawSpecs.map((s) => s.name).sort()
+    expect(memberNames).toEqual(registryNames)
   })
 })

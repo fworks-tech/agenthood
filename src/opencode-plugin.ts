@@ -20,6 +20,7 @@
  */
 
 import { spawn } from 'node:child_process'
+import type { ChildProcess } from 'node:child_process'
 import { existsSync, readdirSync } from 'node:fs'
 import { dirname, join } from 'node:path'
 import { fileURLToPath } from 'node:url'
@@ -46,47 +47,57 @@ export const memberNames: string[] = (() => {
       .filter((d) => d.isDirectory() && d.name.startsWith('the-') && existsSync(join(skillsDir, d.name, 'SKILL.md')))
       .map((d) => d.name)
       .sort()
-  } catch {
+  } catch (err) {
+    console.warn(`[agenthood] skills dir unreadable, member tool disabled: ${err instanceof Error ? err.message : String(err)}`)
     return []
   }
 })()
+
+// Caps so one runaway member run cannot flood the session context.
+const MAX_OUTPUT = 200_000
+const MAX_STDERR = 16_000
+
+function appendCapped(current: string, chunk: Buffer, max: number, label: string): string {
+  const next = current + chunk.toString()
+  return next.length > max ? `${next.slice(0, max)}\n[${label} truncated]` : next
+}
+
+/** Collects a spawned member run's stdout/stderr until close or spawn error. */
+function collectOutput(child: ChildProcess, abort: AbortSignal): Promise<{ stdout: string; stderr: string; code: number | null }> {
+  return new Promise((resolve) => {
+    const onAbort = () => child.kill()
+    abort.addEventListener('abort', onAbort, { once: true })
+    const done = (result: { stdout: string; stderr: string; code: number | null }) => {
+      abort.removeEventListener('abort', onAbort)
+      resolve(result)
+    }
+
+    let stdout = ''
+    let stderr = ''
+    child.stdout?.on('data', (chunk: Buffer) => {
+      stdout = appendCapped(stdout, chunk, MAX_OUTPUT, 'output')
+    })
+    child.stderr?.on('data', (chunk: Buffer) => {
+      stderr = appendCapped(stderr, chunk, MAX_STDERR, 'stderr')
+    })
+    child.on('close', (code) => done({ stdout, stderr, code }))
+    child.on('error', (err) => done({ stdout, stderr: `${stderr}\nfailed to spawn agenthood: ${err.message}`, code: null }))
+  })
+}
 
 /** Runs `agenthood run <member> "<task>"` in the caller's project and streams the result. */
 async function runMember(member: string, task: string, directory: string, abort: AbortSignal): Promise<string> {
   if (!existsSync(CLI)) return `agenthood CLI not found at ${CLI} — run \`npm run build\` in the agenthood package.`
 
-  return new Promise((resolve) => {
-    const child = spawn(process.execPath, [CLI, 'run', member, task], {
-      cwd: directory,
-      stdio: ['ignore', 'pipe', 'pipe'],
-    })
-    const onAbort = () => child.kill()
-    abort.addEventListener('abort', onAbort, { once: true })
-
-    let stdout = ''
-    let stderr = ''
-    // cap output so one runaway member run cannot flood the session context
-    const MAX = 200_000
-    child.stdout.on('data', (chunk: Buffer) => {
-      stdout += chunk.toString()
-      if (stdout.length > MAX) stdout = `${stdout.slice(0, MAX)}\n[output truncated]`
-    })
-    child.stderr.on('data', (chunk: Buffer) => {
-      stderr += chunk.toString()
-      if (stderr.length > 16_000) stderr = `${stderr.slice(0, 16_000)}\n[stderr truncated]`
-    })
-    child.on('close', (code) => {
-      abort.removeEventListener('abort', onAbort)
-      const body = stdout.trim() || 'no output'
-      const err = stderr.trim() ? `\n[stderr]\n${stderr.trim()}` : ''
-      const status = code === 0 ? '' : `\n[exit code ${code}]`
-      resolve(`${body}${err}${status}`)
-    })
-    child.on('error', (err) => {
-      abort.removeEventListener('abort', onAbort)
-      resolve(`failed to spawn agenthood: ${err.message}`)
-    })
+  const child = spawn(process.execPath, [CLI, 'run', member, task], {
+    cwd: directory,
+    stdio: ['ignore', 'pipe', 'pipe'],
   })
+  const { stdout, stderr, code } = await collectOutput(child, abort)
+  const body = stdout.trim() || 'no output'
+  const err = stderr.trim() ? `\n[stderr]\n${stderr.trim()}` : ''
+  const status = typeof code === 'number' && code !== 0 ? `\n[exit code ${code}]` : ''
+  return `${body}${err}${status}`
 }
 
 const server: Plugin = async () => {

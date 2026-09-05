@@ -4,7 +4,9 @@ updates:
     directory: "/"
     schedule:
       interval: weekly
-    open-pull-requests-limit: 0
+    open-pull-requests-limit: 5
+    labels:
+      - dependencies
     ignore:
       # npm's vendored bundle (undici, tar, brace-expansion, ip-address) cannot be
       # updated in isolation — @semantic-release/npm pins npm ^11.x, and npm 11.x
@@ -18,4 +20,14 @@ updates:
     directory: "/vscode-extension"
     schedule:
       interval: weekly
-    open-pull-requests-limit: 0
+    open-pull-requests-limit: 5
+    labels:
+      - dependencies
+  - package-ecosystem: github-actions
+    directory: "/"
+    schedule:
+      interval: weekly
+    open-pull-requests-limit: 3
+    labels:
+      - ci
+      - dependencies

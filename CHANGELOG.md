@@ -1,3 +1,10 @@
+# [3.49.0](https://github.com/fworks-tech/agenthood/compare/v3.48.0...v3.49.0) (2026-09-05)
+
+
+### Features
+
+* **checkpoint:** add run checkpoint persistence and --resume flag ([#722](https://github.com/fworks-tech/agenthood/issues/722)) ([c02a1c3](https://github.com/fworks-tech/agenthood/commit/c02a1c3b3dd3a122cc290df98e1d6c32e6aa5e1c))
+
 # [3.48.0](https://github.com/fworks-tech/agenthood/compare/v3.47.0...v3.48.0) (2026-09-05)
 
 

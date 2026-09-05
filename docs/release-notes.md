@@ -5,6 +5,14 @@
 
 ---
 
+## v3.49.0 — September 5, 2026
+
+### ✨ Features
+
+- **Checkpoint:** add run checkpoint persistence and --resume flag (#722)
+
+---
+
 ## v3.48.0 — September 5, 2026
 
 ### 🐛 Bug Fixes

@@ -102,6 +102,7 @@ The `agenthood` CLI auto-discovers commands from `src/commands/` — each file e
 - `agenthood health` — runtime health checks (`--json`; exit 0 healthy / 1 degraded / 2 unhealthy)
 - `agenthood check` / `verify` — health and member-integrity validation
 - `agenthood install <url>` — install a skill from a URL or git repository
+- `agenthood mcp` — start an MCP server on stdio, exposing skills as MCP tools for external agents (Claude Code, Cursor, etc.)
 
 Adding a command means adding a file in `src/commands/` and documenting it here.
 

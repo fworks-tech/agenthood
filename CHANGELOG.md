@@ -1,3 +1,10 @@
+# [3.45.0](https://github.com/fworks-tech/agenthood/compare/v3.44.0...v3.45.0) (2026-09-05)
+
+
+### Features
+
+* **config:** switch default model from deepseek-v4-flash to mimo-v2.5 ([#686](https://github.com/fworks-tech/agenthood/issues/686)) ([ce16703](https://github.com/fworks-tech/agenthood/commit/ce167035612282aadfe8f0250d160c75b98a7459))
+
 # [3.44.0](https://github.com/fworks-tech/agenthood/compare/v3.43.0...v3.44.0) (2026-09-05)
 
 

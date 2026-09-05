@@ -5,6 +5,14 @@
 
 ---
 
+## v3.45.0 — September 5, 2026
+
+### ✨ Features
+
+- **Config:** switch default model from deepseek-v4-flash to mimo-v2.5 (#686)
+
+---
+
 ## v3.44.0 — September 5, 2026
 
 ### ✨ Features

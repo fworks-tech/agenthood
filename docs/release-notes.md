@@ -5,6 +5,14 @@
 
 ---
 
+## v3.43.0 — September 5, 2026
+
+### ✨ Features
+
+- **Plugin:** add official opencode plugin entry with member-run tool (#629)
+
+---
+
 ## v3.42.0 — September 4, 2026
 
 ### ✨ Features

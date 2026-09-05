@@ -1,3 +1,10 @@
+# [3.43.0](https://github.com/fworks-tech/agenthood/compare/v3.42.0...v3.43.0) (2026-09-05)
+
+
+### Features
+
+* **plugin:** add official opencode plugin entry with member-run tool ([#629](https://github.com/fworks-tech/agenthood/issues/629)) ([6ebae81](https://github.com/fworks-tech/agenthood/commit/6ebae81fbacfdab40588d89490c597791305566c))
+
 # [3.42.0](https://github.com/fworks-tech/agenthood/compare/v3.41.1...v3.42.0) (2026-09-04)
 
 

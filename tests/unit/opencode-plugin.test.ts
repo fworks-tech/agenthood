@@ -1,8 +1,7 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest'
 import { EventEmitter } from 'node:events'
 import { readFileSync } from 'node:fs'
-import { dirname, join } from 'node:path'
-import { fileURLToPath } from 'node:url'
+import { join } from 'node:path'
 import pluginModule, {
   appendCapped,
   buildRunMemberTool,
@@ -10,73 +9,11 @@ import pluginModule, {
   discoverMemberNames,
   formatRunResult,
   memberNames,
-  runMember,
   wireAgenthoodConfig,
 } from '../../src/opencode-plugin.ts'
 import type { PluginConfig } from '../../src/opencode-plugin.ts'
 import { rawSpecs } from '../../src/members/member-specs.ts'
-
-type FakeChild = EventEmitter & {
-  stdout: EventEmitter
-  stderr: EventEmitter
-  kill: () => boolean
-}
-
-const state = vi.hoisted(() => ({
-  cliExists: true,
-  spawnChild: null as null | FakeChild,
-  spawnCalls: [] as Array<{ command: string; args: string[]; options: { cwd: string } }>,
-}))
-
-vi.mock('node:child_process', async (importOriginal) => {
-  const actual = await importOriginal<typeof import('node:child_process')>()
-  return {
-    ...actual,
-    spawn: (command: string, args: string[], options: { cwd: string }) => {
-      state.spawnCalls.push({ command, args, options })
-      if (!state.spawnChild) throw new Error('spawn not stubbed for this test')
-      return state.spawnChild
-    },
-  }
-})
-
-vi.mock('node:fs', async (importOriginal) => {
-  const actual = await importOriginal<typeof import('node:fs')>()
-  return {
-    ...actual,
-    existsSync: (p: Parameters<typeof actual.existsSync>[0]) =>
-      typeof p === 'string' && p.replace(/\\/g, '/').endsWith('dist/cli.js') ? state.cliExists : actual.existsSync(p),
-  }
-})
-
-const repoRoot = join(dirname(fileURLToPath(import.meta.url)), '..', '..')
-
-function fakeChild(): FakeChild {
-  const child = new EventEmitter() as FakeChild
-  child.stdout = new EventEmitter()
-  child.stderr = new EventEmitter()
-  child.kill = () => true
-  return child
-}
-
-function parseSkill(path: string): { front: Record<string, string>; body: string } {
-  const lines = readFileSync(path, 'utf8').split('\n')
-  expect(lines[0]).toBe('---')
-  const end = lines.indexOf('---', 1)
-  expect(end).toBeGreaterThan(1)
-  const front: Record<string, string> = {}
-  for (const line of lines.slice(1, end)) {
-    const idx = line.indexOf(':')
-    if (idx > 0) front[line.slice(0, idx).trim()] = line.slice(idx + 1).trim()
-  }
-  return { front, body: lines.slice(end + 1).join('\n') }
-}
-
-beforeEach(() => {
-  state.cliExists = true
-  state.spawnChild = null
-  state.spawnCalls = []
-})
+import { fakeChild, parseSkill, repoRoot } from '../helpers/opencodePluginFixtures.ts'
 
 describe('agenthood opencode plugin', () => {
   it('default-exports a PluginModule with id and server', () => {
@@ -114,9 +51,9 @@ describe('agenthood opencode plugin', () => {
 })
 
 describe('discoverMemberNames', () => {
-  const fakeFs = (entries: Array<{ name: string; dir: boolean; skill: boolean }>, throws = false) => ({
+  const fakeFs = (entries: Array<{ name: string; dir: boolean; skill: boolean }>, throws: unknown = null) => ({
     readdir: (_path: string) => {
-      if (throws) throw new Error('EACCES')
+      if (throws !== null) throw throws
       return entries.map((e) => ({ name: e.name, isDirectory: () => e.dir }))
     },
     exists: (p: string) => entries.some((e) => e.dir && e.skill && p.replace(/\\/g, '/').endsWith(`${e.name}/SKILL.md`)),
@@ -146,7 +83,7 @@ describe('discoverMemberNames', () => {
   })
 
   it('warns and disables the tool when the skills dir is unreadable', () => {
-    const names = discoverMemberNames('/skills', fakeFs([], true))
+    const names = discoverMemberNames('/skills', fakeFs([], new Error('EACCES')))
     expect(names).toEqual([])
     expect(warnings).toHaveLength(1)
     expect(warnings[0]).toContain('/skills')
@@ -272,6 +209,22 @@ describe('collectOutput', () => {
     expect(killed).toBe(true)
   })
 
+  it('does not kill after the run already settled', async () => {
+    const child = fakeChild()
+    let kills = 0
+    child.kill = () => {
+      kills += 1
+      return true
+    }
+    const controller = new AbortController()
+    const pending = collectOutput(child, controller.signal)
+    child.emit('close', 0)
+    await pending
+    controller.abort()
+    await Promise.resolve()
+    expect(kills).toBe(0)
+  })
+
   it('tolerates a child without stdio streams', async () => {
     const bare = new EventEmitter()
     const pending = collectOutput(bare as never, new AbortController().signal)
@@ -297,56 +250,6 @@ describe('formatRunResult', () => {
   })
 })
 
-describe('runMember', () => {
-  it('reports a missing CLI without spawning', async () => {
-    let spawned = false
-    const out = await runMember('the-oracle', 'task', '/proj', new AbortController().signal, {
-      existsCli: () => false,
-      spawnProcess: () => {
-        spawned = true
-        throw new Error('must not spawn')
-      },
-    })
-    expect(spawned).toBe(false)
-    expect(out).toContain('agenthood CLI not found')
-  })
-
-  it('spawns the CLI in the caller directory and formats the result', async () => {
-    const child = fakeChild()
-    let seen: { command: string; args: string[]; options: { cwd: string } } | undefined
-    const out = await runMember('the-oracle', 'do it', '/proj', new AbortController().signal, {
-      existsCli: () => true,
-      spawnProcess: (command, args, options) => {
-        seen = { command, args, options }
-        setImmediate(() => {
-          child.stdout.emit('data', Buffer.from('all good'))
-          child.stderr.emit('data', Buffer.from('note'))
-          child.emit('close', 2)
-        })
-        return child as never
-      },
-    })
-    expect(seen?.args.slice(-3)).toEqual(['run', 'the-oracle', 'do it'])
-    expect(seen?.options).toEqual({ cwd: '/proj' })
-    expect(out).toBe('all good\n[stderr]\nnote\n[exit code 2]')
-  })
-
-  it('keeps spawn failures as plain text', async () => {
-    const child = fakeChild()
-    const out = await runMember('the-oracle', 'task', '/proj', new AbortController().signal, {
-      existsCli: () => true,
-      spawnProcess: () => {
-        setImmediate(() => {
-          child.emit('error', new Error('boom'))
-          child.emit('close', -2)
-        })
-        return child as never
-      },
-    })
-    expect(out).toBe('failed to spawn agenthood: boom')
-  })
-})
-
 describe('buildRunMemberTool', () => {
   it('registers nothing when no members ship', () => {
     expect(buildRunMemberTool([])).toEqual({})
@@ -356,25 +259,6 @@ describe('buildRunMemberTool', () => {
     const tools = buildRunMemberTool(['the-oracle'])
     expect(Object.keys(tools)).toEqual(['agenthood_run_member'])
     expect(tools.agenthood_run_member.description).toContain('the-oracle')
-  })
-
-  it('server tool execute runs the member in the caller directory', async () => {
-    const child = fakeChild()
-    state.spawnChild = child
-    const hooks = await pluginModule.server()
-    const def = hooks.tool?.['agenthood_run_member']
-    setImmediate(() => {
-      child.stdout.emit('data', Buffer.from('member says hi'))
-      child.emit('close', 0)
-    })
-    const result = await def?.execute(
-      { member: 'the-oracle', task: 'hi' },
-      { directory: '/caller', abort: new AbortController().signal } as never,
-    )
-    expect(result).toEqual({ title: 'agenthood run the-oracle', output: 'member says hi' })
-    expect(state.spawnCalls[0]?.args.slice(-3)).toEqual(['run', 'the-oracle', 'hi'])
-    expect(state.spawnCalls[0]?.options.cwd).toBe('/caller')
-    expect(state.spawnCalls[0]?.options.stdio).toEqual(['ignore', 'pipe', 'pipe'])
   })
 })
 

@@ -159,18 +159,18 @@ export interface RunMemberDependencies {
   spawnProcess: (command: string, args: string[], options: { cwd: string }) => ChildProcess
 }
 
-/** Runs `agenthood run <member> "<task>"` in the caller's project and streams the result. */
-export async function runMember(
-  member: string,
-  task: string,
-  directory: string,
-  abort: AbortSignal,
-  dependencies: RunMemberDependencies,
-): Promise<string> {
-  if (!dependencies.existsCli(CLI)) return `agenthood CLI not found at ${CLI} — run \`npm run build\` in the agenthood package.`
+export interface RunMemberOptions {
+  directory: string
+  abort: AbortSignal
+  dependencies: RunMemberDependencies
+}
 
-  const child = dependencies.spawnProcess(process.execPath, [CLI, 'run', member, task], { cwd: directory })
-  return formatRunResult(await collectOutput(child, abort))
+/** Runs `agenthood run <member> "<task>"` in the caller's project and streams the result. */
+export async function runMember(member: string, task: string, options: RunMemberOptions): Promise<string> {
+  if (!options.dependencies.existsCli(CLI)) return `agenthood CLI not found at ${CLI} — run \`npm run build\` in the agenthood package.`
+
+  const child = options.dependencies.spawnProcess(process.execPath, [CLI, 'run', member, task], { cwd: options.directory })
+  return formatRunResult(await collectOutput(child, options.abort))
 }
 
 export function buildRunMemberTool(names: string[]): Record<string, ToolDefinition> {
@@ -185,16 +185,20 @@ export function buildRunMemberTool(names: string[]): Record<string, ToolDefiniti
         member: z.enum(names as [string, ...string[]]),
         task: z.string().describe('Task for the member, e.g. "write a commit message for the current diff"'),
       },
-      execute: async (
-        { member, task }: { member: string; task: string },
-        context: ToolContext,
-      ): Promise<ToolResult> => ({
-        title: `agenthood run ${member}`,
-        output: await runMember(member, task, context.directory, context.abort, {
-          existsCli: existsSync,
-          spawnProcess: (command, args, options) => spawn(command, args, { ...options, stdio: ['ignore', 'pipe', 'pipe'] }),
-        }),
-      }),
+            execute: async (
+              { member, task }: { member: string; task: string },
+              context: ToolContext,
+            ): Promise<ToolResult> => ({
+              title: `agenthood run ${member}`,
+              output: await runMember(member, task, {
+                directory: context.directory,
+                abort: context.abort,
+                dependencies: {
+                  existsCli: existsSync,
+                  spawnProcess: (command, args, options) => spawn(command, args, { ...options, stdio: ['ignore', 'pipe', 'pipe'] }),
+                },
+              }),
+            }),
     },
   }
 }

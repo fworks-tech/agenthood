@@ -9,12 +9,12 @@ The runtime supports automatic provider failover when a provider fails (rate lim
   "providers": [
     {
       "name": "opencode",
-      "model": "deepseek-v4-flash",
+      "model": "mimo-v2.5",
       "priority": 1
     },
     {
       "name": "opencode-go",
-      "model": "deepseek-v4-flash",
+      "model": "mimo-v2.5",
       "priority": 2
     },
     {

@@ -25,9 +25,9 @@ describe('loadConfig', () => {
 
   it('parses a full config: provider block, providers, failover, skills', async () => {
     await withFixture(JSON.stringify({
-      provider: { name: 'opencode', model: 'deepseek-v4-flash' },
+      provider: { name: 'opencode', model: 'mimo-v2.5' },
       providers: [
-        { name: 'opencode', model: 'deepseek-v4-flash', priority: 1 },
+        { name: 'opencode', model: 'mimo-v2.5', priority: 1 },
         { name: 'groq', model: 'llama-3.3-70b-versatile', priority: 2, models: ['a', 'b'] },
       ],
       failover: { failureThreshold: 3, cooldownMs: 60000, probeEnabled: true },
@@ -35,7 +35,7 @@ describe('loadConfig', () => {
     }), async () => {
       const cfg = await loadConfig()
       expect(cfg.provider).toBe('opencode')
-      expect(cfg.model).toBe('deepseek-v4-flash')
+      expect(cfg.model).toBe('mimo-v2.5')
       expect(cfg.providers).toHaveLength(2)
       expect(cfg.providers![1]).toMatchObject({ name: 'groq', priority: 2, models: ['a', 'b'] })
       expect(cfg.failureThreshold).toBe(3)

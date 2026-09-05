@@ -32,9 +32,9 @@ describe('TokenCounter', () => {
   })
 
   it('estimates cost for opencode go models', () => {
-    // deepseek-v4-flash: $0.14/1M in, $0.28/1M out (opencode.ai/docs/go)
-    expect(counter.estimateCost('deepseek-v4-flash', 1_000_000, 1_000_000)).toBe(0.42)
-    expect(counter.estimateCost('deepseek-v4-flash', 500_000, 0)).toBe(0.07)
+    // mimo-v2.5: $0.14/1M in, $0.28/1M out (opencode.ai/docs/go)
+    expect(counter.estimateCost('mimo-v2.5', 1_000_000, 1_000_000)).toBe(0.42)
+    expect(counter.estimateCost('mimo-v2.5', 500_000, 0)).toBe(0.07)
     expect(counter.estimateCost('grok-4.5', 1_000_000, 1_000_000)).toBe(8)
   })
 

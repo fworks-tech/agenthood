@@ -108,7 +108,7 @@
   },
   "dependencies": {
     "@anthropic-ai/sdk": "0.123.0",
-    "@lancedb/lancedb": "0.30.0",
+    "@lancedb/lancedb": "0.38.0",
     "@modelcontextprotocol/server": "2.0.0",
     "@sentry/node": "10.70.0",
     "ajv": "8.20.0",

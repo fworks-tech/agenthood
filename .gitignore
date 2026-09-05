@@ -27,6 +27,7 @@ vscode-extension/.vscode-test/
 .agenthood/snapshots/
 .agenthood/metrics/
 .agenthood/checkpoints/
+.agenthood/debug/
 .agenthood/residual.json
 .agenthood/society-graph.json
 .agenthood/preferences.json

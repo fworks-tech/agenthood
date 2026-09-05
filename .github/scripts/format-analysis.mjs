@@ -17,11 +17,15 @@
 // demoted to a file-level thread (issue #683).
 import { readFileSync, writeFileSync } from 'node:fs'
 import { execFileSync } from 'node:child_process'
+import { pathToFileURL } from 'node:url'
 
 const [, , analysisPath, summaryPath] = process.argv
 
 const telemetryPrefix = '^Error running|^Using |^opencode-go|^groq|^ollama|^All providers|^\\[step |^$'
-const INLINE_PATTERN = '<!--AGENTHOOD_INLINE\\s*([\\s\\S]*?)-->'
+// Inline blocks are bracket-scanned (see inlineBlockSpans): a `-->` inside a
+// finding body cannot truncate the match, and echoed empty sample blocks are
+// skipped by the extractor and stripped from the summary.
+const INLINE_MARKER = '<!--AGENTHOOD_INLINE'
 
 export function formatSummary(raw) {
   // keep only the final report block; fall back to stripping telemetry noise
@@ -39,17 +43,75 @@ export function formatSummary(raw) {
 export function extractInlineFindings(raw) {
   // agents sometimes echo the prompt's empty sample block — take the first
   // block that parses as a non-empty array
-  for (const match of raw.matchAll(new RegExp(INLINE_PATTERN, 'g'))) {
+  for (const [start, end] of inlineBlockSpans(raw)) {
     try {
-      const parsed = JSON.parse(match[1])
+      const inner = raw.slice(start, end).replace(/^<!--AGENTHOOD_INLINE\s*/, '').replace(/\s*-->$/, '')
+      const parsed = JSON.parse(inner)
       if (Array.isArray(parsed) && parsed.length > 0) return parsed
     } catch { /* try the next block */ }
   }
   return []
 }
 
+export function stripInlineBlocks(raw) {
+  let out = raw
+  for (const [start, end] of inlineBlockSpans(raw).reverse()) {
+    out = out.slice(0, start) + out.slice(end)
+  }
+  return out
+}
+
+// [start, end) spans of every `<!--AGENTHOOD_INLINE ... -->` block: echo
+// blocks (marker + whitespace + -->) and JSON blocks (string-aware bracket
+// scan to the matching `]` + `-->`). Blocks with neither shape are skipped
+// without consuming the rest of the output.
+function inlineBlockSpans(raw) {
+  const spans = []
+  let idx = 0
+  while (true) {
+    const start = raw.indexOf(INLINE_MARKER, idx)
+    if (start < 0) break
+    let pos = start + INLINE_MARKER.length
+    while (pos < raw.length && /\s/.test(raw[pos])) pos++
+    let end = -1
+    if (raw.startsWith('-->', pos)) end = pos + 3
+    else if (raw[pos] === '[') end = scanJsonBlockEnd(raw, pos)
+    if (end < 0) {
+      idx = pos
+      continue
+    }
+    spans.push([start, end])
+    idx = end
+  }
+  return spans
+}
+
+function scanJsonBlockEnd(raw, pos) {
+  let depth = 0
+  let inStr = false
+  let esc = false
+  for (let j = pos; j < raw.length; j++) {
+    const c = raw[j]
+    if (inStr) {
+      if (esc) esc = false
+      else if (c === '\\') esc = true
+      else if (c === '"') inStr = false
+    } else if (c === '"') inStr = true
+    else if (c === '[') depth++
+    else if (c === ']') {
+      depth--
+      if (depth === 0) {
+        const tail = /^\s*-->/.exec(raw.slice(j + 1))
+        return tail ? j + 1 + tail[0].length : -1
+      }
+    }
+  }
+  return -1
+}
+
 async function postReviewComments(findings) {
-  const { GH_TOKEN, PR_NUMBER, GITHUB_REPOSITORY } = process.env
+  const { GH_TOKEN, PR_NUMBER, GITHUB_REPOSITORY, INLINE_FINDINGS } = process.env
+  if (INLINE_FINDINGS !== 'true') return 0
   if (!GH_TOKEN || !PR_NUMBER || !GITHUB_REPOSITORY) {
     console.warn('[inline] missing env (GH_TOKEN/PR_NUMBER/GITHUB_REPOSITORY) — skipping inline comments')
     return 0
@@ -132,12 +194,19 @@ function hunkSpans(path, range, cache) {
   return spans
 }
 
-const raw = readFileSync(analysisPath, 'utf8')
-const findings = extractInlineFindings(raw)
-const summary = formatSummary(raw.replace(new RegExp(INLINE_PATTERN, 'g'), ''))
-writeFileSync(summaryPath, summary)
+async function main() {
+  const raw = readFileSync(analysisPath, 'utf8')
+  const findings = extractInlineFindings(raw)
+  const summary = formatSummary(stripInlineBlocks(raw))
+  writeFileSync(summaryPath, summary)
 
-if (findings.length > 0) {
-  const posted = await postReviewComments(findings)
-  if (posted > 0) console.log(`[inline] posted ${posted} inline finding(s)`)
+  if (findings.length > 0) {
+    const posted = await postReviewComments(findings)
+    if (posted > 0) console.log(`[inline] posted ${posted} inline finding(s)`)
+  }
+}
+
+// main-guard: importing the pure helpers in unit tests must not run the flow
+if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) {
+  await main()
 }

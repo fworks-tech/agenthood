@@ -45,7 +45,7 @@ validate_prerequisites() {
   TOTAL_FILES=$(echo "$CHANGED" | wc -l)
   CHANGED=$(echo "$CHANGED" | head -"$MAX_FILES" || true)
   if [ "$TOTAL_FILES" -gt "$MAX_FILES" ]; then
-    TRUNCATED_NOTICE="(files truncated at $MAX_FILES of $TOTAL_FILES changed files — list incomplete, findings cover only the files above)"
+    TRUNCATED_NOTICE="(files truncated at $MAX_FILES of $TOTAL_FILES listed files — list incomplete, findings cover only the files above)"
   fi
 
   SAFE_CHANGED=$(echo "$CHANGED" | grep -v '[^-_./a-zA-Z0-9]' || true)

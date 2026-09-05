@@ -5,6 +5,18 @@
 
 ---
 
+## v3.47.0 — September 5, 2026
+
+### 🐛 Bug Fixes
+
+- **Mcp:** extract handlers, pin dep, update docs
+
+### ✨ Features
+
+- **Mcp:** add MCP server to expose skills as tools
+
+---
+
 ## v3.46.0 — September 5, 2026
 
 ### ✨ Features

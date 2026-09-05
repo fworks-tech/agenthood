@@ -1,3 +1,15 @@
+# [3.47.0](https://github.com/fworks-tech/agenthood/compare/v3.46.0...v3.47.0) (2026-09-05)
+
+
+### Bug Fixes
+
+* **mcp:** extract handlers, pin dep, update docs ([764f00e](https://github.com/fworks-tech/agenthood/commit/764f00eaa4928748e96ff8e3fc78604d7b3553d0))
+
+
+### Features
+
+* **mcp:** add MCP server to expose skills as tools ([adb99c7](https://github.com/fworks-tech/agenthood/commit/adb99c7337c260cbde24f433687f855855e0faca))
+
 # [3.46.0](https://github.com/fworks-tech/agenthood/compare/v3.45.0...v3.46.0) (2026-09-05)
 
 

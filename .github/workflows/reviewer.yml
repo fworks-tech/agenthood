@@ -58,6 +58,8 @@ jobs:
 
             End your report with: <!--AGENTHOOD_DECISION: blocking=true warnings=N--> or <!--AGENTHOOD_DECISION: blocking=false warnings=N-->
 
+            Count check: N must equal the number of warning bullets you actually listed; an empty warnings section means warnings=0.
+
             Files changed:
             %s
           pr-number: ${{ steps.context.outputs.pr-number }}

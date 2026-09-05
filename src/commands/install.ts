@@ -7,7 +7,7 @@
 
 import { existsSync, readFileSync, mkdirSync, writeFileSync, cpSync, rmSync, readdirSync } from 'node:fs'
 import { join } from 'node:path'
-import { execSync } from 'node:child_process'
+import { execFileSync } from 'node:child_process'
 import type { CommandDescriptor } from './types.ts'
 import { resolveSkillsDir } from '../members.ts'
 import { SkillParser } from '../skills/discovery/SkillParser.ts'
@@ -54,12 +54,12 @@ function toGitUrl(url: string): string {
 }
 
 function cloneRepo(url: string, dest: string): void {
-  execSync(`git clone --depth 1 "${url}" "${dest}"`, { stdio: 'pipe' })
+  execFileSync('git', ['clone', '--depth', '1', url, dest], { stdio: 'pipe' })
 }
 
 function downloadUrl(url: string, dest: string): void {
   mkdirSync(dest, { recursive: true })
-  execSync(`curl -fsSL "${url}" -o "${join(dest, 'SKILL.md')}"`, { stdio: 'pipe' })
+  execFileSync('curl', ['-fsSL', url, '-o', join(dest, 'SKILL.md')], { stdio: 'pipe' })
 }
 
 function findSkillMd(dir: string): string | null {

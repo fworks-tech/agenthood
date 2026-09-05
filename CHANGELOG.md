@@ -1,3 +1,11 @@
+# [3.46.0](https://github.com/fworks-tech/agenthood/compare/v3.45.0...v3.46.0) (2026-09-05)
+
+
+### Features
+
+* **cli:** add install command for skills from URLs and git repos ([878d4f6](https://github.com/fworks-tech/agenthood/commit/878d4f68ffcd18ab63310a5e34426d3acd3e692d))
+* **skills:** add quality tiers (official, community, experimental) with visual indicators ([b0036f2](https://github.com/fworks-tech/agenthood/commit/b0036f2b3573a5b398611d8eff962bf7213914e3))
+
 # [3.45.0](https://github.com/fworks-tech/agenthood/compare/v3.44.0...v3.45.0) (2026-09-05)
 
 

@@ -5,6 +5,15 @@
 
 ---
 
+## v3.46.0 — September 5, 2026
+
+### ✨ Features
+
+- **Cli:** add install command for skills from URLs and git repos
+- **Skills:** add quality tiers (official, community, experimental) with visual indicators
+
+---
+
 ## v3.45.0 — September 5, 2026
 
 ### ✨ Features

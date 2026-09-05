@@ -25,7 +25,7 @@ import { existsSync, readdirSync } from 'node:fs'
 import { dirname, join } from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { z } from 'zod'
-import type { Config, Hooks, Plugin, PluginModule, ToolContext, ToolResult } from '@opencode-ai/plugin'
+import type { Config, Hooks, Plugin, PluginModule, ToolContext, ToolDefinition, ToolResult } from '@opencode-ai/plugin'
 
 const __filename = fileURLToPath(import.meta.url)
 const __dirname = dirname(__filename)
@@ -35,23 +35,69 @@ const CLI = join(PACKAGE_ROOT, 'dist', 'cli.js')
 
 // The SDK Config type predates the `skills` config block; the live merged
 // config opencode passes to the hook does carry it.
-type PluginConfig = Config & { skills?: { paths?: string[]; urls?: string[] } }
+export type PluginConfig = Config & { skills?: { paths?: string[]; urls?: string[] } }
+
+export interface AgenthoodConfigPaths {
+  skillsPath: string
+  instructionsPath: string
+}
+
+export interface DirectoryEntry {
+  name: string
+  isDirectory: () => boolean
+}
+
+export interface MemberDiscoveryFileSystem {
+  readdir: (path: string) => DirectoryEntry[]
+  exists: (path: string) => boolean
+  warn: (message: string) => void
+}
 
 // Derived from the shipped skills dir so the enum cannot drift from the members
 // actually published in the package. Defensive: a partial install must not
 // crash plugin load — the server() guard below skips tool registration.
-export const memberNames: string[] = (() => {
+export function discoverMemberNames(
+  skillsDir: string,
+  fs: MemberDiscoveryFileSystem = {
+    readdir: (path) => readdirSync(path, { withFileTypes: true }),
+    exists: existsSync,
+    warn: (message) => console.warn(message),
+  },
+): string[] {
   try {
-    const skillsDir = join(PACKAGE_ROOT, 'skills')
-    return readdirSync(skillsDir, { withFileTypes: true })
-      .filter((d) => d.isDirectory() && d.name.startsWith('the-') && existsSync(join(skillsDir, d.name, 'SKILL.md')))
+    return fs
+      .readdir(skillsDir)
+      .filter((d) => d.isDirectory() && d.name.startsWith('the-') && fs.exists(join(skillsDir, d.name, 'SKILL.md')))
       .map((d) => d.name)
       .sort()
   } catch (err) {
-    console.warn(`[agenthood] skills dir unreadable, member tool disabled: ${err instanceof Error ? err.message : String(err)}`)
+    fs.warn(`[agenthood] skills dir unreadable (${skillsDir}), member tool disabled: ${err instanceof Error ? err.message : String(err)}`)
     return []
   }
-})()
+}
+
+export const memberNames: string[] = discoverMemberNames(join(PACKAGE_ROOT, 'skills'))
+
+// Mutation is the opencode `config`-hook contract (the hook returns void);
+// the includes-guards keep repeated invocations idempotent.
+export function wireAgenthoodConfig(
+  cfg: PluginConfig,
+  paths: AgenthoodConfigPaths,
+  hasInstructions: (path: string) => boolean = existsSync,
+): void {
+  cfg.skills ??= {}
+  cfg.skills.paths = cfg.skills.paths ?? []
+  if (!cfg.skills.paths.includes(paths.skillsPath)) cfg.skills.paths.push(paths.skillsPath)
+  if (hasInstructions(paths.instructionsPath)) {
+    cfg.instructions = cfg.instructions ?? []
+    if (!cfg.instructions.includes(paths.instructionsPath)) cfg.instructions.push(paths.instructionsPath)
+  }
+  cfg.agent ??= {}
+  cfg.agent['the-steward'] = {
+    description: 'Route tasks to the minimal set of Agenthood members. Start here for any Agenthood task.',
+    mode: 'primary',
+  }
+}
 
 // Caps so one runaway member run cannot flood the session context.
 const MAX_OUTPUT = 200_000
@@ -99,15 +145,7 @@ export function collectOutput(child: ChildProcess, abort: AbortSignal): Promise<
   })
 }
 
-/** Runs `agenthood run <member> "<task>"` in the caller's project and streams the result. */
-async function runMember(member: string, task: string, directory: string, abort: AbortSignal): Promise<string> {
-  if (!existsSync(CLI)) return `agenthood CLI not found at ${CLI} — run \`npm run build\` in the agenthood package.`
-
-  const child = spawn(process.execPath, [CLI, 'run', member, task], {
-    cwd: directory,
-    stdio: ['ignore', 'pipe', 'pipe'],
-  })
-  const { stdout, stderr, code, spawnError } = await collectOutput(child, abort)
+export function formatRunResult({ stdout, stderr, code, spawnError }: CollectedOutput): string {
   // spawn failures keep the historical plain-text format (no [stderr] wrapper)
   if (spawnError) return `failed to spawn agenthood: ${spawnError}`
   const body = stdout.trim() || 'no output'
@@ -116,46 +154,61 @@ async function runMember(member: string, task: string, directory: string, abort:
   return `${body}${err}${status}`
 }
 
+export interface RunMemberDependencies {
+  existsCli: (path: string) => boolean
+  spawnProcess: (command: string, args: string[], options: { cwd: string }) => ChildProcess
+}
+
+/** Runs `agenthood run <member> "<task>"` in the caller's project and streams the result. */
+export async function runMember(
+  member: string,
+  task: string,
+  directory: string,
+  abort: AbortSignal,
+  dependencies: RunMemberDependencies,
+): Promise<string> {
+  if (!dependencies.existsCli(CLI)) return `agenthood CLI not found at ${CLI} — run \`npm run build\` in the agenthood package.`
+
+  const child = dependencies.spawnProcess(process.execPath, [CLI, 'run', member, task], { cwd: directory })
+  return formatRunResult(await collectOutput(child, abort))
+}
+
+export function buildRunMemberTool(names: string[]): Record<string, ToolDefinition> {
+  if (names.length === 0) return {}
+  return {
+    agenthood_run_member: {
+      description:
+        'Run an Agenthood Society member as a real agent on a task (enforced behavior + audit trail). '
+        + `Members: ${names.join(', ')}. `
+        + 'Use the-steward to route ambiguous tasks to the minimal member set first.',
+      args: {
+        member: z.enum(names as [string, ...string[]]),
+        task: z.string().describe('Task for the member, e.g. "write a commit message for the current diff"'),
+      },
+      execute: async (
+        { member, task }: { member: string; task: string },
+        context: ToolContext,
+      ): Promise<ToolResult> => ({
+        title: `agenthood run ${member}`,
+        output: await runMember(member, task, context.directory, context.abort, {
+          existsCli: existsSync,
+          spawnProcess: (command, args, options) => spawn(command, args, { ...options, stdio: ['ignore', 'pipe', 'pipe'] }),
+        }),
+      }),
+    },
+  }
+}
+
 const server: Plugin = async () => {
   const hooks: Hooks = {
     config: async (raw) => {
       const cfg = raw as PluginConfig
-      cfg.skills ??= {}
-      const skillsPath = join(PACKAGE_ROOT, 'skills')
-      cfg.skills.paths = cfg.skills.paths ?? []
-      if (!cfg.skills.paths.includes(skillsPath)) cfg.skills.paths.push(skillsPath)
-      const instructionsPath = join(PACKAGE_ROOT, 'AGENTS.md')
-      if (existsSync(instructionsPath)) {
-        cfg.instructions = cfg.instructions ?? []
-        if (!cfg.instructions.includes(instructionsPath)) cfg.instructions.push(instructionsPath)
-      }
-      cfg.agent ??= {}
-      cfg.agent['the-steward'] = {
-        description: 'Route tasks to the minimal set of Agenthood members. Start here for any Agenthood task.',
-        mode: 'primary',
-      }
+      wireAgenthoodConfig(cfg, {
+        skillsPath: join(PACKAGE_ROOT, 'skills'),
+        instructionsPath: join(PACKAGE_ROOT, 'AGENTS.md'),
+      })
     },
-    tool: memberNames.length > 0
-      ? {
-          agenthood_run_member: {
-            description:
-              'Run an Agenthood Society member as a real agent on a task (enforced behavior + audit trail). '
-              + `Members: ${memberNames.join(', ')}. `
-              + 'Use the-steward to route ambiguous tasks to the minimal member set first.',
-            args: {
-              member: z.enum(memberNames as [string, ...string[]]),
-              task: z.string().describe('Task for the member, e.g. "write a commit message for the current diff"'),
-            },
-            execute: async (
-              { member, task }: { member: string; task: string },
-              context: ToolContext,
-            ): Promise<ToolResult> => ({
-              title: `agenthood run ${member}`,
-              output: await runMember(member, task, context.directory, context.abort),
-            }),
-          },
-        }
-      : {},
+    tool: buildRunMemberTool(memberNames),
   }
   return hooks
 }

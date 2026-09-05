@@ -1,4 +1,4 @@
-import { existsSync, readdirSync, statSync } from 'node:fs'
+import { existsSync, readFileSync, readdirSync, statSync } from 'node:fs'
 import { join } from 'node:path'
 import { homedir } from 'node:os'
 import type { ISkillManifest } from './ISkillManifest.ts'
@@ -103,7 +103,10 @@ export class SkillDiscovery {
     if (existsSync(skillMdPath)) {
       const parsed = this.parser.parse(skillMdPath)
       if (!parsed) return []
-      const manifest = this.parser.parseManifest(skillMdPath, fullPath, parsed.body, parsed.name || entry, parsed.description)
+      const content = readFileSync(skillMdPath, 'utf-8')
+      const { frontmatter } = this.parser.parseRaw(content)
+      const tier = this.parser.parseTier(frontmatter)
+      const manifest = this.parser.parseManifest(skillMdPath, fullPath, parsed.body, parsed.name || entry, parsed.description, tier)
       return [manifest]
     }
     return this.scanDir(fullPath, depth + 1)

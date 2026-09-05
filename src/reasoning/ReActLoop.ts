@@ -10,6 +10,7 @@ import { validateSchema, SchemaValidationError } from "../core/SchemaValidator.t
 import { redactEventText } from "../core/RunEventBus.ts"
 import { SKILL_ACTIVATION_PREFIX } from "../skills/activation/ActivateSkillTool.ts"
 import { AskHumanSignal } from "../tools/human/AskHumanTool.ts"
+import * as readline from 'node:readline'
 
 const costEstimator = new CostEstimator()
 
@@ -37,6 +38,7 @@ export interface ReActLoopOptions {
   loopThreshold?: number
   maxSteps?: number
   onStepComplete?: (step: number, messages: Message[], usage: TokenUsage, model: string) => void
+  interactive?: boolean
 }
 
 export class ReActLoop {
@@ -70,6 +72,7 @@ export class ReActLoop {
   private readonly loopThreshold: number
   private readonly maxSteps: number
   private readonly onStepComplete?: (step: number, messages: Message[], usage: TokenUsage, model: string) => void
+  private readonly interactive: boolean
 
   constructor(
     private llm: ILLMProvider,
@@ -82,6 +85,7 @@ export class ReActLoop {
     this.loopThreshold = options.loopThreshold ?? 3
     this.maxSteps = options.maxSteps ?? 100
     this.onStepComplete = options.onStepComplete
+    this.interactive = options.interactive ?? false
   }
 
   async run(
@@ -218,6 +222,19 @@ export class ReActLoop {
         args: redactEventText(context, JSON.stringify(toolCall.args ?? {})),
       });
 
+      if (this.interactive) {
+        const approved = await this.confirmToolCall(toolCall, step, context)
+        if (!approved) {
+          messages.push({
+            role: "tool",
+            content: "User declined this action.",
+            tool_call_id: toolCall.id,
+            name: toolCall.name,
+          })
+          continue
+        }
+      }
+
       const toolStart = performance.now()
       const result = await this.executeTool(toolCall, context);
       const durationMs = Math.round(performance.now() - toolStart)
@@ -293,5 +310,35 @@ export class ReActLoop {
       this.llm.getContextWindow() ??
       8192
     )
+  }
+
+  private async confirmToolCall(toolCall: ToolCall, step: number, context: ExecutionContext): Promise<boolean> {
+    const argsSummary = JSON.stringify(toolCall.args ?? {})
+    const truncated = argsSummary.length > 200 ? argsSummary.slice(0, 200) + '...' : argsSummary
+    console.log(`\n  ┌─ Step ${step} — Tool call ─────────────────────────────`)
+    console.log(`  │ Tool: ${toolCall.name}`)
+    console.log(`  │ Args: ${truncated}`)
+    console.log(`  └──────────────────────────────────────────────────────`)
+    console.log(`  Proceed? [y/n] `)
+
+    const rl = readline.createInterface({ input: process.stdin, output: process.stdout })
+    return new Promise<boolean>((resolve) => {
+      rl.question('', (answer) => {
+        rl.close()
+        const decision = answer.trim().toLowerCase()
+        const approved = decision === 'y' || decision === 'yes' || decision === ''
+        context.events.emit({
+          type: 'tool.called',
+          executionId: context.executionId,
+          member: this._member,
+          correlationId: context.correlationId,
+          timestamp: new Date().toISOString(),
+          step,
+          name: toolCall.name,
+          args: `[human-decision: ${approved ? 'approved' : 'rejected'}]`,
+        } as any)
+        resolve(approved)
+      })
+    })
   }
 }

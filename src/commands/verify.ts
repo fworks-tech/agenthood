@@ -6,10 +6,17 @@ import { contentHash } from '../utils/hash.ts'
 import { loadLockfile } from '../utils/lockfile.ts'
 import type { Lockfile } from '../utils/lockfile.ts'
 import { SkillParser } from '../skills/discovery/SkillParser.ts'
+import type { SkillTier } from '../skills/discovery/ISkillManifest.ts'
 import { findLaneOverlaps } from '../members/laneOverlap.ts'
 import { rawSpecs } from '../members/member-specs.ts'
 
 const REQUIRED_SECTIONS = ['Overview', 'When to Use', 'Process', 'Red Flags', 'Rationalizations', 'Verification']
+
+const TIER_REQUIRED_SECTIONS: Record<SkillTier, string[]> = {
+  official: REQUIRED_SECTIONS,
+  community: REQUIRED_SECTIONS,
+  experimental: ['Overview', 'When to Use'],
+}
 
 const PLACEHOLDER_PATTERNS = [/TBD/i, /TODO/i, /FIXME/i]
 
@@ -30,7 +37,9 @@ function validateMember(membersDir: string, member: string, lockfile?: Lockfile)
   }
 
   const content = readFileSync(skillPath, 'utf8')
-  const { frontmatter, body } = new SkillParser().parseRaw(content)
+  const parser = new SkillParser()
+  const { frontmatter, body } = parser.parseRaw(content)
+  const tier = parser.parseTier(frontmatter)
 
   if (!frontmatter) {
     result.issues.push('Missing YAML frontmatter')
@@ -38,9 +47,13 @@ function validateMember(membersDir: string, member: string, lockfile?: Lockfile)
     if (!frontmatter.name) result.issues.push('Frontmatter missing "name"')
     if (!frontmatter.description) result.issues.push('Frontmatter missing "description"')
     if (!frontmatter.license) result.issues.push('Frontmatter missing "license"')
+    if (tier === 'official' && frontmatter.tier !== 'official') {
+      result.issues.push('Official skills must declare "tier: official" in frontmatter')
+    }
   }
 
-  for (const section of REQUIRED_SECTIONS) {
+  const requiredSections = TIER_REQUIRED_SECTIONS[tier]
+  for (const section of requiredSections) {
     const sectionRegex = new RegExp(`## ${section}`, 'i')
     if (!sectionRegex.test(body)) {
       result.issues.push(`Missing required section: "${section}"`)

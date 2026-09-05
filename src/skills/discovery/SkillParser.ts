@@ -1,6 +1,8 @@
 import { readFileSync, statSync, existsSync, readdirSync } from 'node:fs'
 import { join } from 'node:path'
-import type { ISkillManifest } from './ISkillManifest.ts'
+import type { ISkillManifest, SkillTier } from './ISkillManifest.ts'
+
+const VALID_TIERS: SkillTier[] = ['official', 'community', 'experimental']
 
 export interface ParsedSkill {
   name: string
@@ -50,7 +52,7 @@ export class SkillParser {
     return { frontmatter, body: match[2].trim() }
   }
 
-  parseManifest(filePath: string, directory: string, body: string, name = '', description = ''): ISkillManifest {
+  parseManifest(filePath: string, directory: string, body: string, name = '', description = '', tier: SkillTier = 'community'): ISkillManifest {
     const resources: string[] = []
     try {
       for (const entry of readdirSync(directory, { withFileTypes: true })) {
@@ -67,6 +69,7 @@ export class SkillParser {
     return {
       name,
       description,
+      tier,
       location: filePath,
       directory,
       body,
@@ -88,6 +91,16 @@ export class SkillParser {
       }
     }
     return resources
+  }
+
+  /**
+   * Parse and validate the `tier` field from frontmatter.
+   * Returns 'community' if missing or invalid (safe default).
+   */
+  parseTier(frontmatter: Record<string, unknown> | null): SkillTier {
+    if (!frontmatter || typeof frontmatter.tier !== 'string') return 'community'
+    const raw = frontmatter.tier.toLowerCase()
+    return VALID_TIERS.includes(raw as SkillTier) ? (raw as SkillTier) : 'community'
   }
 
   /**

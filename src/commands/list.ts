@@ -6,16 +6,35 @@
  * tool scopes and permission profiles in docs/architecture/built-in-tools.md.
  */
 
-import { existsSync } from 'node:fs';
+import { existsSync, readFileSync } from 'node:fs';
 import type { CommandDescriptor } from './types.ts';
 import { join } from 'node:path';
 import { MemberRegistry } from '../members/MemberRegistry.ts';
 import { resolveSkillsDir } from '../members.ts';
+import { SkillParser } from '../skills/discovery/SkillParser.ts';
+import type { SkillTier } from '../skills/discovery/ISkillManifest.ts';
+
+const TIER_BADGES: Record<SkillTier, string> = {
+  official: '⬡',
+  community: '○',
+  experimental: '◌',
+}
 
 export const command: CommandDescriptor = {
   name: 'list',
   description: 'List all members, their status, permission & provider',
   handler: () => list(),
+}
+
+function readTier(skillPath: string): SkillTier {
+  if (!existsSync(skillPath)) return 'community'
+  try {
+    const content = readFileSync(skillPath, 'utf-8')
+    const { frontmatter } = new SkillParser().parseRaw(content)
+    return new SkillParser().parseTier(frontmatter)
+  } catch {
+    return 'community'
+  }
 }
 
 export async function list(): Promise<void> {
@@ -45,12 +64,16 @@ export async function list(): Promise<void> {
     for (const m of group) {
       const active = existsSync(join(skillsBase, m.name, `${m.name}.md`));
       const status = active ? '✅' : '⬜';
+      const skillPath = join(skillsBase, m.name, 'SKILL.md');
+      const tier = readTier(skillPath);
+      const badge = TIER_BADGES[tier];
       const provider = m.preferredProvider.padEnd(10);
       const perm = m.permissionProfile.padEnd(12);
-      console.log(`    ${status}  ${m.name.padEnd(16)} ${m.tagline.padEnd(34)} ${perm} ${provider}`);
+      console.log(`    ${status}  ${badge} ${m.name.padEnd(16)} ${m.tagline.padEnd(34)} ${perm} ${provider}`);
     }
     console.log();
   }
 
-  console.log('  Columns: Status · Member · Tagline · Permission · Preferred Provider\n');
+  console.log('  Columns: Status · Tier · Member · Tagline · Permission · Preferred Provider');
+  console.log('  Tiers: ⬡ official  ○ community  ◌ experimental\n');
 }

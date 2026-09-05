@@ -134,7 +134,6 @@ export function collectOutput(child: ChildProcess, abort: AbortSignal, timeoutMs
     abort.addEventListener('abort', onAbort, { once: true })
     // `error` and `close` can both fire for one spawn failure; settle once
     let isSettled = false
-    let watchdog: NodeJS.Timeout | undefined
     const done = (result: CollectedOutput) => {
       if (isSettled) return
       isSettled = true
@@ -153,8 +152,9 @@ export function collectOutput(child: ChildProcess, abort: AbortSignal, timeoutMs
     })
     child.on('close', (code) => done({ stdout, stderr, code }))
     child.on('error', (err) => done({ stdout, stderr, code: null, spawnError: err.message }))
-    // watchdog: a CLI whose streams never close must not hang the tool call
-    watchdog = setTimeout(() => {
+    // watchdog: a CLI whose streams never close must not hang the tool call.
+    // `done` runs only from async events after this declaration executes.
+    const watchdog = setTimeout(() => {
       child.kill()
       done({ stdout, stderr, code: null, timedOut: true })
     }, timeoutMs)

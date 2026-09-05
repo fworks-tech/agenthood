@@ -13,4 +13,15 @@ describe('run parseFlags', () => {
     expect(out.providerOverride).toBeUndefined()
     expect(out.positional).toEqual(['the-oracle', '--provider', 'groq'])
   })
+
+  it('parses --debug flag', () => {
+    const out = parseFlags(['the-scribe', 'write a commit', '--debug'])
+    expect(out.debug).toBe(true)
+    expect(out.positional).toEqual(['the-scribe', 'write a commit'])
+  })
+
+  it('defaults debug to false', () => {
+    const out = parseFlags(['the-scribe', 'write a commit'])
+    expect(out.debug).toBe(false)
+  })
 })

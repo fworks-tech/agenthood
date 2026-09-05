@@ -13,6 +13,7 @@ import {
   type CompleteParamsBuilder,
 } from "./openai-params.ts"
 import type { ParamConverters } from "./openai-params.ts"
+import { writeDebugDump } from "../debug-dump.ts"
 
 /**
  * Shared constructor options for OpenAI-compatible providers.
@@ -70,6 +71,8 @@ export abstract class ChatCompletionsProvider implements ILLMProvider {
   private readonly paramsBuilder: CompleteParamsBuilder
   private readonly streamUsesCompleteParams: boolean
   private readonly chat: ChatCompletionsHandler
+  private readonly debug: boolean
+  private debugProjectDir = process.cwd()
 
   constructor(config: LLMConfig, options: ChatCompletionsProviderOptions) {
     const apiKey = config.apiKey ?? process.env[options.apiKeyEnv] ?? ""
@@ -82,6 +85,7 @@ export abstract class ChatCompletionsProvider implements ILLMProvider {
     this.converters = options.converters
     this.paramsBuilder = options.paramsBuilder ?? buildCompleteParams
     this.streamUsesCompleteParams = options.streamUsesCompleteParams ?? false
+    this.debug = config.debug ?? false
     this._model =
       config.model ??
       (options.envModelVar ? process.env[options.envModelVar] : undefined) ??
@@ -93,11 +97,20 @@ export abstract class ChatCompletionsProvider implements ILLMProvider {
     this.chat = createChatCompletionsHandler(completions, options.providerName, () => this._model)
   }
 
+  setDebugProjectDir(dir: string): void {
+    this.debugProjectDir = dir
+  }
+
   async complete(request: LLMRequest): Promise<LLMResponse> {
     if (this.converters) {
       validateMessages(request.messages)
     }
-    return this.chat.complete(this.paramsBuilder(request, this._model, this.converters))
+    const start = performance.now()
+    const response = await this.chat.complete(this.paramsBuilder(request, this._model, this.converters))
+    if (this.debug) {
+      writeDebugDump(this.debugProjectDir, undefined, this.providerName, this._model, request, response, Math.round(performance.now() - start))
+    }
+    return response
   }
 
   async stream(request: LLMRequest): Promise<AsyncGenerator<LLMChunk>> {

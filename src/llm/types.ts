@@ -97,4 +97,6 @@ export interface LLMConfig {
   sentry?: { dsn?: string }
   /** Mind-virus persistence-vector hardening from .agenthood/config.json (ADR-020) */
   security?: { strictSkillIntegrity?: boolean }
+  /** Log full LLM request/response to .agenthood/debug/ */
+  debug?: boolean
 }

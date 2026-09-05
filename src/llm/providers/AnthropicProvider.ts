@@ -2,6 +2,7 @@ import Anthropic from '@anthropic-ai/sdk'
 import type { ILLMProvider } from '../ILLMProvider.ts'
 import type { LLMRequest, LLMResponse, LLMChunk, LLMConfig, ToolCall, ToolSchema, Message } from '../types.ts'
 import { UnsupportedOperationError } from '../errors.ts'
+import { writeDebugDump } from '../debug-dump.ts'
 
 type AnthropicContentBlock =
   | { type: 'text'; text: string }
@@ -70,12 +71,19 @@ function convertTools(tools?: ToolSchema[]): Anthropic.Messages.Tool[] | undefin
 export class AnthropicProvider implements ILLMProvider {
   private client: Anthropic
   private model: string
+  private readonly debug: boolean
+  private debugProjectDir = process.cwd()
 
   constructor(config: LLMConfig) {
     this.client = new Anthropic({
       apiKey: config.apiKey ?? process.env.ANTHROPIC_API_KEY,
     })
     this.model = config.model ?? 'claude-sonnet-4-20250514'
+    this.debug = config.debug ?? false
+  }
+
+  setDebugProjectDir(dir: string): void {
+    this.debugProjectDir = dir
   }
 
   async complete(request: LLMRequest): Promise<LLMResponse> {
@@ -83,6 +91,7 @@ export class AnthropicProvider implements ILLMProvider {
       const { system, messages } = convertMessages(request.messages)
       const tools = convertTools(request.tools)
 
+      const start = performance.now()
       const response = await this.client.messages.create({
         model: this.model,
         system,
@@ -111,7 +120,7 @@ export class AnthropicProvider implements ILLMProvider {
           }))
         : undefined
 
-      return {
+      const result: LLMResponse = {
         content,
         toolCalls,
         usage: {
@@ -123,6 +132,12 @@ export class AnthropicProvider implements ILLMProvider {
         },
         model: response.model,
       }
+
+      if (this.debug) {
+        writeDebugDump(this.debugProjectDir, undefined, 'anthropic', this.model, request, result, Math.round(performance.now() - start))
+      }
+
+      return result
     } catch (err) {
       const msg = err instanceof Error ? err.message : String(err)
       throw new Error(`AnthropicProvider.complete() failed: ${msg}`)

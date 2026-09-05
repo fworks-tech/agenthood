@@ -187,7 +187,9 @@ export interface RunMemberOptions {
 export async function runMember(member: string, task: string, options: RunMemberOptions): Promise<string> {
   if (!options.dependencies.existsCli(CLI)) return `agenthood CLI not found at ${CLI} — run \`npm run build\` in the agenthood package.`
 
-  const child = options.dependencies.spawnProcess(process.execPath, [CLI, 'run', member, task], { cwd: options.directory })
+  // `--` keeps a task beginning with `-` as data — the CLI would otherwise
+  // parse `--detect` / `--provider` out of it
+  const child = options.dependencies.spawnProcess(process.execPath, [CLI, 'run', member, '--', task], { cwd: options.directory })
   return formatRunResult(await collectOutput(child, options.abort, options.timeoutMs ?? DEFAULT_RUN_TIMEOUT_MS))
 }
 

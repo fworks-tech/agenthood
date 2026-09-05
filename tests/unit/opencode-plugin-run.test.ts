@@ -82,7 +82,7 @@ describe('runMember', () => {
         },
       },
     })
-    expect(seen?.args.slice(-3)).toEqual(['run', 'the-oracle', 'do it'])
+    expect(seen?.args.slice(-4)).toEqual(['run', 'the-oracle', '--', 'do it'])
     expect(seen?.options).toEqual({ cwd: '/proj' })
     expect(out).toBe('all good\n[stderr]\nnote\n[exit code 2]')
   })
@@ -131,6 +131,24 @@ describe('runMember', () => {
     expect(out).toBe('no output')
   })
 
+  it('keeps a leading-dash task as data behind --', async () => {
+    const child = fakeChild()
+    let seen: { args: string[] } | undefined
+    await runMember('the-oracle', '--detect this looks like a flag', {
+      directory: '/proj',
+      abort: new AbortController().signal,
+      dependencies: {
+        existsCli: () => true,
+        spawnProcess: (_command, args) => {
+          seen = { args }
+          setImmediate(() => child.emit('close', 0))
+          return child as never
+        },
+      },
+    })
+    expect(seen?.args.slice(-4)).toEqual(['run', 'the-oracle', '--', '--detect this looks like a flag'])
+  })
+
   it('kills and reports a CLI that never closes', async () => {
     const child = fakeChild()
     let killed = false
@@ -167,7 +185,7 @@ describe('server tool execute', () => {
       { directory: '/caller', abort: new AbortController().signal } as never,
     )
     expect(result).toEqual({ title: 'agenthood run the-oracle', output: 'member says hi' })
-    expect(state.spawnCalls[0]?.args.slice(-3)).toEqual(['run', 'the-oracle', 'hi'])
+    expect(state.spawnCalls[0]?.args.slice(-4)).toEqual(['run', 'the-oracle', '--', 'hi'])
     expect(state.spawnCalls[0]?.options.cwd).toBe('/caller')
     expect(state.spawnCalls[0]?.options.stdio).toEqual(['ignore', 'pipe', 'pipe'])
   })

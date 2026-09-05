@@ -5,6 +5,18 @@
 
 ---
 
+## v3.48.0 — September 5, 2026
+
+### 🐛 Bug Fixes
+
+- **Install:** use execFileSync to prevent shell injection
+
+### ✨ Features
+
+- **Cli:** add publish command and --dry-run for install
+
+---
+
 ## v3.47.0 — September 5, 2026
 
 ### 🐛 Bug Fixes

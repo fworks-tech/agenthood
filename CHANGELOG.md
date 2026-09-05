@@ -1,3 +1,15 @@
+# [3.48.0](https://github.com/fworks-tech/agenthood/compare/v3.47.0...v3.48.0) (2026-09-05)
+
+
+### Bug Fixes
+
+* **install:** use execFileSync to prevent shell injection ([d5efc0a](https://github.com/fworks-tech/agenthood/commit/d5efc0ad015613dc9a33767789bbae80331ff1e5))
+
+
+### Features
+
+* **cli:** add publish command and --dry-run for install ([47fd803](https://github.com/fworks-tech/agenthood/commit/47fd803092efca22ffc34a1e21fe60cff2ccfa2a))
+
 # [3.47.0](https://github.com/fworks-tech/agenthood/compare/v3.46.0...v3.47.0) (2026-09-05)
 
 

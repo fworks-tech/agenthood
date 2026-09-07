@@ -3,6 +3,7 @@ import { join } from 'node:path'
 import { homedir } from 'node:os'
 import type { ISkillManifest } from './ISkillManifest.ts'
 import { SkillParser } from './SkillParser.ts'
+import { RemoteSkillFetcher, type RemoteSkillSource } from './RemoteSkillSource.ts'
 
 const IGNORED_DIRS = new Set(['node_modules', '.git', '.hg', '.svn', 'dist', 'build', '.next', '.cache'])
 const MAX_DEPTH = 6
@@ -12,6 +13,7 @@ export class SkillDiscovery {
   private manifests = new Map<string, ISkillManifest>()
   private discovered = false
   private readonly defaultProjectDir: string
+  private remoteFetcher?: RemoteSkillFetcher
 
   constructor(projectDir: string = process.cwd()) {
     this.defaultProjectDir = projectDir
@@ -42,6 +44,22 @@ export class SkillDiscovery {
     }
 
     return Array.from(this.manifests.values())
+  }
+
+  async discoverRemote(sources: RemoteSkillSource[]): Promise<ISkillManifest[]> {
+    if (!this.remoteFetcher) {
+      this.remoteFetcher = new RemoteSkillFetcher(this.defaultProjectDir)
+    }
+
+    const remoteManifests: ISkillManifest[] = []
+    for (const source of sources) {
+      const manifest = await this.remoteFetcher.fetch(source)
+      if (manifest) {
+        this.manifests.set(manifest.name, manifest)
+        remoteManifests.push(manifest)
+      }
+    }
+    return remoteManifests
   }
 
   private ensureDiscovered(): void {

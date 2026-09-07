@@ -73,7 +73,7 @@ Commands:
                             Use --detect to auto-detect members for the task
                             Use --provider <name> to override the LLM provider
   list                    List all members, their status, permission & provider
-  verify [member]         Validate member SKILL.md integrity and lockfile
+  verify [member]         Validate member SKILL.md integrity, spec conformance, and lockfile
                             Use --strict for lane overlap checks
                             Use --update-lock to update lockfile hash
   rollback [member]       Restore member SKILL.md from lockfile

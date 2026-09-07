@@ -130,7 +130,7 @@ function updateLockfile(cwd: string, membersDir: string, members: string[]): voi
 
 export const command: CommandDescriptor = {
   name: 'verify',
-  description: 'Validate member SKILL.md integrity and lockfile',
+  description: 'Validate member SKILL.md integrity, spec conformance, and lockfile',
   handler: (args) => verify(args),
 }
 

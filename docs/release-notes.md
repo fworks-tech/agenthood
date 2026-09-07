@@ -5,6 +5,14 @@
 
 ---
 
+## v3.55.0 — September 7, 2026
+
+### ✨ Features
+
+- **Registry:** add SkillRegistryClient, search, and upgrade commands (#729)
+
+---
+
 ## v3.54.0 — September 7, 2026
 
 ### ✨ Features

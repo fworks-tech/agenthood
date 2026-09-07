@@ -1,3 +1,10 @@
+# [3.55.0](https://github.com/fworks-tech/agenthood/compare/v3.54.0...v3.55.0) (2026-09-07)
+
+
+### Features
+
+* **registry:** add SkillRegistryClient, search, and upgrade commands ([#729](https://github.com/fworks-tech/agenthood/issues/729)) ([36abcc9](https://github.com/fworks-tech/agenthood/commit/36abcc9651a0dd87f0f574b187b042923522be98))
+
 # [3.54.0](https://github.com/fworks-tech/agenthood/compare/v3.53.0...v3.54.0) (2026-09-07)
 
 

@@ -5,6 +5,14 @@
 
 ---
 
+## v3.52.0 — September 7, 2026
+
+### ✨ Features
+
+- **Logs:** add --tail and --follow flags to log command (#725)
+
+---
+
 ## v3.51.0 — September 7, 2026
 
 ### ✨ Features

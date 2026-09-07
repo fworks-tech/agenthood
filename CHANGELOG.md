@@ -1,3 +1,10 @@
+# [3.52.0](https://github.com/fworks-tech/agenthood/compare/v3.51.0...v3.52.0) (2026-09-07)
+
+
+### Features
+
+* **logs:** add --tail and --follow flags to log command ([#725](https://github.com/fworks-tech/agenthood/issues/725)) ([8c38005](https://github.com/fworks-tech/agenthood/commit/8c38005051399310611e5a5d6bd2db5f0ebf29a0))
+
 # [3.51.0](https://github.com/fworks-tech/agenthood/compare/v3.50.0...v3.51.0) (2026-09-07)
 
 

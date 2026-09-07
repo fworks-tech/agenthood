@@ -238,6 +238,25 @@ jobs:
         run: .github/scripts/test-runner.sh
 
   # ──────────────────────────────────────────────
+  # The Tester — Windows cross-platform compatibility
+  # ──────────────────────────────────────────────
+  tests-windows:
+    name: The Tester — Windows Compatibility
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+      - uses: ./.github/actions/setup-env
+      - name: The Tester — build the CLI on Windows
+        shell: bash
+        run: npm run build
+      - name: The Tester — run full suite on Windows
+        shell: bash
+        run: npx vitest run
+      - name: The Tester — CLI smoke test (agenthood list)
+        shell: bash
+        run: node dist/cli.js list
+
+  # ──────────────────────────────────────────────
   # The Warden — lint and typecheck gates
   # ──────────────────────────────────────────────
   lint-typecheck:

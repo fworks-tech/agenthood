@@ -1,3 +1,10 @@
+## [3.55.5](https://github.com/fworks-tech/agenthood/compare/v3.55.4...v3.55.5) (2026-09-07)
+
+
+### Bug Fixes
+
+* **security:** delimit untrusted task and tool output against prompt injection ([#743](https://github.com/fworks-tech/agenthood/issues/743)) ([3ff9cca](https://github.com/fworks-tech/agenthood/commit/3ff9cca22da90e4edd8ea5b75ba50cd7ec2aaa58)), closes [#632](https://github.com/fworks-tech/agenthood/issues/632)
+
 ## [3.55.4](https://github.com/fworks-tech/agenthood/compare/v3.55.3...v3.55.4) (2026-09-07)
 
 

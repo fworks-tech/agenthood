@@ -5,6 +5,14 @@
 
 ---
 
+## v3.55.5 — September 7, 2026
+
+### 🐛 Bug Fixes
+
+- **Security:** delimit untrusted task and tool output against prompt injection (#743)
+
+---
+
 ## v3.55.4 — September 7, 2026
 
 ### 🐛 Bug Fixes

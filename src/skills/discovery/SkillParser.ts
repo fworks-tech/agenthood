@@ -17,6 +17,20 @@ export interface ParsedRaw {
 
 export const MAX_SKILL_FILE_BYTES = 1024 * 1024
 
+// agentskills.io spec constraints. Enforced by `verify` (and any spec gate),
+// NOT by parse(): parse() must stay permissive so third-party skills that
+// don't follow the convention still load at runtime rather than silently
+// vanishing from discovery.
+const SPEC_NAME_RE = /^[a-z0-9]+(-[a-z0-9]+)*$/
+const MAX_NAME_LENGTH = 64
+const MAX_DESCRIPTION_LENGTH = 1024
+
+export interface SkillSpecError {
+  rule: string
+  message: string
+  fix: string
+}
+
 export class SkillParser {
   parse(filePath: string): ParsedSkill | null {
     if (!existsSync(filePath)) return null
@@ -101,6 +115,52 @@ export class SkillParser {
     if (!frontmatter || typeof frontmatter.tier !== 'string') return 'community'
     const raw = frontmatter.tier.toLowerCase()
     return VALID_TIERS.includes(raw as SkillTier) ? (raw as SkillTier) : 'community'
+  }
+
+  /**
+   * Validate a skill against the agentskills.io naming/description spec.
+   * Returns one error per violated rule (each with a concrete fix), or an
+   * empty array when the skill is spec-compliant. `dirName` is the parent
+   * directory the SKILL.md lives in; `fileName` the file's basename.
+   */
+  validateSpec(name: string, description: string, dirName: string, fileName = 'SKILL.md'): SkillSpecError[] {
+    const errors: SkillSpecError[] = []
+    if (!SPEC_NAME_RE.test(name)) {
+      errors.push({
+        rule: 'name-format',
+        message: `name "${name}" is not lowercase alphanumeric with single hyphens`,
+        fix: 'Use ^[a-z0-9]+(-[a-z0-9]+)*$ — e.g. "pdf-processing", no leading/trailing/consecutive hyphens or uppercase',
+      })
+    }
+    if (name.length < 1 || name.length > MAX_NAME_LENGTH) {
+      errors.push({
+        rule: 'name-length',
+        message: `name length ${name.length} is outside 1-${MAX_NAME_LENGTH}`,
+        fix: `Shorten the name to at most ${MAX_NAME_LENGTH} characters`,
+      })
+    }
+    if (description.length < 1 || description.length > MAX_DESCRIPTION_LENGTH) {
+      errors.push({
+        rule: 'description-length',
+        message: `description length ${description.length} is outside 1-${MAX_DESCRIPTION_LENGTH}`,
+        fix: `Keep the description between 1 and ${MAX_DESCRIPTION_LENGTH} characters`,
+      })
+    }
+    if (name !== dirName) {
+      errors.push({
+        rule: 'name-directory-match',
+        message: `name "${name}" does not match directory "${dirName}"`,
+        fix: `Rename the directory to "${name}" or set the name to "${dirName}"`,
+      })
+    }
+    if (fileName !== 'SKILL.md') {
+      errors.push({
+        rule: 'filename',
+        message: `file "${fileName}" is not named SKILL.md`,
+        fix: 'Rename the file to SKILL.md (exact case)',
+      })
+    }
+    return errors
   }
 
   /**

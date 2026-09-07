@@ -51,6 +51,13 @@ function validateMember(membersDir: string, member: string, lockfile?: Lockfile)
     if (tier === 'official' && frontmatter.tier !== 'official') {
       result.issues.push('Official skills must declare "tier: official" in frontmatter')
     }
+    // agentskills.io spec conformance — non-conforming skills load in agenthood
+    // but fail silently in other runtimes, breaking cross-client portability.
+    const name = typeof frontmatter.name === 'string' ? frontmatter.name : ''
+    const description = typeof frontmatter.description === 'string' ? frontmatter.description : ''
+    for (const e of parser.validateSpec(name, description, member)) {
+      result.issues.push(`Spec (${e.rule}): ${e.message}. Fix: ${e.fix}`)
+    }
   }
 
   const requiredSections = TIER_REQUIRED_SECTIONS[tier]

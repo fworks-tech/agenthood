@@ -94,4 +94,45 @@ describe("SkillParser", () => {
       expect(parser.parse(file)).not.toBeNull()
     })
   })
+
+  describe("validateSpec()", () => {
+    const rules = (errs: { rule: string }[]) => errs.map((e) => e.rule)
+
+    it("passes a compliant skill", () => {
+      expect(parser.validateSpec("valid-name", "does a thing", "valid-name")).toEqual([])
+    })
+
+    it("rejects uppercase names", () => {
+      expect(rules(parser.validateSpec("PDF-Processing", "d", "PDF-Processing"))).toContain("name-format")
+    })
+
+    it("rejects leading hyphens", () => {
+      expect(rules(parser.validateSpec("--foo", "d", "--foo"))).toContain("name-format")
+    })
+
+    it("rejects consecutive hyphens", () => {
+      expect(rules(parser.validateSpec("a--b", "d", "a--b"))).toContain("name-format")
+    })
+
+    it("rejects names over 64 chars", () => {
+      expect(rules(parser.validateSpec("a".repeat(65), "d", "a".repeat(65)))).toContain("name-length")
+    })
+
+    it("rejects descriptions over 1024 chars", () => {
+      expect(rules(parser.validateSpec("x", "y".repeat(1025), "x"))).toContain("description-length")
+    })
+
+    it("rejects name that does not match the directory", () => {
+      expect(rules(parser.validateSpec("valid-name", "d", "wrong-name"))).toContain("name-directory-match")
+    })
+
+    it("rejects a file not named SKILL.md", () => {
+      expect(rules(parser.validateSpec("x", "d", "x", "skill.md"))).toContain("filename")
+    })
+
+    it("returns a concrete fix for each violation", () => {
+      const errs = parser.validateSpec("Bad_Name", "", "other")
+      for (const e of errs) expect(e.fix.length).toBeGreaterThan(0)
+    })
+  })
 })

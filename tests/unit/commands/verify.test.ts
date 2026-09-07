@@ -153,4 +153,16 @@ describe('verify command', () => {
     // both members survive (no clobber) and keys are sorted for stable diffs
     expect(Object.keys(written.members)).toEqual(['the-other', 'the-test'])
   })
+
+  it('fails when the skill violates the agentskills.io name spec', async () => {
+    const badSkill = VALID_SKILL.replace('name: the-test', 'name: Bad_Name')
+    vi.mocked(readFileSync).mockReturnValue(badSkill)
+    const log = vi.spyOn(console, 'log').mockImplementation(() => {})
+    const exit = vi.spyOn(process, 'exit').mockImplementation((() => {}) as any)
+
+    await verify([])
+
+    expect(exit).toHaveBeenCalledWith(1)
+    expect(log.mock.calls.flat().join(' ')).toContain('name-format')
+  })
 })

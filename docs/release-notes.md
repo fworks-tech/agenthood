@@ -5,6 +5,14 @@
 
 ---
 
+## v3.56.1 — September 7, 2026
+
+### 🐛 Bug Fixes
+
+- **Exports:** re-expose ./dist/llm and ./dist/core for programmatic consumers (#749) #739
+
+---
+
 ## v3.56.0 — September 7, 2026
 
 ### ✨ Features

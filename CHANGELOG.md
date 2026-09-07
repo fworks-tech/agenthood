@@ -1,3 +1,10 @@
+## [3.56.1](https://github.com/fworks-tech/agenthood/compare/v3.56.0...v3.56.1) (2026-09-07)
+
+
+### Bug Fixes
+
+* **exports:** re-expose ./dist/llm and ./dist/core for programmatic consumers ([#749](https://github.com/fworks-tech/agenthood/issues/749)) ([f663c82](https://github.com/fworks-tech/agenthood/commit/f663c82ce0973010a9ed3c27c951614b80ed72ba)), closes [#637](https://github.com/fworks-tech/agenthood/issues/637) [#739](https://github.com/fworks-tech/agenthood/issues/739)
+
 # [3.56.0](https://github.com/fworks-tech/agenthood/compare/v3.55.7...v3.56.0) (2026-09-07)
 
 

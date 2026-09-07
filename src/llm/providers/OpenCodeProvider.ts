@@ -5,6 +5,7 @@ import type { ChatCompletionsProviderOptions } from "./chat-completions-provider
 import type { ParamConverters } from "./openai-params.ts"
 import { buildGoCompleteParams } from "./openai-params.ts"
 import { DEFAULT_CONTEXT_WINDOW, OPENCODE_DEFAULT_MODEL } from "./constants.ts"
+import { randomUUID } from "node:crypto"
 
 function toOpenAIMessages(messages: Message[]): unknown {
   return messages.map((msg) => {
@@ -53,7 +54,13 @@ export class OpenCodeProvider extends ChatCompletionsProvider {
       contextWindow: DEFAULT_CONTEXT_WINDOW,
       converters: opencodeConverters,
       paramsBuilder: runtimeOptions.goTier ? buildGoCompleteParams : undefined,
-      createClient: (apiKey, baseUrl) => new OpenAI({ apiKey, baseURL: baseUrl }),
+      createClient: (apiKey, baseUrl) => new OpenAI({
+        apiKey,
+        baseURL: baseUrl,
+        defaultHeaders: runtimeOptions.goTier
+          ? { "x-opencode-session": randomUUID() }
+          : undefined,
+      }),
     };
     super(config, options);
   }

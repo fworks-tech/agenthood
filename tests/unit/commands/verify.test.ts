@@ -50,6 +50,7 @@ Test verification.
 
 describe('verify command', () => {
   beforeEach(() => {
+    vi.restoreAllMocks()
     vi.mocked(existsSync).mockReturnValue(true)
     vi.mocked(readdirSync).mockReturnValue([{ name: 'the-test', isDirectory: () => true }] as any)
     vi.mocked(writeFileSync).mockReturnValue(undefined)
@@ -119,5 +120,37 @@ describe('verify command', () => {
     const output = log.mock.calls.flat().join(' ')
     expect(output).toContain('Drift detected')
     expect(output).toContain('the-test')
+  })
+
+  it('--update-lock re-locks a drifted member instead of failing', async () => {
+    const h = contentHash(VALID_SKILL)
+    const OLD = '2026-01-01T00:00:00.000Z'
+    const lockJson = JSON.stringify({
+      version: 1,
+      members: {
+        'the-test': { version: h, updatedAt: OLD },
+        'the-other': { version: 'stale', updatedAt: OLD },
+      },
+    })
+    vi.mocked(readdirSync).mockReturnValue([
+      { name: 'the-test', isDirectory: () => true },
+      { name: 'the-other', isDirectory: () => true },
+    ] as any)
+    vi.mocked(readFileSync).mockImplementation(((p: string) =>
+      String(p).endsWith('agenthood.lock') ? lockJson : VALID_SKILL.replace('the-test', String(p).split(/[\\/]/).at(-2))
+    ) as any)
+    const exit = vi.spyOn(process, 'exit').mockImplementation((() => {}) as any)
+
+    await verify(['--update-lock'])
+
+    expect(exit).not.toHaveBeenCalledWith(1)
+    const written = JSON.parse(vi.mocked(writeFileSync).mock.calls.at(-1)![1] as string)
+    // the drifted member is re-locked to a fresh hash; the unchanged one keeps its timestamp
+    expect(written.members['the-other'].version).not.toBe('stale')
+    expect(written.members['the-other'].updatedAt).not.toBe(OLD)
+    expect(written.members['the-test'].version).toBe(h)
+    expect(written.members['the-test'].updatedAt).toBe(OLD)
+    // both members survive (no clobber) and keys are sorted for stable diffs
+    expect(Object.keys(written.members)).toEqual(['the-other', 'the-test'])
   })
 })

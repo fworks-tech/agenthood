@@ -94,7 +94,11 @@ Within Agent Mode, three permission profiles further constrain behavior:
 | `Trusted` | All tools; file edits auto-approved; catastrophic commands still blocked |
 
 **Catastrophic commands** are blocked universally regardless of profile:
-`rm -rf /`, `mkfs`, `dd if=/dev/zero`, `DROP DATABASE`, `git push --force origin main`
+recursive-force `rm` against `/`, `~`, or `$HOME`, `find / -delete`,
+`chmod`/`chown -R` on `/`, `mkfs*`, `dd` to a raw/flood device, `DROP DATABASE`,
+`TRUNCATE TABLE`, `git push --force` to `main`/`master`, and fork bombs.
+The guard checks the command string, not its filesystem effect — it is a speed
+bump, not a sandbox. Full list and limitations: [built-in-tools.md](built-in-tools.md).
 
 ---
 

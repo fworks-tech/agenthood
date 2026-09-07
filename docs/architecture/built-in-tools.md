@@ -96,7 +96,16 @@ alerts the member and requires it to justify continued editing or stop.
 - **Trusted (0):** reserved — no member currently holds it
 
 **Catastrophic commands are blocked universally:**
-`rm -rf /`, `mkfs`, `dd if=/dev/zero`, `DROP DATABASE`, force push to main.
+recursive-force `rm` against `/`, `~`, or `$HOME` (flag-order and
+`--no-preserve-root` agnostic), `find / -delete`, `chmod -R <mode> /`,
+`chown -R … /`, `mkfs*`, `dd` to a raw disk or flood device, `DROP DATABASE`,
+`TRUNCATE TABLE`, `git push --force` to `main`/`master`, and fork bombs.
+
+**Scope and limitations:** the guard inspects the command *string*, not its
+filesystem effect. It cannot catch every evasion — indirection through env
+vars or aliases, split binaries, or destructive scripts invoked by name.
+It is a speed bump, not a sandbox. For hard isolation of untrusted skills use
+the `--sandbox` container path (#665).
 
 ---
 

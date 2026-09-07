@@ -46,18 +46,57 @@ const MAXIMUM_CAPS: SafetyCaps = {
 // Catastrophic commands — blocked universally regardless of profile
 // ---------------------------------------------------------------------------
 
+// ponytail: string-pattern guard only — it sees the command text, not its
+// filesystem effect, and cannot catch every evasion (env-var indirection,
+// aliases, split binaries). Real isolation is the `--sandbox` container path
+// tracked in #665; add it before treating this list as a hard boundary.
+// Destructive vectors that are blocked universally. `rm` variants are handled
+// separately below via flag/target parsing (regex alone is trivially bypassed
+// by reordering flags, `--no-preserve-root`, `~`, `$HOME`, or `/../` traversal).
 const CATASTROPHIC_COMMANDS = [
-  /^rm\s+-rf\s+\/$/,                          // rm -rf /
-  /^rm\s+-rf\s+\/[*?]/,                        // rm -rf /*
-  /^rm\s+-rf\s+~$/,                            // rm -rf ~
-  /^mkfs/,                                      // mkfs
-  /^dd\s+if=\/dev\/zero/,                      // dd if=/dev/zero
+  /^\s*mkfs(\.\w+)?\b/,                         // mkfs / mkfs.ext4 …
+  /^\s*dd\b.*\bof=\/dev\/(sd|hd|nvme|vd|disk)/, // dd writing to a raw disk device
+  /^\s*dd\b.*\bif=\/dev\/(zero|random|urandom)\b.*\bof=/, // dd flood device
   /^\s*DROP\s+DATABASE\s+/i,                    // DROP DATABASE
-  /^git\s+push\s+--force\s+origin\s+main$/i,    // force push to main
+  /^\s*TRUNCATE\s+TABLE\s+/i,                    // TRUNCATE TABLE
+  /^\s*git\s+push\b.*--force(-with-lease)?\b.*\b(main|master)\b/i, // force push to main
+  /:\(\)\s*\{\s*:\|:\s*&\s*\}\s*;\s*:/,          // fork bomb :(){ :|:& };:
+  /\bfind\s+\/(\s|$).*\s*-delete\b/,            // find / -delete
+  /\bchmod\s+-[a-z]*r[a-z]*\s+[0-7]{3}\s+\/(\s|$)/i, // chmod -R 777 /
+  /\bchown\b.*\s-R[a-z]*\s+.*\s\/(\s|$)/i,      // chown -R … /
 ]
 
+const ROOT_DIRS = new Set([
+  '/', '/*', '~', '~/', '~/*', '$HOME', '$HOME/', '$HOME/*', '~/*/*',
+])
+
+function rmTargetIsCatastrophic(target: string): boolean {
+  if (ROOT_DIRS.has(target)) return true
+  // any absolute path that traverses back toward root, e.g. /tmp/../../ or /var/www/../..
+  if (target.startsWith('/') && target.includes('..')) return true
+  return false
+}
+
+/** Detects recursive+force `rm` against root/home, flag-order independent. */
+function isCatastrophicRm(cmd: string): boolean {
+  const tokens = cmd.split(/\s+/)
+  if (tokens[0] !== 'rm') return false
+  let recursive = false
+  let force = false
+  const targets: string[] = []
+  for (const tok of tokens.slice(1)) {
+    if (tok === '--no-preserve-root') return true
+    if (tok === '--force') force = true
+    else if (tok === '-r' || tok === '-R') recursive = true
+    else if (/^-[a-z]+$/.test(tok)) { if (/[rR]/.test(tok)) recursive = true; if (/[fF]/.test(tok)) force = true }
+    else targets.push(tok)
+  }
+  return recursive && force && targets.some(rmTargetIsCatastrophic)
+}
+
 function isCatastrophic(command: string): boolean {
-  return CATASTROPHIC_COMMANDS.some((re) => re.test(command.trim()))
+  const cmd = command.trim().replace(/^(sudo|doas|command)\s+/, '')
+  return isCatastrophicRm(cmd) || CATASTROPHIC_COMMANDS.some((re) => re.test(cmd))
 }
 
 // ---------------------------------------------------------------------------

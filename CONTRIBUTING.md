@@ -109,6 +109,8 @@ The `agenthood` CLI auto-discovers commands from `src/commands/` — each file e
 - `agenthood publish` — publish skills to GitHub for skills.sh indexing (`--dry-run` to preview)
 - `agenthood mcp` — start an MCP server on stdio, exposing skills as MCP tools for external agents (Claude Code, Cursor, etc.)
 - `agenthood completion` — generate shell tab-completion scripts for bash, zsh, or fish
+- `agenthood search <query>` — search for skills in the agenthood registry (`--json`)
+- `agenthood upgrade [skill]` — upgrade installed skills to latest version from registry
 
 Adding a command means adding a file in `src/commands/` and documenting it here.
 

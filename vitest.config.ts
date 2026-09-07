@@ -18,12 +18,13 @@ export default defineConfig({
       reporter: ['text', 'lcov'],
       reportsDirectory: './coverage',
       thresholds: {
-        // Floor set just under the measured baseline (#668) so the gate is never
-        // red on land; ratchet upward as Wave B provider/integration tests merge.
-        statements: 75,
-        branches: 66,
-        functions: 80,
-        lines: 76,
+        // Ratchet floor (#668): lifted from 75/66/80/76 after #638/#671 added the
+        // Anthropic + OpenRouter provider suites (now 77.25/68.4/82.64/77.99).
+        // Only ever moves up, ~1pt below measured so cross-run jitter stays green.
+        statements: 76,
+        branches: 67,
+        functions: 81,
+        lines: 77,
       },
     },
   },

@@ -1,3 +1,10 @@
+## [3.55.1](https://github.com/fworks-tech/agenthood/compare/v3.55.0...v3.55.1) (2026-09-07)
+
+
+### Bug Fixes
+
+* add x-opencode-session header for OpenCode Go tier ([#736](https://github.com/fworks-tech/agenthood/issues/736)) ([eb57f80](https://github.com/fworks-tech/agenthood/commit/eb57f80eecf2141fd3cae9912b6bef92bfcdd290))
+
 # [3.55.0](https://github.com/fworks-tech/agenthood/compare/v3.54.0...v3.55.0) (2026-09-07)
 
 

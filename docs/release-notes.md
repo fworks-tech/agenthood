@@ -5,6 +5,14 @@
 
 ---
 
+## v3.55.1 — September 7, 2026
+
+### 🐛 Bug Fixes
+
+- add x-opencode-session header for OpenCode Go tier (#736)
+
+---
+
 ## v3.55.0 — September 7, 2026
 
 ### ✨ Features

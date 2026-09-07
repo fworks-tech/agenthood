@@ -34,8 +34,12 @@ verdict_has_trailing_content() {
 
 # Extract valid verdict lines. Markers must start a line — a quoted
 # `AGENTHOOD_DECISION:` inside review prose is data, not a verdict.
+# Optional whitespace before `-->` is tolerated: the model is instructed to emit
+# `warnings=N-->` but often writes `warnings=N -->`, and a benign space must not
+# be mistaken for a truncated/injected marker (fail-closed is for real malforma-
+# tion — no `-->`, or a bad boolean — which still falls out of this regex).
 verdicts_for() {
-  grep -oE '^<!--AGENTHOOD_DECISION: blocking=(true|false) warnings=[0-9]+-->' "$1" 2>/dev/null | sed '/^$/d'
+  grep -oE '^<!--AGENTHOOD_DECISION: blocking=(true|false) warnings=[0-9]+[[:space:]]*-->' "$1" 2>/dev/null | sed '/^$/d'
 }
 
 has_conflicting_blocks() {

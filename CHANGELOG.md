@@ -1,3 +1,10 @@
+## [3.56.4](https://github.com/fworks-tech/agenthood/compare/v3.56.3...v3.56.4) (2026-09-07)
+
+
+### Bug Fixes
+
+* **verify:** unify member-path resolution and add a lockfile CI integrity gate ([#752](https://github.com/fworks-tech/agenthood/issues/752)) ([43ce288](https://github.com/fworks-tech/agenthood/commit/43ce288acebac941500306e04f528695626979b2)), closes [#740](https://github.com/fworks-tech/agenthood/issues/740)
+
 ## [3.56.3](https://github.com/fworks-tech/agenthood/compare/v3.56.2...v3.56.3) (2026-09-07)
 
 

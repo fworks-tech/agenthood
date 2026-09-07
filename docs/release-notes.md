@@ -5,6 +5,14 @@
 
 ---
 
+## v3.56.4 — September 7, 2026
+
+### 🐛 Bug Fixes
+
+- **Verify:** unify member-path resolution and add a lockfile CI integrity gate (#752)
+
+---
+
 ## v3.56.3 — September 7, 2026
 
 ### 🐛 Bug Fixes

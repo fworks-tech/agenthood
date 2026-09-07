@@ -96,6 +96,7 @@ The `agenthood` CLI auto-discovers commands from `src/commands/` — each file e
 - `agenthood run <member> "<task>"` — invoke a member or core agent. Runs exit with code 1 on failure (via `process.exitCode`, so piped stderr is not truncated); the error is logged by the command, not the library — library callers calling `ApplicationContext.runMember`/`runAgent` receive the thrown error instead of a process exit.
   - A `--` separator ends flag parsing, so a task beginning with `-` is always treated as data (the opencode plugin passes it).
   - `--resume <id>` resumes from a checkpoint saved during a previous interrupted run.
+  - `--debug` dumps raw LLM request/response payloads to `.agenthood/debug/` (keys redacted).
 - `agenthood checkpoints` — list past run checkpoints (`--json`, `--prune` to remove old ones)
 - `agenthood trace` — list recent invocation traces (`--member`, `--limit`, `--since`, `--json`)
 - `agenthood log` — list recent structured log entries (`--level`, `--member`, `--limit`, `--since`, `--json`)

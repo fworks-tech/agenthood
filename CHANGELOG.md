@@ -1,3 +1,10 @@
+## [3.55.2](https://github.com/fworks-tech/agenthood/compare/v3.55.1...v3.55.2) (2026-09-07)
+
+
+### Bug Fixes
+
+* send x-opencode-session header for all OpenCode requests ([#738](https://github.com/fworks-tech/agenthood/issues/738)) ([0a30c7b](https://github.com/fworks-tech/agenthood/commit/0a30c7b0435a63b73422b1f7a30bd8f464464388))
+
 ## [3.55.1](https://github.com/fworks-tech/agenthood/compare/v3.55.0...v3.55.1) (2026-09-07)
 
 

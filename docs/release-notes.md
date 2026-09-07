@@ -5,6 +5,14 @@
 
 ---
 
+## v3.55.2 — September 7, 2026
+
+### 🐛 Bug Fixes
+
+- send x-opencode-session header for all OpenCode requests (#738)
+
+---
+
 ## v3.55.1 — September 7, 2026
 
 ### 🐛 Bug Fixes

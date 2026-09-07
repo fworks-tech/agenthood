@@ -1,3 +1,10 @@
+## [3.55.7](https://github.com/fworks-tech/agenthood/compare/v3.55.6...v3.55.7) (2026-09-07)
+
+
+### Bug Fixes
+
+* **skill:** converge lockfile regeneration and make --update-lock actually work ([#745](https://github.com/fworks-tech/agenthood/issues/745)) ([3070ad4](https://github.com/fworks-tech/agenthood/commit/3070ad447d1842ffd70d27fb60e18739aaa669c1)), closes [#635](https://github.com/fworks-tech/agenthood/issues/635)
+
 ## [3.55.6](https://github.com/fworks-tech/agenthood/compare/v3.55.5...v3.55.6) (2026-09-07)
 
 

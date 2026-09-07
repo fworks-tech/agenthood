@@ -5,6 +5,14 @@
 
 ---
 
+## v3.55.7 — September 7, 2026
+
+### 🐛 Bug Fixes
+
+- **Skill:** converge lockfile regeneration and make --update-lock actually work (#745)
+
+---
+
 ## v3.55.6 — September 7, 2026
 
 ### 🐛 Bug Fixes

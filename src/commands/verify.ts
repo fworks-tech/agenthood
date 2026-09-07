@@ -23,11 +23,12 @@ const PLACEHOLDER_PATTERNS = [/TBD/i, /TODO/i, /FIXME/i]
 interface VerifyResult {
   member: string
   pass: boolean
+  drift: boolean
   issues: string[]
 }
 
 function validateMember(membersDir: string, member: string, lockfile?: Lockfile): VerifyResult {
-  const result: VerifyResult = { member, pass: true, issues: [] }
+  const result: VerifyResult = { member, pass: true, drift: false, issues: [] }
   const skillPath = join(membersDir, member, 'SKILL.md')
 
   if (!existsSync(skillPath)) {
@@ -69,9 +70,7 @@ function validateMember(membersDir: string, member: string, lockfile?: Lockfile)
   if (lockfile && lockfile.members[member]) {
     const currentHash = contentHash(content)
     const lockedHash = lockfile.members[member].version
-    if (currentHash !== lockedHash) {
-      result.issues.push('Drift detected — SKILL.md hash does not match lockfile. Run `verify --update-lock` to update.')
-    }
+    if (currentHash !== lockedHash) result.drift = true
   }
 
   if (result.issues.length > 0) result.pass = false
@@ -80,34 +79,46 @@ function validateMember(membersDir: string, member: string, lockfile?: Lockfile)
 
 function printResults(results: VerifyResult[]): void {
   for (const r of results) {
-    if (r.pass) {
+    if (r.pass && !r.drift) {
       console.log(`  \u2713 ${r.member}`)
     } else {
       console.log(`  \u2717 ${r.member}`)
       for (const issue of r.issues) {
         console.log(`      - ${issue}`)
       }
+      if (r.drift) {
+        console.log(`      - Drift detected — SKILL.md hash does not match lockfile. Run \`verify --update-lock\` to re-lock.`)
+      }
     }
   }
 }
 
 function updateLockfile(cwd: string, membersDir: string, members: string[]): void {
-  const lock: Record<string, unknown> = { version: 1, members: {} }
+  const lockPath = join(cwd, 'agenthood.lock')
+  const existing = loadLockfile(cwd)
+  // Merge into the existing lock rather than rebuilding from the scanned
+  // subset, so `verify <member> --update-lock` cannot drop every other member.
+  const next: Record<string, { version: string; updatedAt: string }> = { ...(existing?.members ?? {}) }
+  const now = new Date().toISOString()
+  let changed = 0
   for (const member of members) {
     const skillPath = join(membersDir, member, 'SKILL.md')
     if (existsSync(skillPath)) {
       const content = readFileSync(skillPath, 'utf8')
       const hash = contentHash(content)
-      ;(lock.members as Record<string, unknown>)[member] = {
-        version: hash,
-        updatedAt: new Date().toISOString(),
-      }
+      const prev = next[member]
+      // Preserve updatedAt when the hash is unchanged — otherwise regenerating
+      // the lock for one edited skill rewrites all 20 timestamps and produces
+      // a merge conflict on every concurrent branch.
+      next[member] = { version: hash, updatedAt: prev && prev.version === hash ? prev.updatedAt : now }
+      if (!prev || prev.version !== hash) changed++
     }
   }
-
-  const lockPath = join(cwd, 'agenthood.lock')
+  // Deterministic key order so a regen on any platform (or any FS iteration
+  // order) yields byte-identical output and a minimal diff.
+  const lock = { version: 1, members: Object.fromEntries(Object.keys(next).sort().map((k) => [k, next[k]])) }
   writeFileSync(lockPath, JSON.stringify(lock, null, 2) + '\n', 'utf8')
-  console.log(`\n  Lockfile written to ${lockPath}`)
+  console.log(`\n  Lockfile updated (${changed} member(s) re-locked) → ${lockPath}`)
 }
 
 export const command: CommandDescriptor = {
@@ -146,7 +157,8 @@ export async function verify(args: string[]): Promise<void> {
   const results = membersToCheck.map((m) => validateMember(membersDir, m, lockfile))
   printResults(results)
 
-  const hasAllPassed = results.every((r) => r.pass)
+  const structuralOk = results.every((r) => r.pass)
+  const hasDrift = results.some((r) => r.drift)
 
   if (isStrict) {
     const overlaps = findLaneOverlaps(rawSpecs)
@@ -160,11 +172,15 @@ export async function verify(args: string[]): Promise<void> {
     console.log('\n  Strict mode: lane overlap check passed.')
   }
 
-  if (updateLock && hasAllPassed) {
+  // --update-lock is the accept path for intentional edits, so it must work
+  // *despite* drift (re-locking changed members is its whole purpose) — only a
+  // structural failure blocks the write. Plain `verify` never writes and fails
+  // on drift, preserving the integrity gate that CI (--strict) and ADR-020 rely on.
+  if (updateLock && structuralOk) {
     updateLockfile(cwd, membersDir, membersToCheck)
   }
 
-  if (!hasAllPassed) {
+  if (!structuralOk || (!updateLock && hasDrift)) {
     process.exit(1)
   }
 }

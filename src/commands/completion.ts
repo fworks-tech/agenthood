@@ -8,8 +8,6 @@ const COMMANDS = [
   'install', 'completion',
 ]
 
-const RUN_FLAGS = ['--provider', '--detect', '--resume', '--debug']
-
 function generateBash(): string {
   const memberNames = ALL_MEMBERS.map((m) => m.name).join(' ')
   const commandNames = COMMANDS.join(' ')
@@ -115,7 +113,7 @@ _agenthood() {
     '1:command:->command' \
     '*::arg:->args'
 
-  case \$state in
+  case $state in
     command)
       _describe 'command' commands
       ;;
@@ -129,13 +127,13 @@ _agenthood() {
             '--detect[Auto-detect members for this task]' \
             '--resume[Resume from a checkpoint]:id:' \
             '--debug[Log full LLM request/response]'
-          case \$state in
+          case $state in
             member) _describe 'member' members ;;
           esac
           ;;
         activate|deactivate|verify|rollback|eval)
           _arguments '1:member:->member'
-          case \$state in
+          case $state in
             member) _describe 'member' members ;;
           esac
           ;;
@@ -148,7 +146,7 @@ _agenthood() {
             '--json[Machine-readable output]' \
             '--level[Filter by level]:level:(debug info warn error)' \
             '--help[Show help]'
-          case \$state in
+          case $state in
             member) _describe 'member' members ;;
           esac
           ;;

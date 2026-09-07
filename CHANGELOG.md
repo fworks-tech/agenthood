@@ -1,3 +1,10 @@
+## [3.56.6](https://github.com/fworks-tech/agenthood/compare/v3.56.5...v3.56.6) (2026-09-07)
+
+
+### Bug Fixes
+
+* **ci:** tolerate whitespace before the decision marker's --> ([#757](https://github.com/fworks-tech/agenthood/issues/757)) ([65e37f2](https://github.com/fworks-tech/agenthood/commit/65e37f220e971d38a4847a1cbd5ce9baddc10e90)), closes [#755](https://github.com/fworks-tech/agenthood/issues/755) [#756](https://github.com/fworks-tech/agenthood/issues/756)
+
 ## [3.56.5](https://github.com/fworks-tech/agenthood/compare/v3.56.4...v3.56.5) (2026-09-07)
 
 

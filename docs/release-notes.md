@@ -5,6 +5,14 @@
 
 ---
 
+## v3.56.6 — September 7, 2026
+
+### 🐛 Bug Fixes
+
+- **Ci:** tolerate whitespace before the decision marker's --> (#757) #756
+
+---
+
 ## v3.56.5 — September 7, 2026
 
 ### 🐛 Bug Fixes

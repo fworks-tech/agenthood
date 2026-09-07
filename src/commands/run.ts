@@ -2,6 +2,8 @@ import type { CommandDescriptor } from './types.ts'
 import { MissingApiKeyError } from '../llm/validateApiKeys.ts'
 import { ApplicationContext } from '../runtime/ApplicationContext.ts'
 import { loadConfigOrExit } from './config.ts'
+import { requestShutdown, resetShutdown } from '../core/shutdown.ts'
+import { ShutdownRequestedError } from '../reasoning/ReActLoop.ts'
 
 export function parseFlags(args: string[]): { positional: string[]; providerOverride?: string; shouldDetect: boolean; resumeFrom?: string; debug: boolean; interactive: boolean } {
   const positional: string[] = []
@@ -97,17 +99,47 @@ export async function run(args: string[]): Promise<void> {
     await runDetection(app, task)
   }
 
+  // First Ctrl+C requests a graceful stop (finish the current step, flush the
+  // trace, exit 130). A second Ctrl+C forces an immediate exit. A 5s watchdog
+  // guarantees we never hang on a wedged provider call.
+  let forced = false
+  const onSignal = () => {
+    if (forced) {
+      process.exit(130)
+      return
+    }
+    forced = true
+    requestShutdown()
+    console.error('\n⏹ Interrupted — finishing current step, then saving partial trace… (Ctrl+C again to force)')
+    setTimeout(() => process.exit(130), 5000).unref()
+  }
+  process.on('SIGINT', onSignal)
+  process.on('SIGTERM', onSignal)
+
+  let interrupted = false
   try {
     const handled = await app.runner.runMember(agentName, task, config, resumeFrom)
     if (!handled) {
       await app.runner.runAgent(agentName, task)
     }
   } catch (err) {
-    const msg = err instanceof Error ? err.message : String(err)
-    console.error(`Error running "${agentName}": ${msg}`)
-    // exitCode (not exit) so piped stderr is not truncated before flush
-    process.exitCode = 1
+    if (err instanceof ShutdownRequestedError) {
+      interrupted = true
+      console.log(`\n${err.summary()}`)
+      process.exitCode = 130
+    } else {
+      const msg = err instanceof Error ? err.message : String(err)
+      console.error(`Error running "${agentName}": ${msg}`)
+      // exitCode (not exit) so piped stderr is not truncated before flush
+      process.exitCode = 1
+    }
+  } finally {
+    process.off('SIGINT', onSignal)
+    process.off('SIGTERM', onSignal)
+    resetShutdown()
   }
 
-  app.snapshotSocietyGraph()
+  if (!interrupted) {
+    app.snapshotSocietyGraph()
+  }
 }

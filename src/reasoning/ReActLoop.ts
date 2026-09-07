@@ -8,6 +8,7 @@ import type { ITool } from "../tools/ITool.ts"
 import { ThinkingBudget } from "./ThinkingBudget.ts"
 import { validateSchema, SchemaValidationError } from "../core/SchemaValidator.ts"
 import { redactEventText } from "../core/RunEventBus.ts"
+import { isShutdownRequested } from "../core/shutdown.ts"
 import { SKILL_ACTIVATION_PREFIX } from "../skills/activation/ActivateSkillTool.ts"
 import { AskHumanSignal } from "../tools/human/AskHumanTool.ts"
 import { USER_QUERY_GUARD, TOOL_OUTPUT_GUARD, wrapUserQuery, wrapToolOutput } from "../agents/memberLore.ts"
@@ -29,6 +30,28 @@ export class MaxStepsExceededError extends Error {
     super(`Max steps (${maxSteps}) exceeded`)
     this.name = 'MaxStepsExceededError'
     this.partialResult = partialResult
+  }
+}
+
+/** Thrown when SIGINT/SIGTERM is observed at a step boundary. Carries a
+ *  work summary so the CLI can report progress before exiting 130. */
+export class ShutdownRequestedError extends Error {
+  readonly steps: number
+  readonly usage: TokenUsage
+  readonly model: string
+
+  constructor(steps: number, usage: TokenUsage, model: string) {
+    super(`Interrupted after ${steps} step(s)`)
+    this.name = 'ShutdownRequestedError'
+    this.steps = steps
+    this.usage = usage
+    this.model = model
+  }
+
+  summary(): string {
+    return `Completed ${this.steps} step(s)` +
+      `${this.model ? ` on ${this.model}` : ''}` +
+      ` · ${this.usage.totalTokens} tokens used. Partial trace saved.`
   }
 }
 
@@ -111,6 +134,9 @@ export class ReActLoop {
     const recentCalls: string[] = [];
 
     for (let step = 0; ; step++) {
+      if (isShutdownRequested()) {
+        throw new ShutdownRequestedError(step, this.usage, this._model)
+      }
       if (step >= this.maxSteps) {
         const lastContent = messages[messages.length - 1]?.content ?? ''
         const partialResult = `Max steps (${this.maxSteps}) exceeded. Partial result:\n${lastContent}`

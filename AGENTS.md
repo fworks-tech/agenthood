@@ -27,7 +27,13 @@ to understand the Society's standards before taking any action in a repository.
 - Every PR links to an issue via `Closes #N` or `Fixes #N`
 - PR title follows the same Conventional Commits format as commits
 - PR description answers: what changed, why, how to test
-- All CI checks must pass before merge
+- **HARD GATE: Never merge unless ALL of the following are green:**
+  - **All CI checks** (GitHub Actions workflows — every job, every check)
+  - **Tests** (`npm test` or equivalent — zero failures)
+  - **Build** (`npm run build` or equivalent — zero errors)
+  - **Lint** (`npm run lint` or equivalent — zero warnings/errors)
+- A red CI run is a blocking failure. No exceptions. Rebase, fix, re-run. Do not merge on a previous green run if the latest run is red.
+- If CI fails after merge conflicts are resolved, you must re-run CI and wait for green before merging.
 
 ## Agent Behavior Rules
 
@@ -38,6 +44,7 @@ to understand the Society's standards before taking any action in a repository.
 - Never introduce abstractions beyond what the task requires
 - Never push to remote without explicit user confirmation
 - Never merge without explicit user confirmation
+- **Never merge a PR with failing CI** — verify `gh pr checks` shows ALL green before merging
 
 ## The Members
 

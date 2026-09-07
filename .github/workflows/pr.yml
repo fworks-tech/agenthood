@@ -313,3 +313,21 @@ jobs:
       - name: The Envoy — pack, scratch install, and CLI check
         shell: bash
         run: .github/scripts/package-smoke.sh
+
+  # ──────────────────────────────────────────────
+  # The Tester — CLI end-to-end journey (#673)
+  # Builds the CLI, then drives the real dist/cli.js binary as a subprocess
+  # through version → help → list → status → unknown-command. Complements the
+  # tarball smoke test above (which covers `npm install`) by exercising the
+  # command journey against the local build. No LLM/network.
+  # ──────────────────────────────────────────────
+  e2e:
+    name: The Tester — CLI End-to-End
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+      - uses: ./.github/actions/setup-env
+      - name: The Tester — build the CLI
+        run: npm run build
+      - name: The Tester — run the CLI journey
+        run: npx vitest run tests/e2e

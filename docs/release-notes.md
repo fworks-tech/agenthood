@@ -5,6 +5,14 @@
 
 ---
 
+## v3.53.0 — September 7, 2026
+
+### ✨ Features
+
+- **Interactive:** add --interactive flag for human-in-the-loop confirmation (#726)
+
+---
+
 ## v3.52.0 — September 7, 2026
 
 ### ✨ Features

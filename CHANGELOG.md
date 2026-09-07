@@ -1,3 +1,10 @@
+# [3.53.0](https://github.com/fworks-tech/agenthood/compare/v3.52.0...v3.53.0) (2026-09-07)
+
+
+### Features
+
+* **interactive:** add --interactive flag for human-in-the-loop confirmation ([#726](https://github.com/fworks-tech/agenthood/issues/726)) ([ced64af](https://github.com/fworks-tech/agenthood/commit/ced64af1d9379ca4f5b4fcc0278aa0b87d7cb628))
+
 # [3.52.0](https://github.com/fworks-tech/agenthood/compare/v3.51.0...v3.52.0) (2026-09-07)
 
 

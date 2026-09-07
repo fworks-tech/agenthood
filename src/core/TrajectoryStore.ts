@@ -1,4 +1,4 @@
-import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs'
+import { existsSync, mkdirSync, readdirSync, readFileSync, writeFileSync } from 'node:fs'
 import { join } from 'node:path'
 
 export interface TrajectoryStep {
@@ -56,7 +56,6 @@ export class TrajectoryStore {
 
   list(): Trajectory[] {
     if (!existsSync(this.dir)) return []
-    const { readdirSync } = require('node:fs') as typeof import('node:fs')
     const files = readdirSync(this.dir).filter((f: string) => f.endsWith('.json'))
     const trajectories: Trajectory[] = []
     for (const file of files) {

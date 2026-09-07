@@ -99,7 +99,7 @@ The `agenthood` CLI auto-discovers commands from `src/commands/` — each file e
   - `--debug` dumps raw LLM request/response payloads to `.agenthood/debug/` (keys redacted).
   - `--interactive` enables human-in-the-loop confirmation prompts before tool execution.
 - `agenthood checkpoints` — list past run checkpoints (`--json`, `--prune` to remove old ones)
-- `agenthood trace` — list recent invocation traces (`--member`, `--limit`, `--since`, `--json`)
+- `agenthood trace` — list recent invocation traces (`--member`, `--limit`, `--since`, `--json`); subcommands: `visualize <id>` (ASCII timeline), `diff <id1> <id2>` (side-by-side comparison)
 - `agenthood log` — list recent structured log entries (`--level`, `--member`, `--limit`, `--since`, `--json`, `--tail N`, `--follow`)
 - `agenthood status` — project health and member metrics (`--watch`, `--json`, `--drift`, `--member`, `--learner`)
 - `agenthood eval <member> --suite <path>` — run an eval suite against a member (`--baseline`, `--update-baseline`, `--json`)

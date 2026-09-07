@@ -5,7 +5,7 @@ import { JSONFileTraceStore, loadObservabilityConfig, resolveTraceStorePath } fr
 import { createRedactionFilterFromConfig } from '../core/RedactionFilter.ts'
 import { formatDuration } from '../utils/formatDuration.ts'
 import type { TraceEnvelope } from '../core/types.ts'
-import { TrajectoryStore, type Trajectory, type TrajectoryStep } from '../core/TrajectoryStore.ts'
+import { TrajectoryStore, type Trajectory } from '../core/TrajectoryStore.ts'
 
 function printTable(traces: TraceEnvelope[]): void {
   const header = `${'Member'.padEnd(20)} ${'Timestamp'.padEnd(24)} ${'Duration'.padEnd(10)} ${'Cost'.padEnd(10)} ${'Quality'.padEnd(9)} Status`

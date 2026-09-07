@@ -120,4 +120,5 @@ Managed by `semantic-release` (config in `.releaserc.json`). Releases cut from `
 - **Member directories** follow the pattern `skills/the-<name>/SKILL.md`
 - **Tests mirror source** — `tests/commands/` mirrors `src/commands/`
 - **All install operations are idempotent** — safe to run `init`, `setup`, `activate` multiple times
+- **`agenthood run` shuts down gracefully** — first `SIGINT`/`SIGTERM` stops at the next step boundary, flushing trace + checkpoint and exiting `130`; a second signal or a 5s watchdog forces exit
 - **ADRs live in `docs/adr/`** — add one for significant architectural decisions

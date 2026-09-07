@@ -1,4 +1,4 @@
-import { existsSync } from 'node:fs'
+import { existsSync, watch as fsWatch } from 'node:fs'
 import type { CommandDescriptor } from './types.ts'
 import { parseStoreInspectArgs } from './args.ts'
 import { JSONFileTraceStore, loadObservabilityConfig, resolveTraceStorePath } from '../core/TraceStore.ts'
@@ -41,7 +41,9 @@ Options:
   --level <level>   Filter by level: debug, info, warn, error
   --member <name>   Filter by member name
   --limit <n>       Maximum number of entries (default 20)
+  --tail <n>        Show last N entries (overrides --limit)
   --since <time>    Only entries newer than <time> (ISO date or 1h/24h/7d)
+  --follow, -f      Stream new entries as they appear
   --json            Machine-readable JSON output
   --help            Show this help
 `)
@@ -58,14 +60,29 @@ export async function log(args: string[] = []): Promise<void> {
   const tracesPath = resolveTraceStorePath(cwd, loadObservabilityConfig(cwd))
 
   let level: LogLevel | undefined
+  let tail: number | undefined
+  let follow = false
   const parsed = parseStoreInspectArgs(args, (flag, value) => {
     if (flag === '--level') {
       level = parseLevel(value)
       return true
     }
+    if (flag === '--tail') {
+      tail = Number.parseInt(value ?? '', 10)
+      if (Number.isNaN(tail) || tail < 0) {
+        console.error('Invalid --tail value — expected a non-negative integer')
+        process.exit(1)
+      }
+      return true
+    }
+    if (flag === '--follow' || flag === '-f') {
+      follow = true
+      return false
+    }
     return false
   })
-  const { member, limit, since, json } = parsed
+  const { member, since, json } = parsed
+  const limit = tail ?? parsed.limit
   if (parsed.help) {
     printHelp()
     return
@@ -77,21 +94,50 @@ export async function log(args: string[] = []): Promise<void> {
   }
 
   const store = new JSONFileTraceStore(tracesPath)
-  let result = (await store.query({ member, since })).filter(isLogEnvelope)
-  if (level) result = result.filter((e) => e.level === level)
-  result = result.slice(0, limit)
 
-  if (json) {
-    const redactor = createRedactionFilterFromConfig(loadObservabilityConfig(cwd))
-    const sanitized = result.map((e) => (redactor ? redactor.redact(e) : e))
-    console.log(JSON.stringify({ entries: sanitized }, null, 2))
+  async function fetchAndPrint(): Promise<TraceEnvelope[]> {
+    let result = (await store.query({ member, since })).filter(isLogEnvelope)
+    if (level) result = result.filter((e) => e.level === level)
+    result = result.slice(0, limit)
+    if (json) {
+      const redactor = createRedactionFilterFromConfig(loadObservabilityConfig(cwd))
+      const sanitized = result.map((e) => (redactor ? redactor.redact(e) : e))
+      console.log(JSON.stringify({ entries: sanitized }, null, 2))
+    } else if (result.length > 0) {
+      printTable(result)
+    }
+    return result
+  }
+
+  const shown = await fetchAndPrint()
+
+  if (!follow) {
+    if (shown.length === 0) {
+      console.log('No log entries match the given filters.')
+    }
     return
   }
 
-  if (result.length === 0) {
-    console.log('No log entries match the given filters.')
-    return
-  }
+  // --follow mode: watch for new entries
+  console.log('  Following log entries (Ctrl+C to stop)...\n')
+  let lastTimestamp = shown.length > 0 ? shown[0].timestamp : new Date().toISOString()
 
-  printTable(result)
+  const watcher = fsWatch(tracesPath, async () => {
+    try {
+      const all = (await store.query({ member, since: lastTimestamp })).filter(isLogEnvelope)
+      let newEntries = level ? all.filter((e) => e.level === level) : all
+      newEntries = newEntries.filter((e) => e.timestamp > lastTimestamp)
+      if (newEntries.length > 0) {
+        lastTimestamp = newEntries[newEntries.length - 1].timestamp
+        printTable(newEntries)
+      }
+    } catch {
+      // file may be mid-write
+    }
+  })
+
+  process.on('SIGINT', () => {
+    watcher.close()
+    process.exit(0)
+  })
 }

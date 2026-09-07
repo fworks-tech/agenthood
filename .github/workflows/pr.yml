@@ -238,6 +238,29 @@ jobs:
         run: .github/scripts/test-runner.sh
 
   # ──────────────────────────────────────────────
+  # The Tester — coverage threshold gate + Codecov (#668)
+  # A full run so the global floor is measured against everything, not just
+  # changed files. The vitest thresholds step is the actual gate; the Codecov
+  # upload is reporting only and never blocks a merge.
+  # ──────────────────────────────────────────────
+  coverage:
+    name: The Tester — Coverage Thresholds
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+      - uses: ./.github/actions/setup-env
+      - name: The Tester — enforce coverage thresholds (#668)
+        shell: bash
+        run: npx vitest run --coverage
+      - name: The Uploader — Codecov report (best-effort, non-blocking)
+        uses: codecov/codecov-action@0fb7174895f61a3b6b78fc075e0cd60383518dac # v5.5.5
+        continue-on-error: true
+        with:
+          files: ./coverage/lcov.info
+          flags: unittests
+          fail_ci_if_error: false
+
+  # ──────────────────────────────────────────────
   # The Tester — Windows cross-platform compatibility
   # ──────────────────────────────────────────────
   tests-windows:

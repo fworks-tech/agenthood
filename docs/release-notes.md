@@ -5,6 +5,14 @@
 
 ---
 
+## v3.56.5 — September 7, 2026
+
+### 🐛 Bug Fixes
+
+- **Llm:** import chain providers concurrently to stop cold-start timeouts (#754) #465
+
+---
+
 ## v3.56.4 — September 7, 2026
 
 ### 🐛 Bug Fixes

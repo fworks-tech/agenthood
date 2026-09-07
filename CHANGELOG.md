@@ -1,3 +1,10 @@
+## [3.56.5](https://github.com/fworks-tech/agenthood/compare/v3.56.4...v3.56.5) (2026-09-07)
+
+
+### Bug Fixes
+
+* **llm:** import chain providers concurrently to stop cold-start timeouts ([#754](https://github.com/fworks-tech/agenthood/issues/754)) ([a4ba0b4](https://github.com/fworks-tech/agenthood/commit/a4ba0b4ea2a85f2b5a588c2c7ed5d6a27e5d0b53)), closes [#465](https://github.com/fworks-tech/agenthood/issues/465) [#465](https://github.com/fworks-tech/agenthood/issues/465)
+
 ## [3.56.4](https://github.com/fworks-tech/agenthood/compare/v3.56.3...v3.56.4) (2026-09-07)
 
 

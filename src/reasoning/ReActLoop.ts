@@ -336,7 +336,7 @@ export class ReActLoop {
           step,
           name: toolCall.name,
           args: `[human-decision: ${approved ? 'approved' : 'rejected'}]`,
-        } as any)
+        })
         resolve(approved)
       })
     })

@@ -17,7 +17,7 @@ import { stripFrontmatter } from '../agents/memberLore.ts'
 const __filename = fileURLToPath(import.meta.url)
 const __dirname = dirname(__filename)
 const SOCIETY_ROOT = join(__dirname, '..', '..')
-const MEMBERS_DIR = join(SOCIETY_ROOT, 'skills')
+export const MEMBERS_DIR = join(SOCIETY_ROOT, 'skills')
 
 const SHARED_STYLE_PATH = join(MEMBERS_DIR, '_shared', 'CONVERSATIONAL-STYLE.md')
 export const sharedConversationalStyle = existsSync(SHARED_STYLE_PATH)

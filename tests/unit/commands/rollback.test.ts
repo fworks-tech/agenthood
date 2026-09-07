@@ -96,7 +96,7 @@ describe('rollback command', () => {
 
     expect(execFileSync).toHaveBeenCalledWith(
       'git',
-      ['checkout', 'abc123', '--', expect.stringMatching(/members[\\/]the-test[\\/]SKILL\.md$/)],
+      ['checkout', 'abc123', '--', expect.stringMatching(/skills[\\/]the-test[\\/]SKILL\.md$/)],
       expect.anything()
     )
   })
@@ -149,7 +149,7 @@ describe('rollback command', () => {
     )
     expect(checkoutCalls).toHaveLength(1)
     const checkoutPath = (checkoutCalls[0][1] as string[])[3]
-    expect(checkoutPath).toMatch(/members[\\/]the-test[\\/]SKILL\.md$/)
+    expect(checkoutPath).toMatch(/skills[\\/]the-test[\\/]SKILL\.md$/)
     expect(checkoutPath).not.toContain('evil')
   })
 

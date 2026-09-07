@@ -76,6 +76,7 @@ Commands:
   verify [member]         Validate member SKILL.md integrity, spec conformance, and lockfile
                             Use --strict for lane overlap checks
                             Use --update-lock to update lockfile hash
+                            Use --lock-only for a lock-vs-hash CI integrity gate
   rollback [member]       Restore member SKILL.md from lockfile
                             Use --dry-run to preview without restoring
   status                  Show project health and member metrics

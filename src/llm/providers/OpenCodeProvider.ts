@@ -57,9 +57,7 @@ export class OpenCodeProvider extends ChatCompletionsProvider {
       createClient: (apiKey, baseUrl) => new OpenAI({
         apiKey,
         baseURL: baseUrl,
-        defaultHeaders: runtimeOptions.goTier
-          ? { "x-opencode-session": randomUUID() }
-          : undefined,
+        defaultHeaders: { "x-opencode-session": randomUUID() },
       }),
     };
     super(config, options);

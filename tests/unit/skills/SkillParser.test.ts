@@ -95,6 +95,28 @@ describe("SkillParser", () => {
     })
   })
 
+  describe("BOM and non-ASCII parsing (#563)", () => {
+    const BOM = String.fromCharCode(0xfeff)
+
+    it("strips a leading UTF-8 BOM so frontmatter still parses", () => {
+      const file = writeSkill(dir, BOM + "---\nname: test-skill\ndescription: A test skill\n---\nBody.")
+      expect(parser.parse(file)).toEqual({ name: "test-skill", description: "A test skill", body: "Body." })
+    })
+
+    it("strips the BOM in parseRaw (shared with verify)", () => {
+      const { frontmatter } = parser.parseRaw(BOM + "---\nname: the-test\ndescription: d\n---\nBody.")
+      expect(frontmatter?.name).toBe("the-test")
+    })
+
+    it("preserves non-ASCII name and description alongside a BOM", () => {
+      const file = writeSkill(dir, BOM + "---\nname: café\ndescription: Ação ünïcode\n---\nCorpo.")
+      const result = parser.parse(file)
+      expect(result?.name).toBe("café")
+      expect(result?.description).toBe("Ação ünïcode")
+      expect(result?.body).toBe("Corpo.")
+    })
+  })
+
   describe("validateSpec()", () => {
     const rules = (errs: { rule: string }[]) => errs.map((e) => e.rule)
 

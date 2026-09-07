@@ -60,6 +60,9 @@ export class SkillParser {
    * Shared with verify.ts to avoid duplicated parsing logic.
    */
   parseRaw(content: string): ParsedRaw {
+    // Windows editors may prepend a UTF-8 BOM, which would stop the frontmatter
+    // regex (anchored at ^) from matching — strip it here, the single parse chokepoint.
+    if (content.charCodeAt(0) === 0xfeff) content = content.slice(1)
     const match = content.match(/^---\n([\s\S]*?)\n---\n?([\s\S]*)$/)
     if (!match) return { frontmatter: null, body: content }
     const frontmatter = this.parseYaml(match[1])

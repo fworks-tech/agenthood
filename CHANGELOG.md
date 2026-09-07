@@ -1,3 +1,10 @@
+# [3.50.0](https://github.com/fworks-tech/agenthood/compare/v3.49.0...v3.50.0) (2026-09-07)
+
+
+### Features
+
+* **debug:** add --debug flag for LLM request/response logging ([#723](https://github.com/fworks-tech/agenthood/issues/723)) ([f78ff03](https://github.com/fworks-tech/agenthood/commit/f78ff03cf37552ab7f1c7f82a1a0834ab32c91f4))
+
 # [3.49.0](https://github.com/fworks-tech/agenthood/compare/v3.48.0...v3.49.0) (2026-09-05)
 
 

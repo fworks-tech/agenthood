@@ -5,6 +5,14 @@
 
 ---
 
+## v3.50.0 — September 7, 2026
+
+### ✨ Features
+
+- **Debug:** add --debug flag for LLM request/response logging (#723)
+
+---
+
 ## v3.49.0 — September 5, 2026
 
 ### ✨ Features

@@ -27,7 +27,7 @@ The published CLI commands (for adopter projects, not for developing this repo):
 ```bash
 npx agenthood init           # Interactive initiation ceremony
 npx agenthood check          # Run Doorman health check
-npx agenthood verify         # Validate member SKILL.md integrity and lockfile
+npx agenthood verify         # Validate member SKILL.md integrity, spec conformance, and lockfile
 npx agenthood list           # Show active members
 npx agenthood activate <member>
 npx agenthood deactivate <member>
@@ -64,7 +64,7 @@ Agenthood is a **multi-agent AI framework** distributed as an npm package + VS C
 Entry point is `src/cli.ts` — it parses args and dispatches to `src/commands/<command>.ts`. Commands are:
 - `init.ts` — Interactive ceremony: prompts, copies skills + AGENTS.md, writes `.agenthood/config.json`
 - `setup.ts` — Self-setup for this repo (sets git hooks path, chmod, installs commit template)
-- `check.ts` / `verify.ts` — Doorman health check and member-integrity validation
+- `check.ts` / `verify.ts` — Doorman health check and member-integrity validation; `verify` also validates each `SKILL.md` against the agentskills.io spec (`SkillParser.validateSpec`: name format/length, description length, name↔directory match, filename)
 - `run.ts` — Invoke a member or core agent as an LLM agent (provider override, `--detect`)
 - `status.ts` / `trace.ts` — Observability: project health + metrics, trace listing, `--learner` status
 - `eval.ts` — Run an eval suite against a member with baseline regression gating

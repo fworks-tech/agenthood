@@ -7,11 +7,15 @@ const commandsDir = join(dirname(fileURLToPath(import.meta.url)), '../../../src/
 
 describe('command registry', () => {
   it('every command file exports a well-formed CommandDescriptor', async () => {
-    // 15s: cold dynamic imports of every command module under parallel load
+    // 15s headroom, and imports run concurrently: sequential await import()
+    // over 26 cold modules makes the sum of load times time out under parallel
+    // CPU load on CI (#465).
     const files = readdirSync(commandsDir).filter((f) => f.endsWith('.ts') && !f.endsWith('.d.ts'))
+    const mods = await Promise.all(
+      files.map((file) => import(join(commandsDir, file)).then((mod) => [file, mod] as const)),
+    )
     const names: string[] = []
-    for (const file of files) {
-      const mod = await import(join(commandsDir, file))
+    for (const [file, mod] of mods) {
       if (!mod.command) continue
       expect(mod.command.name, file).toBeTypeOf('string')
       expect(mod.command.name.length, file).toBeGreaterThan(0)
@@ -34,11 +38,8 @@ describe('command registry', () => {
 
   it('descriptor names are unique', async () => {
     const files = readdirSync(commandsDir).filter((f) => f.endsWith('.ts') && !f.endsWith('.d.ts'))
-    const names: string[] = []
-    for (const file of files) {
-      const mod = await import(join(commandsDir, file))
-      if (mod.command) names.push(mod.command.name)
-    }
+    const mods = await Promise.all(files.map((file) => import(join(commandsDir, file))))
+    const names = mods.filter((m) => m.command).map((m) => m.command.name)
     expect(new Set(names).size).toBe(names.length)
   })
 })

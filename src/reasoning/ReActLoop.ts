@@ -10,6 +10,7 @@ import { validateSchema, SchemaValidationError } from "../core/SchemaValidator.t
 import { redactEventText } from "../core/RunEventBus.ts"
 import { SKILL_ACTIVATION_PREFIX } from "../skills/activation/ActivateSkillTool.ts"
 import { AskHumanSignal } from "../tools/human/AskHumanTool.ts"
+import { USER_QUERY_GUARD, TOOL_OUTPUT_GUARD, wrapUserQuery, wrapToolOutput } from "../agents/memberLore.ts"
 import * as readline from 'node:readline'
 
 const costEstimator = new CostEstimator()
@@ -93,9 +94,15 @@ export class ReActLoop {
     userInput: string,
     context: ExecutionContext,
   ): Promise<string> {
+    // Delimit untrusted input at the loop boundary so every agent (not just
+    // those that pre-wrap) is protected. Guards are appended only when absent
+    // to stay idempotent for agents that already declare them.
+    let guardBlock = ''
+    if (!systemPrompt.includes(USER_QUERY_GUARD)) guardBlock += `\n\n${USER_QUERY_GUARD}`
+    if (!systemPrompt.includes(TOOL_OUTPUT_GUARD)) guardBlock += `\n\n${TOOL_OUTPUT_GUARD}`
     const messages: Message[] = [
-      { role: "system", content: systemPrompt },
-      { role: "user", content: userInput },
+      { role: "system", content: systemPrompt + guardBlock },
+      { role: "user", content: wrapUserQuery(userInput) },
     ];
 
     this.usage = { promptTokens: 0, completionTokens: 0, totalTokens: 0 };
@@ -245,7 +252,7 @@ export class ReActLoop {
       }
       messages.push({
         role: "tool",
-        content,
+        content: wrapToolOutput(content),
         tool_call_id: toolCall.id,
         name: toolCall.name,
       });

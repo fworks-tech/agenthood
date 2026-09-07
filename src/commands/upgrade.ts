@@ -1,4 +1,4 @@
-import { existsSync, readFileSync, writeFileSync, mkdirSync } from 'node:fs'
+import { existsSync, readFileSync, writeFileSync } from 'node:fs'
 import { join } from 'node:path'
 import type { CommandDescriptor } from './types.ts'
 import { SkillRegistryClient } from '../skills/registry/SkillRegistryClient.ts'

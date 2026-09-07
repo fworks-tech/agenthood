@@ -1,3 +1,10 @@
+## [3.55.4](https://github.com/fworks-tech/agenthood/compare/v3.55.3...v3.55.4) (2026-09-07)
+
+
+### Bug Fixes
+
+* **security:** broaden SafetyGuard catastrophic command patterns ([#742](https://github.com/fworks-tech/agenthood/issues/742)) ([48b7600](https://github.com/fworks-tech/agenthood/commit/48b76000509fa6f94ec72c9064debe0be2dea897)), closes [#637](https://github.com/fworks-tech/agenthood/issues/637)
+
 ## [3.55.3](https://github.com/fworks-tech/agenthood/compare/v3.55.2...v3.55.3) (2026-09-07)
 
 

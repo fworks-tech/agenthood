@@ -5,6 +5,14 @@
 
 ---
 
+## v3.55.4 — September 7, 2026
+
+### 🐛 Bug Fixes
+
+- **Security:** broaden SafetyGuard catastrophic command patterns (#742)
+
+---
+
 ## v3.55.3 — September 7, 2026
 
 ### 🐛 Bug Fixes

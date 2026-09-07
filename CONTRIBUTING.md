@@ -98,7 +98,7 @@ The `agenthood` CLI auto-discovers commands from `src/commands/` — each file e
   - `--resume <id>` resumes from a checkpoint saved during a previous interrupted run.
 - `agenthood checkpoints` — list past run checkpoints (`--json`, `--prune` to remove old ones)
 - `agenthood trace` — list recent invocation traces (`--member`, `--limit`, `--since`, `--json`)
-- `agenthood log` — list recent structured log entries (`--level`, `--member`, `--limit`, `--since`, `--json`)
+- `agenthood log` — list recent structured log entries (`--level`, `--member`, `--limit`, `--since`, `--json`, `--tail N`, `--follow`)
 - `agenthood status` — project health and member metrics (`--watch`, `--json`, `--drift`, `--member`, `--learner`)
 - `agenthood eval <member> --suite <path>` — run an eval suite against a member (`--baseline`, `--update-baseline`, `--json`)
 - `agenthood health` — runtime health checks (`--json`; exit 0 healthy / 1 degraded / 2 unhealthy)

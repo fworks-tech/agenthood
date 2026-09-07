@@ -5,6 +5,14 @@
 
 ---
 
+## v3.56.2 — September 7, 2026
+
+### 🐛 Bug Fixes
+
+- **Skills:** strip UTF-8 BOM so frontmatter parses on Windows-authored files (#750)
+
+---
+
 ## v3.56.1 — September 7, 2026
 
 ### 🐛 Bug Fixes

@@ -1,3 +1,10 @@
+## [3.56.2](https://github.com/fworks-tech/agenthood/compare/v3.56.1...v3.56.2) (2026-09-07)
+
+
+### Bug Fixes
+
+* **skills:** strip UTF-8 BOM so frontmatter parses on Windows-authored files ([#750](https://github.com/fworks-tech/agenthood/issues/750)) ([33d4259](https://github.com/fworks-tech/agenthood/commit/33d425959947ba88e78465458f8b8b75e70e8cce)), closes [#563](https://github.com/fworks-tech/agenthood/issues/563)
+
 ## [3.56.1](https://github.com/fworks-tech/agenthood/compare/v3.56.0...v3.56.1) (2026-09-07)
 
 

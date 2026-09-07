@@ -99,4 +99,6 @@ export interface LLMConfig {
   security?: { strictSkillIntegrity?: boolean }
   /** Log full LLM request/response to .agenthood/debug/ */
   debug?: boolean
+  /** Pause before each tool call for human confirmation */
+  interactive?: boolean
 }

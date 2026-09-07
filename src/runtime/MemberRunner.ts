@@ -91,6 +91,7 @@ export class MemberRunner {
     }
 
     const loop = new ReActLoop(llm, sReg, {
+      interactive: config.interactive,
       onStepComplete: (step, messages, usage, model) => {
         checkpointData.step = step
         checkpointData.messages = messages.map((m) => ({ role: m.role, content: m.content, toolCallId: m.tool_call_id }))

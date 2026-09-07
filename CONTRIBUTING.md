@@ -46,6 +46,19 @@ Run a specific test file:
 npx vitest run tests/unit/llm/ProviderFailover.test.ts
 ```
 
+Run with coverage (the same thresholds CI enforces):
+
+```bash
+npm run test:coverage
+```
+
+A full run must stay above the coverage floor set in `vitest.config.ts`
+(`test.coverage.thresholds`) — the `The Tester — Coverage Thresholds` job fails
+below it. When you add tests and coverage rises, ratchet the floor **up** toward
+the new number so it only ever tightens; never lower it to make a run pass.
+Codecov receives the report (`coverage/lcov.info`) but is non-blocking — the
+thresholds step is the gate.
+
 ### CLI commands
 
 Commands are auto-registered: each file in `src/commands/` exports a `command: CommandDescriptor` (`name`, optional `aliases`, `description`, `handler(args)`). Adding a command means adding a file with a descriptor — `src/cli.ts` never changes. Helper modules in that directory simply export no descriptor. See `src/commands/types.ts`.

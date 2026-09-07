@@ -49,3 +49,6 @@ skills-lock.json
 
 # Provider-specific agent definitions (generated from docs/members/)
 .opencode/
+
+# Test coverage output (#668)
+coverage/

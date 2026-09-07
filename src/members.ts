@@ -10,7 +10,7 @@
 
 import { existsSync } from 'node:fs';
 import { join } from 'node:path';
-import { MemberRegistry } from './members/MemberRegistry.ts';
+import { MemberRegistry, MEMBERS_DIR } from './members/MemberRegistry.ts';
 
 export interface Member {
   name: string
@@ -25,6 +25,15 @@ export const ALL_MEMBERS: Member[] = registry.list().map((s) => ({
 }))
 
 export const MEMBER_NAMES: string[] = ALL_MEMBERS.map(m => m.name)
+
+/** Canonical on-disk home of the Society's own authored member skills:
+ * `<pkgRoot>/skills/<member>/SKILL.md`. `verify` (integrity) and `rollback`
+ * resolve members through this single source instead of each hardcoding a
+ * stale `members/` path (#740). Distinct from `resolveSkillsDir(cwd)`, which
+ * is a consumer's *installed* layout. */
+export function resolveSocietyMembersDir(): string {
+  return MEMBERS_DIR
+}
 
 /** Member names are refs into git pathspecs and filesystem paths — hostile
  * values could otherwise inject shell commands (see rollback/verify) */

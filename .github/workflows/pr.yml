@@ -273,6 +273,8 @@ jobs:
         run: npm run typecheck
       - name: The Warden — build
         run: npm run build
+      - name: The Doorman — lockfile integrity gate
+        run: node dist/cli.js verify --lock-only
 
   # ──────────────────────────────────────────────
   # The Envoy — package smoke test

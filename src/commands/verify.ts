@@ -1,6 +1,6 @@
-import { existsSync, readFileSync, readdirSync, writeFileSync } from 'node:fs'
+import { existsSync, readFileSync, writeFileSync } from 'node:fs'
 import type { CommandDescriptor } from './types.ts'
-import { MEMBER_NAME_RE } from '../members.ts'
+import { MEMBER_NAME_RE, MEMBER_NAMES, resolveSocietyMembersDir } from '../members.ts'
 import { join } from 'node:path'
 import { contentHash } from '../utils/hash.ts'
 import { loadLockfile } from '../utils/lockfile.ts'
@@ -84,6 +84,36 @@ function validateMember(membersDir: string, member: string, lockfile?: Lockfile)
   return result
 }
 
+function memberDrift(membersDir: string, member: string, lockfile?: Lockfile): boolean {
+  if (!lockfile?.members[member]) return false
+  const skillPath = join(membersDir, member, 'SKILL.md')
+  if (!existsSync(skillPath)) return false
+  return contentHash(readFileSync(skillPath, 'utf8')) !== lockfile.members[member].version
+}
+
+function lockIntegrityGate(membersDir: string, members: string[], lockfile?: Lockfile): void {
+  const drifted = members.filter((m) => memberDrift(membersDir, m, lockfile))
+  if (drifted.length > 0) {
+    console.log(`\n  ✗ Lockfile drift — ${drifted.length} member(s) changed without a re-lock: ${drifted.join(', ')}`)
+    console.log('    Run `agenthood verify --update-lock` and commit agenthood.lock.\n')
+    process.exit(1)
+    return
+  }
+  console.log(`\n  ✓ Lockfile integrity OK — ${members.length} member(s) match agenthood.lock`)
+}
+
+function reportLaneOverlaps(): void {
+  const overlaps = findLaneOverlaps(rawSpecs)
+  if (overlaps.length > 0) {
+    console.log('\n  Strict mode: lane overlap detected:')
+    for (const o of overlaps) {
+      console.log(`    \u26a0 ${o.a} \u2194 ${o.b} (shared: ${o.shared.join(', ')})`)
+    }
+    process.exit(1)
+  }
+  console.log('\n  Strict mode: lane overlap check passed.')
+}
+
 function printResults(results: VerifyResult[]): void {
   for (const r of results) {
     if (r.pass && !r.drift) {
@@ -136,12 +166,13 @@ export const command: CommandDescriptor = {
 
 export async function verify(args: string[]): Promise<void> {
   const cwd = process.cwd()
-  const membersDir = join(cwd, 'members')
+  const membersDir = resolveSocietyMembersDir()
   const flags = new Set(args.filter((a) => a.startsWith('--')))
   const positionals = args.filter((a) => !a.startsWith('--'))
 
   const isStrict = flags.has('--strict')
   const updateLock = flags.has('--update-lock')
+  const lockOnly = flags.has('--lock-only')
   const targetMember = positionals[0]
 
   if (targetMember && !MEMBER_NAME_RE.test(targetMember)) {
@@ -150,15 +181,26 @@ export async function verify(args: string[]): Promise<void> {
     return
   }
 
-  const membersToCheck = targetMember
-    ? [targetMember]
-    : readdirSync(membersDir, { withFileTypes: true })
-        .filter((d) => d.isDirectory())
-        .map((d) => d.name)
-
   const lockfile = loadLockfile(cwd)
   if (!lockfile) {
     console.log('\n  No lockfile found — drift detection unavailable. Run `verify --update-lock` to create one.\n')
+  }
+
+  // Only validate the members the Society actually ships — the lockfile's set
+  // (or the registry when bootstrapping), never every subdir of skills/, which
+  // also holds ~40 non-member skill packs (#740). Lock keys are attacker-
+  // influenced, so re-validate each before it becomes a filesystem path.
+  const memberSet = lockfile ? Object.keys(lockfile.members) : [...MEMBER_NAMES]
+  const membersToCheck = targetMember
+    ? [targetMember]
+    : memberSet.filter((m) => MEMBER_NAME_RE.test(m))
+
+  // Integrity-only mode (CI gate, #740): a pure lock-vs-hash diff. Deliberately
+  // ignores structural/prose checks (sections, placeholders, spec) so the gate
+  // fails only when a SKILL.md changed without a matching re-lock.
+  if (lockOnly) {
+    lockIntegrityGate(membersDir, membersToCheck, lockfile)
+    return
   }
 
   const results = membersToCheck.map((m) => validateMember(membersDir, m, lockfile))
@@ -167,17 +209,7 @@ export async function verify(args: string[]): Promise<void> {
   const structuralOk = results.every((r) => r.pass)
   const hasDrift = results.some((r) => r.drift)
 
-  if (isStrict) {
-    const overlaps = findLaneOverlaps(rawSpecs)
-    if (overlaps.length > 0) {
-      console.log('\n  Strict mode: lane overlap detected:')
-      for (const o of overlaps) {
-        console.log(`    \u26a0 ${o.a} \u2194 ${o.b} (shared: ${o.shared.join(', ')})`)
-      }
-      process.exit(1)
-    }
-    console.log('\n  Strict mode: lane overlap check passed.')
-  }
+  if (isStrict) reportLaneOverlaps()
 
   // --update-lock is the accept path for intentional edits, so it must work
   // *despite* drift (re-locking changed members is its whole purpose) — only a

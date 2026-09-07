@@ -23,17 +23,55 @@ describe('SafetyGuard', () => {
       'git push --force origin main',
     ]
 
+    // Variants that slipped past the old anchored regexes (issue #637).
+    const bypasses = [
+      'rm -rf / --no-preserve-root',
+      'rm -rf /tmp/../../',
+      'rm -fr /',
+      'rm -r -f ~',
+      'rm -rf $HOME',
+      'sudo rm -rf /',
+      'dd of=/dev/nvme0n1 if=/dev/zero',
+      'mkfs.xfs /dev/nvme1n1',
+      'find / -delete',
+      'chmod -R 777 /',
+      'TRUNCATE TABLE users',
+      'git push --force-with-lease origin main',
+      ':(){ :|:& };:',
+    ]
+
+    // Destructive-looking but legitimate — must NOT be blocked.
+    const safe = [
+      'rm -rf node_modules',
+      'rm -rf ./build',
+      'rm -rf /tmp/myscratch',
+      'rm file.txt',
+      'npm run build',
+      'git status',
+      'git push --force origin feature/my-branch',
+      'chmod -R 755 ./dist',
+      'dd if=input.img of=output.img',
+      'find . -name "*.log" -delete',
+      'chown -R user:group /srv/app',
+    ]
+
     for (const cmd of catastrophic) {
       it(`blocks catastrophic command: "${cmd}"`, () => {
         expect(() => guard.checkCommand(cmd)).toThrow(CatastrophicCommandError)
       })
     }
 
-    it('allows safe commands', () => {
-      expect(() => guard.checkCommand('npm run build')).not.toThrow()
-      expect(() => guard.checkCommand('git status')).not.toThrow()
-      expect(() => guard.checkCommand('ls -la')).not.toThrow()
-    })
+    for (const cmd of bypasses) {
+      it(`blocks bypass variant: "${cmd}"`, () => {
+        expect(() => guard.checkCommand(cmd)).toThrow(CatastrophicCommandError)
+      })
+    }
+
+    for (const cmd of safe) {
+      it(`allows safe command: "${cmd}"`, () => {
+        expect(() => guard.checkCommand(cmd)).not.toThrow()
+      })
+    }
   })
 
   describe('permission profiles', () => {

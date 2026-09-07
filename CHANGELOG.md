@@ -1,3 +1,10 @@
+## [3.56.3](https://github.com/fworks-tech/agenthood/compare/v3.56.2...v3.56.3) (2026-09-07)
+
+
+### Bug Fixes
+
+* **react-loop:** emit tool.approval instead of a duplicate tool.called ([#751](https://github.com/fworks-tech/agenthood/issues/751)) ([fe77e39](https://github.com/fworks-tech/agenthood/commit/fe77e396d3fac93b44f2c6ac34e086f92be43c5e)), closes [#748](https://github.com/fworks-tech/agenthood/issues/748)
+
 ## [3.56.2](https://github.com/fworks-tech/agenthood/compare/v3.56.1...v3.56.2) (2026-09-07)
 
 

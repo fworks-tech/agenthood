@@ -5,6 +5,14 @@
 
 ---
 
+## v3.56.3 — September 7, 2026
+
+### 🐛 Bug Fixes
+
+- **React-loop:** emit tool.approval instead of a duplicate tool.called (#751)
+
+---
+
 ## v3.56.2 — September 7, 2026
 
 ### 🐛 Bug Fixes

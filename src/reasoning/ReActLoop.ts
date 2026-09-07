@@ -361,14 +361,14 @@ export class ReActLoop {
         const decision = answer.trim().toLowerCase()
         const approved = decision === 'y' || decision === 'yes' || decision === ''
         context.events.emit({
-          type: 'tool.called',
+          type: 'tool.approval',
           executionId: context.executionId,
           member: this._member,
           correlationId: context.correlationId,
           timestamp: new Date().toISOString(),
           step,
           name: toolCall.name,
-          args: `[human-decision: ${approved ? 'approved' : 'rejected'}]`,
+          approved,
         })
         resolve(approved)
       })

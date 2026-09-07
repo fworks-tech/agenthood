@@ -341,14 +341,17 @@ export class LLMRouter {
     order: ProviderName[],
     config?: LLMConfig,
   ): Promise<ILLMProvider> {
+    // Each factory cold-imports its SDK, so a serial loop makes chain-build
+    // latency the SUM of every SDK load — enough to time out unit tests under
+    // parallel CPU load (#465). Init concurrently; the assembly loop below
+    // re-applies `order`, so failover behaviour is unchanged.
     const providers = new Map<string, ILLMProvider>()
-
-    for (const name of order) {
-      if (!providers.has(name) && name in LLMRouter.providerFactories) {
-        const inst = await LLMRouter.getOrInit(name)
-        if (inst) providers.set(name, inst)
-      }
-    }
+    const initOrder = [...new Set(order)].filter((n) => n in LLMRouter.providerFactories)
+    const inited = await Promise.all(initOrder.map((n) => LLMRouter.getOrInit(n)))
+    initOrder.forEach((n, i) => {
+      const inst = inited[i]
+      if (inst) providers.set(n, inst)
+    })
 
     const providersList: ILLMProvider[] = []
     const names: string[] = []

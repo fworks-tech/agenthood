@@ -15,8 +15,15 @@ import type { ILLMProvider } from './ILLMProvider.ts'
 import type { LLMConfig, LLMRequest, ComplexityTier, ProviderEntry } from './types.ts'
 import type { ProviderName } from '../members/types.ts'
 import { ProviderChain } from './ProviderFailover.ts'
+import { RedactionFilter } from '../core/RedactionFilter.ts'
+import { withRequestRedaction } from './withRequestRedaction.ts'
 
 const PROVIDER_DEFAULT_PRIORITY = 999
+
+// Always-on outbound redaction guard (built-in key/email/IP rules). Custom
+// rules from observability config are applied to traces separately; this filter
+// exists solely so secrets never leave the machine via a provider request.
+const OUTBOUND_REDACTOR = new RedactionFilter()
 function sortProvidersByPriority(a: ProviderEntry, b: ProviderEntry) {
   return (a.priority ?? PROVIDER_DEFAULT_PRIORITY) - (b.priority ?? PROVIDER_DEFAULT_PRIORITY)
 }
@@ -185,7 +192,7 @@ export class LLMRouter {
       if (!factory) continue
       try {
         const inst = await factory(LLMRouter.entryToConfig(entry, config))
-        instances.push(inst)
+        instances.push(withRequestRedaction(inst, OUTBOUND_REDACTOR))
         names.push(entry.name)
         if (entry.models && entry.models.length > 1) {
           modelMap.set(entry.name, entry.models)
@@ -300,8 +307,9 @@ export class LLMRouter {
       if (!factory) return null
       try {
         const inst = await factory(LLMRouter.config)
-        LLMRouter.instances.set(name, inst)
-        return inst
+        const wrapped = withRequestRedaction(inst, OUTBOUND_REDACTOR)
+        LLMRouter.instances.set(name, wrapped)
+        return wrapped
       } catch {
         return null
       }

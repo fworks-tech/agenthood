@@ -1,4 +1,4 @@
-import { existsSync, readFileSync, mkdirSync, writeFileSync } from 'node:fs'
+import { existsSync, readFileSync, mkdirSync, readdirSync, rmSync, writeFileSync } from 'node:fs'
 import { join } from 'node:path'
 import { execFileSync } from 'node:child_process'
 import type { ISkillManifest } from '../discovery/ISkillManifest.ts'
@@ -85,7 +85,6 @@ export class RemoteSkillFetcher {
 
       if (!existsSync(skillMdPath)) {
         // Try to find SKILL.md in subdirectories
-        const { readdirSync } = require('node:fs') as typeof import('node:fs')
         for (const entry of readdirSync(tmpDir, { withFileTypes: true })) {
           if (entry.isDirectory()) {
             const sub = join(tmpDir, entry.name, 'SKILL.md')
@@ -100,7 +99,6 @@ export class RemoteSkillFetcher {
       return undefined
     } finally {
       if (existsSync(tmpDir)) {
-        const { rmSync } = require('node:fs') as typeof import('node:fs')
         rmSync(tmpDir, { recursive: true, force: true })
       }
     }

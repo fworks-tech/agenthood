@@ -1,3 +1,10 @@
+# [3.56.0](https://github.com/fworks-tech/agenthood/compare/v3.55.7...v3.56.0) (2026-09-07)
+
+
+### Features
+
+* **skill:** validate SKILL.md against the agentskills.io spec ([#746](https://github.com/fworks-tech/agenthood/issues/746)) ([0c408f8](https://github.com/fworks-tech/agenthood/commit/0c408f8aff0ccdef609c1a722dd159d0b9c98f1b)), closes [#634](https://github.com/fworks-tech/agenthood/issues/634)
+
 ## [3.55.7](https://github.com/fworks-tech/agenthood/compare/v3.55.6...v3.55.7) (2026-09-07)
 
 

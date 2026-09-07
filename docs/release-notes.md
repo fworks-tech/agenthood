@@ -5,6 +5,14 @@
 
 ---
 
+## v3.56.0 — September 7, 2026
+
+### ✨ Features
+
+- **Skill:** validate SKILL.md against the agentskills.io spec (#746)
+
+---
+
 ## v3.55.7 — September 7, 2026
 
 ### 🐛 Bug Fixes

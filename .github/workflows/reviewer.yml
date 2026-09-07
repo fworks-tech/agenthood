@@ -57,3 +57,4 @@ jobs:
           range: ${{ steps.context.outputs.range }}
           include-diff: "true"
           api-key: ${{ secrets.OPENCODE_API_KEY }}
+          model: "opencode-go/mimo-v2.5"

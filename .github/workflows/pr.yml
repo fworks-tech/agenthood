@@ -102,6 +102,7 @@ jobs:
           range: ${{ github.event.pull_request.base.sha }}...${{ github.event.pull_request.head.sha }}
           max-files: "15"
           api-key: ${{ secrets.OPENCODE_API_KEY }}
+          model: "opencode-go/mimo-v2.5"
 
   # ──────────────────────────────────────────────
   # The Scribe — auto-label PR by changed files
@@ -143,6 +144,7 @@ jobs:
           range: ${{ github.event.pull_request.base.sha }}...${{ github.event.pull_request.head.sha }}
           max-files: "25"
           api-key: ${{ secrets.OPENCODE_API_KEY }}
+          model: "opencode-go/mimo-v2.5"
 
   # ──────────────────────────────────────────────
   # The Librarian — documentation sync check
@@ -197,6 +199,7 @@ jobs:
           range: ${{ github.event.pull_request.base.sha }}...${{ github.event.pull_request.head.sha }}
           max-files: "10"
           api-key: ${{ secrets.OPENCODE_API_KEY }}
+          model: "opencode-go/mimo-v2.5"
 
   # ──────────────────────────────────────────────
   # The Tester — test suite

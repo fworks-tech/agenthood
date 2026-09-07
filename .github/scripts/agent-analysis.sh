@@ -34,6 +34,15 @@ validate_prerequisites() {
     exit 0
   fi
 
+  # Configure provider and model for agent analysis
+  mkdir -p .agenthood
+  cat > .agenthood/config.json <<EOF
+{
+  "provider": "opencode-go",
+  "model": "${OPENCODE_MODEL:-opencode-go/mimo-v2.5}"
+}
+EOF
+
   CHANGED=$(git diff --name-only --diff-filter=ACM "$BASE_SHA"..."$HEAD_SHA" 2>/dev/null || echo "")
   if [ -z "$CHANGED" ]; then
     echo "No files changed. Skipping agent analysis."

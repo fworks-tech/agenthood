@@ -1,3 +1,10 @@
+## [3.55.6](https://github.com/fworks-tech/agenthood/compare/v3.55.5...v3.55.6) (2026-09-07)
+
+
+### Bug Fixes
+
+* **core:** graceful SIGINT shutdown for long-running agent sessions ([#744](https://github.com/fworks-tech/agenthood/issues/744)) ([8acc5da](https://github.com/fworks-tech/agenthood/commit/8acc5dad6dd809bd36a475e7a783e8bea58c816c)), closes [#633](https://github.com/fworks-tech/agenthood/issues/633)
+
 ## [3.55.5](https://github.com/fworks-tech/agenthood/compare/v3.55.4...v3.55.5) (2026-09-07)
 
 

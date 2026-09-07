@@ -5,6 +5,14 @@
 
 ---
 
+## v3.55.6 — September 7, 2026
+
+### 🐛 Bug Fixes
+
+- **Core:** graceful SIGINT shutdown for long-running agent sessions (#744)
+
+---
+
 ## v3.55.5 — September 7, 2026
 
 ### 🐛 Bug Fixes

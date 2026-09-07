@@ -5,6 +5,15 @@
 
 ---
 
+## v3.54.0 — September 7, 2026
+
+### ✨ Features
+
+- **Provisioning:** add RemoteSkillSource for URL/git fetching with caching (#728)
+- **Trajectory:** add TrajectoryStore and trace visualize/diff subcommands (#727)
+
+---
+
 ## v3.53.0 — September 7, 2026
 
 ### ✨ Features

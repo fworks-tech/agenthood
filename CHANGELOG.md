@@ -1,3 +1,11 @@
+# [3.54.0](https://github.com/fworks-tech/agenthood/compare/v3.53.0...v3.54.0) (2026-09-07)
+
+
+### Features
+
+* **provisioning:** add RemoteSkillSource for URL/git fetching with caching ([#728](https://github.com/fworks-tech/agenthood/issues/728)) ([864c765](https://github.com/fworks-tech/agenthood/commit/864c7654b8b0dc6d7d33a0338caf7986cda6899e))
+* **trajectory:** add TrajectoryStore and trace visualize/diff subcommands ([#727](https://github.com/fworks-tech/agenthood/issues/727)) ([9dcd452](https://github.com/fworks-tech/agenthood/commit/9dcd4527e41d42b56b0b80e5d3819ee338c3a8a9))
+
 # [3.53.0](https://github.com/fworks-tech/agenthood/compare/v3.52.0...v3.53.0) (2026-09-07)
 
 

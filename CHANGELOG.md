@@ -1,3 +1,10 @@
+# [3.51.0](https://github.com/fworks-tech/agenthood/compare/v3.50.0...v3.51.0) (2026-09-07)
+
+
+### Features
+
+* **cli:** add agenthood completion command for bash/zsh/fish ([#724](https://github.com/fworks-tech/agenthood/issues/724)) ([2b167b9](https://github.com/fworks-tech/agenthood/commit/2b167b9f613b077cd71c613177c27137a8c11b11))
+
 # [3.50.0](https://github.com/fworks-tech/agenthood/compare/v3.49.0...v3.50.0) (2026-09-07)
 
 

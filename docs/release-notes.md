@@ -5,6 +5,14 @@
 
 ---
 
+## v3.51.0 — September 7, 2026
+
+### ✨ Features
+
+- **Cli:** add agenthood completion command for bash/zsh/fish (#724)
+
+---
+
 ## v3.50.0 — September 7, 2026
 
 ### ✨ Features

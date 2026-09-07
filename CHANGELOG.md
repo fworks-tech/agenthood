@@ -1,3 +1,10 @@
+## [3.55.3](https://github.com/fworks-tech/agenthood/compare/v3.55.2...v3.55.3) (2026-09-07)
+
+
+### Bug Fixes
+
+* **llm:** redact secrets from outbound provider requests ([#741](https://github.com/fworks-tech/agenthood/issues/741)) ([719fa92](https://github.com/fworks-tech/agenthood/commit/719fa92ba438c571eb9f9bae8e72d41f9150180f)), closes [#631](https://github.com/fworks-tech/agenthood/issues/631)
+
 ## [3.55.2](https://github.com/fworks-tech/agenthood/compare/v3.55.1...v3.55.2) (2026-09-07)
 
 

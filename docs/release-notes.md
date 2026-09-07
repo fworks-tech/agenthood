@@ -5,6 +5,14 @@
 
 ---
 
+## v3.55.3 — September 7, 2026
+
+### 🐛 Bug Fixes
+
+- **Llm:** redact secrets from outbound provider requests (#741)
+
+---
+
 ## v3.55.2 — September 7, 2026
 
 ### 🐛 Bug Fixes

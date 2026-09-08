@@ -231,13 +231,19 @@ export async function evalMember(args: string[] = []): Promise<void> {
   recordRun(report)
   await finishWithBaseline(report, member, baselinePath, shouldUpdateBaseline, shouldJson)
 
-  if (shouldConvergence) printConvergence(member, suite.name)
+  if (shouldConvergence && !shouldJson) printConvergence(member, suite.name)
 }
 
 function recordRun(report: EvalReport): void {
-  const evaluated = report.tasks.filter((t) => taskPassed(t) !== null)
-  const passedCount = evaluated.filter((t) => taskPassed(t) === true).length
-  const passRate = evaluated.length === 0 ? -1 : Math.round((passedCount / evaluated.length) * 10000) / 10000
+  let passedCount = 0
+  let evaluatedCount = 0
+  for (const t of report.tasks) {
+    const result = taskPassed(t)
+    if (result === null) continue
+    evaluatedCount++
+    if (result) passedCount++
+  }
+  const passRate = evaluatedCount === 0 ? -1 : Math.round((passedCount / evaluatedCount) * 10000) / 10000
   const durationMs = report.tasks.reduce((sum, t) => sum + t.durationMs, 0)
 
   const record: EvalRunRecord = {
@@ -250,7 +256,11 @@ function recordRun(report: EvalReport): void {
     taskCount: report.tasks.length,
     durationMs,
   }
-  new RunHistory(report.member).append(record)
+  try {
+    new RunHistory(report.member).append(record)
+  } catch (err) {
+    console.error(`Warning: failed to record eval history: ${err instanceof Error ? err.message : String(err)}`)
+  }
 }
 
 function printConvergence(member: string, suiteName: string): void {

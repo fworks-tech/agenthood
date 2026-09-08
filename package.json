@@ -125,5 +125,8 @@
     "tree-sitter-python": "0.23.2",
     "tree-sitter-typescript": "0.23.2",
     "zod": "4.1.8"
+  },
+  "overrides": {
+    "js-yaml": "4.3.2"
   }
 }

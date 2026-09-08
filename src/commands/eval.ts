@@ -10,10 +10,12 @@ import type { EvalReport } from '../evals/EvalRunner.ts'
 import { BaselineComparator } from '../evals/BaselineComparator.ts'
 import type { RegressionReport } from '../evals/BaselineComparator.ts'
 import { ApplicationContext } from '../runtime/ApplicationContext.ts'
+import { loadTriggerSet, runTriggerRate } from './evalTriggers.ts'
 import { loadConfigOrExit } from './config.ts'
 import { runReplay } from './evalReplay.ts'
 import type { CommandDescriptor } from './types.ts'
 import type { EvalSuite } from '../evals/types.ts'
+import type { EmbedFn } from '../evals/ReplayEvaluator.ts'
 
 const METRIC_LABELS: Record<string, string> = {
   faithfulness: 'Faith',
@@ -29,6 +31,8 @@ function printUsage(): void {
   --baseline <path>     Baseline file (default .agenthood/baselines/<member>.json)
   --update-baseline     Store this run as the new baseline
   --benchmark <path>    Write a standardized benchmark.json summary
+  --triggers <path>     Score activation trigger rate from a query-set JSON (no suite)
+  --semantic            With --triggers: also score the embedding/description surface (needs a key)
   --replay [--limit N]  Re-run stored traces and compare output drift (no suite)
   --json                Machine-readable JSON output
   --help                Show this help`)
@@ -97,17 +101,20 @@ interface ParsedEvalArgs {
   suitePath: string | undefined
   baselinePath: string | undefined
   benchmarkPath: string | undefined
+  triggersPath: string | undefined
   shouldUpdateBaseline: boolean
   shouldJson: boolean
   shouldReplay: boolean
+  shouldSemantic: boolean
   replayLimit: number
   helpRequested: boolean
 }
 
-const BOOLEAN_FLAGS: Record<string, 'shouldUpdateBaseline' | 'shouldJson' | 'shouldReplay'> = {
+const BOOLEAN_FLAGS: Record<string, 'shouldUpdateBaseline' | 'shouldJson' | 'shouldReplay' | 'shouldSemantic'> = {
   '--json': 'shouldJson',
   '--replay': 'shouldReplay',
   '--update-baseline': 'shouldUpdateBaseline',
+  '--semantic': 'shouldSemantic',
 }
 
 function failUsage(message: string): never {
@@ -118,8 +125,8 @@ function failUsage(message: string): never {
 export function parseEvalArgs(args: string[]): ParsedEvalArgs {
   const positional: string[] = []
   const flags: ParsedEvalArgs = {
-    member: undefined, suitePath: undefined, baselinePath: undefined, benchmarkPath: undefined,
-    shouldUpdateBaseline: false, shouldJson: false, shouldReplay: false, replayLimit: 50, helpRequested: false,
+    member: undefined, suitePath: undefined, baselinePath: undefined, benchmarkPath: undefined, triggersPath: undefined,
+    shouldUpdateBaseline: false, shouldJson: false, shouldReplay: false, shouldSemantic: false, replayLimit: 50, helpRequested: false,
   }
 
   for (let i = 0; i < args.length; i++) {
@@ -131,6 +138,9 @@ export function parseEvalArgs(args: string[]): ParsedEvalArgs {
     switch (args[i]) {
       case '--suite':
         flags.suitePath = args[++i]
+        break
+      case '--triggers':
+        flags.triggersPath = args[++i]
         break
       case '--baseline':
         flags.baselinePath = args[++i]
@@ -163,9 +173,13 @@ export function parseReplayLimit(raw: string | undefined): number {
 }
 
 export async function evalMember(args: string[] = []): Promise<void> {
-  const { member, suitePath, baselinePath, benchmarkPath, shouldUpdateBaseline, shouldJson, shouldReplay, replayLimit, helpRequested } = parseEvalArgs(args)
+  const { member, suitePath, baselinePath, benchmarkPath, triggersPath, shouldUpdateBaseline, shouldJson, shouldReplay, shouldSemantic, replayLimit, helpRequested } = parseEvalArgs(args)
   if (helpRequested) return
 
+  if (triggersPath) {
+    await runTriggers(triggersPath, shouldSemantic)
+    return
+  }
   if (shouldReplay) {
     if (!member) {
       printUsage()
@@ -218,6 +232,27 @@ function loadSuiteOrExit(suitePath: string): EvalSuite {
     }
     throw err
   }
+}
+
+/** Scores activation trigger rates from a query set; loads a provider only for --semantic. */
+async function runTriggers(triggersPath: string, semantic: boolean): Promise<void> {
+  let set
+  try {
+    set = loadTriggerSet(triggersPath)
+  } catch (err) {
+    if (err instanceof SchemaValidationError) {
+      console.error(`Invalid trigger set: ${err.message}`)
+      process.exit(2)
+    }
+    throw err
+  }
+  let embed: EmbedFn | undefined
+  if (semantic) {
+    const config = await loadConfigOrExit()
+    const app = await ApplicationContext.create(process.cwd(), config)
+    embed = (text: string) => app.llm.embed(text)
+  }
+  await runTriggerRate(set, { embed })
 }
 
 async function finishWithBaseline(

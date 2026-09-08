@@ -17,6 +17,7 @@ import { EpisodeLearner } from '../../../src/evals/EpisodeLearner.ts'
 import { MetricsCollector } from '../../../src/memory/MetricsCollector.ts'
 import { AskHumanSignal } from '../../../src/tools/human/AskHumanTool.ts'
 import type { RunEvent } from '../../../src/core/RunEventBus.ts'
+import type { CheckpointStore } from '../../../src/checkpoint/RunCheckpoint.ts'
 import { createTestContext } from '../../helpers/testContext.ts'
 
 function fakeAskHumanProvider(): Record<string, unknown> {
@@ -36,13 +37,14 @@ function fakeAskHumanProvider(): Record<string, unknown> {
   }
 }
 
-function makeRunner(): MemberRunner {
+function makeRunner(checkpointStore?: CheckpointStore): MemberRunner {
   const runner = new MemberRunner({
     agents: new AgentRegistry(),
     members: new MemberRegistry(),
     episodeLearner: new EpisodeLearner(),
     anomalyDetector: new AnomalyDetector(),
     alertsPath: 'test-alerts.ndjson',
+    checkpointStore,
   })
   runner.ctx = createTestContext()
   return runner
@@ -75,5 +77,35 @@ describe('MemberRunner ask_human park', () => {
     } finally {
       recordSpy.mockRestore()
     }
+  })
+})
+
+function fakeCompletingProvider(): Record<string, unknown> {
+  return {
+    complete: vi.fn().mockResolvedValue({
+      content: 'all done',
+      toolCalls: [],
+      usage: { promptTokens: 3, completionTokens: 2, totalTokens: 5 },
+      model: 'mock-model',
+    }),
+    stream: vi.fn(),
+    embed: vi.fn(),
+    getContextWindow: () => 8192,
+    setModel: vi.fn(),
+  }
+}
+
+describe('MemberRunner checkpoint store injection', () => {
+  it('routes save and updateStatus through the injected CheckpointStore', async () => {
+    vi.mocked(LLMRouter.createForMember).mockResolvedValue(fakeCompletingProvider() as never)
+    const store: CheckpointStore = { load: vi.fn(), save: vi.fn(), updateStatus: vi.fn() }
+    const runner = makeRunner(store)
+
+    await runner.runMemberTask('the-builder', 'ship it', {} as never)
+
+    expect(store.save).toHaveBeenCalledWith(
+      expect.objectContaining({ member: 'the-builder', task: 'ship it', status: 'running' }),
+    )
+    expect(store.updateStatus).toHaveBeenCalledWith(expect.any(String), 'completed')
   })
 })

@@ -12,6 +12,7 @@ export interface CheckpointMessage {
   role: 'system' | 'user' | 'assistant' | 'tool'
   content: string
   toolCallId?: string
+  toolCalls?: { id: string; name: string; args: unknown }[]
 }
 
 export interface CheckpointUsage {

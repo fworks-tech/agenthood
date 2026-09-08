@@ -3,7 +3,7 @@ import type { ExecutionContext } from '../core/ExecutionContext.ts'
 import type { AnomalyDetector } from '../core/AnomalyDetector.ts'
 import { appendAnomalies } from '../core/AnomalyDetector.ts'
 import { LLMRouter } from '../llm/LLMRouter.ts'
-import type { LLMConfig } from '../llm/types.ts'
+import type { LLMConfig, Message } from '../llm/types.ts'
 import { MemberAgent } from '../members/index.ts'
 import type { MemberRegistry } from '../members/MemberRegistry.ts'
 import type { ProviderName } from '../members/types.ts'
@@ -56,7 +56,7 @@ export class MemberRunner {
    *
    * @param resumeFrom - optional checkpoint ID to resume from
    */
-  async runMemberTask(memberName: string, task: string, config: LLMConfig, resumeFrom?: string): Promise<MemberRunResult> {
+  async runMemberTask(memberName: string, task: string, config: LLMConfig, resumeFrom?: string | { checkpointId: string; reply?: string }): Promise<MemberRunResult> {
     if (!this.deps.members.has(memberName)) throw new Error(`unknown member "${memberName}"`)
 
     const spec = this.deps.members.get(memberName)
@@ -67,12 +67,19 @@ export class MemberRunner {
 
     const checkpointStore = this.deps.checkpointStore ?? new RunCheckpoint(process.cwd())
     const checkpointData = this.prepareCheckpoint(checkpointStore, spec, task, resumeFrom)
+    const seedMessages = this.resumeSeed(checkpointData, resumeFrom)
 
     const loop = new ReActLoop(llm, sReg, {
       interactive: config.interactive,
+      seedMessages,
       onStepComplete: (step, messages, usage, model) => {
         checkpointData.step = step
-        checkpointData.messages = messages.map((m) => ({ role: m.role, content: m.content, toolCallId: m.tool_call_id }))
+        checkpointData.messages = messages.map((m) => ({
+          role: m.role,
+          content: m.content,
+          toolCallId: m.tool_call_id,
+          ...(m.toolCalls ? { toolCalls: m.toolCalls } : {}),
+        }))
         checkpointData.usage = { ...usage }
         checkpointData.model = model
         checkpointData.activatedSkills = Array.from(loop.activatedSkills)
@@ -154,11 +161,17 @@ export class MemberRunner {
   }
 
   /** Loads an existing checkpoint or creates and persists a fresh running one. */
-  private prepareCheckpoint(store: CheckpointStore, spec: { name: string }, task: string, resumeFrom?: string): CheckpointData {
-    if (resumeFrom) {
-      const existing = store.load(resumeFrom)
-      if (!existing) throw new Error(`checkpoint "${resumeFrom}" not found`)
-      console.log(`\n  Resuming from step ${existing.step} (checkpoint ${resumeFrom})\n`)
+  private prepareCheckpoint(
+    store: CheckpointStore,
+    spec: { name: string },
+    task: string,
+    resumeFrom?: string | { checkpointId: string; reply?: string },
+  ): CheckpointData {
+    const resumeId = typeof resumeFrom === 'string' ? resumeFrom : resumeFrom?.checkpointId
+    if (resumeId) {
+      const existing = store.load(resumeId)
+      if (!existing) throw new Error(`checkpoint "${resumeId}" not found`)
+      console.log(`\n  Resuming from step ${existing.step} (checkpoint ${resumeId})\n`)
       return existing
     }
     const checkpointData: CheckpointData = {
@@ -176,6 +189,27 @@ export class MemberRunner {
     }
     store.save(checkpointData)
     return checkpointData
+  }
+
+  /** Replays checkpoint history for the loop, closing a dangling ask_human tool call with the human reply. */
+  private resumeSeed(
+    cp: CheckpointData,
+    resumeFrom?: string | { checkpointId: string; reply?: string },
+  ): Message[] | undefined {
+    if (!resumeFrom) return undefined
+    const messages: Message[] = cp.messages.map((m) => ({
+      role: m.role,
+      content: m.content,
+      ...(m.toolCallId ? { tool_call_id: m.toolCallId } : {}),
+      ...(m.toolCalls ? { toolCalls: m.toolCalls } : {}),
+    }))
+    const last = messages[messages.length - 1]
+    const pendingAsk = last?.role === 'assistant' ? last.toolCalls?.find((t) => t.name === 'ask_human') : undefined
+    if (pendingAsk) {
+      const reply = typeof resumeFrom === 'object' ? resumeFrom.reply : undefined
+      messages.push({ role: 'tool', content: reply ?? '(no reply provided)', tool_call_id: pendingAsk.id })
+    }
+    return messages
   }
 
   /** Fallback for non-member agent names (core agents). */

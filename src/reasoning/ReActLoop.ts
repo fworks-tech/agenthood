@@ -63,6 +63,7 @@ export interface ReActLoopOptions {
   maxSteps?: number
   onStepComplete?: (step: number, messages: Message[], usage: TokenUsage, model: string) => void
   interactive?: boolean
+  seedMessages?: Message[]
 }
 
 export class ReActLoop {
@@ -97,6 +98,7 @@ export class ReActLoop {
   private readonly maxSteps: number
   private readonly onStepComplete?: (step: number, messages: Message[], usage: TokenUsage, model: string) => void
   private readonly interactive: boolean
+  private readonly seedMessages?: Message[]
 
   constructor(
     private llm: ILLMProvider,
@@ -110,6 +112,7 @@ export class ReActLoop {
     this.maxSteps = options.maxSteps ?? 100
     this.onStepComplete = options.onStepComplete
     this.interactive = options.interactive ?? false
+    this.seedMessages = options.seedMessages
   }
 
   async run(
@@ -123,10 +126,15 @@ export class ReActLoop {
     let guardBlock = ''
     if (!systemPrompt.includes(USER_QUERY_GUARD)) guardBlock += `\n\n${USER_QUERY_GUARD}`
     if (!systemPrompt.includes(TOOL_OUTPUT_GUARD)) guardBlock += `\n\n${TOOL_OUTPUT_GUARD}`
-    const messages: Message[] = [
-      { role: "system", content: systemPrompt + guardBlock },
-      { role: "user", content: wrapUserQuery(userInput) },
-    ];
+    const messages: Message[] = this.seedMessages?.length
+      ? [
+          { role: "system", content: systemPrompt + guardBlock },
+          ...this.seedMessages.filter((m) => m.role !== "system"),
+        ]
+      : [
+          { role: "system", content: systemPrompt + guardBlock },
+          { role: "user", content: wrapUserQuery(userInput) },
+        ];
 
     this.usage = { promptTokens: 0, completionTokens: 0, totalTokens: 0 };
     this._model = "";
@@ -149,7 +157,15 @@ export class ReActLoop {
         return response.content;
       }
 
-      await this.runToolCalls(response.toolCalls, messages, recentCalls, step, context);
+      try {
+        await this.runToolCalls(response.toolCalls, messages, recentCalls, step, context);
+      } catch (err) {
+        // a park must land in the checkpoint with its dangling ask_human call
+        if (err instanceof AskHumanSignal) {
+          this.onStepComplete?.(step, messages, { ...this.usage }, this._model);
+        }
+        throw err;
+      }
 
       this.onStepComplete?.(step, messages, { ...this.usage }, this._model);
 

@@ -108,4 +108,98 @@ describe('MemberRunner checkpoint store injection', () => {
     )
     expect(store.updateStatus).toHaveBeenCalledWith(expect.any(String), 'completed')
   })
+
+  it('checkpoints the park step with its dangling ask_human tool call', async () => {
+    vi.mocked(LLMRouter.createForMember).mockResolvedValue(fakeAskHumanProvider() as never)
+    const store: CheckpointStore = { load: vi.fn(), save: vi.fn(), updateStatus: vi.fn() }
+    const runner = makeRunner(store)
+
+    await runner.runMemberTask('the-builder', 'deploy the app', {} as never).catch(() => undefined)
+
+    expect(store.save).toHaveBeenLastCalledWith(
+      expect.objectContaining({
+        messages: expect.arrayContaining([
+          expect.objectContaining({
+            role: 'assistant',
+            toolCalls: expect.arrayContaining([expect.objectContaining({ name: 'ask_human' })]),
+          }),
+        ]),
+      }),
+    )
+  })
+})
+
+describe('MemberRunner resume(seed) parity', () => {
+  it('replays checkpoint messages and answers the pending ask_human call with the reply', async () => {
+    const provider = fakeCompletingProvider()
+    vi.mocked(LLMRouter.createForMember).mockResolvedValue(provider as never)
+    const cp = {
+      id: 'cp-1',
+      member: 'the-builder',
+      task: 'deploy the app',
+      step: 2,
+      messages: [
+        { role: 'system' as const, content: 'old system' },
+        { role: 'user' as const, content: 'deploy the app' },
+        {
+          role: 'assistant' as const,
+          content: 'need input',
+          toolCalls: [{ id: 'call_1', name: 'ask_human', args: { question: 'Which region?' } }],
+        },
+      ],
+      usage: { promptTokens: 0, completionTokens: 0, totalTokens: 0 },
+      model: 'mock-model',
+      activatedSkills: [],
+      status: 'running' as const,
+      createdAt: '2026-01-01T00:00:00.000Z',
+      updatedAt: '2026-01-01T00:00:00.000Z',
+    }
+    const store: CheckpointStore = { load: vi.fn().mockReturnValue(cp), save: vi.fn(), updateStatus: vi.fn() }
+    const runner = makeRunner(store)
+
+    await runner.runMemberTask('the-builder', 'deploy the app', {} as never, { checkpointId: 'cp-1', reply: 'us-east' })
+
+    const sent: { role: string; content: string; tool_call_id?: string }[] =
+      provider.complete.mock.calls[0][0].messages
+    expect(store.load).toHaveBeenCalledWith('cp-1')
+    expect(sent[0].role).toBe('system')
+    expect(sent.some((m) => m.role === 'user' && m.content.includes('deploy the app'))).toBe(true)
+    expect(sent).toContainEqual(
+      expect.objectContaining({ role: 'tool', content: 'us-east', tool_call_id: 'call_1' }),
+    )
+  })
+
+  it('bare resumeFrom keeps a dangling ask_human call provider-valid', async () => {
+    const provider = fakeCompletingProvider()
+    vi.mocked(LLMRouter.createForMember).mockResolvedValue(provider as never)
+    const cp = {
+      id: 'cp-2',
+      member: 'the-builder',
+      task: 'deploy the app',
+      step: 1,
+      messages: [
+        { role: 'user' as const, content: 'deploy the app' },
+        {
+          role: 'assistant' as const,
+          content: 'need input',
+          toolCalls: [{ id: 'call_9', name: 'ask_human', args: { question: 'ok?' } }],
+        },
+      ],
+      usage: { promptTokens: 0, completionTokens: 0, totalTokens: 0 },
+      model: 'mock-model',
+      activatedSkills: [],
+      status: 'running' as const,
+      createdAt: '2026-01-01T00:00:00.000Z',
+      updatedAt: '2026-01-01T00:00:00.000Z',
+    }
+    const store: CheckpointStore = { load: vi.fn().mockReturnValue(cp), save: vi.fn(), updateStatus: vi.fn() }
+    const runner = makeRunner(store)
+
+    await runner.runMemberTask('the-builder', 'deploy the app', {} as never, 'cp-2')
+
+    const sent = provider.complete.mock.calls[0][0].messages
+    expect(sent).toContainEqual(
+      expect.objectContaining({ role: 'tool', tool_call_id: 'call_9' }),
+    )
+  })
 })

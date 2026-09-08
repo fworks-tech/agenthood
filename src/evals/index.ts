@@ -24,5 +24,8 @@ export type {
 } from "./EvalRunner.ts"
 export { BaselineComparator, DEFAULT_THRESHOLD } from "./BaselineComparator.ts"
 export type { MetricDelta, RegressionReport, BaselineRecord } from "./BaselineComparator.ts"
+export { gradeAssertion, gradeAssertions, DEFAULT_ASSERTION_THRESHOLD } from "./AssertionJudge.ts"
+export type { AssertionResult, AssertionGrade } from "./AssertionJudge.ts"
+export type { Assertion, AssertionType } from "./types.ts"
 export { ReplayEvaluator } from "./ReplayEvaluator.ts"
 export type { ReplayTaskScore, ReplayReport, EmbedFn } from "./ReplayEvaluator.ts"

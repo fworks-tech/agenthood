@@ -101,3 +101,41 @@ describe('eval suite schema', () => {
     expect(() => loadEvalSuite(bad)).toThrow(SchemaValidationError)
   })
 })
+
+describe('eval suite schema — assertions', () => {
+  it('accepts tasks carrying assertions', () => {
+    const suite = {
+      name: 'a',
+      tasks: [
+        {
+          input: 'q',
+          expectedOutput: 'e',
+          assertions: [
+            { type: 'contains', target: 'x' },
+            { type: 'semantic', target: 'y', threshold: 0.7, weight: 2 },
+            { type: 'regex', target: '^z', flags: 'i' },
+          ],
+        },
+      ],
+    }
+    expect(() => validateEvalSuite(suite)).not.toThrow()
+  })
+
+  it('rejects an unknown assertion type', () => {
+    const suite = { name: 'a', tasks: [{ input: 'q', expectedOutput: 'e', assertions: [{ type: 'nope', target: 'x' }] }] }
+    expect(() => validateEvalSuite(suite)).toThrow(SchemaValidationError)
+  })
+
+  it('rejects an assertion missing target', () => {
+    const suite = { name: 'a', tasks: [{ input: 'q', expectedOutput: 'e', assertions: [{ type: 'exact' }] }] }
+    expect(() => validateEvalSuite(suite)).toThrow(SchemaValidationError)
+  })
+
+  it('rejects an out-of-range threshold', () => {
+    const suite = {
+      name: 'a',
+      tasks: [{ input: 'q', expectedOutput: 'e', assertions: [{ type: 'semantic', target: 'x', threshold: 2 }] }],
+    }
+    expect(() => validateEvalSuite(suite)).toThrow(SchemaValidationError)
+  })
+})

@@ -5,6 +5,14 @@
 
 ---
 
+## v3.58.0 — September 8, 2026
+
+### ✨ Features
+
+- **Evals:** capture token usage and emit a standardized benchmark.json (#765) #560
+
+---
+
 ## v3.57.0 — September 8, 2026
 
 ### ✨ Features

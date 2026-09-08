@@ -5,6 +5,14 @@
 
 ---
 
+## v3.60.0 — September 8, 2026
+
+### ✨ Features
+
+- **Evals:** add skill regression testing with iteration tracking and convergence detection (#775)
+
+---
+
 ## v3.59.2 — September 8, 2026
 
 ### 🐛 Bug Fixes

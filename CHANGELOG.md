@@ -1,3 +1,10 @@
+# [3.60.0](https://github.com/fworks-tech/agenthood/compare/v3.59.2...v3.60.0) (2026-09-08)
+
+
+### Features
+
+* **evals:** add skill regression testing with iteration tracking and convergence detection ([#775](https://github.com/fworks-tech/agenthood/issues/775)) ([7de2da8](https://github.com/fworks-tech/agenthood/commit/7de2da8d7b4ed997392e8f8030b2db073f30755c)), closes [#562](https://github.com/fworks-tech/agenthood/issues/562)
+
 ## [3.59.2](https://github.com/fworks-tech/agenthood/compare/v3.59.1...v3.59.2) (2026-09-08)
 
 

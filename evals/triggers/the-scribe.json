@@ -1,0 +1,16 @@
+{
+  "member": "the-scribe",
+  "shouldTrigger": [
+    "write a commit message for the current diff",
+    "draft the changelog entry for this release",
+    "prepare the PR description",
+    "generate release notes for v3.58",
+    "add a conventional commit for these staged changes"
+  ],
+  "shouldNotTrigger": [
+    "debug the segmentation fault in the parser",
+    "audit the dependencies for known vulnerabilities",
+    "write unit tests for the router",
+    "refactor this 200-line function into smaller ones"
+  ]
+}

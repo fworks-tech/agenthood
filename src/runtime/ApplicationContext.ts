@@ -44,6 +44,7 @@ import { ReviewerAgent } from '../agents/ReviewerAgent.ts'
 import { QAAgent } from '../agents/QAAgent.ts'
 import { OracleAgent } from '../agents/OracleAgent.ts'
 import { MemberRunner } from './MemberRunner.ts'
+import type { CheckpointStore } from '../checkpoint/RunCheckpoint.ts'
 import { connectVectorStore, discoverSkills, loadSocietyGraph } from './contextSetup.ts'
 
 /** Composition root for `agenthood run` — commands consume one of these. */
@@ -52,6 +53,7 @@ export interface ApplicationContextOptions {
   vectorStore: LanceDBStore
   skills: { catalog: string; manifests: Map<string, ISkillManifest> }
   sentry?: { dsn?: string }
+  checkpointStore?: CheckpointStore
 }
 
 export class ApplicationContext {
@@ -73,7 +75,7 @@ export class ApplicationContext {
     llm: ILLMProvider,
     options: ApplicationContextOptions,
   ) {
-    const { societyGraph, vectorStore, skills, sentry } = options
+    const { societyGraph, vectorStore, skills, sentry, checkpointStore } = options
     this.llm = llm
     this.societyGraph = societyGraph
     this.agents = new AgentRegistry()
@@ -128,11 +130,16 @@ export class ApplicationContext {
       episodeLearner: this.episodeLearner,
       anomalyDetector: this.anomalyDetector,
       alertsPath: this.alertsPath,
+      checkpointStore,
     })
     this.runner.ctx = this.ctx
   }
 
-  static async create(projectPath: string, config: LLMConfig): Promise<ApplicationContext> {
+  static async create(
+    projectPath: string,
+    config: LLMConfig,
+    host?: { checkpointStore?: CheckpointStore },
+  ): Promise<ApplicationContext> {
     const llm = await LLMRouter.create(config)
     const societyGraph = loadSocietyGraph(projectPath)
     const skills = await discoverSkills(projectPath)
@@ -142,6 +149,7 @@ export class ApplicationContext {
       vectorStore,
       skills,
       sentry: config.sentry,
+      checkpointStore: host?.checkpointStore,
     })
     try {
       await reindexLegacyPatterns(new EmbeddingIndex(vectorStore), vectorStore, (text) => llm.embed(text))

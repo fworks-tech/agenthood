@@ -1,10 +1,3 @@
-# [3.58.0](https://github.com/fworks-tech/agenthood/compare/v3.57.0...v3.58.0) (2026-09-08)
-
-
-### Features
-
-* **evals:** capture token usage and emit a standardized benchmark.json ([#765](https://github.com/fworks-tech/agenthood/issues/765)) ([ae76abc](https://github.com/fworks-tech/agenthood/commit/ae76abcbce3a3b6ebc08e126dbea54ca66921bb2)), closes [#596](https://github.com/fworks-tech/agenthood/issues/596) [#560](https://github.com/fworks-tech/agenthood/issues/560)
-
 # [3.57.0](https://github.com/fworks-tech/agenthood/compare/v3.56.6...v3.57.0) (2026-09-08)
 
 

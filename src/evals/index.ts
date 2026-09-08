@@ -29,5 +29,15 @@ export type { AssertionResult, AssertionGrade } from "./AssertionJudge.ts"
 export type { Assertion, AssertionType } from "./types.ts"
 export { buildBenchmark, taskPassed, DEFAULT_PASS_THRESHOLD } from "./benchmark.ts"
 export type { Benchmark, BenchmarkTask } from "./benchmark.ts"
+export {
+  keywordPredictor,
+  semanticPredictor,
+  scoreTriggers,
+  splitTriggers,
+  triggerRecommendations,
+  validateTriggerQuerySet,
+  TRIGGER_QUERY_SET_SCHEMA,
+} from "./trigger.ts"
+export type { TriggerQuerySet, TriggerMetrics, Predictor, SplitSets } from "./trigger.ts"
 export { ReplayEvaluator } from "./ReplayEvaluator.ts"
 export type { ReplayTaskScore, ReplayReport, EmbedFn } from "./ReplayEvaluator.ts"

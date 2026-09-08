@@ -37,6 +37,13 @@ export interface CheckpointData {
 const CHECKPOINT_DIR = '.agenthood/checkpoints'
 const DEFAULT_TTL_DAYS = 7
 
+/** The subset of RunCheckpoint the runner depends on — hosts may substitute their own store. */
+export interface CheckpointStore {
+  load(id: string): CheckpointData | undefined
+  save(data: CheckpointData): void
+  updateStatus(id: string, status: CheckpointData['status']): void
+}
+
 function getCheckpointDir(cwd: string): string {
   return join(cwd, CHECKPOINT_DIR)
 }

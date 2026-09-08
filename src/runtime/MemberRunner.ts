@@ -15,7 +15,7 @@ import { ReActLoop } from '../reasoning/ReActLoop.ts'
 import { ToolRegistry } from '../tools/ToolRegistry.ts'
 import { AskHumanSignal, AskHumanTool } from '../tools/human/AskHumanTool.ts'
 import { redactEventText } from '../core/RunEventBus.ts'
-import { RunCheckpoint, type CheckpointData } from '../checkpoint/RunCheckpoint.ts'
+import { RunCheckpoint, type CheckpointData, type CheckpointStore } from '../checkpoint/RunCheckpoint.ts'
 
 export interface MemberRunnerDeps {
   agents: AgentRegistry
@@ -23,6 +23,7 @@ export interface MemberRunnerDeps {
   episodeLearner: EpisodeLearner
   anomalyDetector: AnomalyDetector
   alertsPath: string
+  checkpointStore?: CheckpointStore
 }
 
 /**
@@ -64,7 +65,7 @@ export class MemberRunner {
     const sReg = new ToolRegistry()
     if (!sReg.has('ask_human')) sReg.register(new AskHumanTool())
 
-    const checkpointStore = new RunCheckpoint(process.cwd())
+    const checkpointStore = this.deps.checkpointStore ?? new RunCheckpoint(process.cwd())
     const checkpointData = this.prepareCheckpoint(checkpointStore, spec, task, resumeFrom)
 
     const loop = new ReActLoop(llm, sReg, {
@@ -153,7 +154,7 @@ export class MemberRunner {
   }
 
   /** Loads an existing checkpoint or creates and persists a fresh running one. */
-  private prepareCheckpoint(store: RunCheckpoint, spec: { name: string }, task: string, resumeFrom?: string): CheckpointData {
+  private prepareCheckpoint(store: CheckpointStore, spec: { name: string }, task: string, resumeFrom?: string): CheckpointData {
     if (resumeFrom) {
       const existing = store.load(resumeFrom)
       if (!existing) throw new Error(`checkpoint "${resumeFrom}" not found`)

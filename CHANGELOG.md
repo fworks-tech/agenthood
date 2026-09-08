@@ -1,3 +1,10 @@
+# [3.57.0](https://github.com/fworks-tech/agenthood/compare/v3.56.6...v3.57.0) (2026-09-08)
+
+
+### Features
+
+* **evals:** add assertion-based output grading to the eval harness ([#763](https://github.com/fworks-tech/agenthood/issues/763)) ([c52143c](https://github.com/fworks-tech/agenthood/commit/c52143c4abb7de578c65df226ba54aa321ed2aca)), closes [#559](https://github.com/fworks-tech/agenthood/issues/559)
+
 ## [3.56.6](https://github.com/fworks-tech/agenthood/compare/v3.56.5...v3.56.6) (2026-09-07)
 
 

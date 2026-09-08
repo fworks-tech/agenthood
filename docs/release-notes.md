@@ -5,6 +5,14 @@
 
 ---
 
+## v3.57.0 — September 8, 2026
+
+### ✨ Features
+
+- **Evals:** add assertion-based output grading to the eval harness (#763)
+
+---
+
 ## v3.56.6 — September 7, 2026
 
 ### 🐛 Bug Fixes

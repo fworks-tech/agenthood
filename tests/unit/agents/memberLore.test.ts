@@ -1,5 +1,5 @@
 import { describe, it, expect, vi } from 'vitest'
-import { buildLorePrompt, escapeXml, wrapProjectContext, wrapUserQuery, USER_QUERY_GUARD, stripFrontmatter, MIND_VIRUS_IMMUNITY_WARNING } from '../../../src/agents/memberLore.ts'
+import { buildLorePrompt, escapeXml, wrapProjectContext, wrapUserQuery, USER_QUERY_GUARD, stripFrontmatter, extractFrontmatterField, MIND_VIRUS_IMMUNITY_WARNING } from '../../../src/agents/memberLore.ts'
 import { createTestContext } from '../../helpers/testContext.ts'
 
 describe('MIND_VIRUS_IMMUNITY_WARNING', () => {
@@ -128,5 +128,27 @@ describe('buildLorePrompt', () => {
   it('strips frontmatter delimiters', () => {
     expect(stripFrontmatter('---\ntitle: x\n---\nbody')).toBe('body')
     expect(stripFrontmatter('no frontmatter')).toBe('no frontmatter')
+  })
+})
+
+describe('extractFrontmatterField', () => {
+  it('extracts a present field', () => {
+    expect(extractFrontmatterField('---\ntitle: hello\n---\nbody', 'title')).toBe('hello')
+  })
+
+  it('returns undefined for a missing field', () => {
+    expect(extractFrontmatterField('---\ntitle: hello\n---\nbody', 'absent')).toBeUndefined()
+  })
+
+  it('returns undefined when there is no frontmatter', () => {
+    expect(extractFrontmatterField('no frontmatter here', 'title')).toBeUndefined()
+  })
+
+  it('strips surrounding double quotes', () => {
+    expect(extractFrontmatterField('---\npattern: "^## .+$"\n---\nbody', 'pattern')).toBe('^## .+$')
+  })
+
+  it('matches field names exactly', () => {
+    expect(extractFrontmatterField('---\nformat: a\noutput_format: b\n---\nbody', 'output_format')).toBe('b')
   })
 })

@@ -14,6 +14,7 @@ import type { EpisodeLearner } from '../evals/EpisodeLearner.ts'
 import { ReActLoop } from '../reasoning/ReActLoop.ts'
 import { ToolRegistry } from '../tools/ToolRegistry.ts'
 import { AskHumanSignal, AskHumanTool } from '../tools/human/AskHumanTool.ts'
+import { validateOutputFormat, reportFormatDeviation } from './outputFormat.ts'
 import { redactEventText } from '../core/RunEventBus.ts'
 import { RunCheckpoint, type CheckpointData, type CheckpointStore } from '../checkpoint/RunCheckpoint.ts'
 
@@ -112,6 +113,10 @@ export class MemberRunner {
       })
 
       const result = await agent.run(task, this.ctx)
+      if (spec.output_format) {
+        const { valid, message } = validateOutputFormat(result.output, spec.output_format)
+        if (!valid) reportFormatDeviation(message, spec.output_format_mode ?? 'lenient')
+      }
       const duration = Math.round(performance.now() - startTime)
       metricsCollector.record(memberName, true, duration)
       checkpointStore.updateStatus(checkpointData.id, 'completed')

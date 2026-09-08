@@ -1,4 +1,4 @@
-import { describe, it, expect, vi } from 'vitest'
+import { describe, it, expect, vi, beforeEach } from 'vitest'
 
 vi.mock('../../../src/llm/LLMRouter.ts', () => ({
   LLMRouter: {
@@ -201,5 +201,41 @@ describe('MemberRunner resume(seed) parity', () => {
     expect(sent).toContainEqual(
       expect.objectContaining({ role: 'tool', tool_call_id: 'call_9' }),
     )
+  })
+})
+
+describe('MemberRunner output_format validation', () => {
+  beforeEach(() => {
+    vi.mocked(LLMRouter.createForMember).mockResolvedValue(fakeCompletingProvider() as never)
+  })
+
+  function runnerWithFormat(output_format: string, mode: 'strict' | 'lenient' = 'lenient'): MemberRunner {
+    const runner = makeRunner()
+    const spec = { ...runner.deps.members.get('the-builder'), output_format, output_format_mode: mode }
+    vi.spyOn(runner.deps.members, 'get').mockReturnValue(spec)
+    return runner
+  }
+
+  it('does nothing when output matches the declared pattern', async () => {
+    const runner = runnerWithFormat('^all done$')
+    const { output } = await runner.runMemberTask('the-builder', 'ship it', {} as never)
+    expect(output).toBe('all done')
+  })
+
+  it('warns and continues in lenient mode on a deviation', async () => {
+    const warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {})
+    try {
+      const runner = runnerWithFormat('^## Plan', 'lenient')
+      const { output } = await runner.runMemberTask('the-builder', 'ship it', {} as never)
+      expect(output).toBe('all done')
+      expect(warnSpy).toHaveBeenCalledWith(expect.stringContaining('output_format deviation'))
+    } finally {
+      warnSpy.mockRestore()
+    }
+  })
+
+  it('throws OutputFormatError in strict mode on a deviation', async () => {
+    const runner = runnerWithFormat('^## Plan', 'strict')
+    await expect(runner.runMemberTask('the-builder', 'ship it', {} as never)).rejects.toThrow(/output_format deviation/)
   })
 })

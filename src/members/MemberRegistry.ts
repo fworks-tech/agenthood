@@ -12,7 +12,7 @@ import { join, dirname } from 'node:path'
 import { fileURLToPath } from 'node:url'
 import type { MemberSpec, PermissionProfile, MemberCategory } from './types.ts'
 import { rawSpecs } from './member-specs.ts'
-import { stripFrontmatter } from '../agents/memberLore.ts'
+import { stripFrontmatter, extractFrontmatterField } from '../agents/memberLore.ts'
 
 const __filename = fileURLToPath(import.meta.url)
 const __dirname = dirname(__filename)
@@ -38,12 +38,16 @@ export class MemberRegistry {
     for (const raw of rawSpecs) {
       const skillPath = join(MEMBERS_DIR, raw.name, 'SKILL.md')
       let systemPrompt = ''
+      let outputFormat: string | undefined
+      let outputFormatMode: 'strict' | 'lenient' | undefined
 
       if (existsSync(skillPath)) {
         const content = readFileSync(skillPath, 'utf-8')
         // Strip YAML front-matter (--- ... ---) leaving only the prompt body
         const body = stripFrontmatter(content).trim()
         systemPrompt = body
+        outputFormat = extractFrontmatterField(content, 'output_format')
+        outputFormatMode = extractFrontmatterField(content, 'output_format_mode') as 'strict' | 'lenient' | undefined
       }
 
       this.specs.set(raw.name, {
@@ -57,6 +61,8 @@ export class MemberRegistry {
         systemPrompt,
         sourcePath: skillPath,
         canDelegate: raw.canDelegate,
+        output_format: outputFormat,
+        output_format_mode: outputFormatMode,
       })
     }
   }

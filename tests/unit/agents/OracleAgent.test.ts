@@ -1,4 +1,7 @@
 import { describe, it, expect, vi } from 'vitest'
+import { mkdtempSync } from 'node:fs'
+import { tmpdir } from 'node:os'
+import { join } from 'node:path'
 import { OracleAgent } from '../../../src/agents/OracleAgent.ts'
 import { MIND_VIRUS_IMMUNITY_WARNING } from '../../../src/agents/memberLore.ts'
 import { ReActLoop } from '../../../src/reasoning/ReActLoop.ts'
@@ -33,6 +36,9 @@ function mockEnv(): { agent: OracleAgent; context: ExecutionContext } {
   const base = createTestContext()
   const context: ExecutionContext = {
     ...base,
+    // empty project dir: trace envelopes resolve baselines under localPath,
+    // so the test must not read the repo's real .agenthood/baselines
+    project: { ...base.project, localPath: mkdtempSync(join(tmpdir(), 'agenthood-oracle-')) },
     memory: {
       ...base.memory,
       episodic: {

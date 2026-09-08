@@ -1,7 +1,9 @@
-import { join } from 'node:path'
+import { join, dirname } from 'node:path'
+import { writeFileSync, mkdirSync } from 'node:fs'
 
 import { SchemaValidationError } from '../core/SchemaValidator.ts'
 import { loadEvalSuite } from '../evals/evalSuiteSchema.ts'
+import { buildBenchmark } from '../evals/benchmark.ts'
 import { LLMJudge } from '../evals/EvalJudge.ts'
 import { EvalRunner } from '../evals/EvalRunner.ts'
 import type { EvalReport } from '../evals/EvalRunner.ts'
@@ -26,6 +28,7 @@ function printUsage(): void {
   --suite <path>        Eval suite file (see evals/benchmarks/)
   --baseline <path>     Baseline file (default .agenthood/baselines/<member>.json)
   --update-baseline     Store this run as the new baseline
+  --benchmark <path>    Write a standardized benchmark.json summary
   --replay [--limit N]  Re-run stored traces and compare output drift (no suite)
   --json                Machine-readable JSON output
   --help                Show this help`)
@@ -93,6 +96,7 @@ interface ParsedEvalArgs {
   member: string | undefined
   suitePath: string | undefined
   baselinePath: string | undefined
+  benchmarkPath: string | undefined
   shouldUpdateBaseline: boolean
   shouldJson: boolean
   shouldReplay: boolean
@@ -114,7 +118,7 @@ function failUsage(message: string): never {
 export function parseEvalArgs(args: string[]): ParsedEvalArgs {
   const positional: string[] = []
   const flags: ParsedEvalArgs = {
-    member: undefined, suitePath: undefined, baselinePath: undefined,
+    member: undefined, suitePath: undefined, baselinePath: undefined, benchmarkPath: undefined,
     shouldUpdateBaseline: false, shouldJson: false, shouldReplay: false, replayLimit: 50, helpRequested: false,
   }
 
@@ -130,6 +134,9 @@ export function parseEvalArgs(args: string[]): ParsedEvalArgs {
         break
       case '--baseline':
         flags.baselinePath = args[++i]
+        break
+      case '--benchmark':
+        flags.benchmarkPath = args[++i]
         break
       case '--limit':
         flags.replayLimit = parseReplayLimit(args[++i])
@@ -156,7 +163,7 @@ export function parseReplayLimit(raw: string | undefined): number {
 }
 
 export async function evalMember(args: string[] = []): Promise<void> {
-  const { member, suitePath, baselinePath, shouldUpdateBaseline, shouldJson, shouldReplay, replayLimit, helpRequested } = parseEvalArgs(args)
+  const { member, suitePath, baselinePath, benchmarkPath, shouldUpdateBaseline, shouldJson, shouldReplay, replayLimit, helpRequested } = parseEvalArgs(args)
   if (helpRequested) return
 
   if (shouldReplay) {
@@ -187,7 +194,18 @@ export async function evalMember(args: string[] = []): Promise<void> {
   const judge = new LLMJudge(app.llm)
   const report = await new EvalRunner(runner, judge, { embed: (text) => app.llm.embed(text) }).run(suite, member)
 
+  if (benchmarkPath) writeBenchmark(report, benchmarkPath, config)
+
   await finishWithBaseline(report, member, baselinePath, shouldUpdateBaseline, shouldJson)
+}
+
+/** Persists a standardized benchmark.json and prints a one-line summary. */
+function writeBenchmark(report: EvalReport, benchmarkPath: string, config: { provider?: string; model?: string }): void {
+  const benchmark = buildBenchmark(report, { provider: config.provider, model: config.model })
+  mkdirSync(dirname(benchmarkPath), { recursive: true })
+  writeFileSync(benchmarkPath, `${JSON.stringify(benchmark, null, 2)}\n`, 'utf8')
+  const pct = benchmark.passRate === null ? 'n/a' : `${(benchmark.passRate * 100).toFixed(0)}%`
+  console.log(`\n  Benchmark: ${benchmarkPath} — pass_rate ${pct}, avg ${benchmark.avgTimeMs ?? 0}ms, ${benchmark.avgTokens ?? 0} tok\n`)
 }
 
 function loadSuiteOrExit(suitePath: string): EvalSuite {

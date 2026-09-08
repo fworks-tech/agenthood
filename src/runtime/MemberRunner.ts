@@ -65,30 +65,7 @@ export class MemberRunner {
     if (!sReg.has('ask_human')) sReg.register(new AskHumanTool())
 
     const checkpointStore = new RunCheckpoint(process.cwd())
-    const checkpointId = resumeFrom ?? RunCheckpoint.generateId(this.ctx.correlationId ?? crypto.randomUUID())
-
-    let checkpointData: CheckpointData
-    if (resumeFrom) {
-      const existing = checkpointStore.load(resumeFrom)
-      if (!existing) throw new Error(`checkpoint "${resumeFrom}" not found`)
-      checkpointData = existing
-      console.log(`\n  Resuming from step ${checkpointData.step} (checkpoint ${resumeFrom})\n`)
-    } else {
-      checkpointData = {
-        id: checkpointId,
-        member: spec.name,
-        task,
-        step: 0,
-        messages: [],
-        usage: { promptTokens: 0, completionTokens: 0, totalTokens: 0 },
-        model: '',
-        activatedSkills: [],
-        status: 'running',
-        createdAt: new Date().toISOString(),
-        updatedAt: new Date().toISOString(),
-      }
-      checkpointStore.save(checkpointData)
-    }
+    const checkpointData = this.prepareCheckpoint(checkpointStore, spec, task, resumeFrom)
 
     const loop = new ReActLoop(llm, sReg, {
       interactive: config.interactive,
@@ -129,7 +106,7 @@ export class MemberRunner {
       const result = await agent.run(task, this.ctx)
       const duration = Math.round(performance.now() - startTime)
       metricsCollector.record(memberName, true, duration)
-      checkpointStore.updateStatus(checkpointId, 'completed')
+      checkpointStore.updateStatus(checkpointData.id, 'completed')
       events.emit({
         type: 'run.finished',
         executionId: this.ctx.executionId,
@@ -139,7 +116,7 @@ export class MemberRunner {
         output: redactEventText(this.ctx, result.output),
         durationMs: duration,
       })
-      return { output: result.output, durationMs: duration }
+      return { output: result.output, durationMs: duration, usage: { ...loop.usage } }
     } catch (err) {
       const duration = Math.round(performance.now() - startTime)
       // a parked run is awaiting human input, not a failure: emit the park
@@ -159,7 +136,7 @@ export class MemberRunner {
         throw err
       }
       metricsCollector.record(memberName, false, duration)
-      checkpointStore.updateStatus(checkpointId, 'failed')
+      checkpointStore.updateStatus(checkpointData.id, 'failed')
       events.emit({
         type: 'run.failed',
         executionId: this.ctx.executionId,
@@ -173,6 +150,31 @@ export class MemberRunner {
     } finally {
       await this.flushTraces()
     }
+  }
+
+  /** Loads an existing checkpoint or creates and persists a fresh running one. */
+  private prepareCheckpoint(store: RunCheckpoint, spec: { name: string }, task: string, resumeFrom?: string): CheckpointData {
+    if (resumeFrom) {
+      const existing = store.load(resumeFrom)
+      if (!existing) throw new Error(`checkpoint "${resumeFrom}" not found`)
+      console.log(`\n  Resuming from step ${existing.step} (checkpoint ${resumeFrom})\n`)
+      return existing
+    }
+    const checkpointData: CheckpointData = {
+      id: RunCheckpoint.generateId(this.ctx.correlationId ?? crypto.randomUUID()),
+      member: spec.name,
+      task,
+      step: 0,
+      messages: [],
+      usage: { promptTokens: 0, completionTokens: 0, totalTokens: 0 },
+      model: '',
+      activatedSkills: [],
+      status: 'running',
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString(),
+    }
+    store.save(checkpointData)
+    return checkpointData
   }
 
   /** Fallback for non-member agent names (core agents). */

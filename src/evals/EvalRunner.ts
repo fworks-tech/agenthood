@@ -1,6 +1,7 @@
 import { randomUUID } from 'node:crypto'
 
 import type { EvalResult } from '../core/types.ts'
+import type { TokenUsage } from '../llm/types.ts'
 import { gradeAssertions } from './AssertionJudge.ts'
 import type { EvalJudge } from './EvalJudge.ts'
 import type { EmbedFn } from './ReplayEvaluator.ts'
@@ -11,6 +12,7 @@ export const DEFAULT_METRICS = ['faithfulness', 'relevance', 'context_recall', '
 export interface MemberRunResult {
   output: string
   durationMs: number
+  usage?: TokenUsage
 }
 
 export type RunMemberFn = (task: string) => Promise<MemberRunResult>
@@ -22,6 +24,7 @@ export interface TaskScore {
   expectedOutput: string
   output: string
   durationMs: number
+  tokens: number
   scores: Record<string, number>
   status: TaskStatus
   error?: string
@@ -75,9 +78,9 @@ export class EvalRunner {
   }
 
   private async runTask(task: EvalTask, metrics: string[]): Promise<TaskScore> {
-    const base = { input: task.input, expectedOutput: task.expectedOutput, output: '', durationMs: 0, scores: {} }
+    const base = { input: task.input, expectedOutput: task.expectedOutput, output: '', durationMs: 0, tokens: 0, scores: {} }
     try {
-      const { output, durationMs } = await this.runner(task.input)
+      const { output, durationMs, usage } = await this.runner(task.input)
       const scores: Record<string, number> = {}
       for (const metric of metrics) {
         const score = await this.judge.score(metric, { input: task.input, output, expected: task.expectedOutput })
@@ -90,7 +93,7 @@ export class EvalRunner {
         scores.assertions = grade.score
       }
       const status: TaskStatus = Object.keys(scores).length > 0 ? 'completed' : 'unevaluated'
-      return { ...base, output, durationMs, scores, status, assertions }
+      return { ...base, output, durationMs, tokens: usage?.totalTokens ?? 0, scores, status, assertions }
     } catch (err) {
       return { ...base, status: 'error', error: err instanceof Error ? err.message : String(err) }
     }

@@ -1,5 +1,6 @@
-import { readdirSync } from 'node:fs'
-import { join } from 'node:path'
+import { readdirSync, readFileSync } from 'node:fs'
+import { dirname, join } from 'node:path'
+import { fileURLToPath } from 'node:url'
 import { describe, it, expect } from 'vitest'
 import { loadEvalSuite } from '../../../src/evals/evalSuiteSchema.ts'
 
@@ -27,7 +28,8 @@ const MEMBERS = [
   'the-warden',
 ]
 
-const dir = join(process.cwd(), 'evals', 'benchmarks')
+const dir = join(dirname(fileURLToPath(import.meta.url)), '..', '..', '..', 'evals', 'benchmarks')
+const baselineDir = join(dirname(fileURLToPath(import.meta.url)), '..', '..', '..', '.agenthood', 'baselines')
 
 describe('member benchmark suites (#656)', () => {
   it('ships one suite per member', () => {
@@ -45,9 +47,22 @@ describe('member benchmark suites (#656)', () => {
       for (const task of suite.tasks) {
         expect(task.assertions?.length ?? 0).toBeGreaterThanOrEqual(1)
         for (const a of task.assertions ?? []) {
+          // Deliberately no 'semantic': it needs a live embedder, so it can
+          // never be part of the deterministic CI-safe subset.
           expect(['exact', 'contains', 'regex']).toContain(a.type)
         }
       }
+    })
+  }
+
+  for (const member of MEMBERS) {
+    it(`${member}: baseline snapshot is well-formed`, () => {
+      const baseline = JSON.parse(readFileSync(join(baselineDir, `${member}.json`), 'utf8'))
+      expect(baseline.member).toBe(member)
+      expect(baseline.suiteName).toBe(member)
+      expect(typeof baseline.timestamp).toBe('string')
+      expect(baseline.taskCount).toBeGreaterThanOrEqual(5)
+      expect(typeof baseline.aggregate?.assertions).toBe('number')
     })
   }
 })

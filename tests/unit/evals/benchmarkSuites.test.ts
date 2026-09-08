@@ -28,8 +28,9 @@ const MEMBERS = [
   'the-warden',
 ]
 
-const dir = join(dirname(fileURLToPath(import.meta.url)), '..', '..', '..', 'evals', 'benchmarks')
-const baselineDir = join(dirname(fileURLToPath(import.meta.url)), '..', '..', '..', '.agenthood', 'baselines')
+const REPO_ROOT = join(dirname(fileURLToPath(import.meta.url)), '..', '..', '..')
+const dir = join(REPO_ROOT, 'evals', 'benchmarks')
+const baselineDir = join(REPO_ROOT, '.agenthood', 'baselines')
 
 describe('member benchmark suites (#656)', () => {
   it('ships one suite per member', () => {

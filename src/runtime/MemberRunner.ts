@@ -3,10 +3,10 @@ import type { ExecutionContext } from '../core/ExecutionContext.ts'
 import type { AnomalyDetector } from '../core/AnomalyDetector.ts'
 import { appendAnomalies } from '../core/AnomalyDetector.ts'
 import { LLMRouter } from '../llm/LLMRouter.ts'
-import type { LLMConfig, Message } from '../llm/types.ts'
+import type { LLMConfig, Message, TokenUsage } from '../llm/types.ts'
 import { MemberAgent } from '../members/index.ts'
 import type { MemberRegistry } from '../members/MemberRegistry.ts'
-import type { ProviderName } from '../members/types.ts'
+import type { ProviderName, MemberSpec } from '../members/types.ts'
 import { MetricsCollector } from '../memory/MetricsCollector.ts'
 import type { MemberRunResult } from '../evals/EvalRunner.ts'
 import type { AgentRegistry } from '../core/AgentRegistry.ts'
@@ -113,56 +113,85 @@ export class MemberRunner {
       })
 
       const result = await agent.run(task, this.ctx)
-      if (spec.output_format) {
-        const { valid, message } = validateOutputFormat(result.output, spec.output_format)
-        if (!valid) reportFormatDeviation(message, spec.output_format_mode ?? 'lenient')
-      }
       const duration = Math.round(performance.now() - startTime)
-      metricsCollector.record(memberName, true, duration)
-      checkpointStore.updateStatus(checkpointData.id, 'completed')
-      events.emit({
-        type: 'run.finished',
-        executionId: this.ctx.executionId,
-        member: spec.name,
-        correlationId: this.ctx.correlationId,
-        timestamp: new Date().toISOString(),
-        output: redactEventText(this.ctx, result.output),
-        durationMs: duration,
+      return this.completeRunSuccess({
+        spec, result, duration, usage: loop.usage, metricsCollector, checkpointStore, checkpointData,
       })
-      return { output: result.output, durationMs: duration, usage: { ...loop.usage } }
     } catch (err) {
       const duration = Math.round(performance.now() - startTime)
       // a parked run is awaiting human input, not a failure: emit the park
       // event (redacted), skip the failure metrics write, and rethrow so the
       // host can resume the run when the reply arrives
       if (err instanceof AskHumanSignal) {
-        events.emit({
-          type: 'run.awaiting_input',
-          executionId: this.ctx.executionId,
-          member: spec.name,
-          correlationId: this.ctx.correlationId,
-          timestamp: new Date().toISOString(),
-          question: redactEventText(this.ctx, err.payload.question),
-          ...(err.payload.context !== undefined ? { context: redactEventText(this.ctx, err.payload.context) } : {}),
-          durationMs: duration,
-        })
+        this.emitParkedEvent(spec, err, duration)
         throw err
       }
-      metricsCollector.record(memberName, false, duration)
-      checkpointStore.updateStatus(checkpointData.id, 'failed')
-      events.emit({
-        type: 'run.failed',
-        executionId: this.ctx.executionId,
-        member: spec.name,
-        correlationId: this.ctx.correlationId,
-        timestamp: new Date().toISOString(),
-        error: redactEventText(this.ctx, err instanceof Error ? err.message : String(err)),
-        durationMs: duration,
-      })
+      this.recordRunFailure({ spec, err, duration, metricsCollector, checkpointStore, checkpointData })
       throw err
     } finally {
       await this.flushTraces()
     }
+  }
+
+  private completeRunSuccess(args: {
+    spec: MemberSpec
+    result: { output: string }
+    duration: number
+    usage: TokenUsage
+    metricsCollector: MetricsCollector
+    checkpointStore: CheckpointStore
+    checkpointData: CheckpointData
+  }): MemberRunResult {
+    if (args.spec.output_format) {
+      const { valid, message } = validateOutputFormat(args.result.output, args.spec.output_format)
+      if (!valid) reportFormatDeviation(message, args.spec.output_format_mode ?? 'lenient')
+    }
+    args.metricsCollector.record(args.spec.name, true, args.duration)
+    args.checkpointStore.updateStatus(args.checkpointData.id, 'completed')
+    this.ctx.events.emit({
+      type: 'run.finished',
+      executionId: this.ctx.executionId,
+      member: args.spec.name,
+      correlationId: this.ctx.correlationId,
+      timestamp: new Date().toISOString(),
+      output: redactEventText(this.ctx, args.result.output),
+      durationMs: args.duration,
+    })
+    return { output: args.result.output, durationMs: args.duration, usage: { ...args.usage } }
+  }
+
+  private recordRunFailure(args: {
+    spec: MemberSpec
+    err: unknown
+    duration: number
+    metricsCollector: MetricsCollector
+    checkpointStore: CheckpointStore
+    checkpointData: CheckpointData
+  }): void {
+    args.metricsCollector.record(args.spec.name, false, args.duration)
+    args.checkpointStore.updateStatus(args.checkpointData.id, 'failed')
+    this.ctx.events.emit({
+      type: 'run.failed',
+      executionId: this.ctx.executionId,
+      member: args.spec.name,
+      correlationId: this.ctx.correlationId,
+      timestamp: new Date().toISOString(),
+      error: redactEventText(this.ctx, args.err instanceof Error ? args.err.message : String(args.err)),
+      durationMs: args.duration,
+    })
+  }
+
+  private emitParkedEvent(spec: MemberSpec, err: AskHumanSignal, duration: number): void {
+    this.ctx.events.emit({
+      type: 'run.awaiting_input',
+      executionId: this.ctx.executionId,
+      member: spec.name,
+      correlationId: this.ctx.correlationId,
+      timestamp: new Date().toISOString(),
+      question: redactEventText(this.ctx, err.payload.question),
+      ...(err.payload.context !== undefined ? { context: redactEventText(this.ctx, err.payload.context) } : {}),
+      durationMs: duration,
+    })
   }
 
   /** Loads an existing checkpoint or creates and persists a fresh running one. */

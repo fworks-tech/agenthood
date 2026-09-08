@@ -1,0 +1,92 @@
+{
+  "name": "the-envoy",
+  "description": "Provider-onboarding tasks targeting the-envoy member. Assertion-graded only (no LLM judge) so the suite is deterministic and CI-safe.",
+  "metrics": [],
+  "tasks": [
+    {
+      "input": "Reply with ONLY the first bootstrap step and nothing else for: onboard a new AI provider to the Agenthood.",
+      "expectedOutput": "A first step mentioning provider, config, or detection.",
+      "tags": [
+        "member: the-envoy",
+        "onboarding",
+        "provider"
+      ],
+      "difficulty": "medium",
+      "assertions": [
+        {
+          "type": "regex",
+          "target": "provider|config|detect",
+          "flags": "i"
+        }
+      ]
+    },
+    {
+      "input": "Reply with ONLY the file named and nothing else for: where do provider API keys belong.",
+      "expectedOutput": "The shell profile, env, or secrets location.",
+      "tags": [
+        "member: the-envoy",
+        "onboarding",
+        "secrets"
+      ],
+      "difficulty": "easy",
+      "assertions": [
+        {
+          "type": "regex",
+          "target": "env|secret|profile|key",
+          "flags": "i"
+        }
+      ]
+    },
+    {
+      "input": "Reply with ONLY the translation target and nothing else for: convert a skill file to a new provider-native format.",
+      "expectedOutput": "The provider-native format or translation.",
+      "tags": [
+        "member: the-envoy",
+        "translation",
+        "skills"
+      ],
+      "difficulty": "medium",
+      "assertions": [
+        {
+          "type": "regex",
+          "target": "translat|format|native|provider",
+          "flags": "i"
+        }
+      ]
+    },
+    {
+      "input": "Reply with ONLY the check named and nothing else for: validate conventions across runtimes.",
+      "expectedOutput": "The convention validation check.",
+      "tags": [
+        "member: the-envoy",
+        "validation",
+        "conventions"
+      ],
+      "difficulty": "medium",
+      "assertions": [
+        {
+          "type": "regex",
+          "target": "convention|valid|runtimes",
+          "flags": "i"
+        }
+      ]
+    },
+    {
+      "input": "In one short sentence, what should handle requests when the primary LLM provider is down?",
+      "expectedOutput": "A fallback or failover provider.",
+      "tags": [
+        "member: the-envoy",
+        "provider",
+        "failover"
+      ],
+      "difficulty": "easy",
+      "assertions": [
+        {
+          "type": "regex",
+          "target": "fallback|failover|second|backup|provider",
+          "flags": "i"
+        }
+      ]
+    }
+  ]
+}

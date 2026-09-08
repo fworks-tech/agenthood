@@ -1,0 +1,42 @@
+{
+  "name": "the-mediator",
+  "description": "Intent-routing tasks targeting the-mediator member. Assertion-graded only (no LLM judge) so the suite is deterministic and CI-safe.",
+  "metrics": [],
+  "tasks": [
+    {
+      "input": "Reply with ONLY the member name and nothing else for: who should write a commit message.",
+      "expectedOutput": "The scribe member.",
+      "tags": ["member: the-mediator", "routing"],
+      "difficulty": "easy",
+      "assertions": [{ "type": "regex", "target": "scribe", "flags": "i" }]
+    },
+    {
+      "input": "Reply with ONLY the member name and nothing else for: who should diagnose a crashing parser.",
+      "expectedOutput": "The debugger member.",
+      "tags": ["member: the-mediator", "routing"],
+      "difficulty": "easy",
+      "assertions": [{ "type": "regex", "target": "debugger", "flags": "i" }]
+    },
+    {
+      "input": "Reply with ONLY the member name and nothing else for: who should review a pull request.",
+      "expectedOutput": "The reviewer member.",
+      "tags": ["member: the-mediator", "routing"],
+      "difficulty": "easy",
+      "assertions": [{ "type": "regex", "target": "reviewer", "flags": "i" }]
+    },
+    {
+      "input": "Reply with ONLY the member name and nothing else for: who should write unit tests.",
+      "expectedOutput": "The tester member.",
+      "tags": ["member: the-mediator", "routing"],
+      "difficulty": "easy",
+      "assertions": [{ "type": "regex", "target": "tester", "flags": "i" }]
+    },
+    {
+      "input": "Reply with ONLY the member name and nothing else for: who should audit dependencies for vulnerabilities.",
+      "expectedOutput": "The auditor member.",
+      "tags": ["member: the-mediator", "routing"],
+      "difficulty": "easy",
+      "assertions": [{ "type": "regex", "target": "auditor", "flags": "i" }]
+    }
+  ]
+}

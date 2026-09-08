@@ -1,0 +1,91 @@
+{
+  "name": "the-steward",
+  "description": "Context and routing tasks targeting the-steward member. Assertion-graded only (no LLM judge) so the suite is deterministic and CI-safe.",
+  "metrics": [],
+  "tasks": [
+    {
+      "input": "Reply with ONLY the routed member and nothing else for: a vague request to 'make the app better'.",
+      "expectedOutput": "The strategist for refinement.",
+      "tags": [
+        "member: the-steward",
+        "routing"
+      ],
+      "difficulty": "medium",
+      "assertions": [
+        {
+          "type": "regex",
+          "target": "strategist|refin",
+          "flags": "i"
+        }
+      ]
+    },
+    {
+      "input": "In one short sentence, what should be done when a session nears capacity?",
+      "expectedOutput": "Triage or summarize.",
+      "tags": [
+        "member: the-steward",
+        "context",
+        "capacity"
+      ],
+      "difficulty": "medium",
+      "assertions": [
+        {
+          "type": "regex",
+          "target": "triage|summar|compact|capacity|handoff|close",
+          "flags": "i"
+        }
+      ]
+    },
+    {
+      "input": "Reply with ONLY the minimal set named and nothing else for: a bug report needing diagnosis and a test.",
+      "expectedOutput": "The debugger plus tester set.",
+      "tags": [
+        "member: the-steward",
+        "routing",
+        "minimal-set"
+      ],
+      "difficulty": "medium",
+      "assertions": [
+        {
+          "type": "regex",
+          "target": "debugger|tester|minimal",
+          "flags": "i"
+        }
+      ]
+    },
+    {
+      "input": "Reply with ONLY the cache named and nothing else for: reuse provider responses across identical prompts.",
+      "expectedOutput": "The provider or prompt cache.",
+      "tags": [
+        "member: the-steward",
+        "context",
+        "cache"
+      ],
+      "difficulty": "easy",
+      "assertions": [
+        {
+          "type": "regex",
+          "target": "cach",
+          "flags": "i"
+        }
+      ]
+    },
+    {
+      "input": "Reply with ONLY the handoff named and nothing else for: planning is done and implementation should start.",
+      "expectedOutput": "The builder handoff.",
+      "tags": [
+        "member: the-steward",
+        "routing",
+        "handoff"
+      ],
+      "difficulty": "easy",
+      "assertions": [
+        {
+          "type": "regex",
+          "target": "builder|handoff|implement",
+          "flags": "i"
+        }
+      ]
+    }
+  ]
+}

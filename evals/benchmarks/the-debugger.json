@@ -1,0 +1,92 @@
+{
+  "name": "the-debugger",
+  "description": "Diagnosis tasks targeting the-debugger member. Assertion-graded only (no LLM judge) so the suite is deterministic and CI-safe.",
+  "metrics": [],
+  "tasks": [
+    {
+      "input": "Reply with ONLY the most likely cause and nothing else for: TypeError cannot read property 'id' of undefined at checkout.",
+      "expectedOutput": "A cause mentioning undefined or missing object.",
+      "tags": [
+        "member: the-debugger",
+        "diagnosis",
+        "typeerror"
+      ],
+      "difficulty": "easy",
+      "assertions": [
+        {
+          "type": "regex",
+          "target": "undefin|null|missing",
+          "flags": "i"
+        }
+      ]
+    },
+    {
+      "input": "Reply with ONLY the most likely cause and nothing else for: requests to /api/search time out after 30s.",
+      "expectedOutput": "A cause mentioning timeout, slow query, or index.",
+      "tags": [
+        "member: the-debugger",
+        "diagnosis",
+        "timeout"
+      ],
+      "difficulty": "medium",
+      "assertions": [
+        {
+          "type": "regex",
+          "target": "timeout|slow|quer|index",
+          "flags": "i"
+        }
+      ]
+    },
+    {
+      "input": "Reply with ONLY the first check and nothing else for: memory usage grows on every file upload.",
+      "expectedOutput": "A first check mentioning memory, leak, or stream.",
+      "tags": [
+        "member: the-debugger",
+        "diagnosis",
+        "memory"
+      ],
+      "difficulty": "medium",
+      "assertions": [
+        {
+          "type": "regex",
+          "target": "memor|leak|stream|heap|buffer|profile",
+          "flags": "i"
+        }
+      ]
+    },
+    {
+      "input": "Reply with ONLY the most likely cause and nothing else for: 500 error only when the cart has more than 10 items.",
+      "expectedOutput": "A cause mentioning cart, limit, or overflow.",
+      "tags": [
+        "member: the-debugger",
+        "diagnosis",
+        "server-error"
+      ],
+      "difficulty": "medium",
+      "assertions": [
+        {
+          "type": "regex",
+          "target": "cart|limit|overflow|loop",
+          "flags": "i"
+        }
+      ]
+    },
+    {
+      "input": "Reply with ONLY the first reproduction step and nothing else for: a test that passes alone but fails in the full suite.",
+      "expectedOutput": "A step mentioning isolation, order, or shared state.",
+      "tags": [
+        "member: the-debugger",
+        "diagnosis",
+        "flaky-test"
+      ],
+      "difficulty": "hard",
+      "assertions": [
+        {
+          "type": "regex",
+          "target": "isolat|order|state|alone",
+          "flags": "i"
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,42 @@
+{
+  "name": "the-warden",
+  "description": "Code-health tasks targeting the-warden member. Assertion-graded only (no LLM judge) so the suite is deterministic and CI-safe.",
+  "metrics": [],
+  "tasks": [
+    {
+      "input": "Reply with ONLY the smell named and nothing else for: a 200-line `processOrder` function.",
+      "expectedOutput": "The long-function smell.",
+      "tags": ["member: the-warden", "health", "complexity"],
+      "difficulty": "easy",
+      "assertions": [{ "type": "regex", "target": "long|large|complex|split|function", "flags": "i" }]
+    },
+    {
+      "input": "Reply with ONLY the smell named and nothing else for: the same validation copied into five handlers.",
+      "expectedOutput": "The duplication smell.",
+      "tags": ["member: the-warden", "health", "duplication"],
+      "difficulty": "easy",
+      "assertions": [{ "type": "regex", "target": "duplic|repeat|cop|dry", "flags": "i" }]
+    },
+    {
+      "input": "Reply with ONLY the finding and nothing else for: an imported helper that is never called.",
+      "expectedOutput": "The dead-code finding.",
+      "tags": ["member: the-warden", "health", "dead-code"],
+      "difficulty": "easy",
+      "assertions": [{ "type": "regex", "target": "dead|unused|never|remov", "flags": "i" }]
+    },
+    {
+      "input": "Reply with ONLY the violation named and nothing else for: UI code importing directly from the database layer.",
+      "expectedOutput": "The architectural boundary violation.",
+      "tags": ["member: the-warden", "health", "boundaries"],
+      "difficulty": "hard",
+      "assertions": [{ "type": "regex", "target": "boundar|layer|violat|architect", "flags": "i" }]
+    },
+    {
+      "input": "Reply with ONLY the verdict and nothing else for: a small module with no duplication or complexity issues.",
+      "expectedOutput": "A clean verdict.",
+      "tags": ["member: the-warden", "health", "verdict"],
+      "difficulty": "easy",
+      "assertions": [{ "type": "regex", "target": "clean|pass|ok|healthy|no issue", "flags": "i" }]
+    }
+  ]
+}

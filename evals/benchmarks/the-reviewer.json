@@ -1,0 +1,92 @@
+{
+  "name": "the-reviewer",
+  "description": "Code-review tasks targeting the-reviewer member. Assertion-graded only (no LLM judge) so the suite is deterministic and CI-safe.",
+  "metrics": [],
+  "tasks": [
+    {
+      "input": "Reply with ONLY the defect named and nothing else for: review `total(items){return items.reduce((a,b)=>a+b.price,0)}` where prices are strings.",
+      "expectedOutput": "The string-concatenation defect.",
+      "tags": [
+        "member: the-reviewer",
+        "review",
+        "correctness"
+      ],
+      "difficulty": "medium",
+      "assertions": [
+        {
+          "type": "regex",
+          "target": "string|concat|number|type",
+          "flags": "i"
+        }
+      ]
+    },
+    {
+      "input": "Reply with ONLY the issue named and nothing else for: review a loop that queries the database once per list item.",
+      "expectedOutput": "The N+1 query issue.",
+      "tags": [
+        "member: the-reviewer",
+        "review",
+        "performance"
+      ],
+      "difficulty": "medium",
+      "assertions": [
+        {
+          "type": "regex",
+          "target": "n\\+1|quer|batch|loop",
+          "flags": "i"
+        }
+      ]
+    },
+    {
+      "input": "Reply with ONLY the missing item named and nothing else for: review a new endpoint with no tests.",
+      "expectedOutput": "The missing tests.",
+      "tags": [
+        "member: the-reviewer",
+        "review",
+        "tests"
+      ],
+      "difficulty": "easy",
+      "assertions": [
+        {
+          "type": "regex",
+          "target": "test|cover",
+          "flags": "i"
+        }
+      ]
+    },
+    {
+      "input": "Reply with ONLY the hazard named and nothing else for: review shared mutable state updated from two async handlers.",
+      "expectedOutput": "The race condition hazard.",
+      "tags": [
+        "member: the-reviewer",
+        "review",
+        "concurrency"
+      ],
+      "difficulty": "hard",
+      "assertions": [
+        {
+          "type": "regex",
+          "target": "race|concurr|mutab|lock",
+          "flags": "i"
+        }
+      ]
+    },
+    {
+      "input": "In one short sentence, what is the verdict on a diff that only deletes dead code?",
+      "expectedOutput": "An approval.",
+      "tags": [
+        "member: the-reviewer",
+        "review",
+        "verdict"
+      ],
+      "difficulty": "easy",
+      "assertions": [
+        {
+          "type": "regex",
+          "target": "approv|accept|fine|good|clean",
+          "flags": "i"
+        }
+      ]
+    }
+  ]
+}

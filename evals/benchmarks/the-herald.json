@@ -1,0 +1,42 @@
+{
+  "name": "the-herald",
+  "description": "Versioning and release-note tasks targeting the-herald member. Assertion-graded only (no LLM judge) so the suite is deterministic and CI-safe.",
+  "metrics": [],
+  "tasks": [
+    {
+      "input": "Reply with ONLY the semver bump and nothing else for: a new backward-compatible feature lands.",
+      "expectedOutput": "A minor bump.",
+      "tags": ["member: the-herald", "semver"],
+      "difficulty": "easy",
+      "assertions": [{ "type": "regex", "target": "minor", "flags": "i" }]
+    },
+    {
+      "input": "Reply with ONLY the semver bump and nothing else for: a breaking API rename ships.",
+      "expectedOutput": "A major bump.",
+      "tags": ["member: the-herald", "semver", "breaking"],
+      "difficulty": "easy",
+      "assertions": [{ "type": "regex", "target": "major", "flags": "i" }]
+    },
+    {
+      "input": "Reply with ONLY the semver bump and nothing else for: a bug fix with no API change ships.",
+      "expectedOutput": "A patch bump.",
+      "tags": ["member: the-herald", "semver"],
+      "difficulty": "easy",
+      "assertions": [{ "type": "regex", "target": "patch", "flags": "i" }]
+    },
+    {
+      "input": "Reply with ONLY the changelog section and nothing else for: feat(cart): add quantity guard.",
+      "expectedOutput": "The Added or Features section.",
+      "tags": ["member: the-herald", "changelog"],
+      "difficulty": "easy",
+      "assertions": [{ "type": "regex", "target": "added|feat|feature", "flags": "i" }]
+    },
+    {
+      "input": "Reply with ONLY the release artifact named and nothing else for: what a release publishes besides the tag.",
+      "expectedOutput": "Release notes or the changelog.",
+      "tags": ["member: the-herald", "release"],
+      "difficulty": "medium",
+      "assertions": [{ "type": "regex", "target": "notes|changelog|release", "flags": "i" }]
+    }
+  ]
+}

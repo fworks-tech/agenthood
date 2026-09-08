@@ -1,0 +1,9 @@
+{
+  "member": "the-mediator",
+  "suiteName": "the-mediator",
+  "timestamp": "2026-09-08T04:48:03.850Z",
+  "taskCount": 5,
+  "aggregate": {
+    "assertions": 1
+  }
+}

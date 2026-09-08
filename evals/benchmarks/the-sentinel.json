@@ -1,0 +1,92 @@
+{
+  "name": "the-sentinel",
+  "description": "Integrity-audit tasks targeting the-sentinel member. Assertion-graded only (no LLM judge) so the suite is deterministic and CI-safe.",
+  "metrics": [],
+  "tasks": [
+    {
+      "input": "In one short sentence, what is lane overlap?",
+      "expectedOutput": "Two members claiming the same responsibility.",
+      "tags": [
+        "member: the-sentinel",
+        "integrity",
+        "overlap"
+      ],
+      "difficulty": "medium",
+      "assertions": [
+        {
+          "type": "regex",
+          "target": "overlap|lane|both|same|share|claim",
+          "flags": "i"
+        }
+      ]
+    },
+    {
+      "input": "Reply with ONLY the drift named and nothing else for: a member file missing the required frontmatter lanes.",
+      "expectedOutput": "The structural drift.",
+      "tags": [
+        "member: the-sentinel",
+        "integrity",
+        "drift"
+      ],
+      "difficulty": "medium",
+      "assertions": [
+        {
+          "type": "regex",
+          "target": "drift|frontmatter|structur|missing|lane",
+          "flags": "i"
+        }
+      ]
+    },
+    {
+      "input": "Reply with ONLY the check named and nothing else for: verify a new member file matches the template.",
+      "expectedOutput": "The template conformance check.",
+      "tags": [
+        "member: the-sentinel",
+        "integrity",
+        "template"
+      ],
+      "difficulty": "easy",
+      "assertions": [
+        {
+          "type": "regex",
+          "target": "templat|conform|match|check",
+          "flags": "i"
+        }
+      ]
+    },
+    {
+      "input": "In one short sentence, what is a cross-member contradiction?",
+      "expectedOutput": "Two members or docs disagreeing.",
+      "tags": [
+        "member: the-sentinel",
+        "integrity",
+        "contradiction"
+      ],
+      "difficulty": "hard",
+      "assertions": [
+        {
+          "type": "regex",
+          "target": "contradict|conflict|disagree|differ|mismatch",
+          "flags": "i"
+        }
+      ]
+    },
+    {
+      "input": "In one short sentence, what does a clean audit mean?",
+      "expectedOutput": "No issues found.",
+      "tags": [
+        "member: the-sentinel",
+        "integrity",
+        "verdict"
+      ],
+      "difficulty": "easy",
+      "assertions": [
+        {
+          "type": "regex",
+          "target": "clean|no issue|nothing|pass|good",
+          "flags": "i"
+        }
+      ]
+    }
+  ]
+}

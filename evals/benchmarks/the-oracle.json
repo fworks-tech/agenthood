@@ -1,0 +1,92 @@
+{
+  "name": "the-oracle",
+  "description": "Institutional-knowledge tasks targeting the-oracle member. Assertion-graded only (no LLM judge) so the suite is deterministic and CI-safe.",
+  "metrics": [],
+  "tasks": [
+    {
+      "input": "Reply with ONLY the convention and nothing else for: the format of a commit subject line.",
+      "expectedOutput": "The imperative lowercase convention.",
+      "tags": [
+        "member: the-oracle",
+        "knowledge",
+        "conventions"
+      ],
+      "difficulty": "easy",
+      "assertions": [
+        {
+          "type": "regex",
+          "target": "imperat|lowercase|conventional",
+          "flags": "i"
+        }
+      ]
+    },
+    {
+      "input": "Reply with ONLY the directory named and nothing else for: where member skill files live.",
+      "expectedOutput": "The skills directory.",
+      "tags": [
+        "member: the-oracle",
+        "knowledge",
+        "layout"
+      ],
+      "difficulty": "easy",
+      "assertions": [
+        {
+          "type": "regex",
+          "target": "skill",
+          "flags": "i"
+        }
+      ]
+    },
+    {
+      "input": "Reply with ONLY the file named and nothing else for: where architecture decisions are recorded.",
+      "expectedOutput": "The ADR docs.",
+      "tags": [
+        "member: the-oracle",
+        "knowledge",
+        "adr"
+      ],
+      "difficulty": "easy",
+      "assertions": [
+        {
+          "type": "regex",
+          "target": "adr|docs/architecture|decision",
+          "flags": "i"
+        }
+      ]
+    },
+    {
+      "input": "In one short sentence, why do member names start with 'the-'?",
+      "expectedOutput": "The naming convention.",
+      "tags": [
+        "member: the-oracle",
+        "knowledge",
+        "naming"
+      ],
+      "difficulty": "medium",
+      "assertions": [
+        {
+          "type": "regex",
+          "target": "naming|convention|title|unique|authoritative",
+          "flags": "i"
+        }
+      ]
+    },
+    {
+      "input": "In one short sentence, which file lists the branch and commit standards?",
+      "expectedOutput": "The AGENTS.md registry.",
+      "tags": [
+        "member: the-oracle",
+        "knowledge",
+        "registry"
+      ],
+      "difficulty": "medium",
+      "assertions": [
+        {
+          "type": "regex",
+          "target": "agents|standard|registry",
+          "flags": "i"
+        }
+      ]
+    }
+  ]
+}

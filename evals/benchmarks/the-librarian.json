@@ -1,0 +1,92 @@
+{
+  "name": "the-librarian",
+  "description": "Documentation tasks targeting the-librarian member. Assertion-graded only (no LLM judge) so the suite is deterministic and CI-safe.",
+  "metrics": [],
+  "tasks": [
+    {
+      "input": "In one short sentence, which README section covers CLI installation?",
+      "expectedOutput": "The Installation section.",
+      "tags": [
+        "member: the-librarian",
+        "docs",
+        "readme"
+      ],
+      "difficulty": "easy",
+      "assertions": [
+        {
+          "type": "regex",
+          "target": "install",
+          "flags": "i"
+        }
+      ]
+    },
+    {
+      "input": "Reply with ONLY the artifact named and nothing else for: record why members use a TypeScript runtime.",
+      "expectedOutput": "An ADR.",
+      "tags": [
+        "member: the-librarian",
+        "docs",
+        "adr"
+      ],
+      "difficulty": "easy",
+      "assertions": [
+        {
+          "type": "regex",
+          "target": "adr|decision|record",
+          "flags": "i"
+        }
+      ]
+    },
+    {
+      "input": "In one short sentence, which file documents CLI command flags?",
+      "expectedOutput": "The README or CONTRIBUTING file.",
+      "tags": [
+        "member: the-librarian",
+        "docs",
+        "cli"
+      ],
+      "difficulty": "easy",
+      "assertions": [
+        {
+          "type": "regex",
+          "target": "readme|contributing|cli",
+          "flags": "i"
+        }
+      ]
+    },
+    {
+      "input": "In one short sentence, who is the API reference written for?",
+      "expectedOutput": "Developers or contributors.",
+      "tags": [
+        "member: the-librarian",
+        "docs",
+        "audience"
+      ],
+      "difficulty": "easy",
+      "assertions": [
+        {
+          "type": "regex",
+          "target": "develop|contribut|user",
+          "flags": "i"
+        }
+      ]
+    },
+    {
+      "input": "Reply with ONLY the sync rule and nothing else for: code changed but the README still describes the old flags.",
+      "expectedOutput": "The rule to update docs with code.",
+      "tags": [
+        "member: the-librarian",
+        "docs",
+        "sync"
+      ],
+      "difficulty": "medium",
+      "assertions": [
+        {
+          "type": "regex",
+          "target": "updat|sync|outdat|stale",
+          "flags": "i"
+        }
+      ]
+    }
+  ]
+}

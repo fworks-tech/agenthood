@@ -1,0 +1,92 @@
+{
+  "name": "the-mailman",
+  "description": "Notification and delivery tasks targeting the-mailman member. Assertion-graded only (no LLM judge) so the suite is deterministic and CI-safe.",
+  "metrics": [],
+  "tasks": [
+    {
+      "input": "Reply with ONLY a notification subject and nothing else for: the nightly build failed.",
+      "expectedOutput": "A subject mentioning the failed build.",
+      "tags": [
+        "member: the-mailman",
+        "notify",
+        "subject"
+      ],
+      "difficulty": "easy",
+      "assertions": [
+        {
+          "type": "regex",
+          "target": "build|fail|nightly",
+          "flags": "i"
+        }
+      ]
+    },
+    {
+      "input": "In one short sentence, how should an on-call engineer be paged for a production outage?",
+      "expectedOutput": "A page via the on-call channel.",
+      "tags": [
+        "member: the-mailman",
+        "notify",
+        "channel"
+      ],
+      "difficulty": "easy",
+      "assertions": [
+        {
+          "type": "regex",
+          "target": "page|call|alert|incident|outage",
+          "flags": "i"
+        }
+      ]
+    },
+    {
+      "input": "In one short sentence, how often should the changelog be sent?",
+      "expectedOutput": "Every release.",
+      "tags": [
+        "member: the-mailman",
+        "schedule",
+        "changelog"
+      ],
+      "difficulty": "easy",
+      "assertions": [
+        {
+          "type": "regex",
+          "target": "release|each|every|per",
+          "flags": "i"
+        }
+      ]
+    },
+    {
+      "input": "Reply with ONLY the digest content named and nothing else for: summarize five merged PRs in one message.",
+      "expectedOutput": "The digest or summary.",
+      "tags": [
+        "member: the-mailman",
+        "digest",
+        "summary"
+      ],
+      "difficulty": "medium",
+      "assertions": [
+        {
+          "type": "regex",
+          "target": "digest|summar|roundup",
+          "flags": "i"
+        }
+      ]
+    },
+    {
+      "input": "Reply with ONLY the retry rule and nothing else for: a notification delivery failed.",
+      "expectedOutput": "The retry or backlog rule.",
+      "tags": [
+        "member: the-mailman",
+        "delivery",
+        "retry"
+      ],
+      "difficulty": "medium",
+      "assertions": [
+        {
+          "type": "regex",
+          "target": "retr|again|queue|backlog",
+          "flags": "i"
+        }
+      ]
+    }
+  ]
+}

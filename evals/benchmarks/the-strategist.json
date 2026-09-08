@@ -1,0 +1,92 @@
+{
+  "name": "the-strategist",
+  "description": "Goal-refinement tasks targeting the-strategist member. Assertion-graded only (no LLM judge) so the suite is deterministic and CI-safe.",
+  "metrics": [],
+  "tasks": [
+    {
+      "input": "Reply with ONLY the problem statement and nothing else for: 'ship the new dashboard soon'.",
+      "expectedOutput": "A structured problem statement.",
+      "tags": [
+        "member: the-strategist",
+        "goals",
+        "problem"
+      ],
+      "difficulty": "medium",
+      "assertions": [
+        {
+          "type": "regex",
+          "target": "problem|statement|dashboard",
+          "flags": "i"
+        }
+      ]
+    },
+    {
+      "input": "Reply with ONLY one success criterion and nothing else for: reduce checkout errors.",
+      "expectedOutput": "A measurable criterion mentioning errors or checkout.",
+      "tags": [
+        "member: the-strategist",
+        "goals",
+        "success-criteria"
+      ],
+      "difficulty": "easy",
+      "assertions": [
+        {
+          "type": "regex",
+          "target": "error|checkout|measur|criter",
+          "flags": "i"
+        }
+      ]
+    },
+    {
+      "input": "Reply with ONLY the top priority and nothing else for: fix the outage, then add dark mode, then refactor.",
+      "expectedOutput": "The outage fix as top priority.",
+      "tags": [
+        "member: the-strategist",
+        "goals",
+        "priority"
+      ],
+      "difficulty": "easy",
+      "assertions": [
+        {
+          "type": "regex",
+          "target": "outage|fix|first|priorit",
+          "flags": "i"
+        }
+      ]
+    },
+    {
+      "input": "Reply with ONLY the scope boundary and nothing else for: a password-reset feature that must not touch billing.",
+      "expectedOutput": "The out-of-scope billing boundary.",
+      "tags": [
+        "member: the-strategist",
+        "goals",
+        "scope"
+      ],
+      "difficulty": "medium",
+      "assertions": [
+        {
+          "type": "regex",
+          "target": "scope|billing|boundar|out of",
+          "flags": "i"
+        }
+      ]
+    },
+    {
+      "input": "Reply with ONLY 'API owners' or 'no one' and nothing else for: who approves a breaking API change?",
+      "expectedOutput": "API owners.",
+      "tags": [
+        "member: the-strategist",
+        "goals",
+        "stakeholder"
+      ],
+      "difficulty": "medium",
+      "assertions": [
+        {
+          "type": "regex",
+          "target": "api owners",
+          "flags": "i"
+        }
+      ]
+    }
+  ]
+}

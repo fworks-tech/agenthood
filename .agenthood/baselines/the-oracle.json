@@ -1,0 +1,9 @@
+{
+  "member": "the-oracle",
+  "suiteName": "the-oracle",
+  "timestamp": "2026-09-08T04:50:47.609Z",
+  "taskCount": 5,
+  "aggregate": {
+    "assertions": 1
+  }
+}

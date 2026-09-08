@@ -1,0 +1,91 @@
+{
+  "name": "the-architect",
+  "description": "Spec, plan, and ADR tasks targeting the-architect member. Assertion-graded only (no LLM judge) so the suite is deterministic and CI-safe.",
+  "metrics": [],
+  "tasks": [
+    {
+      "input": "Reply with ONLY a one-sentence problem statement and nothing else for: users cannot reset passwords.",
+      "expectedOutput": "A problem statement mentioning password reset.",
+      "tags": [
+        "member: the-architect",
+        "spec",
+        "problem-statement"
+      ],
+      "difficulty": "easy",
+      "assertions": [
+        {
+          "type": "regex",
+          "target": "password",
+          "flags": "i"
+        }
+      ]
+    },
+    {
+      "input": "Reply with ONLY one success criterion and nothing else for: password reset.",
+      "expectedOutput": "A success criterion mentioning reset or password.",
+      "tags": [
+        "member: the-architect",
+        "spec",
+        "success-criteria"
+      ],
+      "difficulty": "easy",
+      "assertions": [
+        {
+          "type": "regex",
+          "target": "reset|password",
+          "flags": "i"
+        }
+      ]
+    },
+    {
+      "input": "Reply with ONLY one risk and nothing else for: migrate the API to v2.",
+      "expectedOutput": "A migration risk mentioning the API.",
+      "tags": [
+        "member: the-architect",
+        "plan",
+        "risk"
+      ],
+      "difficulty": "medium",
+      "assertions": [
+        {
+          "type": "regex",
+          "target": "api|migrat|compat|v1|v2|endpoint|break|upgrad|client",
+          "flags": "i"
+        }
+      ]
+    },
+    {
+      "input": "Reply with ONLY one ADR title and nothing else for: choose Postgres over MySQL.",
+      "expectedOutput": "An ADR title mentioning Postgres.",
+      "tags": [
+        "member: the-architect",
+        "adr"
+      ],
+      "difficulty": "easy",
+      "assertions": [
+        {
+          "type": "regex",
+          "target": "postgres",
+          "flags": "i"
+        }
+      ]
+    },
+    {
+      "input": "Reply with ONLY the first implementation task and nothing else for: add rate limiting to the login endpoint.",
+      "expectedOutput": "A first task mentioning rate limiting or login.",
+      "tags": [
+        "member: the-architect",
+        "plan",
+        "tasks"
+      ],
+      "difficulty": "medium",
+      "assertions": [
+        {
+          "type": "regex",
+          "target": "rate|login|limit",
+          "flags": "i"
+        }
+      ]
+    }
+  ]
+}

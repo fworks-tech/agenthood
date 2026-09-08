@@ -1,0 +1,9 @@
+{
+  "member": "the-reviewer",
+  "suiteName": "the-reviewer",
+  "timestamp": "2026-09-08T05:27:10.942Z",
+  "taskCount": 5,
+  "aggregate": {
+    "assertions": 1
+  }
+}

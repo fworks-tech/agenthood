@@ -1,0 +1,42 @@
+{
+  "name": "the-tester",
+  "description": "Test-generation tasks targeting the-tester member. Assertion-graded only (no LLM judge) so the suite is deterministic and CI-safe.",
+  "metrics": [],
+  "tasks": [
+    {
+      "input": "Reply with ONLY a test name and nothing else for: total(items) sums item prices.",
+      "expectedOutput": "A test name mentioning total or sum.",
+      "tags": ["member: the-tester", "tests", "unit"],
+      "difficulty": "easy",
+      "assertions": [{ "type": "regex", "target": "total|sum|adds", "flags": "i" }]
+    },
+    {
+      "input": "Reply with ONLY the edge case named and nothing else for: testing `divide(a, b)`.",
+      "expectedOutput": "The divide-by-zero edge case.",
+      "tags": ["member: the-tester", "tests", "edge-case"],
+      "difficulty": "easy",
+      "assertions": [{ "type": "regex", "target": "zero|divid|edge", "flags": "i" }]
+    },
+    {
+      "input": "Reply with ONLY the regression test named and nothing else for: the parser crash that was just fixed.",
+      "expectedOutput": "A regression test for the crash.",
+      "tags": ["member: the-tester", "tests", "regression"],
+      "difficulty": "medium",
+      "assertions": [{ "type": "regex", "target": "regress|crash|parser", "flags": "i" }]
+    },
+    {
+      "input": "Reply with ONLY what to mock and nothing else for: testing checkout without charging cards.",
+      "expectedOutput": "The payment gateway mock.",
+      "tags": ["member: the-tester", "tests", "mock"],
+      "difficulty": "medium",
+      "assertions": [{ "type": "regex", "target": "mock|payment|gateway|stub|charg", "flags": "i" }]
+    },
+    {
+      "input": "Reply with ONLY the coverage gap named and nothing else for: the error branch of `login` is never exercised.",
+      "expectedOutput": "The untested error branch.",
+      "tags": ["member: the-tester", "tests", "coverage"],
+      "difficulty": "medium",
+      "assertions": [{ "type": "regex", "target": "error|branch|cover|untest|login", "flags": "i" }]
+    }
+  ]
+}

@@ -1,0 +1,90 @@
+{
+  "name": "the-scribe",
+  "description": "Commit-message, changelog, and release-prose tasks targeting the-scribe member. Assertion-graded only (no LLM judge) so the suite is deterministic and CI-safe.",
+  "metrics": [],
+  "tasks": [
+    {
+      "input": "Reply with ONLY a conventional commit message and nothing else for this change: fix a null-pointer crash in the session parser.",
+      "expectedOutput": "A conventional commit starting with the fix type, e.g. fix(parser): guard against null session.",
+      "tags": [
+        "member: the-scribe",
+        "commit",
+        "conventional-commits"
+      ],
+      "difficulty": "easy",
+      "assertions": [
+        {
+          "type": "regex",
+          "target": "fix",
+          "flags": "i"
+        }
+      ]
+    },
+    {
+      "input": "Reply with ONLY a conventional commit message and nothing else for this change: add CSV export to the reports page.",
+      "expectedOutput": "A conventional commit starting with the feat type, e.g. feat(reports): add CSV export.",
+      "tags": [
+        "member: the-scribe",
+        "commit",
+        "conventional-commits"
+      ],
+      "difficulty": "easy",
+      "assertions": [
+        {
+          "type": "regex",
+          "target": "feat",
+          "flags": "i"
+        }
+      ]
+    },
+    {
+      "input": "Reply with ONLY a one-line changelog entry and nothing else for: fix a null-pointer crash in the session parser.",
+      "expectedOutput": "A changelog line describing the parser crash fix.",
+      "tags": [
+        "member: the-scribe",
+        "changelog"
+      ],
+      "difficulty": "easy",
+      "assertions": [
+        {
+          "type": "regex",
+          "target": "fix",
+          "flags": "i"
+        }
+      ]
+    },
+    {
+      "input": "Reply with ONLY a short PR description and nothing else for: add CSV export to the reports page.",
+      "expectedOutput": "A PR description mentioning the CSV export feature.",
+      "tags": [
+        "member: the-scribe",
+        "pr-description"
+      ],
+      "difficulty": "medium",
+      "assertions": [
+        {
+          "type": "regex",
+          "target": "csv",
+          "flags": "i"
+        }
+      ]
+    },
+    {
+      "input": "Reply with ONLY a conventional commit message and nothing else for this change: update the README installation steps.",
+      "expectedOutput": "A conventional commit starting with the docs type, e.g. docs(readme): update installation steps.",
+      "tags": [
+        "member: the-scribe",
+        "commit",
+        "conventional-commits"
+      ],
+      "difficulty": "easy",
+      "assertions": [
+        {
+          "type": "regex",
+          "target": "docs",
+          "flags": "i"
+        }
+      ]
+    }
+  ]
+}

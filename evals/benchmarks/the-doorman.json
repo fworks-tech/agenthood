@@ -1,0 +1,42 @@
+{
+  "name": "the-doorman",
+  "description": "Convention-validation tasks targeting the-doorman member. Assertion-graded only (no LLM judge) so the suite is deterministic and CI-safe.",
+  "metrics": [],
+  "tasks": [
+    {
+      "input": "Reply with ONLY valid or invalid and nothing else for this commit message: 'fix stuff'.",
+      "expectedOutput": "Invalid, it violates conventional commits.",
+      "tags": ["member: the-doorman", "commit", "conventions"],
+      "difficulty": "easy",
+      "assertions": [{ "type": "regex", "target": "invalid", "flags": "i" }]
+    },
+    {
+      "input": "Reply with ONLY valid or invalid and nothing else for this commit message: 'feat(cart): add quantity guard'.",
+      "expectedOutput": "Valid conventional commit.",
+      "tags": ["member: the-doorman", "commit", "conventions"],
+      "difficulty": "easy",
+      "assertions": [{ "type": "regex", "target": "valid", "flags": "i" }]
+    },
+    {
+      "input": "Reply with ONLY valid or invalid and nothing else for this branch name: 'Fix_Login_Bug'.",
+      "expectedOutput": "Invalid, branch names are lowercase hyphenated.",
+      "tags": ["member: the-doorman", "branch", "conventions"],
+      "difficulty": "easy",
+      "assertions": [{ "type": "regex", "target": "invalid", "flags": "i" }]
+    },
+    {
+      "input": "Reply with ONLY the missing item and nothing else for a PR with no linked issue.",
+      "expectedOutput": "The missing linked issue.",
+      "tags": ["member: the-doorman", "pr", "conventions"],
+      "difficulty": "easy",
+      "assertions": [{ "type": "regex", "target": "issue|link|closes", "flags": "i" }]
+    },
+    {
+      "input": "Reply with ONLY merge or block and nothing else for a PR whose CI run is red.",
+      "expectedOutput": "Block, never merge on red CI.",
+      "tags": ["member: the-doorman", "pr", "ci-gate"],
+      "difficulty": "easy",
+      "assertions": [{ "type": "regex", "target": "block", "flags": "i" }]
+    }
+  ]
+}

@@ -1,0 +1,92 @@
+{
+  "name": "the-auditor",
+  "description": "Security-review tasks targeting the-auditor member. Assertion-graded only (no LLM judge) so the suite is deterministic and CI-safe.",
+  "metrics": [],
+  "tasks": [
+    {
+      "input": "Reply with ONLY the vulnerability name and nothing else for: db.query('SELECT * FROM users WHERE id = ' + userId).",
+      "expectedOutput": "The vulnerability name, SQL injection.",
+      "tags": [
+        "member: the-auditor",
+        "security",
+        "injection"
+      ],
+      "difficulty": "easy",
+      "assertions": [
+        {
+          "type": "regex",
+          "target": "sql|injection",
+          "flags": "i"
+        }
+      ]
+    },
+    {
+      "input": "Reply with ONLY the vulnerability name and nothing else for: element.innerHTML = location.hash.slice(1).",
+      "expectedOutput": "The vulnerability name, cross-site scripting.",
+      "tags": [
+        "member: the-auditor",
+        "security",
+        "xss"
+      ],
+      "difficulty": "easy",
+      "assertions": [
+        {
+          "type": "regex",
+          "target": "script|xss",
+          "flags": "i"
+        }
+      ]
+    },
+    {
+      "input": "Reply with ONLY the finding and nothing else for: a production password committed in plaintext in config.js.",
+      "expectedOutput": "A finding about a hardcoded credential.",
+      "tags": [
+        "member: the-auditor",
+        "security",
+        "secrets"
+      ],
+      "difficulty": "easy",
+      "assertions": [
+        {
+          "type": "regex",
+          "target": "secret|hardcod|password|plaintext|credential",
+          "flags": "i"
+        }
+      ]
+    },
+    {
+      "input": "Reply with ONLY the missing control and nothing else for: an admin endpoint with no authorization check.",
+      "expectedOutput": "The missing authorization control.",
+      "tags": [
+        "member: the-auditor",
+        "security",
+        "auth"
+      ],
+      "difficulty": "medium",
+      "assertions": [
+        {
+          "type": "regex",
+          "target": "authoriz|auth|access",
+          "flags": "i"
+        }
+      ]
+    },
+    {
+      "input": "Reply with ONLY the recommended fix and nothing else for: passwords stored with MD5 and no salt.",
+      "expectedOutput": "A fix recommending salted hashing like bcrypt.",
+      "tags": [
+        "member: the-auditor",
+        "security",
+        "crypto"
+      ],
+      "difficulty": "medium",
+      "assertions": [
+        {
+          "type": "regex",
+          "target": "bcrypt|salt|hash",
+          "flags": "i"
+        }
+      ]
+    }
+  ]
+}

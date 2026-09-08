@@ -1,0 +1,9 @@
+{
+  "member": "the-mailman",
+  "suiteName": "the-mailman",
+  "timestamp": "2026-09-08T04:47:37.872Z",
+  "taskCount": 5,
+  "aggregate": {
+    "assertions": 1
+  }
+}

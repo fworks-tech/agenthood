@@ -1,0 +1,42 @@
+{
+  "name": "the-builder",
+  "description": "Implementation tasks targeting the-builder member. Assertion-graded only (no LLM judge) so the suite is deterministic and CI-safe.",
+  "metrics": [],
+  "tasks": [
+    {
+      "input": "Reply with ONLY the fixed line and nothing else for: fix `total = price * qty` to also add tax.",
+      "expectedOutput": "A fixed line mentioning tax.",
+      "tags": ["member: the-builder", "fix"],
+      "difficulty": "easy",
+      "assertions": [{ "type": "regex", "target": "tax", "flags": "i" }]
+    },
+    {
+      "input": "Reply with ONLY a function signature and nothing else for: a function that validates an email string.",
+      "expectedOutput": "A signature mentioning email or validate.",
+      "tags": ["member: the-builder", "implement", "validation"],
+      "difficulty": "easy",
+      "assertions": [{ "type": "regex", "target": "email|valid", "flags": "i" }]
+    },
+    {
+      "input": "Reply with ONLY the refactored code and nothing else for: split a 200-line `processOrder` into smaller functions.",
+      "expectedOutput": "Refactored code mentioning processOrder or order.",
+      "tags": ["member: the-builder", "refactor"],
+      "difficulty": "medium",
+      "assertions": [{ "type": "regex", "target": "order|process", "flags": "i" }]
+    },
+    {
+      "input": "Reply with ONLY the added guard and nothing else for: reject negative quantities in `addToCart`.",
+      "expectedOutput": "A guard mentioning quantity or negative.",
+      "tags": ["member: the-builder", "implement", "guard"],
+      "difficulty": "easy",
+      "assertions": [{ "type": "regex", "target": "quantit|negativ|cart", "flags": "i" }]
+    },
+    {
+      "input": "Reply with ONLY the retry logic and nothing else for: retry a failed fetch up to 3 times.",
+      "expectedOutput": "Retry logic mentioning retry or fetch.",
+      "tags": ["member: the-builder", "implement", "retry"],
+      "difficulty": "medium",
+      "assertions": [{ "type": "regex", "target": "retry|fetch|attempt", "flags": "i" }]
+    }
+  ]
+}

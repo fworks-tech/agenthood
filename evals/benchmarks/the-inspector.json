@@ -1,0 +1,92 @@
+{
+  "name": "the-inspector",
+  "description": "Visual-reasoning tasks targeting the-inspector member, expressed textually. Assertion-graded only (no LLM judge) so the suite is deterministic and CI-safe.",
+  "metrics": [],
+  "tasks": [
+    {
+      "input": "In one short sentence, what is the first thing to check in a low-resolution image?",
+      "expectedOutput": "Resolution, pixels, or brightness.",
+      "tags": [
+        "member: the-inspector",
+        "vision",
+        "pixels"
+      ],
+      "difficulty": "medium",
+      "assertions": [
+        {
+          "type": "regex",
+          "target": "resolut|pixel|bright|check|inspect",
+          "flags": "i"
+        }
+      ]
+    },
+    {
+      "input": "Reply with ONLY what to compare and nothing else for: map coordinates across two panels.",
+      "expectedOutput": "The coordinate mapping or correspondence.",
+      "tags": [
+        "member: the-inspector",
+        "vision",
+        "panels"
+      ],
+      "difficulty": "medium",
+      "assertions": [
+        {
+          "type": "regex",
+          "target": "coordin|map|panel|correspond",
+          "flags": "i"
+        }
+      ]
+    },
+    {
+      "input": "Reply with ONLY the classification output and nothing else for: decide which side of a graph cut a point falls on.",
+      "expectedOutput": "The side classification.",
+      "tags": [
+        "member: the-inspector",
+        "vision",
+        "graph-cut"
+      ],
+      "difficulty": "hard",
+      "assertions": [
+        {
+          "type": "regex",
+          "target": "side|cut|left|right|classif",
+          "flags": "i"
+        }
+      ]
+    },
+    {
+      "input": "Reply with ONLY the required field and nothing else for: extract an answer with confidence from a figure.",
+      "expectedOutput": "The confidence field.",
+      "tags": [
+        "member: the-inspector",
+        "vision",
+        "confidence"
+      ],
+      "difficulty": "medium",
+      "assertions": [
+        {
+          "type": "regex",
+          "target": "confiden",
+          "flags": "i"
+        }
+      ]
+    },
+    {
+      "input": "Reply with ONLY the failure mode and nothing else for: a benchmark question with an unreadable image.",
+      "expectedOutput": "The unreadable or low-resolution failure.",
+      "tags": [
+        "member: the-inspector",
+        "vision",
+        "robustness"
+      ],
+      "difficulty": "easy",
+      "assertions": [
+        {
+          "type": "regex",
+          "target": "unread|resolut|blur|unclear|ambigu|overconfid",
+          "flags": "i"
+        }
+      ]
+    }
+  ]
+}

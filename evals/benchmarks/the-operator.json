@@ -1,0 +1,92 @@
+{
+  "name": "the-operator",
+  "description": "Runtime-health and incident tasks targeting the-operator member. Assertion-graded only (no LLM judge) so the suite is deterministic and CI-safe.",
+  "metrics": [],
+  "tasks": [
+    {
+      "input": "Reply with ONLY the first incident step and nothing else for: the checkout API returns 500s.",
+      "expectedOutput": "A first step mentioning triage or mitigate.",
+      "tags": [
+        "member: the-operator",
+        "incident",
+        "triage"
+      ],
+      "difficulty": "easy",
+      "assertions": [
+        {
+          "type": "regex",
+          "target": "triage|mitigat|assess|page",
+          "flags": "i"
+        }
+      ]
+    },
+    {
+      "input": "Reply with ONLY the rollback action and nothing else for: the new release doubled error rates.",
+      "expectedOutput": "The rollback action.",
+      "tags": [
+        "member: the-operator",
+        "incident",
+        "rollback"
+      ],
+      "difficulty": "easy",
+      "assertions": [
+        {
+          "type": "regex",
+          "target": "rollback|revert|previous",
+          "flags": "i"
+        }
+      ]
+    },
+    {
+      "input": "Reply with ONLY the pre-deploy check and nothing else for: ship the API to production.",
+      "expectedOutput": "A check mentioning health, CI, or green.",
+      "tags": [
+        "member: the-operator",
+        "deploy",
+        "gate"
+      ],
+      "difficulty": "medium",
+      "assertions": [
+        {
+          "type": "regex",
+          "target": "health|green|ci|check",
+          "flags": "i"
+        }
+      ]
+    },
+    {
+      "input": "Reply with ONLY the metric named and nothing else for: watch error rates after a release.",
+      "expectedOutput": "The error-rate or latency metric.",
+      "tags": [
+        "member: the-operator",
+        "monitor",
+        "metrics"
+      ],
+      "difficulty": "easy",
+      "assertions": [
+        {
+          "type": "regex",
+          "target": "error|latenc|rate|metric",
+          "flags": "i"
+        }
+      ]
+    },
+    {
+      "input": "In one short sentence, when should an alert page for repeated checkout failures?",
+      "expectedOutput": "A failure threshold.",
+      "tags": [
+        "member: the-operator",
+        "monitor",
+        "alert"
+      ],
+      "difficulty": "medium",
+      "assertions": [
+        {
+          "type": "regex",
+          "target": "fail|threshold|repeat|alert|checkout",
+          "flags": "i"
+        }
+      ]
+    }
+  ]
+}

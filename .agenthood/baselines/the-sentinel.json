@@ -1,0 +1,9 @@
+{
+  "member": "the-sentinel",
+  "suiteName": "the-sentinel",
+  "timestamp": "2026-09-08T05:27:51.010Z",
+  "taskCount": 5,
+  "aggregate": {
+    "assertions": 1
+  }
+}

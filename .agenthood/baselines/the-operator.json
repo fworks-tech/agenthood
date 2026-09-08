@@ -1,0 +1,9 @@
+{
+  "member": "the-operator",
+  "suiteName": "the-operator",
+  "timestamp": "2026-09-08T04:49:26.412Z",
+  "taskCount": 5,
+  "aggregate": {
+    "assertions": 1
+  }
+}

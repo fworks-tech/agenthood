@@ -115,7 +115,7 @@ The `agenthood` CLI auto-discovers commands from `src/commands/` — each file e
 - `agenthood trace` — list recent invocation traces (`--member`, `--limit`, `--since`, `--json`); subcommands: `visualize <id>` (ASCII timeline), `diff <id1> <id2>` (side-by-side comparison)
 - `agenthood log` — list recent structured log entries (`--level`, `--member`, `--limit`, `--since`, `--json`, `--tail N`, `--follow`)
 - `agenthood status` — project health and member metrics (`--watch`, `--json`, `--drift`, `--member`, `--learner`)
-- `agenthood eval <member> --suite <path>` — run an eval suite against a member (`--baseline`, `--update-baseline`, `--json`)
+- `agenthood eval <member> --suite <path>` — run an eval suite against a member (`--baseline`, `--update-baseline`, `--benchmark <path>`, `--json`)
 - `agenthood health` — runtime health checks (`--json`; exit 0 healthy / 1 degraded / 2 unhealthy)
 - `agenthood check` / `verify` — health and member-integrity validation
 - `agenthood install <url>` — install a skill from a URL or git repository (`--dry-run` to preview)
@@ -134,6 +134,8 @@ Every member invocation emits a trace envelope (member, duration, tokens, cost, 
 Evaluation: `agenthood eval <member> --suite <path>` runs the member against every task in an eval suite (`evals/benchmarks/` ships ready-made fixtures), scores each run on faithfulness, relevance, context_recall, and answer_correctness via an LLM judge, and compares the aggregates against a stored baseline in `.agenthood/baselines/<member>.json` — the command exits non-zero when a metric regresses. Use `--update-baseline` after a deliberately good run to refresh the comparison target.
 
 A task can also declare deterministic `assertions` in the suite JSON — `{ type: "exact" | "contains" | "regex" | "semantic", target, weight?, flags?, threshold? }` (schema in `src/evals/evalSuiteSchema.ts`, graded by `src/evals/AssertionJudge.ts`). `exact`/`contains`/`regex` need no LLM and run key-free in CI; `semantic` compares output to target by embedding cosine similarity (passing at `threshold`, default 0.8). Per task the assertions collapse into an `assertions` score (a weight-normalised partial-credit mean in `[0,1]`) shown as the `Assert` column and folded into the aggregate. Prefer assertions for anything with a checkable shape and reserve LLM-judged metrics for open-ended quality.
+
+`--benchmark <path>` writes a standardized `benchmark.json` (built by `src/evals/benchmark.ts`) alongside the run: `pass_rate`, `avg_time_ms`, and `avg_tokens` plus the per-metric `aggregate` and a per-task outcome list. A task is *passed* when its assertions are all green, else when the mean of its judge scores is at or above `0.7`; errored tasks are counted in `errorCount` and excluded from the pass-rate denominator. Token totals come from the member run's `usage`, so the same figures feed cost and provider comparisons (`--provider`-style selection is a run-time config concern — record `provider`/`model` in the benchmark to compare configurations across runs).
 
 Redaction: trace payload text is scrubbed before persistence by default. Emails, `sk-` keys, bearer tokens, URL query values, and IP addresses are replaced with a deterministic `[REDACTED]` placeholder (preserving replay reproducibility). Custom regex rules and absolute-path roots are opt-in via `{ "observability": { "redaction": { "rules": ["<regex sources>"], "paths": ["<file roots>"] } } }` in `.agenthood/config.json`; set `"enabled": false` to disable redaction entirely.
 

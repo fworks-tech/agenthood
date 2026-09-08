@@ -171,6 +171,28 @@ describe('EvalRunner — assertion grading', () => {
     expect(report.tasks[0].assertions).toBeUndefined()
     expect(report.aggregate).toEqual({ relevance: 0.5 })
   })
+
+  it('captures token usage from the runner result', async () => {
+    const runner: RunMemberFn = async () => ({
+      output: 'x',
+      durationMs: 5,
+      usage: { promptTokens: 3, completionTokens: 4, totalTokens: 7 },
+    })
+    const report = await new EvalRunner(runner, stubJudge({ relevance: 0.5 })).run(
+      { name: 's', metrics: ['relevance'], tasks: [{ input: 'q', expectedOutput: 'e' }] },
+      'm',
+    )
+    expect(report.tasks[0].tokens).toBe(7)
+  })
+
+  it('defaults tokens to 0 when the runner reports no usage', async () => {
+    const { runner } = stubRunner('x')
+    const report = await new EvalRunner(runner, stubJudge({ relevance: 0.5 })).run(
+      { name: 's', metrics: ['relevance'], tasks: [{ input: 'q', expectedOutput: 'e' }] },
+      'm',
+    )
+    expect(report.tasks[0].tokens).toBe(0)
+  })
 })
 
 describe('buildEvalResults', () => {

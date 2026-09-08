@@ -139,7 +139,7 @@ export class MemberRunner {
         output: redactEventText(this.ctx, result.output),
         durationMs: duration,
       })
-      return { output: result.output, durationMs: duration }
+      return { output: result.output, durationMs: duration, usage: { ...loop.usage } }
     } catch (err) {
       const duration = Math.round(performance.now() - startTime)
       // a parked run is awaiting human input, not a failure: emit the park

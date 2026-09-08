@@ -18,6 +18,7 @@ const METRIC_LABELS: Record<string, string> = {
   relevance: 'Relv.',
   context_recall: 'CtxR.',
   answer_correctness: 'Corr.',
+  assertions: 'Assert',
 }
 
 function printUsage(): void {
@@ -184,7 +185,7 @@ export async function evalMember(args: string[] = []): Promise<void> {
 
   const runner = (task: string) => app.runner.runMemberTask(member, task, config)
   const judge = new LLMJudge(app.llm)
-  const report = await new EvalRunner(runner, judge).run(suite, member)
+  const report = await new EvalRunner(runner, judge, { embed: (text) => app.llm.embed(text) }).run(suite, member)
 
   await finishWithBaseline(report, member, baselinePath, shouldUpdateBaseline, shouldJson)
 }

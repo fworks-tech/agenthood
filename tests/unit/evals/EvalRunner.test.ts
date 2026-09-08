@@ -2,6 +2,7 @@ import { describe, it, expect, vi } from 'vitest'
 import { EvalRunner, buildEvalResults, DEFAULT_METRICS } from '../../../src/evals/EvalRunner.ts'
 import type { EvalJudge, JudgeContext } from '../../../src/evals/EvalJudge.ts'
 import type { EvalSuite } from '../../../src/evals/types.ts'
+import type { Assertion } from '../../../src/evals/types.ts'
 import type { MemberRunResult, RunMemberFn } from '../../../src/evals/EvalRunner.ts'
 
 const suite: EvalSuite = {
@@ -108,6 +109,67 @@ describe('EvalRunner', () => {
 
   it('defaults to the standard four metrics', () => {
     expect(DEFAULT_METRICS).toEqual(['faithfulness', 'relevance', 'context_recall', 'answer_correctness'])
+  })
+})
+
+describe('EvalRunner — assertion grading', () => {
+  function assertionSuite(assertions: Assertion[]): EvalSuite {
+    return { name: 'assert-suite', metrics: [], tasks: [{ input: 'q', expectedOutput: 'e', assertions }] }
+  }
+
+  it('grades deterministic assertions and folds the score into the aggregate', async () => {
+    const { runner } = stubRunner('the report is ready')
+    const assertions: Assertion[] = [
+      { type: 'contains', target: 'report' },
+      { type: 'contains', target: 'missing-thing' },
+    ]
+    const report = await new EvalRunner(runner, stubJudge({})).run(assertionSuite(assertions), 'm')
+    expect(report.tasks[0].assertions).toEqual({ score: 0.5, passed: 1, total: 2 })
+    expect(report.tasks[0].scores.assertions).toBe(0.5)
+    expect(report.tasks[0].status).toBe('completed')
+    expect(report.aggregate.assertions).toBe(0.5)
+  })
+
+  it('combines assertion and judge metric scores on the same task', async () => {
+    const { runner } = stubRunner('x')
+    const report = await new EvalRunner(runner, stubJudge({ relevance: 0.8 })).run(
+      { name: 's', metrics: ['relevance'], tasks: [{ input: 'q', expectedOutput: 'e', assertions: [{ type: 'exact', target: 'x' }] }] },
+      'm',
+    )
+    expect(report.tasks[0].scores).toEqual({ relevance: 0.8, assertions: 1 })
+    expect(report.aggregate).toEqual({ relevance: 0.8, assertions: 1 })
+  })
+
+  it('uses the injected embedder for semantic assertions', async () => {
+    const { runner } = stubRunner('out-vec')
+    const spy = vi.fn(async (text: string) => (text === 'out-vec' ? [1, 0] : [0, 1]))
+    const report = await new EvalRunner(runner, stubJudge({}), { embed: spy }).run(
+      assertionSuite([{ type: 'semantic', target: 'exp-vec', threshold: 0.5 }]),
+      'm',
+    )
+    // output embeds orthogonal to target -> cos 0 -> fail, score 0
+    expect(report.tasks[0].assertions).toMatchObject({ score: 0, passed: 0, total: 1 })
+    expect(spy).toHaveBeenCalledTimes(2)
+  })
+
+  it('a passing semantic assertion yields score ~1', async () => {
+    const { runner } = stubRunner('same')
+    const embed = async () => [1, 0]
+    const report = await new EvalRunner(runner, stubJudge({}), { embed }).run(
+      assertionSuite([{ type: 'semantic', target: 'same' }]),
+      'm',
+    )
+    expect(report.tasks[0].assertions).toMatchObject({ score: 1, passed: 1, total: 1 })
+  })
+
+  it('tasks without assertions get no assertions key', async () => {
+    const { runner } = stubRunner('out')
+    const report = await new EvalRunner(runner, stubJudge({ relevance: 0.5 })).run(
+      { name: 'noassert', metrics: ['relevance'], tasks: [{ input: 'q', expectedOutput: 'e' }] },
+      'm',
+    )
+    expect(report.tasks[0].assertions).toBeUndefined()
+    expect(report.aggregate).toEqual({ relevance: 0.5 })
   })
 })
 

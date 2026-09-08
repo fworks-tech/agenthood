@@ -33,6 +33,22 @@ export const EVAL_SUITE_SCHEMA: JSONSchema = {
             type: 'string',
             enum: ['easy', 'medium', 'hard'],
           },
+          assertions: {
+            type: 'array',
+            minItems: 1,
+            items: {
+              type: 'object',
+              additionalProperties: false,
+              required: ['type', 'target'],
+              properties: {
+                type: { type: 'string', enum: ['exact', 'contains', 'regex', 'semantic'] },
+                target: { type: 'string' },
+                weight: { type: 'number', exclusiveMinimum: 0 },
+                flags: { type: 'string' },
+                threshold: { type: 'number', minimum: 0, maximum: 1 },
+              },
+            },
+          },
         },
       },
     },

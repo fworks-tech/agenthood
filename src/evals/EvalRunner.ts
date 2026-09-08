@@ -1,7 +1,9 @@
 import { randomUUID } from 'node:crypto'
 
 import type { EvalResult } from '../core/types.ts'
+import { gradeAssertions } from './AssertionJudge.ts'
 import type { EvalJudge } from './EvalJudge.ts'
+import type { EmbedFn } from './ReplayEvaluator.ts'
 import type { EvalSuite, EvalTask } from './types.ts'
 
 export const DEFAULT_METRICS = ['faithfulness', 'relevance', 'context_recall', 'answer_correctness']
@@ -23,6 +25,7 @@ export interface TaskScore {
   scores: Record<string, number>
   status: TaskStatus
   error?: string
+  assertions?: { score: number; passed: number; total: number }
 }
 
 export interface EvalReport {
@@ -40,13 +43,15 @@ export interface EvalReport {
  */
 export class EvalRunner {
   private readonly metrics: string[]
+  private readonly embed?: EmbedFn
 
   constructor(
     private readonly runner: RunMemberFn,
     private readonly judge: EvalJudge,
-    options: { metrics?: string[] } = {},
+    options: { metrics?: string[]; embed?: EmbedFn } = {},
   ) {
     this.metrics = options.metrics ?? []
+    this.embed = options.embed
   }
 
   async run(suite: EvalSuite, member: string): Promise<EvalReport> {
@@ -55,12 +60,17 @@ export class EvalRunner {
     for (const task of suite.tasks) {
       tasks.push(await this.runTask(task, metrics))
     }
+    // Fold the deterministic assertion score into the aggregate when any task asserts.
+    const aggMetrics =
+      metrics.includes('assertions') || suite.tasks.some((t) => t.assertions?.length)
+        ? [...metrics, 'assertions']
+        : metrics
     return {
       suiteName: suite.name,
       member,
       timestamp: new Date().toISOString(),
       tasks,
-      aggregate: aggregateScores(tasks, metrics),
+      aggregate: aggregateScores(tasks, aggMetrics),
     }
   }
 
@@ -73,8 +83,14 @@ export class EvalRunner {
         const score = await this.judge.score(metric, { input: task.input, output, expected: task.expectedOutput })
         if (score !== null) scores[metric] = score
       }
+      let assertions: TaskScore['assertions']
+      if (task.assertions?.length) {
+        const grade = await gradeAssertions(task.assertions, output, this.embed)
+        assertions = { score: grade.score, passed: grade.passed, total: grade.total }
+        scores.assertions = grade.score
+      }
       const status: TaskStatus = Object.keys(scores).length > 0 ? 'completed' : 'unevaluated'
-      return { ...base, output, durationMs, scores, status }
+      return { ...base, output, durationMs, scores, status, assertions }
     } catch (err) {
       return { ...base, status: 'error', error: err instanceof Error ? err.message : String(err) }
     }

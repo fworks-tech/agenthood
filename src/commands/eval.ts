@@ -3,12 +3,15 @@ import { writeFileSync, mkdirSync } from 'node:fs'
 
 import { SchemaValidationError } from '../core/SchemaValidator.ts'
 import { loadEvalSuite } from '../evals/evalSuiteSchema.ts'
-import { buildBenchmark } from '../evals/benchmark.ts'
+import { buildBenchmark, taskPassed } from '../evals/benchmark.ts'
 import { LLMJudge } from '../evals/EvalJudge.ts'
 import { EvalRunner } from '../evals/EvalRunner.ts'
 import type { EvalReport } from '../evals/EvalRunner.ts'
 import { BaselineComparator } from '../evals/BaselineComparator.ts'
 import type { RegressionReport } from '../evals/BaselineComparator.ts'
+import { detectConvergence, detectRegression } from '../evals/convergence.ts'
+import { RunHistory } from '../evals/runHistory.ts'
+import type { EvalRunRecord } from '../evals/types.ts'
 import { ApplicationContext } from '../runtime/ApplicationContext.ts'
 import { loadTriggerSet, runTriggerRate } from './evalTriggers.ts'
 import { loadConfigOrExit } from './config.ts'
@@ -34,6 +37,8 @@ function printUsage(): void {
   --triggers <path>     Score activation trigger rate from a query-set JSON (no suite)
   --semantic            With --triggers: also score the embedding/description surface (needs a key)
   --replay [--limit N]  Re-run stored traces and compare output drift (no suite)
+  --convergence         Check convergence against run history
+  --history             Print run history table for this member
   --json                Machine-readable JSON output
   --help                Show this help`)
 }
@@ -106,15 +111,19 @@ interface ParsedEvalArgs {
   shouldJson: boolean
   shouldReplay: boolean
   shouldSemantic: boolean
+  shouldConvergence: boolean
+  shouldHistory: boolean
   replayLimit: number
   helpRequested: boolean
 }
 
-const BOOLEAN_FLAGS: Record<string, 'shouldUpdateBaseline' | 'shouldJson' | 'shouldReplay' | 'shouldSemantic'> = {
+const BOOLEAN_FLAGS: Record<string, 'shouldUpdateBaseline' | 'shouldJson' | 'shouldReplay' | 'shouldSemantic' | 'shouldConvergence' | 'shouldHistory'> = {
   '--json': 'shouldJson',
   '--replay': 'shouldReplay',
   '--update-baseline': 'shouldUpdateBaseline',
   '--semantic': 'shouldSemantic',
+  '--convergence': 'shouldConvergence',
+  '--history': 'shouldHistory',
 }
 
 function failUsage(message: string): never {
@@ -126,7 +135,8 @@ export function parseEvalArgs(args: string[]): ParsedEvalArgs {
   const positional: string[] = []
   const flags: ParsedEvalArgs = {
     member: undefined, suitePath: undefined, baselinePath: undefined, benchmarkPath: undefined, triggersPath: undefined,
-    shouldUpdateBaseline: false, shouldJson: false, shouldReplay: false, shouldSemantic: false, replayLimit: 50, helpRequested: false,
+    shouldUpdateBaseline: false, shouldJson: false, shouldReplay: false, shouldSemantic: false, shouldConvergence: false,
+    shouldHistory: false, replayLimit: 50, helpRequested: false,
   }
 
   for (let i = 0; i < args.length; i++) {
@@ -173,7 +183,7 @@ export function parseReplayLimit(raw: string | undefined): number {
 }
 
 export async function evalMember(args: string[] = []): Promise<void> {
-  const { member, suitePath, baselinePath, benchmarkPath, triggersPath, shouldUpdateBaseline, shouldJson, shouldReplay, shouldSemantic, replayLimit, helpRequested } = parseEvalArgs(args)
+  const { member, suitePath, baselinePath, benchmarkPath, triggersPath, shouldUpdateBaseline, shouldJson, shouldReplay, shouldSemantic, shouldConvergence, shouldHistory, replayLimit, helpRequested } = parseEvalArgs(args)
   if (helpRequested) return
 
   if (triggersPath) {
@@ -186,6 +196,14 @@ export async function evalMember(args: string[] = []): Promise<void> {
       process.exit(1)
     }
     await runReplay(member, replayLimit, shouldJson)
+    return
+  }
+  if (shouldHistory) {
+    if (!member) {
+      printUsage()
+      process.exit(1)
+    }
+    printHistory(member)
     return
   }
   if (!member || !suitePath) {
@@ -210,7 +228,67 @@ export async function evalMember(args: string[] = []): Promise<void> {
 
   if (benchmarkPath) writeBenchmark(report, benchmarkPath, config)
 
+  recordRun(report)
   await finishWithBaseline(report, member, baselinePath, shouldUpdateBaseline, shouldJson)
+
+  if (shouldConvergence) printConvergence(member, suite.name)
+}
+
+function recordRun(report: EvalReport): void {
+  const evaluated = report.tasks.filter((t) => taskPassed(t) !== null)
+  const passedCount = evaluated.filter((t) => taskPassed(t) === true).length
+  const passRate = evaluated.length === 0 ? -1 : Math.round((passedCount / evaluated.length) * 10000) / 10000
+  const durationMs = report.tasks.reduce((sum, t) => sum + t.durationMs, 0)
+
+  const record: EvalRunRecord = {
+    version: '0.0.0',
+    timestamp: report.timestamp,
+    member: report.member,
+    suiteName: report.suiteName,
+    passRate,
+    aggregate: report.aggregate,
+    taskCount: report.tasks.length,
+    durationMs,
+  }
+  new RunHistory(report.member).append(record)
+}
+
+function printConvergence(member: string, suiteName: string): void {
+  const history = new RunHistory(member).loadForSuite(suiteName)
+  const convergence = detectConvergence(history)
+  const regression = detectRegression(history)
+
+  const status = convergence.converged ? 'YES' : 'no'
+  const pct = (convergence.meanPassRate * 100).toFixed(1)
+  console.log(`\n  Convergence: ${status} | runs: ${convergence.runsObserved} | variance: ${convergence.variance.toFixed(4)} | mean pass rate: ${pct}%`)
+
+  if (regression.isRegression) {
+    console.log(`  Regression: pass rate dropped ${(regression.delta * 100).toFixed(1)}pp (best ${(regression.bestPassRate * 100).toFixed(1)}% → current ${(regression.currentPassRate * 100).toFixed(1)}%)`)
+  }
+  console.log()
+}
+
+function printHistory(member: string): void {
+  const history = new RunHistory(member).load()
+  if (history.length === 0) {
+    console.log(`\n  No eval history for "${member}".\n`)
+    return
+  }
+  console.log(`\n  Eval History — ${member} (${history.length} runs)\n`)
+  const header = ['Timestamp', 'Suite', 'Pass Rate', 'Tasks', 'Duration']
+  const widths = [24, 30, 11, 6, 10]
+  console.log(`  ${header.map((h, i) => h.padEnd(widths[i])).join(' ')}`)
+  console.log(`  ${widths.map((w) => ''.padEnd(w, '-')).join(' ')}`)
+
+  for (const run of history) {
+    const ts = run.timestamp.slice(0, 19).replace('T', ' ')
+    const suite = truncate(run.suiteName, widths[1]).padEnd(widths[1])
+    const pass = run.passRate < 0 ? 'n/a' : `${(run.passRate * 100).toFixed(1)}%`
+    const tasks = String(run.taskCount).padEnd(widths[3])
+    const dur = `${(run.durationMs / 1000).toFixed(1)}s`.padEnd(widths[4])
+    console.log(`  ${ts.padEnd(widths[0])} ${suite} ${pass.padEnd(widths[2])} ${tasks} ${dur}`)
+  }
+  console.log()
 }
 
 /** Persists a standardized benchmark.json and prints a one-line summary. */

@@ -28,3 +28,36 @@ export interface EvalSuite {
   metrics?: string[]
   baseline?: string
 }
+
+export interface EvalRunRecord {
+  version: string
+  timestamp: string
+  member: string
+  suiteName: string
+  passRate: number
+  aggregate: Record<string, number>
+  taskCount: number
+  durationMs: number
+}
+
+export interface ConvergenceConfig {
+  windowSize: number
+  threshold: number
+  minRuns: number
+}
+
+export interface ConvergenceResult {
+  converged: boolean
+  runsObserved: number
+  variance: number
+  meanPassRate: number
+  config: ConvergenceConfig
+}
+
+export interface RegressionResult {
+  isRegression: boolean
+  currentPassRate: number
+  bestPassRate: number
+  delta: number
+  threshold: number
+}

@@ -1,3 +1,10 @@
+# [3.59.0](https://github.com/fworks-tech/agenthood/compare/v3.58.0...v3.59.0) (2026-09-08)
+
+
+### Features
+
+* **runtime:** accept an injectable CheckpointStore for host-managed persistence ([#766](https://github.com/fworks-tech/agenthood/issues/766)) ([19e124a](https://github.com/fworks-tech/agenthood/commit/19e124ab4bf93c75368443b14d117ce9bc80be0e)), closes [#764](https://github.com/fworks-tech/agenthood/issues/764)
+
 # [3.57.0](https://github.com/fworks-tech/agenthood/compare/v3.56.6...v3.57.0) (2026-09-08)
 
 

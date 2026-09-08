@@ -5,6 +5,14 @@
 
 ---
 
+## v3.59.0 — September 8, 2026
+
+### ✨ Features
+
+- **Runtime:** accept an injectable CheckpointStore for host-managed persistence (#766)
+
+---
+
 ## v3.57.0 — September 8, 2026
 
 ### ✨ Features

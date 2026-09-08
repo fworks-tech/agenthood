@@ -22,7 +22,15 @@ const JUDGE_RUBRICS: Record<string, string> = {
   relevance: 'Rate how relevant the answer is to the input: it must directly address the task without drifting off-topic.',
   context_recall:
     'Rate how completely the answer covers the key facts of the expected output: how much of the ground truth the answer recalls.',
+  clarity:
+    'Rate how clear, well-structured, and easy to understand the response is. A clear response is organized, unambiguous, and readable.',
+  completeness:
+    'Rate how thoroughly the response addresses all aspects of the task. A complete response leaves no major point uncovered.',
+  accuracy:
+    'Rate how factually correct and precise the response is. An accurate response has no errors, hallucinations, or misleading statements.',
 }
+
+export const AB_METRICS = ['clarity', 'completeness', 'accuracy']
 
 export const JUDGE_SYSTEM_PROMPT =
   'You are an evaluation judge. Score the answer on a single metric. Respond with ONLY one decimal number between 0 and 1, where 0 is worst and 1 is perfect. Do not explain.'

@@ -61,3 +61,35 @@ export interface RegressionResult {
   delta: number
   threshold: number
 }
+
+export interface ABTaskScore {
+  input: string
+  expectedOutput: string
+  outputA: string
+  outputB: string
+  scoresA: Record<string, number>
+  scoresB: Record<string, number>
+  deltas: Record<string, number>
+}
+
+export interface SignificanceResult {
+  tStatistic: number
+  pValue: number
+  df: number
+  significant: boolean
+  effectSize: number
+  effectLabel: 'negligible' | 'small' | 'medium' | 'large'
+}
+
+export interface ABComparisonResult {
+  memberA: string
+  memberB: string
+  suiteName: string
+  taskCount: number
+  metrics: string[]
+  aggregateA: Record<string, number>
+  aggregateB: Record<string, number>
+  taskScores: ABTaskScore[]
+  winner: 'A' | 'B' | 'tie'
+  significance: SignificanceResult
+}

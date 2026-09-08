@@ -35,6 +35,7 @@ npx agenthood run <member> "<task>"   # Run a member as an LLM agent
 npx agenthood status         # Project health and member metrics (--watch, --json, --member, --learner)
 npx agenthood trace          # List recent invocation traces (--member, --limit, --since)
 npx agenthood eval <member> --suite <path>  # Run an eval suite with baseline gating
+npx agenthood eval <memberA> --ab <memberB> --suite <path>  # Blind A/B comparison with significance testing
 npx agenthood health         # Runtime health checks (exit 0/1/2)
 npx agenthood workflow <name>  # Execute a workflow (e.g. review-pr)
 npx agenthood eject          # Remove Society from a project
@@ -57,7 +58,7 @@ Agenthood is a **multi-agent AI framework** distributed as an npm package + VS C
 | 7 — Runtime | `src/` | TypeScript CLI + autonomous runtime (`agenthood run`) |
 | 8 — Memory & RAG | `src/memory/`, `src/rag/` | Memory tiers, DecisionLog + ProvenanceStore (ADR-015), KnowledgeGraphStore, RAG pipeline, Tree-sitter, LanceDB |
 | 9 — Workflows | `src/workflows/` | WorkflowEngine, QualityGates, DiffImpactAnalyzer, WorkflowCheckpoint, GoalChain shipped (e.g. review-pr); ParallelStep/HumanInLoop — 📋 Planned |
-| 10 — Evals & Observability | `src/evals/`, `src/core/` | EvalRunner (LLM-as-judge, 4 metrics), BaselineComparator, ReplayEvaluator (`eval --replay`), EpisodeLearner (EmbeddingIndex-backed, wired into agent construction), trace pipeline (Tracer, TraceStore, redaction incl. decisions/provenance, retention, anomaly detection wired into flush + `status --alerts`, health checks) — all shipped and wired |
+| 10 — Evals & Observability | `src/evals/`, `src/core/` | EvalRunner (LLM-as-judge, 7 metrics), BaselineComparator, ReplayEvaluator (`eval --replay`), BlindJudge + abComparison (`eval --ab`, paired t-test, Cohen's d), RunHistory + convergence (`eval --convergence`), EpisodeLearner (EmbeddingIndex-backed, wired into agent construction), trace pipeline (Tracer, TraceStore, redaction incl. decisions/provenance, retention, anomaly detection wired into flush + `status --alerts`, health checks) — all shipped and wired |
 
 ### CLI source (`src/`)
 
@@ -67,7 +68,7 @@ Entry point is `src/cli.ts` — it parses args and dispatches to `src/commands/<
 - `check.ts` / `verify.ts` — Doorman health check and member-integrity validation; `verify` also validates each `SKILL.md` against the agentskills.io spec (`SkillParser.validateSpec`: name format/length, description length, name↔directory match, filename). `verify` and `rollback` resolve members through the single `resolveSocietyMembersDir()` source (repo-root `skills/<member>/SKILL.md`, #740) and iterate the `agenthood.lock` member set (not every `skills/` subdirectory); `verify --lock-only` is the lock-vs-hash CI integrity gate
 - `run.ts` — Invoke a member or core agent as an LLM agent (provider override, `--detect`)
 - `status.ts` / `trace.ts` — Observability: project health + metrics, trace listing, `--learner` status
-- `eval.ts` — Run an eval suite against a member with baseline regression gating
+- `eval.ts` / `evalCompare.ts` — Run an eval suite against a member with baseline regression gating; blind A/B comparison with significance testing
 - `health.ts` — Runtime health checks (tracer, trace store, registry, providers)
 - `workflow.ts`, `pr-sync.ts`, `rollback.ts` — Workflows, PR sync, lockfile rollback
 - `activate.ts` / `deactivate.ts` — Copy or remove a member skill file into a project

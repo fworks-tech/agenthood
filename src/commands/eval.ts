@@ -11,6 +11,7 @@ import { BaselineComparator } from '../evals/BaselineComparator.ts'
 import type { RegressionReport } from '../evals/BaselineComparator.ts'
 import { detectConvergence, detectRegression } from '../evals/convergence.ts'
 import { RunHistory } from '../evals/runHistory.ts'
+import { runABComparison } from './evalCompare.ts'
 import type { EvalRunRecord } from '../evals/types.ts'
 import { ApplicationContext } from '../runtime/ApplicationContext.ts'
 import { loadTriggerSet, runTriggerRate } from './evalTriggers.ts'
@@ -39,6 +40,7 @@ function printUsage(): void {
   --replay [--limit N]  Re-run stored traces and compare output drift (no suite)
   --convergence         Check convergence against run history
   --history             Print run history table for this member
+  --ab <memberB>        Blind A/B comparison against a second member
   --json                Machine-readable JSON output
   --help                Show this help`)
 }
@@ -103,6 +105,7 @@ export const command: CommandDescriptor = {
 
 interface ParsedEvalArgs {
   member: string | undefined
+  memberB: string | undefined
   suitePath: string | undefined
   baselinePath: string | undefined
   benchmarkPath: string | undefined
@@ -134,7 +137,7 @@ function failUsage(message: string): never {
 export function parseEvalArgs(args: string[]): ParsedEvalArgs {
   const positional: string[] = []
   const flags: ParsedEvalArgs = {
-    member: undefined, suitePath: undefined, baselinePath: undefined, benchmarkPath: undefined, triggersPath: undefined,
+    member: undefined, memberB: undefined, suitePath: undefined, baselinePath: undefined, benchmarkPath: undefined, triggersPath: undefined,
     shouldUpdateBaseline: false, shouldJson: false, shouldReplay: false, shouldSemantic: false, shouldConvergence: false,
     shouldHistory: false, replayLimit: 50, helpRequested: false,
   }
@@ -157,6 +160,9 @@ export function parseEvalArgs(args: string[]): ParsedEvalArgs {
         break
       case '--benchmark':
         flags.benchmarkPath = args[++i]
+        break
+      case '--ab':
+        flags.memberB = args[++i]
         break
       case '--limit':
         flags.replayLimit = parseReplayLimit(args[++i])
@@ -183,7 +189,7 @@ export function parseReplayLimit(raw: string | undefined): number {
 }
 
 export async function evalMember(args: string[] = []): Promise<void> {
-  const { member, suitePath, baselinePath, benchmarkPath, triggersPath, shouldUpdateBaseline, shouldJson, shouldReplay, shouldSemantic, shouldConvergence, shouldHistory, replayLimit, helpRequested } = parseEvalArgs(args)
+  const { member, memberB, suitePath, baselinePath, benchmarkPath, triggersPath, shouldUpdateBaseline, shouldJson, shouldReplay, shouldSemantic, shouldConvergence, shouldHistory, replayLimit, helpRequested } = parseEvalArgs(args)
   if (helpRequested) return
 
   if (triggersPath) {
@@ -204,6 +210,14 @@ export async function evalMember(args: string[] = []): Promise<void> {
       process.exit(1)
     }
     printHistory(member)
+    return
+  }
+  if (memberB) {
+    if (!member || !suitePath) {
+      printUsage()
+      process.exit(1)
+    }
+    await runABComparison(member, memberB, suitePath, shouldJson)
     return
   }
   if (!member || !suitePath) {

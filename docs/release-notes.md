@@ -5,6 +5,14 @@
 
 ---
 
+## v3.59.2 — September 8, 2026
+
+### 🐛 Bug Fixes
+
+- **Packaging:** export dist/checkpoint/RunCheckpoint.js for host CheckpointStore use (#772)
+
+---
+
 ## v3.59.1 — September 8, 2026
 
 ### 🐛 Bug Fixes

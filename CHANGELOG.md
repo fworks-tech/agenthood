@@ -1,3 +1,10 @@
+## [3.59.2](https://github.com/fworks-tech/agenthood/compare/v3.59.1...v3.59.2) (2026-09-08)
+
+
+### Bug Fixes
+
+* **packaging:** export dist/checkpoint/RunCheckpoint.js for host CheckpointStore use ([#772](https://github.com/fworks-tech/agenthood/issues/772)) ([4a53742](https://github.com/fworks-tech/agenthood/commit/4a537429caded207ccb4f554b7d902aef429bc7c)), closes [#771](https://github.com/fworks-tech/agenthood/issues/771)
+
 ## [3.59.1](https://github.com/fworks-tech/agenthood/compare/v3.59.0...v3.59.1) (2026-09-08)
 
 

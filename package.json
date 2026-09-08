@@ -49,6 +49,7 @@
     "./dist/llm/types.js": "./dist/llm/types.js",
     "./dist/llm/validateApiKeys.js": "./dist/llm/validateApiKeys.js",
     "./dist/runtime/ApplicationContext.js": "./dist/runtime/ApplicationContext.js",
+    "./dist/checkpoint/RunCheckpoint.js": "./dist/checkpoint/RunCheckpoint.js",
     "./dist/tools/human/AskHumanTool.js": "./dist/tools/human/AskHumanTool.js"
   },
   "bin": {

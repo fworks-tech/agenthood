@@ -2,8 +2,8 @@
 set -euo pipefail
 
 # The Warden — enforce the 500-line file size limit on the PR diff.
-# Test suites and lockfiles are exempt (test suites routinely exceed 500
-# lines; the limit targets source files).
+# Test suites, lockfiles, and append-only generated release logs
+# (CHANGELOG.md, release-notes.md) are exempt — the limit targets source.
 
 for var in BASE_SHA HEAD_SHA; do
   if [[ -z "${!var:-}" ]]; then
@@ -33,6 +33,9 @@ while IFS= read -r file; do
   case "$file" in
     *package-lock.json|*yarn.lock|*pnpm-lock.yaml) continue ;;
     *.test.ts) continue ;;
+    # Append-only generated release logs grow past 500 lines by design; the
+    # limit targets source, not the changelog The Herald rewrites every release.
+    *CHANGELOG.md|*release-notes.md) continue ;;
   esac
   lines=$(wc -l < "$file" | tr -d ' ')
   if [ "$lines" -gt 500 ]; then

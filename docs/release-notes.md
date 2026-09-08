@@ -5,6 +5,14 @@
 
 ---
 
+## v3.59.1 — September 8, 2026
+
+### 🐛 Bug Fixes
+
+- **Runtime:** resume restores loop state and answers the pending ask_human call (#768)
+
+---
+
 ## v3.59.0 — September 8, 2026
 
 ### ✨ Features

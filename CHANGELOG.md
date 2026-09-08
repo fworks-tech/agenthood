@@ -1,3 +1,10 @@
+## [3.59.1](https://github.com/fworks-tech/agenthood/compare/v3.59.0...v3.59.1) (2026-09-08)
+
+
+### Bug Fixes
+
+* **runtime:** resume restores loop state and answers the pending ask_human call ([#768](https://github.com/fworks-tech/agenthood/issues/768)) ([ca3546b](https://github.com/fworks-tech/agenthood/commit/ca3546bbccc3acc3b7a5d15df480823b2056d5b0)), closes [#767](https://github.com/fworks-tech/agenthood/issues/767)
+
 # [3.59.0](https://github.com/fworks-tech/agenthood/compare/v3.58.0...v3.59.0) (2026-09-08)
 
 

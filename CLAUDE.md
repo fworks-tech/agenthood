@@ -117,7 +117,7 @@ Separate package (`agenthood-vscode`) wrapping the same commands. Activates when
 
 ### Releases
 
-Managed by `semantic-release` (config in `.releaserc.json`). Releases cut from `main` automatically via `.github/workflows/semantic-release.yml`. Changelog is auto-generated; do not edit `CHANGELOG.md` manually.
+The Herald cuts releases without pushing to main (branch rulesets forbid it): `.github/workflows/semantic-release.yml` runs `scripts/herald-release.mjs` to compute the next version from conventional commits and open a `chore(release)` PR that bumps `package.json` and regenerates `CHANGELOG.md` + `docs/release-notes.md`; merging that PR tags via the GitHub releases API and publishes npm with provenance. Changelog is auto-generated; do not edit `CHANGELOG.md` manually.
 
 ## Key conventions
 

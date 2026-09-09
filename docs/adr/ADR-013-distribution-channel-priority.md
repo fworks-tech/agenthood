@@ -49,8 +49,7 @@ If npm weekly downloads do not reach 50 within 4 weeks of keyword optimisation, 
 
 ## References
 
-- [.releaserc.json](../../.releaserc.json) — semantic-release configuration with `@semantic-release/npm` plugin
-- [.github/workflows/semantic-release.yml](../../.github/workflows/semantic-release.yml) — automated npm publish on `main` push
+- [.github/workflows/semantic-release.yml](../../.github/workflows/semantic-release.yml) — The Herald: release PR + npm publish (replaces the removed `.releaserc.json`; branch rulesets forbid direct commits to `main`, so releases merge via a `chore(release)` PR and then tag/publish, see `scripts/herald-release.mjs`)
 - [skills.sh.json](../../skills.sh.json) — Skills.sh marketplace groupings configuration
 - [vscode-extension/package.json](../../vscode-extension/package.json) — VS Code extension manifest (publisher: `fworks-tech`)
 - [.github/workflows/vscode-extension.yml](../../.github/workflows/vscode-extension.yml) — VS Code extension publish workflow

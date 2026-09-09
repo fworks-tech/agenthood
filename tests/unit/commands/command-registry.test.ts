@@ -25,7 +25,7 @@ describe('command registry', () => {
     }
     expect(names.sort()).toEqual([
       'activate', 'check', 'checkpoints', 'completion', 'deactivate', 'eject', 'eval', 'health', 'init', 'install', 'list', 'log', 'mcp', 'oath',
-      'pr-sync', 'publish', 'rollback', 'run', 'search', 'setup', 'status', 'trace', 'upgrade', 'verify', 'workflow',
+      'optimize', 'pr-sync', 'publish', 'rollback', 'run', 'search', 'setup', 'status', 'trace', 'upgrade', 'verify', 'workflow',
     ])
   }, 15000)
 

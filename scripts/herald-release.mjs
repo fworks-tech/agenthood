@@ -147,18 +147,27 @@ const USAGE = 'usage: herald-release <compute|pending|notes|apply>'
 async function main([mode = 'compute', ...rest]) {
   switch (mode) {
     case 'compute': {
+      const [outArg] = rest
       const pending = isPending()
       if (pending) {
         console.error('herald: a merged release is awaiting tag+publish — not opening a new release PR')
+        if (outArg) writeFileSync(outArg, '', 'utf8')
         process.exit(0)
       }
       const computed = await compute()
       if (!computed.shouldRelease) {
-        console.log('herald: no release pending (no conventional release commits since ' + (computed.prevTag ?? 'initial') + ')')
-        process.exit(0)
+        console.error('herald: no release pending (no conventional release commits since ' + (computed.prevTag ?? 'initial') + ')')
+        if (outArg) writeFileSync(outArg, '', 'utf8')
+        return
       }
-      // GITHUB_OUTPUT consumption is done in the workflow via `herald-release compute` + jq.
-      console.log(JSON.stringify({ version: computed.version, type: computed.type, prevTag: computed.prevTag }, null, 2))
+      // stdout is reserved for the JSON payload; plugin debug chatter and
+      // notices go to stderr so callers can safely redirect stdout.
+      const payload = JSON.stringify({ version: computed.version, type: computed.type, prevTag: computed.prevTag }, null, 2)
+      if (outArg) {
+        writeFileSync(outArg, payload + '\n', 'utf8')
+      } else {
+        console.log(payload)
+      }
       return
     }
     case 'pending': {

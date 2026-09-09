@@ -11,6 +11,13 @@ description: Daily 9am code health scan for TODOs, oversized files, dependency d
 ## Trigger
 Every weekday at 9:00 AM local time.
 
+## Status
+Scheduled automation is planned — no scheduler ships yet ([#789](https://github.com/fworks-tech/agenthood/issues/789)). Until then, run it manually:
+
+```bash
+npx agenthood run the-doorman "the inspection: TODOs and FIXMEs, oversized files, dependency drift"
+```
+
 ## What It Does
 Scans the codebase for code health signals: TODOs and FIXMEs, files exceeding size limits, wildcard dependency versions, and any patterns the Doorman considers hygiene violations.
 
@@ -48,7 +55,7 @@ Scans the codebase for code health signals: TODOs and FIXMEs, files exceeding si
 ```
 
 ## Notes
-- File size limit is configurable (default: 500 lines)
+- File size limit: 500 lines (matches `.github/scripts/filesize-check.sh`); configurable thresholds are planned
 - TODO age threshold: flag TODOs older than 30 days
 - Does not modify any files — report only
 - The report's findings can be checked against `.agenthood/provenance/` — past inspection runs are tamper-evident (ADR-015)

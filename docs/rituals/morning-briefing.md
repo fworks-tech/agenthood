@@ -11,6 +11,13 @@ description: Daily 8am standup generated from git activity, open PRs, and idle w
 ## Trigger
 Every weekday at 8:00 AM local time.
 
+## Status
+Scheduled automation is planned — no scheduler ships yet ([#789](https://github.com/fworks-tech/agenthood/issues/789)). Until then, run it manually:
+
+```bash
+npx agenthood run the-herald "morning briefing: merged PRs, open PRs, in-progress branches, idle work"
+```
+
 ## What It Does
 Reads the repository state and produces a standup-ready briefing covering what merged yesterday, what PRs are waiting, what's in progress, and any idle work that should be committed or abandoned.
 

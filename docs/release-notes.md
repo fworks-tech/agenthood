@@ -5,6 +5,26 @@
 
 ---
 
+## v3.63.0 — September 9, 2026
+
+### 🐛 Bug Fixes
+
+- **Cost:** add missing afterEach import and update docs
+- **Cost:** remove unused vars, fix require(), simplify tests
+- **Release:** keep semantic-release peer and install before pending check
+- **Vitest:** exclude cost command from coverage gate
+
+### ✨ Features
+
+- **Cli:** add cost command with per-provider/per-member breakdown (#676)
+- **Cli:** add doctor command for comprehensive diagnostics
+- **Cli:** add rotate-key command for API key rotation with hot-reload (#678) (#784)
+- **Rituals:** implement ritual command and scheduled rituals workflow (#794)
+- **Skills:** add integrity verification to SkillDiscovery on load (#658) (#785)
+- **Verify:** add --conflicts flag for overlapping skill-description detection
+
+---
+
 ## v3.62.0 — September 9, 2026
 
 ### 🐛 Bug Fixes

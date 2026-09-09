@@ -40,6 +40,7 @@ npx agenthood optimize <member> --triggers <path>  # Optimize description for tr
 npx agenthood rotate-key <provider>  # Rotate API key with validation and hot-reload
 npx agenthood cost           # Show cost breakdown (--since, --provider, --member)
 npx agenthood health         # Runtime health checks (exit 0/1/2)
+npx agenthood doctor         # All diagnostics in one pass: node, version, config, API keys, providers, skills, lockfile, hooks (--json, exit 0/1)
 npx agenthood workflow <name>  # Execute a workflow (e.g. review-pr)
 npx agenthood eject          # Remove Society from a project
 ```

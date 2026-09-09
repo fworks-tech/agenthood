@@ -87,6 +87,7 @@ npx agenthood status --watch            # live project health monitoring
 npx agenthood trace                     # list recent invocation traces
 npx agenthood log                       # list recent structured log entries
 npx agenthood health                    # runtime health checks (exit 0/1/2)
+npx agenthood doctor                    # all diagnostics in one pass: node, version, config, API keys, providers, skill files, lockfile integrity, git hooks (exit 0/1)
 npx agenthood eval the-reviewer --suite evals/benchmarks/review-pr.json  # scored eval with baseline gating
 npx agenthood rollback the-scribe       # restore SKILL.md from lockfile
 npx agenthood workflow review-pr        # execute the review-pr workflow

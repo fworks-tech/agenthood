@@ -286,8 +286,26 @@ npx agenthood trace                     # list recent envelopes (--member, --lim
 npx agenthood status --member <name>    # per-member cost/quality summaries over 1h/24h/7d/all
 npx agenthood status --learner          # EpisodeLearner band counts, trend, persisted patterns
 npx agenthood status --alerts           # recent anomaly alerts (cost spikes, quality drops, bursts)
-npx agenthood health                    # runtime health: tracer, store, registry, providers (exit 0/1/2)
-```
+ npx agenthood health                    # runtime health: tracer, store, registry, providers (exit 0/1/2)
+ npx agenthood doctor                    # all diagnostics in one pass (exit 0/1, --json for machine output)
+ ```
+
+### Doctor diagnostics
+
+`agenthood doctor` consolidates the checks you would otherwise spread across `check`, `verify`, `health`, and `list`, and prints a pass/fail/warn report. It runs eight checks:
+
+| Check | Passes when |
+|-------|-------------|
+| Node version | Running Node satisfies `engines.node` in `package.json` |
+| agenthood version | `package.json` is readable and reports a version |
+| Config file | `.agenthood/config.json` exists and is valid JSON |
+| API keys | Every configured provider has a key (env var or config `apiKey`) |
+| Provider readiness | At least one configured provider is ready (local key check — no live network probe) |
+| Skill files | All `MEMBER_NAMES` have a `SKILL.md` under the Society members dir |
+| Lockfile integrity | `agenthood.lock` is present and no member `SKILL.md` has drifted from its locked hash (warns, not fails, when the lockfile is absent) |
+| Git hooks | `core.hooksPath` points at `.githooks` and `pre-commit` exists (run `agenthood setup`) |
+
+Exit code is `1` if any check fails, otherwise `0` (warnings alone do not fail). `--json` emits `{ checks: [...], healthy: boolean }` for scripting.
 
 Evaluate members against fixed suites with baseline gating:
 

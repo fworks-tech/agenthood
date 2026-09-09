@@ -3,7 +3,7 @@ import { ALL_MEMBERS } from '../members.ts'
 
 const COMMANDS = [
   'init', 'setup', 'check', 'activate', 'deactivate', 'run', 'list',
-  'verify', 'rollback', 'status', 'trace', 'log', 'health', 'eval',
+  'verify', 'rollback', 'status', 'trace', 'log', 'health', 'doctor', 'eval',
   'workflow', 'pr-sync', 'oath', 'eject', 'mcp', 'publish', 'checkpoints',
   'install', 'completion',
 ]
@@ -95,6 +95,7 @@ _agenthood() {
     'trace:List recent member invocation traces'
     'log:List recent log entries'
     'health:Check runtime health'
+    'doctor:Run all diagnostics in one pass'
     'eval:Run an eval suite against a member'
     'workflow:Execute a workflow'
     'pr-sync:Sync PR body and post comment'
@@ -189,6 +190,7 @@ complete -c agenthood -n '__fish_use_subcommand' -a status -d 'Show project heal
 complete -c agenthood -n '__fish_use_subcommand' -a trace -d 'List recent member invocation traces'
 complete -c agenthood -n '__fish_use_subcommand' -a log -d 'List recent log entries'
 complete -c agenthood -n '__fish_use_subcommand' -a health -d 'Check runtime health'
+complete -c agenthood -n '__fish_use_subcommand' -a doctor -d 'Run all diagnostics in one pass'
 complete -c agenthood -n '__fish_use_subcommand' -a eval -d 'Run an eval suite against a member'
 complete -c agenthood -n '__fish_use_subcommand' -a workflow -d 'Execute a workflow'
 complete -c agenthood -n '__fish_use_subcommand' -a pr-sync -d 'Sync PR body and post comment'

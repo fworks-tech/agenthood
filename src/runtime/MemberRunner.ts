@@ -135,7 +135,7 @@ export class MemberRunner {
 
   private completeRunSuccess(args: {
     spec: MemberSpec
-    result: { output: string }
+    result: Pick<MemberRunResult, 'output'>
     duration: number
     usage: TokenUsage
     metricsCollector: MetricsCollector

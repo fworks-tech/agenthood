@@ -191,4 +191,15 @@ describe('LLMRouter', () => {
       expect(provider).toBeDefined()
     })
   })
+
+  describe('reinitializeProvider', () => {
+    it('clears cached instance and reinitializes with new config', async () => {
+      const provider = await LLMRouter.create({ provider: 'ollama' })
+      expect(provider).toBeDefined()
+
+      const newConfig = { provider: 'ollama', apiKey: 'new-key' }
+      const reinitialized = await LLMRouter.reinitializeProvider('ollama', newConfig)
+      expect(reinitialized).toBeDefined()
+    })
+  })
 })

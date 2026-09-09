@@ -319,6 +319,17 @@ export class LLMRouter {
     return promise
   }
 
+  /**
+   * Clear cached provider instance and reinitialize with new config.
+   * Used for hot-reload after API key rotation.
+   */
+  static async reinitializeProvider(name: string, config: LLMConfig): Promise<ILLMProvider | null> {
+    LLMRouter.instances.delete(name)
+    LLMRouter.initPromises.delete(name)
+    LLMRouter.config = config
+    return LLMRouter.getOrInit(name)
+  }
+
   private static buildChainConfig(config: LLMConfig) {
     return {
       failureThreshold: config.failureThreshold,

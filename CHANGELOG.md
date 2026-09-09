@@ -1,3 +1,11 @@
+# [3.61.0](https://github.com/fworks-tech/agenthood/compare/v3.60.0...v3.61.0) (2026-09-09)
+
+
+### Features
+
+* **evals:** add blind A/B comparison with significance testing ([#778](https://github.com/fworks-tech/agenthood/issues/778)) ([786ad9c](https://github.com/fworks-tech/agenthood/commit/786ad9ceab8ebcc4f2c4694938a2c380cbc125d4)), closes [#558](https://github.com/fworks-tech/agenthood/issues/558)
+* **members:** validate skill output against declared format pattern ([#774](https://github.com/fworks-tech/agenthood/issues/774)) ([ca41314](https://github.com/fworks-tech/agenthood/commit/ca413146ec89d9f45f08305440c5c55cc03ab113)), closes [#594](https://github.com/fworks-tech/agenthood/issues/594)
+
 # [3.60.0](https://github.com/fworks-tech/agenthood/compare/v3.59.2...v3.60.0) (2026-09-08)
 
 

@@ -5,6 +5,15 @@
 
 ---
 
+## v3.61.0 — September 9, 2026
+
+### ✨ Features
+
+- **Evals:** add blind A/B comparison with significance testing (#778)
+- **Members:** validate skill output against declared format pattern (#774)
+
+---
+
 ## v3.60.0 — September 8, 2026
 
 ### ✨ Features

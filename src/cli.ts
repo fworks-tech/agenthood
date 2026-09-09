@@ -93,6 +93,10 @@ Commands:
                             Use --since <time> or --json for machine-readable output
   health                  Check runtime health (tracer, store, registry, providers)
                             Exit codes: 0 healthy, 1 degraded, 2 unhealthy
+  doctor                  Run all diagnostics: node, version, config, API keys,
+                            providers, skills, lockfile integrity, git hooks
+                            Use --json for machine-readable output
+                            Exit codes: 0 healthy, 1 a check failed
   eval <member>           Run an eval suite against a member
                             Use --suite <path> (required), --baseline <path>
                             Use --update-baseline to store this run as baseline

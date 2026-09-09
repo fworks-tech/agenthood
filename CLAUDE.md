@@ -37,6 +37,7 @@ npx agenthood trace          # List recent invocation traces (--member, --limit,
 npx agenthood eval <member> --suite <path>  # Run an eval suite with baseline gating
 npx agenthood eval <memberA> --ab <memberB> --suite <path>  # Blind A/B comparison with significance testing
 npx agenthood optimize <member> --triggers <path>  # Optimize description for trigger accuracy
+npx agenthood rotate-key <provider>  # Rotate API key with validation and hot-reload
 npx agenthood health         # Runtime health checks (exit 0/1/2)
 npx agenthood workflow <name>  # Execute a workflow (e.g. review-pr)
 npx agenthood eject          # Remove Society from a project

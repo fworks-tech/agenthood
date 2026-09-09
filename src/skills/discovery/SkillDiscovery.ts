@@ -4,6 +4,7 @@ import { homedir } from 'node:os'
 import type { ISkillManifest } from './ISkillManifest.ts'
 import { SkillParser } from './SkillParser.ts'
 import { RemoteSkillFetcher, type RemoteSkillSource } from './RemoteSkillSource.ts'
+import { checkSkillIntegrity } from '../../utils/skillIntegrity.ts'
 
 const IGNORED_DIRS = new Set(['node_modules', '.git', '.hg', '.svn', 'dist', 'build', '.next', '.cache'])
 const MAX_DEPTH = 6
@@ -125,8 +126,21 @@ export class SkillDiscovery {
       const { frontmatter } = this.parser.parseRaw(content)
       const tier = this.parser.parseTier(frontmatter)
       const manifest = this.parser.parseManifest(skillMdPath, fullPath, parsed.body, parsed.name || entry, parsed.description, tier)
+      this.verifyIntegrity(parsed.name || entry, skillMdPath)
       return [manifest]
     }
     return this.scanDir(fullPath, depth + 1)
+  }
+
+  private verifyIntegrity(member: string, skillPath: string): void {
+    const status = checkSkillIntegrity(member, skillPath)
+    if (status === 'clean') return
+    const guidance: Record<string, string> = {
+      corrupt: 'verify the lockfile before running.',
+      drift: 'verify its content before running. Run `agenthood verify --update-lock` if the edit is intentional.',
+      'no-lockfile': 'the integrity gate is OFF. Run `agenthood verify` to lock SKILL.md hashes.',
+      missing: 'cannot verify integrity.',
+    }
+    console.warn(`[skill-integrity] ${member}: ${status} — ${guidance[status]}`)
   }
 }

@@ -5,6 +5,14 @@
 
 ---
 
+## v3.63.1 — September 9, 2026
+
+### 🐛 Bug Fixes
+
+- **Release:** route herald compute through a file, keep stdout json-only
+
+---
+
 ## v3.63.0 — September 9, 2026
 
 ### 🐛 Bug Fixes

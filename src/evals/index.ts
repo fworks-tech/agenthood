@@ -46,3 +46,5 @@ export {
 export type { TriggerQuerySet, TriggerMetrics, Predictor, SplitSets } from "./trigger.ts"
 export { ReplayEvaluator } from "./ReplayEvaluator.ts"
 export type { ReplayTaskScore, ReplayReport, EmbedFn } from "./ReplayEvaluator.ts"
+export { DescriptionOptimizer } from "./descriptionOptimizer.ts"
+export type { OptimizationResult, OptimizationOptions, VariantResult } from "./descriptionOptimizer.ts"

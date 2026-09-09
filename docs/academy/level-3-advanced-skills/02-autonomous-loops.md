@@ -74,23 +74,24 @@ Rituals are stateless between runs; `GoalChain` is stateful. The two are designe
 
 ## Hands-on example
 
-The scheduler does not ship yet — rituals are declared in `docs/rituals/` and run manually via the CLI ([#789](https://github.com/fworks-tech/agenthood/issues/789)):
+Rituals are declared in `docs/rituals/` and run via the CLI:
 
 ```bash
-npx agenthood run the-herald "morning briefing: merged PRs, open PRs, in-progress branches, idle work"
-npx agenthood run the-doorman "the inspection: TODOs, oversized files, dependency drift"
+npx agenthood ritual list
+npx agenthood ritual run morning-briefing
+npx agenthood ritual run the-inspection
 ```
 
-The member produces the report in the format defined by the ritual manifest (for example, the Morning Briefing format in `docs/rituals/morning-briefing.md`) and every run records a decision plus a provenance entry in `.agenthood/` (ADR-015).
+`ritual list` prints every manifest with its schedule and bound member; `ritual run <name>` resolves the member from the manifest and points its task at the steps and report format defined there. The member produces the report in the manifest's format and every run records a decision plus a provenance entry in `.agenthood/` (ADR-015).
 
-When the rituals layer ships, a scheduler picks up the same manifests and runs them on their declared cron schedules — the Morning Briefing arriving at 8am without anyone typing a query is the goal state.
+In CI the same manifests run on their declared cron schedules (`.github/workflows/rituals.yml`) — the Morning Briefing arriving at 8am without anyone typing a query is the goal state. A parity test pins the workflow's schedules to the manifest frontmatter so the two cannot drift.
 
 ---
 
 ## Further reading
 
 - [`src/workflows/GoalChain.ts`](../../../src/workflows/GoalChain.ts) — persistent multi-session goal tracking (shipped)
-- [Rituals layer](../../rituals/) — scheduled automation manifests (planned)
+- [Rituals layer](../../rituals/) — scheduled automation manifests (with scheduler + `ritual run`)
 - [The Little Manual of API Design](https://web.archive.org/web/20240421073800/https://apisyouwonthate.com/books/the-little-manual-of-api-design) — design principles for durable integration surfaces
 
 

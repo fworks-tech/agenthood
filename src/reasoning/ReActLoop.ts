@@ -3,6 +3,7 @@ import type { ExecutionContext } from "../core/ExecutionContext.ts"
 import type { Message, TokenUsage, ToolCall, LLMResponse } from "../llm/types.ts"
 import { ContextCompressor } from "../core/ContextCompressor.ts"
 import { CostEstimator } from "../core/CostEstimator.ts"
+import { logCost } from "../core/CostLogger.ts"
 import { ToolRegistry, ToolNotFoundError } from "../tools/ToolRegistry.ts"
 import type { ITool } from "../tools/ITool.ts"
 import { ThinkingBudget } from "./ThinkingBudget.ts"
@@ -241,6 +242,17 @@ export class ReActLoop {
       contextWindow,
       contextUtil: contextWindow > 0 ? Math.min(promptTokens / contextWindow, 1) : undefined,
     });
+
+    logCost({
+      timestamp: new Date().toISOString(),
+      member: this._member,
+      model: response.model,
+      provider: response.model.includes('gpt') ? 'openai' : response.model.includes('claude') ? 'anthropic' : response.model.includes('llama') ? 'groq' : 'other',
+      promptTokens,
+      completionTokens,
+      totalTokens: promptTokens + completionTokens,
+      costUsd: stepCost,
+    }, context.project.localPath)
   }
 
   private async runToolCalls(

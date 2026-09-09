@@ -95,7 +95,7 @@
     "@types/node": "^22.19.21",
     "@types/normalize-package-data": "^2.4.4",
     "@vitest/coverage-v8": "^4.1.8",
-    "apache-arrow": "^18.1.0",
+    "apache-arrow": "^21.2.0",
     "eslint": "^10.8.0",
     "jiti": "^2.7.0",
     "marked": "^15.0.12",

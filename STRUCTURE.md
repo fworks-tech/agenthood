@@ -98,6 +98,7 @@ agenthood/
 │   ├── pr.yml                       ← The Doorman, Auditor, Scribe, Warden, Librarian, Sentinel, Tester — PR standards (10 checks merged)
 │   ├── publish-vsce.yml             ← The Envoy — publish VSIX to Marketplace
 │   ├── reviewer.yml                 ← The Reviewer — LLM commit review on every push
+│   ├── rituals.yml                  ← Scheduled ritual runs from docs/rituals manifests
 │   ├── semantic-release.yml         ← The Herald — automated release + npm publish
 │   └── vscode-extension.yml         ← The Envoy — build and test VS Code extension
 │

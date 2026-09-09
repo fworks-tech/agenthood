@@ -9,11 +9,6 @@ const mockCosts = [
   { timestamp: '2026-01-16T10:00:00Z', member: 'the-scribe', model: 'gpt-4o-mini', provider: 'openai', promptTokens: 500, completionTokens: 200, totalTokens: 700, costUsd: 0.0005 },
 ]
 
-vi.mock('node:fs', async (importOriginal) => {
-  const actual = await importOriginal<typeof import('node:fs')>()
-  return { ...actual }
-})
-
 import { command } from '../../../src/commands/cost.ts'
 import { logCost, readCosts } from '../../../src/core/CostLogger.ts'
 

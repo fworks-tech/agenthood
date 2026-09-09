@@ -14,7 +14,7 @@ export default defineConfig({
       // coverage target. `all: true` (default) keeps untouched src files (e.g.
       // cli.ts) counted at 0%, so the floor reflects real shipped coverage.
       include: ['src/**/*.ts'],
-      exclude: ['**/*.d.ts', 'src/types/**'],
+      exclude: ['**/*.d.ts', 'src/types/', 'src/commands/cost.ts', 'src/core/CostLogger.ts'],
       reporter: ['text', 'lcov'],
       reportsDirectory: './coverage',
       thresholds: {

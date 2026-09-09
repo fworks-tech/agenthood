@@ -22,7 +22,7 @@ async function validateKey(provider: string, key: string): Promise<boolean> {
   try {
     const inst = await LLMRouter.reinitializeProvider(provider, testConfig)
     if (!inst) return false
-    await inst.chat([{ role: 'user', content: 'ping' }])
+    await inst.complete({ messages: [{ role: 'user', content: 'ping' }] })
     return true
   } catch {
     return false

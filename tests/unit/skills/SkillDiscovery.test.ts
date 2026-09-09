@@ -1,4 +1,7 @@
-import { describe, it, expect, vi, beforeEach } from 'vitest'
+import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest'
+import { mkdirSync, writeFileSync, rmSync } from 'node:fs'
+import { join } from 'node:path'
+import { tmpdir } from 'node:os'
 
 const mockCheckSkillIntegrity = vi.fn().mockReturnValue('clean')
 
@@ -6,35 +9,34 @@ vi.mock('../../../src/utils/skillIntegrity.ts', () => ({
   checkSkillIntegrity: (...args: unknown[]) => mockCheckSkillIntegrity(...args),
 }))
 
-vi.mock('../../../src/skills/discovery/SkillParser.ts', () => ({
-  SkillParser: class {
-    parse = vi.fn().mockReturnValue({ name: 'test-skill', description: 'A test skill', body: 'body' })
-    parseRaw = vi.fn().mockReturnValue({ frontmatter: { name: 'test-skill', description: 'A test skill' }, body: 'body' })
-    parseTier = vi.fn().mockReturnValue('community')
-    parseManifest = vi.fn().mockReturnValue({ name: 'test-skill', description: 'A test skill', tier: 'community', location: '/test', directory: '/test', body: 'body', resources: [] })
-    validateSpec = vi.fn().mockReturnValue([])
-  },
-}))
-
 import { SkillDiscovery } from '../../../src/skills/discovery/SkillDiscovery.ts'
 
 describe('SkillDiscovery', () => {
+  let testDir: string
+
   beforeEach(() => {
     vi.clearAllMocks()
     mockCheckSkillIntegrity.mockReturnValue('clean')
+    testDir = join(tmpdir(), `agenthood-test-${Date.now()}`)
+    mkdirSync(join(testDir, '.agents', 'skills', 'test-skill'), { recursive: true })
+    writeFileSync(join(testDir, '.agents', 'skills', 'test-skill', 'SKILL.md'), '---\nname: test-skill\ndescription: A test skill\n---\n# Overview\nTest')
+  })
+
+  afterEach(() => {
+    rmSync(testDir, { recursive: true, force: true })
   })
 
   it('verifies skill integrity when loading', () => {
-    const discovery = new SkillDiscovery('/test')
-    discovery.discover('/test')
+    const discovery = new SkillDiscovery(testDir)
+    discovery.discover(testDir)
     expect(mockCheckSkillIntegrity).toHaveBeenCalled()
   })
 
   it('warns on integrity drift', () => {
     mockCheckSkillIntegrity.mockReturnValue('drift')
     const warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {})
-    const discovery = new SkillDiscovery('/test')
-    discovery.discover('/test')
+    const discovery = new SkillDiscovery(testDir)
+    discovery.discover(testDir)
     expect(warnSpy).toHaveBeenCalledWith(expect.stringContaining('drift'))
     warnSpy.mockRestore()
   })
@@ -42,8 +44,8 @@ describe('SkillDiscovery', () => {
   it('does not warn on clean status', () => {
     mockCheckSkillIntegrity.mockReturnValue('clean')
     const warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {})
-    const discovery = new SkillDiscovery('/test')
-    discovery.discover('/test')
+    const discovery = new SkillDiscovery(testDir)
+    discovery.discover(testDir)
     expect(warnSpy).not.toHaveBeenCalled()
     warnSpy.mockRestore()
   })

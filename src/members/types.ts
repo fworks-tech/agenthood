@@ -14,10 +14,14 @@ export type ProviderName = 'anthropic' | 'groq' | 'openai' | 'ollama' | 'opencod
 
 export type MemberCategory = 'engineering' | 'validation' | 'knowledge' | 'lifecycle'
 
+export type OutputFormatMode = 'strict' | 'lenient'
+
 export interface MemberFrontMatter {
   name: string
   description: string
   license?: string
+  output_format?: string
+  output_format_mode?: OutputFormatMode
 }
 
 export interface MemberSpec {
@@ -32,4 +36,8 @@ export interface MemberSpec {
   sourcePath: string
   /** Opt-in: grants the delegate_task tool so the member can call other agents */
   canDelegate?: boolean
+  /** Regex the run output must match; unset = no format validation */
+  output_format?: string
+  /** Whether a format deviation fails the run (strict) or warns (lenient) */
+  output_format_mode?: OutputFormatMode
 }

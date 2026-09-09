@@ -1,3 +1,15 @@
+# [3.62.0](https://github.com/fworks-tech/agenthood/compare/v3.61.0...v3.62.0) (2026-09-09)
+
+
+### Bug Fixes
+
+* **deps:** bump js-yaml 4.3.1 → 4.3.2 in vscode-extension ([#781](https://github.com/fworks-tech/agenthood/issues/781)) ([49d5c0b](https://github.com/fworks-tech/agenthood/commit/49d5c0b950f31937740497e51614b54d0e3d9abf))
+
+
+### Features
+
+* **evals:** add description optimization command ([#584](https://github.com/fworks-tech/agenthood/issues/584)) ([#779](https://github.com/fworks-tech/agenthood/issues/779)) ([a7daa68](https://github.com/fworks-tech/agenthood/commit/a7daa689a9e28dab19a7ea4f8792abaee1a5a2f3))
+
 # [3.61.0](https://github.com/fworks-tech/agenthood/compare/v3.60.0...v3.61.0) (2026-09-09)
 
 

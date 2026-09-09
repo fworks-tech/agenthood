@@ -5,6 +5,18 @@
 
 ---
 
+## v3.62.0 — September 9, 2026
+
+### 🐛 Bug Fixes
+
+- **Deps:** bump js-yaml 4.3.1 → 4.3.2 in vscode-extension (#781)
+
+### ✨ Features
+
+- **Evals:** add description optimization command (#584) (#779)
+
+---
+
 ## v3.61.0 — September 9, 2026
 
 ### ✨ Features

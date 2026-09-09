@@ -29,7 +29,6 @@
     "workspaceContains:commitlint.config.ts"
   ],
   "main": "./dist/extension.js",
-
   "contributes": {
     "viewsContainers": {
       "activitybar": [
@@ -144,17 +143,18 @@
     "package": "vsce package",
     "publish": "vsce publish",
     "pretest": "tsc -p tsconfig.test.json",
-    "test": "vscode-test --config ./dist/vscode-test-config.js"
+    "test": "vscode-test --config ./dist/vscode-test-config.js",
+    "test:coverage": "vscode-test --config ./dist/vscode-test-config.js --coverage --coverage-reporter=text --coverage-reporter=lcov"
   },
-  "devDependencies": {
+    "devDependencies": {
     "@types/mocha": "^10.0.6",
     "@types/node": "^26.4.1",
     "@types/vscode": "^1.90.0",
-    "mocha": "^12.0.0",
-    "tsx": "^4.23.13",
     "@vscode/test-cli": "^0.0.15",
     "@vscode/test-electron": "^3.1.0",
     "@vscode/vsce": "^3.0.0",
+    "mocha": "^12.0.0",
+    "tsx": "^4.23.13",
     "typescript": "^5.6.3"
   },
   "overrides": {

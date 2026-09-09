@@ -49,4 +49,8 @@ describe('release configuration (Herald release-PR flow)', () => {
     expect(HELPER).toContain('generate-release-notes.ts')
     expect(WORKFLOW).toContain('npm run build')
   })
+
+  it('gitignores the herald notes scratch file so create-pull-request cannot commit it', () => {
+    expect(readFileSync('.gitignore', 'utf8')).toMatch(/^herald-notes\.md$/m)
+  })
 })

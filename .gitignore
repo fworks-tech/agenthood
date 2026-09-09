@@ -52,3 +52,6 @@ skills-lock.json
 
 # Test coverage output (#668)
 coverage/
+
+# The Herald's ephemeral release-notes scratch file - CI artifact, not history
+herald-notes.md

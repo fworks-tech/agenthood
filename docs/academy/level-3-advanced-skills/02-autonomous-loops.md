@@ -29,74 +29,61 @@ Goal chains solve the other production problem: long tasks that do not fit in on
 Two components handle autonomy: `GoalChain` (shipped — `src/workflows/GoalChain.ts`) and the Rituals layer (planned — scheduled automation manifests, not yet implemented):
 
 ```typescript
-import { GoalChain } from 'agenthood';
+import { GoalChain } from 'agenthood'
 
-// A persistent goal that resumes across sessions
-const migration = new GoalChain({
-  goal: 'Migrate auth from session tokens to OAuth2',
-  steps: [
-    { id: 'research',  status: 'done',    output: 'OAuth2 flow documented' },
-    { id: 'endpoints', status: 'done',    output: '3 endpoints identified' },
-    { id: 'middleware', status: 'in_progress' },
-    { id: 'tests',     status: 'pending' },
-    { id: 'cutover',   status: 'pending' },
-  ],
-});
+// A persistent goal, stored in long-term memory and resumed across sessions
+const chain = new GoalChain(longTermMemory)
+const goal = await chain.create('Migrate auth from session tokens to OAuth2', '#142')
 
-// Each run resumes from the last in_progress step
-const result = await migration.advance();
-// result.nextStep = 'middleware'
-// result.progress = '2 of 5 steps complete'
+const docs = await chain.addSubGoal(goal.id, { description: 'Document the OAuth2 flow' })
+await chain.addSubGoal(goal.id, { description: 'Map the auth endpoints' })
+await chain.updateStatus(goal.id, docs.id, 'completed')
+
+// The next run picks up where this one left off
+const next = await chain.resume(goal.id)
+// next = { description: 'Map the auth endpoints', status: 'pending' } | undefined
 ```
 
-Rituals are scheduled automations — a YAML manifest that binds a schedule to a member:
+Rituals are scheduled automations — a markdown manifest in `docs/rituals/` that binds a schedule to a member:
 
-```yaml
-# docs/rituals/morning-briefing.yml
-schedule: '0 8 * * *'      # 8am daily
+```markdown
+<!-- docs/rituals/morning-briefing.md -->
+---
+name: morning-briefing
+schedule: '0 8 * * 1-5'   # weekdays, 8am
+priority: SCHEDULED
 member: the-herald
-task: 'summarize overnight CI runs, open PRs, and stale issues'
-output: slack:#engineering
+description: Daily 8am standup generated from git activity, open PRs, and idle work detection.
+---
 ```
 
-```yaml
-# docs/rituals/watchman.yml
-trigger: on_test_failure
-member: the-debugger
-task: 'read the failing test, propose a fix, post to #engineering'
-output: slack:#engineering
+```markdown
+<!-- docs/rituals/the-watchman.md -->
+---
+name: the-watchman
+schedule: '0 */2 * * *'   # every 2 hours
+priority: BACKGROUND
+member: the-doorman
+description: Every 2 hours, checks for uncommitted changes sitting idle and branches drifting from main.
+---
 ```
 
-Rituals are stateless between runs; `GoalChain` is stateful. The two compose: a ritual can advance a goal chain on a schedule.
+Rituals are stateless between runs; `GoalChain` is stateful. The two are designed to compose: a ritual can advance a goal chain on a schedule.
 
 ---
 
 ## Hands-on example
 
+The scheduler does not ship yet — rituals are declared in `docs/rituals/` and run manually via the CLI ([#789](https://github.com/fworks-tech/agenthood/issues/789)):
+
 ```bash
-# Once the v2 runtime ships, rituals run via the Society's scheduler
-npx agenthood ritual run morning-briefing
-npx agenthood ritual list                     # see all scheduled rituals
-npx agenthood goal advance auth-migration     # advance a goal chain manually
+npx agenthood run the-herald "morning briefing: merged PRs, open PRs, in-progress branches, idle work"
+npx agenthood run the-doorman "the inspection: TODOs, oversized files, dependency drift"
 ```
 
-Expected output from the morning briefing ritual:
+The member produces the report in the format defined by the ritual manifest (for example, the Morning Briefing format in `docs/rituals/morning-briefing.md`) and every run records a decision plus a provenance entry in `.agenthood/` (ADR-015).
 
-```
-RITUAL: morning-briefing  (08:00 local)
-─────────────────────────────────────────────────
-MEMBER: the-herald
-TASK:   summarize overnight CI runs, open PRs, stale issues
-─────────────────────────────────────────────────
-CI:     3 runs overnight, 1 failure (test/auth.test.ts:42)
-PRs:    2 open, 1 awaiting review > 24h (#181)
-ISSUES: 4 stale (no activity 7+ days)
-─────────────────────────────────────────────────
-→ posted to #engineering
-→ next run: tomorrow 08:00
-```
-
-The briefing appeared in Slack at 8am without anyone typing a query. That is what autonomy looks like in production.
+When the rituals layer ships, a scheduler picks up the same manifests and runs them on their declared cron schedules — the Morning Briefing arriving at 8am without anyone typing a query is the goal state.
 
 ---
 

@@ -11,6 +11,13 @@ description: End-of-day summary of work completed, in-progress tasks, and tomorr
 ## Trigger
 Every weekday at 6:00 PM local time, or when the working session ends.
 
+## Status
+Scheduled automation is planned — no scheduler ships yet ([#789](https://github.com/fworks-tech/agenthood/issues/789)). Until then, run it manually:
+
+```bash
+npx agenthood run the-herald "end of day summary: completed work, in-progress tasks, tomorrow's start"
+```
+
 ## What It Does
 Summarizes the day. What was completed, what is in progress, and what should happen tomorrow. Gives the developer a clean handoff to the next day — or to a colleague.
 
@@ -47,6 +54,6 @@ Commits: {N} · PRs merged: {N} · Issues closed: {N}
 ```
 
 ## Notes
-- Can be triggered manually at any time with `/herald eod`
+- Trigger manually at any time with the command in [Status](#status)
 - If no activity detected, produces a minimal report
 - Does not modify any files or git state

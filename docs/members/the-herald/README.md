@@ -62,19 +62,19 @@ Summarizes the day's work:
 
 ## Usage
 
-```
-# Activate in Claude Code
-/herald release         → determine next version + generate release notes
-/herald changelog       → update CHANGELOG.md from commit history
-/herald standup         → generate morning briefing
-/herald eod             → generate end-of-day summary
+```bash
+# Run directly via the CLI — slash commands like /herald release are not implemented (#790)
+npx agenthood run the-herald "release: determine the next version and generate release notes"
+npx agenthood run the-herald "changelog: update CHANGELOG.md from commit history"
+npx agenthood run the-herald "morning briefing: merged PRs, open PRs, in-progress branches, idle work"
+npx agenthood run the-herald "end of day summary: completed work, in-progress tasks, tomorrow's start"
 ```
 
 ---
 
 ## Automation Schedule
 
-When configured as a ritual:
+The rituals layer is planned — the schedules below are declared in `docs/rituals/` and run manually today via `npx agenthood run the-herald "<task>"`:
 
 | Ritual | Time | Output |
 |--------|------|--------|

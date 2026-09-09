@@ -1,0 +1,105 @@
+name: The Rituals — Scheduled Watches
+
+# Schedules are declared in docs/rituals/*.md frontmatter. Parity is enforced
+# by tests/unit/scripts/rituals-workflow.test.ts — edit the manifests together.
+
+on:
+  schedule:
+    - cron: '0 8 * * 1-5' # morning-briefing — the-herald
+    - cron: '0 9 * * 1-5' # the-inspection — the-doorman
+    - cron: '0 18 * * 1-5' # evening-report — the-herald
+    - cron: '0 */2 * * *' # the-watchman — the-doorman
+  workflow_dispatch:
+    inputs:
+      ritual:
+        description: Ritual to run (morning-briefing | the-inspection | evening-report | the-watchman)
+        type: string
+        required: true
+
+permissions:
+  contents: read
+
+concurrency:
+  # One run per schedule — a late run of the same ritual replaces a still-running one
+  group: rituals-${{ github.event.schedule || inputs.ritual }}
+  cancel-in-progress: true
+
+jobs:
+  ritual:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - name: morning-briefing
+            schedule: '0 8 * * 1-5'
+            member: the-herald
+            task: >-
+              Run the Morning Briefing ritual: list merged PRs from the last 24 hours,
+              open PRs sorted by age with author and days open, and branches with commits
+              in the last 24 hours with their last activity time; flag idle uncommitted
+              work and branches idle longer than 2 hours. Produce the Morning Briefing
+              report in the format defined in docs/rituals/morning-briefing.md.
+              Use the git and gh CLIs.
+          - name: the-inspection
+            schedule: '0 9 * * 1-5'
+            member: the-doorman
+            task: >-
+              Run The Inspection ritual: scan the repository for TODO and FIXME comments
+              (file:line for each), source files exceeding 500 lines, wildcard dependency
+              versions in package.json, and source files without a corresponding test
+              file. Produce the Daily Inspection report in the format defined in
+              docs/rituals/the-inspection.md.
+          - name: evening-report
+            schedule: '0 18 * * 1-5'
+            member: the-herald
+            task: >-
+              Run the Evening Report ritual: list commits and merged PRs since 08:00
+              local today, issues closed today, and branches with commits today but no
+              merged PR. Produce the Evening Report with day stats in the format defined
+              in docs/rituals/evening-report.md. Use the git and gh CLIs.
+          - name: the-watchman
+            schedule: '0 */2 * * *'
+            member: the-doorman
+            task: >-
+              Run The Watchman ritual: identify uncommitted changes with files idle
+              longer than 2 hours and branches more than 20 commits behind main.
+              Produce the Watchman Alert in the format defined in
+              docs/rituals/the-watchman.md; if nothing exceeds thresholds, report that
+              all is quiet.
+    if: >-
+      (github.event_name == 'schedule' && github.event.schedule == matrix.schedule) ||
+      (github.event_name == 'workflow_dispatch' && inputs.ritual == matrix.name)
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          fetch-depth: 0
+
+      - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020
+        with:
+          node-version: 24
+          cache: npm
+
+      - name: Run ritual
+        env:
+          RITUAL_NAME: ${{ matrix.name }}
+          MEMBER: ${{ matrix.member }}
+          TASK: ${{ matrix.task }}
+          OPENCODE_API_KEY: ${{ secrets.OPENCODE_API_KEY }}
+          OPENCODE_MODEL: opencode-go/mimo-v2.5
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          if [ -z "${OPENCODE_API_KEY:-}" ]; then
+            echo "::notice::OPENCODE_API_KEY not set -- skipping $MEMBER ritual run."
+            exit 0
+          fi
+
+          mkdir -p .agenthood
+          printf '{\n  "provider": "opencode-go",\n  "model": "%s"\n}\n' "$OPENCODE_MODEL" > .agenthood/config.json
+
+          npm ci --ignore-scripts
+          npm run build
+
+          echo "## The $RITUAL_NAME ritual — $MEMBER" >> "$GITHUB_STEP_SUMMARY"
+          node dist/cli.js run "$MEMBER" "$TASK" --provider opencode-go 2>&1 | tee -a "$GITHUB_STEP_SUMMARY"

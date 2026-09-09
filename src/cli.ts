@@ -73,6 +73,8 @@ Commands:
                             Use --detect to auto-detect members for the task
                             Use --provider <name> to override the LLM provider
   list                    List all members, their status, permission & provider
+  ritual list             List declared rituals (docs/rituals/)
+  ritual run <name>       Run a ritual manually (runs the bound member)
   verify [member]         Validate member SKILL.md integrity, spec conformance, and lockfile
                             Use --strict for lane overlap checks
                             Use --update-lock to update lockfile hash
@@ -114,7 +116,9 @@ Examples:
   npx agenthood check
   npx agenthood verify
   npx agenthood status --watch
+  npx agenthood list
   npx agenthood rollback the-scribe --dry-run
+  npx agenthood ritual run morning-briefing
   npx agenthood workflow review-pr
   npx agenthood oath
 

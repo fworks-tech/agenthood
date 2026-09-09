@@ -71,6 +71,7 @@ Entry point is `src/cli.ts` — it parses args and dispatches to `src/commands/<
 - `setup.ts` — Self-setup for this repo (sets git hooks path, chmod, installs commit template)
 - `check.ts` / `verify.ts` — Doorman health check and member-integrity validation; `verify` also validates each `SKILL.md` against the agentskills.io spec (`SkillParser.validateSpec`: name format/length, description length, name↔directory match, filename). `verify` and `rollback` resolve members through the single `resolveSocietyMembersDir()` source (repo-root `skills/<member>/SKILL.md`, #740) and iterate the `agenthood.lock` member set (not every `skills/` subdirectory); `verify --lock-only` is the lock-vs-hash CI integrity gate
 - `run.ts` — Invoke a member or core agent as an LLM agent (provider override, `--detect`)
+- `ritual.ts` — List declared rituals (`docs/rituals/*.md` frontmatter) or run one via its bound member (`ritual run <name>`); schedules fire from `.github/workflows/rituals.yml`, parity-pinned to the manifests
 - `status.ts` / `trace.ts` — Observability: project health + metrics, trace listing, `--learner` status
 - `eval.ts` / `evalCompare.ts` — Run an eval suite against a member with baseline regression gating; blind A/B comparison with significance testing
 - `health.ts` — Runtime health checks (tracer, trace store, registry, providers)

@@ -12,10 +12,10 @@ description: Every 2 hours, checks for uncommitted changes sitting idle and bran
 Every 2 hours, around the clock.
 
 ## Status
-Scheduled automation is planned — no scheduler ships yet ([#789](https://github.com/fworks-tech/agenthood/issues/789)). Until then, run it manually:
+Runs on its declared schedule in [`.github/workflows/rituals.yml`](../../.github/workflows/rituals.yml). Run it manually with:
 
 ```bash
-npx agenthood run the-doorman "watchman check: idle uncommitted changes and branches drifting from main"
+npx agenthood ritual run the-watchman
 ```
 
 ## What It Does

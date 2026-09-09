@@ -12,10 +12,10 @@ description: Daily 9am code health scan for TODOs, oversized files, dependency d
 Every weekday at 9:00 AM local time.
 
 ## Status
-Scheduled automation is planned — no scheduler ships yet ([#789](https://github.com/fworks-tech/agenthood/issues/789)). Until then, run it manually:
+Runs on its declared schedule in [`.github/workflows/rituals.yml`](../../.github/workflows/rituals.yml). Run it manually with:
 
 ```bash
-npx agenthood run the-doorman "the inspection: TODOs and FIXMEs, oversized files, dependency drift"
+npx agenthood ritual run the-inspection
 ```
 
 ## What It Does

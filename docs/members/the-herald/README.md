@@ -66,15 +66,14 @@ Summarizes the day's work:
 # Run directly via the CLI — slash commands like /herald release are not implemented (#790)
 npx agenthood run the-herald "release: determine the next version and generate release notes"
 npx agenthood run the-herald "changelog: update CHANGELOG.md from commit history"
-npx agenthood run the-herald "morning briefing: merged PRs, open PRs, in-progress branches, idle work"
-npx agenthood run the-herald "end of day summary: completed work, in-progress tasks, tomorrow's start"
+# The two rituals below also run on their declared schedules (npx agenthood ritual run morning-briefing)
 ```
 
 ---
 
 ## Automation Schedule
 
-The rituals layer is planned — the schedules below are declared in `docs/rituals/` and run manually today via `npx agenthood run the-herald "<task>"`:
+The schedules below are declared in `docs/rituals/` and run in CI via `.github/workflows/rituals.yml`:
 
 | Ritual | Time | Output |
 |--------|------|--------|

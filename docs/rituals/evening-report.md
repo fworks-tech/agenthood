@@ -12,10 +12,10 @@ description: End-of-day summary of work completed, in-progress tasks, and tomorr
 Every weekday at 6:00 PM local time, or when the working session ends.
 
 ## Status
-Scheduled automation is planned — no scheduler ships yet ([#789](https://github.com/fworks-tech/agenthood/issues/789)). Until then, run it manually:
+Runs on its declared schedule in [`.github/workflows/rituals.yml`](../../.github/workflows/rituals.yml). Run it manually with:
 
 ```bash
-npx agenthood run the-herald "end of day summary: completed work, in-progress tasks, tomorrow's start"
+npx agenthood ritual run evening-report
 ```
 
 ## What It Does

@@ -12,10 +12,10 @@ description: Daily 8am standup generated from git activity, open PRs, and idle w
 Every weekday at 8:00 AM local time.
 
 ## Status
-Scheduled automation is planned — no scheduler ships yet ([#789](https://github.com/fworks-tech/agenthood/issues/789)). Until then, run it manually:
+Runs on its declared schedule in [`.github/workflows/rituals.yml`](../../.github/workflows/rituals.yml). Run it manually with:
 
 ```bash
-npx agenthood run the-herald "morning briefing: merged PRs, open PRs, in-progress branches, idle work"
+npx agenthood ritual run morning-briefing
 ```
 
 ## What It Does

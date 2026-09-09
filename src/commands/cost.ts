@@ -33,7 +33,6 @@ export const command: CommandDescriptor = {
 
 async function costHandler(args: string[]): Promise<void> {
   const cwd = process.cwd()
-  const flags = new Set(args.filter((a) => a.startsWith('--')))
   const positionals = args.filter((a) => !a.startsWith('--'))
 
   const since = positionals.find((a) => /^\d{4}-\d{2}-\d{2}$/.test(a))

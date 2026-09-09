@@ -38,6 +38,9 @@ jobs:
       - name: Run tests
         run: cd vscode-extension && xvfb-run -a npm test
 
+      - name: Run coverage
+        run: cd vscode-extension && xvfb-run -a npm run test:coverage
+
       - name: Package extension
         run: cd vscode-extension && npm run package
 

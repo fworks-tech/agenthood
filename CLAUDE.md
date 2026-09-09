@@ -27,7 +27,7 @@ The published CLI commands (for adopter projects, not for developing this repo):
 ```bash
 npx agenthood init           # Interactive initiation ceremony
 npx agenthood check          # Run Doorman health check
-npx agenthood verify         # Validate member SKILL.md integrity, spec conformance, and lockfile (--lock-only = CI drift gate)
+npx agenthood verify         # Validate member SKILL.md integrity, spec conformance, and lockfile (--lock-only = CI drift gate, --conflicts = overlapping skill-description scan, advisory)
 npx agenthood list           # Show active members
 npx agenthood activate <member>
 npx agenthood deactivate <member>

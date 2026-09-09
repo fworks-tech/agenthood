@@ -82,7 +82,7 @@ npx agenthood list                          # see available agents
 npx agenthood run the-scribe "write a commit message for the current diff"
 npx agenthood run the-reviewer "review the changes in the last commit"
 npx agenthood run the-architect "plan the implementation for issue #42"
-npx agenthood verify                    # validate member SKILL.md integrity
+npx agenthood verify                    # validate member SKILL.md integrity (add --conflicts to scan for overlapping skill descriptions)
 npx agenthood status --watch            # live project health monitoring
 npx agenthood trace                     # list recent invocation traces
 npx agenthood log                       # list recent structured log entries

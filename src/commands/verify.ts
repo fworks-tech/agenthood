@@ -7,6 +7,9 @@ import { loadLockfile } from '../utils/lockfile.ts'
 import type { Lockfile } from '../utils/lockfile.ts'
 import { SkillParser } from '../skills/discovery/SkillParser.ts'
 import type { SkillTier } from '../skills/discovery/ISkillManifest.ts'
+import { SkillDiscovery } from '../skills/discovery/SkillDiscovery.ts'
+import { findConflicts } from '../skills/conflicts.ts'
+import type { ConflictCandidate } from '../skills/conflicts.ts'
 import { findLaneOverlaps } from '../members/laneOverlap.ts'
 import { rawSpecs } from '../members/member-specs.ts'
 
@@ -114,6 +117,42 @@ function reportLaneOverlaps(): void {
   console.log('\n  Strict mode: lane overlap check passed.')
 }
 
+function collectConflictCandidates(membersDir: string, discovered: ConflictCandidate[]): ConflictCandidate[] {
+  const parser = new SkillParser()
+  const byName = new Map<string, ConflictCandidate>()
+  // Members first — they are the canonical skill surface, and a discovered
+  // copy under the same name is the same slot, not a second skill.
+  for (const member of MEMBER_NAMES) {
+    const skillPath = join(membersDir, member, 'SKILL.md')
+    if (!existsSync(skillPath)) continue
+    const { frontmatter } = parser.parseRaw(readFileSync(skillPath, 'utf8'))
+    const name = typeof frontmatter?.name === 'string' ? frontmatter.name : member
+    const description = typeof frontmatter?.description === 'string' ? frontmatter.description : ''
+    if (!byName.has(name)) byName.set(name, { name, description })
+  }
+  for (const s of discovered) {
+    if (!byName.has(s.name)) byName.set(s.name, s)
+  }
+  return [...byName.values()]
+}
+
+function reportConflicts(membersDir: string): void {
+  const discovered = new SkillDiscovery().discover(process.cwd())
+  const candidates = collectConflictCandidates(membersDir, discovered)
+  const conflicts = findConflicts(candidates)
+  if (conflicts.length === 0) {
+    console.log(`\n  ✓ Conflict scan: no description overlaps above threshold across ${candidates.length} skill(s).`)
+    return
+  }
+  console.log(`\n  Conflict scan: ${conflicts.length} overlapping description pair(s) across ${candidates.length} skill(s):`)
+  for (const c of conflicts) {
+    console.log(`    \u26a0 ${c.a} \u2194 ${c.b} (overlap ${Math.round(c.score * 100)}%)`)
+    console.log(`      shared terms: ${c.shared.join(', ')}`)
+    console.log(`      resolution: ${c.resolution}`)
+  }
+  console.log('    Resolve manually: edit the descriptions, remove one skill, or narrow its "Use when" triggers.')
+}
+
 function printResults(results: VerifyResult[]): void {
   for (const r of results) {
     if (r.pass && !r.drift) {
@@ -173,6 +212,7 @@ export async function verify(args: string[]): Promise<void> {
   const isStrict = flags.has('--strict')
   const updateLock = flags.has('--update-lock')
   const lockOnly = flags.has('--lock-only')
+  const conflicts = flags.has('--conflicts')
   const targetMember = positionals[0]
 
   if (targetMember && !MEMBER_NAME_RE.test(targetMember)) {
@@ -210,6 +250,11 @@ export async function verify(args: string[]): Promise<void> {
   const hasDrift = results.some((r) => r.drift)
 
   if (isStrict) reportLaneOverlaps()
+
+  // Advisory (#595): overlapping descriptions mean two skills can both trigger
+  // for the same task. Warns only — the resolution (dedup vs specialize) is a
+  // judgment call, so unlike --strict lane overlap it never fails the run.
+  if (conflicts) reportConflicts(membersDir)
 
   // --update-lock is the accept path for intentional edits, so it must work
   // *despite* drift (re-locking changed members is its whole purpose) — only a

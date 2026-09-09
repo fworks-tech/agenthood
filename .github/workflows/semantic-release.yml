@@ -98,9 +98,14 @@ jobs:
         with:
           node-version: "24"
 
+      - name: Install dependencies
+        run: npm ci
+
       # No `needs:` — this job is independently gated: a normal push to main has
       # nothing pending (package.json == latest tag) and stays a green no-op,
       # while the push of a merged release PR has a pending bump to publish.
+      # npm ci must run before this check: the helper imports semver and the
+      # @semantic-release plugins at module load.
       - name: The Herald — check for a pending release
         id: pending
         run: |
@@ -109,10 +114,6 @@ jobs:
           else
             echo "state=false" >> "$GITHUB_OUTPUT"
           fi
-
-      - name: Install dependencies
-        if: steps.pending.outputs.state == 'true'
-        run: npm ci
 
       - name: Configure npm for OIDC
         if: steps.pending.outputs.state == 'true'

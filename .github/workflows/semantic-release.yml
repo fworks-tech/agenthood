@@ -56,7 +56,7 @@ jobs:
       - name: The Herald — compute next version
         id: version
         run: |
-          node scripts/herald-release.mjs compute > herald.json
+          node scripts/herald-release.mjs compute herald.json
           VERSION=$(jq -r '.version // empty' herald.json)
           if [ -z "$VERSION" ]; then
             echo "herald: no release pending — skipping release PR"

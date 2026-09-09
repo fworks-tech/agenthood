@@ -1,61 +1,52 @@
 import { readFileSync } from 'node:fs'
 import { describe, expect, it } from 'vitest'
 
-describe('semantic release configuration', () => {
-  it('configures npm plugin to publish from semantic-release', () => {
-    const releaserc = JSON.parse(readFileSync('.releaserc.json', 'utf8')) as {
-      plugins: Array<string | [string, Record<string, unknown>]>
-    }
+const WORKFLOW = readFileSync('.github/workflows/semantic-release.yml', 'utf8')
+const HELPER = readFileSync('scripts/herald-release.mjs', 'utf8')
 
-    const npmPlugin = releaserc.plugins.find((plugin) => {
-      const pluginName = Array.isArray(plugin) ? plugin[0] : plugin
-      return pluginName === '@semantic-release/npm'
-    }) as [string, { npmPublish?: boolean }] | undefined
-
-    expect(npmPlugin).toBeDefined()
-    expect(Array.isArray(npmPlugin)).toBe(true)
-    expect(npmPlugin?.[1]?.npmPublish).toBe(true)
+describe('release configuration (Herald release-PR flow)', () => {
+  it('computes the next version from conventional commits via commit-analyzer', () => {
+    expect(HELPER).toContain('@semantic-release/commit-analyzer')
+    expect(HELPER).toContain('@semantic-release/release-notes-generator')
+    expect(HELPER).toContain(`analyzeCommits`)
+    expect(HELPER).toContain(`generateNotes`)
   })
 
-  it('does not inject NPM_TOKEN as a top-level env var in release workflow', () => {
-    const workflow = readFileSync('.github/workflows/semantic-release.yml', 'utf8')
-    expect(workflow).not.toMatch(/^\s*NPM_TOKEN:/m)
+  it('never pushes release artifacts directly to main', () => {
+    // The ruleset rejection this test guards against: a plain
+    // `git push ... HEAD:main` step anywhere in the release path.
+    expect(WORKFLOW).not.toMatch(/git push[^\n]*HEAD:main/m)
+    expect(HELPER).not.toMatch(/git[^\n]*push/m)
   })
 
-  it('configures exec plugin to generate release notes', () => {
-    const releaserc = JSON.parse(readFileSync('.releaserc.json', 'utf8')) as {
-      plugins: Array<string | [string, Record<string, unknown>]>
-    }
-
-    const execPlugin = releaserc.plugins.find((plugin) => {
-      const pluginName = Array.isArray(plugin) ? plugin[0] : plugin
-      return pluginName === '@semantic-release/exec'
-    }) as [string, { prepareCmd?: string }] | undefined
-
-    expect(execPlugin).toBeDefined()
-    expect(Array.isArray(execPlugin)).toBe(true)
-    expect(execPlugin?.[1]?.prepareCmd).toContain('generate-release-notes.ts')
+  it('opens a chore(release) PR instead of committing the bump directly', () => {
+    expect(WORKFLOW).toContain('peter-evans/create-pull-request')
+    expect(WORKFLOW).toContain('chore/rele')
+    expect(WORKFLOW).toMatch(/branch: chore\/rele/)
+    expect(WORKFLOW).toMatch(/commit-message: "chore\(release\): v/)
   })
 
-  it('includes docs/release-notes.md in git assets', () => {
-    const releaserc = JSON.parse(readFileSync('.releaserc.json', 'utf8')) as {
-      plugins: Array<string | [string, Record<string, unknown>]>
-    }
+  it('publishes only when package.json is ahead of the latest tag', () => {
+    expect(HELPER).toContain('isPending')
+    expect(WORKFLOW).toMatch(/herald-release\.mjs pending/)
+    expect(WORKFLOW).toMatch(/if: steps\.pending\.outputs\.state == 'true'/)
+  })
 
-    const gitPlugin = releaserc.plugins.find((plugin) => {
-      const pluginName = Array.isArray(plugin) ? plugin[0] : plugin
-      return pluginName === '@semantic-release/git'
-    }) as [string, { assets?: string[] }] | undefined
-
-    expect(gitPlugin).toBeDefined()
-    expect(gitPlugin?.[1]?.assets).toContain('docs/release-notes.md')
+  it('tags via the GitHub releases API, not git push', () => {
+    expect(WORKFLOW).toContain('gh release create')
+    expect(WORKFLOW).not.toMatch(/git push.*--tags/m)
   })
 
   it('uses OIDC trusted publisher for npm publish', () => {
-    const workflow = readFileSync('.github/workflows/semantic-release.yml', 'utf8')
-    expect(workflow).toContain('id-token: write')
-    expect(workflow).toContain('provenance=true')
-    expect(workflow).not.toContain('NODE_AUTH_TOKEN')
-    expect(workflow).not.toContain('NPM_TOKEN')
+    expect(WORKFLOW).toContain('id-token: write')
+    expect(WORKFLOW).toContain('provenance=true')
+    expect(WORKFLOW).not.toContain('NODE_AUTH_TOKEN')
+    expect(WORKFLOW).not.toContain('NPM_TOKEN')
+  })
+
+  it('keeps the changelog + release-notes docs regeneration in the PR', () => {
+    expect(HELPER).toContain('CHANGELOG.md')
+    expect(HELPER).toContain('generate-release-notes.ts')
+    expect(WORKFLOW).toContain('npm run build')
   })
 })

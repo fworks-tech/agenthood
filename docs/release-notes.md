@@ -5,6 +5,15 @@
 
 ---
 
+## v3.63.1 — September 9, 2026
+
+### 🐛 Bug Fixes
+
+- **Release:** route herald compute through a file, keep stdout json-only
+- **Release:** untrack the herald notes artifact, keep the changelog-derived view
+
+---
+
 ## v3.63.0 — September 9, 2026
 
 ### 🐛 Bug Fixes

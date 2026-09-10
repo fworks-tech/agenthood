@@ -115,7 +115,7 @@ Set one of these in a `.env` file in your project root (loaded automatically by 
 
 | Variable | Provider | Free tier |
 |----------|----------|-----------|
-| `OPENCODE_API_KEY` | OpenCode / OpenCodeGo (default) | [opencode.ai](https://opencode.ai) |
+| `OPENCODE_API_KEY` | OpenCode (default) / OpenCodeGo | [opencode.ai](https://opencode.ai) |
 | `GROQ_API_KEY` | Groq (fallback) | [console.groq.com](https://console.groq.com) |
 | `OPENROUTER_API_KEY` | OpenRouter | [openrouter.ai](https://openrouter.ai/keys) |
 | `ANTHROPIC_API_KEY` | Anthropic | — |
@@ -149,7 +149,7 @@ Agenthood is agent-agnostic. The skill files work with:
 - [Cursor](https://cursor.com) — via skill files
 - [OpenCode](https://opencode.ai) — via the plugin below, or any skill-file runtime
 
-The TypeScript runtime (`agenthood run`) supports OpenCode and OpenCodeGo (default, per `.agenthood/config.json`), Groq (free tier at [console.groq.com](https://console.groq.com)), OpenRouter, Anthropic, OpenAI, and Ollama for fully offline execution — 7 providers in total.
+The TypeScript runtime (`agenthood run`) supports OpenCode (default) and OpenCodeGo, per `.agenthood/config.json`, plus Groq (free tier at [console.groq.com](https://console.groq.com)), OpenRouter, Anthropic, OpenAI, and Ollama for fully offline execution — 7 providers in total.
 
 ### opencode plugin
 

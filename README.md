@@ -2,11 +2,11 @@
 
 [![npm version](https://img.shields.io/npm/v/agenthood?style=flat-square&logo=npm)](https://www.npmjs.com/package/agenthood) [![npm downloads](https://img.shields.io/npm/dm/agenthood?style=flat-square&logo=npm)](https://www.npmjs.com/package/agenthood) [![License: MIT](https://img.shields.io/badge/License-MIT-blue?style=flat-square)](LICENSE) [![Node.js](https://img.shields.io/badge/node-%3E%3D22.14.0-brightgreen?style=flat-square&logo=node.js)](https://nodejs.org) [![skills.sh](https://skills.sh/b/fworks-tech/agenthood)](https://skills.sh/fworks-tech/agenthood)
 
-> A full AI engineering team as plain Markdown files.
+> A full AI engineering team that earns every merge.
 
-Specialized AI agents — architect, reviewer, security expert, DevOps engineer, strategist, operator, and more — each a single Markdown skill file any agent runtime can load into any project. No lock-in. No configuration. Just drop them in.
+20 specialized AI agents — architect, reviewer, security expert, DevOps engineer, strategist, operator, and more — each a portable Markdown skill file any agent runtime can load into any project, plus a TypeScript runtime that runs them autonomously across your whole software lifecycle. No lock-in. Just drop them in.
 
-They have opinions about your PR descriptions. They will not merge your branch if your commit says `fix stuff`. They are not polite about it.
+They have opinions about your PR descriptions. They will not merge your branch if your commit says `fix stuff`. They are not polite about it. And they show their work: every run leaves a tamper-evident decision and provenance trail.
 
 ---
 
@@ -22,11 +22,16 @@ They have opinions about your PR descriptions. They will not merge your branch i
 
 ## How it works
 
-Each agent is a single `.md` file that describes a role, its responsibilities, standards, and how it communicates. Load one or all of them into Claude Code, Copilot, or any runtime that supports skill files. Or run them autonomously via the TypeScript CLI.
+Each agent is a single `.md` file that describes a role, its responsibilities, standards, and how it communicates. Load one or all of them into Claude Code, Copilot, Gemini CLI, or any runtime that supports skill files. Hand them a task, or run them autonomously via the TypeScript CLI — end to end, with human checkpoints where it matters.
 
 1. **Install the Society** — `npm install --save-dev agenthood && npx agenthood init` (or `npx skills add fworks-tech/agenthood` via [skills.sh](https://skills.sh/fworks-tech/agenthood))
 2. **Load into your runtime** — point Claude Code, Copilot, or your agent framework at the skills directory
 3. **Invoke any agent** — ask the Reviewer to check your PR, ask the Auditor to scan your auth flow. They know their role. They have *standards*.
+4. **Run them autonomously** — `agenthood run the-scribe "write a commit message"` executes a member as a real LLM agent; chain them for full-lifecycle work
+
+Every member run records one decision and one provenance entry in `.agenthood/decisions/` and `.agenthood/provenance/` — a tamper-evident hash chain you can audit. See [ADR-015](docs/adr/ADR-015-decision-intelligence-and-provenance.md).
+
+Beyond the 20 members, `skills/` ships **41 utility skills** — specialist capability files (docker, kubernetes, jira, postgres, redis, and more) that any agent runtime activates on task match. See the [Academy utility skills guide](docs/academy/utility-skills.md).
 
 ---
 
@@ -65,11 +70,11 @@ Every role a real software team needs — available as a skill file with impecca
 
 ```bash
 npm install --save-dev agenthood
-npx agenthood init       # interactive setup (~1 minute)
+npx agenthood init       # interactive setup (~2 minutes)
 npx agenthood check      # verify everything is in place
 ```
 
-Members are loaded as context by your existing AI assistant. Works with Claude Code and Copilot.
+Members are loaded as context by your existing AI assistant. Works with Claude Code, Copilot, Gemini CLI, Cursor, OpenCode, or any skill-file runtime.
 
 ### Option B — Run agents autonomously
 
@@ -110,8 +115,9 @@ Set one of these in a `.env` file in your project root (loaded automatically by 
 
 | Variable | Provider | Free tier |
 |----------|----------|-----------|
-| `OPENCODE_API_KEY` | OpenCode / OpenCodeGo (default) | [opencode.ai](https://opencode.ai) |
+| `OPENCODE_API_KEY` | OpenCode (default) / OpenCodeGo | [opencode.ai](https://opencode.ai) |
 | `GROQ_API_KEY` | Groq (fallback) | [console.groq.com](https://console.groq.com) |
+| `OPENROUTER_API_KEY` | OpenRouter | [openrouter.ai](https://openrouter.ai/keys) |
 | `ANTHROPIC_API_KEY` | Anthropic | — |
 | `OPENAI_API_KEY` | OpenAI | — |
 
@@ -127,7 +133,9 @@ For a full walkthrough — install, commands, CI pipeline, and next steps — se
 See the [CHANGELOG.md](CHANGELOG.md) for the full version history.
 
 ### Playground (agenthood-site)
-[**Agenthood Studio**](https://agenthood.flabs.tech/studio/playground) — a browser-based chat interface for all 20 Society members. Features configurable provider backend (Anthropic, OpenAI, Groq, Ollama, OpenCode), SSE streaming, turnstile CAPTCHA, session-scoped config persistence, Upstash Redis rate limiting, and structured logging with field-level redaction. [Source](https://github.com/fworks-tech/agenthood-site)
+[**Agenthood Studio**](https://agenthood.flabs.tech/studio/playground) — a browser-based chat interface for all 20 Society members. Features configurable provider backend (7 LLM providers: Anthropic, OpenAI, Groq, OpenRouter, Ollama, OpenCode, OpenCodeGo), SSE streaming, turnstile CAPTCHA, session-scoped config persistence, Upstash Redis rate limiting, and structured logging with field-level redaction. [Source](https://github.com/fworks-tech/agenthood-site)
+
+**Multi-agent Workspaces** — assemble a team of members, give one instruction, and watch them collaborate: the Mediator plans the handoff sequence, members run in order, and a synthesizer streams one final answer. Includes a human checkpoint — pause, review, continue or stop. [Try it](https://agenthood.flabs.tech/studio/workspaces)
 
 ---
 
@@ -137,8 +145,11 @@ Agenthood is agent-agnostic. The skill files work with:
 
 - [Claude Code](https://claude.ai/code) — via `.claude/skills/`
 - [GitHub Copilot](https://github.com/features/copilot) — via `.github/copilot-instructions.md`
+- [Gemini CLI](https://github.com/google-gemini/gemini-cli) — via skill files
+- [Cursor](https://cursor.com) — via skill files
+- [OpenCode](https://opencode.ai) — via the plugin below, or any skill-file runtime
 
-The TypeScript runtime (`agenthood run`) supports OpenCode (default, per `.agenthood/config.json`), Groq (free tier at [console.groq.com](https://console.groq.com)), Anthropic, OpenAI, and Ollama for fully offline execution.
+The TypeScript runtime (`agenthood run`) supports OpenCode (default) and OpenCodeGo, per `.agenthood/config.json`, plus Groq (free tier at [console.groq.com](https://console.groq.com)), OpenRouter, Anthropic, OpenAI, and Ollama for fully offline execution — 7 providers in total.
 
 ### opencode plugin
 

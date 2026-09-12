@@ -100,6 +100,6 @@ export async function embedWith(
     return response.data[0].embedding
   } catch (err) {
     const msg = err instanceof Error ? err.message : String(err)
-    throw new Error(`${providerName} embed failed: ${msg}`)
+    throw new Error(`${providerName} embed failed: ${msg}`, { cause: err })
   }
 }

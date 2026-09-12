@@ -155,7 +155,7 @@ function gitHooksCheck(cwd: string): Check {
   if (!existsSync(join(cwd, '.git'))) {
     return { name: 'Git hooks', status: 'warn', detail: 'not a git repository' }
   }
-  let hooksPath = ''
+  let hooksPath: string
   try {
     hooksPath = execSync('git config core.hooksPath', { cwd, encoding: 'utf8', stdio: ['ignore', 'pipe', 'ignore'] }).trim()
   } catch {

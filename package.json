@@ -87,14 +87,14 @@
   "devDependencies": {
     "@commitlint/cli": "^21.2.2",
     "@commitlint/config-conventional": "^21.2.2",
-    "@commitlint/types": "^19.0.0",
+    "@commitlint/types": "^21.2.0",
     "@eslint/js": "^9.15.0",
     "@opencode-ai/plugin": "^1.17.15",
     "@semantic-release/commit-analyzer": "^13.0.1",
     "@semantic-release/release-notes-generator": "^14.1.1",
     "@types/node": "^26.5.0",
     "@types/normalize-package-data": "^2.4.4",
-    "@vitest/coverage-v8": "^4.1.8",
+    "@vitest/coverage-v8": "^4.1.11",
     "apache-arrow": "^18.1.0",
     "eslint": "^10.8.0",
     "jiti": "^2.7.0",
@@ -103,7 +103,7 @@
     "tsx": "^4.19.0",
     "typescript": "^5.8.0",
     "typescript-eslint": "^8.0.0",
-    "vitest": "^4.1.8"
+    "vitest": "^4.1.11"
   },
   "packageManager": "npm@11.19.0",
   "engines": {

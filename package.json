@@ -117,7 +117,7 @@
     "ajv": "8.20.0",
     "dotenv": "17.4.2",
     "groq-sdk": "1.6.0",
-    "openai": "7.9.0",
+    "openai": "7.12.1",
     "tree-sitter": "0.21.1",
     "tree-sitter-go": "0.25.0",
     "tree-sitter-python": "0.23.2",

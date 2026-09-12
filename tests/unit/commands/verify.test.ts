@@ -113,6 +113,39 @@ describe('verify command', () => {
     expect(exit).toHaveBeenCalledWith(1)
   })
 
+  it('does not flag TODO/FIXME mentions in prose as placeholders (#816, #753)', async () => {
+    skillContent = VALID_SKILL.replace(
+      'Test verification.',
+      'Search for TODO and FIXME comments (list file:line for each).',
+    )
+    lockContent = lockWith({ 'the-test': { version: contentHash(skillContent), updatedAt: OLD } })
+    const exit = vi.spyOn(process, 'exit').mockImplementation((() => {}) as any)
+    await verify([])
+    expect(exit).not.toHaveBeenCalledWith(1)
+  })
+
+  it('does not flag placeholder markers inside inline code examples', async () => {
+    skillContent = VALID_SKILL.replace(
+      'Test verification.',
+      'Any `// TODO: fix this properly` comment older than one sprint is stale.',
+    )
+    lockContent = lockWith({ 'the-test': { version: contentHash(skillContent), updatedAt: OLD } })
+    const exit = vi.spyOn(process, 'exit').mockImplementation((() => {}) as any)
+    await verify([])
+    expect(exit).not.toHaveBeenCalledWith(1)
+  })
+
+  it('does not flag placeholder markers inside fenced code blocks', async () => {
+    skillContent = VALID_SKILL.replace(
+      'Test verification.',
+      'Example:\n```\n// TODO: implement\nfunction stub() {}\n```\n',
+    )
+    lockContent = lockWith({ 'the-test': { version: contentHash(skillContent), updatedAt: OLD } })
+    const exit = vi.spyOn(process, 'exit').mockImplementation((() => {}) as any)
+    await verify([])
+    expect(exit).not.toHaveBeenCalledWith(1)
+  })
+
   it('accepts --update-lock flag and writes lockfile', async () => {
     await verify(['--update-lock'])
     expect(writeFileSync).toHaveBeenCalled()

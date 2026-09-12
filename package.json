@@ -98,7 +98,7 @@
     "apache-arrow": "^18.1.0",
     "eslint": "^10.8.0",
     "jiti": "^2.7.0",
-    "marked": "^15.0.12",
+    "marked": "^18.0.12",
     "semantic-release": "^25.0.5",
     "tsx": "^4.19.0",
     "typescript": "^5.8.0",

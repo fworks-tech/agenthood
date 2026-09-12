@@ -76,13 +76,13 @@ export async function loadConfig(providerOverride?: string): Promise<LLMConfig> 
   } catch (err) {
     if (err instanceof SyntaxError) {
       // corrupt config must not silently fall back to defaults
-      throw new Error(`Invalid JSON in ${configPath}: ${(err as Error).message}`)
+      throw new Error(`Invalid JSON in ${configPath}: ${(err as Error).message}`, { cause: err })
     }
     if ((err as NodeJS.ErrnoException).code === 'ENOENT') {
       return providerOverride ? { provider: providerOverride } : {}
     }
     // unreadable config (EACCES, EISDIR, ...) must not silently fall back
-    throw new Error(`Cannot read ${configPath}: ${(err as Error).message}`)
+    throw new Error(`Cannot read ${configPath}: ${(err as Error).message}`, { cause: err })
   }
 
   const cfg: LLMConfig = { ...parseProviderBlock(raw), ...parseFailover(raw) }

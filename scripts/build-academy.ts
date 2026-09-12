@@ -170,7 +170,8 @@ function convertMarkdown(filePath: string): void {
   // is this repo's own trusted docs, rendered once to static HTML at build
   // time (never runtime, never untrusted input). Do not reuse for HTML that
   // embeds user or LLM-supplied content without sanitizing.
-  const html = marked.parse(content, { renderer, mangle: false, headerIds: true }) as string
+  // mangle/headerIds were removed upstream and are already no-ops on v15 — omit for v15/v18 compat
+  const html = marked.parse(content, { renderer }) as string
 
   const title = content.split('\n')[0]?.replace(/^#\s*/, '') || 'Agenthood Academy'
   const outPath = isIndex

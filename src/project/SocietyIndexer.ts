@@ -72,7 +72,7 @@ export class SocietyIndexer {
       const skillPath = join(membersDir, memberName, "SKILL.md")
       if (!existsSync(skillPath)) continue
 
-      let content = ""
+      let content: string
       try {
         content = readFileSync(skillPath, "utf8")
       } catch {

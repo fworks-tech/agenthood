@@ -24,7 +24,7 @@ const TIER_REQUIRED_SECTIONS: Record<SkillTier, string[]> = {
 // Marker form only: a real placeholder is the tag followed by a structural
 // character (":", "(", "-"). Mentions in prose ("TODO and FIXME comments",
 // "Find TODO") are followed by a space + word and must not count.
-const PLACEHOLDER_PATTERNS = [/\bTBD\s*[:(\-]/i, /\bTODO\s*[:(\-]/i, /\bFIXME\s*[:(\-]/i]
+const PLACEHOLDER_PATTERNS = [/\bTBD\s*[-:(]/i, /\bTODO\s*[-:(]/i, /\bFIXME\s*[-:(]/i]
 
 interface VerifyResult {
   member: string

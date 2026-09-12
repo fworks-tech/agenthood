@@ -123,7 +123,7 @@ The `agenthood` CLI auto-discovers commands from `src/commands/` — each file e
 - `agenthood rotate-key <provider>` — rotate an API key with validation and hot-reload (prompts for new key, validates, updates config, reinitializes provider)
 - `agenthood cost` — show cumulative cost breakdown (`--since YYYY-MM-DD`, `--provider <name>`, `--member <name>`)
 - `agenthood health` — runtime health checks (`--json`; exit 0 healthy / 1 degraded / 2 unhealthy)
-- `agenthood check` / `verify` — health and member-integrity validation
+- `agenthood check` / `verify` — health and member-integrity validation. The placeholder scan flags TODO/FIXME/TBD only in marker form (followed by a structural character); mentions in prose and examples inside code spans are ignored.
 - `agenthood install <url>` — install a skill from a URL or git repository (`--dry-run` to preview)
 - `agenthood publish` — publish skills to GitHub for skills.sh indexing (`--dry-run` to preview)
 - `agenthood mcp` — start an MCP server on stdio, exposing skills as MCP tools for external agents (Claude Code, Cursor, etc.)

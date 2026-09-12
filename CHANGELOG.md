@@ -1,3 +1,10 @@
+## [3.63.3](https://github.com/fworks-tech/agenthood/compare/v3.63.2...v3.63.3) (2026-09-12)
+
+
+### Bug Fixes
+
+* **verify:** narrow placeholder scan to marker form and skip code spans ([#830](https://github.com/fworks-tech/agenthood/issues/830)) ([aa42b57](https://github.com/fworks-tech/agenthood/commit/aa42b57f80716d04a7130173ddfd9a9e0d364ffc)), closes [#816](https://github.com/fworks-tech/agenthood/issues/816) [#753](https://github.com/fworks-tech/agenthood/issues/753)
+
 ## [3.63.2](https://github.com/fworks-tech/agenthood/compare/v3.63.1...v3.63.2) (2026-09-12)
 
 

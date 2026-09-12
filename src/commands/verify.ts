@@ -21,7 +21,10 @@ const TIER_REQUIRED_SECTIONS: Record<SkillTier, string[]> = {
   experimental: ['Overview', 'When to Use'],
 }
 
-const PLACEHOLDER_PATTERNS = [/TBD/i, /TODO/i, /FIXME/i]
+// Marker form only: a real placeholder is the tag followed by a structural
+// character (":", "(", "-"). Mentions in prose ("TODO and FIXME comments",
+// "Find TODO") are followed by a space + word and must not count.
+const PLACEHOLDER_PATTERNS = [/\bTBD\s*[:(\-]/i, /\bTODO\s*[:(\-]/i, /\bFIXME\s*[:(\-]/i]
 
 interface VerifyResult {
   member: string
@@ -71,8 +74,11 @@ function validateMember(membersDir: string, member: string, lockfile?: Lockfile)
     }
   }
 
+  // Strip fenced/inline code — examples of what a skill detects
+  // (e.g. `// TODO: fix this`) are not unfinished skill content.
+  const proseBody = body.replace(/```[\s\S]*?```/g, '').replace(/`[^`]*`/g, '')
   for (const pattern of PLACEHOLDER_PATTERNS) {
-    if (pattern.test(body)) {
+    if (pattern.test(proseBody)) {
       result.issues.push(`Contains placeholder content matching "${pattern.source}"`)
     }
   }

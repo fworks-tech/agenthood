@@ -43,6 +43,7 @@ export function parseToolCall(
     } catch (parseErr) {
       throw new Error(
         `Invalid tool call JSON from ${providerName} for ${tc.function.name}: ${parseErr instanceof Error ? parseErr.message : String(parseErr)}`,
+        { cause: parseErr },
       );
     }
   }

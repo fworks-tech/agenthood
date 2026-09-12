@@ -140,7 +140,7 @@ export class AnthropicProvider implements ILLMProvider {
       return result
     } catch (err) {
       const msg = err instanceof Error ? err.message : String(err)
-      throw new Error(`AnthropicProvider.complete() failed: ${msg}`)
+      throw new Error(`AnthropicProvider.complete() failed: ${msg}`, { cause: err })
     }
   }
 

@@ -63,6 +63,8 @@ thresholds step is the gate.
 
 Commands are auto-registered: each file in `src/commands/` exports a `command: CommandDescriptor` (`name`, optional `aliases`, `description`, `handler(args)`). Adding a command means adding a file with a descriptor — `src/cli.ts` never changes. Helper modules in that directory simply export no descriptor. See `src/commands/types.ts`.
 
+When a command wraps a caught error in a friendlier message, the original is attached via `{ cause }` so the underlying failure stays in the stack output (the v10 recommended ESLint set enforces this across `src/`).
+
 ### TypeScript
 
 Verify zero type errors before committing:

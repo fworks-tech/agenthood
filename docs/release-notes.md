@@ -5,6 +5,14 @@
 
 ---
 
+## v3.63.3 — September 12, 2026
+
+### 🐛 Bug Fixes
+
+- **Verify:** narrow placeholder scan to marker form and skip code spans (#830) #753
+
+---
+
 ## v3.63.2 — September 12, 2026
 
 ### 🐛 Bug Fixes

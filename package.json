@@ -1,6 +1,6 @@
 {
   "name": "agenthood",
-  "version": "3.63.1",
+  "version": "3.63.2",
   "description": "A full AI engineering team that earns every merge. 20 specialized agents for the whole software lifecycle — as portable Markdown skill files, an autonomous TypeScript runtime, and a browser Studio — with a tamper-evident audit trail for every decision.",
   "keywords": [
     "ai-agents",

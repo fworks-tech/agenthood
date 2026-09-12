@@ -1,3 +1,10 @@
+## [3.63.2](https://github.com/fworks-tech/agenthood/compare/v3.63.1...v3.63.2) (2026-09-12)
+
+
+### Bug Fixes
+
+* **scripts:** drop removed marked options for v15/v18 compat ([#824](https://github.com/fworks-tech/agenthood/issues/824)) ([e16f762](https://github.com/fworks-tech/agenthood/commit/e16f7622d74db63e3a761af6135b086ee825c521))
+
 ## [3.63.1](https://github.com/fworks-tech/agenthood/compare/v3.63.0...v3.63.1) (2026-09-09)
 
 

@@ -92,7 +92,7 @@
     "@opencode-ai/plugin": "^1.17.15",
     "@semantic-release/commit-analyzer": "^13.0.1",
     "@semantic-release/release-notes-generator": "^14.1.1",
-    "@types/node": "^22.19.21",
+    "@types/node": "^26.5.0",
     "@types/normalize-package-data": "^2.4.4",
     "@vitest/coverage-v8": "^4.1.8",
     "apache-arrow": "^18.1.0",

@@ -5,6 +5,14 @@
 
 ---
 
+## v3.63.2 — September 12, 2026
+
+### 🐛 Bug Fixes
+
+- **Scripts:** drop removed marked options for v15/v18 compat (#824)
+
+---
+
 ## v3.63.1 — September 9, 2026
 
 ### 🐛 Bug Fixes

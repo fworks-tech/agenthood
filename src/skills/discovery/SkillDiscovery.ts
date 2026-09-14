@@ -5,8 +5,12 @@ import type { ISkillManifest } from './ISkillManifest.ts'
 import { SkillParser } from './SkillParser.ts'
 import { RemoteSkillFetcher, type RemoteSkillSource } from './RemoteSkillSource.ts'
 import { checkSkillIntegrity } from '../../utils/skillIntegrity.ts'
+import { MEMBERS_DIR } from '../../members/MemberRegistry.ts'
 
 const IGNORED_DIRS = new Set(['node_modules', '.git', '.hg', '.svn', 'dist', 'build', '.next', '.cache'])
+// Member skills load via MemberRegistry, not discovery; _shared holds style
+// fragments, not activatable skills.
+const PACKAGED_EXCLUDED_DIRS = new Set(['_shared'])
 const MAX_DEPTH = 6
 
 export class SkillDiscovery {
@@ -79,7 +83,39 @@ export class SkillDiscovery {
     return Array.from(this.manifests.values())
   }
 
-  private scanDir(dir: string, depth: number): ISkillManifest[] {
+  /**
+   * Packaged tool skills shipped in the Society's own skills/ directory.
+   * Lowest precedence by design: callers merge these under user/project
+   * results so a local skill with the same name wins. Member skills
+   * (the-*) and _shared are excluded — members load via MemberRegistry.
+   * Skips the integrity gate: the versioned package tarball is the trust
+   * root, and there is no project lockfile entry for packaged files.
+   * Kept separate from discover() so publish/verify/MCP keep their
+   * project-scoped behavior.
+   */
+  discoverPackaged(): ISkillManifest[] {
+    if (!existsSync(MEMBERS_DIR)) return []
+    const result: ISkillManifest[] = []
+
+    let entries: string[]
+    try {
+      entries = readdirSync(MEMBERS_DIR)
+    } catch {
+      return []
+    }
+
+    for (const entry of entries) {
+      if (entry.startsWith('the-') || PACKAGED_EXCLUDED_DIRS.has(entry)) continue
+      const fullPath = join(MEMBERS_DIR, entry)
+      const stat = this.statPath(fullPath)
+      if (!stat || !stat.isDirectory()) continue
+      result.push(...this.scanEntry(fullPath, entry, 0, true))
+    }
+
+    return result
+  }
+
+  private scanDir(dir: string, depth: number, skipIntegrity = false): ISkillManifest[] {
     if (depth > MAX_DEPTH) return []
     const result: ISkillManifest[] = []
 
@@ -99,7 +135,7 @@ export class SkillDiscovery {
       if (!stat) continue
 
       if (stat.isDirectory()) {
-        result.push(...this.scanEntry(fullPath, entry, depth))
+        result.push(...this.scanEntry(fullPath, entry, depth, skipIntegrity))
       }
     }
 
@@ -117,7 +153,7 @@ export class SkillDiscovery {
     }
   }
 
-  private scanEntry(fullPath: string, entry: string, depth: number): ISkillManifest[] {
+  private scanEntry(fullPath: string, entry: string, depth: number, skipIntegrity = false): ISkillManifest[] {
     const skillMdPath = join(fullPath, 'SKILL.md')
     if (existsSync(skillMdPath)) {
       const parsed = this.parser.parse(skillMdPath)
@@ -126,10 +162,10 @@ export class SkillDiscovery {
       const { frontmatter } = this.parser.parseRaw(content)
       const tier = this.parser.parseTier(frontmatter)
       const manifest = this.parser.parseManifest(skillMdPath, fullPath, parsed.body, parsed.name || entry, parsed.description, tier)
-      this.verifyIntegrity(parsed.name || entry, skillMdPath)
+      if (!skipIntegrity) this.verifyIntegrity(parsed.name || entry, skillMdPath)
       return [manifest]
     }
-    return this.scanDir(fullPath, depth + 1)
+    return this.scanDir(fullPath, depth + 1, skipIntegrity)
   }
 
   private verifyIntegrity(member: string, skillPath: string): void {

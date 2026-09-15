@@ -102,6 +102,8 @@ export class SkillDiscovery {
     const result: ISkillManifest[] = []
 
     let entries: string[]
+    // readdirSync ENOENT (no packaged dir in stripped installs) is caught by
+    // the try below — no existsSync guard needed.
     try {
       entries = readdirSync(MEMBERS_DIR)
     } catch {
@@ -166,10 +168,11 @@ export class SkillDiscovery {
       const { frontmatter } = this.parser.parseRaw(content)
       const tier = this.parser.parseTier(frontmatter)
       const manifest = this.parser.parseManifest(skillMdPath, fullPath, parsed.body, parsed.name || entry, parsed.description, tier)
-      if (!isPackagedDir(fullPath)) this.verifyIntegrity(parsed.name || entry, skillMdPath)
+      const packaged = isPackagedDir(fullPath)
+      if (!packaged) this.verifyIntegrity(parsed.name || entry, skillMdPath)
       // A packaged file whose frontmatter name disagrees with its directory
       // entry could shadow a lockfile-pinned manifest with no gate — drop it.
-      if (isPackagedDir(fullPath) && parsed.name && parsed.name !== entry) return []
+      if (packaged && parsed.name && parsed.name !== entry) return []
       return [manifest]
     }
     return this.scanDir(fullPath, depth + 1)

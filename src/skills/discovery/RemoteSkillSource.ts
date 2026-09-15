@@ -18,7 +18,7 @@ interface CacheEntry {
 
 const CACHE_TTL_MS = 24 * 60 * 60 * 1000 // 24 hours
 const REDIRECT_LIMIT = 3
-const NON_REDIRECT_STATUSES = [301, 302, 303, 307, 308]
+const REDIRECT_STATUSES = [301, 302, 303, 307, 308]
 
 /**
  * Only https to public hostname resolvers — blocks http, file (local read),
@@ -50,6 +50,9 @@ export function validateRemoteUrl(raw: string): string {
 
 function throwIfPrivateIPv4(host: string, raw: string): void {
   const parts = host.split('.')
+  // Not an IPv4 literal — hostnames pass through; malformed literals like
+  // 10.0.0.999 or 999.1.1.1 also pass, but they parse to nothing dangerous
+  // (no resolvable private range) and fail fetch naturally.
   if (parts.length !== 4 || parts.some((p) => !/^\d+$/.test(p))) return
   const [a, b] = parts.map(Number)
   if (a > 255 || b > 255) return
@@ -120,7 +123,7 @@ export class RemoteSkillFetcher {
       const response = await fetch(href, { redirect: 'manual' })
       if (response.ok) return await response.text()
       const location = response.headers.get('location')
-      if (!location || !NON_REDIRECT_STATUSES.includes(response.status)) return undefined
+      if (!location || !REDIRECT_STATUSES.includes(response.status)) return undefined
       href = validateRemoteUrl(new URL(location, href).href)
     }
     return undefined

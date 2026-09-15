@@ -1,13 +1,22 @@
 import { existsSync, readFileSync, readdirSync, statSync } from 'node:fs'
-import { join } from 'node:path'
+import { isAbsolute, join, relative } from 'node:path'
 import { homedir } from 'node:os'
 import type { ISkillManifest } from './ISkillManifest.ts'
 import { SkillParser } from './SkillParser.ts'
 import { RemoteSkillFetcher, type RemoteSkillSource } from './RemoteSkillSource.ts'
 import { checkSkillIntegrity } from '../../utils/skillIntegrity.ts'
+import { MEMBERS_DIR } from '../../members/MemberRegistry.ts'
 
 const IGNORED_DIRS = new Set(['node_modules', '.git', '.hg', '.svn', 'dist', 'build', '.next', '.cache'])
 const MAX_DEPTH = 6
+
+// The packaged skills dir inside the installed package is the versioned trust
+// root — the lockfile integrity gate applies only to user/project dirs, which
+// is decided by location (isPackagedDir), not by a caller-threaded flag.
+function isPackagedDir(fullPath: string): boolean {
+  const rel = relative(MEMBERS_DIR, fullPath)
+  return rel !== '' && !rel.startsWith('..') && !isAbsolute(rel)
+}
 
 export class SkillDiscovery {
   private parser = new SkillParser()
@@ -79,6 +88,39 @@ export class SkillDiscovery {
     return Array.from(this.manifests.values())
   }
 
+  /**
+   * Packaged tool skills shipped in the Society's own skills/ directory.
+   * Lowest precedence by design: callers merge these under user/project
+   * results so a local skill with the same name wins. Member skills
+   * (the-*) and _shared are excluded — members load via MemberRegistry.
+   * The lockfile integrity gate does not apply here: the versioned package
+   * tarball is the trust root, and there is no project lockfile entry for
+   * packaged files. Kept separate from discover() so publish/verify/MCP
+   * keep their project-scoped behavior.
+   */
+  discoverPackaged(): ISkillManifest[] {
+    const result: ISkillManifest[] = []
+
+    let entries: string[]
+    // readdirSync ENOENT (no packaged dir in stripped installs) is caught by
+    // the try below — no existsSync guard needed.
+    try {
+      entries = readdirSync(MEMBERS_DIR)
+    } catch {
+      return []
+    }
+
+    for (const entry of entries) {
+      if (entry.startsWith('the-') || entry === '_shared') continue
+      const fullPath = join(MEMBERS_DIR, entry)
+      const stat = this.statPath(fullPath)
+      if (!stat || !stat.isDirectory()) continue
+      result.push(...this.scanEntry(fullPath, entry, 0))
+    }
+
+    return result
+  }
+
   private scanDir(dir: string, depth: number): ISkillManifest[] {
     if (depth > MAX_DEPTH) return []
     const result: ISkillManifest[] = []
@@ -126,7 +168,11 @@ export class SkillDiscovery {
       const { frontmatter } = this.parser.parseRaw(content)
       const tier = this.parser.parseTier(frontmatter)
       const manifest = this.parser.parseManifest(skillMdPath, fullPath, parsed.body, parsed.name || entry, parsed.description, tier)
-      this.verifyIntegrity(parsed.name || entry, skillMdPath)
+      const packaged = isPackagedDir(fullPath)
+      if (!packaged) this.verifyIntegrity(parsed.name || entry, skillMdPath)
+      // A packaged file whose frontmatter name disagrees with its directory
+      // entry could shadow a lockfile-pinned manifest with no gate — drop it.
+      if (packaged && parsed.name && parsed.name !== entry) return []
       return [manifest]
     }
     return this.scanDir(fullPath, depth + 1)

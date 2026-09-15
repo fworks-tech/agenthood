@@ -1,6 +1,6 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest'
 import { mkdirSync, writeFileSync, rmSync } from 'node:fs'
-import { join, sep } from 'node:path'
+import { join, sep, basename } from 'node:path'
 import { tmpdir } from 'node:os'
 import { MEMBERS_DIR } from '../../../src/members/MemberRegistry.ts'
 
@@ -86,6 +86,13 @@ describe('SkillDiscovery', () => {
       expect(mockCheckSkillIntegrity).not.toHaveBeenCalled()
       expect(warnSpy).not.toHaveBeenCalled()
       warnSpy.mockRestore()
+    })
+
+    it('manifest names match their directory entries (no frontmatter-name shadowing)', () => {
+      const discovery = new SkillDiscovery(testDir)
+      for (const m of discovery.discoverPackaged()) {
+        expect(m.name).toBe(basename(m.directory))
+      }
     })
   })
 })

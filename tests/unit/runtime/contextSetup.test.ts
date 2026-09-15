@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest'
-import { mkdirSync, writeFileSync, rmSync } from 'node:fs'
+import { mkdirSync, writeFileSync, readFileSync, rmSync } from 'node:fs'
 import { join } from 'node:path'
 import { tmpdir } from 'node:os'
 
@@ -27,6 +27,11 @@ describe('discoverSkills packaged merge', () => {
     rmSync(testDir, { recursive: true, force: true })
   })
 
+  it('packaged dirs are declared in the npm files allowlist', () => {
+    const pkg = JSON.parse(readFileSync(join(process.cwd(), 'package.json'), 'utf-8')) as { files: string[] }
+    expect(pkg.files).toContain('skills')
+  })
+
   it('catalog lists packaged tool skills alongside project skills', async () => {
     const { catalog, manifests } = await discoverSkills(testDir)
     const packaged = new SkillDiscovery(testDir).discoverPackaged()
@@ -39,7 +44,9 @@ describe('discoverSkills packaged merge', () => {
   })
 
   it('project skill wins over a packaged skill with the same name', async () => {
-    const packagedName = new SkillDiscovery(testDir).discoverPackaged()[0].name
+    const discovery = new SkillDiscovery(testDir)
+    const packagedName = discovery.discoverPackaged().find((m) => m.name === 'docker')?.name
+    expect(packagedName).toBeTruthy()
     const overrideDir = join(testDir, '.agents', 'skills', packagedName)
     mkdirSync(overrideDir, { recursive: true })
     writeFileSync(join(overrideDir, 'SKILL.md'), `---\nname: ${packagedName}\ndescription: Project override\n---\n# Overview\nOverride`)

@@ -15,6 +15,16 @@ npm install
 
 The postinstall script is a no-op unless `AGENTHOOD_AUTO_SETUP=1` is set. CI always runs `npm ci --ignore-scripts`.
 
+### Questions and member ideas — use Discussions
+
+GitHub Discussions is the channel for everything that is not a bug or a
+feature implementation: usage questions ("How do I use The Scribe with
+Cursor?"), new-member pitches before code exists, and show-and-tell for
+projects built with Agenthood. Issues are reserved for actionable work —
+bug reports and approved features. If your issue is really a question,
+it will be redirected to Discussions. See the pinned welcome post and
+the Member Proposals category for pitching conventions.
+
 ### Dependencies
 
 Production dependencies are exact-pinned (`0.105.0`, not `^`) so installs are

@@ -1,6 +1,7 @@
 ---
 name: email
 description: Send emails via SMTP or sendmail. Use when sending transactional emails or notifications programmatically.
+license: MIT
 metadata:
   category: messaging
   dependencies:

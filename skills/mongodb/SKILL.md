@@ -1,6 +1,7 @@
 ---
 name: mongodb
 description: Manage MongoDB databases via the mongosh CLI. Use when querying, inspecting, or managing MongoDB collections.
+license: MIT
 metadata:
   category: databases
   dependencies:

@@ -1,3 +1,10 @@
+# [3.64.0](https://github.com/fworks-tech/agenthood/compare/v3.63.3...v3.64.0) (2026-09-16)
+
+
+### Features
+
+* **skills:** include packaged tool skills in runtime catalog ([#833](https://github.com/fworks-tech/agenthood/issues/833)) ([807c827](https://github.com/fworks-tech/agenthood/commit/807c827910056765f2ba1bea244f63cacbc59b57)), closes [#832](https://github.com/fworks-tech/agenthood/issues/832)
+
 ## [3.63.3](https://github.com/fworks-tech/agenthood/compare/v3.63.2...v3.63.3) (2026-09-12)
 
 

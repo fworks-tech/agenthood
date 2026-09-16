@@ -129,7 +129,11 @@ export class RemoteSkillFetcher {
       if (response.ok) {
         const length = Number(response.headers.get('content-length') ?? '0')
         if (length > MAX_REMOTE_BODY_BYTES) return undefined
-        return await response.text()
+        const text = await response.text()
+        // A missing content-length header skips the header check above —
+        // the decoded body is the enforceable boundary, never trust the header alone.
+        if (text.length > MAX_REMOTE_BODY_BYTES) return undefined
+        return text
       }
       const location = response.headers.get('location')
       if (!location || !REDIRECT_STATUSES.includes(response.status)) return undefined

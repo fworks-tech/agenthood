@@ -1,6 +1,7 @@
 ---
 name: kubernetes
 description: Manage Kubernetes clusters via kubectl. Use when deploying, inspecting, or debugging Kubernetes resources.
+license: MIT
 metadata:
   category: cloud
   dependencies:

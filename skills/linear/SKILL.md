@@ -1,6 +1,7 @@
 ---
 name: linear
 description: Manage Linear issues and projects via the linear CLI. Use when viewing, creating, or updating Linear tasks.
+license: MIT
 metadata:
   category: project-management
   dependencies:

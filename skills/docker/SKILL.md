@@ -1,6 +1,7 @@
 ---
 name: docker
 description: Manage Docker containers and images via the docker CLI. Use when building, running, or debugging containers.
+license: MIT
 metadata:
   category: cloud
   dependencies:

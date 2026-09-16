@@ -1,6 +1,7 @@
 ---
 name: sentry
 description: Monitor and debug application errors via Sentry MCP and CLI. Use when triaging production errors or managing releases.
+license: MIT
 metadata:
   category: monitoring
   dependencies:

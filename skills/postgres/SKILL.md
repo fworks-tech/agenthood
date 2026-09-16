@@ -1,6 +1,7 @@
 ---
 name: postgres
 description: Manage PostgreSQL databases via the psql CLI. Use when querying, inspecting schema, or managing PostgreSQL databases.
+license: MIT
 metadata:
   category: databases
   dependencies:

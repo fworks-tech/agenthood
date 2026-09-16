@@ -1,6 +1,7 @@
 ---
 name: datadog
 description: Monitor infrastructure and applications via Datadog API and CLI. Use when querying metrics, logs, or managing monitors.
+license: MIT
 metadata:
   category: monitoring
   dependencies:

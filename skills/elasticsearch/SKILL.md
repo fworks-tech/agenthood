@@ -1,6 +1,7 @@
 ---
 name: elasticsearch
 description: Manage Elasticsearch clusters via the REST API. Use when querying, indexing, or managing Elasticsearch indices.
+license: MIT
 metadata:
   category: databases
   dependencies:

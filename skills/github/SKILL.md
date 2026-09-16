@@ -1,6 +1,7 @@
 ---
 name: github
 description: Manage GitHub repositories via the gh CLI. Use when working with issues, PRs, releases, or repository settings.
+license: MIT
 metadata:
   category: project-management
   dependencies:

@@ -1,4 +1,4 @@
-import { existsSync, readFileSync, readdirSync, statSync } from 'node:fs'
+import { Dirent, existsSync, readFileSync, readdirSync, statSync } from 'node:fs'
 import { isAbsolute, join, relative } from 'node:path'
 import { homedir } from 'node:os'
 import type { ISkillManifest } from './ISkillManifest.ts'
@@ -57,6 +57,9 @@ export class SkillDiscovery {
   }
 
   async discoverRemote(sources: RemoteSkillSource[]): Promise<ISkillManifest[]> {
+    // Populate local manifests first — a later get()/list() would otherwise
+    // trigger discover() and clear() over the remote entries.
+    this.ensureDiscovered()
     if (!this.remoteFetcher) {
       this.remoteFetcher = new RemoteSkillFetcher(this.defaultProjectDir)
     }
@@ -101,21 +104,21 @@ export class SkillDiscovery {
   discoverPackaged(): ISkillManifest[] {
     const result: ISkillManifest[] = []
 
-    let entries: string[]
+    let entries: Dirent[]
     // readdirSync ENOENT (no packaged dir in stripped installs) is caught by
     // the try below — no existsSync guard needed.
     try {
-      entries = readdirSync(MEMBERS_DIR)
+      entries = readdirSync(MEMBERS_DIR, { withFileTypes: true })
     } catch {
       return []
     }
 
     for (const entry of entries) {
-      if (entry.startsWith('the-') || entry === '_shared') continue
-      const fullPath = join(MEMBERS_DIR, entry)
-      const stat = this.statPath(fullPath)
-      if (!stat || !stat.isDirectory()) continue
-      result.push(...this.scanEntry(fullPath, entry, 0))
+      if (entry.name.startsWith('the-') || entry.name === '_shared') continue
+      if (entry.isSymbolicLink()) continue
+      const fullPath = join(MEMBERS_DIR, entry.name)
+      if (!entry.isDirectory()) continue
+      result.push(...this.scanEntry(fullPath, entry.name, 0))
     }
 
     return result
@@ -172,7 +175,12 @@ export class SkillDiscovery {
       if (!packaged) this.verifyIntegrity(parsed.name || entry, skillMdPath)
       // A packaged file whose frontmatter name disagrees with its directory
       // entry could shadow a lockfile-pinned manifest with no gate — drop it.
-      if (packaged && parsed.name && parsed.name !== entry) return []
+      // (SkillParser falls back to the file path when name is missing, so a
+      // missing name also lands here and surfaces in the warning.)
+      if (packaged && parsed.name !== entry) {
+        console.warn(`[SkillDiscovery] packaged "${entry}" dropped: frontmatter name "${parsed.name}" mismatches directory`)
+        return []
+      }
       return [manifest]
     }
     return this.scanDir(fullPath, depth + 1)

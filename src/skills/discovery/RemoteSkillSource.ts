@@ -19,6 +19,8 @@ interface CacheEntry {
 const CACHE_TTL_MS = 24 * 60 * 60 * 1000 // 24 hours
 const REDIRECT_LIMIT = 3
 const REDIRECT_STATUSES = [301, 302, 303, 307, 308]
+const GIT_TIMEOUT_MS = 60_000
+const MAX_REMOTE_BODY_BYTES = 1_048_576
 
 /**
  * Only https to public hostname resolvers — blocks http, file (local read),
@@ -60,8 +62,11 @@ function throwIfPrivateIPv4(host: string, raw: string): void {
     a === 0 || a === 10 || a === 127 ||
     (a === 169 && b === 254) ||
     (a === 172 && b >= 16 && b <= 31) ||
+    (a === 192 && b === 0) ||
     (a === 192 && b === 168) ||
-    (a === 100 && b >= 64 && b <= 127)
+    (a === 198 && b >= 18 && b <= 19) ||
+    (a === 100 && b >= 64 && b <= 127) ||
+    a >= 224
   if (blocked) throw new Error(`remote skill URLs must not target private or reserved addresses: ${raw}`)
 }
 
@@ -121,7 +126,11 @@ export class RemoteSkillFetcher {
     let href = validateRemoteUrl(raw)
     for (let hops = 0; hops < REDIRECT_LIMIT; hops++) {
       const response = await fetch(href, { redirect: 'manual' })
-      if (response.ok) return await response.text()
+      if (response.ok) {
+        const length = Number(response.headers.get('content-length') ?? '0')
+        if (length > MAX_REMOTE_BODY_BYTES) return undefined
+        return await response.text()
+      }
       const location = response.headers.get('location')
       if (!location || !REDIRECT_STATUSES.includes(response.status)) return undefined
       href = validateRemoteUrl(new URL(location, href).href)
@@ -133,7 +142,13 @@ export class RemoteSkillFetcher {
     const url = validateRemoteUrl(raw)
     const tmpDir = join(this.cacheDir, '.git-tmp')
     try {
-      execFileSync('git', ['clone', '--depth', '1', url, tmpDir], { stdio: 'pipe' })
+      // GIT_TERMINAL_PROMPT=0 and empty credential.helper keep the clone from
+      // hanging on auth prompts or popping credential dialogs on a hostile host.
+      execFileSync('git', ['-c', 'credential.helper=', 'clone', '--depth', '1', url, tmpDir], {
+        stdio: 'pipe',
+        env: { ...process.env, GIT_TERMINAL_PROMPT: '0' },
+        timeout: GIT_TIMEOUT_MS,
+      })
 
       const skillMdPath = path
         ? join(tmpDir, path, 'SKILL.md')
@@ -163,7 +178,7 @@ export class RemoteSkillFetcher {
 
   private getCacheKey(source: RemoteSkillSource): string {
     const raw = source.url ?? source.git ?? 'unknown'
-    return Buffer.from(raw).toString('base64url').slice(0, 32)
+    return Buffer.from(raw).toString('base64url')
   }
 
   private loadFromCache(key: string): ISkillManifest | undefined {

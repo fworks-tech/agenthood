@@ -4,6 +4,15 @@ All notable changes to the Agenthood VS Code Extension will be documented in thi
 
 ## [Unreleased]
 
+## [0.1.0] - 2026-09-16
+
+### Features
+- 🏛️ Status bar showing active member count
+- 🎛️ Command palette integration (init, check, oath, activate, deactivate, list)
+- 🏛️ Read the Oath in a beautiful panel
+- ✅ Support for Husky-based commit message validation
+- File watcher for `.agenthood/config.json` changes
+
 ### Added
 - TypeScript configuration (`tsconfig.json`) for proper build setup
 - Output channel for logging extension diagnostics
@@ -28,12 +37,3 @@ All notable changes to the Agenthood VS Code Extension will be documented in thi
 - TypeScript compilation errors in extension activation
 - Member detection logic to properly handle multiple runtime paths
 - Activate/Deactivate commands now only show available options
-
-## [0.1.0] - Initial Release
-
-### Features
-- 🏛️ Status bar showing active member count
-- 🎛️ Command palette integration (init, check, oath, activate, deactivate, list)
-- 🏛️ Read the Oath in a beautiful panel
-- ✅ Support for Husky-based commit message validation
-- File watcher for `.agenthood/config.json` changes

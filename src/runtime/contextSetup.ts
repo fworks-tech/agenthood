@@ -34,6 +34,15 @@ export function loadSocietyGraph(projectPath: string): KnowledgeGraphStore {
 export async function discoverSkills(projectPath: string): Promise<{ catalog: string; manifests: Map<string, ISkillManifest> }> {
   const discovery = new SkillDiscovery()
   const manifests = discovery.discover(projectPath)
+  // Packaged tool skills merge at lowest precedence: a user/project skill
+  // with the same name wins, so local overrides keep working.
+  const seen = new Set(manifests.map((m) => m.name))
+  for (const m of discovery.discoverPackaged()) {
+    if (!seen.has(m.name)) {
+      manifests.push(m)
+      seen.add(m.name)
+    }
+  }
   if (manifests.length === 0) return { catalog: '', manifests: new Map() }
 
   const lines: string[] = ['', '<available_skills>']

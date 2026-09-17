@@ -2,6 +2,13 @@ import { describe, it, expect, vi, beforeEach } from "vitest";
 import { GroqProvider } from "../../../src/llm/providers/GroqProvider.ts"
 import type { LLMRequest } from "../../../src/llm/types.ts"
 
+// The real SDK returns an async-iterable Stream for stream:true — mocks must
+// honor that shape (a plain array is only sync-iterable and is rejected by
+// the stream guard in chat-completions.ts).
+async function* asyncIterable(chunks: unknown[]) {
+  for (const chunk of chunks) yield chunk;
+}
+
 // Mock the Groq SDK
 const mockCreate = vi.fn();
 vi.mock("groq-sdk", () => {
@@ -156,7 +163,7 @@ describe("GroqProvider", () => {
         { choices: [{ delta: { content: "!" } }] },
       ];
 
-      mockCreate.mockResolvedValue(mockStream as any);
+      mockCreate.mockResolvedValue(asyncIterable(mockStream) as any);
 
       const request: LLMRequest = {
         messages: [{ role: "user", content: "Test" }],
@@ -181,7 +188,7 @@ describe("GroqProvider", () => {
         { choices: [{ delta: { content: "test" } }] },
       ];
 
-      mockCreate.mockResolvedValue(mockStream as any);
+      mockCreate.mockResolvedValue(asyncIterable(mockStream) as any);
 
       const request: LLMRequest = {
         messages: [{ role: "user", content: "Test" }],

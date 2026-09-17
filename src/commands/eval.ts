@@ -19,6 +19,7 @@ import { loadConfigOrExit } from './config.ts'
 import { runReplay } from './evalReplay.ts'
 import type { CommandDescriptor } from './types.ts'
 import type { EvalSuite } from '../evals/types.ts'
+import type { LLMConfig } from '../llm/types.ts'
 import type { EmbedFn } from '../evals/ReplayEvaluator.ts'
 
 const METRIC_LABELS: Record<string, string> = {
@@ -235,26 +236,23 @@ export async function evalMember(args: string[] = []): Promise<void> {
   // Two or more --provider flags switch to comparison mode: the suite runs
   // once per provider and a summary table ranks them (#596).
   if (providers.length >= 2) {
-    for (const p of providers) {
-      if (!ApplicationContext.knownProviders().includes(p)) {
-        console.error(`Unknown provider: "${p}"`)
-        console.error(`Known providers: ${ApplicationContext.knownProviders().join(', ')}`)
-        process.exit(1)
-      }
-    }
-    const benchmarks = []
-    for (const p of providers) {
-      benchmarks.push(await runSuiteBenchmark(member, suite, p))
-    }
-    if (shouldJson) {
-      console.log(JSON.stringify(benchmarks, null, 2))
-    } else {
-      printProviderComparison(benchmarks)
-    }
+    await runProviderComparison(member, suite, providers, shouldJson)
     return
   }
 
   const config = await loadConfigOrExit(providers[0])
+  const report = await runSuiteOnce(member, suite, config)
+
+  if (benchmarkPath) writeBenchmark(report, benchmarkPath, config)
+
+  recordRun(report)
+  await finishWithBaseline(report, member, baselinePath, shouldUpdateBaseline, shouldJson)
+
+  if (shouldConvergence && !shouldJson) printConvergence(member, suite.name)
+}
+
+/** One suite run against one config: context, runner and judge wiring. */
+async function runSuiteOnce(member: string, suite: EvalSuite, config: LLMConfig): Promise<EvalReport> {
   const app = await ApplicationContext.create(process.cwd(), config)
   app.ctx.source = 'automated'
 
@@ -265,29 +263,37 @@ export async function evalMember(args: string[] = []): Promise<void> {
 
   const runner = (task: string) => app.runner.runMemberTask(member, task, config)
   const judge = new LLMJudge(app.llm)
-  const report = await new EvalRunner(runner, judge, { embed: (text) => app.llm.embed(text) }).run(suite, member)
-
-  if (benchmarkPath) writeBenchmark(report, benchmarkPath, config)
-
-  recordRun(report)
-  await finishWithBaseline(report, member, baselinePath, shouldUpdateBaseline, shouldJson)
-
-  if (shouldConvergence && !shouldJson) printConvergence(member, suite.name)
+  return new EvalRunner(runner, judge, { embed: (text) => app.llm.embed(text) }).run(suite, member)
 }
 
-/** Loads config for one provider, runs the suite once, folds it into a Benchmark. */
+/** Runs the suite once per provider and folds each report into a Benchmark. */
 async function runSuiteBenchmark(
   member: string,
   suite: EvalSuite,
   provider: string,
 ): Promise<ReturnType<typeof buildBenchmark>> {
   const config = await loadConfigOrExit(provider)
-  const app = await ApplicationContext.create(process.cwd(), config)
-  app.ctx.source = 'automated'
-  const runner = (task: string) => app.runner.runMemberTask(member, task, config)
-  const judge = new LLMJudge(app.llm)
-  const report = await new EvalRunner(runner, judge, { embed: (text) => app.llm.embed(text) }).run(suite, member)
+  const report = await runSuiteOnce(member, suite, config)
   return buildBenchmark(report, { provider: config.provider, model: config.model })
+}
+
+async function runProviderComparison(member: string, suite: EvalSuite, providers: string[], shouldJson: boolean): Promise<void> {
+  for (const p of providers) {
+    if (!ApplicationContext.knownProviders().includes(p)) {
+      console.error(`Unknown provider: "${p}"`)
+      console.error(`Known providers: ${ApplicationContext.knownProviders().join(', ')}`)
+      process.exit(1)
+    }
+  }
+  const benchmarks = []
+  for (const p of providers) {
+    benchmarks.push(await runSuiteBenchmark(member, suite, p))
+  }
+  if (shouldJson) {
+    console.log(JSON.stringify(benchmarks, null, 2))
+  } else {
+    printProviderComparison(benchmarks)
+  }
 }
 
 function printProviderComparison(benchmarks: { provider?: string; model?: string; passRate: number | null; avgTimeMs: number | null; avgTokens: number | null }[]): void {

@@ -83,7 +83,8 @@ $TRUNCATED_NOTICE"
 
 End your report with: <!--AGENTHOOD_DECISION: blocking=true warnings=N--> or <!--AGENTHOOD_DECISION: blocking=false warnings=N-->
 
-Count check: N must equal the number of warning bullets you actually listed; an empty warnings section means warnings=0."
+Count check: N must equal the number of warning bullets you actually listed; an empty warnings section means warnings=0, and the count in your WARNINGS heading must match both the bullets and N.
+Blocking check: blocking=true is only valid when your BLOCKING section lists at least one concrete finding with a location. An empty BLOCKING section must pair with blocking=false — demote anything short of a blocking finding to WARNINGS. The gate cross-checks this: blocking=true with an empty blocking section is a gate error, not a pass."
   if [ "${INLINE_FINDINGS:-false}" = "true" ]; then
     TASK="$TASK
 

@@ -5,6 +5,14 @@
 
 ---
 
+## v3.65.1 — September 17, 2026
+
+### 🐛 Bug Fixes
+
+- **Ci:** poll npm registry instead of fixed sleep in release verify (#857)
+
+---
+
 ## v3.65.0 — September 17, 2026
 
 ### 🐛 Bug Fixes

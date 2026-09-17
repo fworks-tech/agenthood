@@ -1,5 +1,5 @@
 {
-  "version": "3.65.0",
-  "type": "minor",
-  "prevTag": "v3.64.3"
+  "version": "3.65.1",
+  "type": "patch",
+  "prevTag": "v3.65.0"
 }

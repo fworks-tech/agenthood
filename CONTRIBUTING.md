@@ -69,12 +69,6 @@ the new number so it only ever tightens; never lower it to make a run pass.
 Codecov receives the report (`coverage/lcov.info`) but is non-blocking — the
 thresholds step is the gate.
 
-### CLI commands
-
-Commands are auto-registered: each file in `src/commands/` exports a `command: CommandDescriptor` (`name`, optional `aliases`, `description`, `handler(args)`). Adding a command means adding a file with a descriptor — `src/cli.ts` never changes. Helper modules in that directory simply export no descriptor. See `src/commands/types.ts`.
-
-When a command wraps a caught error in a friendlier message, the original is attached via `{ cause }` so the underlying failure stays in the stack output (the v10 recommended ESLint set enforces this across `src/`).
-
 ### TypeScript
 
 Verify zero type errors before committing:
@@ -116,7 +110,7 @@ Hooks are installed by `npx agenthood init` and enforce the format automatically
 
 ### CLI Commands
 
-The `agenthood` CLI auto-discovers commands from `src/commands/` — each file exports a `command` descriptor. Key commands:
+The `agenthood` CLI auto-discovers commands from `src/commands/`: each file exports a `command: CommandDescriptor` (`name`, optional `aliases`, `description`, `handler(args)`) — `src/cli.ts` never changes. Helper modules in that directory simply export no descriptor (see `src/commands/types.ts`). Key commands:
 
 - `agenthood run <member> "<task>"` — invoke a member or core agent. Runs exit with code 1 on failure (via `process.exitCode`, so piped stderr is not truncated); the error is logged by the command, not the library — library callers calling `ApplicationContext.runMember`/`runAgent` receive the thrown error instead of a process exit.
   - A `--` separator ends flag parsing, so a task beginning with `-` is always treated as data (the opencode plugin passes it).
@@ -142,6 +136,8 @@ The `agenthood` CLI auto-discovers commands from `src/commands/` — each file e
 - `agenthood upgrade [skill]` — upgrade installed skills to latest version from registry
 
 Adding a command means adding a file in `src/commands/` and documenting it here.
+
+When a command wraps a caught error in a friendlier message, the original is attached via `{ cause }` so the underlying failure stays in the stack output (the v10 recommended ESLint set enforces this across `src/`).
 
 ### Observability
 

@@ -32,6 +32,9 @@ vscode-extension/.vscode-test/
 .agenthood/society-graph.json
 .agenthood/preferences.json
 .agenthood/skills/
+.agenthood/costs.jsonl
+.agenthood/evals/
+.agenthood/traces/
 !.agenthood/config.json
 !.agenthood/config.example.json
 .claude/scheduled_tasks.lock

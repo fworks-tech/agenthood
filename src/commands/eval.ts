@@ -203,29 +203,55 @@ export async function evalMember(args: string[] = []): Promise<void> {
     return
   }
   if (shouldReplay) {
-    if (!member) {
-      printUsage()
-      process.exit(1)
-    }
-    await runReplay(member, replayLimit, shouldJson)
+    await runReplayOrUsage(member, replayLimit, shouldJson)
     return
   }
   if (shouldHistory) {
-    if (!member) {
-      printUsage()
-      process.exit(1)
-    }
-    printHistory(member)
+    printHistoryOrUsage(member)
     return
   }
   if (memberB) {
-    if (!member || !suitePath) {
-      printUsage()
-      process.exit(1)
-    }
-    await runABComparison(member, memberB, suitePath, shouldJson)
+    await runABOrUsage(member, memberB, suitePath, shouldJson)
     return
   }
+  await runSuiteMode(member, suitePath, baselinePath, benchmarkPath, providers, shouldUpdateBaseline, shouldJson, shouldConvergence)
+}
+
+async function runReplayOrUsage(member: string | undefined, replayLimit: number, shouldJson: boolean): Promise<void> {
+  if (!member) {
+    printUsage()
+    process.exit(1)
+  }
+  await runReplay(member, replayLimit, shouldJson)
+}
+
+function printHistoryOrUsage(member: string | undefined): void {
+  if (!member) {
+    printUsage()
+    process.exit(1)
+  }
+  printHistory(member)
+}
+
+async function runABOrUsage(member: string | undefined, memberB: string | undefined, suitePath: string | undefined, shouldJson: boolean): Promise<void> {
+  if (!member || !memberB || !suitePath) {
+    printUsage()
+    process.exit(1)
+  }
+  await runABComparison(member, memberB, suitePath, shouldJson)
+}
+
+/** The default mode: one suite run, or a cross-provider comparison. */
+async function runSuiteMode(
+  member: string | undefined,
+  suitePath: string | undefined,
+  baselinePath: string | undefined,
+  benchmarkPath: string | undefined,
+  providers: string[],
+  shouldUpdateBaseline: boolean,
+  shouldJson: boolean,
+  shouldConvergence: boolean,
+): Promise<void> {
   if (!member || !suitePath) {
     printUsage()
     process.exit(1)

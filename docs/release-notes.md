@@ -5,6 +5,14 @@
 
 ---
 
+## v3.64.0 — September 16, 2026
+
+### ✨ Features
+
+- **Skills:** include packaged tool skills in runtime catalog (#833)
+
+---
+
 ## v3.63.3 — September 12, 2026
 
 ### 🐛 Bug Fixes

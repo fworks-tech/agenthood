@@ -5,6 +5,18 @@
 
 ---
 
+## v3.65.0 — September 17, 2026
+
+### 🐛 Bug Fixes
+
+- **Ci:** gate ritual matrix entries in a step instead of job if (#855)
+
+### ✨ Features
+
+- **Eval:** cross-provider comparison with repeatable --provider flags (#849)
+
+---
+
 ## v3.64.3 — September 17, 2026
 
 ### 🐛 Bug Fixes

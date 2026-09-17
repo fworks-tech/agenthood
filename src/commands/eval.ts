@@ -17,7 +17,7 @@ import { loadTriggerSet, runTriggerRate } from './evalTriggers.ts'
 import { loadConfigOrExit } from './config.ts'
 import { runReplay } from './evalReplay.ts'
 import type { CommandDescriptor } from './types.ts'
-import { parseEvalArgs, printUsage } from './evalArgs.ts'
+import { parseEvalArgs, printUsage, type ParsedEvalArgs } from './evalArgs.ts'
 import type { EvalSuite } from '../evals/types.ts'
 import type { LLMConfig } from '../llm/types.ts'
 import type { EmbedFn } from '../evals/ReplayEvaluator.ts'
@@ -39,26 +39,26 @@ export const command: CommandDescriptor = {
 
 
 export async function evalMember(args: string[] = []): Promise<void> {
-  const { member, memberB, suitePath, baselinePath, benchmarkPath, triggersPath, providers, shouldUpdateBaseline, shouldJson, shouldReplay, shouldSemantic, shouldConvergence, shouldHistory, replayLimit, helpRequested } = parseEvalArgs(args)
-  if (helpRequested) return
+  const flags = parseEvalArgs(args)
+  if (flags.helpRequested) return
 
-  if (triggersPath) {
-    await runTriggers(triggersPath, shouldSemantic)
+  if (flags.triggersPath) {
+    await runTriggers(flags.triggersPath, flags.shouldSemantic)
     return
   }
-  if (shouldReplay) {
-    await runReplayOrUsage(member, replayLimit, shouldJson)
+  if (flags.shouldReplay) {
+    await runReplayOrUsage(flags.member, flags.replayLimit, flags.shouldJson)
     return
   }
-  if (shouldHistory) {
-    printHistoryOrUsage(member)
+  if (flags.shouldHistory) {
+    printHistoryOrUsage(flags.member)
     return
   }
-  if (memberB) {
-    await runABOrUsage(member, memberB, suitePath, shouldJson)
+  if (flags.memberB) {
+    await runABOrUsage(flags.member, flags.memberB, flags.suitePath, flags.shouldJson)
     return
   }
-  await runSuiteMode(member, suitePath, baselinePath, benchmarkPath, providers, shouldUpdateBaseline, shouldJson, shouldConvergence)
+  await runSuiteMode(flags)
 }
 
 async function runReplayOrUsage(member: string | undefined, replayLimit: number, shouldJson: boolean): Promise<void> {
@@ -86,16 +86,8 @@ async function runABOrUsage(member: string | undefined, memberB: string | undefi
 }
 
 /** The default mode: one suite run, or a cross-provider comparison. */
-async function runSuiteMode(
-  member: string | undefined,
-  suitePath: string | undefined,
-  baselinePath: string | undefined,
-  benchmarkPath: string | undefined,
-  providers: string[],
-  shouldUpdateBaseline: boolean,
-  shouldJson: boolean,
-  shouldConvergence: boolean,
-): Promise<void> {
+async function runSuiteMode(flags: ParsedEvalArgs): Promise<void> {
+  const { member, suitePath, baselinePath, benchmarkPath, providers, shouldUpdateBaseline, shouldJson, shouldConvergence } = flags
   if (!member || !suitePath) {
     printUsage()
     process.exit(1)

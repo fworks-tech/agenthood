@@ -7,7 +7,8 @@ vi.mock('../../../src/runtime/ApplicationContext.ts', () => ({
   ApplicationContext: { create: vi.fn() },
 }))
 
-import { evalMember, command, parseEvalArgs, parseReplayLimit } from '../../../src/commands/eval.ts'
+import { evalMember, command } from '../../../src/commands/eval.ts'
+import { parseEvalArgs, parseReplayLimit } from '../../../src/commands/evalArgs.ts'
 import { ApplicationContext } from '../../../src/runtime/ApplicationContext.ts'
 import type { ILLMProvider } from '../../../src/llm/ILLMProvider.ts'
 

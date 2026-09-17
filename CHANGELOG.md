@@ -1,3 +1,15 @@
+# [3.65.0](https://github.com/fworks-tech/agenthood/compare/v3.64.3...v3.65.0) (2026-09-17)
+
+
+### Bug Fixes
+
+* **ci:** gate ritual matrix entries in a step instead of job if ([#855](https://github.com/fworks-tech/agenthood/issues/855)) ([86656c2](https://github.com/fworks-tech/agenthood/commit/86656c23838fb034c679d65e87a605aee1111588)), closes [#854](https://github.com/fworks-tech/agenthood/issues/854)
+
+
+### Features
+
+* **eval:** cross-provider comparison with repeatable --provider flags ([#849](https://github.com/fworks-tech/agenthood/issues/849)) ([dbbbc6a](https://github.com/fworks-tech/agenthood/commit/dbbbc6ac1c99606a6a743fe3cf675d2097cf7ef9))
+
 ## [3.64.3](https://github.com/fworks-tech/agenthood/compare/v3.64.2...v3.64.3) (2026-09-17)
 
 

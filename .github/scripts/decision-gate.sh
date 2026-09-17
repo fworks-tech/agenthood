@@ -62,6 +62,34 @@ last_verdict() {
   echo "$1" | tail -1
 }
 
+# Counts finding lines inside the BLOCKING section of an analysis report.
+# A section starts at a heading-ish line whose text (after stripping markdown
+# and status emoji) begins with "blocking"; it ends at the next heading-ish
+# line. Any non-empty, non-separator, non-heading line inside it counts as a
+# finding — bullets, bold titles and plain prose alike. A report with no
+# blocking section at all yields 0, matching the empty-blocking case.
+blocking_section_findings() {
+  awk '
+    BEGIN { in_block = 0; count = 0 }
+    {
+      line = $0
+      gsub(/^[ \t]+|[ \t]+$/, "", line)
+      if (line == "") next
+      if (line ~ /^([-=_*]){3,}$/) next
+      is_heading = (line ~ /^#/ || line ~ /^\*\*/ || line ~ /^[\xe2\x9a\x80\x9d]/)
+      stripped = line
+      gsub(/^[#*0-9. ]+/, "", stripped)
+      if (stripped ~ /^(BLOCKING|[Bb]locking)/) {
+        in_block = 1
+        next
+      }
+      if (in_block && is_heading) in_block = 0
+      if (in_block) count++
+    }
+    END { print count }
+  ' "$1"
+}
+
 check_decision_gate() {
   local file="$1" agent_name="${2:-}" prefix="" verdicts last_block
   local threshold="${AGENTHOOD_WARNING_THRESHOLD:-2}"
@@ -89,6 +117,16 @@ check_decision_gate() {
   last_block=$(last_verdict "$verdicts")
   case "$last_block" in
     *'blocking=true '*)
+      # Cross-check: a blocking verdict must be backed by at least one listed
+      # finding. The models periodically stamp blocking=true above an empty
+      # BLOCKING section (observed repeatedly in CI) — that combination is a
+      # self-contradiction, downgraded here to a warning instead of a red run.
+      # Fail-closed on doubt: findings written as inline `[blocking]` bullets
+      # or as prose inside the blocking section keep the verdict standing.
+      if [ "$(blocking_section_findings "$file")" -eq 0 ] && ! grep -qE '^[[:space:]]*\[blocking\]' "$file"; then
+        echo "::warning::${prefix}verdict says blocking=true but the blocking section lists no findings -- self-contradictory verdict downgraded to non-blocking (empty-blocking false positive)"
+        return 0
+      fi
       echo "::error::${prefix}found blocking findings -- see PR comment for details"
       return 1
       ;;

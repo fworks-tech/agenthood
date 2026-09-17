@@ -121,7 +121,7 @@ The `agenthood` CLI auto-discovers commands from `src/commands/`: each file expo
 - `agenthood trace` — list recent invocation traces (`--member`, `--limit`, `--since`, `--json`); subcommands: `visualize <id>` (ASCII timeline), `diff <id1> <id2>` (side-by-side comparison)
 - `agenthood log` — list recent structured log entries (`--level`, `--member`, `--limit`, `--since`, `--json`, `--tail N`, `--follow`)
 - `agenthood status` — project health and member metrics (`--watch`, `--json`, `--drift`, `--member`, `--learner`)
-- `agenthood eval <member> --suite <path>` — run an eval suite against a member (`--baseline`, `--update-baseline`, `--benchmark <path>`, `--triggers <path>`, `--convergence`, `--history`, `--ab <member>`, `--json`)
+- `agenthood eval <member> --suite <path>` — run an eval suite against a member (`--baseline`, `--update-baseline`, `--benchmark <path>`, `--triggers <path>`, `--convergence`, `--history`, `--ab <member>`, `--json`). Repeatable `--provider <name>` overrides the config provider; two or more run the suite once per provider and print a comparison table (pass rate, avg time, avg tokens)
 - `agenthood eval --triggers <path>` — score a member's activation trigger rate from a should-/should-not-trigger query set (`--semantic` to also score the embedding surface)
 - `agenthood optimize <member> --triggers <path>` — optimize a member description for trigger accuracy (`--apply`, `--iterations`, `--variants`, `--json`)
 - `agenthood rotate-key <provider>` — rotate an API key with validation and hot-reload (prompts for new key, validates, updates config, reinitializes provider)

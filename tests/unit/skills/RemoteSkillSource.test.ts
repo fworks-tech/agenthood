@@ -2,7 +2,7 @@ import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest'
 import { rmSync, mkdtempSync } from 'node:fs'
 import { join } from 'node:path'
 import { tmpdir } from 'node:os'
-import { RemoteSkillFetcher, validateRemoteUrl, type RemoteSkillSource } from '../../../src/skills/discovery/RemoteSkillSource.ts'
+import { RemoteSkillFetcher, validateRemoteUrl, fetchRemoteText, type RemoteSkillSource } from '../../../src/skills/discovery/RemoteSkillSource.ts'
 
 function expectBlocked(raw: string) {
   expect(() => validateRemoteUrl(raw)).toThrow()
@@ -37,9 +37,64 @@ describe('validateRemoteUrl', () => {
     }
   })
 
+  it('canonicalizes and rejects non-dotted IPv4 encodings of loopback', () => {
+    // WHATWG URL canonicalizes decimal/shorthand/hex/octal IPv4 forms to
+    // dotted quads, so the loopback form is caught by the range check
+    for (const host of ['2130706433', '127.1', '127.0.1', '0x7f000001', '017700000001', '0177.0.0.1', '0x7f.0.0.1']) {
+      expectBlocked(`https://${host}/a.md`)
+    }
+    // Shorthand/hex forms of PUBLIC addresses normalize and pass
+    expect(validateRemoteUrl('https://16843009/a.md')).toBe('https://1.1.1.1/a.md')
+    expect(validateRemoteUrl('https://1.2/a.md')).toBe('https://1.0.0.2/a.md')
+  })
+
   it('rejects non-URL input', () => {
     expectBlocked('not a url')
     expectBlocked('git@github.com:org/repo.git')
+  })
+})
+
+describe('fetchRemoteText', () => {
+  afterEach(() => {
+    vi.unstubAllGlobals()
+  })
+
+  it('returns the body of a successful response', async () => {
+    vi.stubGlobal('fetch', vi.fn().mockResolvedValue(new Response('skill body', { status: 200 })))
+    await expect(fetchRemoteText('https://skills.sh/a/SKILL.md')).resolves.toBe('skill body')
+  })
+
+  it('follows a redirect chain while re-validating each hop', async () => {
+    const fetchMock = vi.fn()
+      .mockResolvedValueOnce(new Response(null, { status: 301, headers: { location: 'https://cdn.example.com/b/SKILL.md' } }))
+      .mockResolvedValueOnce(new Response('redirected body', { status: 200 }))
+    vi.stubGlobal('fetch', fetchMock)
+    await expect(fetchRemoteText('https://skills.sh/a/SKILL.md')).resolves.toBe('redirected body')
+    expect(fetchMock).toHaveBeenCalledTimes(2)
+    expect(fetchMock.mock.calls[1][0]).toBe('https://cdn.example.com/b/SKILL.md')
+  })
+
+  it('throws when a redirect lands on a private target mid-chain', async () => {
+    vi.stubGlobal('fetch', vi.fn().mockResolvedValue(new Response(null, {
+      status: 302,
+      headers: { location: 'https://2130706433/a.md' },
+    })))
+    await expect(fetchRemoteText('https://skills.sh/a/SKILL.md')).rejects.toThrow('private or reserved')
+  })
+
+  it('rejects oversized bodies even with a missing content-length header', async () => {
+    vi.stubGlobal('fetch', vi.fn().mockResolvedValue(new Response('x'.repeat(1_048_577), { status: 200 })))
+    await expect(fetchRemoteText('https://skills.sh/a/SKILL.md')).resolves.toBeUndefined()
+  })
+
+  it('gives up after the redirect limit without following hop four', async () => {
+    const fetchMock = vi.fn().mockImplementation(() => Promise.resolve(new Response(null, {
+      status: 302,
+      headers: { location: 'https://skills.sh/next/SKILL.md' },
+    })))
+    vi.stubGlobal('fetch', fetchMock)
+    await expect(fetchRemoteText('https://skills.sh/a/SKILL.md')).resolves.toBeUndefined()
+    expect(fetchMock).toHaveBeenCalledTimes(3)
   })
 })
 

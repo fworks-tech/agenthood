@@ -21,7 +21,7 @@ export const MAX_SKILL_FILE_BYTES = 1024 * 1024
 // NOT by parse(): parse() must stay permissive so third-party skills that
 // don't follow the convention still load at runtime rather than silently
 // vanishing from discovery.
-const SPEC_NAME_RE = /^[a-z0-9]+(-[a-z0-9]+)*$/
+export const SPEC_NAME_RE = /^[a-z0-9]+(-[a-z0-9]+)*$/
 const MAX_NAME_LENGTH = 64
 const MAX_DESCRIPTION_LENGTH = 1024
 

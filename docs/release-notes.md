@@ -5,6 +5,14 @@
 
 ---
 
+## v3.64.3 — September 17, 2026
+
+### 🐛 Bug Fixes
+
+- **Ci:** cross-check blocking verdicts against listed findings (#851)
+
+---
+
 ## v3.64.2 — September 17, 2026
 
 ### 🐛 Bug Fixes

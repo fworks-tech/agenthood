@@ -1,3 +1,10 @@
+## [3.64.3](https://github.com/fworks-tech/agenthood/compare/v3.64.2...v3.64.3) (2026-09-17)
+
+
+### Bug Fixes
+
+* **ci:** cross-check blocking verdicts against listed findings ([#851](https://github.com/fworks-tech/agenthood/issues/851)) ([6b90eba](https://github.com/fworks-tech/agenthood/commit/6b90ebaecab0067001f1902ffe7efbda0ff07856))
+
 ## [3.64.2](https://github.com/fworks-tech/agenthood/compare/v3.64.1...v3.64.2) (2026-09-17)
 
 

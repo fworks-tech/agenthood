@@ -1,3 +1,10 @@
+## [3.65.1](https://github.com/fworks-tech/agenthood/compare/v3.65.0...v3.65.1) (2026-09-17)
+
+
+### Bug Fixes
+
+* **ci:** poll npm registry instead of fixed sleep in release verify ([#857](https://github.com/fworks-tech/agenthood/issues/857)) ([b4a30bd](https://github.com/fworks-tech/agenthood/commit/b4a30bdebde9f777ab331e4c1631ce77741bfef1)), closes [#856](https://github.com/fworks-tech/agenthood/issues/856)
+
 # [3.65.0](https://github.com/fworks-tech/agenthood/compare/v3.64.3...v3.65.0) (2026-09-17)
 
 

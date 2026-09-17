@@ -144,8 +144,18 @@ jobs:
       - name: The Herald — verify published version
         if: steps.pending.outputs.state == 'true'
         run: |
-          sleep 20
-          PUBLISHED=$(npm view agenthood version)
+          # The registry/CDN can lag the publish by minutes — a fixed sleep
+          # flakes whenever propagation exceeds it (seen on v3.65.0: 20s was
+          # not enough). Poll instead; ~5 min window fits the job timeout.
           VERSION=$(node -p "require('./package.json').version")
-          if [ "$PUBLISHED" != "$VERSION" ]; then echo "::error::npm shows $PUBLISHED, expected $VERSION"; exit 1; fi
-          echo "Published agenthood@$VERSION"
+          for i in $(seq 1 10); do
+            PUBLISHED=$(npm view agenthood version 2>/dev/null || true)
+            if [ "$PUBLISHED" = "$VERSION" ]; then
+              echo "Published agenthood@$VERSION"
+              exit 0
+            fi
+            echo "Attempt $i/10: npm shows ${PUBLISHED:-<none>}, expected $VERSION — retrying in 30s"
+            sleep 30
+          done
+          echo "::error::npm still shows ${PUBLISHED:-<none>} after 5 minutes, expected $VERSION"
+          exit 1

@@ -35,6 +35,7 @@ function printUsage(): void {
   --baseline <path>     Baseline file (default .agenthood/baselines/<member>.json)
   --update-baseline     Store this run as the new baseline
   --benchmark <path>    Write a standardized benchmark.json summary
+  --provider <name>     Override the config provider; repeat to compare across providers
   --triggers <path>     Score activation trigger rate from a query-set JSON (no suite)
   --semantic            With --triggers: also score the embedding/description surface (needs a key)
   --replay [--limit N]  Re-run stored traces and compare output drift (no suite)
@@ -110,6 +111,7 @@ interface ParsedEvalArgs {
   baselinePath: string | undefined
   benchmarkPath: string | undefined
   triggersPath: string | undefined
+  providers: string[]
   shouldUpdateBaseline: boolean
   shouldJson: boolean
   shouldReplay: boolean
@@ -137,7 +139,7 @@ function failUsage(message: string): never {
 export function parseEvalArgs(args: string[]): ParsedEvalArgs {
   const positional: string[] = []
   const flags: ParsedEvalArgs = {
-    member: undefined, memberB: undefined, suitePath: undefined, baselinePath: undefined, benchmarkPath: undefined, triggersPath: undefined,
+    member: undefined, memberB: undefined, suitePath: undefined, baselinePath: undefined, benchmarkPath: undefined, triggersPath: undefined, providers: [],
     shouldUpdateBaseline: false, shouldJson: false, shouldReplay: false, shouldSemantic: false, shouldConvergence: false,
     shouldHistory: false, replayLimit: 50, helpRequested: false,
   }
@@ -164,6 +166,9 @@ export function parseEvalArgs(args: string[]): ParsedEvalArgs {
       case '--ab':
         flags.memberB = args[++i]
         break
+      case '--provider':
+        flags.providers.push(args[++i])
+        break
       case '--limit':
         flags.replayLimit = parseReplayLimit(args[++i])
         break
@@ -189,7 +194,7 @@ export function parseReplayLimit(raw: string | undefined): number {
 }
 
 export async function evalMember(args: string[] = []): Promise<void> {
-  const { member, memberB, suitePath, baselinePath, benchmarkPath, triggersPath, shouldUpdateBaseline, shouldJson, shouldReplay, shouldSemantic, shouldConvergence, shouldHistory, replayLimit, helpRequested } = parseEvalArgs(args)
+  const { member, memberB, suitePath, baselinePath, benchmarkPath, triggersPath, providers, shouldUpdateBaseline, shouldJson, shouldReplay, shouldSemantic, shouldConvergence, shouldHistory, replayLimit, helpRequested } = parseEvalArgs(args)
   if (helpRequested) return
 
   if (triggersPath) {
@@ -227,7 +232,29 @@ export async function evalMember(args: string[] = []): Promise<void> {
 
   const suite = loadSuiteOrExit(suitePath)
 
-  const config = await loadConfigOrExit()
+  // Two or more --provider flags switch to comparison mode: the suite runs
+  // once per provider and a summary table ranks them (#596).
+  if (providers.length >= 2) {
+    for (const p of providers) {
+      if (!ApplicationContext.knownProviders().includes(p)) {
+        console.error(`Unknown provider: "${p}"`)
+        console.error(`Known providers: ${ApplicationContext.knownProviders().join(', ')}`)
+        process.exit(1)
+      }
+    }
+    const benchmarks = []
+    for (const p of providers) {
+      benchmarks.push(await runSuiteBenchmark(member, suite, p))
+    }
+    if (shouldJson) {
+      console.log(JSON.stringify(benchmarks, null, 2))
+    } else {
+      printProviderComparison(benchmarks)
+    }
+    return
+  }
+
+  const config = await loadConfigOrExit(providers[0])
   const app = await ApplicationContext.create(process.cwd(), config)
   app.ctx.source = 'automated'
 
@@ -246,6 +273,36 @@ export async function evalMember(args: string[] = []): Promise<void> {
   await finishWithBaseline(report, member, baselinePath, shouldUpdateBaseline, shouldJson)
 
   if (shouldConvergence && !shouldJson) printConvergence(member, suite.name)
+}
+
+/** Loads config for one provider, runs the suite once, folds it into a Benchmark. */
+async function runSuiteBenchmark(
+  member: string,
+  suite: EvalSuite,
+  provider: string,
+): Promise<ReturnType<typeof buildBenchmark>> {
+  const config = await loadConfigOrExit(provider)
+  const app = await ApplicationContext.create(process.cwd(), config)
+  app.ctx.source = 'automated'
+  const runner = (task: string) => app.runner.runMemberTask(member, task, config)
+  const judge = new LLMJudge(app.llm)
+  const report = await new EvalRunner(runner, judge, { embed: (text) => app.llm.embed(text) }).run(suite, member)
+  return buildBenchmark(report, { provider: config.provider, model: config.model })
+}
+
+function printProviderComparison(benchmarks: { provider?: string; model?: string; passRate: number | null; avgTimeMs: number | null; avgTokens: number | null }[]): void {
+  const header = ['Provider', 'Model', 'Pass Rate', 'Avg Time', 'Avg Tokens']
+  const widths = [16, 24, 11, 10, 11]
+  console.log(`\n  Provider Comparison\n`)
+  console.log(`  ${header.map((h, i) => h.padEnd(widths[i])).join(' ')}`)
+  console.log(`  ${widths.map((w) => ''.padEnd(w, '-')).join(' ')}`)
+  for (const b of benchmarks) {
+    const pass = b.passRate === null ? 'n/a' : `${(b.passRate * 100).toFixed(1)}%`
+    const time = `${b.avgTimeMs ?? 0}ms`.padEnd(widths[3])
+    const tokens = String(b.avgTokens ?? 0).padEnd(widths[4])
+    console.log(`  ${(b.provider ?? 'default').padEnd(widths[0])} ${(b.model ?? '').slice(0, widths[1] - 1).padEnd(widths[1])} ${pass.padEnd(widths[2])} ${time} ${tokens}`)
+  }
+  console.log()
 }
 
 function recordRun(report: EvalReport): void {

@@ -58,6 +58,12 @@ describe('parseEvalArgs', () => {
     expect(parsed.shouldReplay).toBe(false)
   })
 
+  it('collects repeated --provider flags and defaults to none', () => {
+    expect(parseEvalArgs(['the-scribe']).providers).toEqual([])
+    const parsed = parseEvalArgs(['the-scribe', '--suite', 's.json', '--provider', 'groq', '--provider', 'openai'])
+    expect(parsed.providers).toEqual(['groq', 'openai'])
+  })
+
   it('sets helpRequested on --help and -h', () => {
     expect(parseEvalArgs(['--help']).helpRequested).toBe(true)
     expect(parseEvalArgs(['-h']).helpRequested).toBe(true)

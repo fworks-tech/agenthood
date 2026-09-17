@@ -3,7 +3,9 @@ import { join, relative } from 'node:path'
 import type { ITool, ToolResult } from '../ITool.ts'
 import type { ExecutionContext } from '../../core/ExecutionContext.ts'
 
-const IGNORED_DIRS = new Set(['node_modules', '.git', 'dist', '.next', 'coverage', '.cache'])
+// .agenthood holds runtime state (traces, eval history, caches) that grows
+// with usage — scanning it makes every search slower over time.
+const IGNORED_DIRS = new Set(['node_modules', '.git', 'dist', '.next', 'coverage', '.cache', '.agenthood'])
 const MAX_FILE_SIZE = 512 * 1024 // 512 KB — skip binary/large files
 const MAX_RESULTS = 50
 

@@ -19,7 +19,8 @@ interface CacheEntry {
 const CACHE_TTL_MS = 24 * 60 * 60 * 1000 // 24 hours
 const REDIRECT_LIMIT = 3
 const REDIRECT_STATUSES = [301, 302, 303, 307, 308]
-const GIT_TIMEOUT_MS = 60_000
+export const GIT_TIMEOUT_MS = 60_000
+const HTTP_TIMEOUT_MS = 30_000
 const MAX_REMOTE_BODY_BYTES = 1_048_576
 
 /**
@@ -52,6 +53,9 @@ export function validateRemoteUrl(raw: string): string {
 
 function throwIfPrivateIPv4(host: string, raw: string): void {
   const parts = host.split('.')
+  // WHATWG URL canonicalizes every IPv4 encoding (decimal 2130706433,
+  // shorthand 127.1, hex 0x7f000001, octal 0177.0.0.1) to a dotted quad
+  // before we get here, so the range check below sees the final form.
   // Not an IPv4 literal — hostnames pass through; malformed literals like
   // 10.0.0.999 or 999.1.1.1 also pass, but they parse to nothing dangerous
   // (no resolvable private range) and fail fetch naturally.
@@ -90,7 +94,7 @@ export class RemoteSkillFetcher {
       let skillMd: string | undefined
 
       if (source.url) {
-        skillMd = await this.fetchFromUrl(source.url)
+        skillMd = await fetchRemoteText(source.url)
       } else if (source.git) {
         skillMd = this.fetchFromGit(source.git, source.path)
       }
@@ -118,28 +122,6 @@ export class RemoteSkillFetcher {
       console.warn(`[RemoteSkillFetcher] failed to fetch skill: ${(err as Error)?.message ?? err}`)
       return undefined
     }
-  }
-
-  private async fetchFromUrl(raw: string): Promise<string | undefined> {
-    // redirect:'manual' — every hop is re-validated, so a public host cannot
-    // bounce the request to an internal address.
-    let href = validateRemoteUrl(raw)
-    for (let hops = 0; hops < REDIRECT_LIMIT; hops++) {
-      const response = await fetch(href, { redirect: 'manual' })
-      if (response.ok) {
-        const length = Number(response.headers.get('content-length') ?? '0')
-        if (length > MAX_REMOTE_BODY_BYTES) return undefined
-        const text = await response.text()
-        // A missing content-length header skips the header check above —
-        // the decoded body is the enforceable boundary, never trust the header alone.
-        if (text.length > MAX_REMOTE_BODY_BYTES) return undefined
-        return text
-      }
-      const location = response.headers.get('location')
-      if (!location || !REDIRECT_STATUSES.includes(response.status)) return undefined
-      href = validateRemoteUrl(new URL(location, href).href)
-    }
-    return undefined
   }
 
   private fetchFromGit(raw: string, path?: string): string | undefined {
@@ -171,7 +153,9 @@ export class RemoteSkillFetcher {
       }
 
       return readFileSync(skillMdPath, 'utf-8')
-    } catch {
+    } catch (err) {
+      // A silent catch makes a failed clone indistinguishable from "no SKILL.md".
+      console.warn(`[RemoteSkillFetcher] git clone failed: ${(err as Error)?.message ?? err}`)
       return undefined
     } finally {
       if (existsSync(tmpDir)) {
@@ -204,4 +188,34 @@ export class RemoteSkillFetcher {
     const entry: CacheEntry = { manifest, cachedAt: new Date().toISOString() }
     writeFileSync(path, JSON.stringify(entry, null, 2) + '\n', 'utf-8')
   }
+}
+
+/**
+ * Fetch a text body from a validated https URL with per-hop SSRF re-validation
+ * on redirects, a hard timeout, and a size cap. Shared by remote skill
+ * discovery and `agenthood install`.
+ */
+export async function fetchRemoteText(raw: string): Promise<string | undefined> {
+  // redirect:'manual' — every hop is re-validated, so a public host cannot
+  // bounce the request to an internal address.
+  let href = validateRemoteUrl(raw)
+  for (let hops = 0; hops < REDIRECT_LIMIT; hops++) {
+    const response = await fetch(href, {
+      redirect: 'manual',
+      signal: AbortSignal.timeout(HTTP_TIMEOUT_MS),
+    })
+    if (response.ok) {
+      const length = Number(response.headers.get('content-length') ?? '0')
+      if (length > MAX_REMOTE_BODY_BYTES) return undefined
+      const text = await response.text()
+      // A missing content-length header skips the header check above —
+      // the decoded body is the enforceable boundary, never trust the header alone.
+      if (text.length > MAX_REMOTE_BODY_BYTES) return undefined
+      return text
+    }
+    const location = response.headers.get('location')
+    if (!location || !REDIRECT_STATUSES.includes(response.status)) return undefined
+    href = validateRemoteUrl(new URL(location, href).href)
+  }
+  return undefined
 }

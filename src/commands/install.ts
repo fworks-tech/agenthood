@@ -10,7 +10,8 @@ import { join } from 'node:path'
 import { execFileSync } from 'node:child_process'
 import type { CommandDescriptor } from './types.ts'
 import { resolveSkillsDir } from '../members.ts'
-import { SkillParser } from '../skills/discovery/SkillParser.ts'
+import { SkillParser, SPEC_NAME_RE } from '../skills/discovery/SkillParser.ts'
+import { validateRemoteUrl, fetchRemoteText, GIT_TIMEOUT_MS } from '../skills/discovery/RemoteSkillSource.ts'
 
 const LOCKFILE = 'skills-lock.json'
 
@@ -53,13 +54,31 @@ function toGitUrl(url: string): string {
   return url
 }
 
-function cloneRepo(url: string, dest: string): void {
-  execFileSync('git', ['clone', '--depth', '1', url, dest], { stdio: 'pipe' })
+function toHttpsProbe(url: string): string {
+  // git@host:path carries the same host as an https URL, in a scheme
+  // validateRemoteUrl accepts — validate the probe, clone the original.
+  if (url.startsWith('git@')) {
+    return url.replace(/^git@([^:/]+)[:/]/, 'https://$1/')
+  }
+  return url
 }
 
-function downloadUrl(url: string, dest: string): void {
+function cloneRepo(url: string, dest: string): void {
+  validateRemoteUrl(toHttpsProbe(url))
+  // GIT_TERMINAL_PROMPT=0 and empty credential.helper keep the clone from
+  // hanging on auth prompts or popping credential dialogs on a hostile host.
+  execFileSync('git', ['-c', 'credential.helper=', 'clone', '--depth', '1', url, dest], {
+    stdio: 'pipe',
+    env: { ...process.env, GIT_TERMINAL_PROMPT: '0' },
+    timeout: GIT_TIMEOUT_MS,
+  })
+}
+
+async function downloadUrl(url: string, dest: string): Promise<void> {
+  const text = await fetchRemoteText(url)
+  if (text === undefined) throw new Error(`download failed or URL rejected: ${url}`)
   mkdirSync(dest, { recursive: true })
-  execFileSync('curl', ['-fsSL', url, '-o', join(dest, 'SKILL.md')], { stdio: 'pipe' })
+  writeFileSync(join(dest, 'SKILL.md'), text, 'utf-8')
 }
 
 function findSkillMd(dir: string): string | null {
@@ -114,7 +133,7 @@ export async function install(args: string[]): Promise<void> {
       const gitUrl = toGitUrl(source)
       cloneRepo(gitUrl, join(tmpDir, 'repo'))
     } else {
-      downloadUrl(source, tmpDir)
+      await downloadUrl(source, tmpDir)
     }
 
     const skillMdPath = findSkillMd(isGit ? join(tmpDir, 'repo') : tmpDir)
@@ -135,6 +154,13 @@ export async function install(args: string[]): Promise<void> {
     }
 
     const name = String(frontmatter.name)
+    // A hostile frontmatter name like ../../foo would write outside the
+    // skills dir (path traversal) — accept only spec-shaped names.
+    if (!SPEC_NAME_RE.test(name)) {
+      console.error(`  ✗ Invalid skill name "${name}" — must match ${SPEC_NAME_RE}`)
+      process.exit(1)
+      return
+    }
     const destDir = join(skillsDir, name)
 
     if (dryRun) {

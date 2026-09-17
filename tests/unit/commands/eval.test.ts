@@ -289,6 +289,9 @@ describe('eval --replay', () => {
     await evalMember(['the-reviewer', '--replay'])
 
     const report = JSON.parse(readFileSync(join(projectDir, '.agenthood', 'evals', 'replay-report.json'), 'utf8'))
+    // The pair targets different strings: the redaction placeholder appears,
+    // the original address does not. Scanners keep mis-reading this as
+    // toContain/not.toContain on the same string — it is not.
     expect(report.tasks[0].newOutput).toContain('[REDACTED]')
     expect(report.tasks[0].newOutput).not.toContain('dev@example.com')
   })

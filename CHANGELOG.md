@@ -1,3 +1,10 @@
+## [3.64.1](https://github.com/fworks-tech/agenthood/compare/v3.64.0...v3.64.1) (2026-09-17)
+
+
+### Bug Fixes
+
+* **skills:** harden agenthood install against SSRF and path traversal ([#843](https://github.com/fworks-tech/agenthood/issues/843)) ([2213837](https://github.com/fworks-tech/agenthood/commit/2213837682cff02de65664f96dd1c600a95c856e)), closes [#833](https://github.com/fworks-tech/agenthood/issues/833) [#842](https://github.com/fworks-tech/agenthood/issues/842)
+
 # [3.64.0](https://github.com/fworks-tech/agenthood/compare/v3.63.3...v3.64.0) (2026-09-16)
 
 

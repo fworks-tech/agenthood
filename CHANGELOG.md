@@ -1,3 +1,10 @@
+## [3.64.2](https://github.com/fworks-tech/agenthood/compare/v3.64.1...v3.64.2) (2026-09-17)
+
+
+### Bug Fixes
+
+* **llm:** runtime stream guard and structured provider logging ([#847](https://github.com/fworks-tech/agenthood/issues/847)) ([629a8f3](https://github.com/fworks-tech/agenthood/commit/629a8f34f48f186f21fd6589de8688eda94a36ae)), closes [#323](https://github.com/fworks-tech/agenthood/issues/323) [#322](https://github.com/fworks-tech/agenthood/issues/322)
+
 ## [3.64.1](https://github.com/fworks-tech/agenthood/compare/v3.64.0...v3.64.1) (2026-09-17)
 
 

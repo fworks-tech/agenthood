@@ -5,6 +5,14 @@
 
 ---
 
+## v3.64.2 — September 17, 2026
+
+### 🐛 Bug Fixes
+
+- **Llm:** runtime stream guard and structured provider logging (#847) #322
+
+---
+
 ## v3.64.1 — September 17, 2026
 
 ### 🐛 Bug Fixes

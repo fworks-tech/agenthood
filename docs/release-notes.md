@@ -5,6 +5,14 @@
 
 ---
 
+## v3.64.1 — September 17, 2026
+
+### 🐛 Bug Fixes
+
+- **Skills:** harden agenthood install against SSRF and path traversal (#843) #842
+
+---
+
 ## v3.64.0 — September 16, 2026
 
 ### ✨ Features

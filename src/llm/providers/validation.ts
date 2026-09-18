@@ -26,7 +26,18 @@ export function validateTools<T>(
       throw new Error("each tool must have a name");
     }
   }
-  return tools as unknown as T;
+  // OpenAI-compatible chat completions require function tools wrapped as
+  // { type: "function", function: { name, description, parameters } } — the
+  // internal ToolSchema carries inputSchema instead, so wrap here rather
+  // than in every provider (Groq 400s on the raw shape: tools.0.type missing).
+  return tools.map((t) => ({
+    type: "function",
+    function: {
+      name: t.name,
+      description: t.description,
+      parameters: t.inputSchema,
+    },
+  })) as unknown as T;
 }
 
 export function parseToolCall(

@@ -144,7 +144,16 @@ describe("GroqProvider", () => {
       expect(mockCreate).toHaveBeenCalledWith({
         model: "test-model",
         messages: request.messages,
-        tools: request.tools,
+        tools: [
+          {
+            type: "function",
+            function: {
+              name: "test_tool",
+              description: "A test",
+              parameters: { type: "object", properties: {}, required: [] },
+            },
+          },
+        ],
         temperature: 0.7,
         max_tokens: 1000,
         top_p: 0.9,

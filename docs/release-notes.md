@@ -5,6 +5,14 @@
 
 ---
 
+## v3.65.2 — September 18, 2026
+
+### 🐛 Bug Fixes
+
+- **Llm:** wrap tools in OpenAI function shape for chat-completions providers (#860)
+
+---
+
 ## v3.65.1 — September 17, 2026
 
 ### 🐛 Bug Fixes

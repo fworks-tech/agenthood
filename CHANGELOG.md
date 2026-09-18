@@ -1,3 +1,10 @@
+## [3.65.2](https://github.com/fworks-tech/agenthood/compare/v3.65.1...v3.65.2) (2026-09-18)
+
+
+### Bug Fixes
+
+* **llm:** wrap tools in OpenAI function shape for chat-completions providers ([#860](https://github.com/fworks-tech/agenthood/issues/860)) ([bde8acc](https://github.com/fworks-tech/agenthood/commit/bde8acc5abfc5f31aeb672c1e61202190fc083ff))
+
 ## [3.65.1](https://github.com/fworks-tech/agenthood/compare/v3.65.0...v3.65.1) (2026-09-17)
 
 

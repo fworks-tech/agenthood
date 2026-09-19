@@ -83,6 +83,8 @@ Commands:
                             Use --lock-only for a lock-vs-hash CI integrity gate
   rollback [member]       Restore member SKILL.md from lockfile
                             Use --dry-run to preview without restoring
+  diff [member]           Show member SKILL.md changes vs the versions locked in agenthood.lock
+                            Exit code 1 when any member drifted from the lockfile
   status                  Show project health and member metrics
                             Use --watch to poll every 5 seconds
                             Use --json for machine-readable output

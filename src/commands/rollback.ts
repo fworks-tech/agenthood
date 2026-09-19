@@ -1,12 +1,12 @@
 import { existsSync, readFileSync } from 'node:fs'
 import type { CommandDescriptor } from './types.ts'
-import { join, relative, sep } from 'node:path'
+import { join } from 'node:path'
 import { execFileSync } from 'node:child_process'
 import { contentHash } from '../utils/hash.ts'
-import { MEMBER_NAME_RE, resolveSocietyMembersDir } from '../members.ts'
+import { MEMBER_NAME_RE, memberSkillPath } from '../members.ts'
 import type { Lockfile } from '../utils/lockfile.ts'
 
-function findRevision(cwd: string, skillPath: string, lockedHash: string): string | null {
+export function findRevision(cwd: string, skillPath: string, lockedHash: string): string | null {
   let commits: string[]
   try {
     const output = execFileSync('git', ['log', '--all', '--pretty=format:%H', '--', skillPath], { cwd, encoding: 'utf-8', stdio: 'pipe' })
@@ -91,11 +91,9 @@ export async function rollback(args: string[]): Promise<void> {
   let hasRestoredAny = false
 
   for (const member of membersToRollback) {
-    // Same canonical member location as `verify` (#740). Relative to cwd (git
-    // runs with { cwd }) and normalized to forward slashes — `git show <rev>:<path>`
-    // blob syntax requires POSIX separators, and the old hardcoded `members/`
-    // path did not exist at all.
-    const skillPath = relative(cwd, join(resolveSocietyMembersDir(), member, 'SKILL.md')).split(sep).join('/')
+    // Same canonical member location as `verify` (#740) — forward-slash
+    // relative path so `git show <rev>:<path>` accepts the blob syntax.
+    const skillPath = memberSkillPath(cwd, member)
     const entry = lock.members[member]
     if (!entry) continue
     const lockedHash = entry.version

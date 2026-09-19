@@ -3,7 +3,7 @@ import { ALL_MEMBERS } from '../members.ts'
 
 const COMMANDS = [
   'init', 'setup', 'check', 'activate', 'deactivate', 'run', 'list',
-  'verify', 'rollback', 'status', 'trace', 'log', 'health', 'doctor', 'eval',
+  'verify', 'rollback', 'diff', 'status', 'trace', 'log', 'health', 'doctor', 'eval',
   'workflow', 'pr-sync', 'oath', 'eject', 'mcp', 'publish', 'checkpoints',
   'install', 'remove', 'completion',
 ]
@@ -50,7 +50,7 @@ _agenthood_completions() {
       trace|log)
         COMPREPLY=( $(compgen -W "--member --limit --since --json --level --help" -- "\${cur}") )
         ;;
-      verify|rollback)
+      verify|rollback|diff)
         COMPREPLY=( $(compgen -W "\${members}" -- "\${cur}") )
         ;;
       status)
@@ -91,6 +91,7 @@ _agenthood() {
     'list:List all members and status'
     'verify:Validate member SKILL.md integrity'
     'rollback:Restore member SKILL.md from lockfile'
+    'diff:Show member SKILL.md changes vs lockfile'
     'status:Show project health and member metrics'
     'trace:List recent member invocation traces'
     'log:List recent log entries'
@@ -133,7 +134,7 @@ _agenthood() {
             member) _describe 'member' members ;;
           esac
           ;;
-        activate|deactivate|verify|rollback|eval)
+        activate|deactivate|verify|rollback|diff|eval)
           _arguments '1:member:->member'
           case $state in
             member) _describe 'member' members ;;
@@ -187,6 +188,7 @@ complete -c agenthood -n '__fish_use_subcommand' -a run -d 'Run a Society member
 complete -c agenthood -n '__fish_use_subcommand' -a list -d 'List all members and status'
 complete -c agenthood -n '__fish_use_subcommand' -a verify -d 'Validate member SKILL.md integrity'
 complete -c agenthood -n '__fish_use_subcommand' -a rollback -d 'Restore member SKILL.md from lockfile'
+complete -c agenthood -n '__fish_use_subcommand' -a diff -d 'Show member SKILL.md changes vs lockfile'
 complete -c agenthood -n '__fish_use_subcommand' -a status -d 'Show project health and member metrics'
 complete -c agenthood -n '__fish_use_subcommand' -a trace -d 'List recent member invocation traces'
 complete -c agenthood -n '__fish_use_subcommand' -a log -d 'List recent log entries'
@@ -204,9 +206,9 @@ complete -c agenthood -n '__fish_use_subcommand' -a install -d 'Install a skill 
 complete -c agenthood -n '__fish_use_subcommand' -a remove -d 'Remove an installed skill'
 complete -c agenthood -n '__fish_use_subcommand' -a completion -d 'Generate shell completion scripts'
 
-# Member completions for run/activate/deactivate/verify/rollback/eval
+# Member completions for run/activate/deactivate/verify/rollback/diff/eval
 for member in ${memberNames}
-  complete -c agenthood -n "__fish_seen_subcommand_from run activate deactivate verify rollback eval" -a "$member"
+  complete -c agenthood -n "__fish_seen_subcommand_from run activate deactivate verify rollback diff eval" -a "$member"
 end
 
 # Run flags

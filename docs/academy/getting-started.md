@@ -40,6 +40,7 @@ Requirements: Node.js 22+, `git`, and `gh` CLI for PR sync. No API key required 
 | `deactivate <member>` | Disable a member's skill file |
 | `oath` | Read the Society oath |
 | `eject` | Remove all Society files from your project |
+| `diff [member]` | Show SKILL.md changes vs the versions locked in `agenthood.lock` |
 
 ---
 

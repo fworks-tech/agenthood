@@ -94,7 +94,7 @@
     "@semantic-release/release-notes-generator": "^14.1.1",
     "@types/node": "^26.5.0",
     "@types/normalize-package-data": "^2.4.4",
-    "@vitest/coverage-v8": "^4.1.11",
+    "@vitest/coverage-v8": "^5.0.1",
     "apache-arrow": "^18.1.0",
     "eslint": "^10.8.0",
     "jiti": "^2.7.0",

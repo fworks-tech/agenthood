@@ -5,7 +5,7 @@ const COMMANDS = [
   'init', 'setup', 'check', 'activate', 'deactivate', 'run', 'list',
   'verify', 'rollback', 'diff', 'status', 'trace', 'log', 'health', 'doctor', 'eval',
   'workflow', 'pr-sync', 'oath', 'eject', 'mcp', 'publish', 'checkpoints',
-  'install', 'remove', 'completion',
+  'install', 'remove', 'create', 'completion',
 ]
 
 function generateBash(): string {
@@ -99,6 +99,7 @@ const ZSH_COMMANDS_BLOCK = `  commands=(
     'checkpoints:List past run checkpoints'
     'install:Install a skill from a URL'
     'remove:Remove an installed skill'
+    'create:Scaffold a new skill from a template'
     'completion:Generate shell completion scripts'
   )`
 
@@ -127,6 +128,7 @@ complete -c agenthood -n '__fish_use_subcommand' -a publish -d 'Publish a skill 
 complete -c agenthood -n '__fish_use_subcommand' -a checkpoints -d 'List past run checkpoints'
 complete -c agenthood -n '__fish_use_subcommand' -a install -d 'Install a skill from a URL'
 complete -c agenthood -n '__fish_use_subcommand' -a remove -d 'Remove an installed skill'
+complete -c agenthood -n '__fish_use_subcommand' -a create -d 'Scaffold a new skill from a template'
 complete -c agenthood -n '__fish_use_subcommand' -a completion -d 'Generate shell completion scripts'`
 
 function zshCommandArgs(): string {

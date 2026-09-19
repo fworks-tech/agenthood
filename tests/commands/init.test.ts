@@ -2,9 +2,12 @@ import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest'
 import { readFileSync } from 'node:fs'
 import { join } from 'node:path'
 
+const promptState = vi.hoisted(() => ({ overwriteAnswer: '' }))
+
 vi.mock('node:readline', () => ({
   createInterface: vi.fn(() => ({
-    question: vi.fn((_query: string, callback: (answer: string) => void) => callback('')),
+    question: vi.fn((query: string, callback: (answer: string) => void) =>
+      callback(query.includes('Overwrite') ? promptState.overwriteAnswer : '')),
     close: vi.fn(),
   })),
 }))
@@ -27,6 +30,7 @@ describe('init command', () => {
 
   beforeEach(() => {
     output = ''
+    promptState.overwriteAnswer = ''
     vi.spyOn(console, 'log').mockImplementation((...args) => { output += args.join(' ') + '\n' })
     vi.spyOn(console, 'error').mockImplementation(() => {})
     vi.mocked(copyFile).mockResolvedValue(undefined)
@@ -77,7 +81,46 @@ describe('init command', () => {
     expect(vi.mocked(writeFile)).not.toHaveBeenCalled()
     expect(vi.mocked(copyFile)).not.toHaveBeenCalled()
   })
-})
+
+  it('--dry-run marks already-existing files', async () => {
+    vi.mocked(existsSync).mockImplementation((p) => typeof p === 'string' && !p.includes('config.example.json'))
+    const { init } = await import( '../../src/commands/init.ts')
+    await init(['--dry-run'])
+    expect(output).toContain('(exists)')
+    expect(vi.mocked(writeFile)).not.toHaveBeenCalled()
+    expect(vi.mocked(copyFile)).not.toHaveBeenCalled()
+  })
+
+  it('re-running init aborts by default and changes nothing', async () => {
+    vi.mocked(existsSync).mockImplementation((p) => typeof p === 'string' && !p.includes('config.example.json'))
+    promptState.overwriteAnswer = ''
+    const { init } = await import( '../../src/commands/init.ts')
+    await init()
+    expect(output).toContain('Keeping the existing setup')
+    expect(vi.mocked(writeFile)).not.toHaveBeenCalled()
+    expect(vi.mocked(copyFile)).not.toHaveBeenCalled()
+  })
+
+  it('answering y overwrites and backs up the existing config', async () => {
+    vi.mocked(existsSync).mockImplementation((p) => typeof p === 'string' && !p.includes('config.example'))
+    promptState.overwriteAnswer = 'y'
+    const { init } = await import( '../../src/commands/init.ts')
+    await init()
+    const copyCalls = vi.mocked(copyFile).mock.calls.map((c) => c as [string, string])
+    const backupCall = copyCalls.find(([, dest]) => dest.includes('backup') && dest.includes('config-'))
+    expect(backupCall).toBeTruthy()
+    const writeCalls = vi.mocked(writeFile).mock.calls.map((c) => c as [string, string])
+    expect(writeCalls.some(([path]) => path.includes('config.json'))).toBe(true)
+  })
+
+  it('--force overwrites without prompting', async () => {
+    vi.mocked(existsSync).mockImplementation((p) => typeof p === 'string' && !p.includes('config.example'))
+    const { init } = await import( '../../src/commands/init.ts')
+    await init(['--force'])
+    expect(output).toContain('--force')
+    const copyCalls = vi.mocked(copyFile).mock.calls.map((c) => c as [string, string])
+    expect(copyCalls.some(([, dest]) => dest.includes('backup'))).toBe(true)
+  })
 
   it('scaffolds the observability config block', async () => {
     vi.mocked(existsSync).mockImplementation((p) => typeof p === 'string' && !p.endsWith('config.json'))
@@ -95,3 +138,4 @@ describe('init command', () => {
     expect(config.observability.alerts.burstThreshold).toBe(10)
     expect(config.observability.tracePath).toContain('traces.ndjson')
   })
+})

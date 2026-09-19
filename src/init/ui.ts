@@ -14,6 +14,11 @@ function prompt(question: string): Promise<string> {
   })
 }
 
+export async function confirmOverwrite(): Promise<boolean> {
+  const answer = await prompt('Already initialized. Overwrite? [y/N]: ')
+  return answer.trim().toLowerCase() === 'y'
+}
+
 export async function promptRuntime(): Promise<Runtime> {
   console.log('Which AI runtime are you using?\n')
   RUNTIMES.forEach((r, i) => console.log(`  ${i + 1}. ${r}`))

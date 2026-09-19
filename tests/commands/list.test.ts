@@ -2,10 +2,10 @@ import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest'
 
 vi.mock('node:fs', async (importOriginal) => {
   const actual = await importOriginal<typeof import('node:fs')>()
-  return { ...actual, existsSync: vi.fn(() => false) }
+  return { ...actual, existsSync: vi.fn(() => false), readFileSync: vi.fn(actual.readFileSync) }
 })
 
-import { existsSync } from 'node:fs'
+import { existsSync, readFileSync } from 'node:fs'
 
 describe('list command', () => {
   let output = ''
@@ -69,5 +69,22 @@ describe('list command', () => {
     expect(output).toContain('groq')
     expect(output).toContain('standard')
     expect(output).toContain('restricted')
+  })
+
+  it('shows token estimates for active skills', async () => {
+    vi.mocked(existsSync).mockImplementation((p) =>
+      typeof p === 'string' && p.includes('the-scribe')
+    )
+    vi.mocked(readFileSync).mockReturnValue('x'.repeat(400))
+    const { list } = await import( '../../src/commands/list.ts')
+    await list()
+    expect(output).toContain('~100')
+  })
+
+  it('prints a context budget summary', async () => {
+    const { list } = await import( '../../src/commands/list.ts')
+    await list()
+    expect(output).toContain('Context budget')
+    expect(output).toContain('%')
   })
 })

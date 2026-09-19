@@ -13,6 +13,8 @@ import { MemberRegistry } from '../members/MemberRegistry.ts';
 import { resolveSkillsDir } from '../members.ts';
 import { SkillParser } from '../skills/discovery/SkillParser.ts';
 import type { SkillTier } from '../skills/discovery/ISkillManifest.ts';
+import { TokenCounter } from '../core/TokenCounter.ts';
+import { DEFAULT_CONTEXT_WINDOW } from '../llm/providers/constants.ts';
 
 const TIER_BADGES: Record<SkillTier, string> = {
   official: '⬡',
@@ -37,10 +39,16 @@ function readTier(skillPath: string): SkillTier {
   }
 }
 
+function formatTokens(n: number): string {
+  return n >= 1000 ? `${(n / 1000).toFixed(1)}k` : String(n)
+}
+
 export async function list(): Promise<void> {
   const cwd = process.cwd();
   const skillsBase = resolveSkillsDir(cwd);
   const registry = new MemberRegistry();
+  const counter = new TokenCounter();
+  let totalTokens = 0;
 
   const byCategory = new Map<string, typeof members>();
   const members = registry.list();
@@ -62,18 +70,31 @@ export async function list(): Promise<void> {
   for (const [cat, group] of byCategory) {
     console.log(`  ${categoryLabels[cat] ?? cat}:`);
     for (const m of group) {
-      const active = existsSync(join(skillsBase, m.name, `${m.name}.md`));
+      const installedPath = join(skillsBase, m.name, `${m.name}.md`);
+      const active = existsSync(installedPath);
       const status = active ? '✅' : '⬜';
       const skillPath = join(skillsBase, m.name, 'SKILL.md');
       const tier = readTier(skillPath);
       const badge = TIER_BADGES[tier];
       const provider = m.preferredProvider.padEnd(10);
       const perm = m.permissionProfile.padEnd(12);
-      console.log(`    ${status}  ${badge} ${m.name.padEnd(16)} ${m.tagline.padEnd(34)} ${perm} ${provider}`);
+      let tokens = 0;
+      if (active) {
+        try {
+          tokens = counter.countTokens(readFileSync(installedPath, 'utf-8'));
+        } catch {
+          tokens = 0;
+        }
+      }
+      totalTokens += tokens;
+      const tokensCol = (`~${formatTokens(tokens)}`).padEnd(8);
+      console.log(`    ${status}  ${badge} ${m.name.padEnd(16)} ${m.tagline.padEnd(34)} ${perm} ${provider}${tokensCol}`);
     }
     console.log();
   }
 
-  console.log('  Columns: Status · Tier · Member · Tagline · Permission · Preferred Provider');
-  console.log('  Tiers: ⬡ official  ○ community  ◌ experimental\n');
+  const pct = DEFAULT_CONTEXT_WINDOW > 0 ? Math.min((totalTokens / DEFAULT_CONTEXT_WINDOW) * 100, 100) : 0;
+  console.log('  Columns: Status · Tier · Member · Tagline · Permission · Preferred Provider · Tokens');
+  console.log('  Tiers: ⬡ official  ○ community  ◌ experimental');
+  console.log(`  Context budget: ~${formatTokens(totalTokens)} tokens across active skills (${pct.toFixed(1)}% of the ${formatTokens(DEFAULT_CONTEXT_WINDOW)}-token default context window)\n`);
 }

@@ -189,7 +189,10 @@ export class LLMRouter {
 
     for (const entry of entries) {
       const factory = LLMRouter.providerFactories[entry.name]
-      if (!factory) continue
+      if (!factory) {
+        console.debug(`[LLMRouter] no factory for provider "${entry.name}" — skipping`)
+        continue
+      }
       try {
         const inst = await factory(LLMRouter.entryToConfig(entry, config))
         instances.push(withRequestRedaction(inst, OUTBOUND_REDACTOR))
@@ -197,8 +200,10 @@ export class LLMRouter {
         if (entry.models && entry.models.length > 1) {
           modelMap.set(entry.name, entry.models)
         }
-      } catch {
-        // Provider init failed, skip to fallback
+      } catch (err) {
+        // Provider init failed, skip to fallback — surfaced at debug so a
+        // misconfigured provider is visible without breaking offline runs
+        console.debug(`[LLMRouter] provider "${entry.name}" init failed: ${err instanceof Error ? err.message : String(err)}`)
       }
     }
 

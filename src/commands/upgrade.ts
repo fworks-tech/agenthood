@@ -2,7 +2,7 @@ import { existsSync, readFileSync, writeFileSync } from 'node:fs'
 import { join } from 'node:path'
 import type { CommandDescriptor } from './types.ts'
 import { SkillRegistryClient } from '../skills/registry/SkillRegistryClient.ts'
-import { resolveSkillsDir } from '../members.ts'
+import { resolveSkillsDir, SKILLS_LOCKFILE } from '../members.ts'
 
 interface LockEntry {
   source: string
@@ -15,10 +15,8 @@ interface Lockfile {
   skills: Record<string, LockEntry>
 }
 
-const LOCKFILE = 'skills-lock.json'
-
 function loadLockfile(skillsDir: string): Lockfile {
-  const lockPath = join(skillsDir, LOCKFILE)
+  const lockPath = join(skillsDir, SKILLS_LOCKFILE)
   if (!existsSync(lockPath)) return { version: 1, skills: {} }
   try {
     return JSON.parse(readFileSync(lockPath, 'utf-8')) as Lockfile
@@ -28,7 +26,7 @@ function loadLockfile(skillsDir: string): Lockfile {
 }
 
 function saveLockfile(skillsDir: string, lock: Lockfile): void {
-  const lockPath = join(skillsDir, LOCKFILE)
+  const lockPath = join(skillsDir, SKILLS_LOCKFILE)
   writeFileSync(lockPath, JSON.stringify(lock, null, 2) + '\n', 'utf-8')
 }
 

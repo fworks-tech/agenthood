@@ -9,11 +9,9 @@ import { existsSync, readFileSync, mkdirSync, writeFileSync, cpSync, rmSync, rea
 import { join } from 'node:path'
 import { execFileSync } from 'node:child_process'
 import type { CommandDescriptor } from './types.ts'
-import { resolveSkillsDir } from '../members.ts'
+import { resolveSkillsDir, SKILLS_LOCKFILE } from '../members.ts'
 import { SkillParser, SPEC_NAME_RE } from '../skills/discovery/SkillParser.ts'
 import { validateRemoteUrl, fetchRemoteText, GIT_TIMEOUT_MS } from '../skills/discovery/RemoteSkillSource.ts'
-
-const LOCKFILE = 'skills-lock.json'
 
 interface LockEntry {
   source: string
@@ -26,7 +24,7 @@ interface Lockfile {
 }
 
 function loadLockfile(skillsDir: string): Lockfile {
-  const lockPath = join(skillsDir, LOCKFILE)
+  const lockPath = join(skillsDir, SKILLS_LOCKFILE)
   if (!existsSync(lockPath)) return { version: 1, skills: {} }
   try {
     return JSON.parse(readFileSync(lockPath, 'utf-8'))
@@ -36,7 +34,7 @@ function loadLockfile(skillsDir: string): Lockfile {
 }
 
 function saveLockfile(skillsDir: string, lock: Lockfile): void {
-  const lockPath = join(skillsDir, LOCKFILE)
+  const lockPath = join(skillsDir, SKILLS_LOCKFILE)
   writeFileSync(lockPath, JSON.stringify(lock, null, 2) + '\n', 'utf-8')
 }
 
@@ -187,7 +185,7 @@ export async function install(args: string[]): Promise<void> {
     saveLockfile(skillsDir, lock)
 
     console.log(`  ✓ ${name} installed to ${join(skillsDir, name)}`)
-    console.log(`  ✓ Locked in ${LOCKFILE}\n`)
+    console.log(`  ✓ Locked in ${SKILLS_LOCKFILE}\n`)
   } catch (err) {
     console.error(`  ✗ Install failed: ${(err as Error)?.message ?? err}`)
     process.exit(1)

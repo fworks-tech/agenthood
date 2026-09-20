@@ -73,6 +73,62 @@ complete -F _agenthood_completions agenthood
 `
 }
 
+const ZSH_COMMANDS_BLOCK = `  commands=(
+    'init:Initiate the Society in your project'
+    'setup:Activate hooks and commit template'
+    'check:Run the Doorman health check'
+    'activate:Activate a specific member skill'
+    'deactivate:Deactivate a member skill'
+    'run:Run a Society member'
+    'list:List all members and status'
+    'verify:Validate member SKILL.md integrity'
+    'rollback:Restore member SKILL.md from lockfile'
+    'diff:Show member SKILL.md changes vs lockfile'
+    'status:Show project health and member metrics'
+    'trace:List recent member invocation traces'
+    'log:List recent log entries'
+    'health:Check runtime health'
+    'doctor:Run all diagnostics in one pass'
+    'eval:Run an eval suite against a member'
+    'workflow:Execute a workflow'
+    'pr-sync:Sync PR body and post comment'
+    'oath:Print the Society oath'
+    'eject:Remove the Society from your project'
+    'mcp:Start MCP server'
+    'publish:Publish a skill to the registry'
+    'checkpoints:List past run checkpoints'
+    'install:Install a skill from a URL'
+    'remove:Remove an installed skill'
+    'completion:Generate shell completion scripts'
+  )`
+
+const FISH_COMMANDS_BLOCK = `complete -c agenthood -n '__fish_use_subcommand' -a init -d 'Initiate the Society in your project'
+complete -c agenthood -n '__fish_use_subcommand' -a setup -d 'Activate hooks and commit template'
+complete -c agenthood -n '__fish_use_subcommand' -a check -d 'Run the Doorman health check'
+complete -c agenthood -n '__fish_use_subcommand' -a activate -d 'Activate a specific member skill'
+complete -c agenthood -n '__fish_use_subcommand' -a deactivate -d 'Deactivate a member skill'
+complete -c agenthood -n '__fish_use_subcommand' -a run -d 'Run a Society member'
+complete -c agenthood -n '__fish_use_subcommand' -a list -d 'List all members and status'
+complete -c agenthood -n '__fish_use_subcommand' -a verify -d 'Validate member SKILL.md integrity'
+complete -c agenthood -n '__fish_use_subcommand' -a rollback -d 'Restore member SKILL.md from lockfile'
+complete -c agenthood -n '__fish_use_subcommand' -a diff -d 'Show member SKILL.md changes vs lockfile'
+complete -c agenthood -n '__fish_use_subcommand' -a status -d 'Show project health and member metrics'
+complete -c agenthood -n '__fish_use_subcommand' -a trace -d 'List recent member invocation traces'
+complete -c agenthood -n '__fish_use_subcommand' -a log -d 'List recent log entries'
+complete -c agenthood -n '__fish_use_subcommand' -a health -d 'Check runtime health'
+complete -c agenthood -n '__fish_use_subcommand' -a doctor -d 'Run all diagnostics in one pass'
+complete -c agenthood -n '__fish_use_subcommand' -a eval -d 'Run an eval suite against a member'
+complete -c agenthood -n '__fish_use_subcommand' -a workflow -d 'Execute a workflow'
+complete -c agenthood -n '__fish_use_subcommand' -a pr-sync -d 'Sync PR body and post comment'
+complete -c agenthood -n '__fish_use_subcommand' -a oath -d 'Print the Society oath'
+complete -c agenthood -n '__fish_use_subcommand' -a eject -d 'Remove the Society from your project'
+complete -c agenthood -n '__fish_use_subcommand' -a mcp -d 'Start MCP server'
+complete -c agenthood -n '__fish_use_subcommand' -a publish -d 'Publish a skill to the registry'
+complete -c agenthood -n '__fish_use_subcommand' -a checkpoints -d 'List past run checkpoints'
+complete -c agenthood -n '__fish_use_subcommand' -a install -d 'Install a skill from a URL'
+complete -c agenthood -n '__fish_use_subcommand' -a remove -d 'Remove an installed skill'
+complete -c agenthood -n '__fish_use_subcommand' -a completion -d 'Generate shell completion scripts'`
+
 function zshCommandArgs(): string {
   return `      case \${words[1]} in
         run)
@@ -128,34 +184,7 @@ function generateZsh(): string {
 # Zsh completion for agenthood
 _agenthood() {
   local -a commands members
-  commands=(
-    'init:Initiate the Society in your project'
-    'setup:Activate hooks and commit template'
-    'check:Run the Doorman health check'
-    'activate:Activate a specific member skill'
-    'deactivate:Deactivate a member skill'
-    'run:Run a Society member'
-    'list:List all members and status'
-    'verify:Validate member SKILL.md integrity'
-    'rollback:Restore member SKILL.md from lockfile'
-    'diff:Show member SKILL.md changes vs lockfile'
-    'status:Show project health and member metrics'
-    'trace:List recent member invocation traces'
-    'log:List recent log entries'
-    'health:Check runtime health'
-    'doctor:Run all diagnostics in one pass'
-    'eval:Run an eval suite against a member'
-    'workflow:Execute a workflow'
-    'pr-sync:Sync PR body and post comment'
-    'oath:Print the Society oath'
-    'eject:Remove the Society from your project'
-    'mcp:Start MCP server'
-    'publish:Publish a skill to the registry'
-    'checkpoints:List past run checkpoints'
-    'install:Install a skill from a URL'
-    'remove:Remove an installed skill'
-    'completion:Generate shell completion scripts'
-  )
+${ZSH_COMMANDS_BLOCK}
 
   members=(${memberNames})
 
@@ -183,32 +212,7 @@ function generateFish(): string {
   return `# Fish completion for agenthood
 
 # Command completions
-complete -c agenthood -n '__fish_use_subcommand' -a init -d 'Initiate the Society in your project'
-complete -c agenthood -n '__fish_use_subcommand' -a setup -d 'Activate hooks and commit template'
-complete -c agenthood -n '__fish_use_subcommand' -a check -d 'Run the Doorman health check'
-complete -c agenthood -n '__fish_use_subcommand' -a activate -d 'Activate a specific member skill'
-complete -c agenthood -n '__fish_use_subcommand' -a deactivate -d 'Deactivate a member skill'
-complete -c agenthood -n '__fish_use_subcommand' -a run -d 'Run a Society member'
-complete -c agenthood -n '__fish_use_subcommand' -a list -d 'List all members and status'
-complete -c agenthood -n '__fish_use_subcommand' -a verify -d 'Validate member SKILL.md integrity'
-complete -c agenthood -n '__fish_use_subcommand' -a rollback -d 'Restore member SKILL.md from lockfile'
-complete -c agenthood -n '__fish_use_subcommand' -a diff -d 'Show member SKILL.md changes vs lockfile'
-complete -c agenthood -n '__fish_use_subcommand' -a status -d 'Show project health and member metrics'
-complete -c agenthood -n '__fish_use_subcommand' -a trace -d 'List recent member invocation traces'
-complete -c agenthood -n '__fish_use_subcommand' -a log -d 'List recent log entries'
-complete -c agenthood -n '__fish_use_subcommand' -a health -d 'Check runtime health'
-complete -c agenthood -n '__fish_use_subcommand' -a doctor -d 'Run all diagnostics in one pass'
-complete -c agenthood -n '__fish_use_subcommand' -a eval -d 'Run an eval suite against a member'
-complete -c agenthood -n '__fish_use_subcommand' -a workflow -d 'Execute a workflow'
-complete -c agenthood -n '__fish_use_subcommand' -a pr-sync -d 'Sync PR body and post comment'
-complete -c agenthood -n '__fish_use_subcommand' -a oath -d 'Print the Society oath'
-complete -c agenthood -n '__fish_use_subcommand' -a eject -d 'Remove the Society from your project'
-complete -c agenthood -n '__fish_use_subcommand' -a mcp -d 'Start MCP server'
-complete -c agenthood -n '__fish_use_subcommand' -a publish -d 'Publish a skill to the registry'
-complete -c agenthood -n '__fish_use_subcommand' -a checkpoints -d 'List past run checkpoints'
-complete -c agenthood -n '__fish_use_subcommand' -a install -d 'Install a skill from a URL'
-complete -c agenthood -n '__fish_use_subcommand' -a remove -d 'Remove an installed skill'
-complete -c agenthood -n '__fish_use_subcommand' -a completion -d 'Generate shell completion scripts'
+${FISH_COMMANDS_BLOCK}
 
 # Member completions for run/activate/deactivate/verify/rollback/diff/eval
 for member in ${memberNames}

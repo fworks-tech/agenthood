@@ -70,7 +70,7 @@ _agenthood_completions() {
   # Flags after 'run <member>'
   if [ "\${COMP_WORDS[1]}" = "run" ] && [ "\${COMP_CWORD}" -ge 3 ]; then
     if [[ "\${cur}" == -* ]]; then
-      COMPREPLY=( $(compgen -W "--provider --detect --resume --debug" -- "\${cur}") )
+        COMPREPLY=( $(compgen -W "--provider --detect --resume --debug --sandbox" -- "\${cur}") )
     fi
     return 0
   fi
@@ -139,7 +139,8 @@ ${commandLines}
             '--provider[Override LLM provider]:provider:(groq anthropic openai ollama openrouter)' \
             '--detect[Auto-detect members for this task]' \
             '--resume[Resume from a checkpoint]:id:' \
-            '--debug[Log full LLM request/response]'
+            '--debug[Log full LLM request/response]' \
+            '--sandbox[Run untrusted skills isolated]'
           case $state in
             member) _describe 'member' members ;;
           esac
@@ -202,6 +203,7 @@ complete -c agenthood -n '__fish_seen_subcommand_from run' -l provider -d 'Overr
 complete -c agenthood -n '__fish_seen_subcommand_from run' -l detect -d 'Auto-detect members'
 complete -c agenthood -n '__fish_seen_subcommand_from run' -l resume -d 'Resume from checkpoint'
 complete -c agenthood -n '__fish_seen_subcommand_from run' -l debug -d 'Log LLM request/response'
+complete -c agenthood -n '__fish_seen_subcommand_from run' -l sandbox -d 'Run untrusted skills isolated'
 
 # Completion shell argument
 complete -c agenthood -n '__fish_seen_subcommand_from completion' -a 'bash zsh fish'

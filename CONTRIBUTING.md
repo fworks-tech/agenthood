@@ -140,6 +140,7 @@ The `agenthood` CLI auto-discovers commands from `src/commands/`: each file expo
 - `agenthood init --ci [--runtime <name>] [--members all|a,b,c]` — non-interactive setup for CI: never prompts, keeps an existing setup unless `--force`
 - `agenthood diff [member]` — show member SKILL.md changes vs the versions locked in agenthood.lock (exit 1 on drift; lockfile keys validated, hostile keys warned)
 - `agenthood create <name>` — scaffold a new skill directory with a SKILL.md template (name must match the spec pattern)
+- `agenthood run <member> <task> --sandbox` — run under the strict local profile: ADR-020 strict skill-integrity gate plus confirmation before every tool call (or `security.sandbox: true` in config; container isolation is phase 2, #884)
 Adding a command means adding a file in `src/commands/` and documenting it here.
 
 When a command wraps a caught error in a friendlier message, the original is attached via `{ cause }` so the underlying failure stays in the stack output (the v10 recommended ESLint set enforces this across `src/`).

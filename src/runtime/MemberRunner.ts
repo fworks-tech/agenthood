@@ -41,10 +41,6 @@ export interface MemberRunnerDeps {
 
 let dockerAvailable: boolean | null = null
 
-export function resetDockerCache(): void {
-  dockerAvailable = null
-}
-
 function detectDocker(): boolean {
   if (dockerAvailable !== null) return dockerAvailable
   try {

@@ -70,7 +70,7 @@ The `memory: { isolation: 'per-user' }` setting is the agent-specific part. It t
 agenthood serve --port 3000
 
 # Authenticated request — the agent runs scoped to the caller
-curl -X POST https://api.yourapp.com/agents/the-developer/run \
+curl -X POST https://api.yourapp.com/agents/the-builder/run \
   -H "Authorization: Bearer $JWT" \
   -H "Content-Type: application/json" \
   -d '{"task": "refactor the auth middleware to use async/await"}'
@@ -80,7 +80,7 @@ Response:
 
 ```json
 {
-  "agent": "the-developer",
+  "agent": "the-builder",
   "userId": "usr_8f3a",
   "output": "Refactored src/middleware/auth.ts to use async/await. 3 functions updated, 0 behavior changes.",
   "steps": 7,

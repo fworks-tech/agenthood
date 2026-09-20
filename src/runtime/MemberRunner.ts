@@ -3,6 +3,7 @@ import type { ExecutionContext } from '../core/ExecutionContext.ts'
 import type { AnomalyDetector } from '../core/AnomalyDetector.ts'
 import { appendAnomalies } from '../core/AnomalyDetector.ts'
 import { LLMRouter } from '../llm/LLMRouter.ts'
+import type { ILLMProvider } from '../llm/ILLMProvider.ts'
 import type { LLMConfig, Message, TokenUsage } from '../llm/types.ts'
 import { MemberAgent } from '../members/index.ts'
 import type { MemberRegistry } from '../members/MemberRegistry.ts'
@@ -31,7 +32,7 @@ export interface MemberRunnerDeps {
  * `security.sandbox` runs untrusted skills under the tightest profile the
  * runtime can enforce locally: the ADR-020 strict skill-integrity gate plus
  * human confirmation before every tool call. Container isolation remains a
- * separate hardening layer (tracked with the --sandbox issue).
+ * separate hardening layer (phase 2: #884).
  */
 export function applySandboxProfile(config: LLMConfig): void {
   if (config.security?.sandbox !== true) return
@@ -70,18 +71,8 @@ export class MemberRunner {
    * @param resumeFrom - optional checkpoint ID to resume from
    */
   async runMemberTask(memberName: string, task: string, config: LLMConfig, resumeFrom?: string | { checkpointId: string; reply?: string }): Promise<MemberRunResult> {
-    applySandboxProfile(config)
-    if (!this.deps.members.has(memberName)) throw new Error(`unknown member "${memberName}"`)
-
-    const spec = this.deps.members.get(memberName)
-    const memberProvider = (config.provider ?? spec.preferredProvider) as ProviderName
-    const llm = await LLMRouter.createForMember(memberProvider, config)
-    const sReg = new ToolRegistry()
-    if (!sReg.has('ask_human')) sReg.register(new AskHumanTool())
-
-    const checkpointStore = this.deps.checkpointStore ?? new RunCheckpoint(process.cwd())
-    const checkpointData = this.prepareCheckpoint(checkpointStore, spec, task, resumeFrom)
-    const seedMessages = this.resumeSeed(checkpointData, resumeFrom)
+    const { spec, llm, sReg, checkpointStore, checkpointData, seedMessages } =
+      await this.prepareMemberContext(memberName, task, config, resumeFrom)
 
     const loop = new ReActLoop(llm, sReg, {
       interactive: config.interactive,
@@ -144,6 +135,37 @@ export class MemberRunner {
     } finally {
       await this.flushTraces()
     }
+  }
+
+  /** LLM + tool setup for a member run: sandbox profile, provider chain,
+   * tool registry, and checkpoint state. The ReAct loop and event flow stay
+   * in runMemberTask. */
+  private async prepareMemberContext(
+    memberName: string,
+    task: string,
+    config: LLMConfig,
+    resumeFrom?: string | { checkpointId: string; reply?: string },
+  ): Promise<{
+    spec: MemberSpec
+    llm: ILLMProvider
+    sReg: ToolRegistry
+    checkpointStore: CheckpointStore
+    checkpointData: CheckpointData
+    seedMessages: Message[] | undefined
+  }> {
+    applySandboxProfile(config)
+    if (!this.deps.members.has(memberName)) throw new Error(`unknown member "${memberName}"`)
+
+    const spec = this.deps.members.get(memberName)
+    const memberProvider = (config.provider ?? spec.preferredProvider) as ProviderName
+    const llm = await LLMRouter.createForMember(memberProvider, config)
+    const sReg = new ToolRegistry()
+    if (!sReg.has('ask_human')) sReg.register(new AskHumanTool())
+
+    const checkpointStore = this.deps.checkpointStore ?? new RunCheckpoint(process.cwd())
+    const checkpointData = this.prepareCheckpoint(checkpointStore, spec, task, resumeFrom)
+    const seedMessages = this.resumeSeed(checkpointData, resumeFrom)
+    return { spec, llm, sReg, checkpointStore, checkpointData, seedMessages }
   }
 
   private completeRunSuccess(args: {

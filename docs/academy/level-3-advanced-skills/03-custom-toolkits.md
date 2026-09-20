@@ -99,7 +99,7 @@ The agent's reasoning loop sees `deploy_status` in the tool list with its descri
 # Drop a skill file into the skills directory and restart — that is the entire setup
 mkdir -p .agenthood/skills
 cp deploy-status.ts .agenthood/skills/
-agenthood run the-developer "is auth-api healthy in production?"
+agenthood run the-builder "is auth-api healthy in production?"
 ```
 
 The agent discovers the skill and uses it:

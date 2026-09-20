@@ -9,7 +9,7 @@
  */
 
 import { existsSync } from 'node:fs';
-import { join } from 'node:path';
+import { join, relative, sep } from 'node:path';
 import { MemberRegistry, MEMBERS_DIR } from './members/MemberRegistry.ts';
 
 export interface Member {
@@ -35,6 +35,12 @@ export function resolveSocietyMembersDir(): string {
   return MEMBERS_DIR
 }
 
+/** Member SKILL.md as a cwd-relative POSIX path — `git show <rev>:<path>`
+ * needs forward slashes, and rollback/diff run git with { cwd }. */
+export function memberSkillPath(cwd: string, member: string): string {
+  return relative(cwd, join(MEMBERS_DIR, member, 'SKILL.md')).split(sep).join('/')
+}
+
 /** Member names are refs into git pathspecs and filesystem paths — hostile
  * values could otherwise inject shell commands (see rollback/verify) */
 export const MEMBER_NAME_RE = /^[a-z0-9][a-z0-9_-]*$/
@@ -49,6 +55,20 @@ export const RUNTIME_SKILL_DIRS: Record<Runtime, string> = {
 }
 
 export type Runtime = 'claude-code' | 'copilot' | 'gemini-cli' | 'other'
+
+/** Additional cross-client targets — each maps to a directory or file
+ *  that init creates alongside the primary runtime skills dir. */
+export const TARGET_DIRS: Record<string, string> = {
+  cursor: '.cursor/rules',
+  windsurf: '.windsurf/skills',
+  codex: '.codex/skills',
+  copilot: '.github/copilot-instructions.md',
+}
+
+export const TARGETS = Object.keys(TARGET_DIRS)
+
+/** Lockfile written by `install` alongside downloaded skills. */
+export const SKILLS_LOCKFILE = 'skills-lock.json'
 
 export function resolveSkillsDir(cwd: string): string {
   if (existsSync(join(cwd, '.claude')))     return join(cwd, '.claude',    'skills')

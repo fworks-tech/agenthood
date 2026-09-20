@@ -39,7 +39,7 @@ const planAndBuild: WorkflowDefinition = {
     { name: 'approve', type: 'human-in-loop', task: 'approve the plan' },
     { name: 'test', type: 'agent', agentName: 'the-tester', task: 'write tests for the plan' },
     { name: 'implement-and-doc', type: 'parallel', subSteps: [
-      { name: 'implement', type: 'agent', agentName: 'the-developer', task: 'implement the refactor' },
+      { name: 'implement', type: 'agent', agentName: 'the-builder', task: 'implement the refactor' },
       { name: 'docs', type: 'agent', agentName: 'the-librarian', task: 'update the docs' },
     ]},
     { name: 'review', type: 'agent', agentName: 'the-reviewer', task: 'review the changes' },
@@ -67,7 +67,7 @@ The Steward routes the task through the appropriate members: Architect plans, Te
 [2/5] HUMAN GATE     → approve-plan: approved
 [3/5] the-tester     → 4 tests written (2 unit, 2 integration)
 [4/5] parallel:
-        the-developer → implemented rateLimiter.ts
+        the-builder → implemented rateLimiter.ts
         the-librarian → updated README and ADR-011 stub
 [5/5] the-reviewer   → approved, 0 blockers, 2 nits
 ```

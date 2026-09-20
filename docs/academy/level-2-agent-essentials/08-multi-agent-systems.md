@@ -37,7 +37,7 @@ import { WorkflowEngine, AgentStep, ParallelStep } from 'agenthood';
 const pipeline = new WorkflowEngine()
   .step(new AgentStep('the-architect', { task: 'plan the feature' }))
   .step(new AgentStep('the-tester',    { task: 'write tests from the plan' }))
-  .step(new AgentStep('the-developer', { task: 'implement against the tests' }))
+  .step(new AgentStep('the-builder', { task: 'implement against the tests' }))
   .step(new ParallelStep([
       new AgentStep('the-reviewer',  { task: 'review the diff' }),
       new AgentStep('the-auditor',   { task: 'audit dependencies' }),
@@ -65,8 +65,8 @@ route  → the-architect (plan)
 exec   → the-architect: "3 endpoints to add, 1 middleware to extend"
 route  → the-tester (tests)
 exec   → the-tester: "6 tests written — 3 happy path, 3 error cases"
-route  → the-developer (implement)
-exec   → the-developer: "OAuth2 middleware + 3 handlers implemented"
+route  → the-builder (implement)
+exec   → the-builder: "OAuth2 middleware + 3 handlers implemented"
 route  → parallel [the-reviewer, the-auditor]
 exec   → the-reviewer: "approved, 1 nit"
 exec   → the-auditor:  "no new vulnerabilities"

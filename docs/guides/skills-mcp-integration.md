@@ -28,6 +28,9 @@ Together, they enable agents that follow procedures AND interact with the world.
 
 ## Configuration
 
+> **Status: Planned** — MCP integration is not yet implemented in the runtime.
+> The configuration schema below is the intended design. See issue #790 for tracking.
+
 MCP servers are configured in `.agenthood/config.json` or `opencode.json`:
 
 ```json

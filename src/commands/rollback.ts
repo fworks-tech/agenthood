@@ -1,12 +1,10 @@
-import { existsSync, readFileSync } from 'node:fs'
 import type { CommandDescriptor } from './types.ts'
-import { join, relative, sep } from 'node:path'
 import { execFileSync } from 'node:child_process'
 import { contentHash } from '../utils/hash.ts'
-import { MEMBER_NAME_RE, resolveSocietyMembersDir } from '../members.ts'
-import type { Lockfile } from '../utils/lockfile.ts'
+import { memberSkillPath } from '../members.ts'
+import { loadLockTargets } from './lockTargets.ts'
 
-function findRevision(cwd: string, skillPath: string, lockedHash: string): string | null {
+export function findRevision(cwd: string, skillPath: string, lockedHash: string): string | null {
   let commits: string[]
   try {
     const output = execFileSync('git', ['log', '--all', '--pretty=format:%H', '--', skillPath], { cwd, encoding: 'utf-8', stdio: 'pipe' })
@@ -53,49 +51,13 @@ export async function rollback(args: string[]): Promise<void> {
   const isDryRun = flags.has('--dry-run')
   const targetMember = positionals[0]
 
-  if (targetMember && !MEMBER_NAME_RE.test(targetMember)) {
-    console.error(`Invalid member name: "${targetMember}"`)
-    process.exit(1)
-  }
-
-  const lockPath = join(cwd, 'agenthood.lock')
-  if (!existsSync(lockPath)) {
-    console.error('Lockfile not found. Run `agenthood verify --update-lock` first.')
-    process.exit(1)
-  }
-
-  let lock: Lockfile
-  try {
-    lock = JSON.parse(readFileSync(lockPath, 'utf8')) as Lockfile
-  } catch {
-    console.error('Invalid lockfile format.')
-    process.exit(1)
-  }
-
-  if (targetMember && !lock.members[targetMember]) {
-    console.error(`Member "${targetMember}" not found in lockfile.`)
-    process.exit(1)
-  }
-
-  // lockfile keys are attacker-influenced (cloned repos) — validate every
-  // key, not just the CLI arg, before it becomes a git pathspec
-  const keys = Object.keys(lock.members).filter((m) => MEMBER_NAME_RE.test(m))
-  const skipped = Object.keys(lock.members).filter((m) => !MEMBER_NAME_RE.test(m))
-  for (const bad of skipped) {
-    // JSON.stringify: hostile keys are attacker bytes — never echo them raw
-    // (ANSI escape / newline spoofing in logs)
-    console.warn(`Skipping invalid member key from lockfile: ${JSON.stringify(bad)}`)
-  }
-
-  const membersToRollback = targetMember ? [targetMember] : keys
+  const { lock, members: membersToRollback } = loadLockTargets(cwd, targetMember, 'Lockfile not found. Run `agenthood verify --update-lock` first.')
   let hasRestoredAny = false
 
   for (const member of membersToRollback) {
-    // Same canonical member location as `verify` (#740). Relative to cwd (git
-    // runs with { cwd }) and normalized to forward slashes — `git show <rev>:<path>`
-    // blob syntax requires POSIX separators, and the old hardcoded `members/`
-    // path did not exist at all.
-    const skillPath = relative(cwd, join(resolveSocietyMembersDir(), member, 'SKILL.md')).split(sep).join('/')
+    // Same canonical member location as `verify` (#740) — forward-slash
+    // relative path so `git show <rev>:<path>` accepts the blob syntax.
+    const skillPath = memberSkillPath(cwd, member)
     const entry = lock.members[member]
     if (!entry) continue
     const lockedHash = entry.version

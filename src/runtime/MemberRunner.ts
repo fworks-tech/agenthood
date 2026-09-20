@@ -1,8 +1,10 @@
 import { join } from 'node:path'
+import { execFileSync } from 'node:child_process'
 import type { ExecutionContext } from '../core/ExecutionContext.ts'
 import type { AnomalyDetector } from '../core/AnomalyDetector.ts'
 import { appendAnomalies } from '../core/AnomalyDetector.ts'
 import { LLMRouter } from '../llm/LLMRouter.ts'
+import type { ILLMProvider } from '../llm/ILLMProvider.ts'
 import type { LLMConfig, Message, TokenUsage } from '../llm/types.ts'
 import { MemberAgent } from '../members/index.ts'
 import type { MemberRegistry } from '../members/MemberRegistry.ts'
@@ -25,6 +27,44 @@ export interface MemberRunnerDeps {
   anomalyDetector: AnomalyDetector
   alertsPath: string
   checkpointStore?: CheckpointStore
+}
+
+/**
+ * `security.sandbox` runs untrusted skills under the tightest profile the
+ * runtime can enforce locally: the ADR-020 strict skill-integrity gate plus
+ * human confirmation before every tool call. Container isolation is the
+ * phase-2 hardening layer (#884): when Docker is available, member tools run
+ * inside a container with a read-only filesystem, a temp-dir workspace, and
+ * context passed by mount. When Docker is unavailable, falls back to the
+ * phase-1 local profile with a visible notice.
+ */
+
+let dockerAvailable: boolean | null = null
+
+function detectDocker(): boolean {
+  if (dockerAvailable !== null) return dockerAvailable
+  try {
+    execFileSync('docker', ['info'], { stdio: 'ignore', timeout: 5000 })
+    dockerAvailable = true
+  } catch {
+    dockerAvailable = false
+  }
+  return dockerAvailable
+}
+
+export function applySandboxProfile(config: LLMConfig): void {
+  if (config.security?.sandbox !== true) return
+
+  if (detectDocker()) {
+    config.security = { ...config.security, dockerIsolation: true, strictSkillIntegrity: true }
+    config.interactive = true
+    console.log('  Docker isolation enabled — member tools will run inside a container.')
+    return
+  }
+
+  console.warn('  Docker not available — falling back to local sandbox profile (strict integrity + confirmation).')
+  config.security = { ...config.security, strictSkillIntegrity: true }
+  config.interactive = true
 }
 
 /**
@@ -58,17 +98,8 @@ export class MemberRunner {
    * @param resumeFrom - optional checkpoint ID to resume from
    */
   async runMemberTask(memberName: string, task: string, config: LLMConfig, resumeFrom?: string | { checkpointId: string; reply?: string }): Promise<MemberRunResult> {
-    if (!this.deps.members.has(memberName)) throw new Error(`unknown member "${memberName}"`)
-
-    const spec = this.deps.members.get(memberName)
-    const memberProvider = (config.provider ?? spec.preferredProvider) as ProviderName
-    const llm = await LLMRouter.createForMember(memberProvider, config)
-    const sReg = new ToolRegistry()
-    if (!sReg.has('ask_human')) sReg.register(new AskHumanTool())
-
-    const checkpointStore = this.deps.checkpointStore ?? new RunCheckpoint(process.cwd())
-    const checkpointData = this.prepareCheckpoint(checkpointStore, spec, task, resumeFrom)
-    const seedMessages = this.resumeSeed(checkpointData, resumeFrom)
+    const { spec, llm, sReg, checkpointStore, checkpointData, seedMessages } =
+      await this.prepareMemberContext(memberName, task, config, resumeFrom)
 
     const loop = new ReActLoop(llm, sReg, {
       interactive: config.interactive,
@@ -131,6 +162,37 @@ export class MemberRunner {
     } finally {
       await this.flushTraces()
     }
+  }
+
+  /** LLM + tool setup for a member run: sandbox profile, provider chain,
+   * tool registry, and checkpoint state. The ReAct loop and event flow stay
+   * in runMemberTask. */
+  private async prepareMemberContext(
+    memberName: string,
+    task: string,
+    config: LLMConfig,
+    resumeFrom?: string | { checkpointId: string; reply?: string },
+  ): Promise<{
+    spec: MemberSpec
+    llm: ILLMProvider
+    sReg: ToolRegistry
+    checkpointStore: CheckpointStore
+    checkpointData: CheckpointData
+    seedMessages: Message[] | undefined
+  }> {
+    applySandboxProfile(config)
+    if (!this.deps.members.has(memberName)) throw new Error(`unknown member "${memberName}"`)
+
+    const spec = this.deps.members.get(memberName)
+    const memberProvider = (config.provider ?? spec.preferredProvider) as ProviderName
+    const llm = await LLMRouter.createForMember(memberProvider, config)
+    const sReg = new ToolRegistry()
+    if (!sReg.has('ask_human')) sReg.register(new AskHumanTool())
+
+    const checkpointStore = this.deps.checkpointStore ?? new RunCheckpoint(process.cwd())
+    const checkpointData = this.prepareCheckpoint(checkpointStore, spec, task, resumeFrom)
+    const seedMessages = this.resumeSeed(checkpointData, resumeFrom)
+    return { spec, llm, sReg, checkpointStore, checkpointData, seedMessages }
   }
 
   private completeRunSuccess(args: {

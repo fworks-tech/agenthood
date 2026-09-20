@@ -34,13 +34,42 @@ jobs:
           GH_TOKEN: ${{ github.token }}
         run: |
           PR_NUMBER=$(gh pr view --json number --jq '.number' 2>/dev/null || echo "")
-          if [ "${{ github.event.before }}" = "0000000000000000000000000000000000000000" ]; then
-            RANGE="$(git hash-object -t tree /dev/null)...HEAD"
+          BASE_REF=$(gh pr view --json baseRefName --jq '.baseRefName' 2>/dev/null || echo "main")
+          if [ -n "$PR_NUMBER" ] && git rev-parse --verify "origin/${BASE_REF}" >/dev/null 2>&1; then
+            MERGE_BASE=$(git merge-base "origin/${BASE_REF}" HEAD 2>/dev/null || echo "")
+            if [ -n "$MERGE_BASE" ]; then
+              RANGE="${MERGE_BASE}...HEAD"
+            else
+              RANGE="origin/${BASE_REF}...HEAD"
+            fi
+          elif [ "${{ github.event.before }}" = "0000000000000000000000000000000000000000" ]; then
+            RANGE="origin/${BASE_REF}...HEAD"
           else
             RANGE="${{ github.event.before }}...${{ github.event.after }}"
           fi
           echo "pr-number=$PR_NUMBER" >> "$GITHUB_OUTPUT"
           echo "range=$RANGE" >> "$GITHUB_OUTPUT"
+
+      - name: Guard against empty diff on new-branch PRs
+        shell: bash
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          PR_NUMBER="${{ steps.context.outputs.pr-number }}"
+          RANGE="${{ steps.context.outputs.range }}"
+          if [ -z "$PR_NUMBER" ]; then
+            echo "::notice::No PR context -- skipping empty-diff guard."
+            exit 0
+          fi
+          BASE_SHA="${RANGE%%...*}"
+          HEAD_SHA=$(git rev-parse HEAD)
+          CHANGED=$(git diff --name-only --diff-filter=ACM "$BASE_SHA" "$HEAD_SHA" 2>/dev/null || echo "")
+          PR_CHANGED=$(gh pr view "$PR_NUMBER" --json changedFiles --jq '.changedFiles' 2>/dev/null || echo "0")
+          if [ -z "$CHANGED" ] && [ "$PR_CHANGED" != "0" ]; then
+            echo "::error::Review diff is empty but PR reports $PR_CHANGED changed file(s). RANGE=$RANGE. The review gate would pass without reviewing anything."
+            exit 1
+          fi
+          echo "Empty-diff guard passed: $PR_CHANGED changed file(s) in PR, diff resolved."
 
       - name: Run Reviewer via shared agent analysis
         uses: ./.github/actions/agent-analysis

@@ -48,7 +48,14 @@ describe('loadConfig', () => {
   it('parses the security block strict flag from config', async () => {
     await withFixture(JSON.stringify({ security: { strictSkillIntegrity: true } }), async () => {
       const cfg = await loadConfig()
-      expect(cfg.security).toEqual({ strictSkillIntegrity: true })
+      expect(cfg.security).toEqual({ strictSkillIntegrity: true, sandbox: false })
+    })
+  })
+
+  it('parses the security block sandbox flag from config', async () => {
+    await withFixture(JSON.stringify({ security: { sandbox: true } }), async () => {
+      const cfg = await loadConfig()
+      expect(cfg.security).toEqual({ strictSkillIntegrity: false, sandbox: true })
     })
   })
 

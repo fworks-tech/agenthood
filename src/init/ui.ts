@@ -1,8 +1,8 @@
 import { createInterface } from 'node:readline'
 import { ALL_MEMBERS } from '../members.ts'
+import type { Runtime } from '../members.ts'
 
-const RUNTIMES = ['claude-code', 'copilot', 'gemini-cli', 'other'] as const
-type Runtime = (typeof RUNTIMES)[number]
+const RUNTIMES: Runtime[] = ['claude-code', 'copilot', 'gemini-cli', 'other']
 
 function prompt(question: string): Promise<string> {
   const rl = createInterface({ input: process.stdin, output: process.stdout })

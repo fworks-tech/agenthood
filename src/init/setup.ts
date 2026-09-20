@@ -62,7 +62,12 @@ export async function scaffoldConfig(cwd: string, runtime: Runtime, members: str
 
   const examplePath = join(SOCIETY_ROOT, '.agenthood', 'config.example.json')
   if (existsSync(examplePath)) {
-    const raw = JSON.parse(await readFile(examplePath, 'utf8'))
+    let raw: Record<string, unknown> = {}
+    try {
+      raw = JSON.parse(await readFile(examplePath, 'utf8')) as Record<string, unknown>
+    } catch {
+      console.warn('[agenthood] bundled config.example.json is malformed, using defaults')
+    }
     const config = { ...stripConfig(raw), runtime, members }
     await writeFile(configPath, JSON.stringify(config, null, 2) + '\n', 'utf8')
   } else {

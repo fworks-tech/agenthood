@@ -24,8 +24,8 @@ describe('command registry', () => {
       names.push(mod.command.name)
     }
     expect(names.sort()).toEqual([
-      'activate', 'check', 'checkpoints', 'completion', 'cost', 'deactivate', 'doctor', 'eject', 'eval', 'health', 'init', 'install', 'list', 'log', 'mcp', 'oath',
-      'optimize', 'pr-sync', 'publish', 'ritual', 'rollback', 'rotate-key', 'run', 'search', 'setup', 'status', 'trace', 'upgrade', 'verify', 'workflow',
+      'activate', 'check', 'checkpoints', 'completion', 'cost', 'create', 'deactivate', 'diff', 'doctor', 'eject', 'eval', 'health', 'init', 'install', 'list', 'log', 'mcp', 'oath',
+      'optimize', 'pr-sync', 'publish', 'remove', 'ritual', 'rollback', 'rotate-key', 'run', 'search', 'setup', 'status', 'trace', 'upgrade', 'verify', 'workflow',
     ])
   }, 15000)
 

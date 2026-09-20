@@ -50,13 +50,13 @@ export class ProviderChain implements ILLMProvider {
     }
   }
 
+  /** complete() keeps its own loop on purpose: attempts run through
+   * executeWithStrategy (per-provider retries with index backoff, then model
+   * fallbacks) and the terminal error carries the last failure's category.
+   * Delegating to withActiveProviders would run model fallbacks twice. */
   async complete(request: LLMRequest): Promise<LLMResponse> {
     const errors: string[] = []
-    const active = this.activeProviders()
-
-    if (active.length === 0) {
-      throw new AllProvidersFailedError(['all providers in OPEN state'], 'unavailable')
-    }
+    const active = this.requireActiveProviders()
 
     for (let i = 0; i < active.length; i++) {
       const provider = active[i]
@@ -74,19 +74,11 @@ export class ProviderChain implements ILLMProvider {
         this.onSuccess(name)
         return result
       } catch (err) {
-        const classified = classifyError(err)
-        const msg = err instanceof Error ? err.message : String(err)
-        errors.push(`${name}: ${msg}`)
-
-        if (classified.permanent) {
-          this.tripBreaker(name, Infinity)
-        } else if (classified.retryable) {
-          this.tripBreaker(name, classified.cooldownMs)
-        }
+        this.recordProviderFailure(name, err, errors)
 
         if (i === active.length - 1) {
           console.info(`All providers exhausted`)
-          throw new AllProvidersFailedError(errors, classified.category)
+          throw new AllProvidersFailedError(errors, classifyError(err).category)
         }
       }
     }
@@ -115,11 +107,7 @@ export class ProviderChain implements ILLMProvider {
     attempt: (provider: ILLMProvider, name: string) => Promise<T>,
   ): Promise<T> {
     const errors: string[] = []
-    const active = this.activeProviders()
-
-    if (active.length === 0) {
-      throw new AllProvidersFailedError(['all providers in OPEN state'], 'unavailable')
-    }
+    const active = this.requireActiveProviders()
 
     for (const provider of active) {
       const name = this.providerName(provider)
@@ -129,26 +117,18 @@ export class ProviderChain implements ILLMProvider {
 
       this.announce(name, errors.length === 0)
 
-      const fallbackModels = this.modelMap.get(name)
-      const models = fallbackModels && fallbackModels.length > 1 ? fallbackModels.slice(1) : undefined
-      let lastError: unknown
-
-      for (let i = 0; i <= (models?.length ?? 0); i++) {
-        if (i > 0 && models) provider.setModel(models[i - 1])
-
+      try {
+        const result = await attempt(provider, name)
+        this.onSuccess(name)
+        return result
+      } catch (err) {
         try {
-          const result = await attempt(provider, name)
+          const result = await this.tryRemainingModels(provider, name, () => attempt(provider, name), err)
           this.onSuccess(name)
           return result
-        } catch (err) {
-          lastError = err
-          const classified = classifyError(err)
-          if (classified.permanent && classified.category !== 'model_not_found') break
+        } catch (finalError) {
+          this.recordProviderFailure(name, finalError, errors)
         }
-      }
-
-      if (lastError) {
-        this.recordProviderFailure(name, lastError, errors)
       }
     }
 
@@ -168,6 +148,36 @@ export class ProviderChain implements ILLMProvider {
     }
   }
 
+  /** Permanent failures other than a missing model end the fallback walk. */
+  private static isHardStop(classified: ReturnType<typeof classifyError>): boolean {
+    return classified.permanent && classified.category !== 'model_not_found'
+  }
+
+  /** Shared model-fallback path: re-attempt on each remaining model until one
+   * succeeds or a hard-stop failure ends the walk; throws the last error. */
+  private async tryRemainingModels<T>(
+    provider: ILLMProvider,
+    name: string,
+    attempt: () => Promise<T>,
+    firstError: unknown,
+  ): Promise<T> {
+    let lastError = firstError
+    if (!ProviderChain.isHardStop(classifyError(firstError))) {
+      for (const model of this.modelMap.get(name)?.slice(1) ?? []) {
+        try {
+          provider.setModel(model)
+          return await attempt()
+        } catch (err) {
+          lastError = err
+          if (ProviderChain.isHardStop(classifyError(err))) break
+        }
+      }
+    }
+    throw lastError
+  }
+
+  /** Test-only construction helper — production chains are assembled by
+   * LLMRouter.buildChainFromEntries, which owns config and redaction wiring. */
   static buildChain(
     providers: Map<string, ILLMProvider>,
     preferred: string,
@@ -204,28 +214,17 @@ export class ProviderChain implements ILLMProvider {
         }
         return await provider.complete(request)
       } catch (err) {
-          lastError = err
-          const classified = classifyError(err)
-          if (classified.permanent && classified.category !== 'model_not_found') throw err
+        lastError = err
+        if (ProviderChain.isHardStop(classifyError(err))) throw err
       }
     }
 
-    const name = this.providerName(provider)
-    const models = this.modelMap.get(name)
-    if (models && models.length > 1) {
-      for (const model of models.slice(1)) {
-        try {
-          provider.setModel(model)
-          return await provider.complete(request)
-        } catch (err) {
-          lastError = err
-          const classified = classifyError(err)
-          if (classified.permanent && classified.category !== 'model_not_found') break
-        }
-      }
-    }
-
-    throw lastError
+    return this.tryRemainingModels(
+      provider,
+      this.providerName(provider),
+      () => provider.complete(request),
+      lastError,
+    )
   }
 
   private onSuccess(name: string): void {
@@ -268,7 +267,15 @@ export class ProviderChain implements ILLMProvider {
     }
   }
 
-  private activeProviders(): ILLMProvider[] {
+  private requireActiveProviders(): ILLMProvider[] {
+    const active = this.computeActiveProviders()
+    if (active.length === 0) {
+      throw new AllProvidersFailedError(['all providers in OPEN state'], 'unavailable')
+    }
+    return active
+  }
+
+  private computeActiveProviders(): ILLMProvider[] {
     for (const [, breaker] of this.circuitBreakers) {
       if (breaker.state !== 'OPEN') continue
 

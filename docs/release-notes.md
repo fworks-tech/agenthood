@@ -5,6 +5,33 @@
 
 ---
 
+## v3.66.0 — September 20, 2026
+
+### 🐛 Bug Fixes
+
+- **Ci:** reviewer empty-tree range (#815) (#888)
+- **Docs:** correct non-existent member references and tool vocabulary (#897)
+
+### ✨ Features
+
+- **Cli:** --json flag with pino structured logging (#647) (#892)
+- **Cli:** add shared CLI error formatter with consistent exit codes (#891)
+- **Create:** scaffold new skills from a template (#879)
+- **Diff:** show drift between installed members and lockfile (#876)
+- **Eject:** sweep lockfiles alongside artifacts (#874)
+- **Init:** add --ci for non-interactive setup with --runtime and --members (#882) #761
+- **Init:** add --target flag for cross-client compatibility (#662) (#895)
+- **Init:** create .agents/skills/ as primary cross-client location (#654) (#894)
+- **Init:** prompt before overwriting an existing setup (#873)
+- **List:** show token counts and context budget (#875)
+- **Remove:** clean uninstall with lock pruning (#877)
+- **Run:** add --sandbox flag with strict local profile (#880) #665
+- **Sandbox:** add Docker container isolation detection (#884) (#896)
+- **Skills:** discover skills in bare skills/ directory (#642) (#893)
+- **Upgrade:** self-upgrade agenthood with config backup (#881)
+
+---
+
 ## v3.65.2 — September 18, 2026
 
 ### 🐛 Bug Fixes

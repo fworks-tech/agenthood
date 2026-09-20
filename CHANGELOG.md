@@ -1,3 +1,30 @@
+# [3.66.0](https://github.com/fworks-tech/agenthood/compare/v3.65.2...v3.66.0) (2026-09-20)
+
+
+### Bug Fixes
+
+* **ci:** reviewer empty-tree range ([#815](https://github.com/fworks-tech/agenthood/issues/815)) ([#888](https://github.com/fworks-tech/agenthood/issues/888)) ([d49914c](https://github.com/fworks-tech/agenthood/commit/d49914c6e78f551e64c4eef28d260edbe67fb270))
+* **docs:** correct non-existent member references and tool vocabulary ([#897](https://github.com/fworks-tech/agenthood/issues/897)) ([ac164a2](https://github.com/fworks-tech/agenthood/commit/ac164a29b6f3b76b6eb407e4d83990b37d380413)), closes [#790](https://github.com/fworks-tech/agenthood/issues/790)
+
+
+### Features
+
+* **cli:** --json flag with pino structured logging ([#647](https://github.com/fworks-tech/agenthood/issues/647)) ([#892](https://github.com/fworks-tech/agenthood/issues/892)) ([d16a2e4](https://github.com/fworks-tech/agenthood/commit/d16a2e4f1c81259b138f6efeb4f3d67082cb1654)), closes [#646](https://github.com/fworks-tech/agenthood/issues/646)
+* **cli:** add shared CLI error formatter with consistent exit codes ([#891](https://github.com/fworks-tech/agenthood/issues/891)) ([9d03b2d](https://github.com/fworks-tech/agenthood/commit/9d03b2dba537013935f448fb5477005681e5330f)), closes [#646](https://github.com/fworks-tech/agenthood/issues/646)
+* **create:** scaffold new skills from a template ([#879](https://github.com/fworks-tech/agenthood/issues/879)) ([a04ed94](https://github.com/fworks-tech/agenthood/commit/a04ed94a89d582ab9b81a57f70f6f3e0c627118d)), closes [#602](https://github.com/fworks-tech/agenthood/issues/602)
+* **diff:** show drift between installed members and lockfile ([#876](https://github.com/fworks-tech/agenthood/issues/876)) ([d8c021f](https://github.com/fworks-tech/agenthood/commit/d8c021fbdbd55166d907b0a52409fdb86dee3f47)), closes [#664](https://github.com/fworks-tech/agenthood/issues/664)
+* **eject:** sweep lockfiles alongside artifacts ([#874](https://github.com/fworks-tech/agenthood/issues/874)) ([e9efcdd](https://github.com/fworks-tech/agenthood/commit/e9efcddb4831ca17d0dd64f1a4487b631d8a5b4b)), closes [#650](https://github.com/fworks-tech/agenthood/issues/650)
+* **init:** add --ci for non-interactive setup with --runtime and --members ([#882](https://github.com/fworks-tech/agenthood/issues/882)) ([bc086e1](https://github.com/fworks-tech/agenthood/commit/bc086e1d50269970d52760efe82b0139825f4a91)), closes [#673](https://github.com/fworks-tech/agenthood/issues/673) [#761](https://github.com/fworks-tech/agenthood/issues/761)
+* **init:** add --target flag for cross-client compatibility ([#662](https://github.com/fworks-tech/agenthood/issues/662)) ([#895](https://github.com/fworks-tech/agenthood/issues/895)) ([699632a](https://github.com/fworks-tech/agenthood/commit/699632a91a4f6b926768cd2f57579d458db820b5))
+* **init:** create .agents/skills/ as primary cross-client location ([#654](https://github.com/fworks-tech/agenthood/issues/654)) ([#894](https://github.com/fworks-tech/agenthood/issues/894)) ([ccaaf12](https://github.com/fworks-tech/agenthood/commit/ccaaf121b87ead657ab7fd13b1f452ec558efb65))
+* **init:** prompt before overwriting an existing setup ([#873](https://github.com/fworks-tech/agenthood/issues/873)) ([30bf08a](https://github.com/fworks-tech/agenthood/commit/30bf08a0dc29dfa9504f644bb6265d0bedad521c)), closes [#643](https://github.com/fworks-tech/agenthood/issues/643)
+* **list:** show token counts and context budget ([#875](https://github.com/fworks-tech/agenthood/issues/875)) ([d21da8a](https://github.com/fworks-tech/agenthood/commit/d21da8a21474a27d46493b2b44bfbd37ed43204d)), closes [#657](https://github.com/fworks-tech/agenthood/issues/657)
+* **remove:** clean uninstall with lock pruning ([#877](https://github.com/fworks-tech/agenthood/issues/877)) ([df6df38](https://github.com/fworks-tech/agenthood/commit/df6df3832425d8871e47c075fbde86bc0bb26ded)), closes [#590](https://github.com/fworks-tech/agenthood/issues/590)
+* **run:** add --sandbox flag with strict local profile ([#880](https://github.com/fworks-tech/agenthood/issues/880)) ([f6576d9](https://github.com/fworks-tech/agenthood/commit/f6576d9a5d8c61adbaa7ed8e005edc44e7bd7398)), closes [#665](https://github.com/fworks-tech/agenthood/issues/665) [#665](https://github.com/fworks-tech/agenthood/issues/665)
+* **sandbox:** add Docker container isolation detection ([#884](https://github.com/fworks-tech/agenthood/issues/884)) ([#896](https://github.com/fworks-tech/agenthood/issues/896)) ([85ce637](https://github.com/fworks-tech/agenthood/commit/85ce6376751621959c7ab809cd07a4f534a8e517))
+* **skills:** discover skills in bare skills/ directory ([#642](https://github.com/fworks-tech/agenthood/issues/642)) ([#893](https://github.com/fworks-tech/agenthood/issues/893)) ([401e24a](https://github.com/fworks-tech/agenthood/commit/401e24ac626106521e24ef7b043151ae609ec939))
+* **upgrade:** self-upgrade agenthood with config backup ([#881](https://github.com/fworks-tech/agenthood/issues/881)) ([4a9290b](https://github.com/fworks-tech/agenthood/commit/4a9290bd61b37670a2f023ec0e62c883f6defe8c)), closes [#667](https://github.com/fworks-tech/agenthood/issues/667)
+
 ## [3.65.2](https://github.com/fworks-tech/agenthood/compare/v3.65.1...v3.65.2) (2026-09-18)
 
 

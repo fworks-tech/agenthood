@@ -50,13 +50,13 @@ export class ProviderChain implements ILLMProvider {
     }
   }
 
+  /** complete() keeps its own loop on purpose: attempts run through
+   * executeWithStrategy (per-provider retries with index backoff, then model
+   * fallbacks) and the terminal error carries the last failure's category.
+   * Delegating to withActiveProviders would run model fallbacks twice. */
   async complete(request: LLMRequest): Promise<LLMResponse> {
     const errors: string[] = []
-    const active = this.activeProviders()
-
-    if (active.length === 0) {
-      throw new AllProvidersFailedError(['all providers in OPEN state'], 'unavailable')
-    }
+    const active = this.requireActiveProviders()
 
     for (let i = 0; i < active.length; i++) {
       const provider = active[i]
@@ -107,11 +107,7 @@ export class ProviderChain implements ILLMProvider {
     attempt: (provider: ILLMProvider, name: string) => Promise<T>,
   ): Promise<T> {
     const errors: string[] = []
-    const active = this.activeProviders()
-
-    if (active.length === 0) {
-      throw new AllProvidersFailedError(['all providers in OPEN state'], 'unavailable')
-    }
+    const active = this.requireActiveProviders()
 
     for (const provider of active) {
       const name = this.providerName(provider)
@@ -271,7 +267,15 @@ export class ProviderChain implements ILLMProvider {
     }
   }
 
-  private activeProviders(): ILLMProvider[] {
+  private requireActiveProviders(): ILLMProvider[] {
+    const active = this.computeActiveProviders()
+    if (active.length === 0) {
+      throw new AllProvidersFailedError(['all providers in OPEN state'], 'unavailable')
+    }
+    return active
+  }
+
+  private computeActiveProviders(): ILLMProvider[] {
     for (const [, breaker] of this.circuitBreakers) {
       if (breaker.state !== 'OPEN') continue
 

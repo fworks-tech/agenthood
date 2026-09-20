@@ -56,6 +56,17 @@ export const RUNTIME_SKILL_DIRS: Record<Runtime, string> = {
 
 export type Runtime = 'claude-code' | 'copilot' | 'gemini-cli' | 'other'
 
+/** Additional cross-client targets — each maps to a directory or file
+ *  that init creates alongside the primary runtime skills dir. */
+export const TARGET_DIRS: Record<string, string> = {
+  cursor: '.cursor/rules',
+  windsurf: '.windsurf/skills',
+  codex: '.codex/skills',
+  copilot: '.github/copilot-instructions.md',
+}
+
+export const TARGETS = Object.keys(TARGET_DIRS)
+
 /** Lockfile written by `install` alongside downloaded skills. */
 export const SKILLS_LOCKFILE = 'skills-lock.json'
 

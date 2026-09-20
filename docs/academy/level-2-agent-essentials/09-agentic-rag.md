@@ -56,7 +56,7 @@ The `RetrievalClassifier` is what makes it agentic. It inspects the query, the c
 ## Hands-on example
 
 ```bash
-agenthood run the-developer "how does the auth middleware connect to the rate limiter?"
+agenthood run the-builder "how does the auth middleware connect to the rate limiter?"
 ```
 
 Watch the agent decide its retrieval strategy:

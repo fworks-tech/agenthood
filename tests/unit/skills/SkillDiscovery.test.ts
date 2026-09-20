@@ -51,6 +51,14 @@ describe('SkillDiscovery', () => {
     warnSpy.mockRestore()
   })
 
+  it('discovers skills in bare skills/ directory', () => {
+    mkdirSync(join(testDir, 'skills', 'bare-skill'), { recursive: true })
+    writeFileSync(join(testDir, 'skills', 'bare-skill', 'SKILL.md'), '---\nname: bare-skill\ndescription: A bare skills dir test\n---\n# Overview\nTest')
+    const discovery = new SkillDiscovery(testDir)
+    const found = discovery.discover(testDir)
+    expect(found.map((m) => m.name)).toContain('bare-skill')
+  })
+
   it('discover() stays project-scoped (no packaged skills leak into publish/verify paths)', () => {
     const discovery = new SkillDiscovery(testDir)
     const found = discovery.discover(testDir)

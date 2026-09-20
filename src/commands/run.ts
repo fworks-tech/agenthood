@@ -3,6 +3,7 @@ import { MissingApiKeyError } from '../llm/validateApiKeys.ts'
 import { ApplicationContext } from '../runtime/ApplicationContext.ts'
 import { loadConfigOrExit } from './config.ts'
 import { requestShutdown, resetShutdown } from '../core/shutdown.ts'
+import { userError } from '../core/cliError.ts'
 import { ShutdownRequestedError } from '../reasoning/ReActLoop.ts'
 
 export function parseFlags(args: string[]): { positional: string[]; providerOverride?: string; shouldDetect: boolean; resumeFrom?: string; debug: boolean; interactive: boolean; sandbox: boolean } {
@@ -41,14 +42,10 @@ export function parseFlags(args: string[]): { positional: string[]; providerOver
   return { positional, providerOverride, shouldDetect, resumeFrom, debug, interactive, sandbox }
 }
 
-function printUsage(): void {
-  console.error('Usage: agenthood run <agent> "<task description>"')
-  console.error('  --provider <name>   Override LLM provider (e.g. groq, anthropic, ollama, openrouter)')
-  console.error('  --detect            Auto-detect members for this task')
-  console.error('  --resume <id>       Resume from a checkpoint')
-  console.error('  --debug             Log full LLM request/response to .agenthood/debug/')
-  console.error('  --interactive       Pause before each tool call for confirmation')
-  console.error('  --sandbox           Run untrusted skills isolated: strict integrity gate plus confirmation on every tool call')
+function printUsage(): never {
+  userError('Usage: agenthood run <agent> "<task description>"', {
+    fix: 'Provide an agent name and task. Example: agenthood run the-scribe "write a commit message"',
+  })
 }
 
 async function runDetection(app: ApplicationContext, task: string): Promise<void> {
@@ -72,13 +69,12 @@ export async function run(args: string[]): Promise<void> {
 
   if (!agentName || taskParts.length === 0) {
     printUsage()
-    process.exit(1)
   }
 
   if (providerOverride && !ApplicationContext.knownProviders().includes(providerOverride)) {
-    console.error(`Unknown provider: "${providerOverride}"`)
-    console.error(`Known providers: ${ApplicationContext.knownProviders().join(', ')}`)
-    process.exit(1)
+    userError(`Unknown provider: "${providerOverride}"`, {
+      fix: `Use one of: ${ApplicationContext.knownProviders().join(', ')}`,
+    })
   }
 
   const config = await loadConfigOrExit(providerOverride)
@@ -94,8 +90,7 @@ export async function run(args: string[]): Promise<void> {
     ApplicationContext.validateConfig(config)
   } catch (err) {
     if (err instanceof MissingApiKeyError) {
-      console.error(`\n${err.message}\n`)
-      process.exit(1)
+      throw err
     }
     throw err
   }
@@ -136,10 +131,7 @@ export async function run(args: string[]): Promise<void> {
       console.log(`\n${err.summary()}`)
       process.exitCode = 130
     } else {
-      const msg = err instanceof Error ? err.message : String(err)
-      console.error(`Error running "${agentName}": ${msg}`)
-      // exitCode (not exit) so piped stderr is not truncated before flush
-      process.exitCode = 1
+      throw err instanceof Error ? err : new Error(String(err))
     }
   } finally {
     process.off('SIGINT', onSignal)

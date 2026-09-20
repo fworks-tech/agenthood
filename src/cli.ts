@@ -17,6 +17,7 @@ import { join, dirname } from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 
 import { ALL_MEMBERS } from './members.ts';
+import { handleCliError, userError } from './core/cliError.ts';
 import type { CommandDescriptor } from './commands/types.ts';
 
 async function discoverCommands(): Promise<Record<string, CommandDescriptor>> {
@@ -49,9 +50,7 @@ async function main(): Promise<void> {
 
   const handler = (await discoverCommands())[command];
   if (!handler) {
-    console.error(`\nUnknown command: "${command}"\n`);
-    printHelp();
-    process.exit(1);
+    userError(`Unknown command: "${command}"`, { fix: 'Run "agenthood help" to see available commands.' })
   }
 
   await handler.handler(args);
@@ -138,6 +137,5 @@ function printHelp(): void {
 }
 
 main().catch((err) => {
-  console.error('The Society encountered an unexpected error:', err instanceof Error ? err.message : String(err));
-  process.exit(1);
+  handleCliError(err, { exitCode: 2 })
 });

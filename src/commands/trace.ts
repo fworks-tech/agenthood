@@ -6,6 +6,7 @@ import { createRedactionFilterFromConfig } from '../core/RedactionFilter.ts'
 import { formatDuration } from '../utils/formatDuration.ts'
 import type { TraceEnvelope } from '../core/types.ts'
 import { TrajectoryStore, type Trajectory } from '../core/TrajectoryStore.ts'
+import { userError } from '../core/cliError.ts'
 
 function printTable(traces: TraceEnvelope[]): void {
   const header = `${'Member'.padEnd(20)} ${'Timestamp'.padEnd(24)} ${'Duration'.padEnd(10)} ${'Cost'.padEnd(10)} ${'Quality'.padEnd(9)} Status`
@@ -106,14 +107,12 @@ export async function trace(args: string[] = []): Promise<void> {
   if (args[0] === 'visualize' || args[0] === 'viz') {
     const id = args[1]
     if (!id) {
-      console.error('Usage: agenthood trace visualize <trajectory-id>')
-      process.exit(1)
+      userError('Usage: agenthood trace visualize <trajectory-id>', { fix: 'Provide a trajectory ID to visualize.' })
     }
     const store = new TrajectoryStore(cwd)
     const t = store.load(id)
     if (!t) {
-      console.error(`Trajectory "${id}" not found.`)
-      process.exit(1)
+      userError(`Trajectory "${id}" not found.`, { fix: 'Run "agenthood trace list" to see available trajectories.' })
     }
     printTrajectory(t)
     return
@@ -123,19 +122,16 @@ export async function trace(args: string[] = []): Promise<void> {
     const id1 = args[1]
     const id2 = args[2]
     if (!id1 || !id2) {
-      console.error('Usage: agenthood trace diff <id1> <id2>')
-      process.exit(1)
+      userError('Usage: agenthood trace diff <id1> <id2>', { fix: 'Provide two trajectory IDs to compare.' })
     }
     const store = new TrajectoryStore(cwd)
     const t1 = store.load(id1)
     const t2 = store.load(id2)
     if (!t1) {
-      console.error(`Trajectory "${id1}" not found.`)
-      process.exit(1)
+      userError(`Trajectory "${id1}" not found.`, { fix: 'Run "agenthood trace list" to see available trajectories.' })
     }
     if (!t2) {
-      console.error(`Trajectory "${id2}" not found.`)
-      process.exit(1)
+      userError(`Trajectory "${id2}" not found.`, { fix: 'Run "agenthood trace list" to see available trajectories.' })
     }
     printDiff(t1, t2)
     return

@@ -9,12 +9,12 @@ import type { Runtime } from '../members.ts'
 const __dirname = dirname(fileURLToPath(import.meta.url))
 const SOCIETY_ROOT = join(__dirname, '..', '..')
 
-async function safeCopy(src: string, dest: string): Promise<void> {
+async function safeCopy(src: string, dest: string, overwrite = false): Promise<void> {
   if (!existsSync(src)) {
     console.warn(`[agenthood] source not found, skipping: ${src}`)
     return
   }
-  if (existsSync(dest)) return
+  if (existsSync(dest) && !overwrite) return
   await copyFile(src, dest)
 }
 
@@ -32,7 +32,7 @@ export function planPaths(cwd: string, runtime: Runtime, members: string[]): str
   return paths
 }
 
-export async function installSkills(cwd: string, runtime: Runtime, members: string[]): Promise<void> {
+export async function installSkills(cwd: string, runtime: Runtime, members: string[], overwrite = false): Promise<void> {
   const skillsDest = resolveSkillsDest(cwd, runtime)
 
   await mkdir(skillsDest, { recursive: true })
@@ -42,22 +42,32 @@ export async function installSkills(cwd: string, runtime: Runtime, members: stri
     if (!existsSync(src)) continue
     const destDir = join(skillsDest, member)
     await mkdir(destDir, { recursive: true })
-    await safeCopy(src, join(destDir, `${member}.md`))
+    await safeCopy(src, join(destDir, `${member}.md`), overwrite)
   }
 
-  await safeCopy(join(SOCIETY_ROOT, 'AGENTS.md'), join(cwd, 'AGENTS.md'))
+  await safeCopy(join(SOCIETY_ROOT, 'AGENTS.md'), join(cwd, 'AGENTS.md'), overwrite)
 }
 
-export async function scaffoldConfig(cwd: string, runtime: Runtime, members: string[]): Promise<void> {
+export async function scaffoldConfig(cwd: string, runtime: Runtime, members: string[], overwrite = false): Promise<void> {
   const configDir = join(cwd, '.agenthood')
   await mkdir(configDir, { recursive: true })
 
   const configPath = join(configDir, 'config.json')
-  if (existsSync(configPath)) return
+  if (existsSync(configPath)) {
+    if (!overwrite) return
+    await mkdir(join(configDir, 'backup'), { recursive: true })
+    const stamp = new Date().toISOString().replace(/[:.]/g, '-')
+    await copyFile(configPath, join(configDir, 'backup', `config-${stamp}.json`))
+  }
 
   const examplePath = join(SOCIETY_ROOT, '.agenthood', 'config.example.json')
   if (existsSync(examplePath)) {
-    const raw = JSON.parse(await readFile(examplePath, 'utf8'))
+    let raw: Record<string, unknown> = {}
+    try {
+      raw = JSON.parse(await readFile(examplePath, 'utf8')) as Record<string, unknown>
+    } catch (err) {
+      console.warn(`[agenthood] bundled config.example.json is malformed (${err instanceof Error ? err.message : err}) — using defaults`)
+    }
     const config = { ...stripConfig(raw), runtime, members }
     await writeFile(configPath, JSON.stringify(config, null, 2) + '\n', 'utf8')
   } else {

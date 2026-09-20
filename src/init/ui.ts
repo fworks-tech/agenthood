@@ -1,8 +1,8 @@
 import { createInterface } from 'node:readline'
 import { ALL_MEMBERS } from '../members.ts'
+import type { Runtime } from '../members.ts'
 
-const RUNTIMES = ['claude-code', 'copilot', 'gemini-cli', 'other'] as const
-type Runtime = (typeof RUNTIMES)[number]
+const RUNTIMES: Runtime[] = ['claude-code', 'copilot', 'gemini-cli', 'other']
 
 function prompt(question: string): Promise<string> {
   const rl = createInterface({ input: process.stdin, output: process.stdout })
@@ -14,14 +14,25 @@ function prompt(question: string): Promise<string> {
   })
 }
 
+export async function confirmOverwrite(): Promise<boolean> {
+  const answer = await prompt('Already initialized. Overwrite? [y/N]: ')
+  return answer.trim().toLowerCase() === 'y'
+}
+
 export async function promptRuntime(): Promise<Runtime> {
   console.log('Which AI runtime are you using?\n')
   RUNTIMES.forEach((r, i) => console.log(`  ${i + 1}. ${r}`))
   console.log()
 
   const answer = await prompt('Select (1-4) [1]: ')
-  const index = parseInt(answer || '1', 10) - 1
-  const runtime = RUNTIMES[index] ?? 'claude-code'
+  const trimmed = (answer ?? '').trim()
+  const index = parseInt(trimmed || '1', 10) - 1
+  if (!trimmed || isNaN(index) || !RUNTIMES[index]) {
+    if (trimmed !== '') console.log(`  → "${trimmed}" is not a valid selection, using claude-code\n`)
+    else console.log('  → claude-code\n')
+    return 'claude-code'
+  }
+  const runtime = RUNTIMES[index]
   console.log(`  → ${runtime}\n`)
   return runtime
 }

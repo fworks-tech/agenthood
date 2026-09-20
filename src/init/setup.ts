@@ -3,7 +3,7 @@ import { existsSync } from 'node:fs'
 import { join, dirname } from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { stripConfig } from '../utils/stripConfig.ts'
-import { RUNTIME_SKILL_DIRS } from '../members.ts'
+import { RUNTIME_SKILL_DIRS, TARGET_DIRS } from '../members.ts'
 import type { Runtime } from '../members.ts'
 
 const __dirname = dirname(fileURLToPath(import.meta.url))
@@ -32,7 +32,7 @@ export function planPaths(cwd: string, runtime: Runtime, members: string[]): str
   return paths
 }
 
-export async function installSkills(cwd: string, runtime: Runtime, members: string[], overwrite = false): Promise<void> {
+export async function installSkills(cwd: string, runtime: Runtime, members: string[], overwrite = false, targets: string[] = []): Promise<void> {
   const primaryDest = join(cwd, '.agents', 'skills')
   const legacyDest = join(cwd, '.agenthood', 'skills')
 
@@ -59,6 +59,14 @@ export async function installSkills(cwd: string, runtime: Runtime, members: stri
   }
 
   await safeCopy(join(SOCIETY_ROOT, 'AGENTS.md'), join(cwd, 'AGENTS.md'), overwrite)
+
+  for (const target of targets) {
+    const targetPath = join(cwd, TARGET_DIRS[target])
+    await mkdir(dirname(targetPath), { recursive: true })
+    if (!existsSync(targetPath)) {
+      await safeCopy(join(SOCIETY_ROOT, 'AGENTS.md'), targetPath, overwrite)
+    }
+  }
 }
 
 export async function scaffoldConfig(cwd: string, runtime: Runtime, members: string[], overwrite = false): Promise<void> {

@@ -1,34 +1,7 @@
-import { existsSync, readFileSync, writeFileSync } from 'node:fs'
-import { join } from 'node:path'
 import type { CommandDescriptor } from './types.ts'
 import { SkillRegistryClient } from '../skills/registry/SkillRegistryClient.ts'
-import { resolveSkillsDir, SKILLS_LOCKFILE } from '../members.ts'
-
-interface LockEntry {
-  source: string
-  version?: string
-  installedAt: string
-}
-
-interface Lockfile {
-  version: number
-  skills: Record<string, LockEntry>
-}
-
-function loadLockfile(skillsDir: string): Lockfile {
-  const lockPath = join(skillsDir, SKILLS_LOCKFILE)
-  if (!existsSync(lockPath)) return { version: 1, skills: {} }
-  try {
-    return JSON.parse(readFileSync(lockPath, 'utf-8')) as Lockfile
-  } catch {
-    return { version: 1, skills: {} }
-  }
-}
-
-function saveLockfile(skillsDir: string, lock: Lockfile): void {
-  const lockPath = join(skillsDir, SKILLS_LOCKFILE)
-  writeFileSync(lockPath, JSON.stringify(lock, null, 2) + '\n', 'utf-8')
-}
+import { resolveSkillsDir } from '../members.ts'
+import { loadSkillsLockfile, saveSkillsLockfile } from './skillsLock.ts'
 
 function printHelp(): void {
   console.log(`Usage:
@@ -58,7 +31,7 @@ export async function upgrade(args: string[]): Promise<void> {
 
   const cwd = process.cwd()
   const skillsDir = resolveSkillsDir(cwd)
-  const lock = loadLockfile(skillsDir)
+  const lock = loadSkillsLockfile(skillsDir)
   const client = new SkillRegistryClient()
 
   const skillsToUpgrade = skillName
@@ -103,7 +76,7 @@ export async function upgrade(args: string[]): Promise<void> {
   }
 
   if (upgraded > 0) {
-    saveLockfile(skillsDir, lock)
+    saveSkillsLockfile(skillsDir, lock)
     console.log(`\n  Upgraded ${upgraded} skill(s).\n`)
   }
 }

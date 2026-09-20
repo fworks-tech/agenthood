@@ -10,33 +10,9 @@ import { join } from 'node:path'
 import { execFileSync } from 'node:child_process'
 import type { CommandDescriptor } from './types.ts'
 import { resolveSkillsDir, SKILLS_LOCKFILE } from '../members.ts'
+import { loadSkillsLockfile, saveSkillsLockfile } from './skillsLock.ts'
 import { SkillParser, SPEC_NAME_RE } from '../skills/discovery/SkillParser.ts'
 import { validateRemoteUrl, fetchRemoteText, GIT_TIMEOUT_MS } from '../skills/discovery/RemoteSkillSource.ts'
-
-interface LockEntry {
-  source: string
-  installedAt: string
-}
-
-interface Lockfile {
-  version: number
-  skills: Record<string, LockEntry>
-}
-
-function loadLockfile(skillsDir: string): Lockfile {
-  const lockPath = join(skillsDir, SKILLS_LOCKFILE)
-  if (!existsSync(lockPath)) return { version: 1, skills: {} }
-  try {
-    return JSON.parse(readFileSync(lockPath, 'utf-8'))
-  } catch {
-    return { version: 1, skills: {} }
-  }
-}
-
-function saveLockfile(skillsDir: string, lock: Lockfile): void {
-  const lockPath = join(skillsDir, SKILLS_LOCKFILE)
-  writeFileSync(lockPath, JSON.stringify(lock, null, 2) + '\n', 'utf-8')
-}
 
 function isGitUrl(url: string): boolean {
   return /\.git$/.test(url) || /^git@/.test(url) || /^https?:\/\/.*\/.*\/.*\/.*$/.test(url)
@@ -102,6 +78,39 @@ export const command: CommandDescriptor = {
   handler: (args) => install(args),
 }
 
+async function fetchSkillSource(source: string, tmpDir: string): Promise<string> {
+  const isGit = isGitUrl(source) || isGithubUrl(source)
+  if (isGit) {
+    cloneRepo(toGitUrl(source), join(tmpDir, 'repo'))
+  } else {
+    await downloadUrl(source, tmpDir)
+  }
+  const skillMdPath = findSkillMd(isGit ? join(tmpDir, 'repo') : tmpDir)
+  if (!skillMdPath) throw new Error('No SKILL.md found in the provided source')
+  return skillMdPath
+}
+
+function resolveSkillName(skillMdPath: string): string {
+  const content = readFileSync(skillMdPath, 'utf-8')
+  const parser = new SkillParser()
+  const { frontmatter } = parser.parseRaw(content)
+  if (!frontmatter || !frontmatter.name) throw new Error('SKILL.md must have a "name" field in frontmatter')
+  const name = String(frontmatter.name)
+  // A hostile frontmatter name like ../../foo would write outside the
+  // skills dir (path traversal) — accept only spec-shaped names.
+  if (!SPEC_NAME_RE.test(name)) throw new Error(`Invalid skill name "${name}" — must match ${SPEC_NAME_RE}`)
+  return name
+}
+
+function writeSkillToDestination(skillMdPath: string, skillsDir: string, name: string, source: string, destDir: string): void {
+  mkdirSync(skillsDir, { recursive: true })
+  if (existsSync(destDir)) throw new Error(`Skill "${name}" already exists. Use a different name or remove it first.`)
+  cpSync(skillMdPath, join(destDir, 'SKILL.md'))
+  const lock = loadSkillsLockfile(skillsDir)
+  lock.skills[name] = { source, installedAt: new Date().toISOString() }
+  saveSkillsLockfile(skillsDir, lock)
+}
+
 export async function install(args: string[]): Promise<void> {
   const dryRun = args.includes('--dry-run')
   const source = args.filter((a) => !a.startsWith('--'))[0]
@@ -125,40 +134,8 @@ export async function install(args: string[]): Promise<void> {
   mkdirSync(tmpDir, { recursive: true })
 
   try {
-    const isGit = isGitUrl(source) || isGithubUrl(source)
-
-    if (isGit) {
-      const gitUrl = toGitUrl(source)
-      cloneRepo(gitUrl, join(tmpDir, 'repo'))
-    } else {
-      await downloadUrl(source, tmpDir)
-    }
-
-    const skillMdPath = findSkillMd(isGit ? join(tmpDir, 'repo') : tmpDir)
-    if (!skillMdPath) {
-      console.error('  ✗ No SKILL.md found in the provided source')
-      process.exit(1)
-      return
-    }
-
-    const content = readFileSync(skillMdPath, 'utf-8')
-    const parser = new SkillParser()
-    const { frontmatter } = parser.parseRaw(content)
-
-    if (!frontmatter || !frontmatter.name) {
-      console.error('  ✗ SKILL.md must have a "name" field in frontmatter')
-      process.exit(1)
-      return
-    }
-
-    const name = String(frontmatter.name)
-    // A hostile frontmatter name like ../../foo would write outside the
-    // skills dir (path traversal) — accept only spec-shaped names.
-    if (!SPEC_NAME_RE.test(name)) {
-      console.error(`  ✗ Invalid skill name "${name}" — must match ${SPEC_NAME_RE}`)
-      process.exit(1)
-      return
-    }
+    const skillMdPath = await fetchSkillSource(source, tmpDir)
+    const name = resolveSkillName(skillMdPath)
     const destDir = join(skillsDir, name)
 
     if (dryRun) {
@@ -167,22 +144,7 @@ export async function install(args: string[]): Promise<void> {
       return
     }
 
-    mkdirSync(skillsDir, { recursive: true })
-
-    if (existsSync(destDir)) {
-      console.error(`  ✗ Skill "${name}" already exists. Use a different name or remove it first.`)
-      process.exit(1)
-      return
-    }
-
-    cpSync(skillMdPath, join(destDir, 'SKILL.md'))
-
-    const lock = loadLockfile(skillsDir)
-    lock.skills[name] = {
-      source,
-      installedAt: new Date().toISOString(),
-    }
-    saveLockfile(skillsDir, lock)
+    writeSkillToDestination(skillMdPath, skillsDir, name, source, destDir)
 
     console.log(`  ✓ ${name} installed to ${join(skillsDir, name)}`)
     console.log(`  ✓ Locked in ${SKILLS_LOCKFILE}\n`)

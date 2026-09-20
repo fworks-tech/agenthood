@@ -129,12 +129,19 @@ The `agenthood` CLI auto-discovers commands from `src/commands/`: each file expo
 - `agenthood health` — runtime health checks (`--json`; exit 0 healthy / 1 degraded / 2 unhealthy)
 - `agenthood check` / `verify` — health and member-integrity validation. The placeholder scan flags TODO/FIXME/TBD only in marker form (followed by a structural character); mentions in prose and examples inside code spans are ignored.
 - `agenthood install <url>` — install a skill from a URL or git repository (`--dry-run` to preview). Security-fenced like remote discovery: https-only URL fetch through the shared `fetchRemoteText` (redirect re-validation, 30s timeout, 1MiB cap), fenced `git clone`, and frontmatter names must match the spec pattern — `../../`-style traversal names are rejected
+- `agenthood eject` — remove the Society from your project (`.agenthood/`, `AGENTS.md`, `agenthood.lock`, per-runtime member subdirs and `skills-lock.json`; foreign skills are never touched)
+- `agenthood remove <skill>` — remove an installed skill and prune its skills-lock.json entry (`--dry-run` to preview; Society members are refused)
+- `agenthood list` — list members with status, tier, permission, provider, per-skill token estimates and a context-budget summary against the default context window
 - `agenthood publish` — publish skills to GitHub for skills.sh indexing (`--dry-run` to preview)
 - `agenthood mcp` — start an MCP server on stdio, exposing skills as MCP tools for external agents (Claude Code, Cursor, etc.)
 - `agenthood completion` — generate shell tab-completion scripts for bash, zsh, or fish
 - `agenthood search <query>` — search for skills in the agenthood registry (`--json`)
 - `agenthood upgrade [skill]` — upgrade installed skills to latest version from registry
-
+- `agenthood init --ci [--runtime <name>] [--members all|a,b,c]` — non-interactive setup for CI: never prompts, keeps an existing setup unless `--force`
+- `agenthood diff [member]` — show member SKILL.md changes vs the versions locked in agenthood.lock (exit 1 on drift; lockfile keys validated, hostile keys warned)
+- `agenthood create <name>` — scaffold a new skill directory with a SKILL.md template (name must match the spec pattern)
+- `agenthood run <member> <task> --sandbox` — run under the strict local profile: ADR-020 strict skill-integrity gate plus confirmation before every tool call (or `security.sandbox: true` in config; container isolation is phase 2, #884)
+- `agenthood upgrade --agenthood` — self-upgrade the agenthood package (backs up `.agenthood/config.json` first, pins the registry-validated version)
 Adding a command means adding a file in `src/commands/` and documenting it here.
 
 When a command wraps a caught error in a friendlier message, the original is attached via `{ cause }` so the underlying failure stays in the stack output (the v10 recommended ESLint set enforces this across `src/`).

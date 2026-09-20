@@ -1,7 +1,7 @@
 import { rm } from 'node:fs/promises';
 import { existsSync, readdirSync } from 'node:fs';
 import { join } from 'node:path';
-import { MEMBER_NAMES, RUNTIME_SKILL_DIRS } from '../members.ts';
+import { MEMBER_NAMES, RUNTIME_SKILL_DIRS, SKILLS_LOCKFILE } from '../members.ts';
 import type { CommandDescriptor } from './types.ts';
 
 export const command: CommandDescriptor = {
@@ -27,12 +27,13 @@ export async function eject(): Promise<void> {
   console.log('\n🏛️  Ejecting the Society...\n');
   console.log('  The Society notes that your commits were better while you were a member.\n');
 
-  const toRemove = ['.agenthood', 'AGENTS.md'];
+  const toRemove = ['.agenthood', 'AGENTS.md', 'agenthood.lock'];
   const skillSubdirs: string[] = [];
 
   for (const dir of RUNTIME_SKILL_DIRS_EXCLUDING_AGENTHOOD) {
     const full = join(cwd, dir);
     if (!existsSync(full)) continue;
+    skillSubdirs.push(join(dir, SKILLS_LOCKFILE));
     for (const sub of memberSubdirs(full)) {
       skillSubdirs.push(join(dir, sub));
     }

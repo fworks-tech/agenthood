@@ -24,4 +24,15 @@ describe('run parseFlags', () => {
     const out = parseFlags(['the-scribe', 'write a commit'])
     expect(out.debug).toBe(false)
   })
+
+  it('parses --sandbox flag', () => {
+    const out = parseFlags(['the-scribe', 'run untrusted skill', '--sandbox'])
+    expect(out.sandbox).toBe(true)
+    expect(out.positional).toEqual(['the-scribe', 'run untrusted skill'])
+  })
+
+  it('defaults sandbox to false', () => {
+    const out = parseFlags(['the-scribe', 'write a commit'])
+    expect(out.sandbox).toBe(false)
+  })
 })

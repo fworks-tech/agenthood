@@ -43,6 +43,17 @@ describe('eject command', () => {
     expect(removed.some((p) => p.endsWith('AGENTS.md'))).toBe(true)
   })
 
+  it('removes agenthood.lock and per-runtime skills-lock.json', async () => {
+    vi.mocked(existsSync).mockReturnValue(true)
+    vi.mocked(readdirSync).mockReturnValue([] as never[])
+    const { eject } = await import( '../../src/commands/eject.ts')
+    await eject()
+    const removed = normalized(vi.mocked(rm))
+    expect(removed.some((p) => p.endsWith('agenthood.lock'))).toBe(true)
+    expect(removed.some((p) => p.endsWith('.claude/skills/skills-lock.json'))).toBe(true)
+    expect(removed.some((p) => p.endsWith('.agenthood/skills/skills-lock.json'))).toBe(false)
+  })
+
   it('removes runtime skills dirs that contain agenthood members', async () => {
     vi.mocked(existsSync).mockReturnValue(true)
     vi.mocked(readdirSync).mockImplementation((dir: unknown) => {

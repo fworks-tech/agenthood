@@ -17,6 +17,7 @@ import { join, dirname } from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 
 import { ALL_MEMBERS } from './members.ts';
+import { handleCliError, userError } from './core/cliError.ts';
 import type { CommandDescriptor } from './commands/types.ts';
 
 async function discoverCommands(): Promise<Record<string, CommandDescriptor>> {
@@ -49,9 +50,7 @@ async function main(): Promise<void> {
 
   const handler = (await discoverCommands())[command];
   if (!handler) {
-    console.error(`\nUnknown command: "${command}"\n`);
-    printHelp();
-    process.exit(1);
+    userError(`Unknown command: "${command}"`, { fix: 'Run "agenthood help" to see available commands.' })
   }
 
   await handler.handler(args);
@@ -65,6 +64,8 @@ Usage:
 
 Commands:
   init                    Initiate the Society in your project
+                            Use --ci [--runtime <name>] [--members all|a,b,c] for non-interactive runs
+                            Use --force to overwrite an existing setup (backs up the config)
   setup                   Activate hooks and commit template (Agenthood repo)
   check                   Run the Doorman's health check
   activate <member>       Activate a specific member skill
@@ -81,6 +82,8 @@ Commands:
                             Use --lock-only for a lock-vs-hash CI integrity gate
   rollback [member]       Restore member SKILL.md from lockfile
                             Use --dry-run to preview without restoring
+  diff [member]           Show member SKILL.md changes vs the versions locked in agenthood.lock
+                            Exit code 1 when any member drifted from the lockfile
   status                  Show project health and member metrics
                             Use --watch to poll every 5 seconds
                             Use --json for machine-readable output
@@ -107,6 +110,9 @@ Commands:
   pr-sync                 Sync PR body and post comment for new commits
   oath                    Print the Society's oath
   eject                   Remove the Society from your project
+  install <url>           Install a skill from a URL or git repository
+  remove <skill>          Remove an installed skill and its skills-lock.json entry
+  create <name>           Scaffold a new skill directory with a SKILL.md template
 
 Members:\n${ALL_MEMBERS.map(({ name, tagline }) => `  ${name.padEnd(20)} ${tagline}`).join('\n')}
 
@@ -131,6 +137,5 @@ function printHelp(): void {
 }
 
 main().catch((err) => {
-  console.error('The Society encountered an unexpected error:', err instanceof Error ? err.message : String(err));
-  process.exit(1);
+  handleCliError(err, { exitCode: 2 })
 });

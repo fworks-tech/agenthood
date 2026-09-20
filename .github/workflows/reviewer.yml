@@ -63,7 +63,7 @@ jobs:
           fi
           BASE_SHA="${RANGE%%...*}"
           HEAD_SHA="${RANGE#*...}"
-          CHANGED=$(git diff --name-only --diff-filter=ACM "$BASE_SHA"..."$HEAD_SHA" 2>/dev/null || echo "")
+          CHANGED=$(git diff --name-only --diff-filter=ACM "$BASE_SHA" "$HEAD_SHA" 2>/dev/null || echo "")
           PR_CHANGED=$(gh pr view "$PR_NUMBER" --json changedFiles --jq '.changedFiles' 2>/dev/null || echo "0")
           if [ -z "$CHANGED" ] && [ "$PR_CHANGED" != "0" ]; then
             echo "::error::Review diff is empty but PR reports $PR_CHANGED changed file(s). RANGE=$RANGE. The review gate would pass without reviewing anything."

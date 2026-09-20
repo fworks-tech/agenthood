@@ -4,6 +4,9 @@ import type { Runtime } from '../members.ts'
 
 const RUNTIMES: Runtime[] = ['claude-code', 'copilot', 'gemini-cli', 'other']
 
+export { RUNTIMES }
+export type { Runtime }
+
 function prompt(question: string): Promise<string> {
   const rl = createInterface({ input: process.stdin, output: process.stdout })
   return new Promise((resolve) => {

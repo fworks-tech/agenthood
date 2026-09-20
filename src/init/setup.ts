@@ -1,4 +1,4 @@
-import { copyFile, mkdir, readFile, writeFile } from 'node:fs/promises'
+import { copyFile, mkdir, readFile, writeFile, symlink } from 'node:fs/promises'
 import { existsSync } from 'node:fs'
 import { join, dirname } from 'node:path'
 import { fileURLToPath } from 'node:url'
@@ -33,9 +33,22 @@ export function planPaths(cwd: string, runtime: Runtime, members: string[]): str
 }
 
 export async function installSkills(cwd: string, runtime: Runtime, members: string[], overwrite = false): Promise<void> {
-  const skillsDest = resolveSkillsDest(cwd, runtime)
+  const primaryDest = join(cwd, '.agents', 'skills')
+  const legacyDest = join(cwd, '.agenthood', 'skills')
 
-  await mkdir(skillsDest, { recursive: true })
+  await mkdir(primaryDest, { recursive: true })
+
+  // Backward compat: .agenthood/skills/ -> .agents/skills/
+  if (!existsSync(legacyDest)) {
+    try {
+      await symlink(join(cwd, '.agents', 'skills'), legacyDest)
+    } catch {
+      // symlink may fail on Windows without privileges — fall back to copy
+      await mkdir(legacyDest, { recursive: true })
+    }
+  }
+
+  const skillsDest = primaryDest
 
   for (const member of members) {
     const src = join(SOCIETY_ROOT, 'skills', member, 'SKILL.md')

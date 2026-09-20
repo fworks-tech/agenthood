@@ -1,15 +1,49 @@
 import type { CommandDescriptor } from './types.ts'
 import { ALL_MEMBERS } from '../members.ts'
 
-const COMMANDS = [
-  'init', 'setup', 'check', 'activate', 'deactivate', 'run', 'list',
-  'verify', 'rollback', 'diff', 'status', 'trace', 'log', 'health', 'doctor', 'eval',
-  'workflow', 'pr-sync', 'oath', 'eject', 'mcp', 'publish', 'checkpoints',
-  'install', 'remove', 'completion',
+/** Single source of truth for shell completions: every generator below
+ * derives from this table, so adding a command means adding one row. */
+const COMMAND_META: Array<{ name: string; blurb: string }> = [
+  { name: 'init', blurb: 'Initiate the Society in your project' },
+  { name: 'setup', blurb: 'Activate hooks and commit template' },
+  { name: 'check', blurb: 'Run the Doorman health check' },
+  { name: 'activate', blurb: 'Activate a specific member skill' },
+  { name: 'deactivate', blurb: 'Deactivate a member skill' },
+  { name: 'run', blurb: 'Run a Society member' },
+  { name: 'list', blurb: 'List all members and status' },
+  { name: 'verify', blurb: 'Validate member SKILL.md integrity' },
+  { name: 'rollback', blurb: 'Restore member SKILL.md from lockfile' },
+  { name: 'diff', blurb: 'Show member SKILL.md changes vs lockfile' },
+  { name: 'status', blurb: 'Show project health and member metrics' },
+  { name: 'trace', blurb: 'List recent member invocation traces' },
+  { name: 'log', blurb: 'List recent log entries' },
+  { name: 'health', blurb: 'Check runtime health' },
+  { name: 'doctor', blurb: 'Run all diagnostics in one pass' },
+  { name: 'eval', blurb: 'Run an eval suite against a member' },
+  { name: 'workflow', blurb: 'Execute a workflow' },
+  { name: 'pr-sync', blurb: 'Sync PR body and post comment' },
+  { name: 'oath', blurb: 'Print the Society oath' },
+  { name: 'eject', blurb: 'Remove the Society from your project' },
+  { name: 'mcp', blurb: 'Start MCP server' },
+  { name: 'publish', blurb: 'Publish a skill to the registry' },
+  { name: 'checkpoints', blurb: 'List past run checkpoints' },
+  { name: 'install', blurb: 'Install a skill from a URL' },
+  { name: 'remove', blurb: 'Remove an installed skill' },
+  { name: 'create', blurb: 'Scaffold a new skill from a template' },
+  { name: 'completion', blurb: 'Generate shell completion scripts' },
 ]
 
+const COMMANDS = COMMAND_META.map((c) => c.name)
+
+/** Commands (besides run) that take a member name as their first positional. */
+const MEMBER_COMMANDS = ['activate', 'deactivate', 'verify', 'rollback', 'diff', 'eval']
+
+function allMemberNames(): string {
+  return ALL_MEMBERS.map((m) => m.name).join(' ')
+}
+
 function generateBash(): string {
-  const memberNames = ALL_MEMBERS.map((m) => m.name).join(' ')
+  const memberNames = allMemberNames()
   const commandNames = COMMANDS.join(' ')
 
   return `# Bash completion for agenthood
@@ -73,64 +107,31 @@ complete -F _agenthood_completions agenthood
 `
 }
 
-const ZSH_COMMANDS_BLOCK = `  commands=(
-    'init:Initiate the Society in your project'
-    'setup:Activate hooks and commit template'
-    'check:Run the Doorman health check'
-    'activate:Activate a specific member skill'
-    'deactivate:Deactivate a member skill'
-    'run:Run a Society member'
-    'list:List all members and status'
-    'verify:Validate member SKILL.md integrity'
-    'rollback:Restore member SKILL.md from lockfile'
-    'diff:Show member SKILL.md changes vs lockfile'
-    'status:Show project health and member metrics'
-    'trace:List recent member invocation traces'
-    'log:List recent log entries'
-    'health:Check runtime health'
-    'doctor:Run all diagnostics in one pass'
-    'eval:Run an eval suite against a member'
-    'workflow:Execute a workflow'
-    'pr-sync:Sync PR body and post comment'
-    'oath:Print the Society oath'
-    'eject:Remove the Society from your project'
-    'mcp:Start MCP server'
-    'publish:Publish a skill to the registry'
-    'checkpoints:List past run checkpoints'
-    'install:Install a skill from a URL'
-    'remove:Remove an installed skill'
-    'completion:Generate shell completion scripts'
-  )`
+function generateZsh(): string {
+  const memberNames = allMemberNames()
+  const commandLines = COMMAND_META.map((c) => `    '${c.name}:${c.blurb}'`).join('\n')
 
-const FISH_COMMANDS_BLOCK = `complete -c agenthood -n '__fish_use_subcommand' -a init -d 'Initiate the Society in your project'
-complete -c agenthood -n '__fish_use_subcommand' -a setup -d 'Activate hooks and commit template'
-complete -c agenthood -n '__fish_use_subcommand' -a check -d 'Run the Doorman health check'
-complete -c agenthood -n '__fish_use_subcommand' -a activate -d 'Activate a specific member skill'
-complete -c agenthood -n '__fish_use_subcommand' -a deactivate -d 'Deactivate a member skill'
-complete -c agenthood -n '__fish_use_subcommand' -a run -d 'Run a Society member'
-complete -c agenthood -n '__fish_use_subcommand' -a list -d 'List all members and status'
-complete -c agenthood -n '__fish_use_subcommand' -a verify -d 'Validate member SKILL.md integrity'
-complete -c agenthood -n '__fish_use_subcommand' -a rollback -d 'Restore member SKILL.md from lockfile'
-complete -c agenthood -n '__fish_use_subcommand' -a diff -d 'Show member SKILL.md changes vs lockfile'
-complete -c agenthood -n '__fish_use_subcommand' -a status -d 'Show project health and member metrics'
-complete -c agenthood -n '__fish_use_subcommand' -a trace -d 'List recent member invocation traces'
-complete -c agenthood -n '__fish_use_subcommand' -a log -d 'List recent log entries'
-complete -c agenthood -n '__fish_use_subcommand' -a health -d 'Check runtime health'
-complete -c agenthood -n '__fish_use_subcommand' -a doctor -d 'Run all diagnostics in one pass'
-complete -c agenthood -n '__fish_use_subcommand' -a eval -d 'Run an eval suite against a member'
-complete -c agenthood -n '__fish_use_subcommand' -a workflow -d 'Execute a workflow'
-complete -c agenthood -n '__fish_use_subcommand' -a pr-sync -d 'Sync PR body and post comment'
-complete -c agenthood -n '__fish_use_subcommand' -a oath -d 'Print the Society oath'
-complete -c agenthood -n '__fish_use_subcommand' -a eject -d 'Remove the Society from your project'
-complete -c agenthood -n '__fish_use_subcommand' -a mcp -d 'Start MCP server'
-complete -c agenthood -n '__fish_use_subcommand' -a publish -d 'Publish a skill to the registry'
-complete -c agenthood -n '__fish_use_subcommand' -a checkpoints -d 'List past run checkpoints'
-complete -c agenthood -n '__fish_use_subcommand' -a install -d 'Install a skill from a URL'
-complete -c agenthood -n '__fish_use_subcommand' -a remove -d 'Remove an installed skill'
-complete -c agenthood -n '__fish_use_subcommand' -a completion -d 'Generate shell completion scripts'`
+  return `#compdef agenthood
 
-function zshCommandArgs(): string {
-  return `      case \${words[1]} in
+# Zsh completion for agenthood
+_agenthood() {
+  local -a commands members
+  commands=(
+${commandLines}
+  )
+
+  members=(${memberNames})
+
+  _arguments -C \
+    '1:command:->command' \
+    '*::arg:->args'
+
+  case $state in
+    command)
+      _describe 'command' commands
+      ;;
+    args)
+      case \${words[1]} in
         run)
           _arguments \
             '1:member:->member' \
@@ -143,7 +144,7 @@ function zshCommandArgs(): string {
             member) _describe 'member' members ;;
           esac
           ;;
-        activate|deactivate|verify|rollback|diff|eval)
+        ${MEMBER_COMMANDS.join('|')})
           _arguments '1:member:->member'
           case $state in
             member) _describe 'member' members ;;
@@ -173,31 +174,7 @@ function zshCommandArgs(): string {
         completion)
           _arguments '1:shell:(bash zsh fish)'
           ;;
-      esac`
-}
-
-function generateZsh(): string {
-  const memberNames = ALL_MEMBERS.map((m) => m.name).join(' ')
-
-  return `#compdef agenthood
-
-# Zsh completion for agenthood
-_agenthood() {
-  local -a commands members
-${ZSH_COMMANDS_BLOCK}
-
-  members=(${memberNames})
-
-  _arguments -C \
-    '1:command:->command' \
-    '*::arg:->args'
-
-  case $state in
-    command)
-      _describe 'command' commands
-      ;;
-    args)
-${zshCommandArgs()}
+      esac
       ;;
   esac
 }
@@ -207,16 +184,17 @@ compdef _agenthood agenthood
 }
 
 function generateFish(): string {
-  const memberNames = ALL_MEMBERS.map((m) => m.name).join(' ')
+  const memberNames = allMemberNames()
+  const commandLines = COMMAND_META.map((c) => `complete -c agenthood -n '__fish_use_subcommand' -a ${c.name} -d '${c.blurb}'`).join('\n')
 
   return `# Fish completion for agenthood
 
 # Command completions
-${FISH_COMMANDS_BLOCK}
+${commandLines}
 
 # Member completions for run/activate/deactivate/verify/rollback/diff/eval
 for member in ${memberNames}
-  complete -c agenthood -n "__fish_seen_subcommand_from run activate deactivate verify rollback diff eval" -a "$member"
+  complete -c agenthood -n "__fish_seen_subcommand_from run ${MEMBER_COMMANDS.join(' ')}" -a "$member"
 end
 
 # Run flags

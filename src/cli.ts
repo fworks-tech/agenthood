@@ -113,6 +113,7 @@ Commands:
   eject                   Remove the Society from your project
   install <url>           Install a skill from a URL or git repository
   remove <skill>          Remove an installed skill and its skills-lock.json entry
+  create <name>           Scaffold a new skill directory with a SKILL.md template
 
 Members:\n${ALL_MEMBERS.map(({ name, tagline }) => `  ${name.padEnd(20)} ${tagline}`).join('\n')}
 

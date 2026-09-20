@@ -1,5 +1,6 @@
 import { executeReviewPrWorkflow } from '../workflows/definitions/review-pr.ts'
 import type { CommandDescriptor } from './types.ts'
+import { userError } from '../core/cliError.ts'
 
 const WORKFLOWS: Record<string, () => Promise<string>> = {
   'review-pr': executeReviewPrWorkflow,
@@ -15,12 +16,8 @@ export async function workflow(args: string[]): Promise<void> {
   const [name] = args
 
   if (!name || !WORKFLOWS[name]) {
-    console.error('Usage: agenthood workflow <name>')
-    console.error('Available workflows:')
-    for (const key of Object.keys(WORKFLOWS)) {
-      console.error(`  - ${key}`)
-    }
-    process.exit(1)
+    const available = Object.keys(WORKFLOWS).join(', ')
+    userError(`Unknown workflow: "${name ?? ''}"`, { fix: `Available workflows: ${available}` })
     return
   }
 

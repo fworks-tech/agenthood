@@ -6,6 +6,7 @@ import { contentHash } from '../utils/hash.ts'
 import { loadLockfile } from '../utils/lockfile.ts'
 import type { Lockfile } from '../utils/lockfile.ts'
 import { SkillParser } from '../skills/discovery/SkillParser.ts'
+import { userError } from '../core/cliError.ts'
 import type { SkillTier } from '../skills/discovery/ISkillManifest.ts'
 import { SkillDiscovery } from '../skills/discovery/SkillDiscovery.ts'
 import { findConflicts } from '../skills/conflicts.ts'
@@ -105,7 +106,7 @@ function lockIntegrityGate(membersDir: string, members: string[], lockfile?: Loc
   if (drifted.length > 0) {
     console.log(`\n  ✗ Lockfile drift — ${drifted.length} member(s) changed without a re-lock: ${drifted.join(', ')}`)
     console.log('    Run `agenthood verify --update-lock` and commit agenthood.lock.\n')
-    process.exit(1)
+    userError('Lockfile drift detected', { fix: 'Run `agenthood verify --update-lock` and commit agenthood.lock.' })
     return
   }
   console.log(`\n  ✓ Lockfile integrity OK — ${members.length} member(s) match agenthood.lock`)
@@ -118,7 +119,7 @@ function reportLaneOverlaps(): void {
     for (const o of overlaps) {
       console.log(`    \u26a0 ${o.a} \u2194 ${o.b} (shared: ${o.shared.join(', ')})`)
     }
-    process.exit(1)
+    userError('Lane overlap detected', { fix: 'Remove duplicate responsibilities from member SKILL.md files.' })
   }
   console.log('\n  Strict mode: lane overlap check passed.')
 }
@@ -222,8 +223,7 @@ export async function verify(args: string[]): Promise<void> {
   const targetMember = positionals[0]
 
   if (targetMember && !MEMBER_NAME_RE.test(targetMember)) {
-    console.error(`Invalid member name: "${targetMember}"`)
-    process.exit(1)
+    userError(`Invalid member name: "${targetMember}"`, { fix: 'Member names must match the pattern: lowercase letters, numbers, and hyphens.' })
     return
   }
 
@@ -271,7 +271,7 @@ export async function verify(args: string[]): Promise<void> {
   }
 
   if (!structuralOk || (!updateLock && hasDrift)) {
-    process.exit(1)
+    userError('Verify failed', { fix: 'Run `agenthood verify --update-lock` to re-lock, or fix structural issues.' })
   }
 }
 

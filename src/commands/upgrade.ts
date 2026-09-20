@@ -31,6 +31,13 @@ async function selfUpgrade(): Promise<void> {
     process.exit(1)
     return
   }
+  // defense-in-depth: latest lands in an execFileSync argv slot below, so
+  // reject anything that is not a plain version before it gets there
+  if (!/^\d+\.\d+\.\d+/.test(latest)) {
+    console.error(`  ✗ npm registry returned a malformed version for agenthood: ${JSON.stringify(latest)}`)
+    process.exit(1)
+    return
+  }
 
   console.log(`\n  Installed: v${current}   Latest: v${latest}`)
   if (current === latest) {
@@ -39,28 +46,34 @@ async function selfUpgrade(): Promise<void> {
   }
 
   const configDir = join(cwd, '.agenthood')
-  const configPath = join(configDir, 'config.json')
-  if (existsSync(configPath)) {
-    mkdirSync(join(configDir, 'backup'), { recursive: true })
-    const stamp = new Date().toISOString().replace(/[:.]/g, '-')
-    writeFileSync(join(configDir, 'backup', `config-${stamp}.json`), readFileSync(configPath, 'utf-8'), 'utf-8')
-    console.log(`  ✓ Config backed up to .agenthood/backup/config-${stamp}.json`)
-
-    const config = JSON.parse(readFileSync(configPath, 'utf-8')) as { version?: string }
-    if (config.version !== '1') {
-      console.warn(`  ⚠ Config version "${config.version ?? 'missing'}" is not recognized — review .agenthood/config.json after the upgrade`)
-    }
-  }
+  backupConfig(configDir)
 
   console.log('  Running npm install...')
   try {
     // pin the fetched version: installing '@latest' could resolve a newer
-    // release than the one just validated against the local config
+    // release than the one just validated against the local config.
+    // --no-audit is deliberate: a slow or failing audit endpoint must not
+    // block a security upgrade, and the version was pinned + validated above.
     execFileSync('npm', ['install', '--no-fund', '--no-audit', `agenthood@${latest}`], { cwd, stdio: 'inherit' })
     console.log(`\n  ✓ Upgraded to v${latest}.\n`)
   } catch (err) {
     console.error(`  ✗ npm install failed — run \`npm install agenthood@latest\` manually (${(err as Error)?.message ?? err})`)
     process.exit(1)
+  }
+}
+
+/** Back up .agenthood/config.json and warn on unrecognized config versions. */
+function backupConfig(configDir: string): void {
+  const configPath = join(configDir, 'config.json')
+  if (!existsSync(configPath)) return
+  mkdirSync(join(configDir, 'backup'), { recursive: true })
+  const stamp = new Date().toISOString().replace(/[:.]/g, '-')
+  writeFileSync(join(configDir, 'backup', `config-${stamp}.json`), readFileSync(configPath, 'utf-8'), 'utf-8')
+  console.log(`  ✓ Config backed up to .agenthood/backup/config-${stamp}.json`)
+
+  const config = JSON.parse(readFileSync(configPath, 'utf-8')) as { version?: string }
+  if (config.version !== '1') {
+    console.warn(`  ⚠ Config version "${config.version ?? 'missing'}" is not recognized — review .agenthood/config.json after the upgrade`)
   }
 }
 
@@ -110,6 +123,39 @@ export const command: CommandDescriptor = {
   handler: (args) => upgrade(args),
 }
 
+/** Compare one skill against the registry and update the lock entry when a
+ * newer version exists. Returns true when the lock was updated. */
+async function resolveUpgradeTarget(
+  name: string,
+  entry: LockEntry | undefined,
+  client: SkillRegistryClient,
+  lock: Lockfile,
+): Promise<boolean> {
+  try {
+    const remote = await client.get(name)
+    if (!remote) {
+      console.log(`  ${name}: not found in registry`)
+      return false
+    }
+
+    if (entry?.version && entry.version === remote.version) {
+      console.log(`  ${name}: already at v${remote.version}`)
+      return false
+    }
+
+    console.log(`  ${name}: upgrading from ${entry?.version ?? 'unknown'} to v${remote.version}`)
+    lock.skills[name] = {
+      source: entry?.source ?? `registry:${name}`,
+      version: remote.version,
+      installedAt: new Date().toISOString(),
+    }
+    return true
+  } catch (err) {
+    console.error(`  ${name}: upgrade failed — ${(err as Error)?.message ?? err}`)
+    return false
+  }
+}
+
 export async function upgrade(args: string[]): Promise<void> {
   if (args.includes('--agenthood')) {
     await selfUpgrade()
@@ -146,28 +192,7 @@ export async function upgrade(args: string[]): Promise<void> {
       continue
     }
 
-    try {
-      const remote = await client.get(name)
-      if (!remote) {
-        console.log(`  ${name}: not found in registry`)
-        continue
-      }
-
-      if (entry?.version && entry.version === remote.version) {
-        console.log(`  ${name}: already at v${remote.version}`)
-        continue
-      }
-
-      console.log(`  ${name}: upgrading from ${entry?.version ?? 'unknown'} to v${remote.version}`)
-      lock.skills[name] = {
-        source: entry?.source ?? `registry:${name}`,
-        version: remote.version,
-        installedAt: new Date().toISOString(),
-      }
-      upgraded++
-    } catch (err) {
-      console.error(`  ${name}: upgrade failed — ${(err as Error)?.message ?? err}`)
-    }
+    if (await resolveUpgradeTarget(name, entry, client, lock)) upgraded++
   }
 
   if (upgraded > 0) {

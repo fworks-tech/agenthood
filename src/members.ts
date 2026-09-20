@@ -50,6 +50,9 @@ export const RUNTIME_SKILL_DIRS: Record<Runtime, string> = {
 
 export type Runtime = 'claude-code' | 'copilot' | 'gemini-cli' | 'other'
 
+/** Lockfile written by `install` alongside downloaded skills. */
+export const SKILLS_LOCKFILE = 'skills-lock.json'
+
 export function resolveSkillsDir(cwd: string): string {
   if (existsSync(join(cwd, '.claude')))     return join(cwd, '.claude',    'skills')
   if (existsSync(join(cwd, '.codebuddy')))  return join(cwd, '.codebuddy', 'skills')

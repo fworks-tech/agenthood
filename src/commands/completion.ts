@@ -5,7 +5,7 @@ const COMMANDS = [
   'init', 'setup', 'check', 'activate', 'deactivate', 'run', 'list',
   'verify', 'rollback', 'status', 'trace', 'log', 'health', 'doctor', 'eval',
   'workflow', 'pr-sync', 'oath', 'eject', 'mcp', 'publish', 'checkpoints',
-  'install', 'completion',
+  'install', 'remove', 'completion',
 ]
 
 function generateBash(): string {
@@ -105,6 +105,7 @@ _agenthood() {
     'publish:Publish a skill to the registry'
     'checkpoints:List past run checkpoints'
     'install:Install a skill from a URL'
+    'remove:Remove an installed skill'
     'completion:Generate shell completion scripts'
   )
 
@@ -200,6 +201,7 @@ complete -c agenthood -n '__fish_use_subcommand' -a mcp -d 'Start MCP server'
 complete -c agenthood -n '__fish_use_subcommand' -a publish -d 'Publish a skill to the registry'
 complete -c agenthood -n '__fish_use_subcommand' -a checkpoints -d 'List past run checkpoints'
 complete -c agenthood -n '__fish_use_subcommand' -a install -d 'Install a skill from a URL'
+complete -c agenthood -n '__fish_use_subcommand' -a remove -d 'Remove an installed skill'
 complete -c agenthood -n '__fish_use_subcommand' -a completion -d 'Generate shell completion scripts'
 
 # Member completions for run/activate/deactivate/verify/rollback/eval

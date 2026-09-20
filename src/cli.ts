@@ -107,6 +107,8 @@ Commands:
   pr-sync                 Sync PR body and post comment for new commits
   oath                    Print the Society's oath
   eject                   Remove the Society from your project
+  install <url>           Install a skill from a URL or git repository
+  remove <skill>          Remove an installed skill and its skills-lock.json entry
 
 Members:\n${ALL_MEMBERS.map(({ name, tagline }) => `  ${name.padEnd(20)} ${tagline}`).join('\n')}
 

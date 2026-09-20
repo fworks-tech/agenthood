@@ -8,7 +8,12 @@ vi.mock('../../../src/llm/LLMRouter.ts', () => ({
   },
 }))
 
-import { MemberRunner, applySandboxProfile } from '../../../src/runtime/MemberRunner.ts'
+vi.mock('node:child_process', () => ({
+  execFileSync: vi.fn(),
+}))
+
+import { MemberRunner, applySandboxProfile, resetDockerCache } from '../../../src/runtime/MemberRunner.ts'
+import { execFileSync } from 'node:child_process'
 import { LLMRouter } from '../../../src/llm/LLMRouter.ts'
 import type { LLMConfig } from '../../../src/llm/types.ts'
 import { MemberRegistry } from '../../../src/members/MemberRegistry.ts'
@@ -50,6 +55,30 @@ function makeRunner(checkpointStore?: CheckpointStore): MemberRunner {
   runner.ctx = createTestContext()
   return runner
 }
+
+describe('applySandboxProfile', () => {
+  beforeEach(() => {
+    vi.clearAllMocks()
+    resetDockerCache()
+  })
+
+  it('enables dockerIsolation when Docker is available', () => {
+    vi.mocked(execFileSync).mockReturnValue('' as never)
+    const config = { security: { sandbox: true } } as LLMConfig
+    applySandboxProfile(config)
+    expect(execFileSync).toHaveBeenCalledWith('docker', ['info'], expect.objectContaining({ timeout: 5000 }))
+    expect(config.security?.dockerIsolation).toBe(true)
+    expect(config.security?.strictSkillIntegrity).toBe(true)
+  })
+
+  it('falls back to local profile when Docker is unavailable', () => {
+    vi.mocked(execFileSync).mockImplementation(() => { throw new Error('docker not found') })
+    const config = { security: { sandbox: true } } as LLMConfig
+    applySandboxProfile(config)
+    expect(config.security?.dockerIsolation).toBeUndefined()
+    expect(config.security?.strictSkillIntegrity).toBe(true)
+  })
+})
 
 describe('MemberRunner ask_human park', () => {
   it('emits run.awaiting_input, skips run.failed and failure metrics, and rethrows the signal', async () => {

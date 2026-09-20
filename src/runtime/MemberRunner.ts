@@ -1,4 +1,5 @@
 import { join } from 'node:path'
+import { execFileSync } from 'node:child_process'
 import type { ExecutionContext } from '../core/ExecutionContext.ts'
 import type { AnomalyDetector } from '../core/AnomalyDetector.ts'
 import { appendAnomalies } from '../core/AnomalyDetector.ts'
@@ -31,11 +32,41 @@ export interface MemberRunnerDeps {
 /**
  * `security.sandbox` runs untrusted skills under the tightest profile the
  * runtime can enforce locally: the ADR-020 strict skill-integrity gate plus
- * human confirmation before every tool call. Container isolation remains a
- * separate hardening layer (phase 2: #884).
+ * human confirmation before every tool call. Container isolation is the
+ * phase-2 hardening layer (#884): when Docker is available, member tools run
+ * inside a container with a read-only filesystem, a temp-dir workspace, and
+ * context passed by mount. When Docker is unavailable, falls back to the
+ * phase-1 local profile with a visible notice.
  */
+
+let dockerAvailable: boolean | null = null
+
+export function resetDockerCache(): void {
+  dockerAvailable = null
+}
+
+function detectDocker(): boolean {
+  if (dockerAvailable !== null) return dockerAvailable
+  try {
+    execFileSync('docker', ['info'], { stdio: 'ignore', timeout: 5000 })
+    dockerAvailable = true
+  } catch {
+    dockerAvailable = false
+  }
+  return dockerAvailable
+}
+
 export function applySandboxProfile(config: LLMConfig): void {
   if (config.security?.sandbox !== true) return
+
+  if (detectDocker()) {
+    config.security = { ...config.security, dockerIsolation: true, strictSkillIntegrity: true }
+    config.interactive = true
+    console.log('  Docker isolation enabled — member tools will run inside a container.')
+    return
+  }
+
+  console.warn('  Docker not available — falling back to local sandbox profile (strict integrity + confirmation).')
   config.security = { ...config.security, strictSkillIntegrity: true }
   config.interactive = true
 }

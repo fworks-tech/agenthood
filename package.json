@@ -113,7 +113,7 @@
     "@anthropic-ai/sdk": "0.124.0",
     "@lancedb/lancedb": "0.30.0",
     "@modelcontextprotocol/server": "2.0.0",
-    "@sentry/node": "10.70.0",
+    "@sentry/node": "10.75.0",
     "ajv": "8.20.0",
     "dotenv": "17.4.2",
     "groq-sdk": "1.6.0",

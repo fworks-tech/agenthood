@@ -73,6 +73,53 @@ complete -F _agenthood_completions agenthood
 `
 }
 
+function zshCommandArgs(): string {
+  return `      case \${words[1]} in
+        run)
+          _arguments \
+            '1:member:->member' \
+            '2:task:' \
+            '--provider[Override LLM provider]:provider:(groq anthropic openai ollama openrouter)' \
+            '--detect[Auto-detect members for this task]' \
+            '--resume[Resume from a checkpoint]:id:' \
+            '--debug[Log full LLM request/response]'
+          case $state in
+            member) _describe 'member' members ;;
+          esac
+          ;;
+        activate|deactivate|verify|rollback|diff|eval)
+          _arguments '1:member:->member'
+          case $state in
+            member) _describe 'member' members ;;
+          esac
+          ;;
+        trace|log)
+          _arguments \
+            '1:member:->member' \
+            '--member[Filter by member]:member:' \
+            '--limit[Maximum entries]:limit:' \
+            '--since[Only entries newer than]:time:' \
+            '--json[Machine-readable output]' \
+            '--level[Filter by level]:level:(debug info warn error)' \
+            '--help[Show help]'
+          case $state in
+            member) _describe 'member' members ;;
+          esac
+          ;;
+        status)
+          _arguments \
+            '--watch[Poll every 5 seconds]' \
+            '--json[Machine-readable output]' \
+            '--drift[Detect SKILL.md drift]' \
+            '--member[Per-member trace summaries]:member:' \
+            '--learner[EpisodeLearner learning status]'
+          ;;
+        completion)
+          _arguments '1:shell:(bash zsh fish)'
+          ;;
+      esac`
+}
+
 function generateZsh(): string {
   const memberNames = ALL_MEMBERS.map((m) => m.name).join(' ')
 
@@ -121,50 +168,7 @@ _agenthood() {
       _describe 'command' commands
       ;;
     args)
-      case \${words[1]} in
-        run)
-          _arguments \
-            '1:member:->member' \
-            '2:task:' \
-            '--provider[Override LLM provider]:provider:(groq anthropic openai ollama openrouter)' \
-            '--detect[Auto-detect members for this task]' \
-            '--resume[Resume from a checkpoint]:id:' \
-            '--debug[Log full LLM request/response]'
-          case $state in
-            member) _describe 'member' members ;;
-          esac
-          ;;
-        activate|deactivate|verify|rollback|diff|eval)
-          _arguments '1:member:->member'
-          case $state in
-            member) _describe 'member' members ;;
-          esac
-          ;;
-        trace|log)
-          _arguments \
-            '1:member:->member' \
-            '--member[Filter by member]:member:' \
-            '--limit[Maximum entries]:limit:' \
-            '--since[Only entries newer than]:time:' \
-            '--json[Machine-readable output]' \
-            '--level[Filter by level]:level:(debug info warn error)' \
-            '--help[Show help]'
-          case $state in
-            member) _describe 'member' members ;;
-          esac
-          ;;
-        status)
-          _arguments \
-            '--watch[Poll every 5 seconds]' \
-            '--json[Machine-readable output]' \
-            '--drift[Detect SKILL.md drift]' \
-            '--member[Per-member trace summaries]:member:' \
-            '--learner[EpisodeLearner learning status]'
-          ;;
-        completion)
-          _arguments '1:shell:(bash zsh fish)'
-          ;;
-      esac
+${zshCommandArgs()}
       ;;
   esac
 }

@@ -138,7 +138,7 @@ The `agenthood` CLI auto-discovers commands from `src/commands/`: each file expo
 - `agenthood search <query>` — search for skills in the agenthood registry (`--json`)
 - `agenthood upgrade [skill]` — upgrade installed skills to latest version from registry
 - `agenthood init --ci [--runtime <name>] [--members all|a,b,c]` — non-interactive setup for CI: never prompts, keeps an existing setup unless `--force`
-
+- `agenthood diff [member]` — show member SKILL.md changes vs the versions locked in agenthood.lock (exit 1 on drift; lockfile keys validated, hostile keys warned)
 Adding a command means adding a file in `src/commands/` and documenting it here.
 
 When a command wraps a caught error in a friendlier message, the original is attached via `{ cause }` so the underlying failure stays in the stack output (the v10 recommended ESLint set enforces this across `src/`).

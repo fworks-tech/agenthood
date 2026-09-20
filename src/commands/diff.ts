@@ -2,10 +2,10 @@ import { existsSync, readFileSync } from 'node:fs'
 import { join } from 'node:path'
 import { execFileSync } from 'node:child_process'
 import type { CommandDescriptor } from './types.ts'
-import { MEMBER_NAME_RE, resolveSocietyMembersDir, memberSkillPath } from '../members.ts'
-import { loadLockfile } from '../utils/lockfile.ts'
+import { resolveSocietyMembersDir, memberSkillPath } from '../members.ts'
 import { contentHash } from '../utils/hash.ts'
 import { findRevision } from './rollback.ts'
+import { loadLockTargets } from './lockTargets.ts'
 
 export const command: CommandDescriptor = {
   name: 'diff',
@@ -35,31 +35,7 @@ export async function diff(args: string[]): Promise<void> {
   const cwd = process.cwd()
   const target = args.find((a) => !a.startsWith('--'))
 
-  if (target && !MEMBER_NAME_RE.test(target)) {
-    console.error(`Invalid member name: "${target}"`)
-    process.exit(1)
-  }
-
-  const lock = loadLockfile(cwd)
-  if (!lock) {
-    console.error('agenthood.lock not found. Run `agenthood verify --update-lock` first.')
-    process.exit(1)
-  }
-
-  if (target && !lock.members[target]) {
-    console.error(`Member "${target}" not found in lockfile.`)
-    process.exit(1)
-  }
-
-  // lockfile keys are attacker-influenced (cloned repos) — validate every
-  // key before it becomes a git pathspec
-  const keys = Object.keys(lock.members).filter((m) => MEMBER_NAME_RE.test(m))
-  const skipped = Object.keys(lock.members).filter((m) => !MEMBER_NAME_RE.test(m))
-  for (const bad of skipped) {
-    // JSON.stringify: hostile keys are attacker bytes — never echo them raw
-    console.warn(`Skipping invalid member key from lockfile: ${JSON.stringify(bad)}`)
-  }
-  const members = target ? [target] : keys
+  const { lock, members } = loadLockTargets(cwd, target, 'agenthood.lock not found. Run `agenthood verify --update-lock` first.')
 
   let drifted = 0
   for (const member of members) {

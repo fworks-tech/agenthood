@@ -24,7 +24,7 @@ vi.mock('node:fs', async (importOriginal) => {
 
 import { copyFile, readFile, writeFile } from 'node:fs/promises'
 import { existsSync } from 'node:fs'
-
+import { createInterface } from 'node:readline'
 describe('init command', () => {
   let output = ''
 
@@ -39,6 +39,7 @@ describe('init command', () => {
     vi.mocked(writeFile).mockClear()
     vi.mocked(readFile).mockRejectedValue(new Error('not found'))
     vi.mocked(existsSync).mockClear()
+    vi.mocked(createInterface).mockClear()
     vi.mocked(existsSync).mockImplementation((p) => {
       if (typeof p !== 'string') return true
       if (p.includes('config.json') && !p.includes('config.example')) return false
@@ -120,6 +121,47 @@ describe('init command', () => {
     expect(output).toContain('--force')
     const copyCalls = vi.mocked(copyFile).mock.calls.map((c) => c as [string, string])
     expect(copyCalls.some(([, dest]) => dest.includes('backup'))).toBe(true)
+  })
+
+  it('--ci writes the default config without any prompts', async () => {
+    const { init } = await import( '../../src/commands/init.ts')
+    await init(['--ci'])
+    expect(output).toContain('CI mode')
+    expect(vi.mocked(createInterface)).not.toHaveBeenCalled()
+    const writeCalls = vi.mocked(writeFile).mock.calls.map((c) => c as [string, string])
+    const configCall = writeCalls.find(([path]) => path.includes('config.json') && !path.includes('example'))
+    expect(configCall).toBeTruthy()
+  })
+
+  it('--ci honors --runtime and --members selections', async () => {
+    const { init } = await import( '../../src/commands/init.ts')
+    await init(['--ci', '--runtime', 'copilot', '--members', 'the-scribe,the-builder'])
+    const writeCalls = vi.mocked(writeFile).mock.calls.map((c) => c as [string, string])
+    const configCall = writeCalls.find(([path]) => path.includes('config.json') && !path.includes('example'))
+    expect(configCall).toBeTruthy()
+    const config = JSON.parse(configCall![1])
+    expect(config.runtime).toBe('copilot')
+    expect(config.members).toEqual(['the-scribe', 'the-builder'])
+  })
+
+  it('--ci rejects an unknown runtime and member', async () => {
+    vi.mocked(existsSync).mockReturnValue(false)
+    const exit = vi.spyOn(process, 'exit').mockImplementation((() => { throw new Error('process.exit') }) as never)
+    const { init } = await import( '../../src/commands/init.ts')
+    await expect(init(['--ci', '--runtime', 'vscode'])).rejects.toThrow('process.exit')
+    await expect(init(['--ci', '--members', 'the-scribe,nope'])).rejects.toThrow('process.exit')
+    expect(vi.mocked(writeFile)).not.toHaveBeenCalled()
+  })
+
+  it('--ci keeps an existing setup without prompting', async () => {
+    vi.mocked(existsSync).mockImplementation((p) => typeof p === 'string' && !p.includes('config.example'))
+    promptState.overwriteAnswer = 'y'
+    const { init } = await import( '../../src/commands/init.ts')
+    const { createInterface } = await import('node:readline')
+    await init(['--ci'])
+    expect(output).toContain('keeping it')
+    expect(vi.mocked(createInterface)).not.toHaveBeenCalled()
+    expect(vi.mocked(writeFile)).not.toHaveBeenCalled()
   })
 
   it('scaffolds the observability config block', async () => {

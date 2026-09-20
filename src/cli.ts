@@ -65,6 +65,8 @@ Usage:
 
 Commands:
   init                    Initiate the Society in your project
+                            Use --ci [--runtime <name>] [--members all|a,b,c] for non-interactive runs
+                            Use --force to overwrite an existing setup (backs up the config)
   setup                   Activate hooks and commit template (Agenthood repo)
   check                   Run the Doorman's health check
   activate <member>       Activate a specific member skill

@@ -49,7 +49,7 @@ class WriteFileSkill implements Skill {
 }
 
 class DeveloperAgent extends BaseAgent {
-  role = 'the-developer';
+  role = 'the-builder';
   skills = [new ReadFileSkill(), new WriteFileSkill()];
 
   // BaseAgent.run() enters the ReAct loop automatically.
@@ -73,7 +73,7 @@ The `DeveloperAgent` class is 4 lines of real logic. `BaseAgent` and `ReActLoop`
 
 ```bash
 # Once the v2 runtime ships, run your custom agent directly
-npx agenthood run the-developer "add input validation to the login handler"
+npx agenthood run the-builder "add input validation to the login handler"
 ```
 
 If you want to test the pattern today, here is a minimal standalone version that uses the raw LLM API to simulate the loop:

@@ -62,10 +62,13 @@ function parseSentry(raw: Record<string, unknown>): { dsn?: string } | undefined
   return { dsn }
 }
 
-function parseSecurity(raw: Record<string, unknown>): { strictSkillIntegrity?: boolean } | undefined {
+function parseSecurity(raw: Record<string, unknown>): { strictSkillIntegrity?: boolean; sandbox?: boolean } | undefined {
   const security = pickBlock(raw, 'security')
   if (!security) return undefined
-  return { strictSkillIntegrity: security.strictSkillIntegrity === true }
+  return {
+    strictSkillIntegrity: security.strictSkillIntegrity === true,
+    sandbox: security.sandbox === true,
+  }
 }
 
 export async function loadConfig(providerOverride?: string): Promise<LLMConfig> {

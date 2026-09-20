@@ -38,6 +38,7 @@ export class SkillDiscovery {
       { path: join(projectDir, '.agents', 'skills'), scope: 'project' },
       { path: join(projectDir, '.agenthood', 'skills'), scope: 'project' },
       { path: join(projectDir, '.claude', 'skills'), scope: 'project' },
+      { path: join(projectDir, 'skills'), scope: 'project' },
     ]
 
     for (const { path: dir, scope } of scopePaths) {

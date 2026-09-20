@@ -4,18 +4,20 @@ import { installSkills, scaffoldConfig, planPaths } from './setup.ts'
 import { promptRuntime, promptMembers, confirmOverwrite } from './ui.ts'
 import type { Runtime } from '../members.ts'
 
-async function resolveOverwrite(cwd: string, dryRun: boolean, force: boolean): Promise<boolean | 'abort'> {
-  if (dryRun || !existsSync(join(cwd, '.agenthood', 'config.json'))) return false
+type OverwriteDecision = { action: 'overwrite' } | { action: 'keep' } | { action: 'abort' }
+
+async function resolveOverwrite(cwd: string, dryRun: boolean, force: boolean): Promise<OverwriteDecision> {
+  if (dryRun || !existsSync(join(cwd, '.agenthood', 'config.json'))) return { action: 'keep' }
   if (force) {
     console.log('  --force: overwriting the existing setup.\n')
-    return true
+    return { action: 'overwrite' }
   }
   console.log('  An existing Agenthood setup was found in this project.\n')
   if (!(await confirmOverwrite())) {
     console.log('\n  Keeping the existing setup — nothing was changed.\n')
-    return 'abort'
+    return { action: 'abort' }
   }
-  return true
+  return { action: 'overwrite' }
 }
 
 function displayDryRun(cwd: string, runtime: Runtime, members: string[]): void {
@@ -41,8 +43,7 @@ async function runSteps(steps: Array<[string, () => Promise<void>]>): Promise<vo
     }
   }
   if (failures > 0) {
-    console.error('\n🏛️  Initiation incomplete — some steps failed.')
-    process.exit(1)
+    throw new Error('Initiation incomplete — some steps failed.')
   }
 }
 
@@ -53,8 +54,9 @@ export async function init(args: string[] = []): Promise<void> {
 
   console.log('\n🏛️  Welcome to the Agenthood.\n')
 
-  const overwrite = await resolveOverwrite(cwd, dryRun, force)
-  if (overwrite === 'abort') return
+  const decision = await resolveOverwrite(cwd, dryRun, force)
+  if (decision.action === 'abort') return
+  const overwrite = decision.action === 'overwrite'
 
   const runtime = await promptRuntime()
   const members = await promptMembers()
@@ -64,10 +66,15 @@ export async function init(args: string[] = []): Promise<void> {
     return
   }
 
-  await runSteps([
-    ['Member skills', () => installSkills(cwd, runtime, members, overwrite)],
-    ['Agenthood config', () => scaffoldConfig(cwd, runtime, members, overwrite)],
-  ])
+  try {
+    await runSteps([
+      ['Member skills', () => installSkills(cwd, runtime, members, overwrite)],
+      ['Agenthood config', () => scaffoldConfig(cwd, runtime, members, overwrite)],
+    ])
+  } catch (err) {
+    console.error(`\n🏛️  ${(err as Error)?.message ?? err}`)
+    process.exit(1)
+  }
 
   console.log('\n🏛️  The Society is ready.\n')
   console.log('  Run `npx agenthood check` to verify the initiation.')

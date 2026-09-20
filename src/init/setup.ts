@@ -65,8 +65,8 @@ export async function scaffoldConfig(cwd: string, runtime: Runtime, members: str
     let raw: Record<string, unknown> = {}
     try {
       raw = JSON.parse(await readFile(examplePath, 'utf8')) as Record<string, unknown>
-    } catch {
-      console.warn('[agenthood] bundled config.example.json is malformed, using defaults')
+    } catch (err) {
+      console.warn(`[agenthood] bundled config.example.json is malformed (${err instanceof Error ? err.message : err}) — using defaults`)
     }
     const config = { ...stripConfig(raw), runtime, members }
     await writeFile(configPath, JSON.stringify(config, null, 2) + '\n', 'utf8')

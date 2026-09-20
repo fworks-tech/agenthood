@@ -6,6 +6,7 @@ import { existsSync, readFileSync, writeFileSync, mkdirSync } from 'node:fs'
 import { join, dirname } from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { execFileSync } from 'node:child_process'
+import { systemError } from '../core/cliError.ts'
 import { fetchRemoteText } from '../skills/discovery/RemoteSkillSource.ts'
 
 const NPM_LATEST_URL = 'https://registry.npmjs.org/agenthood/latest'
@@ -21,22 +22,17 @@ async function selfUpgrade(): Promise<void> {
 
   const raw = await fetchRemoteText(NPM_LATEST_URL)
   if (!raw) {
-    console.error('  ✗ Could not reach the npm registry — check connectivity')
-    process.exit(1)
-    return
+    systemError('Could not reach the npm registry — check connectivity')
   }
   const latest = (JSON.parse(raw) as { version?: string }).version
   if (!latest) {
-    console.error('  ✗ npm registry returned no version for agenthood')
-    process.exit(1)
+    systemError('npm registry returned no version for agenthood')
     return
   }
   // defense-in-depth: latest lands in an execFileSync argv slot below, so
   // reject anything that is not a plain version before it gets there
   if (!/^\d+\.\d+\.\d+/.test(latest)) {
-    console.error(`  ✗ npm registry returned a malformed version for agenthood: ${JSON.stringify(latest)}`)
-    process.exit(1)
-    return
+    systemError(`npm registry returned a malformed version for agenthood: ${JSON.stringify(latest)}`)
   }
 
   console.log(`\n  Installed: v${current}   Latest: v${latest}`)
@@ -57,8 +53,7 @@ async function selfUpgrade(): Promise<void> {
     execFileSync('npm', ['install', '--no-fund', '--no-audit', `agenthood@${latest}`], { cwd, stdio: 'inherit' })
     console.log(`\n  ✓ Upgraded to v${latest}.\n`)
   } catch (err) {
-    console.error(`  ✗ npm install failed — run \`npm install agenthood@latest\` manually (${(err as Error)?.message ?? err})`)
-    process.exit(1)
+    systemError(`npm install failed — run \`npm install agenthood@latest\` manually (${(err as Error)?.message ?? err})`)
   }
 }
 

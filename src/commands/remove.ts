@@ -5,10 +5,11 @@
  * skills-lock.json entry. Members are refused — they belong to deactivate/eject.
  */
 
-import { existsSync, readFileSync, rmSync, writeFileSync } from 'node:fs'
+import { existsSync, rmSync } from 'node:fs'
 import { join } from 'node:path'
 import type { CommandDescriptor } from './types.ts'
 import { resolveSkillsDir, SKILLS_LOCKFILE, MEMBER_NAMES } from '../members.ts'
+import { loadSkillsLockfile, saveSkillsLockfile } from './skillsLock.ts'
 import { SPEC_NAME_RE } from '../skills/discovery/SkillParser.ts'
 
 export const command: CommandDescriptor = {
@@ -17,13 +18,12 @@ export const command: CommandDescriptor = {
   handler: (args) => remove(args),
 }
 
-function removeLockEntry(lockPath: string, name: string): void {
-  if (!existsSync(lockPath)) return
+function removeLockEntry(skillsDir: string, name: string): void {
   try {
-    const lock = JSON.parse(readFileSync(lockPath, 'utf-8')) as { skills?: Record<string, unknown> }
-    if (lock.skills && name in lock.skills) {
+    const lock = loadSkillsLockfile(skillsDir)
+    if (name in lock.skills) {
       delete lock.skills[name]
-      writeFileSync(lockPath, JSON.stringify(lock, null, 2) + '\n', 'utf-8')
+      saveSkillsLockfile(skillsDir, lock)
       console.log(`  ✓ Removed "${name}" from ${SKILLS_LOCKFILE}`)
     }
   } catch (err) {
@@ -56,7 +56,6 @@ export async function remove(args: string[]): Promise<void> {
 
   const skillsDir = resolveSkillsDir(process.cwd())
   const skillDir = join(skillsDir, name)
-  const lockPath = join(skillsDir, SKILLS_LOCKFILE)
 
   if (!existsSync(skillDir)) {
     console.error(`  ✗ Skill "${name}" is not installed in ${skillsDir}`)
@@ -71,6 +70,6 @@ export async function remove(args: string[]): Promise<void> {
 
   rmSync(skillDir, { recursive: true, force: true })
   console.log(`  ✓ Removed ${skillDir}`)
-  removeLockEntry(lockPath, name)
+  removeLockEntry(skillsDir, name)
   console.log()
 }

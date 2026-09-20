@@ -18,7 +18,6 @@ import { fileURLToPath, pathToFileURL } from 'node:url';
 
 import { ALL_MEMBERS } from './members.ts';
 import { handleCliError, userError } from './core/cliError.ts';
-import { setJsonMode } from './core/jsonLogger.ts';
 import type { CommandDescriptor } from './commands/types.ts';
 
 async function discoverCommands(): Promise<Record<string, CommandDescriptor>> {
@@ -39,9 +38,6 @@ async function discoverCommands(): Promise<Record<string, CommandDescriptor>> {
 
 async function main(): Promise<void> {
   const rawArgs = process.argv.slice(2);
-
-  const jsonFlag = rawArgs.includes('--json');
-  setJsonMode(jsonFlag);
 
   const cmdIndex = rawArgs.findIndex((a) => !a.startsWith('-'));
   const command = cmdIndex >= 0 ? rawArgs[cmdIndex] : undefined;

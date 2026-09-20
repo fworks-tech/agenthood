@@ -88,23 +88,6 @@ interface Lockfile {
   skills: Record<string, LockEntry>
 }
 
-const LOCKFILE = 'skills-lock.json'
-
-function loadLockfile(skillsDir: string): Lockfile {
-  const lockPath = join(skillsDir, LOCKFILE)
-  if (!existsSync(lockPath)) return { version: 1, skills: {} }
-  try {
-    return JSON.parse(readFileSync(lockPath, 'utf-8')) as Lockfile
-  } catch {
-    return { version: 1, skills: {} }
-  }
-}
-
-function saveLockfile(skillsDir: string, lock: Lockfile): void {
-  const lockPath = join(skillsDir, LOCKFILE)
-  writeFileSync(lockPath, JSON.stringify(lock, null, 2) + '\n', 'utf-8')
-}
-
 function printHelp(): void {
   console.log(`Usage:
   npx agenthood upgrade [skill-name]

@@ -55,7 +55,7 @@ describe('upgrade --agenthood', () => {
     vi.mocked(fetchRemoteText).mockResolvedValue(undefined)
     const exit = exitSpy()
     await expect(upgrade(['--agenthood'])).rejects.toThrow('process.exit')
-    expect(exit).toHaveBeenCalledWith(1)
+    expect(exit).toHaveBeenCalledWith(2)
     expect(vi.mocked(execFileSync)).not.toHaveBeenCalled()
   })
 
@@ -106,6 +106,6 @@ describe('upgrade --agenthood', () => {
 
     await expect(upgrade(['--agenthood'])).rejects.toThrow('process.exit')
     expect(output.join('\n')).toContain('npm install agenthood@latest')
-    expect(exit).toHaveBeenCalledWith(1)
+    expect(exit).toHaveBeenCalledWith(2)
   })
 })

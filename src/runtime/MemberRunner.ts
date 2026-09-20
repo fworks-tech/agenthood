@@ -28,6 +28,18 @@ export interface MemberRunnerDeps {
 }
 
 /**
+ * `security.sandbox` runs untrusted skills under the tightest profile the
+ * runtime can enforce locally: the ADR-020 strict skill-integrity gate plus
+ * human confirmation before every tool call. Container isolation remains a
+ * separate hardening layer (tracked with the --sandbox issue).
+ */
+export function applySandboxProfile(config: LLMConfig): void {
+  if (config.security?.sandbox !== true) return
+  config.security = { ...config.security, strictSkillIntegrity: true }
+  config.interactive = true
+}
+
+/**
  * Runs members and core agents, flushes traces, and scores anomalies. The
  * shared ExecutionContext is assigned by the composition root after it is
  * fully built, so member runs observe the same context as the rest of the
@@ -58,6 +70,7 @@ export class MemberRunner {
    * @param resumeFrom - optional checkpoint ID to resume from
    */
   async runMemberTask(memberName: string, task: string, config: LLMConfig, resumeFrom?: string | { checkpointId: string; reply?: string }): Promise<MemberRunResult> {
+    applySandboxProfile(config)
     if (!this.deps.members.has(memberName)) throw new Error(`unknown member "${memberName}"`)
 
     const spec = this.deps.members.get(memberName)

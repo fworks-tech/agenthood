@@ -8,8 +8,9 @@ vi.mock('../../../src/llm/LLMRouter.ts', () => ({
   },
 }))
 
-import { MemberRunner } from '../../../src/runtime/MemberRunner.ts'
+import { MemberRunner, applySandboxProfile } from '../../../src/runtime/MemberRunner.ts'
 import { LLMRouter } from '../../../src/llm/LLMRouter.ts'
+import type { LLMConfig } from '../../../src/llm/types.ts'
 import { MemberRegistry } from '../../../src/members/MemberRegistry.ts'
 import { AgentRegistry } from '../../../src/core/AgentRegistry.ts'
 import { AnomalyDetector } from '../../../src/core/AnomalyDetector.ts'
@@ -237,5 +238,28 @@ describe('MemberRunner output_format validation', () => {
   it('throws OutputFormatError in strict mode on a deviation', async () => {
     const runner = runnerWithFormat('^## Plan', 'strict')
     await expect(runner.runMemberTask('the-builder', 'ship it', {} as never)).rejects.toThrow(/output_format deviation/)
+  })
+})
+
+describe('applySandboxProfile', () => {
+  it('forces strict integrity and interactive confirmation under sandbox', () => {
+    const config = { security: { sandbox: true } } as LLMConfig
+    applySandboxProfile(config)
+    expect(config.security?.strictSkillIntegrity).toBe(true)
+    expect(config.security?.sandbox).toBe(true)
+    expect(config.interactive).toBe(true)
+  })
+
+  it('preserves an explicitly configured strictSkillIntegrity', () => {
+    const config = { security: { sandbox: true, strictSkillIntegrity: true } } as LLMConfig
+    applySandboxProfile(config)
+    expect(config.security?.strictSkillIntegrity).toBe(true)
+  })
+
+  it('leaves the config untouched without sandbox', () => {
+    const config = { interactive: false } as LLMConfig
+    applySandboxProfile(config)
+    expect(config.interactive).toBe(false)
+    expect(config.security).toBeUndefined()
   })
 })

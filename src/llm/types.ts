@@ -96,7 +96,7 @@ export interface LLMConfig {
   /** Optional Sentry error reporting from .agenthood/config.json */
   sentry?: { dsn?: string }
   /** Mind-virus persistence-vector hardening from .agenthood/config.json (ADR-020) */
-  security?: { strictSkillIntegrity?: boolean }
+  security?: { strictSkillIntegrity?: boolean; sandbox?: boolean }
   /** Log full LLM request/response to .agenthood/debug/ */
   debug?: boolean
   /** Pause before each tool call for human confirmation */

@@ -25,9 +25,10 @@ export async function promptRuntime(): Promise<Runtime> {
   console.log()
 
   const answer = await prompt('Select (1-4) [1]: ')
-  const index = parseInt(answer || '1', 10) - 1
-  if (!answer || isNaN(index) || !RUNTIMES[index]) {
-    if (answer.trim() !== '') console.log(`  → "${answer.trim()}" is not a valid selection, using claude-code\n`)
+  const trimmed = (answer ?? '').trim()
+  const index = parseInt(trimmed || '1', 10) - 1
+  if (!trimmed || isNaN(index) || !RUNTIMES[index]) {
+    if (trimmed !== '') console.log(`  → "${trimmed}" is not a valid selection, using claude-code\n`)
     else console.log('  → claude-code\n')
     return 'claude-code'
   }

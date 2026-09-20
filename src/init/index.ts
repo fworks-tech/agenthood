@@ -4,10 +4,10 @@ import { installSkills, scaffoldConfig, planPaths } from './setup.ts'
 import { promptRuntime, promptMembers, confirmOverwrite } from './ui.ts'
 import type { Runtime } from '../members.ts'
 
-type OverwriteDecision = { action: 'overwrite' } | { action: 'keep' } | { action: 'abort' }
+type OverwriteDecision = { action: 'overwrite' } | { action: 'proceed' } | { action: 'abort' }
 
 async function resolveOverwrite(cwd: string, dryRun: boolean, force: boolean): Promise<OverwriteDecision> {
-  if (dryRun || !existsSync(join(cwd, '.agenthood', 'config.json'))) return { action: 'keep' }
+  if (dryRun || !existsSync(join(cwd, '.agenthood', 'config.json'))) return { action: 'proceed' }
   if (force) {
     console.log('  --force: overwriting the existing setup.\n')
     return { action: 'overwrite' }
@@ -72,7 +72,8 @@ export async function init(args: string[] = []): Promise<void> {
       ['Agenthood config', () => scaffoldConfig(cwd, runtime, members, overwrite)],
     ])
   } catch (err) {
-    console.error(`\n🏛️  ${(err as Error)?.message ?? err}`)
+    console.error('\n🏛️  Initiation incomplete — some steps failed.')
+    console.error(err)
     process.exit(1)
   }
 

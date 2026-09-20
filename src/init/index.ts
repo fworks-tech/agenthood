@@ -4,12 +4,14 @@ import { installSkills, scaffoldConfig, planPaths } from './setup.ts'
 import { promptRuntime, promptMembers, confirmOverwrite, RUNTIMES } from './ui.ts'
 import { ALL_MEMBERS } from '../members.ts'
 import type { Runtime } from '../members.ts'
+import { TARGETS } from '../members.ts'
 
 type OverwriteDecision = { action: 'overwrite' } | { action: 'proceed' } | { action: 'abort' }
 
-function parseCiSelections(args: string[]): { runtime: Runtime; members: string[] } {
+function parseCiSelections(args: string[]): { runtime: Runtime; members: string[]; targets: string[] } {
   let runtime: Runtime = 'claude-code'
   let members = ALL_MEMBERS.map((m) => m.name)
+  const targets: string[] = []
 
   for (let i = 0; i < args.length; i++) {
     if (args[i] === '--runtime' && i + 1 < args.length) {
@@ -31,10 +33,17 @@ function parseCiSelections(args: string[]): { runtime: Runtime; members: string[
         }
         if (members.length === 0) members = ALL_MEMBERS.map((m) => m.name)
       }
+    } else if (args[i] === '--target' && i + 1 < args.length) {
+      const value = args[++i]
+      if (!TARGETS.includes(value)) {
+        console.error(`Invalid --target "${value}" — expected one of: ${TARGETS.join(', ')}`)
+        process.exit(1)
+      }
+      targets.push(value)
     }
   }
 
-  return { runtime, members }
+  return { runtime, members, targets }
 }
 
 async function resolveOverwrite(cwd: string, dryRun: boolean, force: boolean, ci: boolean): Promise<OverwriteDecision> {
@@ -96,11 +105,14 @@ export async function init(args: string[] = []): Promise<void> {
 
   let runtime: Runtime
   let members: string[]
+  let targets: string[] = []
+
   if (ci) {
     const selections = parseCiSelections(args)
     runtime = selections.runtime
     members = selections.members
-    console.log(`  CI mode: runtime=${runtime}, members=${members.join(', ')}\n`)
+    targets = selections.targets
+    console.log(`  CI mode: runtime=${runtime}, members=${members.join(', ')}, targets=${targets.join(', ')}\n`)
   } else {
     runtime = await promptRuntime()
     members = await promptMembers()
@@ -113,7 +125,7 @@ export async function init(args: string[] = []): Promise<void> {
 
   try {
     await runSteps([
-      ['Member skills', () => installSkills(cwd, runtime, members, overwrite)],
+      ['Member skills', () => installSkills(cwd, runtime, members, overwrite, targets)],
       ['Agenthood config', () => scaffoldConfig(cwd, runtime, members, overwrite)],
     ])
   } catch (err) {

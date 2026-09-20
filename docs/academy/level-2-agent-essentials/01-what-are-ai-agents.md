@@ -61,7 +61,7 @@ The simplest way to see an agent in action is the Society's own runtime:
 
 ```bash
 # Invoke a Society member against a task
-agenthood run the-developer "refactor the auth middleware to use async/await"
+agenthood run the-builder "refactor the auth middleware to use async/await"
 ```
 
 Or in TypeScript (as of v2.0.0):

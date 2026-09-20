@@ -9,7 +9,7 @@
  */
 
 import { existsSync } from 'node:fs';
-import { join } from 'node:path';
+import { join, relative, sep } from 'node:path';
 import { MemberRegistry, MEMBERS_DIR } from './members/MemberRegistry.ts';
 
 export interface Member {
@@ -33,6 +33,12 @@ export const MEMBER_NAMES: string[] = ALL_MEMBERS.map(m => m.name)
  * is a consumer's *installed* layout. */
 export function resolveSocietyMembersDir(): string {
   return MEMBERS_DIR
+}
+
+/** Member SKILL.md as a cwd-relative POSIX path — `git show <rev>:<path>`
+ * needs forward slashes, and rollback/diff run git with { cwd }. */
+export function memberSkillPath(cwd: string, member: string): string {
+  return relative(cwd, join(MEMBERS_DIR, member, 'SKILL.md')).split(sep).join('/')
 }
 
 /** Member names are refs into git pathspecs and filesystem paths — hostile

@@ -131,6 +131,7 @@ The `agenthood` CLI auto-discovers commands from `src/commands/`: each file expo
 - `agenthood install <url>` — install a skill from a URL or git repository (`--dry-run` to preview). Security-fenced like remote discovery: https-only URL fetch through the shared `fetchRemoteText` (redirect re-validation, 30s timeout, 1MiB cap), fenced `git clone`, and frontmatter names must match the spec pattern — `../../`-style traversal names are rejected
 - `agenthood eject` — remove the Society from your project (`.agenthood/`, `AGENTS.md`, `agenthood.lock`, per-runtime member subdirs and `skills-lock.json`; foreign skills are never touched)
 - `agenthood remove <skill>` — remove an installed skill and prune its skills-lock.json entry (`--dry-run` to preview; Society members are refused)
+- `agenthood list` — list members with status, tier, permission, provider, per-skill token estimates and a context-budget summary against the default context window
 - `agenthood publish` — publish skills to GitHub for skills.sh indexing (`--dry-run` to preview)
 - `agenthood mcp` — start an MCP server on stdio, exposing skills as MCP tools for external agents (Claude Code, Cursor, etc.)
 - `agenthood completion` — generate shell tab-completion scripts for bash, zsh, or fish

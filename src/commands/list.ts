@@ -22,6 +22,17 @@ const TIER_BADGES: Record<SkillTier, string> = {
   experimental: '◌',
 }
 
+const skillParser = new SkillParser()
+
+type RegistryMember = ReturnType<MemberRegistry['list']>[number]
+
+const CATEGORY_LABELS: Record<string, string> = {
+  engineering: 'Engineering',
+  validation: 'Validation',
+  knowledge: 'Knowledge',
+  lifecycle: 'Lifecycle',
+}
+
 export const command: CommandDescriptor = {
   name: 'list',
   description: 'List all members, their status, permission & provider',
@@ -32,8 +43,8 @@ function readTier(skillPath: string): SkillTier {
   if (!existsSync(skillPath)) return 'community'
   try {
     const content = readFileSync(skillPath, 'utf-8')
-    const { frontmatter } = new SkillParser().parseRaw(content)
-    return new SkillParser().parseTier(frontmatter)
+    const { frontmatter } = skillParser.parseRaw(content)
+    return skillParser.parseTier(frontmatter)
   } catch {
     return 'community'
   }
@@ -43,6 +54,35 @@ function formatTokens(n: number): string {
   return n >= 1000 ? `${(n / 1000).toFixed(1)}k` : String(n)
 }
 
+function groupByCategory(members: RegistryMember[]): Map<string, RegistryMember[]> {
+  const byCategory = new Map<string, RegistryMember[]>()
+  for (const m of members) {
+    const group = byCategory.get(m.category) ?? []
+    group.push(m)
+    byCategory.set(m.category, group)
+  }
+  return byCategory
+}
+
+function countActiveTokens(installedPath: string, counter: TokenCounter): number {
+  try {
+    return counter.countTokens(readFileSync(installedPath, 'utf-8'))
+  } catch {
+    return 0
+  }
+}
+
+function formatMemberRow(m: RegistryMember, skillsBase: string, counter: TokenCounter): { line: string; tokens: number } {
+  const installedPath = join(skillsBase, m.name, `${m.name}.md`)
+  const active = existsSync(installedPath)
+  const status = active ? '✅' : '⬜'
+  const badge = TIER_BADGES[readTier(join(skillsBase, m.name, 'SKILL.md'))]
+  const tokens = active ? countActiveTokens(installedPath, counter) : 0
+  const tokensCol = (`~${formatTokens(tokens)}`).padEnd(8)
+  const line = `    ${status}  ${badge} ${m.name.padEnd(16)} ${m.tagline.padEnd(34)} ${m.permissionProfile.padEnd(12)} ${m.preferredProvider.padEnd(10)}${tokensCol}`
+  return { line, tokens }
+}
+
 export async function list(): Promise<void> {
   const cwd = process.cwd();
   const skillsBase = resolveSkillsDir(cwd);
@@ -50,45 +90,16 @@ export async function list(): Promise<void> {
   const counter = new TokenCounter();
   let totalTokens = 0;
 
-  const byCategory = new Map<string, typeof members>();
-  const members = registry.list();
-  for (const m of members) {
-    const group = byCategory.get(m.category) ?? [];
-    group.push(m);
-    byCategory.set(m.category, group);
-  }
+  const byCategory = groupByCategory(registry.list());
 
   console.log('\n\u{1F3DB}️  The Society — Member Status\n');
 
-  const categoryLabels: Record<string, string> = {
-    engineering: 'Engineering',
-    validation: 'Validation',
-    knowledge: 'Knowledge',
-    lifecycle: 'Lifecycle',
-  };
-
   for (const [cat, group] of byCategory) {
-    console.log(`  ${categoryLabels[cat] ?? cat}:`);
+    console.log(`  ${CATEGORY_LABELS[cat] ?? cat}:`);
     for (const m of group) {
-      const installedPath = join(skillsBase, m.name, `${m.name}.md`);
-      const active = existsSync(installedPath);
-      const status = active ? '✅' : '⬜';
-      const skillPath = join(skillsBase, m.name, 'SKILL.md');
-      const tier = readTier(skillPath);
-      const badge = TIER_BADGES[tier];
-      const provider = m.preferredProvider.padEnd(10);
-      const perm = m.permissionProfile.padEnd(12);
-      let tokens = 0;
-      if (active) {
-        try {
-          tokens = counter.countTokens(readFileSync(installedPath, 'utf-8'));
-        } catch {
-          tokens = 0;
-        }
-      }
+      const { line, tokens } = formatMemberRow(m, skillsBase, counter)
       totalTokens += tokens;
-      const tokensCol = (`~${formatTokens(tokens)}`).padEnd(8);
-      console.log(`    ${status}  ${badge} ${m.name.padEnd(16)} ${m.tagline.padEnd(34)} ${perm} ${provider}${tokensCol}`);
+      console.log(line);
     }
     console.log();
   }

@@ -24,13 +24,10 @@ describe('list command', () => {
 
   it('lists all members', async () => {
     const { list } = await import( '../../src/commands/list.ts')
+    const { MemberRegistry } = await import( '../../src/members/MemberRegistry.ts')
     await list()
-    const members = [
-      'the-scribe', 'the-architect', 'the-reviewer', 'the-tester',
-      'the-debugger', 'the-auditor', 'the-herald', 'the-librarian',
-      'the-doorman', 'the-oracle', 'the-envoy', 'the-sentinel',
-      'the-warden', 'the-steward', 'the-strategist', 'the-operator',
-    ]
+    const members = new MemberRegistry().list().map((m) => m.name)
+    expect(members.length).toBeGreaterThan(0)
     for (const m of members) {
       expect(output).toContain(m)
     }

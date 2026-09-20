@@ -46,12 +46,7 @@ The Society does not guess. It sets `temperature: 0` for operations like The Doo
 
 You can configure these parameters directly when initializing the runtime layer.
 
-```bash
-# Agenthood runtime defaults to low temperature for code tasks
-npx agenthood run the-scribe "Write a commit" --temperature 0.1
-```
-
-Or in TypeScript (future milestone):
+The Agenthood runtime does not expose a `--temperature` CLI flag. Temperature can only be set programmatically via the TypeScript API:
 
 ```typescript
 import { LLMRequest } from '@agenthood/llm';

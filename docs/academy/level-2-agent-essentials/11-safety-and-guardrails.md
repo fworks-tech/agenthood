@@ -66,7 +66,7 @@ Every action the agent proposes passes through `RiskManager` before it executes.
 
 ```bash
 # The Society's runtime applies all three layers automatically
-npx agenthood run the-developer "clean up the build directory"
+npx agenthood run the-builder "clean up the build directory"
 ```
 
 Watch the safety layers fire:

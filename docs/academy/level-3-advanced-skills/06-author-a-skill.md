@@ -13,7 +13,7 @@ when it should activate, and which tools it is allowed to use.
 
 The frontmatter is the part that gets you blocked at the door. `name` must match the
 directory name and follow lowercase-hyphen rules, `description` must say what the skill
-does **and when to use it**, and since #904 the runtime enforces `allowed-tools`: a
+does **and when to use it**, and since [PR #904](https://github.com/fworks-tech/agenthood/pull/904) the runtime enforces `allowed-tools`: a
 declaration can only narrow the skill's tool surface below its permission profile, never
 widen it. A skill that declares nothing keeps its profile's default set — silence is
 permissive at the profile level, but it is no longer invisible.
@@ -69,6 +69,7 @@ Write `skills/the-notetaker/SKILL.md`:
 ```markdown
 ---
 name: the-notetaker
+# `license` is informational — the runtime parses name/description/allowed-tools;
 description: Turns raw meeting transcripts into decisions, owners, and follow-ups. Use when a transcript needs to become action items.
 allowed-tools: file.read file.search ask_human
 license: MIT
@@ -110,6 +111,15 @@ doing its job.
 - [ ] `allowed-tools` declares the minimum — leave the dangerous ones out
 - [ ] Body reads like onboarding for a careful new hire
 - [ ] `npx agenthood verify` passes; `agenthood.lock` re-locked if a member changed
+
+---
+
+## Share what you ship
+
+**LinkedIn post draft:** *I built an agent skill in one Markdown file — and it had a
+trust boundary.* Agenthood's SKILL.md contract: a trigger-phrase description, a narrow-only
+`allowed-tools` list, and a `verify` gate that fails the build, not the production.
+A skill that cannot be parsed is a skill that never runs.
 
 ---
 

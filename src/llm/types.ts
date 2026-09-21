@@ -91,6 +91,8 @@ export interface LLMConfig {
   failureThreshold?: number
   cooldownMs?: number
   probeEnabled?: boolean
+  /** Per-request LLM call timeout in ms (default: 60000) */
+  requestTimeoutMs?: number
   /** Skill auto-discovery toggle from .agenthood/config.json */
   skills?: { autoDiscover?: boolean }
   /** Optional Sentry error reporting from .agenthood/config.json */

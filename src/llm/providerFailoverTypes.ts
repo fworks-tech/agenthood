@@ -29,4 +29,5 @@ export interface ProviderChainConfig {
   failureThreshold?: number
   cooldownMs?: number
   probeEnabled?: boolean
+  requestTimeoutMs?: number
 }

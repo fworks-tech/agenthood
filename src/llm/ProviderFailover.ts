@@ -16,6 +16,7 @@ import type { LLMRequest, LLMResponse, LLMChunk } from './types.ts'
 import type { ProviderChainConfig } from './providerFailoverTypes.ts'
 import type { CircuitBreakerState } from './providerFailoverTypes.ts'
 import { classifyError, AllProvidersFailedError } from './ProviderFailoverError.ts'
+import { TimeoutError } from './errors.ts'
 export { classifyError, AllProvidersFailedError }
 
 /**
@@ -199,6 +200,18 @@ export class ProviderChain implements ILLMProvider {
     return { chain: new ProviderChain(available, names, undefined, modelMap), names }
   }
 
+  private completeWithTimeout(provider: ILLMProvider, request: LLMRequest): Promise<LLMResponse> {
+    const ms = this.chainConfig.requestTimeoutMs ?? 60_000
+    let timer: ReturnType<typeof setTimeout>
+    return Promise.race([
+      provider.complete(request).finally(() => clearTimeout(timer)),
+      new Promise<LLMResponse>((_, reject) => {
+        timer = setTimeout(() => reject(new TimeoutError(this.providerName(provider))), ms)
+        timer.unref()
+      }),
+    ])
+  }
+
   private async executeWithStrategy(
     provider: ILLMProvider,
     request: LLMRequest,
@@ -212,7 +225,7 @@ export class ProviderChain implements ILLMProvider {
         if (retry > 0) {
           await sleep(250 * Math.pow(2, retry - 1 + Math.min(index, 1)))
         }
-        return await provider.complete(request)
+        return await this.completeWithTimeout(provider, request)
       } catch (err) {
         lastError = err
         if (ProviderChain.isHardStop(classifyError(err))) throw err
@@ -222,7 +235,7 @@ export class ProviderChain implements ILLMProvider {
     return this.tryRemainingModels(
       provider,
       this.providerName(provider),
-      () => provider.complete(request),
+      () => this.completeWithTimeout(provider, request),
       lastError,
     )
   }

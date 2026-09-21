@@ -340,6 +340,7 @@ export class LLMRouter {
       failureThreshold: config.failureThreshold,
       cooldownMs: config.cooldownMs,
       probeEnabled: config.probeEnabled,
+      requestTimeoutMs: config.requestTimeoutMs,
     }
   }
 

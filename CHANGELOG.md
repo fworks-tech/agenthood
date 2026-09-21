@@ -1,3 +1,13 @@
+# [3.67.0](https://github.com/fworks-tech/agenthood/compare/v3.66.0...v3.67.0) (2026-09-21)
+
+
+### Features
+
+* **health:** probe providers with a real request ([#905](https://github.com/fworks-tech/agenthood/issues/905)) ([6e7d0db](https://github.com/fworks-tech/agenthood/commit/6e7d0db795189134c4718fcc924fc8bcfa9e91f2))
+* **llm:** configurable per-request timeout for provider calls ([#903](https://github.com/fworks-tech/agenthood/issues/903)) ([c8c77cb](https://github.com/fworks-tech/agenthood/commit/c8c77cb405edc32073edce4042871d69a388214a))
+* **memory:** add ttl option to short-term memory, prune residual signals on record ([#906](https://github.com/fworks-tech/agenthood/issues/906)) ([2e95210](https://github.com/fworks-tech/agenthood/commit/2e952100a5ec961b0f116eafca1578eff691dcb6))
+* **safety:** enforce allowed-tools from SKILL.md frontmatter ([#904](https://github.com/fworks-tech/agenthood/issues/904)) ([cbbe169](https://github.com/fworks-tech/agenthood/commit/cbbe1694148152b70d6fa9525eb454934c25d3cb))
+
 # [3.66.0](https://github.com/fworks-tech/agenthood/compare/v3.65.2...v3.66.0) (2026-09-20)
 
 

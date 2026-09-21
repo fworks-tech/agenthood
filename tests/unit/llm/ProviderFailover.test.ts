@@ -644,3 +644,11 @@ describe('per-request timeout (#649)', () => {
     expect(result.content).toBe('ok response')
   })
 })
+
+describe('requestTimeoutMs floor validation (#649)', () => {
+  it('clamps sub-second timeouts to 1000ms instead of self-DoSing', async () => {
+    const chain = new ProviderChain([mockProvider('quick')], ['quick'], { requestTimeoutMs: 0 })
+    const result = await chain.complete({ messages: [{ role: 'user', content: 'hi' }] })
+    expect(result.content).toBe('quick response')
+  })
+})

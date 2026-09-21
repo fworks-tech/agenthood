@@ -200,8 +200,11 @@ export class ProviderChain implements ILLMProvider {
     return { chain: new ProviderChain(available, names, undefined, modelMap), names }
   }
 
+  // Scope: complete() only — stream() is long-lived by design and embed() is
+  // local/cheap, so neither gets the per-request cap. TODO: pass an
+  // AbortController through providers to cancel the in-flight request on timeout.
   private completeWithTimeout(provider: ILLMProvider, request: LLMRequest): Promise<LLMResponse> {
-    const ms = this.chainConfig.requestTimeoutMs ?? 60_000
+    const ms = Math.max(1_000, this.chainConfig.requestTimeoutMs ?? 60_000)
     let timer: ReturnType<typeof setTimeout>
     return Promise.race([
       provider.complete(request).finally(() => clearTimeout(timer)),

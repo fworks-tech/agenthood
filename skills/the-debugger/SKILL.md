@@ -1,6 +1,7 @@
 ---
 name: the-debugger
 description: Diagnoses errors, traces root causes, and guides systematic recovery. Use when encountering any error, failing test, or unexpected behavior. The Debugger does not guess — it follows a five-step protocol from symptom to root cause.
+allowed-tools: file.read file.search code.explain ask_human file.write code.write code.refactor
 license: MIT
 ---
 

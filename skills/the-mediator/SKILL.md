@@ -1,6 +1,7 @@
 ---
 name: the-mediator
 description: Listens to user prompts first, classifies intent, and hands off to the right specialist — The Strategist for deep refinement, The Steward for load/context routing, The Doorman for entry-format validation, or the executing specialist directly. Use when a request arrives and no member is immediately in charge. The Mediator is first in line.
+allowed-tools: file.read file.search code.explain ask_human
 license: MIT
 ---
 

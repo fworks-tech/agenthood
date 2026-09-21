@@ -1,6 +1,7 @@
 ---
 name: the-reviewer
 description: Conducts multi-axis code review across correctness, readability, architecture, security, and performance. Use before merging any change. Use when reviewing code written by yourself, another agent, or a human.
+allowed-tools: file.read file.search code.explain ask_human
 license: MIT
 ---
 

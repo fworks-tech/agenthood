@@ -1,6 +1,7 @@
 ---
 name: the-herald
 description: Manages semantic versioning, release notes, changelog generation, and scheduled reports. Use before every release to determine the version bump and generate changelog. Use for daily standups and end-of-day summaries.
+allowed-tools: file.read file.search code.explain ask_human file.write code.write code.refactor
 license: MIT
 ---
 

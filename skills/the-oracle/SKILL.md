@@ -1,6 +1,7 @@
 ---
 name: the-oracle
 description: Holds institutional knowledge about the Agenthood — member format, naming conventions, layer taxonomy, registration maps, and convention rationale. Ask before authoring a new member, extending the Society, or researching structure. Saves tokens. No exploration required.
+allowed-tools: file.read file.search code.explain ask_human
 license: MIT
 ---
 

@@ -1,6 +1,7 @@
 ---
 name: the-inspector
 description: Solve and generate challenging multimodal visual-reasoning questions involving pixel ranking, cross-panel coordinate mapping, graph-cut side classification, and confidence-bearing answer extraction. Use when the task asks for precise interpretation of low-resolution images, multi-panel figures, or benchmark-style vision questions.
+allowed-tools: file.read file.search code.explain ask_human file.write code.write code.refactor
 license: MIT
 ---
 

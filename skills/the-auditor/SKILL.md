@@ -1,6 +1,7 @@
 ---
 name: the-auditor
 description: Reviews code for security vulnerabilities, dependency risks, and access control issues. Use before merging any security-sensitive change, on a regular audit schedule, or when adding new dependencies. The Auditor assumes breach and reads code the way an attacker would.
+allowed-tools: file.read file.search code.explain ask_human
 license: MIT
 ---
 

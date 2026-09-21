@@ -2,7 +2,7 @@
 
 > *The Society does not hand you a certificate. It hands you a standard.*
 
-The Academy is the structured path from "I know what a prompt is" to "I ship agents that work in production." Three levels. Twenty-seven articles. No filler.
+The Academy is the structured path from "I know what a prompt is" to "I ship agents that work in production." Three levels. No filler.
 
 Start at Level 1. Do not skip ahead.
 

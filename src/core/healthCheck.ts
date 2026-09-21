@@ -19,8 +19,9 @@ export interface HealthDeps {
   tracer: { size: number; capacity: number }
   traceStoreProbe: () => Promise<boolean>
   memberCount: number
-  /** Optional provider probes — omitted entirely when none are configured */
-  providers?: Array<{ name: string; probe: () => Promise<boolean> }>
+  /** Optional provider probes — omitted entirely when none are configured.
+   *  Boolean = key-presence probe; object = live request probe with detail. */
+  providers?: Array<{ name: string; probe: () => Promise<boolean | { ok: boolean; detail?: string }> }>
   /** Optional observability-config probes; each omitted check is skipped */
   sentry?: { dsn?: string }
   baselinesProbe?: () => Promise<boolean>
@@ -54,8 +55,11 @@ export async function healthCheck(deps: HealthDeps): Promise<HealthReport> {
       }
     })(),
     ...(deps.providers ?? []).map(async (p): Promise<HealthComponent> => {
-      const available = await p.probe()
-      return { name: `provider:${p.name}`, status: available ? 'ok' : 'degraded', detail: available ? 'key available' : 'key missing' }
+      const result = await p.probe()
+      if (typeof result === 'boolean') {
+        return { name: `provider:${p.name}`, status: result ? 'ok' : 'degraded', detail: result ? 'key available' : 'key missing' }
+      }
+      return { name: `provider:${p.name}`, status: result.ok ? 'ok' : 'degraded', detail: result.detail ?? (result.ok ? 'responsive' : 'probe failed') }
     }),
     ...(deps.sentry ? [sentryCheck(deps.sentry.dsn)] : []),
     ...(deps.baselinesProbe ? [probeCheck('baselines', deps.baselinesProbe, 'baselines present', 'no baselines — quality not stamped')] : []),

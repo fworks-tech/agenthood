@@ -101,3 +101,27 @@ describe('healthCheck', () => {
     expect(report.checks.find((c) => c.name === 'provider:anthropic')?.status).toBe('degraded')
   })
 })
+
+describe('provider live probes (#659)', () => {
+  it('surfaces detail from object-returning probes and keeps boolean probes backward compatible', async () => {
+    const report = await healthCheck({
+      tracer: { size: 0, capacity: 10 },
+      traceStoreProbe: async () => true,
+      memberCount: 20,
+      providers: [
+        { name: 'groq', probe: async () => ({ ok: true, detail: 'responsive in 132ms' }) },
+        { name: 'ollama', probe: async () => ({ ok: false, detail: 'connection refused' }) },
+        { name: 'anthropic', probe: async () => true },
+      ],
+    } as HealthDeps)
+    const ok = report.checks.find((c) => c.name === 'provider:groq')
+    const bad = report.checks.find((c) => c.name === 'provider:ollama')
+    const legacy = report.checks.find((c) => c.name === 'provider:anthropic')
+    expect(ok?.status).toBe('ok')
+    expect(ok?.detail).toBe('responsive in 132ms')
+    expect(bad?.status).toBe('degraded')
+    expect(bad?.detail).toBe('connection refused')
+    expect(legacy?.status).toBe('ok')
+    expect(legacy?.detail).toBe('key available')
+  })
+})

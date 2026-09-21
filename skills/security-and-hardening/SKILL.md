@@ -1,6 +1,6 @@
 ---
 name: security-and-hardening
-description: Reviews code for security vulnerabilities, dependency risks, and access control issues. Use before merging security-sensitive changes.
+description: Reviews code for security vulnerabilities, dependency risks, and access control issues. Use before merging security-sensitive changes. Use before merging security-sensitive changes.
 license: MIT
 ---
 

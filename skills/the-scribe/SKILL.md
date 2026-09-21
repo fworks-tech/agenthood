@@ -1,6 +1,7 @@
 ---
 name: the-scribe
 description: Writes commit messages, PR descriptions, and changelogs from diffs and branch history. Use whenever staging a commit, opening a PR, or preparing a release. The Scribe turns your diff into prose worth reading.
+allowed-tools: file.read file.search code.explain ask_human file.write code.write code.refactor
 license: MIT
 ---
 

@@ -1,6 +1,6 @@
 ---
 name: test-driven-development
-description: Drives test-driven development, generates tests for existing code, and reviews coverage quality. Use before implementing any behavior.
+description: Drives test-driven development, generates tests for existing code, and reviews coverage quality. Use before implementing any behavior. Use before implementing any behavior.
 license: MIT
 ---
 

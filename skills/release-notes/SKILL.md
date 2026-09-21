@@ -1,6 +1,6 @@
 ---
 name: release-notes
-description: Manages semantic versioning, release notes, changelog generation, and scheduled reports. Use before every release.
+description: Manages semantic versioning, release notes, changelog generation, and scheduled reports. Use before every release. Use before every release.
 license: MIT
 ---
 

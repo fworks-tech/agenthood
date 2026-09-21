@@ -1,6 +1,7 @@
 ---
 name: the-builder
 description: Use when you need coding, implementation, refactoring, patching, or test work; the Builder turns concrete repo context into the smallest verified change and follows local patterns, AGENTS.md, and nearby tests.
+allowed-tools: file.read file.search code.explain ask_human file.write code.write code.refactor
 license: MIT
 ---
 

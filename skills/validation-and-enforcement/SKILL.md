@@ -1,6 +1,6 @@
 ---
 name: validation-and-enforcement
-description: Validates commit messages, PR titles, branch health, and repository standards. Use to enforce conventions and run health checks before merge.
+description: Validates commit messages, PR titles, branch health, and repository standards. Use to enforce conventions and run health checks before merge. Use to enforce conventions before merge.
 license: MIT
 ---
 

@@ -1,6 +1,7 @@
 ---
 name: the-strategist
 description: Translates ambiguous goals into structured problem statements, success criteria, and ranked priorities before the Architect starts planning. Use when requirements are vague, a feature request needs refinement, or the path from "what" to "how" is unclear. The Strategist fills the gap between "ship this feature" and "here is the spec."
+allowed-tools: file.read file.search code.explain ask_human
 license: MIT
 ---
 

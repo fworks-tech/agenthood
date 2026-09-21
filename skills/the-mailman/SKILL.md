@@ -1,6 +1,7 @@
 ---
 name: the-mailman
 description: Manages message delivery, content scheduling, notification dispatch, and channel management. Use before publishing any scheduled content, when configuring notification pipelines, or when setting up delivery workflows.
+allowed-tools: file.read file.search code.explain ask_human file.write code.write code.refactor
 license: MIT
 ---
 

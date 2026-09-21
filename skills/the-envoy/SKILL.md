@@ -1,6 +1,7 @@
 ---
 name: the-envoy
-description: Detects active AI providers, translates Agenthood skill files to provider-native formats, validates convention enforcement across runtimes, and generates bootstrap configs for new provider onboarding. One Society. Every runtime. No exceptions.
+description: Detects active AI providers, translates Agenthood skill files to provider-native formats, validates convention enforcement across runtimes, and generates bootstrap configs for new provider onboarding. One Society. Every runtime. No exceptions. Use when onboarding a new AI provider or migrating skill formats.
+allowed-tools: file.read file.search code.explain ask_human
 license: MIT
 ---
 

@@ -1,6 +1,7 @@
 ---
 name: the-operator
-description: Manages runtime health, deployment, incidents, rollback, and monitoring for agenthood services.
+description: Manages runtime health, deployment, incidents, rollback, and monitoring for agenthood services. Use during deployment verification or incident triage.
+allowed-tools: file.read file.search code.explain ask_human
 license: MIT
 ---
 

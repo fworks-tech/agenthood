@@ -1,6 +1,7 @@
 ---
 name: the-steward
-description: Monitors context window capacity, routes tasks to the minimal required member set, optimizes member loading for provider-specific caching, and triggers session triage before capacity forces the decision. The Steward was born from the situation it exists to prevent.
+description: Monitors context window capacity, routes tasks to the minimal required member set, optimizes member loading for provider-specific caching, and triggers session triage before capacity forces the decision. The Steward was born from the situation it exists to prevent. Use at the start of any session or when context capacity tightens.
+allowed-tools: file.read file.search code.explain ask_human
 license: MIT
 ---
 

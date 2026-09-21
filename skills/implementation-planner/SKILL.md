@@ -1,6 +1,6 @@
 ---
 name: implementation-planner
-description: Creates detailed implementation plans and technical specifications in markdown — feature breakdown, phased tasks with complexity estimates, risks, and success criteria. Use before starting a non-trivial feature to turn requirements into an executable roadmap.
+description: Creates detailed implementation plans and technical specifications in markdown — feature breakdown, phased tasks with complexity estimates, risks, and success criteria. Use before starting a non-trivial feature to turn requirements into an executable roadmap. Use before starting a non-trivial feature.
 license: MIT
 ---
 

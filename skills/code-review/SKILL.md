@@ -1,6 +1,6 @@
 ---
 name: code-review
-description: Conducts multi-axis code review across correctness, readability, architecture, security, and performance. Use before merging any change.
+description: Conducts multi-axis code review across correctness, readability, architecture, security, and performance. Use before merging any change. Use before merging any change.
 license: MIT
 ---
 

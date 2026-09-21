@@ -1,6 +1,6 @@
 ---
 name: institutional-knowledge
-description: Holds institutional knowledge about members, conventions, and architecture. Use before authoring new members or researching patterns.
+description: Holds institutional knowledge about members, conventions, and architecture. Use before authoring new members or researching patterns. Use before authoring new members or researching patterns.
 license: MIT
 ---
 
@@ -55,7 +55,7 @@ skills/the-<name>/
 ```markdown
 ---
 name: the-<name>
-description: Holds institutional knowledge about members, conventions, and architecture. Use before authoring new members or researching patterns.
+description: Holds institutional knowledge about members, conventions, and architecture. Use before authoring new members or researching patterns. Use before authoring new members or researching patterns.
 ---
 
 # The <Name>

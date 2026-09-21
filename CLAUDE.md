@@ -39,7 +39,7 @@ npx agenthood eval <memberA> --ab <memberB> --suite <path>  # Blind A/B comparis
 npx agenthood optimize <member> --triggers <path>  # Optimize description for trigger accuracy
 npx agenthood rotate-key <provider>  # Rotate API key with validation and hot-reload
 npx agenthood cost           # Show cost breakdown (--since, --provider, --member)
-npx agenthood health         # Runtime health checks (exit 0/1/2)
+npx agenthood health         # Runtime health checks incl. live provider ping (exit 0/1/2)
 npx agenthood doctor         # All diagnostics in one pass: node, version, config, API keys, providers, skills, lockfile, hooks (--json, exit 0/1)
 npx agenthood workflow <name>  # Execute a workflow (e.g. review-pr)
 npx agenthood eject          # Remove Society from a project
@@ -74,7 +74,7 @@ Entry point is `src/cli.ts` — it parses args and dispatches to `src/commands/<
 - `ritual.ts` — List declared rituals (`docs/rituals/*.md` frontmatter) or run one via its bound member (`ritual run <name>`); schedules fire from `.github/workflows/rituals.yml`, parity-pinned to the manifests
 - `status.ts` / `trace.ts` — Observability: project health + metrics, trace listing, `--learner` status
 - `eval.ts` / `evalCompare.ts` — Run an eval suite against a member with baseline regression gating; blind A/B comparison with significance testing
-- `health.ts` — Runtime health checks (tracer, trace store, registry, providers)
+- `health.ts` — Runtime health checks (tracer, trace store, registry, providers) — provider checks send a live ping completion and report round-trip latency; skip with `AGENTHOOD_HEALTH_SKIP_PROBES=1`
 - `workflow.ts`, `pr-sync.ts`, `rollback.ts` — Workflows, PR sync, lockfile rollback
 - `activate.ts` / `deactivate.ts` — Copy or remove a member skill file into a project
 - `list.ts`, `oath.ts`, `eject.ts` — Utility commands

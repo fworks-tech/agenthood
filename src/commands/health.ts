@@ -7,6 +7,7 @@ import type { HealthReport, HealthDeps } from '../core/healthCheck.ts'
 import type { LLMConfig } from '../llm/types.ts'
 import { MemberRegistry } from '../members/index.ts'
 import { PROVIDER_KEYS } from '../llm/validateApiKeys.ts'
+import { LLMRouter } from '../llm/LLMRouter.ts'
 import { loadConfigOrExit } from './config.ts'
 import type { CommandDescriptor } from './types.ts'
 
@@ -60,10 +61,27 @@ async function collectHealthDeps(cwd: string, config: LLMConfig): Promise<Health
 
   const providers = (config.providers ?? []).map((p) => ({
     name: p.name,
-    probe: async (): Promise<boolean> => {
+    probe: async (): Promise<boolean | { ok: boolean; detail?: string }> => {
       const keyInfo = PROVIDER_KEYS[p.name]
-      if (!keyInfo) return true
-      return Boolean(p.apiKey ?? process.env[keyInfo.envVar])
+      const apiKey = p.apiKey ?? (keyInfo ? process.env[keyInfo.envVar] : undefined)
+      if (!keyInfo) return { ok: true, detail: 'custom provider (no live probe)' }
+      if (!apiKey) return { ok: false, detail: 'key missing' }
+      if (process.env.AGENTHOOD_HEALTH_SKIP_PROBES) return { ok: true, detail: 'key available (live probe skipped)' }
+      const started = performance.now()
+      try {
+        const provider = await LLMRouter.getProvider(p.name, { ...config, provider: p.name })
+        if (!provider) return { ok: false, detail: 'provider not initializable' }
+        // TODO: AbortController plumbing to cancel in-flight pings on timeout;
+        // the CLI exits after health, so abandoned requests are bounded here.
+        const res = await Promise.race([
+          provider.complete({ messages: [{ role: 'user', content: 'ping' }] }),
+          new Promise<never>((_, reject) => setTimeout(() => reject(new Error('probe timed out (15s)')), 15_000).unref()),
+        ])
+        if (!res?.content?.trim()) return { ok: false, detail: 'empty completion' }
+        return { ok: true, detail: `responsive in ${Math.round(performance.now() - started)}ms` }
+      } catch (err) {
+        return { ok: false, detail: (err as Error).message }
+      }
     },
   }))
 

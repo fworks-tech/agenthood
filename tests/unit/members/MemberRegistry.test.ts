@@ -87,3 +87,29 @@ describe('MemberRegistry', () => {
     }
   })
 })
+
+describe('allowed-tools enforcement (#641)', () => {
+  it('intersectDeclaredTools narrows the profile set to declared tools only', () => {
+    const result = MemberRegistry.intersectDeclaredTools('file.read code.write', 'restricted')
+    expect(result).toEqual(['file.read'])
+  })
+
+  it('intersectDeclaredTools never expands beyond the permission profile', () => {
+    const result = MemberRegistry.intersectDeclaredTools('file.read file.search code.explain pr_sync', 'restricted')
+    expect(result).not.toContain('pr_sync')
+    expect(result).toEqual(['file.read', 'file.search', 'code.explain'])
+  })
+
+  it('empty declaration yields no profile tools (fail closed)', () => {
+    expect(MemberRegistry.intersectDeclaredTools('  ', 'standard')).toEqual([])
+  })
+
+  it('member specs carry non-empty tools that stay inside their profile', () => {
+    const registry = new MemberRegistry()
+    const trusted = new Set(['file.read', 'file.search', 'code.explain', 'ask_human', 'file.write', 'code.write', 'code.refactor', 'pr_sync'])
+    for (const spec of registry.list()) {
+      expect(spec.tools.length).toBeGreaterThan(0)
+      expect(spec.tools.every((t: string) => trusted.has(t))).toBe(true)
+    }
+  })
+})

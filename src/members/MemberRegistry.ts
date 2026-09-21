@@ -40,6 +40,7 @@ export class MemberRegistry {
       let systemPrompt = ''
       let outputFormat: string | undefined
       let outputFormatMode: 'strict' | 'lenient' | undefined
+      let allowedTools: string | undefined
 
       if (existsSync(skillPath)) {
         const content = readFileSync(skillPath, 'utf-8')
@@ -48,6 +49,7 @@ export class MemberRegistry {
         systemPrompt = body
         outputFormat = extractFrontmatterField(content, 'output_format')
         outputFormatMode = extractFrontmatterField(content, 'output_format_mode') as 'strict' | 'lenient' | undefined
+        allowedTools = extractFrontmatterField(content, 'allowed-tools')
       }
 
       this.specs.set(raw.name, {
@@ -57,7 +59,9 @@ export class MemberRegistry {
         tagline: raw.tagline,
         permissionProfile: raw.permissionProfile,
         preferredProvider: raw.preferredProvider,
-        tools: this.defaultTools(raw.permissionProfile),
+        tools: allowedTools
+          ? MemberRegistry.intersectDeclaredTools(allowedTools, raw.permissionProfile)
+          : this.defaultTools(raw.permissionProfile),
         systemPrompt,
         sourcePath: skillPath,
         canDelegate: raw.canDelegate,
@@ -103,5 +107,11 @@ export class MemberRegistry {
 
   private defaultTools(permission: PermissionProfile): string[] {
     return MemberRegistry.toolsByProfile[permission]
+  }
+
+  /** SKILL.md allowed-tools may only narrow, never expand: declared ∩ profile. */
+  static intersectDeclaredTools(declared: string, permission: PermissionProfile): string[] {
+    const set = new Set(declared.split(/\s+/).filter(Boolean))
+    return MemberRegistry.toolsByProfile[permission].filter((t) => set.has(t))
   }
 }

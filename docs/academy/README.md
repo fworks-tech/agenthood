@@ -2,7 +2,7 @@
 
 > *The Society does not hand you a certificate. It hands you a standard.*
 
-The Academy is the structured path from "I know what a prompt is" to "I ship agents that work in production." Three levels. Twenty-five articles. No filler.
+The Academy is the structured path from "I know what a prompt is" to "I ship agents that work in production." Three levels. Twenty-seven articles. No filler.
 
 Start at Level 1. Do not skip ahead.
 
@@ -14,7 +14,7 @@ Start at Level 1. Do not skip ahead.
 |-------|-------|----------|-----------------|
 | [Level 1](level-1-genai-rag-basics/README.md) | GenAI & RAG Basics | 9 | How LLMs work, how RAG works, how to write prompts that don't embarrass you |
 | [Level 2](level-2-agent-essentials/README.md) | AI Agent Essentials | 11 | How agents reason, remember, plan, and fail — and how to prevent the failure |
-| [Level 3](level-3-advanced-skills/README.md) | Advanced Agent Skills | 5 | How to ship agents into production and keep them there |
+| [Level 3](level-3-advanced-skills/README.md) | Advanced Agent Skills | 6 | How to ship agents into production and keep them there |
 
 ---
 
@@ -61,6 +61,7 @@ Start at Level 1. Do not skip ahead.
 3. [Custom Toolkits](level-3-advanced-skills/03-custom-toolkits.md)
 4. [Optimize Performance](level-3-advanced-skills/04-optimize-performance.md)
 5. [Deploy to Production](level-3-advanced-skills/05-deploy-to-production.md)
+6. [Authoring a Skill](level-3-advanced-skills/06-author-a-skill.md)
 
 ---
 

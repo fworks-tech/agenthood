@@ -50,8 +50,9 @@ static intersectDeclaredTools(declared: string, permission: PermissionProfile): 
 }
 ```
 
-Tool vocabulary members may declare: `ask_human`, `file.read`, `file.write`, `file.search`,
-`code.write`, `code.refactor`, `code.explain`, `pr_sync` (trusted profile only).
+Tool vocabulary members may declare: `file.read`, `file.write`, `file.search`, `code.write`,
+`code.refactor`, `code.explain`, `pr_sync` (trusted profile only). `ask_human` needs no
+declaration — every member can park for human input regardless of frontmatter.
 
 ---
 
@@ -87,8 +88,14 @@ Validate, then invoke through any member run that has it in scope:
 
 ```bash
 npx agenthood verify            # frontmatter shape + name↔directory match
-npx agenthood run the-scribe "summarize meeting.txt using the-notetaker's format"
+npx agenthood run the-scribe "summarize meeting.txt using the-notetaker's format"  
 ```
+
+`agenthood run` executes registered members, not arbitrary skill files — so the demo
+hands the new skill's *format* to a member that is registered. To see it used as a
+standalone prompt, copy `skills/the-notetaker/` into your provider's skill path
+(`.agents/skills/`, `.claude/skills/`, …) and invoke it there. (`agenthood activate`
+covers registered members only.)
 
 Expected: `verify` reports the skill parses cleanly; if you typo `name: the-notetakers`
 (mismatched directory), `verify` fails the run before anything loads — that is the gate

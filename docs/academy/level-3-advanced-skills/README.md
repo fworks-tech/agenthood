@@ -2,7 +2,7 @@
 
 > *You have built agents. Now ship them — and keep them shipped.*
 
-Five articles. For engineers who have reached Level 2 and are ready to move from working to production-grade.
+Six articles. For engineers who have reached Level 2 and are ready to move from working to production-grade.
 
 ---
 
@@ -15,6 +15,7 @@ Five articles. For engineers who have reached Level 2 and are ready to move from
 | 3 | [Custom Toolkits](03-custom-toolkits.md) | `ISkill`, `SkillRegistry.discover()` |
 | 4 | [Optimize Performance](04-optimize-performance.md) | `CostEstimator` (shipped), `LLMRouter` dynamic routing, `ProviderFailover` |
 | 5 | [Deploy to Production](05-deploy-to-production.md) | v3.0.0 API layer, auth middleware, rate limiting |
+| 6 | [Authoring a Skill](06-author-a-skill.md) | `SKILL.md` contract: frontmatter, `allowed-tools`, `verify` |
 | — | [Skills Reference](../skills-reference.md) | All members, tools, and invocation |
 
 ---

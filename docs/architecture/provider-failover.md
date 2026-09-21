@@ -119,6 +119,7 @@ The circuit breaker is configurable per chain:
 |-----------|---------|-------------|
 | `failureThreshold` | 1 | Consecutive failures before circuit opens. Permanent errors (auth, payment, model_not_found) always open immediately regardless. |
 | `cooldownMs` | Error-specific | Override the cooldown duration in ms (e.g., `5000` to wait 5s before probe). |
+| `requestTimeoutMs` | `60000` | Per-request LLM call timeout; the chain rejects with a timeout error when a provider exceeds it. |
 | `probeEnabled` | `true` | When `false`, disables preemptive probe recovery. Providers still recover naturally when cooldown expires. |
 
 Five recovery strategies are available for sustained failures:

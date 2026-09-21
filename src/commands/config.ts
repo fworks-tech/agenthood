@@ -35,13 +35,14 @@ function parseProviders(raw: Record<string, unknown>): ProviderEntry[] | undefin
   return entries.length > 0 ? entries : undefined
 }
 
-function parseFailover(raw: Record<string, unknown>): Pick<LLMConfig, 'failureThreshold' | 'cooldownMs' | 'probeEnabled'> {
+function parseFailover(raw: Record<string, unknown>): Pick<LLMConfig, 'failureThreshold' | 'cooldownMs' | 'probeEnabled' | 'requestTimeoutMs'> {
   const f = pickBlock(raw, 'failover')
   if (!f) return {}
   return {
     failureThreshold: f.failureThreshold as number | undefined,
     cooldownMs: f.cooldownMs as number | undefined,
     probeEnabled: f.probeEnabled as boolean | undefined,
+    requestTimeoutMs: f.requestTimeoutMs as number | undefined,
   }
 }
 

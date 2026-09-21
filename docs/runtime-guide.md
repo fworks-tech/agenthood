@@ -52,7 +52,7 @@ The runtime supports automatic provider failover when a provider fails (rate lim
 
 - **`providers[]`** — Ordered list of LLM providers. First entry is primary, subsequent entries are fallbacks tried in order. Each entry supports `models[]` for model downgrade on failure.
 - **Provider choice** — Prefer `opencode-go` (Go) over `opencode` (Zen).
-- **`failover`** (optional) — Circuit breaker tuning: `failureThreshold` (consecutive failures before skipping), `cooldownMs` (override cooldown), `probeEnabled` (enable/disable probe recovery).
+- **`failover`** (optional) — Circuit breaker tuning: `failureThreshold` (consecutive failures before skipping), `cooldownMs` (override cooldown), `probeEnabled` (enable/disable probe recovery), `requestTimeoutMs` (per-request LLM call timeout, default 60000 — a hung provider can no longer stall a run).
 
 See `.agenthood/config.example.json` for the complete reference.
 

@@ -622,3 +622,33 @@ describe('ProviderChain', () => {
     })
   })
 })
+
+describe('per-request timeout (#649)', () => {
+  it('rejects when provider.complete exceeds requestTimeoutMs', async () => {
+    const slow = mockProvider('slow')
+    slow.complete = vi.fn().mockImplementation(() => new Promise<never>(() => {}))
+    const chain = new ProviderChain([slow], ['slow'], { requestTimeoutMs: 50 })
+    await expect(chain.complete({ messages: [{ role: 'user', content: 'hi' }] }))
+      .rejects.toThrow(/timed out/)
+  })
+
+  it('returns normally when the response beats the timeout', async () => {
+    const chain = new ProviderChain([mockProvider('fast')], ['fast'], { requestTimeoutMs: 5000 })
+    const result = await chain.complete({ messages: [{ role: 'user', content: 'hi' }] })
+    expect(result.content).toBe('fast response')
+  })
+
+  it('defaults to 60s when requestTimeoutMs is unset', async () => {
+    const chain = new ProviderChain([mockProvider('ok')], ['ok'])
+    const result = await chain.complete({ messages: [{ role: 'user', content: 'hi' }] })
+    expect(result.content).toBe('ok response')
+  })
+})
+
+describe('requestTimeoutMs floor validation (#649)', () => {
+  it('clamps sub-second timeouts to 1000ms instead of self-DoSing', async () => {
+    const chain = new ProviderChain([mockProvider('quick')], ['quick'], { requestTimeoutMs: 0 })
+    const result = await chain.complete({ messages: [{ role: 'user', content: 'hi' }] })
+    expect(result.content).toBe('quick response')
+  })
+})

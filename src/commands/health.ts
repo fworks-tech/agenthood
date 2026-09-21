@@ -69,13 +69,15 @@ async function collectHealthDeps(cwd: string, config: LLMConfig): Promise<Health
       if (process.env.AGENTHOOD_HEALTH_SKIP_PROBES) return { ok: true, detail: 'key available (live probe skipped)' }
       const started = performance.now()
       try {
-        const provider = await LLMRouter.reinitializeProvider(p.name, { ...config, provider: p.name })
+        const provider = await LLMRouter.getProvider(p.name, { ...config, provider: p.name })
         if (!provider) return { ok: false, detail: 'provider not initializable' }
-        const ping = provider.complete({ messages: [{ role: 'user', content: 'ping' }] })
-        await Promise.race([
-          ping,
+        // TODO: AbortController plumbing to cancel in-flight pings on timeout;
+        // the CLI exits after health, so abandoned requests are bounded here.
+        const res = await Promise.race([
+          provider.complete({ messages: [{ role: 'user', content: 'ping' }] }),
           new Promise<never>((_, reject) => setTimeout(() => reject(new Error('probe timed out (15s)')), 15_000).unref()),
         ])
+        if (!res?.content?.trim()) return { ok: false, detail: 'empty completion' }
         return { ok: true, detail: `responsive in ${Math.round(performance.now() - started)}ms` }
       } catch (err) {
         return { ok: false, detail: (err as Error).message }

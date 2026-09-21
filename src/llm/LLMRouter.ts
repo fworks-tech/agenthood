@@ -328,6 +328,13 @@ export class LLMRouter {
    * Clear cached provider instance and reinitialize with new config.
    * Used for hot-reload after API key rotation.
    */
+  /** Cached per-provider instance for single-provider use (health probes);
+   *  unlike reinitializeProvider this reuses an existing instance. */
+  static async getProvider(name: string, config: LLMConfig): Promise<ILLMProvider | null> {
+    LLMRouter.config = config
+    return LLMRouter.getOrInit(name)
+  }
+
   static async reinitializeProvider(name: string, config: LLMConfig): Promise<ILLMProvider | null> {
     LLMRouter.instances.delete(name)
     LLMRouter.initPromises.delete(name)

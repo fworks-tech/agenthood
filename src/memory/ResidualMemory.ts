@@ -42,6 +42,7 @@ export class ResidualMemory {
         decayRate: this.defaultDecayRate,
       })
     }
+    this.pruneBelow(0.1)
     this.maybeSave()
   }
 

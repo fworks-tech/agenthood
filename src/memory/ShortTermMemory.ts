@@ -6,9 +6,11 @@ export interface ShortTermMemoryEntry {
 export class ShortTermMemoryImpl {
   private buffer: ShortTermMemoryEntry[] = []
   private capacity: number
+  private ttlMs: number
 
-  constructor(capacity: number = 20) {
+  constructor(capacity: number = 20, ttlMs: number = Number.POSITIVE_INFINITY) {
     this.capacity = capacity
+    this.ttlMs = ttlMs
   }
 
   add(message: string): void {
@@ -19,7 +21,8 @@ export class ShortTermMemoryImpl {
   }
 
   getRecent(n: number): string[] {
-    return this.buffer.slice(-n).map((e) => e.content)
+    const cutoff = Date.now() - this.ttlMs
+    return this.buffer.filter((e) => e.timestamp.getTime() >= cutoff).slice(-n).map((e) => e.content)
   }
 
   clear(): void {

@@ -46,3 +46,20 @@ describe('ShortTermMemoryImpl', () => {
     expect(mem.getRecent(5)).toEqual([])
   })
 })
+
+describe('TTL eviction (#645)', () => {
+  it('drops entries older than ttlMs from getRecent', () => {
+    const mem = new ShortTermMemoryImpl(10, 50)
+    mem.add('stale')
+    const start = Date.now()
+    while (Date.now() - start < 60) { /* burn 60ms */ }
+    mem.add('fresh')
+    expect(mem.getRecent(5)).toEqual(['fresh'])
+  })
+
+  it('keeps all entries when ttlMs is unset (default unbounded by time)', () => {
+    const mem = new ShortTermMemoryImpl(10)
+    mem.add('a')
+    expect(mem.getRecent(5)).toEqual(['a'])
+  })
+})

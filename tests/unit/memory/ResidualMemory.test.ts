@@ -104,7 +104,7 @@ describe('ResidualMemory', () => {
       const mem = new ResidualMemory()
       mem.record('strong', 0.9)
       mem.record('dying', 0.05)
-      expect(mem.count()).toBe(2)
+      expect(mem.count()).toBe(1)
       mem.getActive(0)
       expect(mem.count()).toBe(1)
     })
@@ -196,5 +196,15 @@ describe('ResidualMemory', () => {
       mem.clear()
       expect(mem.count()).toBe(0)
     })
+  })
+})
+
+describe('bounded signal map on record (#645)', () => {
+  it('prunes below-threshold signals immediately so record-only sessions do not grow unbounded', () => {
+    const m = new ResidualMemory()
+    m.record('ghost', 0.05)
+    expect(m.count()).toBe(0)
+    m.record('kept', 0.5)
+    expect(m.count()).toBe(1)
   })
 })

@@ -5,6 +5,17 @@
 
 ---
 
+## v3.67.0 — September 21, 2026
+
+### ✨ Features
+
+- **Health:** probe providers with a real request (#905)
+- **Llm:** configurable per-request timeout for provider calls (#903)
+- **Memory:** add ttl option to short-term memory, prune residual signals on record (#906)
+- **Safety:** enforce allowed-tools from SKILL.md frontmatter (#904)
+
+---
+
 ## v3.66.0 — September 20, 2026
 
 ### 🐛 Bug Fixes

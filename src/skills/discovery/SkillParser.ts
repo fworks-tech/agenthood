@@ -156,7 +156,7 @@ export class SkillParser {
         fix: `Rename the directory to "${name}" or set the name to "${dirName}"`,
       })
     }
-    if (fileName !== 'SKILL.md') {
+    if (fileName !== 'SKILL.md' && fileName.toLowerCase() !== 'skill.md') {
       errors.push({
         rule: 'filename',
         message: `file "${fileName}" is not named SKILL.md`,

@@ -5,6 +5,7 @@ import type { ISkillManifest } from './ISkillManifest.ts'
 import { SkillParser } from './SkillParser.ts'
 import { RemoteSkillFetcher, type RemoteSkillSource } from './RemoteSkillSource.ts'
 import { checkSkillIntegrity } from '../../utils/skillIntegrity.ts'
+import { resolveSkillFile } from './skillFile.ts'
 import { MEMBERS_DIR } from '../../members/MemberRegistry.ts'
 
 const IGNORED_DIRS = new Set(['node_modules', '.git', '.hg', '.svn', 'dist', 'build', '.next', '.cache'])
@@ -164,8 +165,12 @@ export class SkillDiscovery {
   }
 
   private scanEntry(fullPath: string, entry: string, depth: number): ISkillManifest[] {
-    const skillMdPath = join(fullPath, 'SKILL.md')
-    if (existsSync(skillMdPath)) {
+    const resolved = resolveSkillFile(fullPath)
+    if (resolved) {
+      if (resolved.nonCanonical) {
+        console.warn(`[SkillDiscovery] "${entry}" uses skill.md — rename to SKILL.md for spec compliance`)
+      }
+      const skillMdPath = resolved.path
       const parsed = this.parser.parse(skillMdPath)
       if (!parsed) return []
       const content = readFileSync(skillMdPath, 'utf-8')

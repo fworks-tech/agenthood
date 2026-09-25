@@ -12,6 +12,7 @@ import type { CommandDescriptor } from './types.ts'
 import { resolveSkillsDir, SKILLS_LOCKFILE } from '../members.ts'
 import { loadSkillsLockfile, saveSkillsLockfile } from './skillsLock.ts'
 import { SkillParser, SPEC_NAME_RE } from '../skills/discovery/SkillParser.ts'
+import { resolveSkillFile } from '../skills/discovery/skillFile.ts'
 import { validateRemoteUrl, fetchRemoteText, GIT_TIMEOUT_MS } from '../skills/discovery/RemoteSkillSource.ts'
 
 function isGitUrl(url: string): boolean {
@@ -56,17 +57,16 @@ async function downloadUrl(url: string, dest: string): Promise<void> {
 }
 
 function findSkillMd(dir: string): string | null {
-  const direct = join(dir, 'SKILL.md')
-  if (existsSync(direct)) return direct
-
-  const nested = join(dir, 'skills', 'SKILL.md')
-  if (existsSync(nested)) return nested
+  for (const candidate of [dir, join(dir, 'skills')]) {
+    const resolved = resolveSkillFile(candidate)
+    if (resolved) return resolved.path
+  }
 
   if (!existsSync(dir)) return null
   for (const entry of readdirSync(dir, { withFileTypes: true })) {
     if (entry.isDirectory()) {
-      const sub = join(dir, entry.name, 'SKILL.md')
-      if (existsSync(sub)) return sub
+      const resolved = resolveSkillFile(join(dir, entry.name))
+      if (resolved) return resolved.path
     }
   }
   return null

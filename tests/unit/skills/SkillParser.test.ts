@@ -149,7 +149,11 @@ describe("SkillParser", () => {
     })
 
     it("rejects a file not named SKILL.md", () => {
-      expect(rules(parser.validateSpec("x", "d", "x", "skill.md"))).toContain("filename")
+      expect(rules(parser.validateSpec("x", "d", "x", "notes.md"))).toContain("filename")
+    })
+
+    it("accepts lowercase skill.md for cross-client compatibility", () => {
+      expect(rules(parser.validateSpec("x", "d", "x", "skill.md"))).not.toContain("filename")
     })
 
     it("returns a concrete fix for each violation", () => {

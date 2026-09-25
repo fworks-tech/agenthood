@@ -4,6 +4,8 @@
 
 > A full AI engineering team that earns every merge.
 
+*Leia em [português](README.pt-BR.md) — incluindo setup custo-zero com Groq.*
+
 20 specialized AI agents — architect, reviewer, security expert, DevOps engineer, strategist, operator, and more — each a portable Markdown skill file any agent runtime can load into any project, plus a TypeScript runtime that runs them autonomously across your whole software lifecycle. No lock-in. Just drop them in.
 
 They have opinions about your PR descriptions. They will not merge your branch if your commit says `fix stuff`. They are not polite about it. And they show their work: every run leaves a tamper-evident decision and provenance trail.

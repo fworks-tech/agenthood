@@ -85,11 +85,13 @@ Commands:
   diff [member]           Show member SKILL.md changes vs the versions locked in agenthood.lock
                             Exit code 1 when any member drifted from the lockfile
   status                  Show project health and member metrics
-                            Use --watch to poll every 5 seconds
-                            Use --json for machine-readable output
-                            Use --drift to detect SKILL.md drift vs lockfile
-                            Use --member <name> for per-member trace summaries
-                            Use --learner for EpisodeLearner learning status
+                             Use --watch to poll every 5 seconds
+                             Use --json for machine-readable output
+                             Use --drift to detect SKILL.md drift vs lockfile
+                             Use --member <name> for per-member trace summaries
+                             Use --learner for EpisodeLearner learning status
+  stats                   Show per-skill usage: activations, trigger and error rate
+                             Use --json for machine-readable output
   trace                   List recent member invocation traces
                             Use --member <name>, --limit <n>, --since <time>
                             Use --json for machine-readable output

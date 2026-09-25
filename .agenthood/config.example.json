@@ -121,5 +121,10 @@
   "_comment_security": "Optional: mind-virus persistence-vector hardening (ADR-020). strictSkillIntegrity blocks member runs when the injected SKILL.md drifted from agenthood.lock; when false (default), drift only warns and records.",
   "security": {
     "strictSkillIntegrity": false
+  },
+
+  "_comment_analytics": "Optional: local-only per-skill usage analytics shown by `agenthood stats`. Records skill names and counters only — never prompts or results. Set enabled false to opt out entirely.",
+  "analytics": {
+    "enabled": true
   }
 }

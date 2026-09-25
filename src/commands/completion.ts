@@ -15,6 +15,8 @@ const COMMAND_META: Array<{ name: string; blurb: string }> = [
   { name: 'rollback', blurb: 'Restore member SKILL.md from lockfile' },
   { name: 'diff', blurb: 'Show member SKILL.md changes vs lockfile' },
   { name: 'status', blurb: 'Show project health and member metrics' },
+  { name: 'stats', blurb: 'Show per-skill usage analytics' },
+  { name: 'cost', blurb: 'Show cumulative cost breakdown' },
   { name: 'trace', blurb: 'List recent member invocation traces' },
   { name: 'log', blurb: 'List recent log entries' },
   { name: 'health', blurb: 'Check runtime health' },

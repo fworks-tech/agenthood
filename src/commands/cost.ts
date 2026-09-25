@@ -2,7 +2,7 @@ import { readFileSync, existsSync } from 'node:fs'
 import { join } from 'node:path'
 import type { CommandDescriptor } from './types.ts'
 
-interface CostEntry {
+export interface CostEntry {
   timestamp: string
   member: string
   model: string
@@ -11,6 +11,7 @@ interface CostEntry {
   completionTokens: number
   totalTokens: number
   costUsd: number
+  skills?: string[]
 }
 
 function readCosts(cwd: string): CostEntry[] {
@@ -19,6 +20,32 @@ function readCosts(cwd: string): CostEntry[] {
   const content = readFileSync(path, 'utf8').trim()
   if (!content) return []
   return content.split('\n').map((l) => JSON.parse(l) as CostEntry)
+}
+
+export interface SkillCostRow {
+  activations: number
+  cost: number
+  tokens: number
+}
+
+/** Aggregate per skill across activations (#624). A step charged to N skills
+ *  splits evenly — one prompt's tokens are not attributable to one of them
+ *  alone, so this is a cost share, not a bill. */
+export function aggregateBySkill(costs: CostEntry[]): Map<string, SkillCostRow> {
+  const out = new Map<string, SkillCostRow>()
+  for (const c of costs) {
+    const skills = c.skills ?? []
+    if (skills.length === 0) continue
+    const share = 1 / skills.length
+    for (const skill of skills) {
+      const row = out.get(skill) ?? { activations: 0, cost: 0, tokens: 0 }
+      row.activations++
+      row.cost += c.costUsd * share
+      row.tokens += Math.round(c.totalTokens * share)
+      out.set(skill, row)
+    }
+  }
+  return out
 }
 
 function formatUsd(amount: number): string {
@@ -92,6 +119,15 @@ async function costHandler(args: string[]): Promise<void> {
   console.log('\n  By Member:')
   for (const [member, data] of [...byMember.entries()].sort((a, b) => b[1].cost - a[1].cost)) {
     console.log(`    ${member.padEnd(20)} ${formatUsd(data.cost).padStart(10)} (${data.tokens.toLocaleString()} tok)`)
+  }
+
+  // Per-skill cost share (#624) — the dimension skill authors act on.
+  const bySkill = aggregateBySkill(costs)
+  if (bySkill.size > 0) {
+    console.log('\n  By Skill (cost share — one step activating N skills splits evenly):')
+    for (const [skill, data] of [...bySkill.entries()].sort((a, b) => b[1].cost - a[1].cost)) {
+      console.log(`    ${skill.padEnd(24)} ${formatUsd(data.cost).padStart(10)} (${data.tokens.toLocaleString()} tok, ${data.activations} activation${data.activations === 1 ? '' : 's'})`)
+    }
   }
 
   console.log('\n  By Day:')

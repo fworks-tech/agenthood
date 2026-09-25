@@ -69,6 +69,8 @@ export interface ReActLoopOptions {
 
 export class ReActLoop {
   activatedSkills = new Set<string>()
+  // Skills activated by tool results since the last cost entry (#624).
+  private pendingSkillActivations = new Set<string>()
   usage: TokenUsage = { promptTokens: 0, completionTokens: 0, totalTokens: 0 }
   private _model = ""
 
@@ -252,7 +254,18 @@ export class ReActLoop {
       completionTokens,
       totalTokens: promptTokens + completionTokens,
       costUsd: stepCost,
+      // Charge this step to the skills its tool results activated (#624) —
+      // the tokens spent on the next prompt are what the skill cost.
+      skills: this.stepActivatedSkills(),
     }, context.project.localPath)
+  }
+
+  /** Skills activated since the last cost entry, then cleared. */
+  private stepActivatedSkills(): string[] {
+    if (this.pendingSkillActivations.size === 0) return []
+    const skills = [...this.pendingSkillActivations]
+    this.pendingSkillActivations.clear()
+    return skills
   }
 
   private async runToolCalls(
@@ -302,7 +315,10 @@ export class ReActLoop {
       const content = typeof result === 'string' ? result : JSON.stringify(result)
       if (content.startsWith(SKILL_ACTIVATION_PREFIX)) {
         const nameMatch = content.match(/<skill_content name="([^"]+)">/)
-        if (nameMatch) this.activatedSkills.add(nameMatch[1])
+        if (nameMatch) {
+          this.activatedSkills.add(nameMatch[1])
+          this.pendingSkillActivations.add(nameMatch[1])
+        }
       }
       messages.push({
         role: "tool",

@@ -10,6 +10,7 @@ const mockCosts = [
 ]
 
 import { command } from '../../../src/commands/cost.ts'
+import { aggregateBySkill } from '../../../src/commands/cost.ts'
 import { logCost, readCosts } from '../../../src/core/CostLogger.ts'
 
 describe('cost command', () => {
@@ -76,5 +77,30 @@ describe('cost command', () => {
     const costs = readCosts(newDir)
     expect(costs.length).toBe(1)
     rmSync(newDir, { recursive: true, force: true })
+  })
+})
+
+describe('aggregateBySkill', () => {
+  const entry = (skills: string[] | undefined, costUsd: number, totalTokens: number) =>
+    ({ timestamp: '2026-01-15T10:00:00Z', member: 'm', model: 'x', provider: 'groq', promptTokens: totalTokens, completionTokens: 0, totalTokens, costUsd, skills })
+
+  it('ignores steps with no skills', () => {
+    expect(aggregateBySkill([entry(undefined, 1, 100)]).size).toBe(0)
+  })
+
+  it('charges a solo activation the full step cost', () => {
+    const rows = aggregateBySkill([entry(['pdf-form-fill'], 0.002, 1200)])
+    expect(rows.get('pdf-form-fill')).toEqual({ activations: 1, cost: 0.002, tokens: 1200 })
+  })
+
+  it('splits a step evenly across N skills', () => {
+    const rows = aggregateBySkill([entry(['a', 'b'], 0.002, 1000)])
+    expect(rows.get('a')!.cost).toBeCloseTo(0.001)
+    expect(rows.get('b')!.cost).toBeCloseTo(0.001)
+  })
+
+  it('accumulates repeated activations of the same skill', () => {
+    const rows = aggregateBySkill([entry(['a'], 0.001, 100), entry(['a'], 0.001, 300)])
+    expect(rows.get('a')).toEqual({ activations: 2, cost: 0.002, tokens: 400 })
   })
 })

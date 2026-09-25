@@ -117,6 +117,26 @@ describe("SkillParser", () => {
     })
   })
 
+  describe("YAML fallback (#515)", () => {
+    it("parses clean frontmatter without the heuristic flag", () => {
+      const raw = parser.parseRaw("---\nname: x\ndescription: Does a thing\n---\nBody.")
+      expect(raw.frontmatter?.name).toBe("x")
+      expect(raw.heuristic).toBeUndefined()
+    })
+
+    it("still loads unquoted colons via fallback and flags heuristic", () => {
+      const raw = parser.parseRaw("---\nname: x\ndescription: Use when: the user asks\n---\nBody.")
+      expect(raw.frontmatter?.description).toBe("Use when: the user asks")
+      expect(raw.heuristic).toBe(true)
+    })
+
+    it("loads quoted colons strictly without the heuristic flag", () => {
+      const raw = parser.parseRaw('---\nname: x\ndescription: "Use when: the user asks"\n---\nBody.')
+      expect(raw.frontmatter?.description).toBe("Use when: the user asks")
+      expect(raw.heuristic).toBeUndefined()
+    })
+  })
+
   describe("validateSpec()", () => {
     const rules = (errs: { rule: string }[]) => errs.map((e) => e.rule)
 

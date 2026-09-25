@@ -46,8 +46,10 @@ function validateMember(membersDir: string, member: string, lockfile?: Lockfile)
 
   const content = readFileSync(skillPath, 'utf8')
   const parser = new SkillParser()
-  const { frontmatter, body } = parser.parseRaw(content)
+  const { frontmatter, body, heuristic } = parser.parseRaw(content)
   const tier = parser.parseTier(frontmatter)
+
+  if (heuristic) result.issues.push('Frontmatter needed heuristic parsing — quote values containing colons')
 
   if (!frontmatter) {
     result.issues.push('Missing YAML frontmatter')

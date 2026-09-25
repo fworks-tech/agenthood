@@ -47,7 +47,9 @@ describe('SkillDiscovery', () => {
     const warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {})
     const discovery = new SkillDiscovery(testDir)
     discovery.discover(testDir)
-    expect(warnSpy).not.toHaveBeenCalled()
+    // Scoped to the owned skill: the user-scope homedir() dir may hold
+    // third-party skills that legitimately warn (malformed frontmatter, drift).
+    expect(warnSpy).not.toHaveBeenCalledWith(expect.stringContaining('test-skill'))
     warnSpy.mockRestore()
   })
 

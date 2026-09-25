@@ -1,5 +1,6 @@
 import { readFileSync, statSync, existsSync, readdirSync } from 'node:fs'
 import { join } from 'node:path'
+import yaml from 'js-yaml'
 import type { ISkillManifest, SkillTier } from './ISkillManifest.ts'
 
 const VALID_TIERS: SkillTier[] = ['official', 'community', 'experimental']
@@ -13,6 +14,9 @@ export interface ParsedSkill {
 export interface ParsedRaw {
   frontmatter: Record<string, unknown> | null
   body: string
+  // True when strict YAML failed and the lenient fallback produced the
+  // frontmatter — callers warn that the skill needs reformatting.
+  heuristic?: boolean
 }
 
 export const MAX_SKILL_FILE_BYTES = 1024 * 1024
@@ -65,8 +69,13 @@ export class SkillParser {
     if (content.charCodeAt(0) === 0xfeff) content = content.slice(1)
     const match = content.match(/^---\n([\s\S]*?)\n---\n?([\s\S]*)$/)
     if (!match) return { frontmatter: null, body: content }
-    const frontmatter = this.parseYaml(match[1])
-    return { frontmatter, body: match[2].trim() }
+    try {
+      return { frontmatter: this.parseYamlStrict(match[1]), body: match[2].trim() }
+    } catch {
+      // Malformed frontmatter from another client (e.g. unquoted colons) —
+      // still load via the lenient fallback and let callers warn.
+      return { frontmatter: this.parseYaml(match[1]), body: match[2].trim(), heuristic: true }
+    }
   }
 
   parseManifest(filePath: string, directory: string, body: string, name = '', description = '', tier: SkillTier = 'community'): ISkillManifest {
@@ -164,6 +173,19 @@ export class SkillParser {
       })
     }
     return errors
+  }
+
+  /**
+   * Strict frontmatter parse via js-yaml. Throws on malformed YAML (unquoted
+   * colons, bad indentation) so callers can fall back to the lenient parser
+   * and warn. Returns null for empty frontmatter, matching parseYaml.
+   */
+  private parseYamlStrict(raw: string): Record<string, unknown> | null {
+    const loaded: unknown = yaml.load(raw)
+    if (loaded === undefined || loaded === null) return null
+    if (typeof loaded !== 'object' || Array.isArray(loaded)) throw new Error('frontmatter must be a key:value mapping')
+    const record = loaded as Record<string, unknown>
+    return Object.keys(record).length > 0 ? record : null
   }
 
   /**

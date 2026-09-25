@@ -174,7 +174,10 @@ export class SkillDiscovery {
       const parsed = this.parser.parse(skillMdPath)
       if (!parsed) return []
       const content = readFileSync(skillMdPath, 'utf-8')
-      const { frontmatter } = this.parser.parseRaw(content)
+      const { frontmatter, heuristic } = this.parser.parseRaw(content)
+      if (heuristic) {
+        console.warn(`[SkillDiscovery] "${entry}" has malformed frontmatter (loaded via fallback) — quote values containing colons`)
+      }
       const tier = this.parser.parseTier(frontmatter)
       const manifest = this.parser.parseManifest(skillMdPath, fullPath, parsed.body, parsed.name || entry, parsed.description, tier)
       const packaged = isPackagedDir(fullPath)

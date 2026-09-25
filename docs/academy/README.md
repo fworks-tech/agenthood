@@ -96,6 +96,8 @@ npx agenthood init
 
 The Society installs into your project in five minutes. The standards it enforces will outlast the sprint.
 
+Start with the [5-minute skill creation quickstart](quickstart.md) — one `SKILL.md` file, verified with `npx agenthood verify`.
+
 ---
 
 *The ones who ship go through all three levels.*

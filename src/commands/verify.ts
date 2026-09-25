@@ -8,6 +8,7 @@ import type { Lockfile } from '../utils/lockfile.ts'
 import { checkResourceIntegrity, checkSkillIntegrity, collectResourceHashes } from '../utils/skillIntegrity.ts'
 import { findRevision, restoreMember } from './rollback.ts'
 import { SkillParser } from '../skills/discovery/SkillParser.ts'
+import { scanForInjections } from '../skills/discovery/injectionScan.ts'
 import { userError } from '../core/cliError.ts'
 import type { SkillTier } from '../skills/discovery/ISkillManifest.ts'
 import { SkillDiscovery } from '../skills/discovery/SkillDiscovery.ts'
@@ -36,7 +37,7 @@ interface VerifyResult {
   issues: string[]
 }
 
-function validateMember(membersDir: string, member: string, lockfile?: Lockfile): VerifyResult {
+function validateMember(membersDir: string, member: string, lockfile?: Lockfile, strict = false): VerifyResult {
   const result: VerifyResult = { member, pass: true, drift: false, issues: [] }
   const skillPath = join(membersDir, member, 'SKILL.md')
 
@@ -101,6 +102,16 @@ function validateMember(membersDir: string, member: string, lockfile?: Lockfile)
   if (lockfile?.members[member]) {
     for (const issue of checkResourceIntegrity(join(membersDir, member), lockedResources)) {
       result.issues.push(issue)
+    }
+  }
+
+  // Prompt-injection screen (#606): warn by default so local flows keep
+  // working; --strict fails the run on known-malicious patterns.
+  for (const finding of scanForInjections(content)) {
+    if (strict && finding.severity === 'block') {
+      result.issues.push(`Injection (${finding.pattern}): "${finding.excerpt}"`)
+    } else {
+      console.warn(`  ⚠ ${member} — possible injection (${finding.pattern}): "${finding.excerpt}"`)
     }
   }
 
@@ -331,7 +342,7 @@ export async function verify(args: string[]): Promise<void> {
     return
   }
 
-  const results = membersToCheck.map((m) => validateMember(membersDir, m, lockfile))
+  const results = membersToCheck.map((m) => validateMember(membersDir, m, lockfile, isStrict))
   printResults(results)
 
   const structuralOk = results.every((r) => r.pass)

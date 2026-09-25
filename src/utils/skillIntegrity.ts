@@ -1,8 +1,8 @@
-import { readFileSync, existsSync } from 'node:fs'
+import { readFileSync, existsSync, readdirSync, type Dirent } from 'node:fs'
 import { join } from 'node:path'
 import { randomUUID } from 'node:crypto'
 import type { ExecutionContext } from '../core/ExecutionContext.ts'
-import { contentHash } from './hash.ts'
+import { contentHash, fileHash } from './hash.ts'
 
 export type SkillIntegrityStatus = 'clean' | 'drift' | 'corrupt' | 'no-lockfile' | 'missing'
 /** Reasons that surface the integrity gate as inactive or violated — everything except 'clean'. */
@@ -45,6 +45,55 @@ export function checkSkillIntegrity(
   const current = contentHash(readFileSync(skillPath, 'utf-8'))
   if (current === lockfile.members[member].version) return 'clean'
   return 'drift'
+}
+
+// Resource dirs hashed alongside SKILL.md (#604) — mirrors the manifest
+// surface (SkillParser.parseManifest collects scripts/ + references/).
+const RESOURCE_DIRS = ['scripts', 'references']
+
+// Map member-relative resource paths to SHA-256 hex. One level deep, files
+// only — same surface parseManifest advertises, so the lock cannot drift from
+// the manifest on nesting.
+export function collectResourceHashes(memberDir: string): Record<string, string> {
+  const hashes: Record<string, string> = {}
+  for (const sub of RESOURCE_DIRS) {
+    let entries: Dirent[]
+    try {
+      entries = readdirSync(join(memberDir, sub), { withFileTypes: true })
+    } catch {
+      continue
+    }
+    for (const entry of entries) {
+      try {
+        if (!entry.isFile()) continue
+        hashes[`${sub}/${entry.name}`] = fileHash(join(memberDir, sub, entry.name))
+      } catch {
+        continue
+      }
+    }
+  }
+  return hashes
+}
+
+// Drifted, missing, and untracked resource paths vs the lockfile. Empty means
+// the resource surface matches — the --integrity report and validateMember
+// compose from this so the vocabulary stays in one place.
+export function checkResourceIntegrity(memberDir: string, locked?: Record<string, string>): string[] {
+  const current = collectResourceHashes(memberDir)
+  const issues: string[] = []
+  for (const [rel, hash] of Object.entries(current)) {
+    if (!locked || !(rel in locked)) {
+      issues.push(`untracked resource: ${rel}`)
+    } else if (locked[rel] !== hash) {
+      issues.push(`resource drift: ${rel}`)
+    }
+  }
+  if (locked) {
+    for (const rel of Object.keys(locked)) {
+      if (!(rel in current)) issues.push(`resource missing: ${rel}`)
+    }
+  }
+  return issues
 }
 
 /**

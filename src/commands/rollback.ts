@@ -21,7 +21,7 @@ export function findRevision(cwd: string, skillPath: string, lockedHash: string)
   return null
 }
 
-function restoreMember(cwd: string, skillPath: string, member: string, commit: string, isDryRun: boolean): boolean {
+export function restoreMember(cwd: string, skillPath: string, member: string, commit: string, isDryRun: boolean): boolean {
   if (isDryRun) {
     console.log(`  ~ ${member} — would restore from ${commit.slice(0, 12)}`)
     return true

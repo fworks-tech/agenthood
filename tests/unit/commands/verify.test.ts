@@ -293,3 +293,29 @@ describe('verify --conflicts (#595)', () => {
     warn.mockRestore()
   })
 })
+
+describe('verify --integrity (#604)', () => {
+  it('reports clean members and passes', async () => {
+    const log = vi.spyOn(console, 'log').mockImplementation(() => {})
+    const exit = vi.spyOn(process, 'exit').mockImplementation((() => {}) as any)
+    await verify(['--integrity'])
+    expect(exit).not.toHaveBeenCalledWith(1)
+    expect(log.mock.calls.flat().join(' ')).toContain('Integrity OK')
+  })
+
+  it('fails on SKILL.md drift', async () => {
+    lockContent = lockWith({ 'the-test': { version: 'wrong-hash', updatedAt: OLD } })
+    const exit = vi.spyOn(process, 'exit').mockImplementation((() => {}) as any)
+    await verify(['--integrity'])
+    expect(exit).toHaveBeenCalledWith(1)
+  })
+
+  it('fails on untracked resource scripts', async () => {
+    vi.mocked(readdirSync).mockImplementation(((p: string) =>
+      String(p).endsWith('scripts') ? [{ name: 'run.mjs', isFile: () => true }] : []
+    ) as any)
+    const exit = vi.spyOn(process, 'exit').mockImplementation((() => {}) as any)
+    await verify(['--integrity'])
+    expect(exit).toHaveBeenCalledWith(1)
+  })
+})

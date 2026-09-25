@@ -92,6 +92,10 @@ Commands:
                              Use --learner for EpisodeLearner learning status
   stats                   Show per-skill usage: activations, trigger and error rate
                              Use --json for machine-readable output
+  metrics                 Export member and cost metrics to Prometheus or StatsD
+                             Requires metricsExport.type in .agenthood/config.json
+                             Use --port <n> to override the Prometheus port
+                             Use --print to render one snapshot without serving
   trace                   List recent member invocation traces
                             Use --member <name>, --limit <n>, --since <time>
                             Use --json for machine-readable output

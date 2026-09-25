@@ -17,6 +17,7 @@ const COMMAND_META: Array<{ name: string; blurb: string }> = [
   { name: 'status', blurb: 'Show project health and member metrics' },
   { name: 'stats', blurb: 'Show per-skill usage analytics' },
   { name: 'cost', blurb: 'Show cumulative cost breakdown' },
+  { name: 'metrics', blurb: 'Export metrics to Prometheus or StatsD' },
   { name: 'trace', blurb: 'List recent member invocation traces' },
   { name: 'log', blurb: 'List recent log entries' },
   { name: 'health', blurb: 'Check runtime health' },

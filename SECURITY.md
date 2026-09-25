@@ -33,6 +33,16 @@ and a security advisory is published.
 - **LLM agent analysis:** CI agent outputs are filtered for secrets before
   posting, and verdicts are parsed from a structured trailing block
 
+## Self-audit
+
+The Society audits itself with the same gates it enforces on adopters:
+
+- **Contract:** `npx agenthood verify` — frontmatter shape, name↔directory match
+- **Integrity:** `agenthood.lock` SHA-256 hash gate + `npx agenthood diff` for drift
+- **Permissions:** narrow-only `allowed-tools` — edits can never escalate privileges
+- **Cadence:** gates run on every PR via CI; results are published per minor
+  release in [docs/security-audit-report.md](docs/security-audit-report.md)
+
 ## Security-relevant files
 
 - `.githooks/pre-commit` — secret scanning + main-branch protection

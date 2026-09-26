@@ -1,3 +1,16 @@
+# [3.68.0](https://github.com/fworks-tech/agenthood/compare/v3.67.0...v3.68.0) (2026-09-26)
+
+
+### Bug Fixes
+
+* **deps:** pin tree-sitter-go to 0.23.4 so npm ci resolves without ERESOLVE ([#911](https://github.com/fworks-tech/agenthood/issues/911)) ([4cdd183](https://github.com/fworks-tech/agenthood/commit/4cdd183adf74f7261e1704b15c5d3afe88d2eb19)), closes [#910](https://github.com/fworks-tech/agenthood/issues/910)
+* **deps:** restore optional peers dropped from the lockfile by [#916](https://github.com/fworks-tech/agenthood/issues/916) ([#924](https://github.com/fworks-tech/agenthood/issues/924)) ([fdf6d40](https://github.com/fworks-tech/agenthood/commit/fdf6d4044ed22320603f4c03b7d85b1d0ac8488c)), closes [#910](https://github.com/fworks-tech/agenthood/issues/910)
+
+
+### Features
+
+* v3.68 Convert & Trust — onboarding, fail-closed skill trust, cost observability ([#913](https://github.com/fworks-tech/agenthood/issues/913)) ([6a96cc8](https://github.com/fworks-tech/agenthood/commit/6a96cc862aeae413db124473d856e397f9f80741)), closes [#574](https://github.com/fworks-tech/agenthood/issues/574) [#619](https://github.com/fworks-tech/agenthood/issues/619) [#620](https://github.com/fworks-tech/agenthood/issues/620) [#578](https://github.com/fworks-tech/agenthood/issues/578) [#152](https://github.com/fworks-tech/agenthood/issues/152) [#151](https://github.com/fworks-tech/agenthood/issues/151) [#514](https://github.com/fworks-tech/agenthood/issues/514) [#515](https://github.com/fworks-tech/agenthood/issues/515) [#604](https://github.com/fworks-tech/agenthood/issues/604) [#606](https://github.com/fworks-tech/agenthood/issues/606) [#624](https://github.com/fworks-tech/agenthood/issues/624) [#625](https://github.com/fworks-tech/agenthood/issues/625) [#651](https://github.com/fworks-tech/agenthood/issues/651) [#465](https://github.com/fworks-tech/agenthood/issues/465)
+
 # [3.67.0](https://github.com/fworks-tech/agenthood/compare/v3.66.0...v3.67.0) (2026-09-21)
 
 

@@ -5,6 +5,19 @@
 
 ---
 
+## v3.68.0 — September 26, 2026
+
+### 🐛 Bug Fixes
+
+- **Deps:** pin tree-sitter-go to 0.23.4 so npm ci resolves without ERESOLVE (#911)
+- **Deps:** restore optional peers dropped from the lockfile by #916 (#924)
+
+### ✨ Features
+
+- v3.68 Convert & Trust — onboarding, fail-closed skill trust, cost observability (#913) #619 #620 #578 #152 #151 #514 #515 #604 #606 #624 #625 #651 #465
+
+---
+
 ## v3.67.0 — September 21, 2026
 
 ### ✨ Features

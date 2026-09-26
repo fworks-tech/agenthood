@@ -1,3 +1,10 @@
+## [3.68.1](https://github.com/fworks-tech/agenthood/compare/v3.68.0...v3.68.1) (2026-09-26)
+
+
+### Bug Fixes
+
+* **deps-dev:** bump vitest to 5 with the coverage provider and hoist nested mocks ([#925](https://github.com/fworks-tech/agenthood/issues/925)) ([95870be](https://github.com/fworks-tech/agenthood/commit/95870be8ae10a1ee5d1a91832e98bb78bc70c347)), closes [#920](https://github.com/fworks-tech/agenthood/issues/920) [#920](https://github.com/fworks-tech/agenthood/issues/920)
+
 # [3.68.0](https://github.com/fworks-tech/agenthood/compare/v3.67.0...v3.68.0) (2026-09-26)
 
 

@@ -135,6 +135,17 @@ describe("SkillParser", () => {
       expect(raw.frontmatter?.description).toBe("Use when: the user asks")
       expect(raw.heuristic).toBeUndefined()
     })
+
+    it("treats empty frontmatter as absent, not as a heuristic fallback", () => {
+      // js-yaml 5 throws on empty input where v4 returned undefined. Without
+      // the guard this would take the catch path and mark a strictly-valid
+      // skill as heuristic-parsed, i.e. a trust boundary silently fail-open.
+      for (const raw of ["---\n---\nBody.", "---\n   \n---\nBody."]) {
+        const parsed = parser.parseRaw(raw)
+        expect(parsed.frontmatter).toBeNull()
+        expect(parsed.heuristic).toBeUndefined()
+      }
+    })
   })
 
   describe("validateSpec()", () => {

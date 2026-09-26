@@ -1,6 +1,6 @@
 import { readFileSync, statSync, existsSync, readdirSync } from 'node:fs'
 import { join } from 'node:path'
-import yaml from 'js-yaml'
+import { load as loadYaml } from 'js-yaml'
 import type { ISkillManifest, SkillTier } from './ISkillManifest.ts'
 
 const VALID_TIERS: SkillTier[] = ['official', 'community', 'experimental']
@@ -181,7 +181,13 @@ export class SkillParser {
    * and warn. Returns null for empty frontmatter, matching parseYaml.
    */
   private parseYamlStrict(raw: string): Record<string, unknown> | null {
-    const loaded: unknown = yaml.load(raw)
+    // js-yaml 5 throws YAMLException on empty/whitespace input where v4
+    // returned undefined. Guard first: otherwise an empty frontmatter block
+    // would reach the caller's catch and silently downgrade to the lenient
+    // heuristic parser, which is a fail-open we cannot afford on a
+    // trust boundary.
+    if (raw.trim() === '') return null
+    const loaded: unknown = loadYaml(raw)
     if (loaded === undefined || loaded === null) return null
     if (typeof loaded !== 'object' || Array.isArray(loaded)) throw new Error('frontmatter must be a key:value mapping')
     const record = loaded as Record<string, unknown>

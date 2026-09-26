@@ -1,3 +1,11 @@
+## [3.68.2](https://github.com/fworks-tech/agenthood/compare/v3.68.1...v3.68.2) (2026-09-26)
+
+
+### Bug Fixes
+
+* **test:** raise the vitest timeout to fix the class, not the symptom ([#934](https://github.com/fworks-tech/agenthood/issues/934)) ([0080126](https://github.com/fworks-tech/agenthood/commit/008012677762d1650e811630e9bc91499835ac88)), closes [#927](https://github.com/fworks-tech/agenthood/issues/927) [#914](https://github.com/fworks-tech/agenthood/issues/914)
+* **vscode-extension:** hold @types/vscode at the engines.vscode floor ([#927](https://github.com/fworks-tech/agenthood/issues/927)) ([86e61da](https://github.com/fworks-tech/agenthood/commit/86e61da8c02f5e445e14f4eb9aebb374dd82f360)), closes [#914](https://github.com/fworks-tech/agenthood/issues/914)
+
 ## [3.68.1](https://github.com/fworks-tech/agenthood/compare/v3.68.0...v3.68.1) (2026-09-26)
 
 

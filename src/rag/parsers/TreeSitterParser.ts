@@ -30,10 +30,13 @@ const GRAMMAR_MODULES: Record<Exclude<SupportedLanguage, 'javascript'>, string> 
 }
 
 /**
- * tree-sitter core is pinned at 0.21.x on purpose: the published
- * tree-sitter-typescript grammar (latest 0.23.2) peers on `tree-sitter ^0.21.0`,
- * while tree-sitter-python/go 0.25.0 require `^0.25.0` core — no single core
- * version satisfies both. Upgrading core would break TypeScript parsing.
+ * tree-sitter core is pinned at 0.21.x on purpose. Every published grammar
+ * peer range is upper-bounded by it: tree-sitter-typescript 0.23.2 and
+ * tree-sitter-python 0.23.2 peer on `^0.21.0`, tree-sitter-go must stay at
+ * 0.23.4 (`^0.21.1`) — 0.25.0 requires `^0.25.0` core, and no single core
+ * version satisfies all three. Bumping core to 0.25 to adopt a newer grammar
+ * breaks TypeScript parsing; bumping go alone breaks `npm ci` with ERESOLVE.
+ * Revisit as a set, with a parser test per language.
  */
 const CORE_MODULE = 'tree-sitter'
 

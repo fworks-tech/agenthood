@@ -1,12 +1,12 @@
 import { existsSync, readFileSync, writeFileSync } from 'node:fs'
 import type { CommandDescriptor } from './types.ts'
-import { MEMBER_NAME_RE, MEMBER_NAMES, memberSkillPath, resolveSocietyMembersDir } from '../members.ts'
+import { MEMBER_NAME_RE, MEMBER_NAMES, memberResourcePath, memberSkillPath, resolveSocietyMembersDir } from '../members.ts'
 import { join } from 'node:path'
 import { contentHash } from '../utils/hash.ts'
 import { loadLockfile } from '../utils/lockfile.ts'
 import type { Lockfile } from '../utils/lockfile.ts'
 import { checkResourceIntegrity, checkSkillIntegrity, collectResourceHashes } from '../utils/skillIntegrity.ts'
-import { findRevision, restoreMember } from './rollback.ts'
+import { findResourceRevision, findRevision, restoreMember } from './rollback.ts'
 import { SkillParser } from '../skills/discovery/SkillParser.ts'
 import { scanForInjections } from '../skills/discovery/injectionScan.ts'
 import { userError } from '../core/cliError.ts'
@@ -168,18 +168,37 @@ function fixDrift(cwd: string, membersDir: string, members: string[], lockfile?:
   let unrestorable = 0
   for (const member of members) {
     const status = checkSkillIntegrity(member, join(membersDir, member, 'SKILL.md'), { lockfilePath: cwd })
-    if (status === 'clean') continue
-    const skillPath = memberSkillPath(cwd, member)
-    const commit = findRevision(cwd, skillPath, lockfile.members[member]?.version ?? '')
-    if (!commit) {
-      console.log(`  ? ${member} — no matching revision in git history (re-lock if intentional)`)
-      unrestorable++
-      continue
+    if (status !== 'clean') {
+      const skillPath = memberSkillPath(cwd, member)
+      const commit = findRevision(cwd, skillPath, lockfile.members[member]?.version ?? '')
+      if (!commit) {
+        console.log(`  ? ${member} — no matching revision in git history (re-lock if intentional)`)
+        unrestorable++
+      } else if (restoreMember(cwd, skillPath, member, commit, false)) restored++
+      else unrestorable++
     }
-    if (restoreMember(cwd, skillPath, member, commit, false)) restored++
-    else unrestorable++
+
+    // Resource surface (#604): restoring SKILL.md alone would leave a tampered
+    // script in place while reporting the member as fixed.
+    const lockedResources = lockfile.members[member]?.resources
+    if (!lockedResources) continue
+    for (const issue of checkResourceIntegrity(join(membersDir, member), lockedResources)) {
+      const rel = issue.replace(/^(untracked resource|resource drift|resource missing): /, '')
+      if (issue.startsWith('untracked resource')) {
+        // not in the lock — nothing to restore to; it needs a re-lock or removal
+        console.log(`  ? ${member} — untracked resource ${rel} (re-lock to adopt, or delete it)`)
+        continue
+      }
+      const relPath = memberResourcePath(cwd, member, rel)
+      const resourceCommit = findResourceRevision(cwd, relPath, lockedResources[rel])
+      if (!resourceCommit) {
+        console.log(`  ? ${member}/${rel} — no matching revision in git history (re-lock if intentional)`)
+        unrestorable++
+      } else if (restoreMember(cwd, relPath, `${member}/${rel}`, resourceCommit, false)) restored++
+      else unrestorable++
+    }
   }
-  console.log(`\n  Restored ${restored} member(s)${unrestorable > 0 ? `, ${unrestorable} need manual attention` : ''}.`)
+  console.log(`\n  Restored ${restored} file(s)${unrestorable > 0 ? `, ${unrestorable} need manual attention` : ''}.`)
   if (unrestorable > 0) {
     userError('Some members could not be restored', { fix: 'Run `agenthood verify --update-lock` if the edits are intentional.' })
   }

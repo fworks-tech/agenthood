@@ -1,5 +1,5 @@
 import { readFileSync, existsSync, readdirSync, type Dirent } from 'node:fs'
-import { join } from 'node:path'
+import { join, dirname } from 'node:path'
 import { randomUUID } from 'node:crypto'
 import type { ExecutionContext } from '../core/ExecutionContext.ts'
 import { contentHash, fileHash } from './hash.ts'
@@ -13,13 +13,14 @@ export interface SkillIntegrityOptions {
 }
 
 /**
- * Injection-time persistence-vector check (ADR-020): the member SKILL.md is
- * injected into the system prompt like the paper's SOUL.md, so hash it against
- * agenthood.lock at prompt-assembly time. Drift means the injected file may
- * have been tampered with (a mind-virus persistence vector); a corrupt
- * lockfile is treated as suspicious rather than silently skipped, since
- * tampering may also leave the lock unreadable. Pure — never throws; callers
- * decide whether drift/corruption is a hard block.
+ * Injection-time persistence-vector check (ADR-020, extended by #604): the member
+ * SKILL.md is injected into the system prompt like the paper's SOUL.md, so hash it
+ * against agenthood.lock at prompt-assembly time. Drift means the injected file may
+ * have been tampered with (a mind-virus persistence vector); a corrupt lockfile is
+ * treated as suspicious rather than silently skipped, since tampering may also leave
+ * the lock unreadable. When the lock entry carries `resources`, the member's
+ * scripts/ and references/ are checked too — those are the files that execute.
+ * Pure — never throws; callers decide whether drift/corruption is a hard block.
  */
 export function checkSkillIntegrity(
   member: string,
@@ -34,17 +35,20 @@ export function checkSkillIntegrity(
   } catch {
     return 'corrupt'
   }
-  let lockfile: { members?: Record<string, { version: string }> }
+  let lockfile: { members?: Record<string, { version: string; resources?: Record<string, string> }> }
   try {
-    lockfile = JSON.parse(raw) as { members?: Record<string, { version: string }> }
+    lockfile = JSON.parse(raw) as { members?: Record<string, { version: string; resources?: Record<string, string> }> }
   } catch {
     return 'corrupt'
   }
-  if (!lockfile.members?.[member]) return 'no-lockfile'
+  const entry = lockfile.members?.[member]
+  if (!entry) return 'no-lockfile'
   if (!existsSync(skillPath)) return 'missing'
   const current = contentHash(readFileSync(skillPath, 'utf-8'))
-  if (current === lockfile.members[member].version) return 'clean'
-  return 'drift'
+  if (current !== entry.version) return 'drift'
+  // SKILL.md matches — now the resource surface, when the lock recorded one.
+  if (entry.resources && checkResourceIntegrity(dirname(skillPath), entry.resources).length > 0) return 'drift'
+  return 'clean'
 }
 
 // Resource dirs hashed alongside SKILL.md (#604) — mirrors the manifest

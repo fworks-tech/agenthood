@@ -36,9 +36,15 @@ export function resolveSocietyMembersDir(): string {
 }
 
 /** Member SKILL.md as a cwd-relative POSIX path — `git show <rev>:<path>`
- * needs forward slashes, and rollback/diff run git with { cwd }. */
+ *  needs forward slashes, and rollback/diff run git with { cwd }. */
 export function memberSkillPath(cwd: string, member: string): string {
   return relative(cwd, join(MEMBERS_DIR, member, 'SKILL.md')).split(sep).join('/')
+}
+
+/** A member resource (scripts/, references/) as a cwd-relative POSIX path,
+ *  same form as `memberSkillPath` so git pathspecs accept it verbatim (#604). */
+export function memberResourcePath(cwd: string, member: string, resource: string): string {
+  return relative(cwd, join(MEMBERS_DIR, member, ...resource.split('/'))).split(sep).join('/')
 }
 
 /** Member names are refs into git pathspecs and filesystem paths — hostile

@@ -1,5 +1,6 @@
 import type { CommandDescriptor } from './types.ts'
 import { execFileSync } from 'node:child_process'
+import { createHash } from 'node:crypto'
 import { contentHash } from '../utils/hash.ts'
 import { memberSkillPath } from '../members.ts'
 import { loadLockTargets } from './lockTargets.ts'
@@ -17,6 +18,31 @@ export function findRevision(cwd: string, skillPath: string, lockedHash: string)
     const content = execFileSync('git', ['show', `${commit}:${skillPath}`], { cwd, encoding: 'utf-8', stdio: 'pipe' })
     const hash = contentHash(content)
     if (hash === lockedHash) return commit
+  }
+  return null
+}
+
+/**
+ * Byte-exact revision lookup for a member resource file (#604). Resources are
+ * locked with raw-byte SHA-256, so they cannot go through `findRevision`'s
+ * utf8 string hash — that would corrupt binary scripts and reject valid text
+ * files whose line endings differ between the blob and the working tree.
+ */
+export function findResourceRevision(cwd: string, relPath: string, lockedHash: string): string | null {
+  let commits: string[]
+  try {
+    const output = execFileSync('git', ['log', '--all', '--pretty=format:%H', '--', relPath], { cwd, encoding: 'utf-8', stdio: 'pipe' })
+    commits = output.trim().split('\n').filter(Boolean)
+  } catch {
+    return null
+  }
+  for (const commit of commits) {
+    try {
+      const blob = execFileSync('git', ['show', `${commit}:${relPath}`], { cwd, encoding: 'buffer', stdio: 'pipe' })
+      if (createHash('sha256').update(blob).digest('hex') === lockedHash) return commit
+    } catch {
+      continue
+    }
   }
   return null
 }

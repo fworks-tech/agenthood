@@ -10,6 +10,11 @@ import { logCost } from '../../../src/core/CostLogger.ts'
 import { MetricsCollector } from '../../../src/memory/MetricsCollector.ts'
 import type { Server } from 'node:http'
 
+/** Real sockets on a real port. Vitest's 5s default is not enough headroom
+ *  when the parallel worker pool is saturating the CPU — the same class of
+ *  flake the command-registry test hit on CI (#465). */
+const SOCKET_TIMEOUT = 15000
+
 function seed(cwd: string): void {
   const metrics = new MetricsCollector(join(cwd, '.agenthood', 'metrics'))
   metrics.record('the-scribe', true, 1000)
@@ -143,14 +148,14 @@ describe('metrics export (#651)', () => {
       const body = await res.text()
       expect(body).toContain('agenthood_member_invocations_total{member="the-scribe"} 2')
       expect(body).toContain('# TYPE agenthood_provider_cost_usd_total counter')
-    })
+    }, SOCKET_TIMEOUT)
 
     it('404s anything but /metrics', async () => {
       server = await startMetricsServer({ cwd, port: 0 })
       port = (server.address() as AddressInfo).port
       const res = await fetch(`http://127.0.0.1:${port}/other`)
       expect(res.status).toBe(404)
-    })
+    }, SOCKET_TIMEOUT)
 
     it('reflects new runs on the next scrape', async () => {
       seed(cwd)
@@ -159,6 +164,6 @@ describe('metrics export (#651)', () => {
       new MetricsCollector(join(cwd, '.agenthood', 'metrics')).record('the-scribe', false, 1000)
       const body = await (await fetch(`http://127.0.0.1:${port}/metrics`)).text()
       expect(body).toContain('agenthood_member_invocations_total{member="the-scribe"} 3')
-    })
+    }, SOCKET_TIMEOUT)
   })
 })

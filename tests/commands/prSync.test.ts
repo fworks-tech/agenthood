@@ -1,5 +1,17 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest'
 
+// Top-level, not inside beforeEach: vi.mock is hoisted above everything in the
+// file regardless of where it sits, and vitest 5 rejects a nested call outright.
+// Declaring it here states the real execution order.
+vi.mock('node:child_process', () => ({
+  execFileSync: vi.fn(),
+}))
+
+vi.mock('node:fs', () => ({
+  writeFileSync: vi.fn(),
+  unlinkSync: vi.fn(),
+}))
+
 // --- Helper tests (pure functions, no mocks needed) ---
 
 describe('isValidRefname', () => {
@@ -237,17 +249,8 @@ fix description`
         throw new Error('process.exit')
       }) as any)
 
-      vi.mock('node:child_process', () => ({
-        execFileSync: vi.fn(),
-      }))
-
-      vi.mock('node:fs', () => ({
-        writeFileSync: vi.fn(),
-        unlinkSync: vi.fn(),
-      }))
-
       const mod = await import('node:child_process')
-      mockExecFileSync = mod.execFileSync
+      mockExecFileSync = mod.execFileSync as any
     })
 
     afterEach(() => {

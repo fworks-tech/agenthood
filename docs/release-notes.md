@@ -5,6 +5,14 @@
 
 ---
 
+## v3.68.1 — September 26, 2026
+
+### 🐛 Bug Fixes
+
+- **Deps-dev:** bump vitest to 5 with the coverage provider and hoist nested mocks (#925) #920
+
+---
+
 ## v3.68.0 — September 26, 2026
 
 ### 🐛 Bug Fixes

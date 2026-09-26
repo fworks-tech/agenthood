@@ -5,6 +5,15 @@
 
 ---
 
+## v3.68.2 — September 26, 2026
+
+### 🐛 Bug Fixes
+
+- **Test:** raise the vitest timeout to fix the class, not the symptom (#934) #914
+- **Vscode-extension:** hold @types/vscode at the engines.vscode floor (#927)
+
+---
+
 ## v3.68.1 — September 26, 2026
 
 ### 🐛 Bug Fixes

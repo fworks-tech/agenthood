@@ -37,34 +37,40 @@ function cli(...args: string[]): CliResult {
 
 const suite = existsSync(cliPath) ? describe : describe.skip;
 
+// Each case spawns the built CLI as a real subprocess, which loads all 20
+// members and walks the skill directories. Under the default parallel worker
+// pool that regularly exceeds vitest's 5s default, so these get explicit
+// headroom — same class of flake as the command-registry test on CI (#465).
+const SPAWN_TIMEOUT = 30_000;
+
 suite('agenthood CLI end-to-end journey (#673)', () => {
   it('reports its version', () => {
     const { code } = cli('--version');
     expect(code).toBe(0);
-  });
+  }, SPAWN_TIMEOUT);
 
   it('prints usage on --help', () => {
     const { code, out } = cli('--help');
     expect(code).toBe(0);
     expect(out).toMatch(/list|run|init/);
-  });
+  }, SPAWN_TIMEOUT);
 
   it('lists the Society members from the built package', () => {
     const { code, out } = cli('list');
     expect(code).toBe(0);
     expect(out).toContain('the-scribe');
     expect(out).toContain('the-architect');
-  });
+  }, SPAWN_TIMEOUT);
 
   it('reports status in a clean project without erroring', () => {
     const { code, out } = cli('status');
     expect(code).toBe(0);
     expect(out).toMatch(/Members:/);
-  });
+  }, SPAWN_TIMEOUT);
 
   it('rejects an unknown command with a non-zero exit', () => {
     const { code, out } = cli('totally-not-a-command');
     expect(code).toBe(1);
     expect(out).toMatch(/Unknown command/i);
-  });
+  }, SPAWN_TIMEOUT);
 });

@@ -14,6 +14,13 @@ updates:
     open-pull-requests-limit: 5
     labels:
       - dependencies
+    ignore:
+      # vsce refuses to package when the declared @types/vscode major.minor
+      # exceeds engines.vscode, and this extension only uses pre-1.90 APIs — so
+      # there is nothing to gain by raising it. Bumping it requires raising
+      # engines.vscode in the same change, which drops support for every VS
+      # Code release in between. That is a human decision, not an automation.
+      - dependency-name: "@types/vscode"
   - package-ecosystem: github-actions
     directory: "/"
     schedule:

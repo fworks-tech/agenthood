@@ -121,5 +121,17 @@
   "_comment_security": "Optional: mind-virus persistence-vector hardening (ADR-020). strictSkillIntegrity blocks member runs when the injected SKILL.md drifted from agenthood.lock; when false (default), drift only warns and records.",
   "security": {
     "strictSkillIntegrity": false
+  },
+
+  "_comment_analytics": "Optional: local-only per-skill usage analytics shown by `agenthood stats`. Records skill names and counters only — never prompts or results. Set enabled false to opt out entirely.",
+  "analytics": {
+    "enabled": true
+  },
+
+  "_comment_metricsExport": "Optional: external monitoring export (#651). 'prometheus' serves /metrics while `agenthood metrics` runs (default port 9464). 'statsd' pushes a snapshot over UDP after every member run. 'none' (default) disables both. Only metric names, member names, and provider names leave the machine — never prompts or results.",
+  "metricsExport": {
+    "type": "none",
+    "port": 9464,
+    "host": "127.0.0.1"
   }
 }

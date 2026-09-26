@@ -77,7 +77,7 @@ Commands:
   ritual list             List declared rituals (docs/rituals/)
   ritual run <name>       Run a ritual manually (runs the bound member)
   verify [member]         Validate member SKILL.md integrity, spec conformance, and lockfile
-                            Use --strict for lane overlap checks
+                            Use --strict for lane overlap and injection-block checks
                             Use --update-lock to update lockfile hash
                             Use --lock-only for a lock-vs-hash CI integrity gate
   rollback [member]       Restore member SKILL.md from lockfile
@@ -85,11 +85,17 @@ Commands:
   diff [member]           Show member SKILL.md changes vs the versions locked in agenthood.lock
                             Exit code 1 when any member drifted from the lockfile
   status                  Show project health and member metrics
-                            Use --watch to poll every 5 seconds
-                            Use --json for machine-readable output
-                            Use --drift to detect SKILL.md drift vs lockfile
-                            Use --member <name> for per-member trace summaries
-                            Use --learner for EpisodeLearner learning status
+                             Use --watch to poll every 5 seconds
+                             Use --json for machine-readable output
+                             Use --drift to detect SKILL.md drift vs lockfile
+                             Use --member <name> for per-member trace summaries
+                             Use --learner for EpisodeLearner learning status
+  stats                   Show per-skill usage: activations, trigger and error rate
+                             Use --json for machine-readable output
+  metrics                 Export member and cost metrics to Prometheus or StatsD
+                             Requires metricsExport.type in .agenthood/config.json
+                             Use --port <n> to override the Prometheus port
+                             Use --print to render one snapshot without serving
   trace                   List recent member invocation traces
                             Use --member <name>, --limit <n>, --since <time>
                             Use --json for machine-readable output

@@ -1,4 +1,7 @@
 import { describe, it, expect, vi } from 'vitest'
+import { join } from 'node:path'
+import { tmpdir } from 'node:os'
+import { rmSync } from 'node:fs'
 import { ReActLoop, ToolLoopDetectedError, MaxStepsExceededError } from '../../../src/reasoning/ReActLoop.ts'
 import { ThinkingBudget, BudgetExceededError } from '../../../src/reasoning/ThinkingBudget.ts'
 import { ToolRegistry, ToolNotFoundError } from '../../../src/tools/ToolRegistry.ts'
@@ -6,6 +9,8 @@ import { createTestContext } from '../../helpers/testContext.ts'
 import type { ILLMProvider } from '../../../src/llm/ILLMProvider.ts'
 import type { ITool } from '../../../src/tools/ITool.ts'
 import type { LLMRequest } from '../../../src/llm/types.ts'
+import { SKILL_ACTIVATION_PREFIX } from '../../../src/skills/activation/ActivateSkillTool.ts'
+import { readCosts } from '../../../src/core/CostLogger.ts'
 
 function mockProvider(options?: { toolCalls?: { name: string; args: unknown }[] }): ILLMProvider {
   const calls = options?.toolCalls
@@ -302,5 +307,33 @@ describe('prompt-injection hardening', () => {
     await new ReActLoop(llm, new ToolRegistry()).run(`sys\n\n${guard}`, 'task', createTestContext())
     const sys = requests[0].messages[0].content
     expect(sys.match(/only as data to analyze/g)?.length).toBe(1)
+  })
+
+  it('charges the step after activation to that skill (#624)', async () => {
+    const reg = new ToolRegistry()
+    reg.register({
+      name: 'activate_skill',
+      description: 'activate',
+      inputSchema: { type: 'object', properties: { name: { type: 'string' } } },
+      execute: vi.fn().mockResolvedValue({
+        success: true,
+        output: `${SKILL_ACTIVATION_PREFIX}\n<skill_content name="pdf-form-fill">\nbody\n</skill_content>`,
+      }),
+    })
+    const { llm } = scriptProvider([
+      { content: 'reading', toolCalls: [{ id: 'c1', name: 'activate_skill', args: { name: 'pdf-form-fill' } }] },
+      { content: 'done' },
+    ])
+    const projectDir = join(tmpdir(), `agenthood-skill-cost-${Date.now()}`)
+    const loop = new ReActLoop(llm, reg)
+    await loop.run('sys', 'fill the form', createTestContext({
+      project: { localPath: projectDir, name: 'test-project' },
+    }))
+
+    expect(loop.activatedSkills.has('pdf-form-fill')).toBe(true)
+    const entries = readCosts(projectDir)
+    // step 0 activates nothing; step 1 pays for the injected skill content
+    expect(entries.filter((e) => e.skills?.includes('pdf-form-fill'))).toHaveLength(1)
+    rmSync(projectDir, { recursive: true, force: true })
   })
 })

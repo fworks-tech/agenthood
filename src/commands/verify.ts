@@ -1,11 +1,14 @@
 import { existsSync, readFileSync, writeFileSync } from 'node:fs'
 import type { CommandDescriptor } from './types.ts'
-import { MEMBER_NAME_RE, MEMBER_NAMES, resolveSocietyMembersDir } from '../members.ts'
+import { MEMBER_NAME_RE, MEMBER_NAMES, memberResourcePath, memberSkillPath, resolveSocietyMembersDir } from '../members.ts'
 import { join } from 'node:path'
 import { contentHash } from '../utils/hash.ts'
 import { loadLockfile } from '../utils/lockfile.ts'
 import type { Lockfile } from '../utils/lockfile.ts'
+import { checkResourceIntegrity, checkSkillIntegrity, collectResourceHashes } from '../utils/skillIntegrity.ts'
+import { findResourceRevision, findRevision, restoreMember } from './rollback.ts'
 import { SkillParser } from '../skills/discovery/SkillParser.ts'
+import { scanForInjections } from '../skills/discovery/injectionScan.ts'
 import { userError } from '../core/cliError.ts'
 import type { SkillTier } from '../skills/discovery/ISkillManifest.ts'
 import { SkillDiscovery } from '../skills/discovery/SkillDiscovery.ts'
@@ -34,7 +37,7 @@ interface VerifyResult {
   issues: string[]
 }
 
-function validateMember(membersDir: string, member: string, lockfile?: Lockfile): VerifyResult {
+function validateMember(membersDir: string, member: string, lockfile?: Lockfile, strict = false): VerifyResult {
   const result: VerifyResult = { member, pass: true, drift: false, issues: [] }
   const skillPath = join(membersDir, member, 'SKILL.md')
 
@@ -46,8 +49,10 @@ function validateMember(membersDir: string, member: string, lockfile?: Lockfile)
 
   const content = readFileSync(skillPath, 'utf8')
   const parser = new SkillParser()
-  const { frontmatter, body } = parser.parseRaw(content)
+  const { frontmatter, body, heuristic } = parser.parseRaw(content)
   const tier = parser.parseTier(frontmatter)
+
+  if (heuristic) result.issues.push('Frontmatter needed heuristic parsing — quote values containing colons')
 
   if (!frontmatter) {
     result.issues.push('Missing YAML frontmatter')
@@ -90,6 +95,26 @@ function validateMember(membersDir: string, member: string, lockfile?: Lockfile)
     if (currentHash !== lockedHash) result.drift = true
   }
 
+  // Resource surface (scripts/, references/) hashed alongside SKILL.md (#604).
+  // Skipped until the member has a lock entry — lock creation itself
+  // (updateLockfile) is what first records the resource hashes.
+  const lockedResources = lockfile?.members[member]?.resources
+  if (lockfile?.members[member]) {
+    for (const issue of checkResourceIntegrity(join(membersDir, member), lockedResources)) {
+      result.issues.push(issue)
+    }
+  }
+
+  // Prompt-injection screen (#606): warn by default so local flows keep
+  // working; --strict fails the run on known-malicious patterns.
+  for (const finding of scanForInjections(content)) {
+    if (strict && finding.severity === 'block') {
+      result.issues.push(`Injection (${finding.pattern}): "${finding.excerpt}"`)
+    } else {
+      console.warn(`  ⚠ ${member} — possible injection (${finding.pattern}): "${finding.excerpt}"`)
+    }
+  }
+
   if (result.issues.length > 0) result.pass = false
   return result
 }
@@ -110,6 +135,73 @@ function lockIntegrityGate(membersDir: string, members: string[], lockfile?: Loc
     return
   }
   console.log(`\n  ✓ Lockfile integrity OK — ${members.length} member(s) match agenthood.lock`)
+}
+
+function reportIntegrity(cwd: string, membersDir: string, members: string[], lockfile?: Lockfile): void {
+  let failed = 0
+  for (const member of members) {
+    const status = checkSkillIntegrity(member, join(membersDir, member, 'SKILL.md'), { lockfilePath: cwd })
+    const resourceIssues = lockfile?.members[member]
+      ? checkResourceIntegrity(join(membersDir, member), lockfile.members[member].resources)
+      : []
+    if (status === 'clean' && resourceIssues.length === 0) {
+      console.log(`  ✓ ${member} — clean`)
+    } else {
+      failed++
+      console.log(`  ✗ ${member} — ${status}`)
+      for (const issue of resourceIssues) console.log(`      - ${issue}`)
+    }
+  }
+  if (failed > 0) {
+    userError(`Integrity check failed for ${failed} member(s)`, { fix: 'Run `agenthood verify --fix` to restore from git, or `verify --update-lock` if the edit is intentional.' })
+    return
+  }
+  console.log(`\n  ✓ Integrity OK — ${members.length} member(s) match agenthood.lock`)
+}
+
+function fixDrift(cwd: string, membersDir: string, members: string[], lockfile?: Lockfile): void {
+  if (!lockfile) {
+    userError('No lockfile found', { fix: 'Run `agenthood verify --update-lock` to create one.' })
+    return
+  }
+  let restored = 0
+  let unrestorable = 0
+  for (const member of members) {
+    const status = checkSkillIntegrity(member, join(membersDir, member, 'SKILL.md'), { lockfilePath: cwd })
+    if (status !== 'clean') {
+      const skillPath = memberSkillPath(cwd, member)
+      const commit = findRevision(cwd, skillPath, lockfile.members[member]?.version ?? '')
+      if (!commit) {
+        console.log(`  ? ${member} — no matching revision in git history (re-lock if intentional)`)
+        unrestorable++
+      } else if (restoreMember(cwd, skillPath, member, commit, false)) restored++
+      else unrestorable++
+    }
+
+    // Resource surface (#604): restoring SKILL.md alone would leave a tampered
+    // script in place while reporting the member as fixed.
+    const lockedResources = lockfile.members[member]?.resources
+    if (!lockedResources) continue
+    for (const issue of checkResourceIntegrity(join(membersDir, member), lockedResources)) {
+      const rel = issue.replace(/^(untracked resource|resource drift|resource missing): /, '')
+      if (issue.startsWith('untracked resource')) {
+        // not in the lock — nothing to restore to; it needs a re-lock or removal
+        console.log(`  ? ${member} — untracked resource ${rel} (re-lock to adopt, or delete it)`)
+        continue
+      }
+      const relPath = memberResourcePath(cwd, member, rel)
+      const resourceCommit = findResourceRevision(cwd, relPath, lockedResources[rel])
+      if (!resourceCommit) {
+        console.log(`  ? ${member}/${rel} — no matching revision in git history (re-lock if intentional)`)
+        unrestorable++
+      } else if (restoreMember(cwd, relPath, `${member}/${rel}`, resourceCommit, false)) restored++
+      else unrestorable++
+    }
+  }
+  console.log(`\n  Restored ${restored} file(s)${unrestorable > 0 ? `, ${unrestorable} need manual attention` : ''}.`)
+  if (unrestorable > 0) {
+    userError('Some members could not be restored', { fix: 'Run `agenthood verify --update-lock` if the edits are intentional.' })
+  }
 }
 
 function reportLaneOverlaps(): void {
@@ -181,7 +273,7 @@ function updateLockfile(cwd: string, membersDir: string, members: string[]): voi
   const existing = loadLockfile(cwd)
   // Merge into the existing lock rather than rebuilding from the scanned
   // subset, so `verify <member> --update-lock` cannot drop every other member.
-  const next: Record<string, { version: string; updatedAt: string }> = { ...(existing?.members ?? {}) }
+  const next: Record<string, { version: string; updatedAt: string; resources?: Record<string, string> }> = { ...(existing?.members ?? {}) }
   const now = new Date().toISOString()
   let changed = 0
   for (const member of members) {
@@ -189,12 +281,18 @@ function updateLockfile(cwd: string, membersDir: string, members: string[]): voi
     if (existsSync(skillPath)) {
       const content = readFileSync(skillPath, 'utf8')
       const hash = contentHash(content)
+      const resources = collectResourceHashes(join(membersDir, member))
       const prev = next[member]
+      const resourcesChanged = JSON.stringify(prev?.resources ?? {}) !== JSON.stringify(resources)
       // Preserve updatedAt when the hash is unchanged — otherwise regenerating
       // the lock for one edited skill rewrites all 20 timestamps and produces
       // a merge conflict on every concurrent branch.
-      next[member] = { version: hash, updatedAt: prev && prev.version === hash ? prev.updatedAt : now }
-      if (!prev || prev.version !== hash) changed++
+      next[member] = {
+        version: hash,
+        updatedAt: prev && prev.version === hash && !resourcesChanged ? prev.updatedAt : now,
+        ...(Object.keys(resources).length > 0 ? { resources } : {}),
+      }
+      if (!prev || prev.version !== hash || resourcesChanged) changed++
     }
   }
   // Deterministic key order so a regen on any platform (or any FS iteration
@@ -249,7 +347,21 @@ export async function verify(args: string[]): Promise<void> {
     return
   }
 
-  const results = membersToCheck.map((m) => validateMember(membersDir, m, lockfile))
+  // --integrity (#604): per-member tamper report over SKILL.md + resources.
+  // No structural checks — fails only when a hash does not match the lock.
+  if (flags.has('--integrity')) {
+    reportIntegrity(cwd, membersDir, membersToCheck, lockfile)
+    return
+  }
+
+  // --fix (#604): restore drifted SKILL.md files from git history (same
+  // revision-matching as `rollback`), then report what still needs a re-lock.
+  if (flags.has('--fix')) {
+    fixDrift(cwd, membersDir, membersToCheck, lockfile)
+    return
+  }
+
+  const results = membersToCheck.map((m) => validateMember(membersDir, m, lockfile, isStrict))
   printResults(results)
 
   const structuralOk = results.every((r) => r.pass)

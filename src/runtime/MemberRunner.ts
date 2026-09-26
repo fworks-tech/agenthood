@@ -18,6 +18,7 @@ import { ToolRegistry } from '../tools/ToolRegistry.ts'
 import { AskHumanSignal, AskHumanTool } from '../tools/human/AskHumanTool.ts'
 import { validateOutputFormat, reportFormatDeviation } from './outputFormat.ts'
 import { redactEventText } from '../core/RunEventBus.ts'
+import { exportIfConfigured as exportIfMetricsConfigured } from '../metrics/config.ts'
 import { RunCheckpoint, type CheckpointData, type CheckpointStore } from '../checkpoint/RunCheckpoint.ts'
 
 export interface MemberRunnerDeps {
@@ -161,6 +162,7 @@ export class MemberRunner {
       throw err
     } finally {
       await this.flushTraces()
+      exportIfMetricsConfigured(process.cwd())
     }
   }
 

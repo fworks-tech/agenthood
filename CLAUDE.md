@@ -38,7 +38,9 @@ npx agenthood eval <member> --suite <path>  # Run an eval suite with baseline ga
 npx agenthood eval <memberA> --ab <memberB> --suite <path>  # Blind A/B comparison with significance testing
 npx agenthood optimize <member> --triggers <path>  # Optimize description for trigger accuracy
 npx agenthood rotate-key <provider>  # Rotate API key with validation and hot-reload
-npx agenthood cost           # Show cost breakdown (--since, --provider, --member)
+npx agenthood cost           # Show cost breakdown (--since, --provider, --member) + per-skill share
+npx agenthood stats          # Per-skill usage: activations, trigger rate, error rate (--json)
+npx agenthood metrics        # Prometheus /metrics or StatsD export (--port, --print) — needs metricsExport.type
 npx agenthood health         # Runtime health checks incl. live provider ping (exit 0/1/2)
 npx agenthood doctor         # All diagnostics in one pass: node, version, config, API keys, providers, skills, lockfile, hooks (--json, exit 0/1)
 npx agenthood workflow <name>  # Execute a workflow (e.g. review-pr)

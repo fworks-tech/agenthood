@@ -1,6 +1,7 @@
 import type { ITool, ToolResult } from '../../tools/ITool.ts'
 import type { ExecutionContext } from '../../core/ExecutionContext.ts'
 import type { ISkillManifest } from '../discovery/ISkillManifest.ts'
+import { recordSkillActivation } from './SkillStats.ts'
 
 export const SKILL_ACTIVATION_PREFIX = '[SKILL_ACTIVATION]'
 
@@ -20,12 +21,13 @@ export class ActivateSkillTool implements ITool {
 
   constructor(private manifests: Map<string, ISkillManifest>) {}
 
-  async execute(input: unknown, _context: ExecutionContext): Promise<ToolResult> {
+  async execute(input: unknown, context: ExecutionContext): Promise<ToolResult> {
     const { skill_name } = input as { skill_name: string }
 
     const manifest = this.manifests.get(skill_name)
     if (!manifest) {
       const available = Array.from(this.manifests.keys()).join(', ')
+      recordSkillActivation(context.project.localPath, skill_name, false)
       return {
         success: false,
         output: '',
@@ -44,6 +46,7 @@ Skill directory: ${manifest.directory}
 Relative paths in this skill are relative to the skill directory.${resourcesBlock}
 </skill_content>`
 
+    recordSkillActivation(context.project.localPath, manifest.name, true)
     return { success: true, output }
   }
 

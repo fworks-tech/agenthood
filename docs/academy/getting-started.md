@@ -151,6 +151,7 @@ The assistant loads the member's SKILL.md as context. Ask the Reviewer to check 
 
 ## Next steps
 
+- [5-minute skill creation quickstart](quickstart.md) — one working `SKILL.md` in under 20 lines
 - [Skills Reference](skills-reference.md) — all members, their tools, and invocation syntax
 - [Level 1: GenAI & RAG Basics](level-1-genai-rag-basics/) — LLMs, prompt engineering, RAG
 - [Level 2: AI Agent Essentials](level-2-agent-essentials/) — memory, planning, multi-agent

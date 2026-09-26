@@ -3,6 +3,7 @@ import { join, relative } from 'node:path'
 import { execFileSync } from 'node:child_process'
 import type { ISkillManifest } from '../discovery/ISkillManifest.ts'
 import { SkillParser } from '../discovery/SkillParser.ts'
+import { resolveSkillFile } from '../discovery/skillFile.ts'
 
 export interface RemoteSkillSource {
   url?: string
@@ -136,23 +137,20 @@ export class RemoteSkillFetcher {
         timeout: GIT_TIMEOUT_MS,
       })
 
-      const skillMdPath = path
-        ? join(tmpDir, path, 'SKILL.md')
-        : join(tmpDir, 'SKILL.md')
-      if (relative(tmpDir, skillMdPath).startsWith('..')) return undefined
+      const baseDir = path ? join(tmpDir, path) : tmpDir
+      if (relative(tmpDir, join(baseDir, 'SKILL.md')).startsWith('..')) return undefined
 
-      if (!existsSync(skillMdPath)) {
-        // Try to find SKILL.md in subdirectories
-        for (const entry of readdirSync(tmpDir, { withFileTypes: true })) {
-          if (entry.isDirectory()) {
-            const sub = join(tmpDir, entry.name, 'SKILL.md')
-            if (existsSync(sub)) return readFileSync(sub, 'utf-8')
-          }
+      const resolved = resolveSkillFile(baseDir)
+      if (resolved) return readFileSync(resolved.path, 'utf-8')
+
+      // Try to find SKILL.md in subdirectories
+      for (const entry of readdirSync(tmpDir, { withFileTypes: true })) {
+        if (entry.isDirectory()) {
+          const sub = resolveSkillFile(join(tmpDir, entry.name))
+          if (sub) return readFileSync(sub.path, 'utf-8')
         }
-        return undefined
       }
-
-      return readFileSync(skillMdPath, 'utf-8')
+      return undefined
     } catch (err) {
       // A silent catch makes a failed clone indistinguishable from "no SKILL.md".
       console.warn(`[RemoteSkillFetcher] git clone failed: ${(err as Error)?.message ?? err}`)

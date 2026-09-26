@@ -5,6 +5,8 @@ import type { ISkillManifest } from './ISkillManifest.ts'
 import { SkillParser } from './SkillParser.ts'
 import { RemoteSkillFetcher, type RemoteSkillSource } from './RemoteSkillSource.ts'
 import { checkSkillIntegrity } from '../../utils/skillIntegrity.ts'
+import { resolveSkillFile } from './skillFile.ts'
+import { scanForInjections } from './injectionScan.ts'
 import { MEMBERS_DIR } from '../../members/MemberRegistry.ts'
 
 const IGNORED_DIRS = new Set(['node_modules', '.git', '.hg', '.svn', 'dist', 'build', '.next', '.cache'])
@@ -164,13 +166,34 @@ export class SkillDiscovery {
   }
 
   private scanEntry(fullPath: string, entry: string, depth: number): ISkillManifest[] {
-    const skillMdPath = join(fullPath, 'SKILL.md')
-    if (existsSync(skillMdPath)) {
+    const resolved = resolveSkillFile(fullPath)
+    if (resolved) {
+      if (resolved.nonCanonical) {
+        console.warn(`[SkillDiscovery] "${entry}" uses skill.md — rename to SKILL.md for spec compliance`)
+      }
+      const skillMdPath = resolved.path
       const parsed = this.parser.parse(skillMdPath)
       if (!parsed) return []
       const content = readFileSync(skillMdPath, 'utf-8')
-      const { frontmatter } = this.parser.parseRaw(content)
+      const { frontmatter, heuristic } = this.parser.parseRaw(content)
+      if (heuristic) {
+        console.warn(`[SkillDiscovery] "${entry}" has malformed frontmatter (loaded via fallback) — quote values containing colons`)
+      }
       const tier = this.parser.parseTier(frontmatter)
+      // Fail-closed injection screen (ADR-029): a block-severity finding refuses
+      // to load the skill at all, on the same drop-the-manifest path a packaging
+      // mismatch takes. Warn-severity findings load and announce themselves —
+      // security skills legitimately discuss this vocabulary.
+      const findings = scanForInjections(content)
+      if (findings.some((f) => f.severity === 'block')) {
+        for (const f of findings.filter((f) => f.severity === 'block')) {
+          console.warn(`[SkillDiscovery] "${entry}" not loaded — prompt injection (${f.pattern}): "${f.excerpt}"`)
+        }
+        return []
+      }
+      for (const f of findings) {
+        console.warn(`[SkillDiscovery] "${entry}" — possible injection (${f.pattern}): "${f.excerpt}"`)
+      }
       const manifest = this.parser.parseManifest(skillMdPath, fullPath, parsed.body, parsed.name || entry, parsed.description, tier)
       const packaged = isPackagedDir(fullPath)
       if (!packaged) this.verifyIntegrity(parsed.name || entry, skillMdPath)

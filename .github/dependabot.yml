@@ -7,6 +7,20 @@ updates:
     open-pull-requests-limit: 5
     labels:
       - dependencies
+    ignore:
+      # tree-sitter grammars peer-pin the tree-sitter core ABI, so no grammar
+      # can move alone. tree-sitter-go 0.25 wants core ^0.25 while every other
+      # grammar in the tree (javascript, python, typescript) wants ^0.21.1,
+      # which makes 'npm ci' fail with ERESOLVE — see #932. Moving it means
+      # raising core and all four grammars together, with query-compatibility
+      # testing, so it is a migration rather than a version bump.
+      - dependency-name: "tree-sitter-go"
+      # js-yaml 5 is a rewrite with a different API surface, not a drop-in
+      # upgrade. It removed the default export (so 'import yaml from js-yaml'
+      # fails at module load) and made load() throw on empty input, which
+      # silently downgraded empty-frontmatter skills to the lenient heuristic
+      # parser — a fail-open on a trust boundary. See #936.
+      - dependency-name: "js-yaml"
   - package-ecosystem: npm
     directory: "/vscode-extension"
     schedule:
@@ -16,10 +30,11 @@ updates:
       - dependencies
     ignore:
       # vsce refuses to package when the declared @types/vscode major.minor
-      # exceeds engines.vscode, and this extension only uses pre-1.90 APIs — so
-      # there is nothing to gain by raising it. Bumping it requires raising
-      # engines.vscode in the same change, which drops support for every VS
-      # Code release in between. That is a human decision, not an automation.
+      # exceeds engines.vscode, and this extension only uses APIs available in
+      # VS Code 1.90 — so there is nothing to gain by raising it. Bumping it
+      # requires raising engines.vscode in the same change, which drops support
+      # for every VS Code release in between. That is a human decision, not an
+      # automation.
       - dependency-name: "@types/vscode"
   - package-ecosystem: github-actions
     directory: "/"

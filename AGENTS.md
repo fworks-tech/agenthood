@@ -72,6 +72,38 @@ Load skills from `skills/` to activate specialized agents:
 - `the-mailman` — message delivery, content scheduling, notification dispatch, cross-posting
 - `the-inspector` — visual-reasoning benchmarking, pixel-level analysis, multi-panel correspondence
 
+## Confidence-Gated Routing
+
+All routing decisions follow a confidence cascade — obvious requests route instantly,
+ambiguous requests surface to refinement. No request pays the same routing cost.
+
+**The Mediator** scores every intent classification (0-100%):
+- >= 90%: route directly to the specialist
+- 70-89%: route with stated confidence — the receiving member can reclassify
+- 50-69%: run Parallel Evaluation (Strategist + Doorman) before routing
+- < 50%: escalate to The Strategist for refinement
+
+**The Steward** scores every task's complexity (0-100%) before model tier routing:
+- 0-39%: budget tier (Haiku, Flash, mini)
+- 40-69%: standard tier (Sonnet, GPT-4o, Gemini Pro)
+- 70-100%: frontier tier (Opus, o1, Gemini 2.0)
+- If complexity confidence < 80%: run parallel evaluation before committing to a tier
+
+Every routing decision produces a type-safe record in `.agenthood/decisions/`:
+```json
+{
+  "member": "the-mediator",
+  "intent": "clear-implementation",
+  "confidence": 85,
+  "target": "the-builder",
+  "cascade_applied": true,
+  "parallel_evaluation": null
+}
+```
+
+Binary classification without confidence is a guess. Calibrated confidence with
+a cascade is a decision.
+
 ## Autonomous Runtime (agenthood run)
 
 Members can also be executed as real LLM agents via the TypeScript runtime.

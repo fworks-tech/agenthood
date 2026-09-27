@@ -5,37 +5,37 @@
 
 ---
 
-## v3.68.2 — September 26, 2026
+## v3.68.2 — September 25, 2026
 
 ### 🐛 Bug Fixes
 
-- **Test:** raise the vitest timeout to fix the class, not the symptom (#934) #914
-- **Vscode-extension:** hold @types/vscode at the engines.vscode floor (#927)
+- **Test:** raise the vitest timeout to fix the class, not the symptom (#934), refs #927, #914
+- **Vscode-extension:** hold @types/vscode at the engines.vscode floor (#927), refs #914
 
 ---
 
-## v3.68.1 — September 26, 2026
+## v3.68.1 — September 25, 2026
 
 ### 🐛 Bug Fixes
 
-- **Deps-dev:** bump vitest to 5 with the coverage provider and hoist nested mocks (#925) #920
+- **Deps-dev:** bump vitest to 5 with the coverage provider and hoist nested mocks (#925), refs #920
 
 ---
 
-## v3.68.0 — September 26, 2026
+## v3.68.0 — September 25, 2026
 
 ### 🐛 Bug Fixes
 
-- **Deps:** pin tree-sitter-go to 0.23.4 so npm ci resolves without ERESOLVE (#911)
-- **Deps:** restore optional peers dropped from the lockfile by #916 (#924)
+- **Deps:** pin tree-sitter-go to 0.23.4 so npm ci resolves without ERESOLVE (#911), refs #910
+- **Deps:** restore optional peers dropped from the lockfile by #916 (#924), refs #910
 
 ### ✨ Features
 
-- v3.68 Convert & Trust — onboarding, fail-closed skill trust, cost observability (#913) #619 #620 #578 #152 #151 #514 #515 #604 #606 #624 #625 #651 #465
+- v3.68 Convert & Trust — onboarding, fail-closed skill trust, cost observability (#913), refs #574, #619, #620, #578, #152, #151, #514, #515, #604, #606, #624, #625, #651, #465
 
 ---
 
-## v3.67.0 — September 21, 2026
+## v3.67.0 — September 20, 2026
 
 ### ✨ Features
 
@@ -46,34 +46,34 @@
 
 ---
 
-## v3.66.0 — September 20, 2026
+## v3.66.0 — September 19, 2026
 
 ### 🐛 Bug Fixes
 
 - **Ci:** reviewer empty-tree range (#815) (#888)
-- **Docs:** correct non-existent member references and tool vocabulary (#897)
+- **Docs:** correct non-existent member references and tool vocabulary (#897), refs #790
 
 ### ✨ Features
 
-- **Cli:** --json flag with pino structured logging (#647) (#892)
-- **Cli:** add shared CLI error formatter with consistent exit codes (#891)
-- **Create:** scaffold new skills from a template (#879)
-- **Diff:** show drift between installed members and lockfile (#876)
-- **Eject:** sweep lockfiles alongside artifacts (#874)
-- **Init:** add --ci for non-interactive setup with --runtime and --members (#882) #761
+- **Cli:** --json flag with pino structured logging (#647) (#892), refs #646
+- **Cli:** add shared CLI error formatter with consistent exit codes (#891), refs #646
+- **Create:** scaffold new skills from a template (#879), refs #602
+- **Diff:** show drift between installed members and lockfile (#876), refs #664
+- **Eject:** sweep lockfiles alongside artifacts (#874), refs #650
+- **Init:** add --ci for non-interactive setup with --runtime and --members (#882), refs #673, #761
 - **Init:** add --target flag for cross-client compatibility (#662) (#895)
 - **Init:** create .agents/skills/ as primary cross-client location (#654) (#894)
-- **Init:** prompt before overwriting an existing setup (#873)
-- **List:** show token counts and context budget (#875)
-- **Remove:** clean uninstall with lock pruning (#877)
-- **Run:** add --sandbox flag with strict local profile (#880) #665
+- **Init:** prompt before overwriting an existing setup (#873), refs #643
+- **List:** show token counts and context budget (#875), refs #657
+- **Remove:** clean uninstall with lock pruning (#877), refs #590
+- **Run:** add --sandbox flag with strict local profile (#880), refs #665
 - **Sandbox:** add Docker container isolation detection (#884) (#896)
 - **Skills:** discover skills in bare skills/ directory (#642) (#893)
-- **Upgrade:** self-upgrade agenthood with config backup (#881)
+- **Upgrade:** self-upgrade agenthood with config backup (#881), refs #667
 
 ---
 
-## v3.65.2 — September 18, 2026
+## v3.65.2 — September 17, 2026
 
 ### 🐛 Bug Fixes
 
@@ -81,19 +81,19 @@
 
 ---
 
-## v3.65.1 — September 17, 2026
+## v3.65.1 — September 16, 2026
 
 ### 🐛 Bug Fixes
 
-- **Ci:** poll npm registry instead of fixed sleep in release verify (#857)
+- **Ci:** poll npm registry instead of fixed sleep in release verify (#857), refs #856
 
 ---
 
-## v3.65.0 — September 17, 2026
+## v3.65.0 — September 16, 2026
 
 ### 🐛 Bug Fixes
 
-- **Ci:** gate ritual matrix entries in a step instead of job if (#855)
+- **Ci:** gate ritual matrix entries in a step instead of job if (#855), refs #854
 
 ### ✨ Features
 
@@ -101,7 +101,7 @@
 
 ---
 
-## v3.64.3 — September 17, 2026
+## v3.64.3 — September 16, 2026
 
 ### 🐛 Bug Fixes
 
@@ -109,39 +109,39 @@
 
 ---
 
-## v3.64.2 — September 17, 2026
+## v3.64.2 — September 16, 2026
 
 ### 🐛 Bug Fixes
 
-- **Llm:** runtime stream guard and structured provider logging (#847) #322
+- **Llm:** runtime stream guard and structured provider logging (#847), refs #323, #322
 
 ---
 
-## v3.64.1 — September 17, 2026
+## v3.64.1 — September 16, 2026
 
 ### 🐛 Bug Fixes
 
-- **Skills:** harden agenthood install against SSRF and path traversal (#843) #842
+- **Skills:** harden agenthood install against SSRF and path traversal (#843), refs #833, #842
 
 ---
 
-## v3.64.0 — September 16, 2026
+## v3.64.0 — September 15, 2026
 
 ### ✨ Features
 
-- **Skills:** include packaged tool skills in runtime catalog (#833)
+- **Skills:** include packaged tool skills in runtime catalog (#833), refs #832
 
 ---
 
-## v3.63.3 — September 12, 2026
+## v3.63.3 — September 11, 2026
 
 ### 🐛 Bug Fixes
 
-- **Verify:** narrow placeholder scan to marker form and skip code spans (#830) #753
+- **Verify:** narrow placeholder scan to marker form and skip code spans (#830), refs #816, #753
 
 ---
 
-## v3.63.2 — September 12, 2026
+## v3.63.2 — September 11, 2026
 
 ### 🐛 Bug Fixes
 
@@ -149,7 +149,7 @@
 
 ---
 
-## v3.63.1 — September 9, 2026
+## v3.63.1 — September 8, 2026
 
 ### 🐛 Bug Fixes
 
@@ -158,7 +158,7 @@
 
 ---
 
-## v3.63.0 — September 9, 2026
+## v3.63.0 — September 8, 2026
 
 ### 🐛 Bug Fixes
 
@@ -178,7 +178,7 @@
 
 ---
 
-## v3.62.0 — September 9, 2026
+## v3.62.0 — September 8, 2026
 
 ### 🐛 Bug Fixes
 
@@ -190,152 +190,152 @@
 
 ---
 
-## v3.61.0 — September 9, 2026
+## v3.61.0 — September 8, 2026
 
 ### ✨ Features
 
-- **Evals:** add blind A/B comparison with significance testing (#778)
-- **Members:** validate skill output against declared format pattern (#774)
+- **Evals:** add blind A/B comparison with significance testing (#778), refs #558
+- **Members:** validate skill output against declared format pattern (#774), refs #594
 
 ---
 
-## v3.60.0 — September 8, 2026
+## v3.60.0 — September 7, 2026
 
 ### ✨ Features
 
-- **Evals:** add skill regression testing with iteration tracking and convergence detection (#775)
+- **Evals:** add skill regression testing with iteration tracking and convergence detection (#775), refs #562
 
 ---
 
-## v3.59.2 — September 8, 2026
+## v3.59.2 — September 7, 2026
 
 ### 🐛 Bug Fixes
 
-- **Packaging:** export dist/checkpoint/RunCheckpoint.js for host CheckpointStore use (#772)
+- **Packaging:** export dist/checkpoint/RunCheckpoint.js for host CheckpointStore use (#772), refs #771
 
 ---
 
-## v3.59.1 — September 8, 2026
+## v3.59.1 — September 7, 2026
 
 ### 🐛 Bug Fixes
 
-- **Runtime:** resume restores loop state and answers the pending ask_human call (#768)
+- **Runtime:** resume restores loop state and answers the pending ask_human call (#768), refs #767
 
 ---
 
-## v3.59.0 — September 8, 2026
+## v3.59.0 — September 7, 2026
 
 ### ✨ Features
 
-- **Runtime:** accept an injectable CheckpointStore for host-managed persistence (#766)
+- **Runtime:** accept an injectable CheckpointStore for host-managed persistence (#766), refs #764
 
 ---
 
-## v3.57.0 — September 8, 2026
+## v3.57.0 — September 7, 2026
 
 ### ✨ Features
 
-- **Evals:** add assertion-based output grading to the eval harness (#763)
+- **Evals:** add assertion-based output grading to the eval harness (#763), refs #559
 
 ---
 
-## v3.56.6 — September 7, 2026
+## v3.56.6 — September 6, 2026
 
 ### 🐛 Bug Fixes
 
-- **Ci:** tolerate whitespace before the decision marker's --> (#757) #756
+- **Ci:** tolerate whitespace before the decision marker's --> (#757), refs #755, #756
 
 ---
 
-## v3.56.5 — September 7, 2026
+## v3.56.5 — September 6, 2026
 
 ### 🐛 Bug Fixes
 
-- **Llm:** import chain providers concurrently to stop cold-start timeouts (#754) #465
+- **Llm:** import chain providers concurrently to stop cold-start timeouts (#754), refs #465
 
 ---
 
-## v3.56.4 — September 7, 2026
+## v3.56.4 — September 6, 2026
 
 ### 🐛 Bug Fixes
 
-- **Verify:** unify member-path resolution and add a lockfile CI integrity gate (#752)
+- **Verify:** unify member-path resolution and add a lockfile CI integrity gate (#752), refs #740
 
 ---
 
-## v3.56.3 — September 7, 2026
+## v3.56.3 — September 6, 2026
 
 ### 🐛 Bug Fixes
 
-- **React-loop:** emit tool.approval instead of a duplicate tool.called (#751)
+- **React-loop:** emit tool.approval instead of a duplicate tool.called (#751), refs #748
 
 ---
 
-## v3.56.2 — September 7, 2026
+## v3.56.2 — September 6, 2026
 
 ### 🐛 Bug Fixes
 
-- **Skills:** strip UTF-8 BOM so frontmatter parses on Windows-authored files (#750)
+- **Skills:** strip UTF-8 BOM so frontmatter parses on Windows-authored files (#750), refs #563
 
 ---
 
-## v3.56.1 — September 7, 2026
+## v3.56.1 — September 6, 2026
 
 ### 🐛 Bug Fixes
 
-- **Exports:** re-expose ./dist/llm and ./dist/core for programmatic consumers (#749) #739
+- **Exports:** re-expose ./dist/llm and ./dist/core for programmatic consumers (#749), refs #637, #739
 
 ---
 
-## v3.56.0 — September 7, 2026
+## v3.56.0 — September 6, 2026
 
 ### ✨ Features
 
-- **Skill:** validate SKILL.md against the agentskills.io spec (#746)
+- **Skill:** validate SKILL.md against the agentskills.io spec (#746), refs #634
 
 ---
 
-## v3.55.7 — September 7, 2026
+## v3.55.7 — September 6, 2026
 
 ### 🐛 Bug Fixes
 
-- **Skill:** converge lockfile regeneration and make --update-lock actually work (#745)
+- **Skill:** converge lockfile regeneration and make --update-lock actually work (#745), refs #635
 
 ---
 
-## v3.55.6 — September 7, 2026
+## v3.55.6 — September 6, 2026
 
 ### 🐛 Bug Fixes
 
-- **Core:** graceful SIGINT shutdown for long-running agent sessions (#744)
+- **Core:** graceful SIGINT shutdown for long-running agent sessions (#744), refs #633
 
 ---
 
-## v3.55.5 — September 7, 2026
+## v3.55.5 — September 6, 2026
 
 ### 🐛 Bug Fixes
 
-- **Security:** delimit untrusted task and tool output against prompt injection (#743)
+- **Security:** delimit untrusted task and tool output against prompt injection (#743), refs #632
 
 ---
 
-## v3.55.4 — September 7, 2026
+## v3.55.4 — September 6, 2026
 
 ### 🐛 Bug Fixes
 
-- **Security:** broaden SafetyGuard catastrophic command patterns (#742)
+- **Security:** broaden SafetyGuard catastrophic command patterns (#742), refs #637
 
 ---
 
-## v3.55.3 — September 7, 2026
+## v3.55.3 — September 6, 2026
 
 ### 🐛 Bug Fixes
 
-- **Llm:** redact secrets from outbound provider requests (#741)
+- **Llm:** redact secrets from outbound provider requests (#741), refs #631
 
 ---
 
-## v3.55.2 — September 7, 2026
+## v3.55.2 — September 6, 2026
 
 ### 🐛 Bug Fixes
 
@@ -343,7 +343,7 @@
 
 ---
 
-## v3.55.1 — September 7, 2026
+## v3.55.1 — September 6, 2026
 
 ### 🐛 Bug Fixes
 
@@ -351,7 +351,7 @@
 
 ---
 
-## v3.55.0 — September 7, 2026
+## v3.55.0 — September 6, 2026
 
 ### ✨ Features
 
@@ -359,7 +359,7 @@
 
 ---
 
-## v3.54.0 — September 7, 2026
+## v3.54.0 — September 6, 2026
 
 ### ✨ Features
 
@@ -368,7 +368,7 @@
 
 ---
 
-## v3.53.0 — September 7, 2026
+## v3.53.0 — September 6, 2026
 
 ### ✨ Features
 
@@ -376,7 +376,7 @@
 
 ---
 
-## v3.52.0 — September 7, 2026
+## v3.52.0 — September 6, 2026
 
 ### ✨ Features
 
@@ -384,7 +384,7 @@
 
 ---
 
-## v3.51.0 — September 7, 2026
+## v3.51.0 — September 6, 2026
 
 ### ✨ Features
 
@@ -392,7 +392,7 @@
 
 ---
 
-## v3.50.0 — September 7, 2026
+## v3.50.0 — September 6, 2026
 
 ### ✨ Features
 
@@ -400,7 +400,7 @@
 
 ---
 
-## v3.49.0 — September 5, 2026
+## v3.49.0 — September 4, 2026
 
 ### ✨ Features
 
@@ -408,7 +408,7 @@
 
 ---
 
-## v3.48.0 — September 5, 2026
+## v3.48.0 — September 4, 2026
 
 ### 🐛 Bug Fixes
 
@@ -420,7 +420,7 @@
 
 ---
 
-## v3.47.0 — September 5, 2026
+## v3.47.0 — September 4, 2026
 
 ### 🐛 Bug Fixes
 
@@ -432,7 +432,7 @@
 
 ---
 
-## v3.46.0 — September 5, 2026
+## v3.46.0 — September 4, 2026
 
 ### ✨ Features
 
@@ -441,7 +441,7 @@
 
 ---
 
-## v3.45.0 — September 5, 2026
+## v3.45.0 — September 4, 2026
 
 ### ✨ Features
 
@@ -449,7 +449,7 @@
 
 ---
 
-## v3.44.0 — September 5, 2026
+## v3.44.0 — September 4, 2026
 
 ### ✨ Features
 
@@ -457,7 +457,7 @@
 
 ---
 
-## v3.43.0 — September 5, 2026
+## v3.43.0 — September 4, 2026
 
 ### ✨ Features
 
@@ -465,7 +465,7 @@
 
 ---
 
-## v3.42.0 — September 4, 2026
+## v3.42.0 — September 3, 2026
 
 ### ✨ Features
 
@@ -473,7 +473,7 @@
 
 ---
 
-## v3.41.1 — September 4, 2026
+## v3.41.1 — September 3, 2026
 
 ### 🐛 Bug Fixes
 
@@ -481,7 +481,7 @@
 
 ---
 
-## v3.41.0 — September 3, 2026
+## v3.41.0 — September 2, 2026
 
 ### ✨ Features
 
@@ -489,15 +489,15 @@
 
 ---
 
-## v3.40.0 — September 3, 2026
+## v3.40.0 — September 2, 2026
 
 ### ✨ Features
 
-- **Hitl:** add ask_human park primitive for park-and-resume hosts (#501)
+- **Hitl:** add ask_human park primitive for park-and-resume hosts (#501), refs #496
 
 ---
 
-## v3.39.2 — September 1, 2026
+## v3.39.2 — August 31, 2026
 
 ### 🐛 Bug Fixes
 
@@ -505,7 +505,7 @@
 
 ---
 
-## v3.39.1 — August 30, 2026
+## v3.39.1 — August 29, 2026
 
 ### 🐛 Bug Fixes
 
@@ -513,7 +513,7 @@
 
 ---
 
-## v3.39.0 — August 30, 2026
+## v3.39.0 — August 29, 2026
 
 ### 🐛 Bug Fixes
 
@@ -522,11 +522,11 @@
 
 ### ✨ Features
 
-- **Runtime:** add RunEventBus tests and enrich reasoning telemetry
+- **Runtime:** add RunEventBus tests and enrich reasoning telemetry, refs #474
 
 ---
 
-## v3.38.1 — August 30, 2026
+## v3.38.1 — August 29, 2026
 
 ### 🐛 Bug Fixes
 
@@ -536,13 +536,13 @@
 - **Ci:** fail closed on empty-node advisories in audit gate
 - **Ci:** restore mixed-node advisory reporting in audit gate
 - **Members:** address auditor and reviewer findings on member tool gating
-- **Members:** prevent LLM from echoing SKILL.md content in responses
+- **Members:** prevent LLM from echoing SKILL.md content in responses, refs #473
 - **Review:** address reviewer warnings on 6906423
 - **Review:** sync institutional-knowledge steps 2/4 with oracle and harden audit filter
 
 ---
 
-## v3.38.0 — August 21, 2026
+## v3.38.0 — August 20, 2026
 
 ### 🐛 Bug Fixes
 
@@ -550,11 +550,11 @@
 
 ### ✨ Features
 
-- **Members:** reframe steward load routing and add the-mediator (#482) #474
+- **Members:** reframe steward load routing and add the-mediator (#482), refs #474
 
 ---
 
-## v3.37.1 — August 21, 2026
+## v3.37.1 — August 20, 2026
 
 ### 🐛 Bug Fixes
 
@@ -562,7 +562,7 @@
 
 ---
 
-## v3.37.0 — August 20, 2026
+## v3.37.0 — August 19, 2026
 
 ### ✨ Features
 
@@ -570,7 +570,7 @@
 
 ---
 
-## v3.36.0 — August 20, 2026
+## v3.36.0 — August 19, 2026
 
 ### 🐛 Bug Fixes
 
@@ -587,7 +587,7 @@
 
 ---
 
-## v3.35.1 — August 19, 2026
+## v3.35.1 — August 18, 2026
 
 ### 🐛 Bug Fixes
 
@@ -595,7 +595,7 @@
 
 ---
 
-## v3.35.0 — August 16, 2026
+## v3.35.0 — August 15, 2026
 
 ### ✨ Features
 
@@ -607,7 +607,7 @@
 
 ---
 
-## v3.34.1 — August 16, 2026
+## v3.34.1 — August 15, 2026
 
 ### 🐛 Bug Fixes
 
@@ -615,7 +615,7 @@
 
 ---
 
-## v3.34.0 — August 16, 2026
+## v3.34.0 — August 15, 2026
 
 ### 🐛 Bug Fixes
 
@@ -643,15 +643,15 @@
 
 ---
 
-## v3.33.1 — August 15, 2026
+## v3.33.1 — August 14, 2026
 
 ### 🐛 Bug Fixes
 
-- **Agents:** restore Oracle model attribution on failures after runWithExecutor refactor (#436)
+- **Agents:** restore Oracle model attribution on failures after runWithExecutor refactor (#436), refs #435
 
 ---
 
-## v3.33.0 — August 14, 2026
+## v3.33.0 — August 13, 2026
 
 ### 🐛 Bug Fixes
 
@@ -666,7 +666,7 @@
 - **Cli:** surface anomaly alerts in status --alerts
 - **Config:** scaffold observability block in init config and make trace path configurable
 - **Core:** accumulate tool-level LLM usage into trace token counts
-- **Evals:** add EmbeddingIndex with ANN similarity search and upsert persistence
+- **Evals:** add EmbeddingIndex with ANN similarity search and upsert persistence, refs #313
 - **Evals:** add versioned re-index migration for legacy zero-vector patterns
 - **Evals:** query embedding index before hash fallback in EpisodeLearner
 - **Observability:** allow source override through ExecutionContext
@@ -675,81 +675,81 @@
 
 ---
 
-## v3.32.0 — August 14, 2026
+## v3.32.0 — August 13, 2026
 
 ### ✨ Features
 
-- **Observability:** add optional sentry error reporting
-- **Observability:** expose episode learner learning status
+- **Observability:** add optional sentry error reporting, refs #319
+- **Observability:** expose episode learner learning status, refs #303
 
 ---
 
-## v3.31.0 — August 14, 2026
+## v3.31.0 — August 13, 2026
 
 ### ✨ Features
 
-- **Observability:** add health check command and API
+- **Observability:** add health check command and API, refs #321
 
 ---
 
-## v3.30.0 — August 14, 2026
+## v3.30.0 — August 13, 2026
 
 ### ✨ Features
 
-- **Observability:** stamp traces with eval baseline quality
+- **Observability:** stamp traces with eval baseline quality, refs #306
 
 ---
 
-## v3.29.0 — August 14, 2026
+## v3.29.0 — August 13, 2026
 
 ### ✨ Features
 
-- **Observability:** add anomaly detection for cost and quality
-- **Observability:** add trace retention and export policy
+- **Observability:** add anomaly detection for cost and quality, refs #306
+- **Observability:** add trace retention and export policy, refs #307
 
 ---
 
-## v3.28.0 — August 14, 2026
+## v3.28.0 — August 13, 2026
 
 ### ✨ Features
 
-- **Observability:** add redaction filter for trace payloads
+- **Observability:** add redaction filter for trace payloads, refs #305
 
 ---
 
-## v3.27.0 — August 14, 2026
+## v3.27.0 — August 13, 2026
 
 ### ✨ Features
 
-- **Evals:** add replay evaluator for behavior drift
+- **Evals:** add replay evaluator for behavior drift, refs #314
 
 ---
 
-## v3.26.0 — August 14, 2026
+## v3.26.0 — August 13, 2026
 
 ### ✨ Features
 
-- **Cli:** add eval command with baseline regression gating
+- **Cli:** add eval command with baseline regression gating, refs #298
 
 ---
 
-## v3.25.0 — August 14, 2026
+## v3.25.0 — August 13, 2026
 
 ### ✨ Features
 
-- **Evals:** add baseline comparison for eval reports
+- **Evals:** add baseline comparison for eval reports, refs #311
 
 ---
 
-## v3.24.0 — August 14, 2026
+## v3.24.0 — August 13, 2026
 
 ### ✨ Features
 
-- **Evals:** add eval runner with llm-as-judge scoring
+- **Evals:** add eval runner with llm-as-judge scoring, refs #310
 
 ---
 
-## v3.23.0 — August 14, 2026
+## v3.23.0 — August 13, 2026
 
 ### 🐛 Bug Fixes
 
@@ -758,51 +758,51 @@
 ### ✨ Features
 
 - **Core:** add OpenCode Go model pricing to cost estimator
-- **Metrics:** per-member cost and quality summaries
+- **Metrics:** per-member cost and quality summaries, refs #300
 
 ---
 
-## v3.22.0 — August 14, 2026
+## v3.22.0 — August 13, 2026
 
 ### ✨ Features
 
-- **Cli:** add trace command — npx agenthood trace
+- **Cli:** add trace command — npx agenthood trace, refs #302
 
 ---
 
-## v3.21.0 — August 14, 2026
+## v3.21.0 — August 13, 2026
 
 ### ✨ Features
 
-- **Observability:** add workflow and session correlation IDs
+- **Observability:** add workflow and session correlation IDs, refs #301
 
 ---
 
-## v3.20.0 — August 14, 2026
+## v3.20.0 — August 13, 2026
 
 ### ✨ Features
 
-- **Observability:** persist traces to a queryable store
+- **Observability:** persist traces to a queryable store, refs #299
 
 ---
 
-## v3.19.0 — August 14, 2026
+## v3.19.0 — August 13, 2026
 
 ### ✨ Features
 
-- **Evals:** define eval suite format with Ajv validation
+- **Evals:** define eval suite format with Ajv validation, refs #293
 
 ---
 
-## v3.18.0 — August 14, 2026
+## v3.18.0 — August 13, 2026
 
 ### ✨ Features
 
-- **Core:** implement TokenCounter and CostEstimator #297
+- **Core:** implement TokenCounter and CostEstimator, refs #296, #297
 
 ---
 
-## v3.17.0 — August 14, 2026
+## v3.17.0 — August 13, 2026
 
 ### 🐛 Bug Fixes
 
@@ -810,11 +810,11 @@
 
 ### ✨ Features
 
-- **Observability:** emit trace envelope and in-memory ring-buffer tracer #295
+- **Observability:** emit trace envelope and in-memory ring-buffer tracer, refs #292, #295
 
 ---
 
-## v3.16.0 — August 12, 2026
+## v3.16.0 — August 11, 2026
 
 ### 🐛 Bug Fixes
 
@@ -827,7 +827,7 @@
 
 ---
 
-## v3.15.0 — August 12, 2026
+## v3.15.0 — August 11, 2026
 
 ### 🐛 Bug Fixes
 
@@ -856,7 +856,7 @@
 
 ---
 
-## v3.14.2 — August 12, 2026
+## v3.14.2 — August 11, 2026
 
 ### 🐛 Bug Fixes
 
@@ -864,7 +864,7 @@
 
 ---
 
-## v3.14.1 — August 12, 2026
+## v3.14.1 — August 11, 2026
 
 ### 🐛 Bug Fixes
 
@@ -876,7 +876,7 @@
 
 ---
 
-## v3.14.0 — August 12, 2026
+## v3.14.0 — August 11, 2026
 
 ### 🐛 Bug Fixes
 
@@ -893,7 +893,7 @@
 
 ---
 
-## v3.13.6 — August 8, 2026
+## v3.13.6 — August 7, 2026
 
 ### 🐛 Bug Fixes
 
@@ -901,7 +901,7 @@
 
 ---
 
-## v3.13.5 — August 8, 2026
+## v3.13.5 — August 7, 2026
 
 ### 🐛 Bug Fixes
 
@@ -909,7 +909,7 @@
 
 ---
 
-## v3.13.4 — August 8, 2026
+## v3.13.4 — August 7, 2026
 
 ### 🐛 Bug Fixes
 
@@ -917,7 +917,7 @@
 
 ---
 
-## v3.13.3 — August 7, 2026
+## v3.13.3 — August 6, 2026
 
 ### 🐛 Bug Fixes
 
@@ -927,7 +927,7 @@
 
 ---
 
-## v3.13.2 — August 6, 2026
+## v3.13.2 — August 5, 2026
 
 ### 🐛 Bug Fixes
 
@@ -941,7 +941,7 @@
 
 ---
 
-## v3.13.1 — August 6, 2026
+## v3.13.1 — August 5, 2026
 
 ### 🐛 Bug Fixes
 
@@ -950,7 +950,7 @@
 
 ---
 
-## v3.13.0 — August 5, 2026
+## v3.13.0 — August 4, 2026
 
 ### 🐛 Bug Fixes
 
@@ -971,7 +971,7 @@
 
 ---
 
-## v3.12.0 — July 9, 2026
+## v3.12.0 — July 8, 2026
 
 ### 🐛 Bug Fixes
 
@@ -983,24 +983,24 @@
 
 ---
 
-## v3.11.1 — July 9, 2026
+## v3.11.1 — July 8, 2026
 
 ### 🐛 Bug Fixes
 
-- **Ci:** point member structure checks at canonical skills/ source
-- **Members:** make skills/ the single source of truth for member SKILL.md
+- **Ci:** point member structure checks at canonical skills/ source, refs #366
+- **Members:** make skills/ the single source of truth for member SKILL.md, refs #366
 - **Members:** make tool tier construction order-independent
 - **Project:** scope supersedes regex to its section
 - **Security:** replace execSync postinstall eval and drop esbuild allowScripts
 
 ---
 
-## v3.11.0 — July 7, 2026
+## v3.11.0 — July 6, 2026
 
 ### 🐛 Bug Fixes
 
 - **Cli:** add missing run command to COMMANDS map
-- **Cli:** fix flag parsing and status member count
+- **Cli:** fix flag parsing and status member count, refs #367
 - **Status:** remove readMetrics duplication, restore MetricsCollector with centralized usage
 
 ### ✨ Features
@@ -1009,7 +1009,7 @@
 
 ---
 
-## v3.10.0 — July 7, 2026
+## v3.10.0 — July 6, 2026
 
 ### ✨ Features
 
@@ -1018,7 +1018,7 @@
 
 ---
 
-## v3.9.1 — July 6, 2026
+## v3.9.1 — July 5, 2026
 
 ### 🐛 Bug Fixes
 
@@ -1026,36 +1026,36 @@
 
 ---
 
-## v3.9.0 — July 4, 2026
+## v3.9.0 — July 3, 2026
 
 ### ✨ Features
 
-- fix vector store crash, seed during init, add semantic pattern matcher #312 #354 #312
+- fix vector store crash, seed during init, add semantic pattern matcher, refs #354, #312
 
 ---
 
-## v3.8.2 — July 4, 2026
+## v3.8.2 — July 3, 2026
 
 ### 🐛 Bug Fixes
 
 - add root commitlint.config.ts for repo CI
-- **Init:** resolve 11 failing health checks by correcting source paths and workflow
+- **Init:** resolve 11 failing health checks by correcting source paths and workflow, refs #14
 - pin commitlint versions, tighten CI perms, split check, extract stripConfig
 - **Struct:** sort workflow entries alphabetically in STRUCTURE.md
 
 ---
 
-## v3.8.1 — July 4, 2026
+## v3.8.1 — July 3, 2026
 
 ### 🐛 Bug Fixes
 
 - **Groq:** add error mapping, shared stream utils, and OpenAIProvider validation
-- **Groq:** resolve all Auditor, Warden, and Reviewer findings in GroqProvider
-- **Providers:** restore custom tool call handling in shared parseToolCall
+- **Groq:** resolve all Auditor, Warden, and Reviewer findings in GroqProvider, refs #324
+- **Providers:** restore custom tool call handling in shared parseToolCall, refs #350
 
 ---
 
-## v3.8.0 — July 3, 2026
+## v3.8.0 — July 2, 2026
 
 ### 🐛 Bug Fixes
 
@@ -1063,11 +1063,11 @@
 
 ### ✨ Features
 
-- **Skills:** add 16 platform integration skills (CLI-focused)
+- **Skills:** add 16 platform integration skills (CLI-focused), refs #348
 
 ---
 
-## v3.7.0 — July 2, 2026
+## v3.7.0 — July 1, 2026
 
 ### 🐛 Bug Fixes
 
@@ -1076,11 +1076,11 @@
 
 ### ✨ Features
 
-- **Skills:** add clear-named skill mirrors and shared reference checklists
+- **Skills:** add clear-named skill mirrors and shared reference checklists, refs #346
 
 ---
 
-## v3.6.0 — July 1, 2026
+## v3.6.0 — June 30, 2026
 
 ### 🐛 Bug Fixes
 
@@ -1094,7 +1094,7 @@
 
 ---
 
-## v3.5.3 — July 1, 2026
+## v3.5.3 — June 30, 2026
 
 ### 🐛 Bug Fixes
 
@@ -1103,7 +1103,7 @@
 
 ---
 
-## v3.5.2 — June 29, 2026
+## v3.5.2 — June 28, 2026
 
 ### 🐛 Bug Fixes
 
@@ -1111,7 +1111,7 @@
 
 ---
 
-## v3.5.1 — June 29, 2026
+## v3.5.1 — June 28, 2026
 
 ### 🐛 Bug Fixes
 
@@ -1120,7 +1120,7 @@
 
 ---
 
-## v3.5.0 — June 28, 2026
+## v3.5.0 — June 27, 2026
 
 ### 🐛 Bug Fixes
 
@@ -1156,7 +1156,7 @@
 
 ---
 
-## v3.4.0 — June 28, 2026
+## v3.4.0 — June 27, 2026
 
 ### 🐛 Bug Fixes
 
@@ -1165,11 +1165,11 @@
 
 ### ✨ Features
 
-- **Evals:** implement EpisodeLearner — update LongTermMemory and ResidualMemory from eval scores
+- **Evals:** implement EpisodeLearner — update LongTermMemory and ResidualMemory from eval scores, refs #119
 
 ---
 
-## v3.3.0 — June 28, 2026
+## v3.3.0 — June 27, 2026
 
 ### 🐛 Bug Fixes
 
@@ -1181,7 +1181,7 @@
 
 ---
 
-## v3.2.0 — June 28, 2026
+## v3.2.0 — June 27, 2026
 
 ### 🐛 Bug Fixes
 
@@ -1193,37 +1193,37 @@
 
 ### ✨ Features
 
-- **Phase:** phase 0 - decision log, postmortem, auto-discover #280 #114
-- **Phase:** phase 1 - protocol interfaces and workflow engine #116
-- **Phase:** phase 2 - workflow checkpoint and goal chain #118
-- **Phase:** phase 3 - oracle, strategist, and operator agents #277 #278
-- **Phase:** phase 4 - verify, rollback, and status commands #276 #281
-- **Phase:** phase 5 - diff impact analyzer and quality gates #282
+- **Phase:** phase 0 - decision log, postmortem, auto-discover, refs #279, #280, #114
+- **Phase:** phase 1 - protocol interfaces and workflow engine, refs #116
+- **Phase:** phase 2 - workflow checkpoint and goal chain, refs #117, #118
+- **Phase:** phase 3 - oracle, strategist, and operator agents, refs #113, #277, #278
+- **Phase:** phase 4 - verify, rollback, and status commands, refs #275, #276, #281
+- **Phase:** phase 5 - diff impact analyzer and quality gates, refs #115, #282
 - **Phase:** phase 6 - review-pr workflow end-to-end
 
 ---
 
-## v3.1.0 — June 27, 2026
+## v3.1.0 — June 26, 2026
 
 ### 🐛 Bug Fixes
 
-- **Docs:** address Reviewer findings on init check count and LanceDBStore API example
-- **Docs:** correct check count to 21 and fix insert->add API example
+- **Docs:** address Reviewer findings on init check count and LanceDBStore API example, refs #286
+- **Docs:** correct check count to 21 and fix insert->add API example, refs #286
 - **Docs:** fix mentioned shipped version
-- **Init,check:** align init ceremony with health check expectations
-- **Skills:** add output format section to the-reviewer SKILL.md for consistent rendering
-- sync skills/the-reviewer/SKILL.md with members/ changes
-- **The-reviewer:** address review findings on output format and README
-- **The-reviewer:** flatten heading hierarchy and add intra-section spacing example
-- **The-reviewer:** use [SEVERITY] placeholder and move meta-instruction outside template
+- **Init,check:** align init ceremony with health check expectations, refs #286
+- **Skills:** add output format section to the-reviewer SKILL.md for consistent rendering, refs #286
+- sync skills/the-reviewer/SKILL.md with members/ changes, refs #286
+- **The-reviewer:** address review findings on output format and README, refs #286
+- **The-reviewer:** flatten heading hierarchy and add intra-section spacing example, refs #286
+- **The-reviewer:** use [SEVERITY] placeholder and move meta-instruction outside template, refs #286
 
 ### ✨ Features
 
-- load .env file automatically via dotenv
+- load .env file automatically via dotenv, refs #286
 
 ---
 
-## v3.0.0 — June 26, 2026
+## v3.0.0 — June 25, 2026
 
 ### 🐛 Bug Fixes
 
@@ -1235,24 +1235,24 @@
 - **Ci:** fix YAML indentation in sentinel, auditor, warden workflows
 - **Ci:** install gitleaks binary before pre-check step
 - **Ci:** remove noisy gitleaks pre-check step
-- **Ci:** update sentinel to check file content instead of symlinks
+- **Ci:** update sentinel to check file content instead of symlinks, refs #285
 - **Cli:** wire detect flag through CLI parser
 - implement all review findings from architect and reviewer
 - **Security:** address all Auditor findings from PR #285
 
 ### 📝 Documentation
 
-- **Governance:** create member RACI map and release policy
+- **Governance:** create member RACI map and release policy, refs #283
 
 ### ✨ Features
 
 - **Ci:** make API usage smart and economic
 - **Llm:** add OpenCode Go provider
 - **Llm:** add OpenCode Zen provider
-- **Llm:** fix OpenCode provider for DeepSeek tool format compatibility
-- **Orchestration:** implement MemberOrchestrator detection
-- **Rag:** implement AgenticRAG with RetrievalDecisionSkill
-- **Rag:** implement HierarchicalChunkStrategy with parent-child chunking
+- **Llm:** fix OpenCode provider for DeepSeek tool format compatibility, refs #285
+- **Orchestration:** implement MemberOrchestrator detection, refs #201
+- **Rag:** implement AgenticRAG with RetrievalDecisionSkill, refs #108
+- **Rag:** implement HierarchicalChunkStrategy with parent-child chunking, refs #109
 
 ### 🔹 BREAKING CHANGES
 
@@ -1260,50 +1260,50 @@
 
 ---
 
-## v2.5.1 — June 26, 2026
+## v2.5.1 — June 25, 2026
 
 ### 🐛 Bug Fixes
 
-- **Memory:** align ProjectMemoryImpl return types with ProjectMemory interface
+- **Memory:** align ProjectMemoryImpl return types with ProjectMemory interface, refs #269
 
 ---
 
-## v2.5.0 — June 26, 2026
+## v2.5.0 — June 25, 2026
 
 ### 🐛 Bug Fixes
 
-- **Deps:** pin tree-sitter-go and tree-sitter-python to v0.23.x to resolve peer dependency conflict
+- **Deps:** pin tree-sitter-go and tree-sitter-python to v0.23.x to resolve peer dependency conflict, refs #269
 
 ### ✨ Features
 
 - **Memory:** implement PersonalisationStore for per-project agent adaptation, closes [hi#weight](https://github.com/hi/issues/weight) #112
-- **Memory:** implement ShortTerm, LongTerm, Episodic, and Project memory tiers
-- **Rag:** implement baseline RAG pipeline — ChunkStrategy, Indexer, Retriever
-- **Rag:** implement SocietyIndexer for members, ADRs, and conventions
-- **Rag:** implement TreeSitterParser for AST-based code structure extraction
+- **Memory:** implement ShortTerm, LongTerm, Episodic, and Project memory tiers, refs #262
+- **Rag:** implement baseline RAG pipeline — ChunkStrategy, Indexer, Retriever, refs #263
+- **Rag:** implement SocietyIndexer for members, ADRs, and conventions, refs #107
+- **Rag:** implement TreeSitterParser for AST-based code structure extraction, refs #106
 
 ---
 
-## v2.4.0 — June 26, 2026
+## v2.4.0 — June 25, 2026
 
 ### 🐛 Bug Fixes
 
-- address reviewer findings and update Phase 0 docs
-- ignore entire .agenthood/ directory except config.example.json
-- **Llm:** extract and granularize api key validation
+- address reviewer findings and update Phase 0 docs, refs #268
+- ignore entire .agenthood/ directory except config.example.json, refs #110
+- **Llm:** extract and granularize api key validation, refs #203
 
 ### ✨ Features
 
-- **Core:** move schema validator to core and harden error messages
-- **Memory:** implement LanceDB vector store with IVectorStore interface
-- **Memory:** implement memory governance with IMemoryStore and InMemoryStore
-- **Memory:** implement ResidualMemory — decay-weighted trace signals
-- **Rag:** implement KnowledgeGraphStore for relationship-aware retrieval
-- **Reasoning:** add infinite loop detection to reactloop
+- **Core:** move schema validator to core and harden error messages, refs #205
+- **Memory:** implement LanceDB vector store with IVectorStore interface, refs #261
+- **Memory:** implement memory governance with IMemoryStore and InMemoryStore, refs #111
+- **Memory:** implement ResidualMemory — decay-weighted trace signals, refs #110
+- **Rag:** implement KnowledgeGraphStore for relationship-aware retrieval, refs #105
+- **Reasoning:** add infinite loop detection to reactloop, refs #206
 
 ---
 
-## v2.3.1 — June 25, 2026
+## v2.3.1 — June 24, 2026
 
 ### 🐛 Bug Fixes
 
@@ -1311,23 +1311,23 @@
 
 ---
 
-## v2.3.0 — June 25, 2026
+## v2.3.0 — June 24, 2026
 
 ### 🐛 Bug Fixes
 
-- **Academy:** compute relative link from non-index pages at correct depth
+- **Academy:** compute relative link from non-index pages at correct depth, refs #243
 - **Failover:** add embed model downgrade, 3-attempt backoff, JSDoc, align with spec
 - **Failover:** trip permanent errors immediately, add model downgrade to stream()
 
 ### ✨ Features
 
-- **Cli:** add provider selection logging, runtime guide, and failover integration tests
+- **Cli:** add provider selection logging, runtime guide, and failover integration tests, refs #207
 - **Cli:** wire provider failover config into CLI and LLMRouter
-- **Provider:** implement model downgrade and circuit breaker config
+- **Provider:** implement model downgrade and circuit breaker config, refs #217
 
 ---
 
-## v2.2.0 — June 23, 2026
+## v2.2.0 — June 22, 2026
 
 ### 🐛 Bug Fixes
 
@@ -1339,12 +1339,12 @@
 
 ---
 
-## v2.1.0 — June 23, 2026
+## v2.1.0 — June 22, 2026
 
 ### 🐛 Bug Fixes
 
 - **Ci:** add npm ci step to gh-pages workflow before building, closes [#pages](https://github.com/fworks-tech/agenthood/issues/pages)
-- **Config:** update stale commitlint.config.cjs references to .ts
+- **Config:** update stale commitlint.config.cjs references to .ts, refs #237
 - **Llm:** make provider SDK imports lazy, lower engines.node to 22.14.0
 
 ### ✨ Features
@@ -1353,7 +1353,7 @@
 
 ---
 
-## v2.0.0 — June 21, 2026
+## v2.0.0 — June 20, 2026
 
 ### 🐛 Bug Fixes
 
@@ -1379,8 +1379,8 @@
 - **Agent:** implement ArchitectAgent, ReviewerAgent, QAAgent runtime classes
 - **Commands:** add pr-sync command, PrSyncSkill, and The Manuscript workflow, closes [#based](https://github.com/fworks-tech/agenthood/issues/based)
 - **Core:** add concurrency queue and safety guard
-- **Core:** add RiskManager, SkillRegistry discovery, dynamic routing, and README rewrite #162 #102 #102 #103 #162
-- **Core:** implement ContextCompressor with token-aware memory summarization
+- **Core:** add RiskManager, SkillRegistry discovery, dynamic routing, and README rewrite, refs #103, #162, #102
+- **Core:** implement ContextCompressor with token-aware memory summarization, refs #104
 - **Core:** security hardening — Ajv, API key validation, symlink checks
 - **Llm:** add Anthropic prompt caching with cache control breakpoint
 - **Llm:** implement ProviderFailover for resilience (#161)
@@ -1388,9 +1388,9 @@
 - **Members:** wire all 14 society members to agenthood run
 - **Reasoning:** implement ContextCompressor for token management (#104)
 - **Release:** generate user-friendly release notes via @semantic-release/exec
-- **Runtime:** release v2.0.0 — TypeScript runtime with autonomous agent execution
+- **Runtime:** release v2.0.0 — TypeScript runtime with autonomous agent execution, refs #202
 - ship M4 foundation - TypeScript runtime with providers, agents, skills, and CLI
-- **Skills:** export and register SubagentTaskSkill with delegate_task name #8 #9
+- **Skills:** export and register SubagentTaskSkill with delegate_task name, refs #3, #8, #9
 - **Skills:** implement SubagentTaskSkill for agent delegation (#199)
 - **Skills:** replace stub skills with real LLM and filesystem implementations
 - **Workflow:** replace commit listing with LLM code review by The Reviewer
@@ -1401,15 +1401,15 @@
 
 ---
 
-## v1.10.0 — June 20, 2026
+## v1.10.0 — June 19, 2026
 
 ### ✨ Features
 
-- **Skills:** add skills/ symlinks for all 14 members and Sentinel validation
+- **Skills:** add skills/ symlinks for all 14 members and Sentinel validation, refs #234
 
 ---
 
-## v1.9.1 — June 20, 2026
+## v1.9.1 — June 19, 2026
 
 ### 🐛 Bug Fixes
 
@@ -1417,7 +1417,7 @@
 
 ---
 
-## v1.9.0 — June 20, 2026
+## v1.9.0 — June 19, 2026
 
 ### 🐛 Bug Fixes
 
@@ -1426,12 +1426,12 @@
 
 ### ✨ Features
 
-- **Distribution:** add .claude-plugin marketplace.json for Claude Code plugin discovery
+- **Distribution:** add .claude-plugin marketplace.json for Claude Code plugin discovery, refs #224
 - **Workflows:** add Herald CI summary workflow that posts PR verdict comment
 
 ---
 
-## v1.8.4 — June 19, 2026
+## v1.8.4 — June 18, 2026
 
 ### 🐛 Bug Fixes
 
@@ -1439,15 +1439,15 @@
 
 ---
 
-## v1.8.3 — June 18, 2026
+## v1.8.3 — June 17, 2026
 
 ### 🐛 Bug Fixes
 
-- **Academy:** move CNAME to docs root for GitHub Pages (#191)
+- **Academy:** move CNAME to docs root for GitHub Pages (#191), refs #185
 
 ---
 
-## v1.8.2 — June 18, 2026
+## v1.8.2 — June 17, 2026
 
 ### 🐛 Bug Fixes
 
@@ -1455,15 +1455,15 @@
 
 ---
 
-## v1.8.1 — June 18, 2026
+## v1.8.1 — June 17, 2026
 
 ### 🐛 Bug Fixes
 
-- **Academy:** resolve ADR rendering and broken cross-links (#186)
+- **Academy:** resolve ADR rendering and broken cross-links (#186), refs #185
 
 ---
 
-## v1.8.0 — June 17, 2026
+## v1.8.0 — June 16, 2026
 
 ### ✨ Features
 
@@ -1471,15 +1471,15 @@
 
 ---
 
-## v1.7.2 — June 17, 2026
+## v1.7.2 — June 16, 2026
 
 ### 🐛 Bug Fixes
 
-- **Skill:** normalize SKILL.md structure for milestone M1 (#183)
+- **Skill:** normalize SKILL.md structure for milestone M1 (#183), refs #66
 
 ---
 
-## v1.7.1 — June 17, 2026
+## v1.7.1 — June 16, 2026
 
 ### 🐛 Bug Fixes
 
@@ -1487,7 +1487,7 @@
 
 ---
 
-## v1.7.0 — June 17, 2026
+## v1.7.0 — June 16, 2026
 
 ### ✨ Features
 
@@ -1495,7 +1495,7 @@
 
 ---
 
-## v1.6.7 — June 17, 2026
+## v1.6.7 — June 16, 2026
 
 ### 🐛 Bug Fixes
 
@@ -1504,7 +1504,7 @@
 
 ---
 
-## v1.6.6 — June 15, 2026
+## v1.6.6 — June 14, 2026
 
 ### 🐛 Bug Fixes
 
@@ -1513,7 +1513,7 @@
 
 ---
 
-## v1.6.5 — June 13, 2026
+## v1.6.5 — June 12, 2026
 
 ### 🐛 Bug Fixes
 
@@ -1522,7 +1522,7 @@
 
 ---
 
-## v1.2.3 — June 8, 2026
+## v1.2.3 — June 7, 2026
 
 ### 🐛 Bug Fixes
 
@@ -1530,7 +1530,7 @@
 
 ---
 
-## v1.2.2 — June 8, 2026
+## v1.2.2 — June 7, 2026
 
 ### 🐛 Bug Fixes
 
@@ -1538,23 +1538,23 @@
 
 ---
 
-## v1.2.1 — June 8, 2026
+## v1.2.1 — June 7, 2026
 
 ### ✨ Features
 
-- add integration test framework and improve TypeScript setup (#64)
+- add integration test framework and improve TypeScript setup (#64), refs #63
 
 ---
 
-## v1.2.0 — June 2, 2026
+## v1.2.0 — June 1, 2026
 
 ### ✨ Features
 
-- **Vscode:** implement workspace event bus for passive observation (#62)
+- **Vscode:** implement workspace event bus for passive observation (#62), refs #56
 
 ---
 
-## v1.1.1 — June 2, 2026
+## v1.1.1 — June 1, 2026
 
 ### 🐛 Bug Fixes
 
@@ -1562,7 +1562,7 @@
 
 ---
 
-## v1.1.0 — June 2, 2026
+## v1.1.0 — June 1, 2026
 
 ### 🐛 Bug Fixes
 
@@ -1570,12 +1570,12 @@
 
 ### ✨ Features
 
-- **Runtime:** bootstrap Python package and 14-member registry (#51)
-- **Vscode:** modernize with build, tests, and CI (#54)
+- **Runtime:** bootstrap Python package and 14-member registry (#51), refs #45
+- **Vscode:** modernize with build, tests, and CI (#54), refs #52
 
 ---
 
-## v1.0.3 — June 2, 2026
+## v1.0.3 — June 1, 2026
 
 ### 🐛 Bug Fixes
 
@@ -1583,7 +1583,7 @@
 
 ---
 
-## v1.0.2 — June 2, 2026
+## v1.0.2 — June 1, 2026
 
 ### 🐛 Bug Fixes
 
@@ -1592,7 +1592,7 @@
 
 ---
 
-## v1.0.1 — June 2, 2026
+## v1.0.1 — June 1, 2026
 
 ### 🐛 Bug Fixes
 
@@ -1601,28 +1601,28 @@
 
 ---
 
-## v1.0.0 — June 2, 2026
+## v1.0.0 — June 1, 2026
 
 ### 🐛 Bug Fixes
 
-- **Agents:** update stale member count from 13 to 14
-- **Check:** validate all 14 members in health check (#27) #26
-- **Ci:** add ADR presence check to librarian.yml (#20)
-- **Ci:** add AGENTS.md to sentinel.yml trigger paths (#19)
+- **Agents:** update stale member count from 13 to 14, refs #7
+- **Check:** validate all 14 members in health check (#27), refs #25, #26
+- **Ci:** add ADR presence check to librarian.yml (#20), refs #11
+- **Ci:** add AGENTS.md to sentinel.yml trigger paths (#19), refs #10
 - **Ci:** fix sentinel multi-word section checks
 - **Ci:** use commitlint.config.cjs for esm compat
-- **Conventions:** add vague-subject rule to commitlint config
+- **Conventions:** add vague-subject rule to commitlint config, refs #8
 - **Docs:** correct member count to fourteen
-- **Gitmessage:** replace project-specific scope examples with generic placeholders
-- **Portals:** create missing linear.md and jira.md connector docs (#28)
+- **Gitmessage:** replace project-specific scope examples with generic placeholders, refs #15
+- **Portals:** create missing linear.md and jira.md connector docs (#28), refs #24
 - **Release:** disable npm publish until NPM_TOKEN is configured (#33)
 
 ### ✨ Features
 
-- **Adr:** create foundational ADRs for Agenthood's own architecture (#30)
-- **Agentic-workflows:** clarify workflow files as manual-prompt templates (#31)
-- **Bootstrap:** add .agenthood/config.example.json reference template
-- **Bootstrap:** implement agenthood setup command and init CLI (#23)
+- **Adr:** create foundational ADRs for Agenthood's own architecture (#30), refs #12
+- **Agentic-workflows:** clarify workflow files as manual-prompt templates (#31), refs #13
+- **Bootstrap:** add .agenthood/config.example.json reference template, refs #9
+- **Bootstrap:** implement agenthood setup command and init CLI (#23), refs #14
 - **Doorman:** add pre-push hook blocking direct push to main
 - **Hooks:** add commit-msg hook
 - **Hooks:** add pre-commit hook

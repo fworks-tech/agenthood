@@ -36,11 +36,10 @@ Estimate current context usage by counting what is loaded:
 2. Estimate token weight: each full member skill ≈ 800–1200 tokens; AGENTS.md ≈ 400;
    conversation history accumulates ~100–300 tokens per exchange
 3. Map against the provider's context window:
-   - Claude Sonnet: 200K tokens
-   - Claude Haiku: 200K tokens  
-   - GPT-4o: 128K tokens
-   - Gemini 1.5 Pro: 1M tokens
-   - Gemini 2.0 Flash: 1M tokens
+- Claude Sonnet: 200K tokens
+    - Claude Haiku: 200K tokens
+    - GPT-4o: 128K tokens
+    - Gemini 2.0 Flash: 1M tokens
 4. Report: "~X% used. Y tokens estimated remaining."
 5. Apply threshold actions (see Thresholds below)
 

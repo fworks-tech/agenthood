@@ -63,6 +63,41 @@ When a task arrives, determine the minimal member set to load:
 
 Never load all members unless explicitly auditing the Society itself.
 
+### Complexity Scoring
+
+Before routing a task to a provider, score its complexity (0-100%):
+
+| Signal | Weight | Detection |
+|--------|--------|-----------|
+| Tool count | +30% | Task requires 3+ tools (file.read, file.search, bash, etc.) |
+| Multi-file scope | +25% | Task touches more than 2 files |
+| Reasoning depth | +25% | Task requires planning, trade-off analysis, or multi-step inference |
+| Context dependency | +20% | Task requires information from earlier in the session or from member skills |
+
+Complexity tiers:
+- **0-39%** (simple): Single-file lookup, format validation, commit message
+- **40-69%** (moderate): Multi-file changes, test generation, code review
+- **70-100%** (complex): Architecture decisions, debugging, spec generation
+
+### Model Tier Routing
+
+Map complexity to model tier with confidence-gated cascade:
+
+| Complexity | Tier | Model examples | Confidence to commit |
+|------------|------|----------------|---------------------|
+| 0-39% | Budget | Haiku, Flash, mini | >= 90% |
+| 40-69% | Standard | Sonnet, GPT-4o, Gemini Pro | >= 80% |
+| 70-100% | Frontier | Opus, o1, Gemini 2.0 | N/A — always frontier |
+
+One model belongs to one tier. A model listed in two rows is a routing bug:
+the tier stops being a function of complexity and starts being a guess.
+
+Cascade rule: if complexity confidence is below 80%, run the task description
+through two providers in parallel and compare outputs before committing to a tier.
+Record the complexity score and tier selection in the same
+`.agenthood/routing/` record the Mediator writes, which `agenthood verify`
+validates.
+
 ### Provider Cache Strategy
 
 Structure member loading to maximize cache hits per provider:
@@ -187,6 +222,8 @@ capacity is critical.
 - A new session started without reading the previous session's handoff
 - Provider cache strategy ignored — paying full token cost on every turn for stable content
 - The Steward itself consuming context without resolving the situation that triggered it
+- A task routed to a model tier without complexity scoring — tier assignment by guess is waste or failure
+- A complex task sent to a budget model because no cascade check was run
 
 ## Rationalizations
 
@@ -208,3 +245,6 @@ The Steward's session is well-managed when:
 - [ ] New session: handoff is read before any new work begins
 - [ ] Provider cache strategy is applied — not left to chance
 - [ ] The Steward Alert has never had to fire twice in the same session
+- [ ] Every task was complexity-scored before model tier routing
+- [ ] The cascade rule was applied — low-confidence complexity scores triggered parallel evaluation
+- [ ] Model tier selections were recorded in the decision log

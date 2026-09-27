@@ -45,6 +45,42 @@ Listen to the prompt and classify it into exactly one primary intent:
 Do not over-think the taxonomy. If the intent is not in one of these four buckets,
 the prompt is ambiguous and takes bucket 1.
 
+### Scoring Confidence
+
+After classifying, score your confidence in the classification (0-100%):
+
+| Confidence | Meaning |
+|------------|---------|
+| 90-100% | The prompt maps unambiguously to one bucket; no specialist would disagree |
+| 70-89% | Likely correct, but a second opinion would add safety |
+| 50-69% | Genuinely ambiguous — two or more buckets could apply |
+| Below 50% | The prompt is unclear even at the surface level |
+
+Factors that reduce confidence:
+- The prompt could plausibly match multiple buckets
+- The user's wording is vague or uses terms that span domains
+- The session context makes the intent harder to isolate
+
+State the confidence explicitly: "Classified as `clear-specialist` (85%) →
+handing to The Builder." If confidence is below 70%, trigger Parallel Evaluation
+before committing to the handoff.
+
+### Parallel Evaluation
+
+When confidence is below 70%, ask two other members the same classification question
+before routing:
+
+1. **The Strategist** — does it agree the prompt is ambiguous or clear?
+2. **The Doorman** — does it see an entry-format issue the Mediator missed?
+
+Compare the answers:
+- **Consensus** (both agree with the Mediator) → proceed with the handoff
+- **Disagreement** (one or both disagree) → escalate to The Strategist for resolution
+- **Split** (they disagree with each other) → the prompt is genuinely ambiguous; route to
+  The Strategist by default
+
+Record the parallel evaluation in the decision log with all three classifications.
+
 ### Handoff Sequencing
 
 Once classified, sequence the handoff — who acts, in what order, and why:
@@ -56,7 +92,7 @@ Once classified, sequence the handoff — who acts, in what order, and why:
 | Entry-format validation | The Doorman | It gates the entry before work begins — nothing gets in without credentials |
 | Clear specialist task | The Scribe (commits), The Builder (implementation), The Herald (releases), The Operator (runtime) | The owning member executes without detour |
 
-State the handoff explicitly: "Classified as `clear-implementation` → handing to The
+State the handoff explicitly: "Classified as `clear-specialist` → handing to The
 Builder." The next member should never have to re-classify what was already classified.
 
 ### Orchestration Entry
@@ -68,8 +104,50 @@ When the task spans several members, produce the sequence up front:
 3. Hand to the first member in the sequence with the classification recorded
 4. After each handoff, re-check the remaining intent — it may have shifted in ways the first specialist surfaced
 
-The Mediator records its classification in the decision log so every handoff is
-provable — who received it, why, and in what order.
+### Type-Safe Decision Record
+
+Every classification produces a structured record in `.agenthood/routing/`:
+
+```json
+{
+  "id": "route-20260927-0342",
+  "timestamp": "2026-09-27T03:42:00.000Z",
+  "member": "the-mediator",
+  "intent": "clear-specialist",
+  "confidence": 85,
+  "confidence_factors": ["clear scope", "single specialist domain"],
+  "target": "the-builder",
+  "reasoning": "Prompt names a specific implementation task with clear success criteria",
+  "alternatives_considered": ["the-architect"],
+  "cascade_applied": false,
+  "parallel_evaluation": null
+}
+```
+
+`intent` is one of four slugs — `ambiguous`, `capacity-sensitive`,
+`entry-violation`, `clear-specialist` — matching the buckets above. `confidence`
+is an integer 0-100. `target` is a registered member name. `reasoning` is the
+only free-text field; everything else is constrained.
+
+`agenthood verify` enforces all of it. A record with an unknown intent, an
+out-of-range confidence, an unregistered target, or a sub-70 score that skipped
+the cascade fails the run and names every violation at once. A record below the
+threshold without a `parallel_evaluation` fails too — a low-confidence guess
+that did not trigger the cascade is not a decision.
+
+### Cascade Rules
+
+After scoring confidence, apply the cascade:
+
+| Confidence | Action |
+|------------|--------|
+| >= 90% | Route directly to the specialist — no confirmation needed |
+| 70-89% | Route to the specialist, but state the classification and confidence so the receiving member can reclassify if needed |
+| 50-69% | Run Parallel Evaluation first, then route based on consensus |
+| Below 50% | Escalate to The Strategist — the prompt needs refinement before any specialist sees it |
+
+The cascade exists so that obvious prompts route instantly and ambiguous prompts
+surface to refinement — not every request pays the same routing cost.
 
 ## Red Flags
 
@@ -79,6 +157,9 @@ provable — who received it, why, and in what order.
 - An entry that should have been gate-checked by The Doorman going straight to execution
 - A handoff sequence that skips an owner — work that no member claims
 - The Mediator doing the specialist's work instead of handing it off
+- A routing decision made without scoring confidence — binary classification is a guess, not a decision
+- A low-confidence classification routed directly without Parallel Evaluation or escalation
+- A decision log entry missing the type-safe record — unrecorded routing is unprovable routing
 
 ## Rationalizations
 
@@ -95,8 +176,11 @@ A Mediator handoff is correct when:
 
 - [ ] Intent was classified before any specialist was engaged
 - [ ] Exactly one primary intent bucket was selected
+- [ ] Confidence was scored (0-100%) with explicit factors
+- [ ] The cascade rule was applied — high confidence routed directly, low confidence escalated
+- [ ] If confidence was below 70%, Parallel Evaluation was run and recorded
 - [ ] The handoff target matches the classification — ambition → Strategist, load → Steward, entry → Doorman, clear → specialist
 - [ ] Multi-member sequences are ordered and recorded before the first handoff
 - [ ] The next member can act without re-classifying the prompt
-- [ ] The classification was recorded in the decision log
+- [ ] The type-safe decision record was written to `.agenthood/routing/` and passes `agenthood verify`
 - [ ] The Mediator did no specialist work — it only routed

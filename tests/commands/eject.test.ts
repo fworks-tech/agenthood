@@ -18,11 +18,9 @@ function normalized(rmMock: ReturnType<typeof vi.mocked<typeof rm>>): string[] {
 }
 
 describe('eject command', () => {
-  let output = ''
 
   beforeEach(() => {
-    output = ''
-    vi.spyOn(console, 'log').mockImplementation((...args) => { output += args.join(' ') + '\n' })
+    vi.spyOn(console, 'log').mockImplementation(() => {})
     vi.mocked(rm).mockResolvedValue(undefined)
     vi.mocked(rm).mockClear()
     vi.mocked(existsSync).mockClear()

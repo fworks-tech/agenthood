@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest'
-import type { IVectorStore, VectorRecord, VectorSearchResult } from '../../../src/memory/VectorStore.ts'
+import type { IVectorStore, VectorRecord } from '../../../src/memory/VectorStore.ts'
 
 const makeMockVectorStore = (): IVectorStore => ({
   add: vi.fn().mockResolvedValue(undefined),

@@ -132,7 +132,7 @@ describe('BaseAgent lifecycle', () => {
   })
 
   it('records a failed decision and rethrows the error', async () => {
-    const { llm, toolRegistry } = createAgentHarness()
+    const { llm } = createAgentHarness()
     const recordDecision = vi.fn().mockResolvedValue(undefined)
     const trackProvenance = vi.fn().mockResolvedValue(undefined)
     const failingLlm: ILLMProvider = {

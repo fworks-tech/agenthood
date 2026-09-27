@@ -1,7 +1,5 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest'
 import { AgenticRAG } from '../../../src/rag/AgenticRAG.ts'
-import type { AgenticRetrievalResult, AgenticRAGOptions } from '../../../src/rag/AgenticRAG.ts'
-import { RetrievalClassifier } from '../../../src/tools/rag/RetrievalClassifier.ts'
 import type { ExecutionContext } from '../../../src/core/ExecutionContext.ts'
 
 function mockEmbedder() {

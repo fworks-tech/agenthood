@@ -37,7 +37,7 @@ describe('LLMJudge', () => {
   })
 
   it('asks for a bare numeric score without a JSON contract', async () => {
-    const complete = vi.fn(async (req: LLMRequest): Promise<LLMResponse> => {
+    const complete = vi.fn(async (_req: LLMRequest): Promise<LLMResponse> => {
       return { content: '0.5', usage: { promptTokens: 0, completionTokens: 0, totalTokens: 0 }, model: 'stub' }
     })
     await new LLMJudge(stubProvider({ complete })).score('faithfulness', context)

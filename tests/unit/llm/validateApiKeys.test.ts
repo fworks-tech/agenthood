@@ -129,7 +129,9 @@ describe('validateApiKeys', () => {
     const spy = vi.spyOn(process, 'exit') as any
     try {
       validateApiKeys({ provider: 'groq' })
-    } catch {}
+    } catch {
+      // the provider is expected to reject this key without throwing
+    }
     expect(spy).not.toHaveBeenCalled()
     spy.mockRestore()
   })

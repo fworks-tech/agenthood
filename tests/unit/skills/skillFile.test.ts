@@ -1,6 +1,6 @@
 import { describe, it, expect, vi, afterEach } from 'vitest'
 
-const existsBySuffix = vi.fn((p: string) => false)
+const existsBySuffix = vi.fn((_p: string) => false)
 
 vi.mock('node:fs', () => ({
   existsSync: (p: string) => existsBySuffix(p),

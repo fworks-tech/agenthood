@@ -1,7 +1,6 @@
 import { describe, it, expect, vi } from 'vitest'
 import { RiskManager } from '../../../src/core/RiskManager.ts'
 import type { ITool, ToolResult } from '../../../src/tools/ITool.ts'
-import type { ExecutionContext } from '../../../src/core/ExecutionContext.ts'
 
 function mockSkill(name: string): ITool {
   return {

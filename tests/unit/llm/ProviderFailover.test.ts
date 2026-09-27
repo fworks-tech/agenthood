@@ -340,7 +340,6 @@ describe('ProviderChain', () => {
     })
 
     it('trips embed provider permanently on AuthError instead of hardcoded 60s', async () => {
-      let currentModel = 'sonnet'
       const provider = {
         complete: vi.fn(),
         stream: vi.fn(),
@@ -348,7 +347,7 @@ describe('ProviderChain', () => {
           throw new AuthError('bad key')
         }),
         getContextWindow: () => 8192,
-        setModel: vi.fn().mockImplementation((m: string) => { currentModel = m }),
+        setModel: vi.fn(),
       }
       const backup = mockProvider('backup')
 

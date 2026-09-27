@@ -4,7 +4,6 @@ import { findConflicts, tokenize, OVERLAP_THRESHOLD } from '../../../src/skills/
 const LONG_A = 'Reviews pull requests for correctness, security, and readability before merging; runs multi-axis review on any diff'
 const LONG_A_DUPLICATE = 'Reviews pull requests for correctness, security, readability before merging; runs multi-axis review on any diff quickly'
 const LONG_B = 'Writes conventional commit messages, PR descriptions, and changelogs from diffs and branch history'
-const SHORT = 'Test helper for specs'
 
 describe('tokenize', () => {
   it('lowercases, strips punctuation, drops stop words and short tokens', () => {

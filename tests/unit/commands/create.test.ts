@@ -42,13 +42,13 @@ describe('create command', () => {
   })
 
   it('rejects names that do not match the skill spec', async () => {
-    const exit = exitSpy()
+    exitSpy()
     await expect(create(['My_Cool Skill'])).rejects.toThrow('process.exit')
     expect(vi.mocked(writeFileSync)).not.toHaveBeenCalled()
   })
 
   it('refuses Society member names', async () => {
-    const exit = exitSpy()
+    exitSpy()
     await expect(create(['the-scribe'])).rejects.toThrow('process.exit')
     expect(output.join('\n')).toContain('reserved')
     expect(vi.mocked(writeFileSync)).not.toHaveBeenCalled()
@@ -56,7 +56,7 @@ describe('create command', () => {
 
   it('refuses an existing SKILL.md', async () => {
     vi.mocked(existsSync).mockImplementation((p) => String(p).endsWith('SKILL.md'))
-    const exit = exitSpy()
+    exitSpy()
     await expect(create(['my-cool-skill'])).rejects.toThrow('process.exit')
     expect(output.join('\n')).toContain('already exists')
     expect(vi.mocked(writeFileSync)).not.toHaveBeenCalled()

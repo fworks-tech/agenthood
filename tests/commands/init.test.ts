@@ -146,7 +146,7 @@ describe('init command', () => {
 
   it('--ci rejects an unknown runtime and member', async () => {
     vi.mocked(existsSync).mockReturnValue(false)
-    const exit = vi.spyOn(process, 'exit').mockImplementation((() => { throw new Error('process.exit') }) as never)
+    vi.spyOn(process, 'exit').mockImplementation((() => { throw new Error('process.exit') }) as never)
     const { init } = await import( '../../src/commands/init.ts')
     await expect(init(['--ci', '--runtime', 'vscode'])).rejects.toThrow('process.exit')
     await expect(init(['--ci', '--members', 'the-scribe,nope'])).rejects.toThrow('process.exit')

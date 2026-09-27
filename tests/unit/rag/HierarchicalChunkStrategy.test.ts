@@ -1,6 +1,5 @@
 import { describe, it, expect } from 'vitest'
 import { MarkdownHierarchicalChunkStrategy } from '../../../src/rag/ChunkStrategy.ts'
-import type { ParentChunk, ChildChunk } from '../../../src/rag/ChunkStrategy.ts'
 
 describe('MarkdownHierarchicalChunkStrategy', () => {
   const strategy = new MarkdownHierarchicalChunkStrategy()
@@ -34,7 +33,7 @@ describe('MarkdownHierarchicalChunkStrategy', () => {
       'More text to ensure the child chunk is created properly.',
     ].join('\n')
 
-    const { parents, children } = strategy.chunk(text, meta)
+  const { children } = strategy.chunk(text, meta)
 
     expect(children.length).toBeGreaterThan(0)
 
@@ -81,7 +80,7 @@ describe('MarkdownHierarchicalChunkStrategy', () => {
       'Each endpoint is documented below.',
     ].join('\n')
 
-    const { parents, children } = strategy.chunk(text, meta)
+  const { parents } = strategy.chunk(text, meta)
 
     expect(parents.length).toBe(1)
     expect(parents[0].metadata.filePath).toBe('test.md')

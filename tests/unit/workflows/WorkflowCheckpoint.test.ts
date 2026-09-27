@@ -60,7 +60,7 @@ describe('WorkflowCheckpoint', () => {
     const id1 = cp.save('step-1', ctx)
 
     ctx.artifacts.set('b', 2)
-    const id2 = cp.save('step-2', ctx)
+  cp.save('step-2', ctx)
 
     expect(cp.count()).toBe(2)
 

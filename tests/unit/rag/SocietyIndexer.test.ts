@@ -44,7 +44,6 @@ vi.mock('node:fs', async (importOriginal) => {
   }
 })
 
-import { existsSync, readdirSync, readFileSync } from 'node:fs'
 import { SocietyIndexer } from '../../../src/project/SocietyIndexer.ts'
 import { KnowledgeGraphStore } from '../../../src/rag/KnowledgeGraphStore.ts'
 import type { ILLMProvider } from '../../../src/llm/ILLMProvider.ts'

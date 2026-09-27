@@ -72,6 +72,10 @@ jobs:
         if: steps.version.outputs.version != ''
         run: node scripts/herald-release.mjs notes "${{ steps.version.outputs.version }}" > herald-notes.md
 
+      - name: The Herald — clean generated notes (drop false closures, linkified refs)
+        if: steps.version.outputs.version != ''
+        run: npx tsx scripts/clean-herald-notes.ts herald-notes.md herald-notes.md
+
       - name: The Herald — gate the generated artifacts
         if: steps.version.outputs.version != ''
         run: |
@@ -83,23 +87,19 @@ jobs:
           # exists.
           npx vitest run tests/release-config.test.ts
 
-          # herald-notes.md becomes the PR body, and a closing keyword in a
-          # merged PR body closes issues. The notes are built from commit
-          # subjects, so any subject that quotes one leaks straight through.
-          # They are the raw generateNotes output too — cleanLine only ever
-          # touches the published files — so the reference arrives linkified as
-          # `closes [#N](url)`. GitHub appends `Closes #N` to a squash commit
-          # message, which is how the real v3.69.0 body got one.
+          # The notes have been cleaned by cleanLine — false closing keywords
+          # and linkified references are stripped. The gate now only catches
+          # genuine unprocessed closing keywords (which should not exist).
           if grep -inE '\b(clos(e|es|ed)|fix(es|ed)?|resolv(e|es|ed))\b[[:space:]]+\[?#[0-9]+' herald-notes.md; then
-            echo "::error::herald-notes.md carries a closing keyword; merging this PR would close those issues"
+            echo "::error::herald-notes.md carries a closing keyword after cleaning; merging this PR would close those issues"
             exit 1
           fi
 
-          # A bare #N resolves against the repo on its own. Strip the linkified
-          # form first — that is what cleanLine exists to produce — then anything
-          # left is a reference the generator failed to rewrite.
-          if sed -E 's/\[#[0-9]+\]\([^)]*\)//g' herald-notes.md | grep -nE '#[0-9]+'; then
-            echo "::error::herald-notes.md carries a bare issue reference that is not linkified"
+          # A bare #N resolves against the repo on its own. cleanLine rewrites
+          # linkified refs to bare #N, so anything left here is a reference the
+          # generator failed to rewrite.
+          if grep -nE '#[0-9]+' herald-notes.md; then
+            echo "::error::herald-notes.md carries a bare issue reference after cleaning"
             exit 1
           fi
 

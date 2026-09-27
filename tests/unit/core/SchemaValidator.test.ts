@@ -139,7 +139,7 @@ describe('SchemaValidator', () => {
         author: { $ref: '#/definitions/person' },
       },
       required: ['author'],
-    }
+    } as unknown as JSONSchema
 
     it('passes when $ref target is valid', () => {
       expect(() => validateSchema({ author: { name: 'Ada' } }, schema)).not.toThrow()

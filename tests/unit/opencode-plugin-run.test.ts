@@ -124,7 +124,7 @@ describe('runMember', () => {
             setImmediate(() => child.emit('close', 0))
             return child
           },
-        }),
+        }) as any,
       },
     )
     expect(checked).toEqual(['cli'])

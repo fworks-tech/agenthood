@@ -22,7 +22,7 @@ describe('agenthood opencode plugin', () => {
   })
 
   it('config hook wires the skills dir, AGENTS.md, and the-steward agent', async () => {
-    const hooks = await pluginModule.server() as any
+    const hooks = await (pluginModule.server() as any)
     const cfg: PluginConfig = {}
     await hooks.config?.(cfg)
 
@@ -33,7 +33,7 @@ describe('agenthood opencode plugin', () => {
   })
 
   it('registers agenthood_run_member with a member enum and task string', async () => {
-    const hooks = await pluginModule.server() as any
+    const hooks = await (pluginModule.server() as any)
     const def = hooks.tool?.['agenthood_run_member']
     expect(def).toBeDefined()
     expect(def?.description).toContain(getMemberNames().join(', '))
@@ -281,7 +281,7 @@ describe('shipped skills and prompts', () => {
 
   it('plugin steward wiring matches the project opencode.json', async () => {
     const project = JSON.parse(readFileSync(join(repoRoot, 'opencode.json'), 'utf8'))
-    const hooks = await pluginModule.server() as any
+    const hooks = await (pluginModule.server() as any)
     const cfg: PluginConfig = {}
     await hooks.config?.(cfg)
     expect(cfg.agent?.['the-steward']).toEqual(project.agent['the-steward'])

@@ -296,7 +296,7 @@ describe('DecisionLog', () => {
   describe('edges.json backward compatibility', () => {
     it('excludes edges.json from the entry cache', async () => {
       vi.mocked(existsSync).mockReturnValue(true)
-      vi.mocked(readdirSync).mockReturnValue(['edges.json', 'dec-001.json'])
+      vi.mocked(readdirSync).mockReturnValue(['edges.json', 'dec-001.json'] as any)
       vi.mocked(readFileSync).mockImplementation((filePath: unknown) => {
         if (String(filePath).endsWith('edges.json')) {
           return JSON.stringify({ edges: [{ source: 'x', target: 'y', relationshipType: 'CAUSED' }] })

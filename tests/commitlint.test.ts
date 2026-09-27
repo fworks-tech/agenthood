@@ -1,6 +1,6 @@
 import { describe, it, expect } from 'vitest'
 import config from '../docs/conventions/commitlint.config.ts'
-const rule = config.plugins![0].rules['no-vague-subject'] as (ctx: { subject?: string }) => [boolean, string]
+const rule = (config.plugins?.[0] as any)?.rules?.['no-vague-subject'] as (ctx: { subject?: string }) => [boolean, string]
 
 const BANNED = ['wip', 'fix stuff', 'update', 'changes', 'misc', 'asdf', 'temp', 'cleanup', 'test123']
 const VALID  = ['add user login', 'fix null pointer in auth middleware', 'refactor token refresh logic']

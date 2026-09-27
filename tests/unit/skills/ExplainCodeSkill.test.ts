@@ -19,6 +19,7 @@ describe('ExplainCodeSkill', () => {
         stream: vi.fn(),
         embed: vi.fn(),
         getContextWindow: vi.fn().mockReturnValue(8192),
+        setModel: vi.fn(),
       },
     })
   })
@@ -84,6 +85,7 @@ describe('ExplainCodeSkill', () => {
           stream: vi.fn(),
           embed: vi.fn(),
           getContextWindow: vi.fn().mockReturnValue(8192),
+          setModel: vi.fn(),
         },
       })
 
@@ -101,6 +103,7 @@ describe('ExplainCodeSkill', () => {
           stream: vi.fn(),
           embed: vi.fn(),
           getContextWindow: vi.fn().mockReturnValue(8192),
+          setModel: vi.fn(),
         },
       })
 

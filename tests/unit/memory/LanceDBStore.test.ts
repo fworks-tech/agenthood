@@ -340,7 +340,7 @@ describe('LanceDBStore', () => {
 
       const s = new LanceDBStore(3)
       await s.connect('/tmp/test-lancedb')
-      const count = await s.prune({ maxSize: 7 })
+      const count = await s.prune({ maxSize: 7, pruneStrategy: 'lru' as const })
 
       expect(count).toBe(3)
       expect(mockTable.mockDelete).toHaveBeenCalledWith("id IN ('old-1','old-2','old-3')")

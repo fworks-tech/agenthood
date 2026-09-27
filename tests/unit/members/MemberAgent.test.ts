@@ -195,12 +195,12 @@ describe('MemberAgent SKILL.md integrity check', () => {
   }
 
   function driftRecord(spy: ReturnType<typeof vi.spyOn>): { member: string } | undefined {
-    return spy.mock.calls.map(([e]) => e as { tags: string[]; member: string })
-      .find((e) => e.tags.includes('mind-virus'))
+    return spy.mock.calls.map(([e]: [any]) => e as { tags: string[]; member: string })
+      .find((e: { tags: string[] }) => e.tags.includes('mind-virus'))
   }
 
   function driftWarns(warnSpy: ReturnType<typeof vi.spyOn>): boolean {
-    return warnSpy.mock.calls.some(([m]) => String(m).includes('[skill-integrity]'))
+    return warnSpy.mock.calls.some(([m]: [string]) => String(m).includes('[skill-integrity]'))
   }
 
   it('records drift durably and warns (non-strict) without throwing', async () => {

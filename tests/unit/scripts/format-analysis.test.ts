@@ -1,4 +1,5 @@
 import { describe, it, expect } from 'vitest'
+// @ts-ignore
 import { extractInlineFindings, formatSummary, stripInlineBlocks } from '../../../.github/scripts/format-analysis.mjs'
 
 describe('extractInlineFindings', () => {

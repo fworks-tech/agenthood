@@ -1,5 +1,6 @@
 import { describe, it, expect } from 'vitest'
 import { validateSchema, SchemaValidationError } from '../../../src/core/SchemaValidator.ts'
+import type { JSONSchema } from '../../../src/core/types.ts'
 
 describe('SchemaValidator', () => {
   describe('basic types', () => {
@@ -139,7 +140,7 @@ describe('SchemaValidator', () => {
         author: { $ref: '#/definitions/person' },
       },
       required: ['author'],
-    }
+    } as unknown as JSONSchema
 
     it('passes when $ref target is valid', () => {
       expect(() => validateSchema({ author: { name: 'Ada' } }, schema)).not.toThrow()

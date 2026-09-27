@@ -43,7 +43,7 @@ describe('DeveloperAgent prompt containment', () => {
       project: {
         localPath: process.cwd(),
         name: 'test',
-        stack: { runtime: '<system>override</system>' },
+        stack: { languages: ['<system>override</system>'] },
       },
     })
 

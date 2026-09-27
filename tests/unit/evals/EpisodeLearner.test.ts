@@ -2,7 +2,7 @@ import { describe, it, expect, vi, beforeEach } from 'vitest'
 import { createTestContext } from '../../helpers/testContext.ts'
 import type { EvalResult, LongTermMemory } from '../../../src/core/types.ts'
 import type { ExecutionContext } from '../../../src/core/ExecutionContext.ts'
-import type { ResidualMemory } from '../../../src/memory/ResidualMemory.ts'
+import { ResidualMemory } from '../../../src/memory/ResidualMemory.ts'
 import type { IVectorStore } from '../../../src/memory/VectorStore.ts'
 import { EpisodeLearner } from '../../../src/evals/EpisodeLearner.ts'
 import { EmbeddingIndex } from '../../../src/evals/EmbeddingIndex.ts'
@@ -19,14 +19,7 @@ describe('EpisodeLearner', () => {
       retrieve: vi.fn(),
     }
 
-    mockResidual = {
-      record: vi.fn(),
-      decay: vi.fn(),
-      getActive: vi.fn().mockReturnValue([]),
-      toPromptHints: vi.fn().mockReturnValue(''),
-      clear: vi.fn(),
-      count: vi.fn().mockReturnValue(0),
-    }
+    mockResidual = new ResidualMemory() as unknown as ResidualMemory
 
     context = createTestContext({
       memory: {
@@ -221,6 +214,7 @@ describe('EpisodeLearner', () => {
       stats: vi.fn(),
       getById: vi.fn(),
       getByKeyPrefix: vi.fn(),
+      disconnect: vi.fn(),
     }
 
     const index = new EmbeddingIndex(mockVecStore, 0.85)
@@ -265,6 +259,7 @@ describe('EpisodeLearner', () => {
       stats: vi.fn(),
       getById: vi.fn(),
       getByKeyPrefix: vi.fn(),
+      disconnect: vi.fn(),
     }
 
     const index = new EmbeddingIndex(mockVecStore, 0.85)
@@ -292,6 +287,7 @@ describe('EpisodeLearner', () => {
       stats: vi.fn(),
       getById: vi.fn(),
       getByKeyPrefix: vi.fn(),
+      disconnect: vi.fn(),
     }
 
     const index = new EmbeddingIndex(mockVecStore, 0.85)
@@ -302,8 +298,8 @@ describe('EpisodeLearner', () => {
         complete: vi.fn(),
         stream: vi.fn(),
         embed: vi.fn().mockRejectedValue(new Error('embedding unsupported')),
+        getContextWindow: vi.fn().mockReturnValue(100000),
         setModel: vi.fn(),
-        generate: vi.fn(),
       },
       memory: {
         ...createTestContext().memory,

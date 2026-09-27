@@ -52,7 +52,7 @@ describe('validateApiKeys', () => {
       validateApiKeys({ provider: 'openai' })
       throw new Error('should have thrown')
     } catch (err) {
-      expect((err).message).toContain('https://platform.openai.com/api-keys')
+      expect((err as Error).message).toContain('https://platform.openai.com/api-keys')
     }
   })
 
@@ -70,7 +70,7 @@ describe('validateApiKeys', () => {
       validateApiKeys({ provider: 'anthropic' })
       throw new Error('should have thrown')
     } catch (err) {
-      expect((err).message).toContain('https://console.anthropic.com')
+      expect((err as Error).message).toContain('https://console.anthropic.com')
     }
   })
 

@@ -3,7 +3,8 @@ import { LLMRouter, ComplexityScorer } from '../../../src/llm/LLMRouter.ts'
 import { GroqProvider } from '../../../src/llm/providers/GroqProvider.ts'
 import { OllamaProvider } from '../../../src/llm/providers/OllamaProvider.ts'
 import { ProviderChain } from '../../../src/llm/ProviderFailover.ts'
-import type { ILLMProvider, LLMRequest } from '../../../src/llm/types.ts'
+import type { ILLMProvider } from '../../../src/llm/ILLMProvider.ts'
+import type { LLMRequest } from '../../../src/llm/types.ts'
 
 // GroqProvider now fails fast without a key — provide one for routing tests
 beforeEach(() => {

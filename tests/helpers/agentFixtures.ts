@@ -6,8 +6,8 @@ import type { ILLMProvider } from '../../src/llm/ILLMProvider.ts'
 import type { ExecutionContext } from '../../src/core/ExecutionContext.ts'
 import type { LongTermMemory } from '../../src/core/types.ts'
 import type { ITool } from '../../src/tools/ITool.ts'
-import type { ResidualMemory } from '../../src/memory/ResidualMemory.ts'
-import type { EpisodeLearner } from '../../src/evals/EpisodeLearner.ts'
+import { ResidualMemory } from '../../src/memory/ResidualMemory.ts'
+import { EpisodeLearner } from '../../src/evals/EpisodeLearner.ts'
 import type { AgentResult } from '../../src/agents/base/AgentResult.ts'
 
 export class TestAgent extends BaseAgent {
@@ -29,6 +29,7 @@ export function createMockLLM(): ILLMProvider {
     stream: vi.fn(),
     embed: vi.fn(),
     getContextWindow: vi.fn().mockReturnValue(8192),
+    setModel: vi.fn(),
   }
 }
 
@@ -91,18 +92,9 @@ export function createAgentHarness(): {
     retrieve: vi.fn(),
   }
 
-  const mockResidual: ResidualMemory = {
-    record: vi.fn(),
-    decay: vi.fn(),
-    getActive: vi.fn().mockReturnValue([]),
-    toPromptHints: vi.fn().mockReturnValue(''),
-    clear: vi.fn(),
-    count: vi.fn().mockReturnValue(0),
-  }
+  const mockResidual: ResidualMemory = new ResidualMemory() as unknown as ResidualMemory
 
-  const mockLearner: EpisodeLearner = {
-    learn: vi.fn().mockResolvedValue(undefined),
-  }
+  const mockLearner: EpisodeLearner = new EpisodeLearner() as unknown as EpisodeLearner
 
   return { llm, toolRegistry, loop, mockLongTerm, mockResidual, mockLearner }
 }

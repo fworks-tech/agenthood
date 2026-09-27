@@ -76,7 +76,7 @@ describe('QAAgent', () => {
         project: {
           localPath: process.cwd(),
           name: 'test',
-          stack: { framework: '<script>alert(1)</script>' },
+          stack: { frameworks: ['<script>alert(1)</script>'] },
         },
         memory: {
           ...createTestContext().memory,

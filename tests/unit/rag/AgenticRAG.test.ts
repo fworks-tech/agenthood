@@ -14,6 +14,7 @@ function mockEmbedder() {
 
 function mockVectorStore() {
   return {
+    connect: vi.fn(),
     add: vi.fn(),
     search: vi.fn().mockResolvedValue([
       { score: 0.95, record: { id: 'rec-1', content: 'Sample content', metadata: { source: 'test.md' }, createdAt: new Date() } },
@@ -21,6 +22,10 @@ function mockVectorStore() {
     ]),
     delete: vi.fn(),
     clear: vi.fn(),
+    stats: vi.fn(),
+    getById: vi.fn(),
+    getByKeyPrefix: vi.fn(),
+    disconnect: vi.fn(),
   }
 }
 
@@ -35,6 +40,7 @@ function mockKGS() {
     save: vi.fn(),
     load: vi.fn(),
     toJSON: vi.fn().mockReturnValue({}),
+    stats: vi.fn(),
   }
 }
 
@@ -51,10 +57,13 @@ function mockContext(): ExecutionContext {
       longTerm: {} as ExecutionContext['memory']['longTerm'],
       episodic: {} as ExecutionContext['memory']['episodic'],
       project: {} as ExecutionContext['memory']['project'],
+      decisions: {} as ExecutionContext['memory']['decisions'],
+      provenance: {} as ExecutionContext['memory']['provenance'],
     },
     llm: {} as ExecutionContext['llm'],
     prompts: { build: vi.fn() } as ExecutionContext['prompts'],
     tracer: {} as ExecutionContext['tracer'],
+    events: {} as ExecutionContext['events'],
     artifacts: [],
   }
 }

@@ -317,7 +317,7 @@ fix description`
     await prSync(['--pr', '202', '--dry-run'])
 
     expect(output).toContain('Malformed sync marker SHA ignored')
-    const allFileArgs = mockExecFileSync.mock.calls.map((c: string[]) => c[1].join(' ')).join('\n')
+    const allFileArgs = mockExecFileSync.mock.calls.map((c: any) => c[1].join(' ')).join('\n')
     expect(allFileArgs).not.toContain(';')
     expect(allFileArgs).not.toContain('curl')
     expect(output).toContain('No new commits since last sync.')

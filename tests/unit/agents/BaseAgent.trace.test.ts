@@ -124,6 +124,8 @@ describe('BaseAgent trace emission', () => {
       getRecent: vi.fn(() => []),
       getByMember: vi.fn(() => []),
       getByCorrelationId: vi.fn(() => []),
+      flush: vi.fn(),
+      size: 0,
     }
     const agent = new TestAgent(llm, loop, toolRegistry)
     const context = createTestContext({ tracer: brokenTracer })

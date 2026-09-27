@@ -1,4 +1,4 @@
-import { describe, it, expect } from 'vitest'
+// @ts-ignore
 import { findTestFilesForSource, getTestFiles, rejectFlagLikePaths } from '../../../scripts/test-changed.mjs'
 
 const fakeIndex = new Map([

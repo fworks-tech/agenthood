@@ -35,7 +35,7 @@ function stubApp(llm: ILLMProvider, runTask = async () => ({ output: 'a thorough
     members: { has: (n: string) => n === 'the-reviewer' },
     llm,
     runner: { runMemberTask: runTask },
-  }
+  } as unknown as ApplicationContext
 }
 
 describe('eval command', () => {

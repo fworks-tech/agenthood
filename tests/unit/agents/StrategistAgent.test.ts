@@ -1,6 +1,9 @@
 import { describe, it, expect, vi } from 'vitest'
 import { StrategistAgent } from '../../../src/agents/strategist/StrategistAgent.ts'
 import { RedactionFilter } from '../../../src/core/RedactionFilter.ts'
+import { createTestContext } from '../../helpers/testContext.ts'
+import { asPromptable } from '../../helpers/agentFixtures.ts'
+import { RunEventBus } from '../../../src/core/RunEventBus.ts'
 import type { ExecutionContext } from '../../../src/core/ExecutionContext.ts'
 
 function mockEnv(): { agent: StrategistAgent; context: ExecutionContext } {
@@ -17,14 +20,16 @@ function mockEnv(): { agent: StrategistAgent; context: ExecutionContext } {
       longTerm: { store: vi.fn(), retrieve: vi.fn() },
       episodic: { record: vi.fn(), recall: vi.fn() },
       project: { getConventions: vi.fn().mockResolvedValue([]), getArchitecturalDecisions: vi.fn().mockResolvedValue([]) },
-      decisions: { record: vi.fn(), search: vi.fn(), recent: vi.fn(), get: vi.fn() },
+      decisions: { record: vi.fn(), search: vi.fn(), recent: vi.fn(), get: vi.fn(), all: vi.fn(), addCausalRelationship: vi.fn(), traceDecisionChain: vi.fn(), analyzeDecisionImpact: vi.fn() },
+      provenance: { track: vi.fn(), get: vi.fn(), recent: vi.fn(), count: vi.fn(), invalidate: vi.fn(), verifyChain: vi.fn() } as unknown as import('../../../src/memory/ProvenanceStore.ts').ProvenanceStore,
     },
     llm: {} as any,
     prompts: { build: vi.fn() } as any,
     redactor: new RedactionFilter({ enabled: false }),
-    tracer: { startSpan: vi.fn(), endSpan: vi.fn(), record: vi.fn(), getRecent: vi.fn(), getByMember: vi.fn(), getByCorrelationId: vi.fn(), flush: vi.fn().mockResolvedValue(undefined) },
+    tracer: { startSpan: vi.fn(), endSpan: vi.fn(), record: vi.fn(), getRecent: vi.fn(), getByMember: vi.fn(), getByCorrelationId: vi.fn(), flush: vi.fn().mockResolvedValue(undefined), size: 0 },
+    events: new RunEventBus(),
     artifacts: [],
-  }
+  } as unknown as ExecutionContext
 
   return { agent, context }
 }
@@ -60,7 +65,7 @@ describe('StrategistAgent', () => {
 
   it('returns system prompt with strategist context', async () => {
     const { agent, context } = mockEnv()
-    const prompt = await agent.getSystemPrompt(context)
+    const prompt = await asPromptable(agent).getSystemPrompt(context)
     expect(prompt).toContain('Strategist')
   })
 })

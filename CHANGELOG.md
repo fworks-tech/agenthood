@@ -1,3 +1,17 @@
+# [3.70.0](https://github.com/fworks-tech/agenthood/compare/v3.69.0...v3.70.0) (2026-09-27)
+
+
+### Bug Fixes
+
+* **ci:** the bare-ref gate rejects cleanLine's own output ([#971](https://github.com/fworks-tech/agenthood/issues/971)) ([0b05cdf](https://github.com/fworks-tech/agenthood/commit/0b05cdf7b6b06c8c0d053e4151cc514c70e43f51)), refs #969, #663, #967
+* **herald:** clean generated release notes before gating and publishing ([#969](https://github.com/fworks-tech/agenthood/issues/969)) ([b23c9fa](https://github.com/fworks-tech/agenthood/commit/b23c9fabfa2d7c780e64e282f0c51ab06c89d0f1)), refs #663, #968
+* **herald:** the release gate missed the linkified closing keyword ([#968](https://github.com/fworks-tech/agenthood/issues/968)) ([8ad05ea](https://github.com/fworks-tech/agenthood/commit/8ad05eaccf87c59369df6b6d61984136f831ddd3)), refs #663, #967
+
+
+### Features
+
+* **members:** add Jev-inspired confidence patterns to mediator and steward ([#935](https://github.com/fworks-tech/agenthood/issues/935)) ([efa16cc](https://github.com/fworks-tech/agenthood/commit/efa16cc7715de1c512db8c64ff09377c8fcebcfe))
+
 # [3.69.0](https://github.com/fworks-tech/agenthood/compare/v3.68.3...v3.69.0) (2026-09-27)
 
 

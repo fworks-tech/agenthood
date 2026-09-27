@@ -5,6 +5,20 @@
 
 ---
 
+## v3.70.0 — September 27, 2026
+
+### 🐛 Bug Fixes
+
+- **Ci:** the bare-ref gate rejects cleanLine's own output (#971), refs #969, #663, #967
+- **Herald:** clean generated release notes before gating and publishing (#969), refs #663, #968
+- **Herald:** the release gate missed the linkified closing keyword (#968), refs #663, #967
+
+### ✨ Features
+
+- **Members:** add Jev-inspired confidence patterns to mediator and steward (#935)
+
+---
+
 ## v3.69.0 — September 27, 2026
 
 ### ✨ Features

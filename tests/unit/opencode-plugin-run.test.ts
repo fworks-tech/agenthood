@@ -1,5 +1,4 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest'
-import { ChildProcess } from 'node:child_process'
 import pluginModule, { runMember } from '../../src/opencode-plugin.ts'
 import type { FakeChild } from '../helpers/opencodePluginFixtures.ts'
 import { fakeChild } from '../helpers/opencodePluginFixtures.ts'
@@ -65,7 +64,7 @@ describe('runMember', () => {
   })
 
   it('spawns the CLI in the caller directory and formats the result', async () => {
-    const child = fakeChild() as unknown as ChildProcess
+    const child = fakeChild() as any
     let seen: { command: string; args: string[]; options: { cwd: string } } | undefined
     const out = await runMember('the-oracle', 'do it', {
       directory: '/proj',
@@ -89,7 +88,7 @@ describe('runMember', () => {
   })
 
   it('keeps spawn failures as plain text', async () => {
-    const child = fakeChild() as unknown as ChildProcess
+    const child = fakeChild() as any
     const out = await runMember('the-oracle', 'task', {
       directory: '/proj',
       abort: new AbortController().signal,
@@ -108,7 +107,7 @@ describe('runMember', () => {
   })
 
   it('uses the injected existence check and spawner', async () => {
-    const child = fakeChild() as unknown as ChildProcess
+    const child = fakeChild() as any
     const checked: string[] = []
     const out = await runMember(
       'the-oracle',
@@ -133,7 +132,7 @@ describe('runMember', () => {
   })
 
   it('keeps a leading-dash task as data behind --', async () => {
-    const child = fakeChild() as unknown as ChildProcess
+    const child = fakeChild() as any
     let seen: { args: string[] } | undefined
     await runMember('the-oracle', '--detect this looks like a flag', {
       directory: '/proj',
@@ -151,7 +150,7 @@ describe('runMember', () => {
   })
 
   it('kills and reports a CLI that never closes', async () => {
-    const child = fakeChild() as unknown as ChildProcess
+    const child = fakeChild() as any
     let killed = false
     child.kill = () => {
       killed = true
@@ -173,7 +172,7 @@ describe('runMember', () => {
 
 describe('server tool execute', () => {
   it('runs the member in the caller directory through the mocked spawn', async () => {
-    const child = fakeChild() as unknown as ChildProcess
+    const child = fakeChild() as any
     state.spawnChild = child
     const hooks = await pluginModule.server()
     const def = hooks.tool?.['agenthood_run_member']

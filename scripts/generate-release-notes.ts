@@ -1,6 +1,7 @@
 #!/usr/bin/env tsx
 import { readFileSync, writeFileSync, mkdirSync } from 'node:fs'
-import { dirname } from 'node:path'
+import { dirname, resolve } from 'node:path'
+import { fileURLToPath } from 'node:url'
 
 const CHANGELOG = 'CHANGELOG.md'
 const OUTPUT = 'docs/release-notes.md'
@@ -23,10 +24,32 @@ function formatDate(isoDate: string): string {
   return d.toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })
 }
 
-function cleanLine(line: string): string {
-  return line
+/**
+ * conventional-changelog appends the parsed issue references as
+ * 'closes [#1](url) [#2](url) ...' — one keyword, then every #N it found
+ * anywhere in the commit body. The parser gives a bare '#900' mentioned in
+ * prose the same 'close' action as a real 'Closes #900', so this list mixes
+ * genuine closures with mentions and repeats whatever was cited twice.
+ *
+ * Keep the numbers, drop the claim: the ids are informative, the 'closes'
+ * verb is not, and GitHub's tracker remains the source of truth for what
+ * is actually closed. Consuming the whole list also avoids a bare '#1' or
+ * '#2' leaking into the rendered line, which is what the previous
+ * single-link regex did for every reference after the first.
+ */
+function cleanRefs(line: string): string {
+  return line.replace(
+    /,?\s*(?:closes?|fixes?)\s+((?:\[#\d+\]\([^)]+\)\s*)+)/gi,
+    (_, refs: string) => {
+      const ids = [...refs.matchAll(/#(\d+)/g)].map(m => `#${m[1]}`)
+      return ids.length > 0 ? `, refs ${[...new Set(ids)].join(', ')}` : ''
+    }
+  )
+}
+
+export function cleanLine(line: string): string {
+  return cleanRefs(line)
     .replace(/\s*\(\[`?[0-9a-f]{7,40}`?\]\(https:\/\/[^)]+\)\)/g, '')
-    .replace(/,?\s*(closes?|fixes?)\s+\[#\d+\]\(https:\/\/[^)]+\)/gi, '')
     .replace(/\[#(\d+)\]\(https:\/\/[^)]+\)/g, '#$1')
     .replace(/^\*\s+\*\*([^:]+):\*\*\s+/, (_, scope: string) => `- **${scope.charAt(0).toUpperCase() + scope.slice(1)}:** `)
     .replace(/^\* /, '- ')
@@ -71,7 +94,19 @@ function transformBlock(versionLine: string, bodyLines: string[]): string | null
 
 function generate(): void {
   const changelog = readFileSync(CHANGELOG, 'utf8')
-  const rawLines = changelog.split('\n')
+
+  // conventional-changelog is the source of the 'closes' list, and it marks
+  // every bare '#N' in a commit body as a closure. Normalise it here, on the
+  // way out, so the committed changelog cannot claim an issue was closed when
+  // the commit only mentioned it — that is how 'closes #900' shipped for a
+  // migration that is still open.
+  const normalised = changelog
+    .split('\n')
+    .map(cleanRefs)
+    .join('\n')
+  if (normalised !== changelog) writeFileSync(CHANGELOG, normalised, 'utf8')
+
+  const rawLines = normalised.split('\n')
 
   const blocks: Array<{ header: string; body: string[] }> = []
   let currentHeader: string | null = null
@@ -110,4 +145,13 @@ function generate(): void {
   console.log(`✅ Generated ${OUTPUT} (${blocks.length} releases)`)
 }
 
-generate()
+/** Guard that returns true only when this module is executed directly (not imported for tests). */
+function isMain(): boolean {
+  try {
+    return fileURLToPath(import.meta.url) === resolve(process.argv[1] ?? '')
+  } catch {
+    return false
+  }
+}
+
+if (isMain()) generate()

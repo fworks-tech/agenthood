@@ -3,28 +3,28 @@
 
 ### Bug Fixes
 
-* **test:** raise the vitest timeout to fix the class, not the symptom ([#934](https://github.com/fworks-tech/agenthood/issues/934)) ([0080126](https://github.com/fworks-tech/agenthood/commit/008012677762d1650e811630e9bc91499835ac88)), closes [#927](https://github.com/fworks-tech/agenthood/issues/927) [#914](https://github.com/fworks-tech/agenthood/issues/914)
-* **vscode-extension:** hold @types/vscode at the engines.vscode floor ([#927](https://github.com/fworks-tech/agenthood/issues/927)) ([86e61da](https://github.com/fworks-tech/agenthood/commit/86e61da8c02f5e445e14f4eb9aebb374dd82f360)), closes [#914](https://github.com/fworks-tech/agenthood/issues/914)
+* **test:** raise the vitest timeout to fix the class, not the symptom ([#934](https://github.com/fworks-tech/agenthood/issues/934)) ([0080126](https://github.com/fworks-tech/agenthood/commit/008012677762d1650e811630e9bc91499835ac88)), refs #927, #914
+* **vscode-extension:** hold @types/vscode at the engines.vscode floor ([#927](https://github.com/fworks-tech/agenthood/issues/927)) ([86e61da](https://github.com/fworks-tech/agenthood/commit/86e61da8c02f5e445e14f4eb9aebb374dd82f360)), refs #914
 
 ## [3.68.1](https://github.com/fworks-tech/agenthood/compare/v3.68.0...v3.68.1) (2026-09-26)
 
 
 ### Bug Fixes
 
-* **deps-dev:** bump vitest to 5 with the coverage provider and hoist nested mocks ([#925](https://github.com/fworks-tech/agenthood/issues/925)) ([95870be](https://github.com/fworks-tech/agenthood/commit/95870be8ae10a1ee5d1a91832e98bb78bc70c347)), closes [#920](https://github.com/fworks-tech/agenthood/issues/920) [#920](https://github.com/fworks-tech/agenthood/issues/920)
+* **deps-dev:** bump vitest to 5 with the coverage provider and hoist nested mocks ([#925](https://github.com/fworks-tech/agenthood/issues/925)) ([95870be](https://github.com/fworks-tech/agenthood/commit/95870be8ae10a1ee5d1a91832e98bb78bc70c347)), refs #920
 
 # [3.68.0](https://github.com/fworks-tech/agenthood/compare/v3.67.0...v3.68.0) (2026-09-26)
 
 
 ### Bug Fixes
 
-* **deps:** pin tree-sitter-go to 0.23.4 so npm ci resolves without ERESOLVE ([#911](https://github.com/fworks-tech/agenthood/issues/911)) ([4cdd183](https://github.com/fworks-tech/agenthood/commit/4cdd183adf74f7261e1704b15c5d3afe88d2eb19)), closes [#910](https://github.com/fworks-tech/agenthood/issues/910)
-* **deps:** restore optional peers dropped from the lockfile by [#916](https://github.com/fworks-tech/agenthood/issues/916) ([#924](https://github.com/fworks-tech/agenthood/issues/924)) ([fdf6d40](https://github.com/fworks-tech/agenthood/commit/fdf6d4044ed22320603f4c03b7d85b1d0ac8488c)), closes [#910](https://github.com/fworks-tech/agenthood/issues/910)
+* **deps:** pin tree-sitter-go to 0.23.4 so npm ci resolves without ERESOLVE ([#911](https://github.com/fworks-tech/agenthood/issues/911)) ([4cdd183](https://github.com/fworks-tech/agenthood/commit/4cdd183adf74f7261e1704b15c5d3afe88d2eb19)), refs #910
+* **deps:** restore optional peers dropped from the lockfile by [#916](https://github.com/fworks-tech/agenthood/issues/916) ([#924](https://github.com/fworks-tech/agenthood/issues/924)) ([fdf6d40](https://github.com/fworks-tech/agenthood/commit/fdf6d4044ed22320603f4c03b7d85b1d0ac8488c)), refs #910
 
 
 ### Features
 
-* v3.68 Convert & Trust — onboarding, fail-closed skill trust, cost observability ([#913](https://github.com/fworks-tech/agenthood/issues/913)) ([6a96cc8](https://github.com/fworks-tech/agenthood/commit/6a96cc862aeae413db124473d856e397f9f80741)), closes [#574](https://github.com/fworks-tech/agenthood/issues/574) [#619](https://github.com/fworks-tech/agenthood/issues/619) [#620](https://github.com/fworks-tech/agenthood/issues/620) [#578](https://github.com/fworks-tech/agenthood/issues/578) [#152](https://github.com/fworks-tech/agenthood/issues/152) [#151](https://github.com/fworks-tech/agenthood/issues/151) [#514](https://github.com/fworks-tech/agenthood/issues/514) [#515](https://github.com/fworks-tech/agenthood/issues/515) [#604](https://github.com/fworks-tech/agenthood/issues/604) [#606](https://github.com/fworks-tech/agenthood/issues/606) [#624](https://github.com/fworks-tech/agenthood/issues/624) [#625](https://github.com/fworks-tech/agenthood/issues/625) [#651](https://github.com/fworks-tech/agenthood/issues/651) [#465](https://github.com/fworks-tech/agenthood/issues/465)
+* v3.68 Convert & Trust — onboarding, fail-closed skill trust, cost observability ([#913](https://github.com/fworks-tech/agenthood/issues/913)) ([6a96cc8](https://github.com/fworks-tech/agenthood/commit/6a96cc862aeae413db124473d856e397f9f80741)), refs #574, #619, #620, #578, #152, #151, #514, #515, #604, #606, #624, #625, #651, #465
 
 # [3.67.0](https://github.com/fworks-tech/agenthood/compare/v3.66.0...v3.67.0) (2026-09-21)
 
@@ -42,26 +42,26 @@
 ### Bug Fixes
 
 * **ci:** reviewer empty-tree range ([#815](https://github.com/fworks-tech/agenthood/issues/815)) ([#888](https://github.com/fworks-tech/agenthood/issues/888)) ([d49914c](https://github.com/fworks-tech/agenthood/commit/d49914c6e78f551e64c4eef28d260edbe67fb270))
-* **docs:** correct non-existent member references and tool vocabulary ([#897](https://github.com/fworks-tech/agenthood/issues/897)) ([ac164a2](https://github.com/fworks-tech/agenthood/commit/ac164a29b6f3b76b6eb407e4d83990b37d380413)), closes [#790](https://github.com/fworks-tech/agenthood/issues/790)
+* **docs:** correct non-existent member references and tool vocabulary ([#897](https://github.com/fworks-tech/agenthood/issues/897)) ([ac164a2](https://github.com/fworks-tech/agenthood/commit/ac164a29b6f3b76b6eb407e4d83990b37d380413)), refs #790
 
 
 ### Features
 
-* **cli:** --json flag with pino structured logging ([#647](https://github.com/fworks-tech/agenthood/issues/647)) ([#892](https://github.com/fworks-tech/agenthood/issues/892)) ([d16a2e4](https://github.com/fworks-tech/agenthood/commit/d16a2e4f1c81259b138f6efeb4f3d67082cb1654)), closes [#646](https://github.com/fworks-tech/agenthood/issues/646)
-* **cli:** add shared CLI error formatter with consistent exit codes ([#891](https://github.com/fworks-tech/agenthood/issues/891)) ([9d03b2d](https://github.com/fworks-tech/agenthood/commit/9d03b2dba537013935f448fb5477005681e5330f)), closes [#646](https://github.com/fworks-tech/agenthood/issues/646)
-* **create:** scaffold new skills from a template ([#879](https://github.com/fworks-tech/agenthood/issues/879)) ([a04ed94](https://github.com/fworks-tech/agenthood/commit/a04ed94a89d582ab9b81a57f70f6f3e0c627118d)), closes [#602](https://github.com/fworks-tech/agenthood/issues/602)
-* **diff:** show drift between installed members and lockfile ([#876](https://github.com/fworks-tech/agenthood/issues/876)) ([d8c021f](https://github.com/fworks-tech/agenthood/commit/d8c021fbdbd55166d907b0a52409fdb86dee3f47)), closes [#664](https://github.com/fworks-tech/agenthood/issues/664)
-* **eject:** sweep lockfiles alongside artifacts ([#874](https://github.com/fworks-tech/agenthood/issues/874)) ([e9efcdd](https://github.com/fworks-tech/agenthood/commit/e9efcddb4831ca17d0dd64f1a4487b631d8a5b4b)), closes [#650](https://github.com/fworks-tech/agenthood/issues/650)
-* **init:** add --ci for non-interactive setup with --runtime and --members ([#882](https://github.com/fworks-tech/agenthood/issues/882)) ([bc086e1](https://github.com/fworks-tech/agenthood/commit/bc086e1d50269970d52760efe82b0139825f4a91)), closes [#673](https://github.com/fworks-tech/agenthood/issues/673) [#761](https://github.com/fworks-tech/agenthood/issues/761)
+* **cli:** --json flag with pino structured logging ([#647](https://github.com/fworks-tech/agenthood/issues/647)) ([#892](https://github.com/fworks-tech/agenthood/issues/892)) ([d16a2e4](https://github.com/fworks-tech/agenthood/commit/d16a2e4f1c81259b138f6efeb4f3d67082cb1654)), refs #646
+* **cli:** add shared CLI error formatter with consistent exit codes ([#891](https://github.com/fworks-tech/agenthood/issues/891)) ([9d03b2d](https://github.com/fworks-tech/agenthood/commit/9d03b2dba537013935f448fb5477005681e5330f)), refs #646
+* **create:** scaffold new skills from a template ([#879](https://github.com/fworks-tech/agenthood/issues/879)) ([a04ed94](https://github.com/fworks-tech/agenthood/commit/a04ed94a89d582ab9b81a57f70f6f3e0c627118d)), refs #602
+* **diff:** show drift between installed members and lockfile ([#876](https://github.com/fworks-tech/agenthood/issues/876)) ([d8c021f](https://github.com/fworks-tech/agenthood/commit/d8c021fbdbd55166d907b0a52409fdb86dee3f47)), refs #664
+* **eject:** sweep lockfiles alongside artifacts ([#874](https://github.com/fworks-tech/agenthood/issues/874)) ([e9efcdd](https://github.com/fworks-tech/agenthood/commit/e9efcddb4831ca17d0dd64f1a4487b631d8a5b4b)), refs #650
+* **init:** add --ci for non-interactive setup with --runtime and --members ([#882](https://github.com/fworks-tech/agenthood/issues/882)) ([bc086e1](https://github.com/fworks-tech/agenthood/commit/bc086e1d50269970d52760efe82b0139825f4a91)), refs #673, #761
 * **init:** add --target flag for cross-client compatibility ([#662](https://github.com/fworks-tech/agenthood/issues/662)) ([#895](https://github.com/fworks-tech/agenthood/issues/895)) ([699632a](https://github.com/fworks-tech/agenthood/commit/699632a91a4f6b926768cd2f57579d458db820b5))
 * **init:** create .agents/skills/ as primary cross-client location ([#654](https://github.com/fworks-tech/agenthood/issues/654)) ([#894](https://github.com/fworks-tech/agenthood/issues/894)) ([ccaaf12](https://github.com/fworks-tech/agenthood/commit/ccaaf121b87ead657ab7fd13b1f452ec558efb65))
-* **init:** prompt before overwriting an existing setup ([#873](https://github.com/fworks-tech/agenthood/issues/873)) ([30bf08a](https://github.com/fworks-tech/agenthood/commit/30bf08a0dc29dfa9504f644bb6265d0bedad521c)), closes [#643](https://github.com/fworks-tech/agenthood/issues/643)
-* **list:** show token counts and context budget ([#875](https://github.com/fworks-tech/agenthood/issues/875)) ([d21da8a](https://github.com/fworks-tech/agenthood/commit/d21da8a21474a27d46493b2b44bfbd37ed43204d)), closes [#657](https://github.com/fworks-tech/agenthood/issues/657)
-* **remove:** clean uninstall with lock pruning ([#877](https://github.com/fworks-tech/agenthood/issues/877)) ([df6df38](https://github.com/fworks-tech/agenthood/commit/df6df3832425d8871e47c075fbde86bc0bb26ded)), closes [#590](https://github.com/fworks-tech/agenthood/issues/590)
-* **run:** add --sandbox flag with strict local profile ([#880](https://github.com/fworks-tech/agenthood/issues/880)) ([f6576d9](https://github.com/fworks-tech/agenthood/commit/f6576d9a5d8c61adbaa7ed8e005edc44e7bd7398)), closes [#665](https://github.com/fworks-tech/agenthood/issues/665) [#665](https://github.com/fworks-tech/agenthood/issues/665)
+* **init:** prompt before overwriting an existing setup ([#873](https://github.com/fworks-tech/agenthood/issues/873)) ([30bf08a](https://github.com/fworks-tech/agenthood/commit/30bf08a0dc29dfa9504f644bb6265d0bedad521c)), refs #643
+* **list:** show token counts and context budget ([#875](https://github.com/fworks-tech/agenthood/issues/875)) ([d21da8a](https://github.com/fworks-tech/agenthood/commit/d21da8a21474a27d46493b2b44bfbd37ed43204d)), refs #657
+* **remove:** clean uninstall with lock pruning ([#877](https://github.com/fworks-tech/agenthood/issues/877)) ([df6df38](https://github.com/fworks-tech/agenthood/commit/df6df3832425d8871e47c075fbde86bc0bb26ded)), refs #590
+* **run:** add --sandbox flag with strict local profile ([#880](https://github.com/fworks-tech/agenthood/issues/880)) ([f6576d9](https://github.com/fworks-tech/agenthood/commit/f6576d9a5d8c61adbaa7ed8e005edc44e7bd7398)), refs #665
 * **sandbox:** add Docker container isolation detection ([#884](https://github.com/fworks-tech/agenthood/issues/884)) ([#896](https://github.com/fworks-tech/agenthood/issues/896)) ([85ce637](https://github.com/fworks-tech/agenthood/commit/85ce6376751621959c7ab809cd07a4f534a8e517))
 * **skills:** discover skills in bare skills/ directory ([#642](https://github.com/fworks-tech/agenthood/issues/642)) ([#893](https://github.com/fworks-tech/agenthood/issues/893)) ([401e24a](https://github.com/fworks-tech/agenthood/commit/401e24ac626106521e24ef7b043151ae609ec939))
-* **upgrade:** self-upgrade agenthood with config backup ([#881](https://github.com/fworks-tech/agenthood/issues/881)) ([4a9290b](https://github.com/fworks-tech/agenthood/commit/4a9290bd61b37670a2f023ec0e62c883f6defe8c)), closes [#667](https://github.com/fworks-tech/agenthood/issues/667)
+* **upgrade:** self-upgrade agenthood with config backup ([#881](https://github.com/fworks-tech/agenthood/issues/881)) ([4a9290b](https://github.com/fworks-tech/agenthood/commit/4a9290bd61b37670a2f023ec0e62c883f6defe8c)), refs #667
 
 ## [3.65.2](https://github.com/fworks-tech/agenthood/compare/v3.65.1...v3.65.2) (2026-09-18)
 
@@ -75,14 +75,14 @@
 
 ### Bug Fixes
 
-* **ci:** poll npm registry instead of fixed sleep in release verify ([#857](https://github.com/fworks-tech/agenthood/issues/857)) ([b4a30bd](https://github.com/fworks-tech/agenthood/commit/b4a30bdebde9f777ab331e4c1631ce77741bfef1)), closes [#856](https://github.com/fworks-tech/agenthood/issues/856)
+* **ci:** poll npm registry instead of fixed sleep in release verify ([#857](https://github.com/fworks-tech/agenthood/issues/857)) ([b4a30bd](https://github.com/fworks-tech/agenthood/commit/b4a30bdebde9f777ab331e4c1631ce77741bfef1)), refs #856
 
 # [3.65.0](https://github.com/fworks-tech/agenthood/compare/v3.64.3...v3.65.0) (2026-09-17)
 
 
 ### Bug Fixes
 
-* **ci:** gate ritual matrix entries in a step instead of job if ([#855](https://github.com/fworks-tech/agenthood/issues/855)) ([86656c2](https://github.com/fworks-tech/agenthood/commit/86656c23838fb034c679d65e87a605aee1111588)), closes [#854](https://github.com/fworks-tech/agenthood/issues/854)
+* **ci:** gate ritual matrix entries in a step instead of job if ([#855](https://github.com/fworks-tech/agenthood/issues/855)) ([86656c2](https://github.com/fworks-tech/agenthood/commit/86656c23838fb034c679d65e87a605aee1111588)), refs #854
 
 
 ### Features
@@ -101,28 +101,28 @@
 
 ### Bug Fixes
 
-* **llm:** runtime stream guard and structured provider logging ([#847](https://github.com/fworks-tech/agenthood/issues/847)) ([629a8f3](https://github.com/fworks-tech/agenthood/commit/629a8f34f48f186f21fd6589de8688eda94a36ae)), closes [#323](https://github.com/fworks-tech/agenthood/issues/323) [#322](https://github.com/fworks-tech/agenthood/issues/322)
+* **llm:** runtime stream guard and structured provider logging ([#847](https://github.com/fworks-tech/agenthood/issues/847)) ([629a8f3](https://github.com/fworks-tech/agenthood/commit/629a8f34f48f186f21fd6589de8688eda94a36ae)), refs #323, #322
 
 ## [3.64.1](https://github.com/fworks-tech/agenthood/compare/v3.64.0...v3.64.1) (2026-09-17)
 
 
 ### Bug Fixes
 
-* **skills:** harden agenthood install against SSRF and path traversal ([#843](https://github.com/fworks-tech/agenthood/issues/843)) ([2213837](https://github.com/fworks-tech/agenthood/commit/2213837682cff02de65664f96dd1c600a95c856e)), closes [#833](https://github.com/fworks-tech/agenthood/issues/833) [#842](https://github.com/fworks-tech/agenthood/issues/842)
+* **skills:** harden agenthood install against SSRF and path traversal ([#843](https://github.com/fworks-tech/agenthood/issues/843)) ([2213837](https://github.com/fworks-tech/agenthood/commit/2213837682cff02de65664f96dd1c600a95c856e)), refs #833, #842
 
 # [3.64.0](https://github.com/fworks-tech/agenthood/compare/v3.63.3...v3.64.0) (2026-09-16)
 
 
 ### Features
 
-* **skills:** include packaged tool skills in runtime catalog ([#833](https://github.com/fworks-tech/agenthood/issues/833)) ([807c827](https://github.com/fworks-tech/agenthood/commit/807c827910056765f2ba1bea244f63cacbc59b57)), closes [#832](https://github.com/fworks-tech/agenthood/issues/832)
+* **skills:** include packaged tool skills in runtime catalog ([#833](https://github.com/fworks-tech/agenthood/issues/833)) ([807c827](https://github.com/fworks-tech/agenthood/commit/807c827910056765f2ba1bea244f63cacbc59b57)), refs #832
 
 ## [3.63.3](https://github.com/fworks-tech/agenthood/compare/v3.63.2...v3.63.3) (2026-09-12)
 
 
 ### Bug Fixes
 
-* **verify:** narrow placeholder scan to marker form and skip code spans ([#830](https://github.com/fworks-tech/agenthood/issues/830)) ([aa42b57](https://github.com/fworks-tech/agenthood/commit/aa42b57f80716d04a7130173ddfd9a9e0d364ffc)), closes [#816](https://github.com/fworks-tech/agenthood/issues/816) [#753](https://github.com/fworks-tech/agenthood/issues/753)
+* **verify:** narrow placeholder scan to marker form and skip code spans ([#830](https://github.com/fworks-tech/agenthood/issues/830)) ([aa42b57](https://github.com/fworks-tech/agenthood/commit/aa42b57f80716d04a7130173ddfd9a9e0d364ffc)), refs #816, #753
 
 ## [3.63.2](https://github.com/fworks-tech/agenthood/compare/v3.63.1...v3.63.2) (2026-09-12)
 
@@ -176,127 +176,127 @@
 
 ### Features
 
-* **evals:** add blind A/B comparison with significance testing ([#778](https://github.com/fworks-tech/agenthood/issues/778)) ([786ad9c](https://github.com/fworks-tech/agenthood/commit/786ad9ceab8ebcc4f2c4694938a2c380cbc125d4)), closes [#558](https://github.com/fworks-tech/agenthood/issues/558)
-* **members:** validate skill output against declared format pattern ([#774](https://github.com/fworks-tech/agenthood/issues/774)) ([ca41314](https://github.com/fworks-tech/agenthood/commit/ca413146ec89d9f45f08305440c5c55cc03ab113)), closes [#594](https://github.com/fworks-tech/agenthood/issues/594)
+* **evals:** add blind A/B comparison with significance testing ([#778](https://github.com/fworks-tech/agenthood/issues/778)) ([786ad9c](https://github.com/fworks-tech/agenthood/commit/786ad9ceab8ebcc4f2c4694938a2c380cbc125d4)), refs #558
+* **members:** validate skill output against declared format pattern ([#774](https://github.com/fworks-tech/agenthood/issues/774)) ([ca41314](https://github.com/fworks-tech/agenthood/commit/ca413146ec89d9f45f08305440c5c55cc03ab113)), refs #594
 
 # [3.60.0](https://github.com/fworks-tech/agenthood/compare/v3.59.2...v3.60.0) (2026-09-08)
 
 
 ### Features
 
-* **evals:** add skill regression testing with iteration tracking and convergence detection ([#775](https://github.com/fworks-tech/agenthood/issues/775)) ([7de2da8](https://github.com/fworks-tech/agenthood/commit/7de2da8d7b4ed997392e8f8030b2db073f30755c)), closes [#562](https://github.com/fworks-tech/agenthood/issues/562)
+* **evals:** add skill regression testing with iteration tracking and convergence detection ([#775](https://github.com/fworks-tech/agenthood/issues/775)) ([7de2da8](https://github.com/fworks-tech/agenthood/commit/7de2da8d7b4ed997392e8f8030b2db073f30755c)), refs #562
 
 ## [3.59.2](https://github.com/fworks-tech/agenthood/compare/v3.59.1...v3.59.2) (2026-09-08)
 
 
 ### Bug Fixes
 
-* **packaging:** export dist/checkpoint/RunCheckpoint.js for host CheckpointStore use ([#772](https://github.com/fworks-tech/agenthood/issues/772)) ([4a53742](https://github.com/fworks-tech/agenthood/commit/4a537429caded207ccb4f554b7d902aef429bc7c)), closes [#771](https://github.com/fworks-tech/agenthood/issues/771)
+* **packaging:** export dist/checkpoint/RunCheckpoint.js for host CheckpointStore use ([#772](https://github.com/fworks-tech/agenthood/issues/772)) ([4a53742](https://github.com/fworks-tech/agenthood/commit/4a537429caded207ccb4f554b7d902aef429bc7c)), refs #771
 
 ## [3.59.1](https://github.com/fworks-tech/agenthood/compare/v3.59.0...v3.59.1) (2026-09-08)
 
 
 ### Bug Fixes
 
-* **runtime:** resume restores loop state and answers the pending ask_human call ([#768](https://github.com/fworks-tech/agenthood/issues/768)) ([ca3546b](https://github.com/fworks-tech/agenthood/commit/ca3546bbccc3acc3b7a5d15df480823b2056d5b0)), closes [#767](https://github.com/fworks-tech/agenthood/issues/767)
+* **runtime:** resume restores loop state and answers the pending ask_human call ([#768](https://github.com/fworks-tech/agenthood/issues/768)) ([ca3546b](https://github.com/fworks-tech/agenthood/commit/ca3546bbccc3acc3b7a5d15df480823b2056d5b0)), refs #767
 
 # [3.59.0](https://github.com/fworks-tech/agenthood/compare/v3.58.0...v3.59.0) (2026-09-08)
 
 
 ### Features
 
-* **runtime:** accept an injectable CheckpointStore for host-managed persistence ([#766](https://github.com/fworks-tech/agenthood/issues/766)) ([19e124a](https://github.com/fworks-tech/agenthood/commit/19e124ab4bf93c75368443b14d117ce9bc80be0e)), closes [#764](https://github.com/fworks-tech/agenthood/issues/764)
+* **runtime:** accept an injectable CheckpointStore for host-managed persistence ([#766](https://github.com/fworks-tech/agenthood/issues/766)) ([19e124a](https://github.com/fworks-tech/agenthood/commit/19e124ab4bf93c75368443b14d117ce9bc80be0e)), refs #764
 
 # [3.57.0](https://github.com/fworks-tech/agenthood/compare/v3.56.6...v3.57.0) (2026-09-08)
 
 
 ### Features
 
-* **evals:** add assertion-based output grading to the eval harness ([#763](https://github.com/fworks-tech/agenthood/issues/763)) ([c52143c](https://github.com/fworks-tech/agenthood/commit/c52143c4abb7de578c65df226ba54aa321ed2aca)), closes [#559](https://github.com/fworks-tech/agenthood/issues/559)
+* **evals:** add assertion-based output grading to the eval harness ([#763](https://github.com/fworks-tech/agenthood/issues/763)) ([c52143c](https://github.com/fworks-tech/agenthood/commit/c52143c4abb7de578c65df226ba54aa321ed2aca)), refs #559
 
 ## [3.56.6](https://github.com/fworks-tech/agenthood/compare/v3.56.5...v3.56.6) (2026-09-07)
 
 
 ### Bug Fixes
 
-* **ci:** tolerate whitespace before the decision marker's --> ([#757](https://github.com/fworks-tech/agenthood/issues/757)) ([65e37f2](https://github.com/fworks-tech/agenthood/commit/65e37f220e971d38a4847a1cbd5ce9baddc10e90)), closes [#755](https://github.com/fworks-tech/agenthood/issues/755) [#756](https://github.com/fworks-tech/agenthood/issues/756)
+* **ci:** tolerate whitespace before the decision marker's --> ([#757](https://github.com/fworks-tech/agenthood/issues/757)) ([65e37f2](https://github.com/fworks-tech/agenthood/commit/65e37f220e971d38a4847a1cbd5ce9baddc10e90)), refs #755, #756
 
 ## [3.56.5](https://github.com/fworks-tech/agenthood/compare/v3.56.4...v3.56.5) (2026-09-07)
 
 
 ### Bug Fixes
 
-* **llm:** import chain providers concurrently to stop cold-start timeouts ([#754](https://github.com/fworks-tech/agenthood/issues/754)) ([a4ba0b4](https://github.com/fworks-tech/agenthood/commit/a4ba0b4ea2a85f2b5a588c2c7ed5d6a27e5d0b53)), closes [#465](https://github.com/fworks-tech/agenthood/issues/465) [#465](https://github.com/fworks-tech/agenthood/issues/465)
+* **llm:** import chain providers concurrently to stop cold-start timeouts ([#754](https://github.com/fworks-tech/agenthood/issues/754)) ([a4ba0b4](https://github.com/fworks-tech/agenthood/commit/a4ba0b4ea2a85f2b5a588c2c7ed5d6a27e5d0b53)), refs #465
 
 ## [3.56.4](https://github.com/fworks-tech/agenthood/compare/v3.56.3...v3.56.4) (2026-09-07)
 
 
 ### Bug Fixes
 
-* **verify:** unify member-path resolution and add a lockfile CI integrity gate ([#752](https://github.com/fworks-tech/agenthood/issues/752)) ([43ce288](https://github.com/fworks-tech/agenthood/commit/43ce288acebac941500306e04f528695626979b2)), closes [#740](https://github.com/fworks-tech/agenthood/issues/740)
+* **verify:** unify member-path resolution and add a lockfile CI integrity gate ([#752](https://github.com/fworks-tech/agenthood/issues/752)) ([43ce288](https://github.com/fworks-tech/agenthood/commit/43ce288acebac941500306e04f528695626979b2)), refs #740
 
 ## [3.56.3](https://github.com/fworks-tech/agenthood/compare/v3.56.2...v3.56.3) (2026-09-07)
 
 
 ### Bug Fixes
 
-* **react-loop:** emit tool.approval instead of a duplicate tool.called ([#751](https://github.com/fworks-tech/agenthood/issues/751)) ([fe77e39](https://github.com/fworks-tech/agenthood/commit/fe77e396d3fac93b44f2c6ac34e086f92be43c5e)), closes [#748](https://github.com/fworks-tech/agenthood/issues/748)
+* **react-loop:** emit tool.approval instead of a duplicate tool.called ([#751](https://github.com/fworks-tech/agenthood/issues/751)) ([fe77e39](https://github.com/fworks-tech/agenthood/commit/fe77e396d3fac93b44f2c6ac34e086f92be43c5e)), refs #748
 
 ## [3.56.2](https://github.com/fworks-tech/agenthood/compare/v3.56.1...v3.56.2) (2026-09-07)
 
 
 ### Bug Fixes
 
-* **skills:** strip UTF-8 BOM so frontmatter parses on Windows-authored files ([#750](https://github.com/fworks-tech/agenthood/issues/750)) ([33d4259](https://github.com/fworks-tech/agenthood/commit/33d425959947ba88e78465458f8b8b75e70e8cce)), closes [#563](https://github.com/fworks-tech/agenthood/issues/563)
+* **skills:** strip UTF-8 BOM so frontmatter parses on Windows-authored files ([#750](https://github.com/fworks-tech/agenthood/issues/750)) ([33d4259](https://github.com/fworks-tech/agenthood/commit/33d425959947ba88e78465458f8b8b75e70e8cce)), refs #563
 
 ## [3.56.1](https://github.com/fworks-tech/agenthood/compare/v3.56.0...v3.56.1) (2026-09-07)
 
 
 ### Bug Fixes
 
-* **exports:** re-expose ./dist/llm and ./dist/core for programmatic consumers ([#749](https://github.com/fworks-tech/agenthood/issues/749)) ([f663c82](https://github.com/fworks-tech/agenthood/commit/f663c82ce0973010a9ed3c27c951614b80ed72ba)), closes [#637](https://github.com/fworks-tech/agenthood/issues/637) [#739](https://github.com/fworks-tech/agenthood/issues/739)
+* **exports:** re-expose ./dist/llm and ./dist/core for programmatic consumers ([#749](https://github.com/fworks-tech/agenthood/issues/749)) ([f663c82](https://github.com/fworks-tech/agenthood/commit/f663c82ce0973010a9ed3c27c951614b80ed72ba)), refs #637, #739
 
 # [3.56.0](https://github.com/fworks-tech/agenthood/compare/v3.55.7...v3.56.0) (2026-09-07)
 
 
 ### Features
 
-* **skill:** validate SKILL.md against the agentskills.io spec ([#746](https://github.com/fworks-tech/agenthood/issues/746)) ([0c408f8](https://github.com/fworks-tech/agenthood/commit/0c408f8aff0ccdef609c1a722dd159d0b9c98f1b)), closes [#634](https://github.com/fworks-tech/agenthood/issues/634)
+* **skill:** validate SKILL.md against the agentskills.io spec ([#746](https://github.com/fworks-tech/agenthood/issues/746)) ([0c408f8](https://github.com/fworks-tech/agenthood/commit/0c408f8aff0ccdef609c1a722dd159d0b9c98f1b)), refs #634
 
 ## [3.55.7](https://github.com/fworks-tech/agenthood/compare/v3.55.6...v3.55.7) (2026-09-07)
 
 
 ### Bug Fixes
 
-* **skill:** converge lockfile regeneration and make --update-lock actually work ([#745](https://github.com/fworks-tech/agenthood/issues/745)) ([3070ad4](https://github.com/fworks-tech/agenthood/commit/3070ad447d1842ffd70d27fb60e18739aaa669c1)), closes [#635](https://github.com/fworks-tech/agenthood/issues/635)
+* **skill:** converge lockfile regeneration and make --update-lock actually work ([#745](https://github.com/fworks-tech/agenthood/issues/745)) ([3070ad4](https://github.com/fworks-tech/agenthood/commit/3070ad447d1842ffd70d27fb60e18739aaa669c1)), refs #635
 
 ## [3.55.6](https://github.com/fworks-tech/agenthood/compare/v3.55.5...v3.55.6) (2026-09-07)
 
 
 ### Bug Fixes
 
-* **core:** graceful SIGINT shutdown for long-running agent sessions ([#744](https://github.com/fworks-tech/agenthood/issues/744)) ([8acc5da](https://github.com/fworks-tech/agenthood/commit/8acc5dad6dd809bd36a475e7a783e8bea58c816c)), closes [#633](https://github.com/fworks-tech/agenthood/issues/633)
+* **core:** graceful SIGINT shutdown for long-running agent sessions ([#744](https://github.com/fworks-tech/agenthood/issues/744)) ([8acc5da](https://github.com/fworks-tech/agenthood/commit/8acc5dad6dd809bd36a475e7a783e8bea58c816c)), refs #633
 
 ## [3.55.5](https://github.com/fworks-tech/agenthood/compare/v3.55.4...v3.55.5) (2026-09-07)
 
 
 ### Bug Fixes
 
-* **security:** delimit untrusted task and tool output against prompt injection ([#743](https://github.com/fworks-tech/agenthood/issues/743)) ([3ff9cca](https://github.com/fworks-tech/agenthood/commit/3ff9cca22da90e4edd8ea5b75ba50cd7ec2aaa58)), closes [#632](https://github.com/fworks-tech/agenthood/issues/632)
+* **security:** delimit untrusted task and tool output against prompt injection ([#743](https://github.com/fworks-tech/agenthood/issues/743)) ([3ff9cca](https://github.com/fworks-tech/agenthood/commit/3ff9cca22da90e4edd8ea5b75ba50cd7ec2aaa58)), refs #632
 
 ## [3.55.4](https://github.com/fworks-tech/agenthood/compare/v3.55.3...v3.55.4) (2026-09-07)
 
 
 ### Bug Fixes
 
-* **security:** broaden SafetyGuard catastrophic command patterns ([#742](https://github.com/fworks-tech/agenthood/issues/742)) ([48b7600](https://github.com/fworks-tech/agenthood/commit/48b76000509fa6f94ec72c9064debe0be2dea897)), closes [#637](https://github.com/fworks-tech/agenthood/issues/637)
+* **security:** broaden SafetyGuard catastrophic command patterns ([#742](https://github.com/fworks-tech/agenthood/issues/742)) ([48b7600](https://github.com/fworks-tech/agenthood/commit/48b76000509fa6f94ec72c9064debe0be2dea897)), refs #637
 
 ## [3.55.3](https://github.com/fworks-tech/agenthood/compare/v3.55.2...v3.55.3) (2026-09-07)
 
 
 ### Bug Fixes
 
-* **llm:** redact secrets from outbound provider requests ([#741](https://github.com/fworks-tech/agenthood/issues/741)) ([719fa92](https://github.com/fworks-tech/agenthood/commit/719fa92ba438c571eb9f9bae8e72d41f9150180f)), closes [#631](https://github.com/fworks-tech/agenthood/issues/631)
+* **llm:** redact secrets from outbound provider requests ([#741](https://github.com/fworks-tech/agenthood/issues/741)) ([719fa92](https://github.com/fworks-tech/agenthood/commit/719fa92ba438c571eb9f9bae8e72d41f9150180f)), refs #631
 
 ## [3.55.2](https://github.com/fworks-tech/agenthood/compare/v3.55.1...v3.55.2) (2026-09-07)
 
@@ -441,7 +441,7 @@
 
 ### Features
 
-* **hitl:** add ask_human park primitive for park-and-resume hosts ([#501](https://github.com/fworks-tech/agenthood/issues/501)) ([fed6d76](https://github.com/fworks-tech/agenthood/commit/fed6d761fd8b3e554bafdb52e8ef98128ac43610)), closes [#496](https://github.com/fworks-tech/agenthood/issues/496)
+* **hitl:** add ask_human park primitive for park-and-resume hosts ([#501](https://github.com/fworks-tech/agenthood/issues/501)) ([fed6d76](https://github.com/fworks-tech/agenthood/commit/fed6d761fd8b3e554bafdb52e8ef98128ac43610)), refs #496
 
 ## [3.39.2](https://github.com/fworks-tech/agenthood/compare/v3.39.1...v3.39.2) (2026-09-01)
 
@@ -468,7 +468,7 @@
 
 ### Features
 
-* **runtime:** add RunEventBus tests and enrich reasoning telemetry ([96d5478](https://github.com/fworks-tech/agenthood/commit/96d54780afa2daf273e1eb983de65e6a1db42ea8)), closes [#474](https://github.com/fworks-tech/agenthood/issues/474)
+* **runtime:** add RunEventBus tests and enrich reasoning telemetry ([96d5478](https://github.com/fworks-tech/agenthood/commit/96d54780afa2daf273e1eb983de65e6a1db42ea8)), refs #474
 
 ## [3.38.1](https://github.com/fworks-tech/agenthood/compare/v3.38.0...v3.38.1) (2026-08-30)
 
@@ -481,7 +481,7 @@
 * **ci:** fail closed on empty-node advisories in audit gate ([e98b892](https://github.com/fworks-tech/agenthood/commit/e98b892ab03dc20da7f725e5f09f87da8675468f))
 * **ci:** restore mixed-node advisory reporting in audit gate ([722e49f](https://github.com/fworks-tech/agenthood/commit/722e49fea338e36789cbe740b7bd3bd63c45459f))
 * **members:** address auditor and reviewer findings on member tool gating ([f0fdc32](https://github.com/fworks-tech/agenthood/commit/f0fdc328c654ee8e1ebb8a2bfdbd61b49e1118a1))
-* **members:** prevent LLM from echoing SKILL.md content in responses ([364c1a8](https://github.com/fworks-tech/agenthood/commit/364c1a86782d5c4eeeba1be3723d4176ed0a491e)), closes [#473](https://github.com/fworks-tech/agenthood/issues/473)
+* **members:** prevent LLM from echoing SKILL.md content in responses ([364c1a8](https://github.com/fworks-tech/agenthood/commit/364c1a86782d5c4eeeba1be3723d4176ed0a491e)), refs #473
 * **review:** address reviewer warnings on 6906423 ([c1422f9](https://github.com/fworks-tech/agenthood/commit/c1422f90d68a3fbc84542c74b79a1cd7c40d2538))
 * **review:** sync institutional-knowledge steps 2/4 with oracle and harden audit filter ([b3f5425](https://github.com/fworks-tech/agenthood/commit/b3f5425b06b114e06eefd3a0f58ce01915583ff2))
 
@@ -495,7 +495,7 @@
 
 ### Features
 
-* **members:** reframe steward load routing and add the-mediator ([#482](https://github.com/fworks-tech/agenthood/issues/482)) ([7c22904](https://github.com/fworks-tech/agenthood/commit/7c2290449d501021c5a61441d92f68e09db31a3b)), closes [#474](https://github.com/fworks-tech/agenthood/issues/474) [#474](https://github.com/fworks-tech/agenthood/issues/474)
+* **members:** reframe steward load routing and add the-mediator ([#482](https://github.com/fworks-tech/agenthood/issues/482)) ([7c22904](https://github.com/fworks-tech/agenthood/commit/7c2290449d501021c5a61441d92f68e09db31a3b)), refs #474
 
 ## [3.37.1](https://github.com/fworks-tech/agenthood/compare/v3.37.0...v3.37.1) (2026-08-21)
 
@@ -586,7 +586,7 @@
 
 ### Bug Fixes
 
-* **agents:** restore Oracle model attribution on failures after runWithExecutor refactor ([#436](https://github.com/fworks-tech/agenthood/issues/436)) ([93754e5](https://github.com/fworks-tech/agenthood/commit/93754e52b7c7695dd1597bea3f8c3a847215e46d)), closes [#435](https://github.com/fworks-tech/agenthood/issues/435)
+* **agents:** restore Oracle model attribution on failures after runWithExecutor refactor ([#436](https://github.com/fworks-tech/agenthood/issues/436)) ([93754e5](https://github.com/fworks-tech/agenthood/commit/93754e52b7c7695dd1597bea3f8c3a847215e46d)), refs #435
 
 # [3.33.0](https://github.com/fworks-tech/agenthood/compare/v3.32.0...v3.33.0) (2026-08-14)
 
@@ -605,7 +605,7 @@
 * **cli:** surface anomaly alerts in status --alerts ([ed83792](https://github.com/fworks-tech/agenthood/commit/ed83792308b2b6a831b82dab8298b009c271353e))
 * **config:** scaffold observability block in init config and make trace path configurable ([08d63f4](https://github.com/fworks-tech/agenthood/commit/08d63f43e79f6e8e74fed709bf25799cfbe3c283))
 * **core:** accumulate tool-level LLM usage into trace token counts ([853c86f](https://github.com/fworks-tech/agenthood/commit/853c86f9666e0eb55f3b886f841a2c23dea305eb))
-* **evals:** add EmbeddingIndex with ANN similarity search and upsert persistence ([986b500](https://github.com/fworks-tech/agenthood/commit/986b5003c042582c187add7292e6b4c9ad02b68e)), closes [#313](https://github.com/fworks-tech/agenthood/issues/313)
+* **evals:** add EmbeddingIndex with ANN similarity search and upsert persistence ([986b500](https://github.com/fworks-tech/agenthood/commit/986b5003c042582c187add7292e6b4c9ad02b68e)), refs #313
 * **evals:** add versioned re-index migration for legacy zero-vector patterns ([0be2bd8](https://github.com/fworks-tech/agenthood/commit/0be2bd817f5f68aab409d922d534f3a286550081))
 * **evals:** query embedding index before hash fallback in EpisodeLearner ([0b8ec07](https://github.com/fworks-tech/agenthood/commit/0b8ec075b9b4369f4c2deb54bfa9f7a8bf0aa664))
 * **observability:** allow source override through ExecutionContext ([191045e](https://github.com/fworks-tech/agenthood/commit/191045e3106dff9a92e6b6cdefe879fbf4afb890))
@@ -617,65 +617,65 @@
 
 ### Features
 
-* **observability:** add optional sentry error reporting ([fee0865](https://github.com/fworks-tech/agenthood/commit/fee08659d761c3625576fb3bba083edd2ad85255)), closes [#319](https://github.com/fworks-tech/agenthood/issues/319)
-* **observability:** expose episode learner learning status ([68af9e9](https://github.com/fworks-tech/agenthood/commit/68af9e952bae7f736f85f080d32b36d79c12fe43)), closes [#303](https://github.com/fworks-tech/agenthood/issues/303)
+* **observability:** add optional sentry error reporting ([fee0865](https://github.com/fworks-tech/agenthood/commit/fee08659d761c3625576fb3bba083edd2ad85255)), refs #319
+* **observability:** expose episode learner learning status ([68af9e9](https://github.com/fworks-tech/agenthood/commit/68af9e952bae7f736f85f080d32b36d79c12fe43)), refs #303
 
 # [3.31.0](https://github.com/fworks-tech/agenthood/compare/v3.30.0...v3.31.0) (2026-08-14)
 
 
 ### Features
 
-* **observability:** add health check command and API ([73d4d1f](https://github.com/fworks-tech/agenthood/commit/73d4d1f819f5d00aca19fc755d52abef53e87d64)), closes [#321](https://github.com/fworks-tech/agenthood/issues/321)
+* **observability:** add health check command and API ([73d4d1f](https://github.com/fworks-tech/agenthood/commit/73d4d1f819f5d00aca19fc755d52abef53e87d64)), refs #321
 
 # [3.30.0](https://github.com/fworks-tech/agenthood/compare/v3.29.0...v3.30.0) (2026-08-14)
 
 
 ### Features
 
-* **observability:** stamp traces with eval baseline quality ([c3daf40](https://github.com/fworks-tech/agenthood/commit/c3daf40d85c0f11a40ddf83f0f54dfe882de1ed3)), closes [#306](https://github.com/fworks-tech/agenthood/issues/306)
+* **observability:** stamp traces with eval baseline quality ([c3daf40](https://github.com/fworks-tech/agenthood/commit/c3daf40d85c0f11a40ddf83f0f54dfe882de1ed3)), refs #306
 
 # [3.29.0](https://github.com/fworks-tech/agenthood/compare/v3.28.0...v3.29.0) (2026-08-14)
 
 
 ### Features
 
-* **observability:** add anomaly detection for cost and quality ([f7ca9ae](https://github.com/fworks-tech/agenthood/commit/f7ca9aef3600aa71be045e05184dd61a980d8966)), closes [#306](https://github.com/fworks-tech/agenthood/issues/306)
-* **observability:** add trace retention and export policy ([3e73919](https://github.com/fworks-tech/agenthood/commit/3e739191ee89b7e98b771cb8d01c640b5804bb3a)), closes [#307](https://github.com/fworks-tech/agenthood/issues/307)
+* **observability:** add anomaly detection for cost and quality ([f7ca9ae](https://github.com/fworks-tech/agenthood/commit/f7ca9aef3600aa71be045e05184dd61a980d8966)), refs #306
+* **observability:** add trace retention and export policy ([3e73919](https://github.com/fworks-tech/agenthood/commit/3e739191ee89b7e98b771cb8d01c640b5804bb3a)), refs #307
 
 # [3.28.0](https://github.com/fworks-tech/agenthood/compare/v3.27.0...v3.28.0) (2026-08-14)
 
 
 ### Features
 
-* **observability:** add redaction filter for trace payloads ([ae21681](https://github.com/fworks-tech/agenthood/commit/ae2168120e0d9b7976873097080fcd325c4ac131)), closes [#305](https://github.com/fworks-tech/agenthood/issues/305)
+* **observability:** add redaction filter for trace payloads ([ae21681](https://github.com/fworks-tech/agenthood/commit/ae2168120e0d9b7976873097080fcd325c4ac131)), refs #305
 
 # [3.27.0](https://github.com/fworks-tech/agenthood/compare/v3.26.0...v3.27.0) (2026-08-14)
 
 
 ### Features
 
-* **evals:** add replay evaluator for behavior drift ([27d729f](https://github.com/fworks-tech/agenthood/commit/27d729f8df51ef1d444f9d094c2ea5376d828aec)), closes [#314](https://github.com/fworks-tech/agenthood/issues/314)
+* **evals:** add replay evaluator for behavior drift ([27d729f](https://github.com/fworks-tech/agenthood/commit/27d729f8df51ef1d444f9d094c2ea5376d828aec)), refs #314
 
 # [3.26.0](https://github.com/fworks-tech/agenthood/compare/v3.25.0...v3.26.0) (2026-08-14)
 
 
 ### Features
 
-* **cli:** add eval command with baseline regression gating ([efb7e77](https://github.com/fworks-tech/agenthood/commit/efb7e77c11147ccf062d12cb30be987189c55ff4)), closes [#298](https://github.com/fworks-tech/agenthood/issues/298)
+* **cli:** add eval command with baseline regression gating ([efb7e77](https://github.com/fworks-tech/agenthood/commit/efb7e77c11147ccf062d12cb30be987189c55ff4)), refs #298
 
 # [3.25.0](https://github.com/fworks-tech/agenthood/compare/v3.24.0...v3.25.0) (2026-08-14)
 
 
 ### Features
 
-* **evals:** add baseline comparison for eval reports ([72891d4](https://github.com/fworks-tech/agenthood/commit/72891d4ccff8341723e6da53560a5547d41b5158)), closes [#311](https://github.com/fworks-tech/agenthood/issues/311)
+* **evals:** add baseline comparison for eval reports ([72891d4](https://github.com/fworks-tech/agenthood/commit/72891d4ccff8341723e6da53560a5547d41b5158)), refs #311
 
 # [3.24.0](https://github.com/fworks-tech/agenthood/compare/v3.23.0...v3.24.0) (2026-08-14)
 
 
 ### Features
 
-* **evals:** add eval runner with llm-as-judge scoring ([86adfe8](https://github.com/fworks-tech/agenthood/commit/86adfe8c51afa8bab76fd40b98a5da2f056a7597)), closes [#310](https://github.com/fworks-tech/agenthood/issues/310)
+* **evals:** add eval runner with llm-as-judge scoring ([86adfe8](https://github.com/fworks-tech/agenthood/commit/86adfe8c51afa8bab76fd40b98a5da2f056a7597)), refs #310
 
 # [3.23.0](https://github.com/fworks-tech/agenthood/compare/v3.22.0...v3.23.0) (2026-08-14)
 
@@ -688,42 +688,42 @@
 ### Features
 
 * **core:** add OpenCode Go model pricing to cost estimator ([3f9a31a](https://github.com/fworks-tech/agenthood/commit/3f9a31a12a5ce9cc6fefaf194a32f94d739ef82a))
-* **metrics:** per-member cost and quality summaries ([c572b3a](https://github.com/fworks-tech/agenthood/commit/c572b3ab0a7876212433b832bd1fdff2e52c8eee)), closes [#300](https://github.com/fworks-tech/agenthood/issues/300)
+* **metrics:** per-member cost and quality summaries ([c572b3a](https://github.com/fworks-tech/agenthood/commit/c572b3ab0a7876212433b832bd1fdff2e52c8eee)), refs #300
 
 # [3.22.0](https://github.com/fworks-tech/agenthood/compare/v3.21.0...v3.22.0) (2026-08-14)
 
 
 ### Features
 
-* **cli:** add trace command — npx agenthood trace ([8db2134](https://github.com/fworks-tech/agenthood/commit/8db2134627ea006769f3c40d9e43db57e6e68eba)), closes [#302](https://github.com/fworks-tech/agenthood/issues/302)
+* **cli:** add trace command — npx agenthood trace ([8db2134](https://github.com/fworks-tech/agenthood/commit/8db2134627ea006769f3c40d9e43db57e6e68eba)), refs #302
 
 # [3.21.0](https://github.com/fworks-tech/agenthood/compare/v3.20.0...v3.21.0) (2026-08-14)
 
 
 ### Features
 
-* **observability:** add workflow and session correlation IDs ([b0b1602](https://github.com/fworks-tech/agenthood/commit/b0b1602c2cf65941d47ea0fb428a16169c3dc4d8)), closes [#301](https://github.com/fworks-tech/agenthood/issues/301)
+* **observability:** add workflow and session correlation IDs ([b0b1602](https://github.com/fworks-tech/agenthood/commit/b0b1602c2cf65941d47ea0fb428a16169c3dc4d8)), refs #301
 
 # [3.20.0](https://github.com/fworks-tech/agenthood/compare/v3.19.0...v3.20.0) (2026-08-14)
 
 
 ### Features
 
-* **observability:** persist traces to a queryable store ([f20a0a3](https://github.com/fworks-tech/agenthood/commit/f20a0a355f9e110f25e1ea5739b000a3c6e666cc)), closes [#299](https://github.com/fworks-tech/agenthood/issues/299)
+* **observability:** persist traces to a queryable store ([f20a0a3](https://github.com/fworks-tech/agenthood/commit/f20a0a355f9e110f25e1ea5739b000a3c6e666cc)), refs #299
 
 # [3.19.0](https://github.com/fworks-tech/agenthood/compare/v3.18.0...v3.19.0) (2026-08-14)
 
 
 ### Features
 
-* **evals:** define eval suite format with Ajv validation ([7d6679f](https://github.com/fworks-tech/agenthood/commit/7d6679f19fcdbb7a85f1a912a44252e62cb3f7d7)), closes [#293](https://github.com/fworks-tech/agenthood/issues/293)
+* **evals:** define eval suite format with Ajv validation ([7d6679f](https://github.com/fworks-tech/agenthood/commit/7d6679f19fcdbb7a85f1a912a44252e62cb3f7d7)), refs #293
 
 # [3.18.0](https://github.com/fworks-tech/agenthood/compare/v3.17.0...v3.18.0) (2026-08-14)
 
 
 ### Features
 
-* **core:** implement TokenCounter and CostEstimator ([ac896d0](https://github.com/fworks-tech/agenthood/commit/ac896d003023504b6d2900811530c74ed22ce628)), closes [#296](https://github.com/fworks-tech/agenthood/issues/296) [#297](https://github.com/fworks-tech/agenthood/issues/297)
+* **core:** implement TokenCounter and CostEstimator ([ac896d0](https://github.com/fworks-tech/agenthood/commit/ac896d003023504b6d2900811530c74ed22ce628)), refs #296, #297
 
 # [3.17.0](https://github.com/fworks-tech/agenthood/compare/v3.16.0...v3.17.0) (2026-08-14)
 
@@ -735,7 +735,7 @@
 
 ### Features
 
-* **observability:** emit trace envelope and in-memory ring-buffer tracer ([2110aba](https://github.com/fworks-tech/agenthood/commit/2110aba8383b8d2cb6c2502a8aa5b4bb10291e70)), closes [#292](https://github.com/fworks-tech/agenthood/issues/292) [#295](https://github.com/fworks-tech/agenthood/issues/295)
+* **observability:** emit trace envelope and in-memory ring-buffer tracer ([2110aba](https://github.com/fworks-tech/agenthood/commit/2110aba8383b8d2cb6c2502a8aa5b4bb10291e70)), refs #292, #295
 
 # [3.16.0](https://github.com/fworks-tech/agenthood/compare/v3.15.0...v3.16.0) (2026-08-12)
 
@@ -903,8 +903,8 @@
 
 ### Bug Fixes
 
-* **ci:** point member structure checks at canonical skills/ source ([65cff2b](https://github.com/fworks-tech/agenthood/commit/65cff2b92edb085d41c3ab0c86649e847859ebfc)), closes [#366](https://github.com/fworks-tech/agenthood/issues/366)
-* **members:** make skills/ the single source of truth for member SKILL.md ([7946b16](https://github.com/fworks-tech/agenthood/commit/7946b16ec353f6abbe45a2a897e00db24c28d3de)), closes [#366](https://github.com/fworks-tech/agenthood/issues/366)
+* **ci:** point member structure checks at canonical skills/ source ([65cff2b](https://github.com/fworks-tech/agenthood/commit/65cff2b92edb085d41c3ab0c86649e847859ebfc)), refs #366
+* **members:** make skills/ the single source of truth for member SKILL.md ([7946b16](https://github.com/fworks-tech/agenthood/commit/7946b16ec353f6abbe45a2a897e00db24c28d3de)), refs #366
 * **members:** make tool tier construction order-independent ([0f033da](https://github.com/fworks-tech/agenthood/commit/0f033da92e7d2fd451d0910409e9d405d7925104))
 * **project:** scope supersedes regex to its section ([8e91073](https://github.com/fworks-tech/agenthood/commit/8e91073bb1880ebc45ea275be4032a1330eca2a1))
 * **security:** replace execSync postinstall eval and drop esbuild allowScripts ([fa193ad](https://github.com/fworks-tech/agenthood/commit/fa193ad93e987bacafe2a754b8afbace4108d6ca))
@@ -915,7 +915,7 @@
 ### Bug Fixes
 
 * **cli:** add missing run command to COMMANDS map ([d6caf41](https://github.com/fworks-tech/agenthood/commit/d6caf410dd7ac63c5058aefb08917cf7cf3618ef))
-* **cli:** fix flag parsing and status member count ([de9c34c](https://github.com/fworks-tech/agenthood/commit/de9c34c32a717f1992e046875ef89faf1c69c8b0)), closes [#367](https://github.com/fworks-tech/agenthood/issues/367)
+* **cli:** fix flag parsing and status member count ([de9c34c](https://github.com/fworks-tech/agenthood/commit/de9c34c32a717f1992e046875ef89faf1c69c8b0)), refs #367
 * **status:** remove readMetrics duplication, restore MetricsCollector with centralized usage ([34c2b17](https://github.com/fworks-tech/agenthood/commit/34c2b17283072d0eac69e0f2c0c282f2afd3361f))
 
 
@@ -943,7 +943,7 @@
 
 ### Features
 
-* fix vector store crash, seed during init, add semantic pattern matcher ([a79a0ef](https://github.com/fworks-tech/agenthood/commit/a79a0ef50eaed385c1f6d7db95e4bee361c1aa07)), closes [#354](https://github.com/fworks-tech/agenthood/issues/354) [#312](https://github.com/fworks-tech/agenthood/issues/312) [#354](https://github.com/fworks-tech/agenthood/issues/354) [#312](https://github.com/fworks-tech/agenthood/issues/312)
+* fix vector store crash, seed during init, add semantic pattern matcher ([a79a0ef](https://github.com/fworks-tech/agenthood/commit/a79a0ef50eaed385c1f6d7db95e4bee361c1aa07)), refs #354, #312
 
 ## [3.8.2](https://github.com/fworks-tech/agenthood/compare/v3.8.1...v3.8.2) (2026-07-04)
 
@@ -951,7 +951,7 @@
 ### Bug Fixes
 
 * add root commitlint.config.ts for repo CI ([0c69c21](https://github.com/fworks-tech/agenthood/commit/0c69c211be63ba6f6c77f5f83e7ab447dafaa720))
-* **init:** resolve 11 failing health checks by correcting source paths and workflow ([203099b](https://github.com/fworks-tech/agenthood/commit/203099b84735aa9e3ef3c52de2f52b2d75dacd91)), closes [#14](https://github.com/fworks-tech/agenthood/issues/14)
+* **init:** resolve 11 failing health checks by correcting source paths and workflow ([203099b](https://github.com/fworks-tech/agenthood/commit/203099b84735aa9e3ef3c52de2f52b2d75dacd91)), refs #14
 * pin commitlint versions, tighten CI perms, split check, extract stripConfig ([dd773a3](https://github.com/fworks-tech/agenthood/commit/dd773a3eb37bee8b452262cff51da1c52c14132c))
 * **struct:** sort workflow entries alphabetically in STRUCTURE.md ([84bb06d](https://github.com/fworks-tech/agenthood/commit/84bb06db7801cf974fe62c5c9a27a0a7d2058910))
 
@@ -961,8 +961,8 @@
 ### Bug Fixes
 
 * **groq:** add error mapping, shared stream utils, and OpenAIProvider validation ([25b9a46](https://github.com/fworks-tech/agenthood/commit/25b9a4666fb5741d5c355e5427bbdaaa1a1edde0))
-* **groq:** resolve all Auditor, Warden, and Reviewer findings in GroqProvider ([b459223](https://github.com/fworks-tech/agenthood/commit/b4592235f1ebafbcf14bbc8e7d42e5c8f077eb4f)), closes [#324](https://github.com/fworks-tech/agenthood/issues/324)
-* **providers:** restore custom tool call handling in shared parseToolCall ([e38812b](https://github.com/fworks-tech/agenthood/commit/e38812bafc462e2d465cdc8aa8924445aaa90f55)), closes [#350](https://github.com/fworks-tech/agenthood/issues/350)
+* **groq:** resolve all Auditor, Warden, and Reviewer findings in GroqProvider ([b459223](https://github.com/fworks-tech/agenthood/commit/b4592235f1ebafbcf14bbc8e7d42e5c8f077eb4f)), refs #324
+* **providers:** restore custom tool call handling in shared parseToolCall ([e38812b](https://github.com/fworks-tech/agenthood/commit/e38812bafc462e2d465cdc8aa8924445aaa90f55)), refs #350
 
 # [3.8.0](https://github.com/fworks-tech/agenthood/compare/v3.7.0...v3.8.0) (2026-07-03)
 
@@ -974,7 +974,7 @@
 
 ### Features
 
-* **skills:** add 16 platform integration skills (CLI-focused) ([8723cc0](https://github.com/fworks-tech/agenthood/commit/8723cc0f7cf8d26d7231a6e61fb97e3f66451f43)), closes [#348](https://github.com/fworks-tech/agenthood/issues/348)
+* **skills:** add 16 platform integration skills (CLI-focused) ([8723cc0](https://github.com/fworks-tech/agenthood/commit/8723cc0f7cf8d26d7231a6e61fb97e3f66451f43)), refs #348
 
 # [3.7.0](https://github.com/fworks-tech/agenthood/compare/v3.6.0...v3.7.0) (2026-07-02)
 
@@ -987,7 +987,7 @@
 
 ### Features
 
-* **skills:** add clear-named skill mirrors and shared reference checklists ([a1da6ad](https://github.com/fworks-tech/agenthood/commit/a1da6adc217f161799480439375b39eaeec31094)), closes [#346](https://github.com/fworks-tech/agenthood/issues/346)
+* **skills:** add clear-named skill mirrors and shared reference checklists ([a1da6ad](https://github.com/fworks-tech/agenthood/commit/a1da6adc217f161799480439375b39eaeec31094)), refs #346
 
 # [3.6.0](https://github.com/fworks-tech/agenthood/compare/v3.5.3...v3.6.0) (2026-07-01)
 
@@ -1073,7 +1073,7 @@
 
 ### Features
 
-* **evals:** implement EpisodeLearner — update LongTermMemory and ResidualMemory from eval scores ([b881c53](https://github.com/fworks-tech/agenthood/commit/b881c5321740922ad453159c69b2bdd992c3a887)), closes [#119](https://github.com/fworks-tech/agenthood/issues/119)
+* **evals:** implement EpisodeLearner — update LongTermMemory and ResidualMemory from eval scores ([b881c53](https://github.com/fworks-tech/agenthood/commit/b881c5321740922ad453159c69b2bdd992c3a887)), refs #119
 
 # [3.3.0](https://github.com/fworks-tech/agenthood/compare/v3.2.0...v3.3.0) (2026-06-28)
 
@@ -1101,12 +1101,12 @@
 
 ### Features
 
-* **phase:** phase 0 - decision log, postmortem, auto-discover ([950ed85](https://github.com/fworks-tech/agenthood/commit/950ed85abbac27723279815caee73294562210db)), closes [#279](https://github.com/fworks-tech/agenthood/issues/279) [#280](https://github.com/fworks-tech/agenthood/issues/280) [#114](https://github.com/fworks-tech/agenthood/issues/114)
-* **phase:** phase 1 - protocol interfaces and workflow engine ([5c700e8](https://github.com/fworks-tech/agenthood/commit/5c700e8f67b1dec01a08d64e4e17336b30033112)), closes [#116](https://github.com/fworks-tech/agenthood/issues/116) [#116](https://github.com/fworks-tech/agenthood/issues/116)
-* **phase:** phase 2 - workflow checkpoint and goal chain ([f3160ba](https://github.com/fworks-tech/agenthood/commit/f3160ba6528db8726fd7b73019b2c02a5bfe786d)), closes [#117](https://github.com/fworks-tech/agenthood/issues/117) [#118](https://github.com/fworks-tech/agenthood/issues/118)
-* **phase:** phase 3 - oracle, strategist, and operator agents ([a886be1](https://github.com/fworks-tech/agenthood/commit/a886be1c80177d69b24d4cbb7a11e937ff0fa292)), closes [#113](https://github.com/fworks-tech/agenthood/issues/113) [#277](https://github.com/fworks-tech/agenthood/issues/277) [#278](https://github.com/fworks-tech/agenthood/issues/278)
-* **phase:** phase 4 - verify, rollback, and status commands ([ce1c560](https://github.com/fworks-tech/agenthood/commit/ce1c560be64b80599e476301121d3c3cf4e078cb)), closes [#275](https://github.com/fworks-tech/agenthood/issues/275) [#276](https://github.com/fworks-tech/agenthood/issues/276) [#281](https://github.com/fworks-tech/agenthood/issues/281)
-* **phase:** phase 5 - diff impact analyzer and quality gates ([26fc8a1](https://github.com/fworks-tech/agenthood/commit/26fc8a12178c1c7fe4ad60c748b073a2ec6c04e2)), closes [#115](https://github.com/fworks-tech/agenthood/issues/115) [#282](https://github.com/fworks-tech/agenthood/issues/282)
+* **phase:** phase 0 - decision log, postmortem, auto-discover ([950ed85](https://github.com/fworks-tech/agenthood/commit/950ed85abbac27723279815caee73294562210db)), refs #279, #280, #114
+* **phase:** phase 1 - protocol interfaces and workflow engine ([5c700e8](https://github.com/fworks-tech/agenthood/commit/5c700e8f67b1dec01a08d64e4e17336b30033112)), refs #116
+* **phase:** phase 2 - workflow checkpoint and goal chain ([f3160ba](https://github.com/fworks-tech/agenthood/commit/f3160ba6528db8726fd7b73019b2c02a5bfe786d)), refs #117, #118
+* **phase:** phase 3 - oracle, strategist, and operator agents ([a886be1](https://github.com/fworks-tech/agenthood/commit/a886be1c80177d69b24d4cbb7a11e937ff0fa292)), refs #113, #277, #278
+* **phase:** phase 4 - verify, rollback, and status commands ([ce1c560](https://github.com/fworks-tech/agenthood/commit/ce1c560be64b80599e476301121d3c3cf4e078cb)), refs #275, #276, #281
+* **phase:** phase 5 - diff impact analyzer and quality gates ([26fc8a1](https://github.com/fworks-tech/agenthood/commit/26fc8a12178c1c7fe4ad60c748b073a2ec6c04e2)), refs #115, #282
 * **phase:** phase 6 - review-pr workflow end-to-end ([ea0debf](https://github.com/fworks-tech/agenthood/commit/ea0debf5ae053480229e1e9cdbe7d3b00668173e))
 
 # [3.1.0](https://github.com/fworks-tech/agenthood/compare/v3.0.0...v3.1.0) (2026-06-27)
@@ -1114,20 +1114,20 @@
 
 ### Bug Fixes
 
-* **docs:** address Reviewer findings on init check count and LanceDBStore API example ([4c215ef](https://github.com/fworks-tech/agenthood/commit/4c215ef688cfff1f67c9bf8c9a331f19f0eec404)), closes [#286](https://github.com/fworks-tech/agenthood/issues/286)
-* **docs:** correct check count to 21 and fix insert->add API example ([deb2591](https://github.com/fworks-tech/agenthood/commit/deb25910ac6a15c3317d794750df59a6b43e1ffa)), closes [#286](https://github.com/fworks-tech/agenthood/issues/286)
+* **docs:** address Reviewer findings on init check count and LanceDBStore API example ([4c215ef](https://github.com/fworks-tech/agenthood/commit/4c215ef688cfff1f67c9bf8c9a331f19f0eec404)), refs #286
+* **docs:** correct check count to 21 and fix insert->add API example ([deb2591](https://github.com/fworks-tech/agenthood/commit/deb25910ac6a15c3317d794750df59a6b43e1ffa)), refs #286
 * **docs:** fix mentioned shipped version ([60a43e1](https://github.com/fworks-tech/agenthood/commit/60a43e14650628d23f61fefbb3910d1f9cf779bb))
-* **init,check:** align init ceremony with health check expectations ([cd0a6bc](https://github.com/fworks-tech/agenthood/commit/cd0a6bc5bf29254e2c1cecafcd0880f9580fec4c)), closes [#286](https://github.com/fworks-tech/agenthood/issues/286)
-* **skills:** add output format section to the-reviewer SKILL.md for consistent rendering ([86c7162](https://github.com/fworks-tech/agenthood/commit/86c71629f394cc334ad5becce99bff95d135cf2e)), closes [#286](https://github.com/fworks-tech/agenthood/issues/286)
-* sync skills/the-reviewer/SKILL.md with members/ changes ([473707d](https://github.com/fworks-tech/agenthood/commit/473707d01972ac51af1da2e7cab61ba4927ff825)), closes [#286](https://github.com/fworks-tech/agenthood/issues/286)
-* **the-reviewer:** address review findings on output format and README ([8aa91f9](https://github.com/fworks-tech/agenthood/commit/8aa91f950d4de39de8ded7760cf66346d43440dc)), closes [#286](https://github.com/fworks-tech/agenthood/issues/286)
-* **the-reviewer:** flatten heading hierarchy and add intra-section spacing example ([faa73fc](https://github.com/fworks-tech/agenthood/commit/faa73fc3ce08367d8010d8ac261e9a01bdd15c0f)), closes [#286](https://github.com/fworks-tech/agenthood/issues/286)
-* **the-reviewer:** use [SEVERITY] placeholder and move meta-instruction outside template ([e073edb](https://github.com/fworks-tech/agenthood/commit/e073edba897975a88ed2078d1ccb97980a05ec06)), closes [#286](https://github.com/fworks-tech/agenthood/issues/286)
+* **init,check:** align init ceremony with health check expectations ([cd0a6bc](https://github.com/fworks-tech/agenthood/commit/cd0a6bc5bf29254e2c1cecafcd0880f9580fec4c)), refs #286
+* **skills:** add output format section to the-reviewer SKILL.md for consistent rendering ([86c7162](https://github.com/fworks-tech/agenthood/commit/86c71629f394cc334ad5becce99bff95d135cf2e)), refs #286
+* sync skills/the-reviewer/SKILL.md with members/ changes ([473707d](https://github.com/fworks-tech/agenthood/commit/473707d01972ac51af1da2e7cab61ba4927ff825)), refs #286
+* **the-reviewer:** address review findings on output format and README ([8aa91f9](https://github.com/fworks-tech/agenthood/commit/8aa91f950d4de39de8ded7760cf66346d43440dc)), refs #286
+* **the-reviewer:** flatten heading hierarchy and add intra-section spacing example ([faa73fc](https://github.com/fworks-tech/agenthood/commit/faa73fc3ce08367d8010d8ac261e9a01bdd15c0f)), refs #286
+* **the-reviewer:** use [SEVERITY] placeholder and move meta-instruction outside template ([e073edb](https://github.com/fworks-tech/agenthood/commit/e073edba897975a88ed2078d1ccb97980a05ec06)), refs #286
 
 
 ### Features
 
-* load .env file automatically via dotenv ([91fac79](https://github.com/fworks-tech/agenthood/commit/91fac793b37d271ad3c04b6c505a127a27bf3bde)), closes [#286](https://github.com/fworks-tech/agenthood/issues/286)
+* load .env file automatically via dotenv ([91fac79](https://github.com/fworks-tech/agenthood/commit/91fac793b37d271ad3c04b6c505a127a27bf3bde)), refs #286
 
 # [3.0.0](https://github.com/fworks-tech/agenthood/compare/v2.5.1...v3.0.0) (2026-06-26)
 
@@ -1142,7 +1142,7 @@
 * **ci:** fix YAML indentation in sentinel, auditor, warden workflows ([4c5f059](https://github.com/fworks-tech/agenthood/commit/4c5f059169aa6f062bb548ba820a4d9ee4d96e9e))
 * **ci:** install gitleaks binary before pre-check step ([3ea8625](https://github.com/fworks-tech/agenthood/commit/3ea8625d7cd4eff3763e409c1eb0453d96b01a83))
 * **ci:** remove noisy gitleaks pre-check step ([f191d3c](https://github.com/fworks-tech/agenthood/commit/f191d3c242eee45e06282c11c163efbbc82a67d8))
-* **ci:** update sentinel to check file content instead of symlinks ([37c1cd4](https://github.com/fworks-tech/agenthood/commit/37c1cd4ecab3788a4fe9ab4804c43dba2322553b)), closes [#285](https://github.com/fworks-tech/agenthood/issues/285)
+* **ci:** update sentinel to check file content instead of symlinks ([37c1cd4](https://github.com/fworks-tech/agenthood/commit/37c1cd4ecab3788a4fe9ab4804c43dba2322553b)), refs #285
 * **cli:** wire detect flag through CLI parser ([12335ae](https://github.com/fworks-tech/agenthood/commit/12335ae8d0ee3d53902743a2b84d4de1c389953b))
 * implement all review findings from architect and reviewer ([88bfbfe](https://github.com/fworks-tech/agenthood/commit/88bfbfe0c0892588aaed451ed065fcbd4bf332da))
 * **security:** address all Auditor findings from PR [#285](https://github.com/fworks-tech/agenthood/issues/285) ([f5a0bca](https://github.com/fworks-tech/agenthood/commit/f5a0bcadd5c882d0e05c5a16598d9230c44c909e))
@@ -1150,7 +1150,7 @@
 
 ### Documentation
 
-* **governance:** create member RACI map and release policy ([21f8230](https://github.com/fworks-tech/agenthood/commit/21f8230a260035d043bee55dc48eabc4e5b4efa5)), closes [#283](https://github.com/fworks-tech/agenthood/issues/283)
+* **governance:** create member RACI map and release policy ([21f8230](https://github.com/fworks-tech/agenthood/commit/21f8230a260035d043bee55dc48eabc4e5b4efa5)), refs #283
 
 
 ### Features
@@ -1158,10 +1158,10 @@
 * **ci:** make API usage smart and economic ([067af97](https://github.com/fworks-tech/agenthood/commit/067af97ee7fc1c91fb9c0c6f5ef5cd64b5e3e75f))
 * **llm:** add OpenCode Go provider ([8d8d06e](https://github.com/fworks-tech/agenthood/commit/8d8d06e1449cc3ede2938fd21f23cbd04ba004c6))
 * **llm:** add OpenCode Zen provider ([f96ffc5](https://github.com/fworks-tech/agenthood/commit/f96ffc551fa264079fb868a7889fcd683698145b))
-* **llm:** fix OpenCode provider for DeepSeek tool format compatibility ([c70277e](https://github.com/fworks-tech/agenthood/commit/c70277eb34b19a48078bbb441336a08c8023ec40)), closes [#285](https://github.com/fworks-tech/agenthood/issues/285)
-* **orchestration:** implement MemberOrchestrator detection ([cebe214](https://github.com/fworks-tech/agenthood/commit/cebe21471c3a3cf8b430295a3089b8753e3cd035)), closes [#201](https://github.com/fworks-tech/agenthood/issues/201)
-* **rag:** implement AgenticRAG with RetrievalDecisionSkill ([5b8d272](https://github.com/fworks-tech/agenthood/commit/5b8d272ddb585b41fc83bf726459ce6828d8bbe2)), closes [#108](https://github.com/fworks-tech/agenthood/issues/108)
-* **rag:** implement HierarchicalChunkStrategy with parent-child chunking ([af6b336](https://github.com/fworks-tech/agenthood/commit/af6b336fdd4e03c9b99fb41c63738950dd19faa5)), closes [#109](https://github.com/fworks-tech/agenthood/issues/109)
+* **llm:** fix OpenCode provider for DeepSeek tool format compatibility ([c70277e](https://github.com/fworks-tech/agenthood/commit/c70277eb34b19a48078bbb441336a08c8023ec40)), refs #285
+* **orchestration:** implement MemberOrchestrator detection ([cebe214](https://github.com/fworks-tech/agenthood/commit/cebe21471c3a3cf8b430295a3089b8753e3cd035)), refs #201
+* **rag:** implement AgenticRAG with RetrievalDecisionSkill ([5b8d272](https://github.com/fworks-tech/agenthood/commit/5b8d272ddb585b41fc83bf726459ce6828d8bbe2)), refs #108
+* **rag:** implement HierarchicalChunkStrategy with parent-child chunking ([af6b336](https://github.com/fworks-tech/agenthood/commit/af6b336fdd4e03c9b99fb41c63738950dd19faa5)), refs #109
 
 
 ### BREAKING CHANGES
@@ -1173,42 +1173,42 @@
 
 ### Bug Fixes
 
-* **memory:** align ProjectMemoryImpl return types with ProjectMemory interface ([f1325c8](https://github.com/fworks-tech/agenthood/commit/f1325c8244dc98556368ff237612eea5cc6baea9)), closes [#269](https://github.com/fworks-tech/agenthood/issues/269)
+* **memory:** align ProjectMemoryImpl return types with ProjectMemory interface ([f1325c8](https://github.com/fworks-tech/agenthood/commit/f1325c8244dc98556368ff237612eea5cc6baea9)), refs #269
 
 # [2.5.0](https://github.com/fworks-tech/agenthood/compare/v2.4.0...v2.5.0) (2026-06-26)
 
 
 ### Bug Fixes
 
-* **deps:** pin tree-sitter-go and tree-sitter-python to v0.23.x to resolve peer dependency conflict ([9710d50](https://github.com/fworks-tech/agenthood/commit/9710d501c2799ba78767c9bf78ad9d61c501681c)), closes [#269](https://github.com/fworks-tech/agenthood/issues/269)
+* **deps:** pin tree-sitter-go and tree-sitter-python to v0.23.x to resolve peer dependency conflict ([9710d50](https://github.com/fworks-tech/agenthood/commit/9710d501c2799ba78767c9bf78ad9d61c501681c)), refs #269
 
 
 ### Features
 
 * **memory:** implement PersonalisationStore for per-project agent adaptation ([20c3f43](https://github.com/fworks-tech/agenthood/commit/20c3f437788586261979285a3329a8a5bd3dac3d)), closes [hi#weight](https://github.com/hi/issues/weight) [#112](https://github.com/fworks-tech/agenthood/issues/112)
-* **memory:** implement ShortTerm, LongTerm, Episodic, and Project memory tiers ([98d6a56](https://github.com/fworks-tech/agenthood/commit/98d6a560e4209f52d860f5862643f4381af5cda4)), closes [#262](https://github.com/fworks-tech/agenthood/issues/262)
-* **rag:** implement baseline RAG pipeline — ChunkStrategy, Indexer, Retriever ([9a257cf](https://github.com/fworks-tech/agenthood/commit/9a257cfa035df4e874c70cb73bc831aa52aeadb3)), closes [#263](https://github.com/fworks-tech/agenthood/issues/263)
-* **rag:** implement SocietyIndexer for members, ADRs, and conventions ([9caccad](https://github.com/fworks-tech/agenthood/commit/9caccade098cfc71fc5fd50e936b5bbc449a5bbb)), closes [#107](https://github.com/fworks-tech/agenthood/issues/107)
-* **rag:** implement TreeSitterParser for AST-based code structure extraction ([6606bb9](https://github.com/fworks-tech/agenthood/commit/6606bb9ecc7578bb73a75561306d42f586b3c88b)), closes [#106](https://github.com/fworks-tech/agenthood/issues/106)
+* **memory:** implement ShortTerm, LongTerm, Episodic, and Project memory tiers ([98d6a56](https://github.com/fworks-tech/agenthood/commit/98d6a560e4209f52d860f5862643f4381af5cda4)), refs #262
+* **rag:** implement baseline RAG pipeline — ChunkStrategy, Indexer, Retriever ([9a257cf](https://github.com/fworks-tech/agenthood/commit/9a257cfa035df4e874c70cb73bc831aa52aeadb3)), refs #263
+* **rag:** implement SocietyIndexer for members, ADRs, and conventions ([9caccad](https://github.com/fworks-tech/agenthood/commit/9caccade098cfc71fc5fd50e936b5bbc449a5bbb)), refs #107
+* **rag:** implement TreeSitterParser for AST-based code structure extraction ([6606bb9](https://github.com/fworks-tech/agenthood/commit/6606bb9ecc7578bb73a75561306d42f586b3c88b)), refs #106
 
 # [2.4.0](https://github.com/fworks-tech/agenthood/compare/v2.3.1...v2.4.0) (2026-06-26)
 
 
 ### Bug Fixes
 
-* address reviewer findings and update Phase 0 docs ([e242951](https://github.com/fworks-tech/agenthood/commit/e242951b9695f9aa3b5f407e83f2850b815f252e)), closes [#268](https://github.com/fworks-tech/agenthood/issues/268)
-* ignore entire .agenthood/ directory except config.example.json ([5babd6b](https://github.com/fworks-tech/agenthood/commit/5babd6b5853400616519780130e8ce62bdb7c57b)), closes [#110](https://github.com/fworks-tech/agenthood/issues/110)
-* **llm:** extract and granularize api key validation ([3225b2f](https://github.com/fworks-tech/agenthood/commit/3225b2fa44dc609aa9193462116280e9daf1293f)), closes [#203](https://github.com/fworks-tech/agenthood/issues/203)
+* address reviewer findings and update Phase 0 docs ([e242951](https://github.com/fworks-tech/agenthood/commit/e242951b9695f9aa3b5f407e83f2850b815f252e)), refs #268
+* ignore entire .agenthood/ directory except config.example.json ([5babd6b](https://github.com/fworks-tech/agenthood/commit/5babd6b5853400616519780130e8ce62bdb7c57b)), refs #110
+* **llm:** extract and granularize api key validation ([3225b2f](https://github.com/fworks-tech/agenthood/commit/3225b2fa44dc609aa9193462116280e9daf1293f)), refs #203
 
 
 ### Features
 
-* **core:** move schema validator to core and harden error messages ([3f335f5](https://github.com/fworks-tech/agenthood/commit/3f335f56c44f9b57a6e44c91fd359a7a79754042)), closes [#205](https://github.com/fworks-tech/agenthood/issues/205)
-* **memory:** implement LanceDB vector store with IVectorStore interface ([cfdb868](https://github.com/fworks-tech/agenthood/commit/cfdb868320c824afb074c668f0d561e16a1617e8)), closes [#261](https://github.com/fworks-tech/agenthood/issues/261)
-* **memory:** implement memory governance with IMemoryStore and InMemoryStore ([faa524c](https://github.com/fworks-tech/agenthood/commit/faa524c0433f9342bacc4866eebe23520b6f135f)), closes [#111](https://github.com/fworks-tech/agenthood/issues/111)
-* **memory:** implement ResidualMemory — decay-weighted trace signals ([91a34ea](https://github.com/fworks-tech/agenthood/commit/91a34ea6ab3ea5b2d3a3a7e812e0417ae048076b)), closes [#110](https://github.com/fworks-tech/agenthood/issues/110)
-* **rag:** implement KnowledgeGraphStore for relationship-aware retrieval ([0f0013e](https://github.com/fworks-tech/agenthood/commit/0f0013e45ffa33e3e2c5c84b64f8e293108aede5)), closes [#105](https://github.com/fworks-tech/agenthood/issues/105)
-* **reasoning:** add infinite loop detection to reactloop ([869fdd7](https://github.com/fworks-tech/agenthood/commit/869fdd73b8daacd543b921e2d541747fcfde6ad9)), closes [#206](https://github.com/fworks-tech/agenthood/issues/206)
+* **core:** move schema validator to core and harden error messages ([3f335f5](https://github.com/fworks-tech/agenthood/commit/3f335f56c44f9b57a6e44c91fd359a7a79754042)), refs #205
+* **memory:** implement LanceDB vector store with IVectorStore interface ([cfdb868](https://github.com/fworks-tech/agenthood/commit/cfdb868320c824afb074c668f0d561e16a1617e8)), refs #261
+* **memory:** implement memory governance with IMemoryStore and InMemoryStore ([faa524c](https://github.com/fworks-tech/agenthood/commit/faa524c0433f9342bacc4866eebe23520b6f135f)), refs #111
+* **memory:** implement ResidualMemory — decay-weighted trace signals ([91a34ea](https://github.com/fworks-tech/agenthood/commit/91a34ea6ab3ea5b2d3a3a7e812e0417ae048076b)), refs #110
+* **rag:** implement KnowledgeGraphStore for relationship-aware retrieval ([0f0013e](https://github.com/fworks-tech/agenthood/commit/0f0013e45ffa33e3e2c5c84b64f8e293108aede5)), refs #105
+* **reasoning:** add infinite loop detection to reactloop ([869fdd7](https://github.com/fworks-tech/agenthood/commit/869fdd73b8daacd543b921e2d541747fcfde6ad9)), refs #206
 
 ## [2.3.1](https://github.com/fworks-tech/agenthood/compare/v2.3.0...v2.3.1) (2026-06-25)
 
@@ -1222,16 +1222,16 @@
 
 ### Bug Fixes
 
-* **academy:** compute relative link from non-index pages at correct depth ([c75e6da](https://github.com/fworks-tech/agenthood/commit/c75e6da8c20c88e03848fee7be642f25234271ec)), closes [#243](https://github.com/fworks-tech/agenthood/issues/243)
+* **academy:** compute relative link from non-index pages at correct depth ([c75e6da](https://github.com/fworks-tech/agenthood/commit/c75e6da8c20c88e03848fee7be642f25234271ec)), refs #243
 * **failover:** add embed model downgrade, 3-attempt backoff, JSDoc, align with spec ([f37cdfa](https://github.com/fworks-tech/agenthood/commit/f37cdfa7bf6cb4acf6fe7c4a70bc0b950b8bee80))
 * **failover:** trip permanent errors immediately, add model downgrade to stream() ([d4fb73d](https://github.com/fworks-tech/agenthood/commit/d4fb73d9972350b4aad6df04025d5c113c456d4c))
 
 
 ### Features
 
-* **cli:** add provider selection logging, runtime guide, and failover integration tests ([c4b9244](https://github.com/fworks-tech/agenthood/commit/c4b924480ae7388b76f4c4f274ba9c188ac4c958)), closes [#207](https://github.com/fworks-tech/agenthood/issues/207)
+* **cli:** add provider selection logging, runtime guide, and failover integration tests ([c4b9244](https://github.com/fworks-tech/agenthood/commit/c4b924480ae7388b76f4c4f274ba9c188ac4c958)), refs #207
 * **cli:** wire provider failover config into CLI and LLMRouter ([d2236ec](https://github.com/fworks-tech/agenthood/commit/d2236ec728a051a96f30f1ae403dbde678bfb948))
-* **provider:** implement model downgrade and circuit breaker config ([a189f6b](https://github.com/fworks-tech/agenthood/commit/a189f6baf794fe34d9c220260f13d7ed3c150d22)), closes [#217](https://github.com/fworks-tech/agenthood/issues/217)
+* **provider:** implement model downgrade and circuit breaker config ([a189f6b](https://github.com/fworks-tech/agenthood/commit/a189f6baf794fe34d9c220260f13d7ed3c150d22)), refs #217
 
 # [2.2.0](https://github.com/fworks-tech/agenthood/compare/v2.1.0...v2.2.0) (2026-06-23)
 
@@ -1251,7 +1251,7 @@
 ### Bug Fixes
 
 * **ci:** add npm ci step to gh-pages workflow before building ([86fe39f](https://github.com/fworks-tech/agenthood/commit/86fe39f85b03ceec3fadfd91daf5b2c01b3e3f3b)), closes [#pages](https://github.com/fworks-tech/agenthood/issues/pages)
-* **config:** update stale commitlint.config.cjs references to .ts ([2390aab](https://github.com/fworks-tech/agenthood/commit/2390aab298b052d055bd9e134bd05bbcc708dc69)), closes [#237](https://github.com/fworks-tech/agenthood/issues/237)
+* **config:** update stale commitlint.config.cjs references to .ts ([2390aab](https://github.com/fworks-tech/agenthood/commit/2390aab298b052d055bd9e134bd05bbcc708dc69)), refs #237
 * **llm:** make provider SDK imports lazy, lower engines.node to 22.14.0 ([dd5a7c1](https://github.com/fworks-tech/agenthood/commit/dd5a7c11d8192ba727bbe055e0ee28d106b38d5a))
 
 
@@ -1288,8 +1288,8 @@
 * **agent:** implement ArchitectAgent, ReviewerAgent, QAAgent runtime classes ([b04072d](https://github.com/fworks-tech/agenthood/commit/b04072da8317465af8b342fec67d1b91c369c1f8))
 * **commands:** add pr-sync command, PrSyncSkill, and The Manuscript workflow ([10e5e49](https://github.com/fworks-tech/agenthood/commit/10e5e490c4b0d1f5560f9fe2f87a36c1ab6feb73)), closes [#based](https://github.com/fworks-tech/agenthood/issues/based)
 * **core:** add concurrency queue and safety guard ([694e01d](https://github.com/fworks-tech/agenthood/commit/694e01d7376f0eaaa5e63b3c0f345eb79a4785b6))
-* **core:** add RiskManager, SkillRegistry discovery, dynamic routing, and README rewrite ([8b284d9](https://github.com/fworks-tech/agenthood/commit/8b284d92225f2fd1e9ea5005cfb251970f554d0c)), closes [#103](https://github.com/fworks-tech/agenthood/issues/103) [#162](https://github.com/fworks-tech/agenthood/issues/162) [#102](https://github.com/fworks-tech/agenthood/issues/102) [#102](https://github.com/fworks-tech/agenthood/issues/102) [#103](https://github.com/fworks-tech/agenthood/issues/103) [#162](https://github.com/fworks-tech/agenthood/issues/162)
-* **core:** implement ContextCompressor with token-aware memory summarization ([cc5e078](https://github.com/fworks-tech/agenthood/commit/cc5e07801a297e6ce763264ae339e1e8579f7a6f)), closes [#104](https://github.com/fworks-tech/agenthood/issues/104)
+* **core:** add RiskManager, SkillRegistry discovery, dynamic routing, and README rewrite ([8b284d9](https://github.com/fworks-tech/agenthood/commit/8b284d92225f2fd1e9ea5005cfb251970f554d0c)), refs #103, #162, #102
+* **core:** implement ContextCompressor with token-aware memory summarization ([cc5e078](https://github.com/fworks-tech/agenthood/commit/cc5e07801a297e6ce763264ae339e1e8579f7a6f)), refs #104
 * **core:** security hardening — Ajv, API key validation, symlink checks ([5a7738f](https://github.com/fworks-tech/agenthood/commit/5a7738fcc252d6f9bacf8c584338a6290d984296))
 * **llm:** add Anthropic prompt caching with cache control breakpoint ([75c13bb](https://github.com/fworks-tech/agenthood/commit/75c13bbd66e296d895f01e13f5a2c61c73e9979d))
 * **llm:** implement ProviderFailover for resilience ([#161](https://github.com/fworks-tech/agenthood/issues/161)) ([b86a604](https://github.com/fworks-tech/agenthood/commit/b86a604913f997ca731fd34ba798dfe954f77fdc))
@@ -1297,9 +1297,9 @@
 * **members:** wire all 14 society members to agenthood run ([3339aec](https://github.com/fworks-tech/agenthood/commit/3339aec52eab04a4c27904856aab4cb8ac4b17bb))
 * **reasoning:** implement ContextCompressor for token management ([#104](https://github.com/fworks-tech/agenthood/issues/104)) ([9558a4a](https://github.com/fworks-tech/agenthood/commit/9558a4aaca61fb4830a99432e0e3bbfb70cc66f1))
 * **release:** generate user-friendly release notes via @semantic-release/exec ([d4d47c4](https://github.com/fworks-tech/agenthood/commit/d4d47c49a22067484f6aa30b1f11c14b16920910))
-* **runtime:** release v2.0.0 — TypeScript runtime with autonomous agent execution ([0720bd5](https://github.com/fworks-tech/agenthood/commit/0720bd5f19f8805f5859f4871bde0a2632c2f8fd)), closes [#202](https://github.com/fworks-tech/agenthood/issues/202)
+* **runtime:** release v2.0.0 — TypeScript runtime with autonomous agent execution ([0720bd5](https://github.com/fworks-tech/agenthood/commit/0720bd5f19f8805f5859f4871bde0a2632c2f8fd)), refs #202
 * ship M4 foundation - TypeScript runtime with providers, agents, skills, and CLI ([7de7215](https://github.com/fworks-tech/agenthood/commit/7de721525f9b9c9828b1791979236cce45eec642))
-* **skills:** export and register SubagentTaskSkill with delegate_task name ([26bec93](https://github.com/fworks-tech/agenthood/commit/26bec93112273bd97b03bd2eb9864014d3159f45)), closes [#3](https://github.com/fworks-tech/agenthood/issues/3) [#8](https://github.com/fworks-tech/agenthood/issues/8) [#9](https://github.com/fworks-tech/agenthood/issues/9)
+* **skills:** export and register SubagentTaskSkill with delegate_task name ([26bec93](https://github.com/fworks-tech/agenthood/commit/26bec93112273bd97b03bd2eb9864014d3159f45)), refs #3, #8, #9
 * **skills:** implement SubagentTaskSkill for agent delegation ([#199](https://github.com/fworks-tech/agenthood/issues/199)) ([58dc11d](https://github.com/fworks-tech/agenthood/commit/58dc11dec642a9e540b92c2f859752146a8da094))
 * **skills:** replace stub skills with real LLM and filesystem implementations ([4bd32ba](https://github.com/fworks-tech/agenthood/commit/4bd32bad94e8d83f0651d38cb5a3d1be91ceb0ae))
 * **workflow:** replace commit listing with LLM code review by The Reviewer ([ca61f77](https://github.com/fworks-tech/agenthood/commit/ca61f7723e5953d51426c770413db945e399b586))
@@ -1314,7 +1314,7 @@
 
 ### Features
 
-* **skills:** add skills/ symlinks for all 14 members and Sentinel validation ([8aef656](https://github.com/fworks-tech/agenthood/commit/8aef6568c909e665b0d3f832e5c1859282a0599f)), closes [#234](https://github.com/fworks-tech/agenthood/issues/234)
+* **skills:** add skills/ symlinks for all 14 members and Sentinel validation ([8aef656](https://github.com/fworks-tech/agenthood/commit/8aef6568c909e665b0d3f832e5c1859282a0599f)), refs #234
 
 ## [1.9.1](https://github.com/fworks-tech/agenthood/compare/v1.9.0...v1.9.1) (2026-06-20)
 
@@ -1334,7 +1334,7 @@
 
 ### Features
 
-* **distribution:** add .claude-plugin marketplace.json for Claude Code plugin discovery ([1e5b8e6](https://github.com/fworks-tech/agenthood/commit/1e5b8e6ca2945742e7313f937ae7683333384a20)), closes [#224](https://github.com/fworks-tech/agenthood/issues/224)
+* **distribution:** add .claude-plugin marketplace.json for Claude Code plugin discovery ([1e5b8e6](https://github.com/fworks-tech/agenthood/commit/1e5b8e6ca2945742e7313f937ae7683333384a20)), refs #224
 * **workflows:** add Herald CI summary workflow that posts PR verdict comment ([3d9da0e](https://github.com/fworks-tech/agenthood/commit/3d9da0efbfaa043983a899977c21117688a56573))
 
 ## [1.8.4](https://github.com/fworks-tech/agenthood/compare/v1.8.3...v1.8.4) (2026-06-19)
@@ -1349,7 +1349,7 @@
 
 ### Bug Fixes
 
-* **academy:** move CNAME to docs root for GitHub Pages ([#191](https://github.com/fworks-tech/agenthood/issues/191)) ([b662a75](https://github.com/fworks-tech/agenthood/commit/b662a75e138876677c636496e28d09db267b2b1f)), closes [#185](https://github.com/fworks-tech/agenthood/issues/185)
+* **academy:** move CNAME to docs root for GitHub Pages ([#191](https://github.com/fworks-tech/agenthood/issues/191)) ([b662a75](https://github.com/fworks-tech/agenthood/commit/b662a75e138876677c636496e28d09db267b2b1f)), refs #185
 
 ## [1.8.2](https://github.com/fworks-tech/agenthood/compare/v1.8.1...v1.8.2) (2026-06-18)
 
@@ -1363,7 +1363,7 @@
 
 ### Bug Fixes
 
-* **academy:** resolve ADR rendering and broken cross-links ([#186](https://github.com/fworks-tech/agenthood/issues/186)) ([b0085e0](https://github.com/fworks-tech/agenthood/commit/b0085e06300ab40cc409b4c4b76bceb5705d4053)), closes [#185](https://github.com/fworks-tech/agenthood/issues/185)
+* **academy:** resolve ADR rendering and broken cross-links ([#186](https://github.com/fworks-tech/agenthood/issues/186)) ([b0085e0](https://github.com/fworks-tech/agenthood/commit/b0085e06300ab40cc409b4c4b76bceb5705d4053)), refs #185
 
 # [1.8.0](https://github.com/fworks-tech/agenthood/compare/v1.7.2...v1.8.0) (2026-06-17)
 
@@ -1377,7 +1377,7 @@
 
 ### Bug Fixes
 
-* **skill:** normalize SKILL.md structure for milestone M1 ([#183](https://github.com/fworks-tech/agenthood/issues/183)) ([dd80aa4](https://github.com/fworks-tech/agenthood/commit/dd80aa495bbd3ff37d7eafd623fe20b05045c967)), closes [#66](https://github.com/fworks-tech/agenthood/issues/66)
+* **skill:** normalize SKILL.md structure for milestone M1 ([#183](https://github.com/fworks-tech/agenthood/issues/183)) ([dd80aa4](https://github.com/fworks-tech/agenthood/commit/dd80aa495bbd3ff37d7eafd623fe20b05045c967)), refs #66
 
 ## [1.7.1](https://github.com/fworks-tech/agenthood/compare/v1.7.0...v1.7.1) (2026-06-17)
 
@@ -1436,14 +1436,14 @@
 
 ### Features
 
-* add integration test framework and improve TypeScript setup ([#64](https://github.com/fworks-tech/agenthood/issues/64)) ([2893756](https://github.com/fworks-tech/agenthood/commit/2893756b35f7ce9248b72b103d6c7188108d6e4f)), closes [#63](https://github.com/fworks-tech/agenthood/issues/63)
+* add integration test framework and improve TypeScript setup ([#64](https://github.com/fworks-tech/agenthood/issues/64)) ([2893756](https://github.com/fworks-tech/agenthood/commit/2893756b35f7ce9248b72b103d6c7188108d6e4f)), refs #63
 
 # [1.2.0](https://github.com/fworks-tech/agenthood/compare/v1.1.1...v1.2.0) (2026-06-02)
 
 
 ### Features
 
-* **vscode:** implement workspace event bus for passive observation ([#62](https://github.com/fworks-tech/agenthood/issues/62)) ([aa3f7f4](https://github.com/fworks-tech/agenthood/commit/aa3f7f4355397705d2a50f018eb09495616a789b)), closes [#56](https://github.com/fworks-tech/agenthood/issues/56)
+* **vscode:** implement workspace event bus for passive observation ([#62](https://github.com/fworks-tech/agenthood/issues/62)) ([aa3f7f4](https://github.com/fworks-tech/agenthood/commit/aa3f7f4355397705d2a50f018eb09495616a789b)), refs #56
 
 ## [1.1.1](https://github.com/fworks-tech/agenthood/compare/v1.1.0...v1.1.1) (2026-06-02)
 
@@ -1462,8 +1462,8 @@
 
 ### Features
 
-* **runtime:** bootstrap Python package and 14-member registry ([#51](https://github.com/fworks-tech/agenthood/issues/51)) ([93e58c4](https://github.com/fworks-tech/agenthood/commit/93e58c43567301627f4d756b1b4dddb2309f6a2f)), closes [#45](https://github.com/fworks-tech/agenthood/issues/45)
-* **vscode:** modernize with build, tests, and CI ([#54](https://github.com/fworks-tech/agenthood/issues/54)) ([46069cc](https://github.com/fworks-tech/agenthood/commit/46069cc8bf2912c5b95ec8a40ad0cd5a8a419c9e)), closes [#52](https://github.com/fworks-tech/agenthood/issues/52)
+* **runtime:** bootstrap Python package and 14-member registry ([#51](https://github.com/fworks-tech/agenthood/issues/51)) ([93e58c4](https://github.com/fworks-tech/agenthood/commit/93e58c43567301627f4d756b1b4dddb2309f6a2f)), refs #45
+* **vscode:** modernize with build, tests, and CI ([#54](https://github.com/fworks-tech/agenthood/issues/54)) ([46069cc](https://github.com/fworks-tech/agenthood/commit/46069cc8bf2912c5b95ec8a40ad0cd5a8a419c9e)), refs #52
 
 ## [1.0.3](https://github.com/fworks-tech/agenthood/compare/v1.0.2...v1.0.3) (2026-06-02)
 
@@ -1493,25 +1493,25 @@
 
 ### Bug Fixes
 
-* **agents:** update stale member count from 13 to 14 ([6a97b3c](https://github.com/fworks-tech/agenthood/commit/6a97b3c07451b3ea321a8bc3e8ec0f05cf7c2d8a)), closes [#7](https://github.com/fworks-tech/agenthood/issues/7)
-* **check:** validate all 14 members in health check ([#27](https://github.com/fworks-tech/agenthood/issues/27)) ([6c6a534](https://github.com/fworks-tech/agenthood/commit/6c6a5349d3f702163b6a50a6c3b27a06d53b4649)), closes [#25](https://github.com/fworks-tech/agenthood/issues/25) [#26](https://github.com/fworks-tech/agenthood/issues/26)
-* **ci:** add ADR presence check to librarian.yml ([#20](https://github.com/fworks-tech/agenthood/issues/20)) ([624299e](https://github.com/fworks-tech/agenthood/commit/624299e1fdfa4aee4f92a4e7d32df850e07c28e8)), closes [#11](https://github.com/fworks-tech/agenthood/issues/11)
-* **ci:** add AGENTS.md to sentinel.yml trigger paths ([#19](https://github.com/fworks-tech/agenthood/issues/19)) ([d2000f9](https://github.com/fworks-tech/agenthood/commit/d2000f922a5772d2a8fff4749746e43cc14c8ce8)), closes [#10](https://github.com/fworks-tech/agenthood/issues/10)
+* **agents:** update stale member count from 13 to 14 ([6a97b3c](https://github.com/fworks-tech/agenthood/commit/6a97b3c07451b3ea321a8bc3e8ec0f05cf7c2d8a)), refs #7
+* **check:** validate all 14 members in health check ([#27](https://github.com/fworks-tech/agenthood/issues/27)) ([6c6a534](https://github.com/fworks-tech/agenthood/commit/6c6a5349d3f702163b6a50a6c3b27a06d53b4649)), refs #25, #26
+* **ci:** add ADR presence check to librarian.yml ([#20](https://github.com/fworks-tech/agenthood/issues/20)) ([624299e](https://github.com/fworks-tech/agenthood/commit/624299e1fdfa4aee4f92a4e7d32df850e07c28e8)), refs #11
+* **ci:** add AGENTS.md to sentinel.yml trigger paths ([#19](https://github.com/fworks-tech/agenthood/issues/19)) ([d2000f9](https://github.com/fworks-tech/agenthood/commit/d2000f922a5772d2a8fff4749746e43cc14c8ce8)), refs #10
 * **ci:** fix sentinel multi-word section checks ([2843b75](https://github.com/fworks-tech/agenthood/commit/2843b75e23bb121860a951a34ed9f18d39050e4a))
 * **ci:** use commitlint.config.cjs for esm compat ([e16052f](https://github.com/fworks-tech/agenthood/commit/e16052f955dad8c1809b7b91ac4a30029cc34b6a))
-* **conventions:** add vague-subject rule to commitlint config ([baf3b4b](https://github.com/fworks-tech/agenthood/commit/baf3b4b5f6693d17c14ed3787d972e3fb0bbed9c)), closes [#8](https://github.com/fworks-tech/agenthood/issues/8)
+* **conventions:** add vague-subject rule to commitlint config ([baf3b4b](https://github.com/fworks-tech/agenthood/commit/baf3b4b5f6693d17c14ed3787d972e3fb0bbed9c)), refs #8
 * **docs:** correct member count to fourteen ([8aa799f](https://github.com/fworks-tech/agenthood/commit/8aa799f871f8ce35ac8512f65813c8a8dbbfd974))
-* **gitmessage:** replace project-specific scope examples with generic placeholders ([fe42c99](https://github.com/fworks-tech/agenthood/commit/fe42c99a92de05acdf1d186d00b3702d005e9985)), closes [#15](https://github.com/fworks-tech/agenthood/issues/15)
-* **portals:** create missing linear.md and jira.md connector docs ([#28](https://github.com/fworks-tech/agenthood/issues/28)) ([0058252](https://github.com/fworks-tech/agenthood/commit/0058252e86ea2b218cd7e28b3b85db573a55cc96)), closes [#24](https://github.com/fworks-tech/agenthood/issues/24)
+* **gitmessage:** replace project-specific scope examples with generic placeholders ([fe42c99](https://github.com/fworks-tech/agenthood/commit/fe42c99a92de05acdf1d186d00b3702d005e9985)), refs #15
+* **portals:** create missing linear.md and jira.md connector docs ([#28](https://github.com/fworks-tech/agenthood/issues/28)) ([0058252](https://github.com/fworks-tech/agenthood/commit/0058252e86ea2b218cd7e28b3b85db573a55cc96)), refs #24
 * **release:** disable npm publish until NPM_TOKEN is configured ([#33](https://github.com/fworks-tech/agenthood/issues/33)) ([931beb3](https://github.com/fworks-tech/agenthood/commit/931beb386a7d8dc5cd23b9caeeaa591f412e6489))
 
 
 ### Features
 
-* **adr:** create foundational ADRs for Agenthood's own architecture ([#30](https://github.com/fworks-tech/agenthood/issues/30)) ([86c41a7](https://github.com/fworks-tech/agenthood/commit/86c41a72357bbc5825daff226cdba32374256dca)), closes [#12](https://github.com/fworks-tech/agenthood/issues/12)
-* **agentic-workflows:** clarify workflow files as manual-prompt templates ([#31](https://github.com/fworks-tech/agenthood/issues/31)) ([3e64981](https://github.com/fworks-tech/agenthood/commit/3e64981311601928c8d1d5d5c7a7f8e5f61cd415)), closes [#13](https://github.com/fworks-tech/agenthood/issues/13)
-* **bootstrap:** add .agenthood/config.example.json reference template ([94f499e](https://github.com/fworks-tech/agenthood/commit/94f499ecaba94663bd9154a51b4c4ee7f78fd164)), closes [#9](https://github.com/fworks-tech/agenthood/issues/9)
-* **bootstrap:** implement agenthood setup command and init CLI ([#23](https://github.com/fworks-tech/agenthood/issues/23)) ([1f20736](https://github.com/fworks-tech/agenthood/commit/1f20736a6263b09b39088a18fd4bef1135940f7c)), closes [#14](https://github.com/fworks-tech/agenthood/issues/14)
+* **adr:** create foundational ADRs for Agenthood's own architecture ([#30](https://github.com/fworks-tech/agenthood/issues/30)) ([86c41a7](https://github.com/fworks-tech/agenthood/commit/86c41a72357bbc5825daff226cdba32374256dca)), refs #12
+* **agentic-workflows:** clarify workflow files as manual-prompt templates ([#31](https://github.com/fworks-tech/agenthood/issues/31)) ([3e64981](https://github.com/fworks-tech/agenthood/commit/3e64981311601928c8d1d5d5c7a7f8e5f61cd415)), refs #13
+* **bootstrap:** add .agenthood/config.example.json reference template ([94f499e](https://github.com/fworks-tech/agenthood/commit/94f499ecaba94663bd9154a51b4c4ee7f78fd164)), refs #9
+* **bootstrap:** implement agenthood setup command and init CLI ([#23](https://github.com/fworks-tech/agenthood/issues/23)) ([1f20736](https://github.com/fworks-tech/agenthood/commit/1f20736a6263b09b39088a18fd4bef1135940f7c)), refs #14
 * **doorman:** add pre-push hook blocking direct push to main ([4101438](https://github.com/fworks-tech/agenthood/commit/4101438a36aecb39047ea79fb8d15a8dd57fe59e))
 * **hooks:** add commit-msg hook ([a2ce2f6](https://github.com/fworks-tech/agenthood/commit/a2ce2f60cc4857ea3980bb479f2ef3b049e22f55))
 * **hooks:** add pre-commit hook ([865a3df](https://github.com/fworks-tech/agenthood/commit/865a3dfb7554a98fc6ab76aead3fff757ba347c9))

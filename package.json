@@ -81,8 +81,8 @@
     "test:changed": "vitest run --changed",
     "test:staged": "node scripts/test-changed.mjs --staged",
     "test:unstaged": "node scripts/test-changed.mjs",
-    "lint": "eslint src/",
-    "typecheck": "tsc --noEmit"
+    "lint": "eslint src/ tests/ scripts/",
+    "typecheck": "tsc -p tsconfig.typecheck.json"
   },
   "devDependencies": {
     "@commitlint/cli": "^21.2.2",

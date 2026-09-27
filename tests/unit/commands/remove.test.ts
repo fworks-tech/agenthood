@@ -68,7 +68,7 @@ describe('remove command', () => {
   })
 
   it('refuses to remove a Society member', async () => {
-    const exit = exitSpy()
+    exitSpy()
     await expect(remove(['the-scribe'])).rejects.toThrow('process.exit')
     expect(output.join('\n')).toContain('deactivate')
     expect(vi.mocked(rmSync)).not.toHaveBeenCalled()
@@ -76,7 +76,7 @@ describe('remove command', () => {
 
   it('errors when the skill is not installed', async () => {
     fsFor(false)
-    const exit = exitSpy()
+    exitSpy()
     await expect(remove(['my-cool-skill'])).rejects.toThrow('process.exit')
     expect(output.join('\n')).toContain('not installed')
   })

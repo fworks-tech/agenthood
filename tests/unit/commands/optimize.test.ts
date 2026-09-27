@@ -1,6 +1,4 @@
-import { describe, it, expect, vi, beforeEach } from 'vitest'
-import { join } from 'node:path'
-import { writeFileSync, readFileSync } from 'node:fs'
+import { describe, it, expect, vi } from 'vitest'
 
 vi.mock('../../../src/core/SchemaValidator.ts', () => ({
   SchemaValidationError: class extends Error {},

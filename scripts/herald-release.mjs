@@ -29,7 +29,8 @@ const REPO_URL = 'https://github.com/fworks-tech/agenthood'
 const CHANGELOG_FILE = 'CHANGELOG.md'
 
 const logger = {
-  log: (fmt, ...values) => process.stderr.write([fmt, ...values].join(' ').replace(/\u001b\[[0-9;]*m/g, '') + '\n'),
+  // eslint-disable-next-line no-control-regex -- deliberate: strips ANSI colour codes from the release log
+    log: (fmt, ...values) => process.stderr.write([fmt, ...values].join(' ').replace(/\u001b\[[0-9;]*m/g, '') + '\n'),
 }
 
 function git(args, options = {}) {

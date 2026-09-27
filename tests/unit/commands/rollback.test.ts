@@ -72,8 +72,8 @@ describe('rollback command', () => {
       .mockReturnValueOnce('current content' as never)  // git show abc123 (no match)
       .mockReturnValueOnce(LOCKED_CONTENT as never)     // git show abc456 (match)
 
-    const log = vi.spyOn(console, 'log').mockImplementation(() => {})
-    const exit = vi.spyOn(process, 'exit').mockImplementation((() => { throw new Error('process.exit') }) as any)
+    vi.spyOn(console, 'log').mockImplementation(() => {})
+    vi.spyOn(process, 'exit').mockImplementation((() => { throw new Error('process.exit') }) as any)
 
     await expect(rollback(['--dry-run'])).resolves.toBeUndefined()
 
@@ -89,8 +89,8 @@ describe('rollback command', () => {
       .mockReturnValueOnce('abc123\nabc456\n' as never) // git log
       .mockReturnValueOnce(LOCKED_CONTENT as never)     // git show abc123
 
-    const log = vi.spyOn(console, 'log').mockImplementation(() => {})
-    const exit = vi.spyOn(process, 'exit').mockImplementation((() => { throw new Error('process.exit') }) as any)
+    vi.spyOn(console, 'log').mockImplementation(() => {})
+    vi.spyOn(process, 'exit').mockImplementation((() => { throw new Error('process.exit') }) as any)
 
     await rollback([])
 
@@ -116,7 +116,7 @@ describe('rollback command', () => {
     const output: string[] = []
     vi.spyOn(console, 'log').mockImplementation((...a) => { output.push(a.join(' ')) })
     vi.spyOn(console, 'warn').mockImplementation((...a) => { output.push(a.join(' ')) })
-    const exit = vi.spyOn(process, 'exit').mockImplementation((() => { throw new Error('process.exit') }) as any)
+    vi.spyOn(process, 'exit').mockImplementation((() => { throw new Error('process.exit') }) as any)
 
     await rollback(['--dry-run'])
 
@@ -140,7 +140,7 @@ describe('rollback command', () => {
 
     vi.spyOn(console, 'log').mockImplementation(() => {})
     vi.spyOn(console, 'warn').mockImplementation(() => {})
-    const exit = vi.spyOn(process, 'exit').mockImplementation((() => { throw new Error('process.exit') }) as any)
+    vi.spyOn(process, 'exit').mockImplementation((() => { throw new Error('process.exit') }) as any)
 
     await rollback([])
 

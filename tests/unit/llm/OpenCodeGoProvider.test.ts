@@ -41,7 +41,7 @@ describe("OpenCodeGoProvider", () => {
 
   it("sends x-opencode-session header for standard OpenCode tier", async () => {
     const { OpenCodeProvider } = await import("../../../src/llm/providers/OpenCodeProvider.ts");
-    const provider = new OpenCodeProvider({ apiKey: "test-key" });
+    new OpenCodeProvider({ apiKey: "test-key" });
     const headers = mockCtorArgs.at(-1)?.defaultHeaders as Record<string, string> | undefined;
     expect(headers).toBeDefined();
     expect(headers?.["x-opencode-session"]).toMatch(/^[0-9a-f-]{36}$/);

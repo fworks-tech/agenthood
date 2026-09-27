@@ -8,17 +8,14 @@ import {
   expectRegisteredSkills,
   expectUntrustedBoundary,
 } from '../../helpers/agentFixtures.ts'
-import type { ILLMProvider } from '../../../src/llm/ILLMProvider.ts'
 
 describe('QAAgent', () => {
   let agent: QAAgent
-  let llm: ILLMProvider
   let skillRegistry: ToolRegistry
 
   beforeEach(() => {
     const built = createAgentInstance(QAAgent)
     agent = built.agent
-    llm = built.llm
     skillRegistry = built.skillRegistry
   })
 

@@ -1,3 +1,11 @@
+# [3.69.0](https://github.com/fworks-tech/agenthood/compare/v3.68.3...v3.69.0) (2026-09-27)
+
+
+### Features
+
+* **routing:** validate the confidence-gated cascade as a record ([#958](https://github.com/fworks-tech/agenthood/issues/958)) ([1e7bf61](https://github.com/fworks-tech/agenthood/commit/1e7bf614fe212cd41f8db41aaad1da3ab0687e48))
+* **skills:** budget the context window at skill activation ([#966](https://github.com/fworks-tech/agenthood/issues/966)) ([726aebb](https://github.com/fworks-tech/agenthood/commit/726aebb409f809e58f7e54d0609d71e38c74a72b)), refs #663
+
 ## [3.68.3](https://github.com/fworks-tech/agenthood/compare/v3.68.2...v3.68.3) (2026-09-27)
 
 

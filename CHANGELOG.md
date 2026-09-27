@@ -477,7 +477,7 @@
 
 * **audit:** fail-closed tool gating, testable filter, and doc reconciliation ([7001ae3](https://github.com/fworks-tech/agenthood/commit/7001ae30178ce92c99ff91c1fceb19127c367cd9))
 * **audit:** harden audit filter against array and bad vulnerabilities shape ([65863e1](https://github.com/fworks-tech/agenthood/commit/65863e100106d948803cdc5803fadf283a3ce54c))
-* **ci:** exempt npm ecosystem tools from dependency audit ([8608af8](https://github.com/fworks-tech/agenthood/commit/8608af8dad9c3fc35bc56841e522780e59af628c)), closes [hi#severity](https://github.com/hi/issues/severity)
+* **ci:** exempt npm ecosystem tools from dependency audit ([8608af8](https://github.com/fworks-tech/agenthood/commit/8608af8dad9c3fc35bc56841e522780e59af628c))
 * **ci:** fail closed on empty-node advisories in audit gate ([e98b892](https://github.com/fworks-tech/agenthood/commit/e98b892ab03dc20da7f725e5f09f87da8675468f))
 * **ci:** restore mixed-node advisory reporting in audit gate ([722e49f](https://github.com/fworks-tech/agenthood/commit/722e49fea338e36789cbe740b7bd3bd63c45459f))
 * **members:** address auditor and reviewer findings on member tool gating ([f0fdc32](https://github.com/fworks-tech/agenthood/commit/f0fdc328c654ee8e1ebb8a2bfdbd61b49e1118a1))
@@ -748,7 +748,7 @@
 
 ### Features
 
-* **ci:** enforce PR descriptions link to an issue via doorman gate ([24d5175](https://github.com/fworks-tech/agenthood/commit/24d51757bcb87f2647b928337ab5e7cbba06b480)), closes [#N](https://github.com/fworks-tech/agenthood/issues/N) [#N](https://github.com/fworks-tech/agenthood/issues/N)
+* **ci:** enforce PR descriptions link to an issue via doorman gate ([24d5175](https://github.com/fworks-tech/agenthood/commit/24d51757bcb87f2647b928337ab5e7cbba06b480))
 
 # [3.15.0](https://github.com/fworks-tech/agenthood/compare/v3.14.2...v3.15.0) (2026-08-12)
 
@@ -1185,7 +1185,7 @@
 
 ### Features
 
-* **memory:** implement PersonalisationStore for per-project agent adaptation ([20c3f43](https://github.com/fworks-tech/agenthood/commit/20c3f437788586261979285a3329a8a5bd3dac3d)), closes [hi#weight](https://github.com/hi/issues/weight) [#112](https://github.com/fworks-tech/agenthood/issues/112)
+* **memory:** implement PersonalisationStore for per-project agent adaptation ([20c3f43](https://github.com/fworks-tech/agenthood/commit/20c3f437788586261979285a3329a8a5bd3dac3d)), refs #112
 * **memory:** implement ShortTerm, LongTerm, Episodic, and Project memory tiers ([98d6a56](https://github.com/fworks-tech/agenthood/commit/98d6a560e4209f52d860f5862643f4381af5cda4)), refs #262
 * **rag:** implement baseline RAG pipeline — ChunkStrategy, Indexer, Retriever ([9a257cf](https://github.com/fworks-tech/agenthood/commit/9a257cfa035df4e874c70cb73bc831aa52aeadb3)), refs #263
 * **rag:** implement SocietyIndexer for members, ADRs, and conventions ([9caccad](https://github.com/fworks-tech/agenthood/commit/9caccade098cfc71fc5fd50e936b5bbc449a5bbb)), refs #107
@@ -1250,7 +1250,7 @@
 
 ### Bug Fixes
 
-* **ci:** add npm ci step to gh-pages workflow before building ([86fe39f](https://github.com/fworks-tech/agenthood/commit/86fe39f85b03ceec3fadfd91daf5b2c01b3e3f3b)), closes [#pages](https://github.com/fworks-tech/agenthood/issues/pages)
+* **ci:** add npm ci step to gh-pages workflow before building ([86fe39f](https://github.com/fworks-tech/agenthood/commit/86fe39f85b03ceec3fadfd91daf5b2c01b3e3f3b))
 * **config:** update stale commitlint.config.cjs references to .ts ([2390aab](https://github.com/fworks-tech/agenthood/commit/2390aab298b052d055bd9e134bd05bbcc708dc69)), refs #237
 * **llm:** make provider SDK imports lazy, lower engines.node to 22.14.0 ([dd5a7c1](https://github.com/fworks-tech/agenthood/commit/dd5a7c11d8192ba727bbe055e0ee28d106b38d5a))
 
@@ -1286,7 +1286,7 @@
 
 * add GroqProvider tests, schema validation, and runtime documentation ([5a11b4a](https://github.com/fworks-tech/agenthood/commit/5a11b4a606686506a3945b66ce74eec5b39b7cd0))
 * **agent:** implement ArchitectAgent, ReviewerAgent, QAAgent runtime classes ([b04072d](https://github.com/fworks-tech/agenthood/commit/b04072da8317465af8b342fec67d1b91c369c1f8))
-* **commands:** add pr-sync command, PrSyncSkill, and The Manuscript workflow ([10e5e49](https://github.com/fworks-tech/agenthood/commit/10e5e490c4b0d1f5560f9fe2f87a36c1ab6feb73)), closes [#based](https://github.com/fworks-tech/agenthood/issues/based)
+* **commands:** add pr-sync command, PrSyncSkill, and The Manuscript workflow ([10e5e49](https://github.com/fworks-tech/agenthood/commit/10e5e490c4b0d1f5560f9fe2f87a36c1ab6feb73))
 * **core:** add concurrency queue and safety guard ([694e01d](https://github.com/fworks-tech/agenthood/commit/694e01d7376f0eaaa5e63b3c0f345eb79a4785b6))
 * **core:** add RiskManager, SkillRegistry discovery, dynamic routing, and README rewrite ([8b284d9](https://github.com/fworks-tech/agenthood/commit/8b284d92225f2fd1e9ea5005cfb251970f554d0c)), refs #103, #162, #102
 * **core:** implement ContextCompressor with token-aware memory summarization ([cc5e078](https://github.com/fworks-tech/agenthood/commit/cc5e07801a297e6ce763264ae339e1e8579f7a6f)), refs #104
@@ -1321,7 +1321,7 @@
 
 ### Bug Fixes
 
-* **academy:** remove source CNAME to prevent gh-pages redirect loop ([d9231ee](https://github.com/fworks-tech/agenthood/commit/d9231ee3f08b5729f522724db6aa482331aae9b5)), closes [#pages](https://github.com/fworks-tech/agenthood/issues/pages)
+* **academy:** remove source CNAME to prevent gh-pages redirect loop ([d9231ee](https://github.com/fworks-tech/agenthood/commit/d9231ee3f08b5729f522724db6aa482331aae9b5))
 
 # [1.9.0](https://github.com/fworks-tech/agenthood/compare/v1.8.4...v1.9.0) (2026-06-20)
 

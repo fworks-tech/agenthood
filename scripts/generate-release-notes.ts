@@ -36,10 +36,24 @@ function formatDate(isoDate: string): string {
  * is actually closed. Consuming the whole list also avoids a bare '#1' or
  * '#2' leaking into the rendered line, which is what the previous
  * single-link regex did for every reference after the first.
+ *
+ * Links inside the group are separated by whitespace, but the separator after
+ * the last one is left alone. Consuming it glues the replacement against the
+ * text that follows, which is how a rendered line became
+ * '#945[#N](https://.../issues/N)'; dropping the separator allowance entirely
+ * stops the group after one link, which left a second invented ref behind.
+ *
+ * The group accepts any label containing a '#', not just one starting with
+ * it. The linkifier also mangles plain prose into labels like
+ * '[hi#severity](https://github.com/hi/issues/severity)' out of the words
+ * 'high-severity', which would otherwise survive as a closing claim for an
+ * issue nobody closed. Invented refs are consumed along with the real ones,
+ * and a keyword whose whole list yields no local id goes too rather than
+ * rendering as a bare 'closes'.
  */
 function cleanRefs(line: string): string {
   return line.replace(
-    /,?\s*(?:closes?|fixes?)\s+((?:\[#\d+\]\([^)]+\)\s*)+)/gi,
+    /,?\s*(?:closes?|fixes?)\s+((?:\[[^\]]*#[^\]]*\]\([^)]+\)(?:\s+|(?=$)))+)/gi,
     (_, refs: string) => {
       const ids = [...refs.matchAll(/#(\d+)/g)].map(m => `#${m[1]}`)
       return ids.length > 0 ? `, refs ${[...new Set(ids)].join(', ')}` : ''
@@ -47,13 +61,38 @@ function cleanRefs(line: string): string {
   )
 }
 
+/**
+ * conventional-changelog linkifies every '#N' mentioned anywhere in a commit
+ * body, so the refs list is followed by a trail of links for prose mentions —
+ * mostly duplicates of ids already listed. Fold the whole tail into one
+ * deduped list so the dedup reaches the end of the line.
+ */
+function mergeRefs(line: string): string {
+  const at = line.indexOf(', refs ')
+  if (at === -1) return line
+  const ids = [...line.slice(at).matchAll(/#(\d+)/g)].map(m => `#${m[1]}`)
+  return `${line.slice(0, at)}, refs ${[...new Set(ids)].join(', ')}`
+}
+
+/**
+ * A commit body that quotes link syntax makes the linkifier invent refs like
+ * '[#N](https://.../issues/N)' and '[#pages](.../issues/pages)'. No such
+ * issues exist, so drop the link rather than publish a raw URL or an
+ * unresolvable '#N'. Invented refs also appear with no closing keyword beside
+ * them, so this runs on its own and not only inside the closes list.
+ */
+function dropInventedRefs(line: string): string {
+  return line.replace(/\[#[^\]\d][^\]]*\]\([^)]+\)/g, '')
+}
+
 export function cleanLine(line: string): string {
-  return cleanRefs(line)
+  const cleaned = dropInventedRefs(cleanRefs(line))
     .replace(/\s*\(\[`?[0-9a-f]{7,40}`?\]\(https:\/\/[^)]+\)\)/g, '')
     .replace(/\[#(\d+)\]\(https:\/\/[^)]+\)/g, '#$1')
     .replace(/^\*\s+\*\*([^:]+):\*\*\s+/, (_, scope: string) => `- **${scope.charAt(0).toUpperCase() + scope.slice(1)}:** `)
     .replace(/^\* /, '- ')
     .trimEnd()
+  return mergeRefs(cleaned)
 }
 
 function transformBlock(versionLine: string, bodyLines: string[]): string | null {
@@ -99,10 +138,12 @@ function generate(): void {
   // every bare '#N' in a commit body as a closure. Normalise it here, on the
   // way out, so the committed changelog cannot claim an issue was closed when
   // the commit only mentioned it — that is how 'closes #900' shipped for a
-  // migration that is still open.
+  // migration that is still open. Only the refs are touched: the changelog
+  // keeps conventional-changelog's own bullet and commit-link format, which
+  // cleanLine rewrites for the rendered notes.
   const normalised = changelog
     .split('\n')
-    .map(cleanRefs)
+    .map(line => dropInventedRefs(cleanRefs(line)).trimEnd())
     .join('\n')
   if (normalised !== changelog) writeFileSync(CHANGELOG, normalised, 'utf8')
 

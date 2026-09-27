@@ -532,7 +532,7 @@
 
 - **Audit:** fail-closed tool gating, testable filter, and doc reconciliation
 - **Audit:** harden audit filter against array and bad vulnerabilities shape
-- **Ci:** exempt npm ecosystem tools from dependency audit, closes [hi#severity](https://github.com/hi/issues/severity)
+- **Ci:** exempt npm ecosystem tools from dependency audit
 - **Ci:** fail closed on empty-node advisories in audit gate
 - **Ci:** restore mixed-node advisory reporting in audit gate
 - **Members:** address auditor and reviewer findings on member tool gating
@@ -823,7 +823,7 @@
 
 ### ✨ Features
 
-- **Ci:** enforce PR descriptions link to an issue via doorman gate, closes [#N](https://github.com/fworks-tech/agenthood/issues/N) [#N](https://github.com/fworks-tech/agenthood/issues/N)
+- **Ci:** enforce PR descriptions link to an issue via doorman gate
 
 ---
 
@@ -1276,7 +1276,7 @@
 
 ### ✨ Features
 
-- **Memory:** implement PersonalisationStore for per-project agent adaptation, closes [hi#weight](https://github.com/hi/issues/weight) #112
+- **Memory:** implement PersonalisationStore for per-project agent adaptation, refs #112
 - **Memory:** implement ShortTerm, LongTerm, Episodic, and Project memory tiers, refs #262
 - **Rag:** implement baseline RAG pipeline — ChunkStrategy, Indexer, Retriever, refs #263
 - **Rag:** implement SocietyIndexer for members, ADRs, and conventions, refs #107
@@ -1343,7 +1343,7 @@
 
 ### 🐛 Bug Fixes
 
-- **Ci:** add npm ci step to gh-pages workflow before building, closes [#pages](https://github.com/fworks-tech/agenthood/issues/pages)
+- **Ci:** add npm ci step to gh-pages workflow before building
 - **Config:** update stale commitlint.config.cjs references to .ts, refs #237
 - **Llm:** make provider SDK imports lazy, lower engines.node to 22.14.0
 
@@ -1377,7 +1377,7 @@
 
 - add GroqProvider tests, schema validation, and runtime documentation
 - **Agent:** implement ArchitectAgent, ReviewerAgent, QAAgent runtime classes
-- **Commands:** add pr-sync command, PrSyncSkill, and The Manuscript workflow, closes [#based](https://github.com/fworks-tech/agenthood/issues/based)
+- **Commands:** add pr-sync command, PrSyncSkill, and The Manuscript workflow
 - **Core:** add concurrency queue and safety guard
 - **Core:** add RiskManager, SkillRegistry discovery, dynamic routing, and README rewrite, refs #103, #162, #102
 - **Core:** implement ContextCompressor with token-aware memory summarization, refs #104
@@ -1413,7 +1413,7 @@
 
 ### 🐛 Bug Fixes
 
-- **Academy:** remove source CNAME to prevent gh-pages redirect loop, closes [#pages](https://github.com/fworks-tech/agenthood/issues/pages)
+- **Academy:** remove source CNAME to prevent gh-pages redirect loop
 
 ---
 

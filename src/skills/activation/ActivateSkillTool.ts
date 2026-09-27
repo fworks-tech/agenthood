@@ -1,7 +1,9 @@
 import type { ITool, ToolResult } from '../../tools/ITool.ts'
 import type { ExecutionContext } from '../../core/ExecutionContext.ts'
 import type { ISkillManifest } from '../discovery/ISkillManifest.ts'
+import { TokenCounter } from '../../core/TokenCounter.ts'
 import { recordSkillActivation } from './SkillStats.ts'
+import { SkillBudget } from './SkillBudget.ts'
 
 export const SKILL_ACTIVATION_PREFIX = '[SKILL_ACTIVATION]'
 
@@ -19,7 +21,14 @@ export class ActivateSkillTool implements ITool {
     required: ['skill_name'],
   }
 
-  constructor(private manifests: Map<string, ISkillManifest>) {}
+  private readonly budget: SkillBudget
+
+  constructor(
+    private manifests: Map<string, ISkillManifest>,
+    contextWindow?: number,
+  ) {
+    this.budget = new SkillBudget(new TokenCounter(), contextWindow)
+  }
 
   async execute(input: unknown, context: ExecutionContext): Promise<ToolResult> {
     const { skill_name } = input as { skill_name: string }
@@ -39,9 +48,16 @@ export class ActivateSkillTool implements ITool {
       ? `\n<skill_resources>\n${manifest.resources.map((r) => `  <file>${r}</file>`).join('\n')}\n</skill_resources>`
       : ''
 
+    // A body already in the transcript cannot be shrunk later, so the budget is
+    // applied here, against what is already loaded.
+    const fit = this.budget.fit(manifest.body)
+    const budgetNotice = fit.compressed
+      ? `\n<skill_budget>Instructions compressed to fit the context window — saved ~${fit.savedTokens} tokens. Re-read SKILL.md from the skill directory for the full steps.</skill_budget>`
+      : ''
+
     const output = `${SKILL_ACTIVATION_PREFIX}
 <skill_content name="${manifest.name}">
-${manifest.body}
+${fit.body}${budgetNotice}
 Skill directory: ${manifest.directory}
 Relative paths in this skill are relative to the skill directory.${resourcesBlock}
 </skill_content>`

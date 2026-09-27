@@ -195,4 +195,12 @@ describe('release notes linkify artifacts', () => {
     expect(line).toBe('- **Ci:** exempt npm ecosystem tools from dependency audit')
     expect(line).not.toMatch(/closes|fixes/i)
   })
+
+  it('leaves no trailing ref pile in the changelog', () => {
+    // Only one line in the whole changelog had a refs list followed by more
+    // linkified prose mentions. It is the only entry in the file shaped that
+    // way, so it is an outlier rather than the house format.
+    const lines = readFileSync('CHANGELOG.md', 'utf8').split('\n')
+    expect(lines.filter(l => /, refs [\d, #]+\s+\[#[0-9]+\]\(https/.test(l))).toEqual([])
+  })
 })

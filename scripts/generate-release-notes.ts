@@ -143,7 +143,7 @@ function generate(): void {
   // cleanLine rewrites for the rendered notes.
   const normalised = changelog
     .split('\n')
-    .map(line => dropInventedRefs(cleanRefs(line)).trimEnd())
+    .map(line => mergeRefs(dropInventedRefs(cleanRefs(line))).trimEnd())
     .join('\n')
   if (normalised !== changelog) writeFileSync(CHANGELOG, normalised, 'utf8')
 

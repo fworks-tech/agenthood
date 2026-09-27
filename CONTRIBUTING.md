@@ -197,6 +197,16 @@ Error reporting: setting `{ "sentry": { "dsn": "https://..." } }` in `.agenthood
 - See AGENTS.md for provider setup instructions.
 - If a secret is accidentally committed, rotate/revoke it immediately and coordinate a history purge if needed.
 
+### Release PRs run without CI on their head
+
+The Herald opens `chore/release-bump` with `secrets.GITHUB_TOKEN`. GitHub starts no workflow for a `GITHUB_TOKEN` push — that is the recursion guard — so `pr.yml` never runs on the regenerated commit. `repository_dispatch` is suppressed by the same guard, so there is no token-free way to get CI onto that head. Only a token that is not `GITHUB_TOKEN` (a PAT) would change that, and the four `pr.yml` jobs that need the `pull_request` payload — Doorman, Librarian, Scribe, Warden — are skipped even under a manual dispatch.
+
+Consequences worth knowing before you merge a `chore(release)` PR:
+
+- The release job gates its own artifacts before the PR exists: it runs `tests/release-config.test.ts` and fails if `herald-notes.md` carries a closing keyword or an un-linkified `#N`. That body is generated from commit subjects, so a subject that quotes `fixes #N` leaks into it, and a merged body with a closing keyword closes issues.
+- If the PR touches anything the four PR-payload gates would have caught, run them by hand: `gh workflow run pr.yml --ref chore/release-bump`. Expect 4 jobs to skip.
+- The gate is a floor, not a substitute. Read the diff.
+
 ### Line Endings
 
 This repository enforces LF line endings via `.gitattributes`. Keep your editor configured for LF to avoid noisy diffs.

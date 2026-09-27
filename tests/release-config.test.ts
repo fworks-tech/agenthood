@@ -27,6 +27,21 @@ describe('release configuration (Herald release-PR flow)', () => {
     expect(WORKFLOW).toMatch(/commit-message: "chore\(release\): v/)
   })
 
+  it('gates the generated artifacts, because the release head never gets CI', () => {
+    // GitHub starts no workflow for a GITHUB_TOKEN push, and repository_dispatch
+    // is suppressed by the same guard. The PR body is generated text built from
+    // commit subjects, and a closing keyword in a merged body closes issues —
+    // so the release job has to check its own output before the PR exists.
+    expect(WORKFLOW).toMatch(/token: \$\{\{ secrets\.GITHUB_TOKEN \}\}/)
+    const gate = WORKFLOW.indexOf('gate the generated artifacts')
+    const open = WORKFLOW.indexOf('open or refresh release PR')
+    expect(gate).toBeGreaterThan(-1)
+    expect(open).toBeGreaterThan(-1)
+    expect(gate).toBeLessThan(open)
+    expect(WORKFLOW).toMatch(/herald-notes\.md carries a closing keyword/)
+    expect(WORKFLOW).toMatch(/not linkified/)
+  })
+
   it('publishes only when package.json is ahead of the latest tag', () => {
     expect(HELPER).toContain('isPending')
     expect(WORKFLOW).toMatch(/herald-release\.mjs pending/)

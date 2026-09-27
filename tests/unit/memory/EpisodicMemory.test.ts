@@ -7,6 +7,9 @@ const makeMockVectorStore = (): IVectorStore => ({
   connect: vi.fn(),
   delete: vi.fn(),
   stats: vi.fn(),
+  disconnect: vi.fn(),
+  getById: vi.fn(),
+  getByKeyPrefix: vi.fn(),
 })
 
 describe('EpisodicMemoryImpl', () => {

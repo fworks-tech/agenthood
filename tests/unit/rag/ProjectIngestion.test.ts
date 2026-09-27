@@ -76,12 +76,12 @@ describe('ProjectIngestion', () => {
 
   it('skips node_modules and hidden directories', async () => {
     const calls: string[] = []
-    vi.mocked(readdirSync).mockImplementation((path: string) => {
+    vi.mocked(readdirSync).mockImplementation((path: any) => {
       calls.push(path)
       if (path === '/test') return ['node_modules', '.hidden', 'src']
       return []
     })
-    vi.mocked(statSync).mockImplementation((path: string) => ({
+    vi.mocked(statSync).mockImplementation((path: any) => ({
       isDirectory: () => typeof path === 'string' && (path.endsWith('node_modules') || path.endsWith('.hidden') || path.endsWith('src')),
       isFile: () => true,
     } as ReturnType<typeof import('node:fs').statSync>))

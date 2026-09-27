@@ -277,7 +277,7 @@ describe('verify --conflicts (#595)', () => {
       const m = String(p).match(/(dup-a|dup-b)[\\/]/)
       return m ? `---\nname: ${m[1]}\ndescription: ${m[1] === 'dup-a' ? DESC_A : DESC_B}\nlicense: MIT\n---\n\n# Skill\n` : skillContent
     }) as any)
-    vi.mocked(readdirSync).mockReturnValue(['dup-a', 'dup-b'])
+    vi.mocked(readdirSync).mockReturnValue(['dup-a', 'dup-b'] as any)
 
     await verify(['--conflicts'])
 
@@ -299,11 +299,11 @@ describe('verify --conflicts (#595)', () => {
     vi.mocked(readFileSync).mockImplementation(((p: string) => {
       if (String(p).endsWith('agenthood.lock')) return lockContent
       const m = String(p).match(/(dup-a|dup-b)[\\/]/)
-      return m
-        ? `---\nname: ${m[1]}\ndescription: ${m[1] === 'dup-a' ? descADup : 'distinct other text'}\nlicense: MIT\n---\n\n# Skill\n`
+return m
+        ? `---\nname: ${m[1]}\ndescription: ${m[1] === 'dup-a' ? descADup: 'distinct other text'}\nlicense: MIT\n---\n\n# Skill\n`
         : skillContent
     }) as any)
-    vi.mocked(readdirSync).mockReturnValue(['dup-a', 'dup-b'])
+    vi.mocked(readdirSync).mockReturnValue(['dup-a', 'dup-b'] as any)
 
     await verify(['--conflicts'])
 

@@ -1,6 +1,7 @@
 import { describe, it, expect, vi } from 'vitest'
 import { OperatorAgent } from '../../../../src/agents/operator/OperatorAgent.ts'
 import { RedactionFilter } from '../../../../src/core/RedactionFilter.ts'
+import { asPromptable } from '../../../helpers/agentFixtures.ts'
 
 describe('OperatorAgent', () => {
   it('has role the-operator', () => {
@@ -10,7 +11,7 @@ describe('OperatorAgent', () => {
 
   it('generates system prompt', async () => {
     const agent = new OperatorAgent({} as any, {} as any, {} as any)
-    const prompt = await agent.getSystemPrompt({} as any)
+    const prompt = await asPromptable(agent).getSystemPrompt({} as any)
     expect(prompt).toContain('Operator')
     expect(prompt).toContain('rollback')
   })

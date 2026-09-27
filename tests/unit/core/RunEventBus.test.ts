@@ -12,7 +12,7 @@ function baseEvent(overrides: Partial<RunEvent> = {}): RunEvent {
     type: 'run.started',
     task: 'write a commit message',
     ...overrides,
-  }
+  } as RunEvent
 }
 
 function makeEvent<T extends RunEvent['type']>(

@@ -7,6 +7,7 @@ import { MIND_VIRUS_IMMUNITY_WARNING } from '../../../src/agents/memberLore.ts'
 import { ReActLoop } from '../../../src/reasoning/ReActLoop.ts'
 import { ToolRegistry } from '../../../src/tools/ToolRegistry.ts'
 import { createTestContext } from '../../helpers/testContext.ts'
+import { asPromptable } from '../../helpers/agentFixtures.ts'
 import type { ExecutionContext } from '../../../src/core/ExecutionContext.ts'
 
 const captureException = vi.fn()
@@ -241,7 +242,7 @@ describe('OracleAgent', () => {
 
   it('returns system prompt without errors', async () => {
     const { agent, context } = mockEnv()
-    const prompt = await agent.getSystemPrompt(context)
+    const prompt = await asPromptable(agent).getSystemPrompt(context)
     expect(prompt).toContain('Oracle')
   })
 })

@@ -195,7 +195,7 @@ describe('MemberAgent SKILL.md integrity check', () => {
   }
 
   function driftRecord(spy: ReturnType<typeof vi.spyOn>): { member: string } | undefined {
-    return spy.mock.calls.map(([e]) => e as { tags: string[]; member: string })
+    return spy.mock.calls.map(([e]: [any]) => e as { tags: string[]; member: string })
       .find((e) => e.tags.includes('mind-virus'))
   }
 

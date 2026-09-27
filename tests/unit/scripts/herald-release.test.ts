@@ -1,4 +1,5 @@
 import { describe, it, expect } from 'vitest'
+// @ts-ignore
 import { changelogSection, parseCommits, latestTag } from '../../../scripts/herald-release.mjs'
 
 describe('herald-release — latestTag', () => {

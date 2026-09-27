@@ -22,7 +22,7 @@ describe('agenthood opencode plugin', () => {
   })
 
   it('config hook wires the skills dir, AGENTS.md, and the-steward agent', async () => {
-    const hooks = await pluginModule.server()
+    const hooks = await pluginModule.server() as any
     const cfg: PluginConfig = {}
     await hooks.config?.(cfg)
 
@@ -33,7 +33,7 @@ describe('agenthood opencode plugin', () => {
   })
 
   it('registers agenthood_run_member with a member enum and task string', async () => {
-    const hooks = await pluginModule.server()
+    const hooks = await pluginModule.server() as any
     const def = hooks.tool?.['agenthood_run_member']
     expect(def).toBeDefined()
     expect(def?.description).toContain(getMemberNames().join(', '))
@@ -177,7 +177,7 @@ describe('appendCapped', () => {
 
 describe('collectOutput', () => {
   it('resolves buffered streams on close', async () => {
-    const child = fakeChild()
+    const child = fakeChild() as any
     const pending = collectOutput(child, new AbortController().signal)
     child.stdout.emit('data', Buffer.from('hello '))
     child.stderr.emit('data', Buffer.from('warn'))
@@ -187,7 +187,7 @@ describe('collectOutput', () => {
   })
 
   it('surfaces spawn errors with a null code and ignores the follow-up close', async () => {
-    const child = fakeChild()
+    const child = fakeChild() as any
     const pending = collectOutput(child, new AbortController().signal)
     child.emit('error', new Error('ENOENT'))
     child.emit('close', -2)
@@ -195,7 +195,7 @@ describe('collectOutput', () => {
   })
 
   it('kills the child when aborted', async () => {
-    const child = fakeChild()
+    const child = fakeChild() as any
     let killed = false
     child.kill = () => {
       killed = true
@@ -210,7 +210,7 @@ describe('collectOutput', () => {
   })
 
   it('does not kill after the run already settled', async () => {
-    const child = fakeChild()
+    const child = fakeChild() as any
     let kills = 0
     child.kill = () => {
       kills += 1
@@ -281,7 +281,7 @@ describe('shipped skills and prompts', () => {
 
   it('plugin steward wiring matches the project opencode.json', async () => {
     const project = JSON.parse(readFileSync(join(repoRoot, 'opencode.json'), 'utf8'))
-    const hooks = await pluginModule.server()
+    const hooks = await pluginModule.server() as any
     const cfg: PluginConfig = {}
     await hooks.config?.(cfg)
     expect(cfg.agent?.['the-steward']).toEqual(project.agent['the-steward'])

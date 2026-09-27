@@ -11,6 +11,7 @@ const mockVectorStore: IVectorStore = {
   stats: vi.fn(),
   getById: vi.fn(),
   getByKeyPrefix: vi.fn(),
+  disconnect: vi.fn(),
 }
 
 beforeEach(() => {

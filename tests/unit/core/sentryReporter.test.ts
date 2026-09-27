@@ -22,6 +22,7 @@ function failingLlm(): ILLMProvider {
     stream: vi.fn(),
     embed: vi.fn(),
     getContextWindow: vi.fn().mockReturnValue(8192),
+    setModel: vi.fn(),
   }
 }
 

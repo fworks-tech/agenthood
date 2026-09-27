@@ -31,11 +31,12 @@ describe('RefactorSkill', () => {
         stream: vi.fn(),
         embed: vi.fn(),
         getContextWindow: vi.fn().mockReturnValue(8192),
+        setModel: vi.fn(),
       },
     })
 
     vi.mocked(fsPromises.lstat).mockRejectedValue(new Error('ENOENT'))
-    vi.mocked(fsPromises.readFile).mockResolvedValue('const x=1\n' as unknown as Buffer)
+    vi.mocked(fsPromises.readFile).mockResolvedValue('const x=1\n' as unknown as string)
     vi.mocked(fsPromises.writeFile).mockResolvedValue(undefined)
   })
 

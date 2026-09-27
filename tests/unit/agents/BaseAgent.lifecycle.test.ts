@@ -2,7 +2,8 @@ import { describe, it, expect, vi } from 'vitest'
 import { TestAgent, createAgentHarness } from '../../helpers/agentFixtures.ts'
 import { createTestContext } from '../../helpers/testContext.ts'
 import { RunLifecycle } from '../../../src/agents/base/runLifecycle.ts'
-import type { EpisodeLearner } from '../../../src/evals/EpisodeLearner.ts'
+import { EpisodeLearner } from '../../../src/evals/EpisodeLearner.ts'
+import { ProvenanceStore } from '../../../src/memory/ProvenanceStore.ts'
 import type { ILLMProvider } from '../../../src/llm/ILLMProvider.ts'
 import { ReActLoop, MaxStepsExceededError } from '../../../src/reasoning/ReActLoop.ts'
 import { ToolRegistry } from '../../../src/tools/ToolRegistry.ts'
@@ -30,11 +31,10 @@ describe('BaseAgent lifecycle', () => {
 
   it('does not block agent response when EpisodeLearner.learn() is slow', async () => {
     const { llm, toolRegistry, loop, mockLongTerm, mockResidual } = createAgentHarness()
-    const slowLearner: EpisodeLearner = {
-      learn: vi.fn().mockImplementation(async () => {
-        await new Promise(resolve => setTimeout(resolve, 5000))
-      }),
-    }
+    const slowLearner = new EpisodeLearner() as unknown as EpisodeLearner
+    vi.spyOn(slowLearner, 'learn').mockImplementation(async () => {
+      await new Promise(resolve => setTimeout(resolve, 5000))
+    })
 
     const agent = new TestAgent(llm, loop, toolRegistry, { residualMemory: mockResidual, episodeLearner: slowLearner })
     const context = createTestContext({
@@ -71,9 +71,8 @@ describe('BaseAgent lifecycle', () => {
 
   it('survives EpisodeLearner.learn() rejection without crashing', async () => {
     const { llm, toolRegistry, loop, mockLongTerm, mockResidual } = createAgentHarness()
-    const brokenLearner: EpisodeLearner = {
-      learn: vi.fn().mockRejectedValue(new Error('eval failed')),
-    }
+    const brokenLearner = new EpisodeLearner() as unknown as EpisodeLearner
+    vi.spyOn(brokenLearner, 'learn').mockRejectedValue(new Error('eval failed'))
 
     const agent = new TestAgent(llm, loop, toolRegistry, { residualMemory: mockResidual, episodeLearner: brokenLearner })
     const context = createTestContext({
@@ -102,7 +101,7 @@ describe('BaseAgent lifecycle', () => {
         provenance: {
           ...createTestContext().memory.provenance,
           track: trackProvenance,
-        },
+        } as unknown as ProvenanceStore,
       },
     })
 
@@ -151,7 +150,7 @@ describe('BaseAgent lifecycle', () => {
         provenance: {
           ...createTestContext().memory.provenance,
           track: trackProvenance,
-        },
+        } as unknown as ProvenanceStore,
       },
     })
 

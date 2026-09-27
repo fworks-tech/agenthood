@@ -7,6 +7,9 @@ const makeMockVectorStore = (): IVectorStore => ({
   connect: vi.fn(),
   delete: vi.fn().mockResolvedValue(1),
   stats: vi.fn(),
+  disconnect: vi.fn(),
+  getById: vi.fn(),
+  getByKeyPrefix: vi.fn(),
 })
 
 describe('LongTermMemoryImpl', () => {

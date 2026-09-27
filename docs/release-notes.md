@@ -5,6 +5,15 @@
 
 ---
 
+## v3.69.0 — September 27, 2026
+
+### ✨ Features
+
+- **Routing:** validate the confidence-gated cascade as a record (#958)
+- **Skills:** budget the context window at skill activation (#966), refs #663
+
+---
+
 ## v3.68.3 — September 27, 2026
 
 ### 🐛 Bug Fixes

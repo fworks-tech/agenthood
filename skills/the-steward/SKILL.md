@@ -83,15 +83,20 @@ Complexity tiers:
 
 Map complexity to model tier with confidence-gated cascade:
 
-| Complexity | Tier | Model examples | Confidence |
-|------------|------|----------------|------------|
-| 0-39% | Budget | Haiku, Gemini Flash, GPT-4o-mini | >= 90% |
-| 40-69% | Standard | Sonnet, GPT-4o, Gemini 1.5 Pro | >= 80% |
-| 70-100% | Frontier | Opus, GPT-4o with o1, Gemini 2.0 | N/A (always frontier) |
+| Complexity | Tier | Model examples | Confidence to commit |
+|------------|------|----------------|---------------------|
+| 0-39% | Budget | Haiku, Flash, mini | >= 90% |
+| 40-69% | Standard | Sonnet, GPT-4o, Gemini Pro | >= 80% |
+| 70-100% | Frontier | Opus, o1, Gemini 2.0 | N/A — always frontier |
+
+One model belongs to one tier. A model listed in two rows is a routing bug:
+the tier stops being a function of complexity and starts being a guess.
 
 Cascade rule: if complexity confidence is below 80%, run the task description
 through two providers in parallel and compare outputs before committing to a tier.
-Record the complexity score and tier selection in the decision log.
+Record the complexity score and tier selection in the same
+`.agenthood/routing/` record the Mediator writes, which `agenthood verify`
+validates.
 
 ### Provider Cache Strategy
 

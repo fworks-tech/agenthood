@@ -23,6 +23,7 @@ vscode-extension/.vscode-test/
 # Agenthood runtime artifacts
 .agenthood/memory/
 .agenthood/decisions/
+.agenthood/routing/
 .agenthood/provenance/
 .agenthood/snapshots/
 .agenthood/metrics/

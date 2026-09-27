@@ -189,9 +189,10 @@ export class ApplicationContext {
     const tReg = new ToolRegistry()
     const loop = new ReActLoop(llm, tReg)
 
-    if (skillManifests.size > 0) {
-      tReg.register(new ActivateSkillTool(skillManifests))
-    }
+      if (skillManifests.size > 0) {
+        tReg.register(new ActivateSkillTool(skillManifests, llm.getContextWindow()))
+      }
+
 
     this.agents.register(new DeveloperAgent(llm, loop, tReg, { agentRegistry: this.agents, episodeLearner: this.episodeLearner, canDelegate: true }))
     this.agents.register(new ArchitectAgent(llm, loop, tReg, { episodeLearner: this.episodeLearner }))

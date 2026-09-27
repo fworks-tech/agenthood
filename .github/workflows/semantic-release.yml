@@ -86,7 +86,11 @@ jobs:
           # herald-notes.md becomes the PR body, and a closing keyword in a
           # merged PR body closes issues. The notes are built from commit
           # subjects, so any subject that quotes one leaks straight through.
-          if grep -inE '\b(clos(e|es|ed)|fix(es|ed)?|resolv(e|es|ed))\b[[:space:]]+#[0-9]+' herald-notes.md; then
+          # They are the raw generateNotes output too — cleanLine only ever
+          # touches the published files — so the reference arrives linkified as
+          # `closes [#N](url)`. GitHub appends `Closes #N` to a squash commit
+          # message, which is how the real v3.69.0 body got one.
+          if grep -inE '\b(clos(e|es|ed)|fix(es|ed)?|resolv(e|es|ed))\b[[:space:]]+\[?#[0-9]+' herald-notes.md; then
             echo "::error::herald-notes.md carries a closing keyword; merging this PR would close those issues"
             exit 1
           fi

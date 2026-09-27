@@ -16,6 +16,7 @@ import { findConflicts } from '../skills/conflicts.ts'
 import type { ConflictCandidate } from '../skills/conflicts.ts'
 import { findLaneOverlaps } from '../members/laneOverlap.ts'
 import { rawSpecs } from '../members/member-specs.ts'
+import { auditRoutingRecords, PARALLEL_EVALUATION_THRESHOLD, ROUTING_INTENTS } from '../reasoning/routing.ts'
 
 const REQUIRED_SECTIONS = ['Overview', 'When to Use', 'Process', 'Red Flags', 'Rationalizations', 'Verification']
 
@@ -216,6 +217,27 @@ function reportLaneOverlaps(): void {
   console.log('\n  Strict mode: lane overlap check passed.')
 }
 
+// The Mediator and The Steward are prompt-driven — no runtime class writes a
+// routing record, so members hand-write them and this is the only place the
+// documented schema is enforced. Absent directory is a pass, not a skip: a
+// Society that has not routed anything is in the correct state, and CI has no
+// .agenthood at all.
+function reportRoutingRecords(cwd: string): void {
+  const failures = auditRoutingRecords(join(cwd, '.agenthood', 'routing'), MEMBER_NAMES)
+  if (failures.length === 0) {
+    console.log('\n  ✓ Routing records: schema OK.')
+    return
+  }
+  console.log(`\n  Routing records: ${failures.length} of the record(s) in .agenthood/routing violate the schema:`)
+  for (const f of failures) {
+    console.log(`    \u26a0 ${f.file}`)
+    for (const e of f.errors) console.log(`        ${e}`)
+  }
+  userError('Routing record validation failed', {
+    fix: `intent must be one of ${ROUTING_INTENTS.join('/')}, confidence an integer 0-100, target a registered member, and a score below ${PARALLEL_EVALUATION_THRESHOLD} requires cascade_applied: true plus a parallel_evaluation.`,
+  })
+}
+
 function collectConflictCandidates(membersDir: string, discovered: ConflictCandidate[]): ConflictCandidate[] {
   const parser = new SkillParser()
   const byName = new Map<string, ConflictCandidate>()
@@ -368,6 +390,8 @@ export async function verify(args: string[]): Promise<void> {
   const hasDrift = results.some((r) => r.drift)
 
   if (isStrict) reportLaneOverlaps()
+
+  reportRoutingRecords(cwd)
 
   // Advisory (#595): overlapping descriptions mean two skills can both trigger
   // for the same task. Warns only — the resolution (dedup vs specialize) is a

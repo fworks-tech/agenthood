@@ -196,7 +196,6 @@ export class RunLifecycle {
       alternatives: [],
       outcome: args.isSuccessful ? 'completed' : 'failed',
       tags: ['run'],
-      confidence: args.isSuccessful ? 1 : 0,
       decisionMaker: this.getRole(),
     })
   }
@@ -211,7 +210,6 @@ export class RunLifecycle {
       role: 'generator',
       sourceDocument: args.safeInput.slice(0, 500),
       timestamp: args.timestamp,
-      confidence: args.isSuccessful ? 1 : 0,
       metadata: { decisionId: args.id, success: args.isSuccessful },
     })
   }

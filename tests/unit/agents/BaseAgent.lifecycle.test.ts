@@ -115,7 +115,6 @@ describe('BaseAgent lifecycle', () => {
       member: 'test-agent',
       task: 'test task',
       outcome: 'completed',
-      confidence: 1,
       decisionMaker: 'test-agent',
       tags: ['run'],
     })
@@ -160,7 +159,7 @@ describe('BaseAgent lifecycle', () => {
 
     expect(recordDecision).toHaveBeenCalledOnce()
     const [entry] = recordDecision.mock.calls[0]
-    expect(entry).toMatchObject({ outcome: 'failed', confidence: 0 })
+    expect(entry).toMatchObject({ outcome: 'failed' })
 
     expect(trackProvenance).toHaveBeenCalledOnce()
     const [prov] = trackProvenance.mock.calls[0]
@@ -209,7 +208,7 @@ describe('BaseAgent lifecycle', () => {
     expect(result.output).toContain('still going')
     expect(recordDecision).toHaveBeenCalledOnce()
     const [entry] = recordDecision.mock.calls[0]
-    expect(entry).toMatchObject({ outcome: 'failed', confidence: 0 })
+    expect(entry).toMatchObject({ outcome: 'failed' })
   })
 })
 

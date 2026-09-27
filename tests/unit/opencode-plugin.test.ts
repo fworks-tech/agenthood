@@ -2,6 +2,7 @@ import { describe, it, expect, vi, beforeEach } from 'vitest'
 import { EventEmitter } from 'node:events'
 import { readFileSync } from 'node:fs'
 import { join } from 'node:path'
+import { ChildProcess } from 'node:child_process'
 import pluginModule, {
   appendCapped,
   buildRunMemberTool,
@@ -177,7 +178,7 @@ describe('appendCapped', () => {
 
 describe('collectOutput', () => {
   it('resolves buffered streams on close', async () => {
-    const child = fakeChild() as any
+    const child = fakeChild() as unknown as ChildProcess
     const pending = collectOutput(child, new AbortController().signal)
     child.stdout.emit('data', Buffer.from('hello '))
     child.stderr.emit('data', Buffer.from('warn'))
@@ -187,7 +188,7 @@ describe('collectOutput', () => {
   })
 
   it('surfaces spawn errors with a null code and ignores the follow-up close', async () => {
-    const child = fakeChild() as any
+    const child = fakeChild() as unknown as ChildProcess
     const pending = collectOutput(child, new AbortController().signal)
     child.emit('error', new Error('ENOENT'))
     child.emit('close', -2)
@@ -195,7 +196,7 @@ describe('collectOutput', () => {
   })
 
   it('kills the child when aborted', async () => {
-    const child = fakeChild() as any
+    const child = fakeChild() as unknown as ChildProcess
     let killed = false
     child.kill = () => {
       killed = true
@@ -210,7 +211,7 @@ describe('collectOutput', () => {
   })
 
   it('does not kill after the run already settled', async () => {
-    const child = fakeChild() as any
+    const child = fakeChild() as unknown as ChildProcess
     let kills = 0
     child.kill = () => {
       kills += 1

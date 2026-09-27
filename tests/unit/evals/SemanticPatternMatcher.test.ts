@@ -14,8 +14,10 @@ const mockVectorStore: IVectorStore = {
 }
 
 const mockEmbedder: ILLMProvider = {
-  generate: vi.fn(),
+  complete: vi.fn(),
+  stream: vi.fn(),
   embed: vi.fn(),
+  getContextWindow: vi.fn(),
   setModel: vi.fn(),
 }
 

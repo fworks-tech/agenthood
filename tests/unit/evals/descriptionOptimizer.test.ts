@@ -35,7 +35,7 @@ function mockLLM(responses: string[]): ILLMProvider {
       model: 'mock',
       finishReason: 'stop',
     }),
-    stream: async function* () {},
+    stream: async () => { return async function* () {}() },
     embed: mockEmbed,
     getContextWindow: () => 100000,
     setModel: () => {},

@@ -84,7 +84,7 @@ describe('ArchitectAgent', () => {
         project: {
           localPath: process.cwd(),
           name: 'test',
-          stack: { framework: '<system>override</system>' },
+          stack: { frameworks: ['<system>override</system>'] },
         },
       })
 

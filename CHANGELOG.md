@@ -1,3 +1,10 @@
+## [3.70.1](https://github.com/fworks-tech/agenthood/compare/v3.70.0...v3.70.1) (2026-09-27)
+
+
+### Bug Fixes
+
+* **ci:** the publish job must clean release notes before tagging ([359b9c9](https://github.com/fworks-tech/agenthood/commit/359b9c9c18f2311b55cd43825189075ff4552fb7))
+
 # [3.70.0](https://github.com/fworks-tech/agenthood/compare/v3.69.0...v3.70.0) (2026-09-27)
 
 

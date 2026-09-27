@@ -17,10 +17,25 @@ updates:
       # still reviewable. Major stays separate on purpose: a major is the
       # case that needs a human reading the changelog, and lumping one in
       # would hide it behind 20 lockfile-only bumps.
+      #
+      # 'minor' does NOT mean safe for a 0.x package. The semver major is 0,
+      # so every minor bump on a pre-1.0 dep is classified minor while being
+      # breaking in practice — that is how #946 arrived: tree-sitter 0.21.1 ->
+      # 0.25.1 as a routine 'minor', pairing a 0.25.1 core with grammars that
+      # declare 0.21 peers (ERESOLVE on npm 10). update-types cannot express
+      # 'minor only when major >= 1', and exclude-patterns matches names, not
+      # versions, so the 0.x deps are listed individually.
+      #
+      # Anything already ignored below cannot reach the group anyway, so this
+      # list only needs the 0.x deps that are still bumpable. ADD NEW 0.x
+      # DIRECT DEPENDENCIES HERE, or a bump will land in the group unreviewed.
       minor-patch:
         update-types:
           - minor
           - patch
+        exclude-patterns:
+          # 0.x. A minor bump here is a rewrite candidate, not a patch.
+          - "@anthropic-ai/sdk"
     ignore:
       # tree-sitter grammars peer-pin the tree-sitter core ABI, so no grammar
       # can move alone. tree-sitter-go 0.25 wants core ^0.25 while every other
@@ -28,7 +43,23 @@ updates:
       # which makes 'npm ci' fail with ERESOLVE — see #932. Moving it means
       # raising core and all four grammars together, with query-compatibility
       # testing, so it is a migration rather than a version bump.
+      #
+      # The core and the remaining grammars are pinned here for the same
+      # reason: bumping tree-sitter alone strands the other grammars on a
+      # mismatched ABI. #946 proved this is reachable, because 0.21.1 -> 0.25.1
+      # is classified a 'minor' bump and the minor-patch group nearly took it.
+      # Unblock together, as #900, then delete these four entries.
       - dependency-name: "tree-sitter-go"
+      - dependency-name: "tree-sitter"
+      - dependency-name: "tree-sitter-python"
+      - dependency-name: "tree-sitter-typescript"
+      # @lancedb/lancedb 0.30.0 -> 0.39.0 is nine minors on a 0.x package, and
+      # it pulls in two new transitive dependencies with open high-severity
+      # advisories ('sharp' and '@huggingface/transformers'), which fails The
+      # Auditor. The removed get_job/job_history APIs are unused, so the API
+      # surface is fine — the blocker is the added attack surface. Unblock when
+      # a 0.39.x with no unfixed high advisory ships.
+      - dependency-name: "@lancedb/lancedb"
       # js-yaml 5 is a rewrite with a different API surface, not a drop-in
       # upgrade. It removed the default export (so 'import yaml from js-yaml'
       # fails at module load) and made load() throw on empty input, which

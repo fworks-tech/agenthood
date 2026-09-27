@@ -160,6 +160,33 @@ jobs:
         if: steps.pending.outputs.state == 'true'
         run: node scripts/herald-release.mjs notes > herald-notes.md
 
+      - name: The Herald — clean release notes before tagging
+        if: steps.pending.outputs.state == 'true'
+        run: npx tsx scripts/clean-herald-notes.ts herald-notes.md herald-notes.md
+
+      - name: The Herald — gate the generated artifacts
+        if: steps.pending.outputs.state == 'true'
+        run: |
+          # The notes are cleaned by cleanLine, so false closing keywords
+          # and linkified refs are stripped. This gate is the same one
+          # that runs before the release PR opens (release-pr job), here
+          # as a safety net on the notes that actually reach the GitHub
+          # release and npm package.
+          npx vitest run tests/release-config.test.ts
+          # Gate 1: no closing keywords remain after cleanLine
+          if grep -inE '\b(clos(e|es|ed)|fix(es|ed)?|resolv(e|es|ed))\b[[:space:]]+\[?#[0-9]+' herald-notes.md; then
+            echo "::error::herald-notes.md carries a closing keyword after cleaning; the published release would close those issues"
+            exit 1
+          fi
+          # Gate 2: no linkified refs cleanLine did not rewrite
+          # cleanLine rewrites every linkified ref ([#N](url)) into a
+          # bare #N inside a "refs" list. Anything left linkified is a
+          # ref the generator or cleanLine did not understand.
+          if grep -nE '\[#[0-9]+\]\([^)]*\)' herald-notes.md; then
+            echo "::error::herald-notes.md carries a linkified reference cleanLine did not rewrite"
+            exit 1
+          fi
+
       - name: The Herald — tag and create GitHub release
         if: steps.pending.outputs.state == 'true'
         env:

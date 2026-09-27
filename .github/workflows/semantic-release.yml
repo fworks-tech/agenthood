@@ -95,11 +95,11 @@ jobs:
             exit 1
           fi
 
-          # A bare #N resolves against the repo on its own. cleanLine rewrites
-          # linkified refs to bare #N, so anything left here is a reference the
-          # generator failed to rewrite.
-          if grep -nE '#[0-9]+' herald-notes.md; then
-            echo "::error::herald-notes.md carries a bare issue reference after cleaning"
+          # cleanLine rewrites every linkified ref ([#N](url)) into a bare #N
+          # inside a "refs" list. Anything left still linkified is a ref the
+          # generator or cleanLine did not understand.
+          if grep -nE '\[#[0-9]+\]\([^)]*\)' herald-notes.md; then
+            echo "::error::herald-notes.md carries a linkified reference cleanLine did not rewrite"
             exit 1
           fi
 

@@ -1,3 +1,13 @@
+## [3.68.3](https://github.com/fworks-tech/agenthood/compare/v3.68.2...v3.68.3) (2026-09-27)
+
+
+### Bug Fixes
+
+* **dependabot:** stop the minor-patch group from swallowing 0.x majors, and land the four safe bumps ([#948](https://github.com/fworks-tech/agenthood/issues/948)) ([9fe04e8](https://github.com/fworks-tech/agenthood/commit/9fe04e8daadf82b59a40a501764bf3d527f7b692)), refs #945, #946, #900, #947
+* **herald:** dedupe trailing ref pile in the changelog too ([#956](https://github.com/fworks-tech/agenthood/issues/956)) ([96d8eae](https://github.com/fworks-tech/agenthood/commit/96d8eaedae38b2e7ef127adbabc4b837dbb49a94)), refs #949, #948, #946, #900, #947, #945, #1, #953, #954
+* **herald:** release notes stop leaking issue refs, changelog stops claiming false closures ([#951](https://github.com/fworks-tech/agenthood/issues/951)) ([73afc34](https://github.com/fworks-tech/agenthood/commit/73afc341a0c72472ea7127094aaef9ed093b7430)), refs #949, #948, #946, #900, #947, #945, #1, #950
+* **herald:** stop linkify artifacts corrupting release notes ([#954](https://github.com/fworks-tech/agenthood/issues/954)) ([2280cf8](https://github.com/fworks-tech/agenthood/commit/2280cf8c2caa610ba769bed0b63d375bda43973e)), refs #951, #953, #950
+
 ## [3.68.2](https://github.com/fworks-tech/agenthood/compare/v3.68.1...v3.68.2) (2026-09-26)
 
 

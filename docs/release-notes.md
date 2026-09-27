@@ -5,7 +5,18 @@
 
 ---
 
-## v3.68.2 — September 25, 2026
+## v3.68.3 — September 27, 2026
+
+### 🐛 Bug Fixes
+
+- **Dependabot:** stop the minor-patch group from swallowing 0.x majors, and land the four safe bumps (#948), refs #945, #946, #900, #947
+- **Herald:** dedupe trailing ref pile in the changelog too (#956), refs #949, #948, #946, #900, #947, #945, #1, #953, #954
+- **Herald:** release notes stop leaking issue refs, changelog stops claiming false closures (#951), refs #949, #948, #946, #900, #947, #945, #1, #950
+- **Herald:** stop linkify artifacts corrupting release notes (#954), refs #951, #953, #950
+
+---
+
+## v3.68.2 — September 26, 2026
 
 ### 🐛 Bug Fixes
 
@@ -14,7 +25,7 @@
 
 ---
 
-## v3.68.1 — September 25, 2026
+## v3.68.1 — September 26, 2026
 
 ### 🐛 Bug Fixes
 
@@ -22,7 +33,7 @@
 
 ---
 
-## v3.68.0 — September 25, 2026
+## v3.68.0 — September 26, 2026
 
 ### 🐛 Bug Fixes
 
@@ -35,7 +46,7 @@
 
 ---
 
-## v3.67.0 — September 20, 2026
+## v3.67.0 — September 21, 2026
 
 ### ✨ Features
 
@@ -46,7 +57,7 @@
 
 ---
 
-## v3.66.0 — September 19, 2026
+## v3.66.0 — September 20, 2026
 
 ### 🐛 Bug Fixes
 
@@ -73,7 +84,7 @@
 
 ---
 
-## v3.65.2 — September 17, 2026
+## v3.65.2 — September 18, 2026
 
 ### 🐛 Bug Fixes
 
@@ -81,7 +92,7 @@
 
 ---
 
-## v3.65.1 — September 16, 2026
+## v3.65.1 — September 17, 2026
 
 ### 🐛 Bug Fixes
 
@@ -89,7 +100,7 @@
 
 ---
 
-## v3.65.0 — September 16, 2026
+## v3.65.0 — September 17, 2026
 
 ### 🐛 Bug Fixes
 
@@ -101,7 +112,7 @@
 
 ---
 
-## v3.64.3 — September 16, 2026
+## v3.64.3 — September 17, 2026
 
 ### 🐛 Bug Fixes
 
@@ -109,7 +120,7 @@
 
 ---
 
-## v3.64.2 — September 16, 2026
+## v3.64.2 — September 17, 2026
 
 ### 🐛 Bug Fixes
 
@@ -117,7 +128,7 @@
 
 ---
 
-## v3.64.1 — September 16, 2026
+## v3.64.1 — September 17, 2026
 
 ### 🐛 Bug Fixes
 
@@ -125,7 +136,7 @@
 
 ---
 
-## v3.64.0 — September 15, 2026
+## v3.64.0 — September 16, 2026
 
 ### ✨ Features
 
@@ -133,7 +144,7 @@
 
 ---
 
-## v3.63.3 — September 11, 2026
+## v3.63.3 — September 12, 2026
 
 ### 🐛 Bug Fixes
 
@@ -141,7 +152,7 @@
 
 ---
 
-## v3.63.2 — September 11, 2026
+## v3.63.2 — September 12, 2026
 
 ### 🐛 Bug Fixes
 
@@ -149,7 +160,7 @@
 
 ---
 
-## v3.63.1 — September 8, 2026
+## v3.63.1 — September 9, 2026
 
 ### 🐛 Bug Fixes
 
@@ -158,7 +169,7 @@
 
 ---
 
-## v3.63.0 — September 8, 2026
+## v3.63.0 — September 9, 2026
 
 ### 🐛 Bug Fixes
 
@@ -178,7 +189,7 @@
 
 ---
 
-## v3.62.0 — September 8, 2026
+## v3.62.0 — September 9, 2026
 
 ### 🐛 Bug Fixes
 
@@ -190,7 +201,7 @@
 
 ---
 
-## v3.61.0 — September 8, 2026
+## v3.61.0 — September 9, 2026
 
 ### ✨ Features
 
@@ -199,7 +210,7 @@
 
 ---
 
-## v3.60.0 — September 7, 2026
+## v3.60.0 — September 8, 2026
 
 ### ✨ Features
 
@@ -207,7 +218,7 @@
 
 ---
 
-## v3.59.2 — September 7, 2026
+## v3.59.2 — September 8, 2026
 
 ### 🐛 Bug Fixes
 
@@ -215,7 +226,7 @@
 
 ---
 
-## v3.59.1 — September 7, 2026
+## v3.59.1 — September 8, 2026
 
 ### 🐛 Bug Fixes
 
@@ -223,7 +234,7 @@
 
 ---
 
-## v3.59.0 — September 7, 2026
+## v3.59.0 — September 8, 2026
 
 ### ✨ Features
 
@@ -231,7 +242,7 @@
 
 ---
 
-## v3.57.0 — September 7, 2026
+## v3.57.0 — September 8, 2026
 
 ### ✨ Features
 
@@ -239,7 +250,7 @@
 
 ---
 
-## v3.56.6 — September 6, 2026
+## v3.56.6 — September 7, 2026
 
 ### 🐛 Bug Fixes
 
@@ -247,7 +258,7 @@
 
 ---
 
-## v3.56.5 — September 6, 2026
+## v3.56.5 — September 7, 2026
 
 ### 🐛 Bug Fixes
 
@@ -255,7 +266,7 @@
 
 ---
 
-## v3.56.4 — September 6, 2026
+## v3.56.4 — September 7, 2026
 
 ### 🐛 Bug Fixes
 
@@ -263,7 +274,7 @@
 
 ---
 
-## v3.56.3 — September 6, 2026
+## v3.56.3 — September 7, 2026
 
 ### 🐛 Bug Fixes
 
@@ -271,7 +282,7 @@
 
 ---
 
-## v3.56.2 — September 6, 2026
+## v3.56.2 — September 7, 2026
 
 ### 🐛 Bug Fixes
 
@@ -279,7 +290,7 @@
 
 ---
 
-## v3.56.1 — September 6, 2026
+## v3.56.1 — September 7, 2026
 
 ### 🐛 Bug Fixes
 
@@ -287,7 +298,7 @@
 
 ---
 
-## v3.56.0 — September 6, 2026
+## v3.56.0 — September 7, 2026
 
 ### ✨ Features
 
@@ -295,7 +306,7 @@
 
 ---
 
-## v3.55.7 — September 6, 2026
+## v3.55.7 — September 7, 2026
 
 ### 🐛 Bug Fixes
 
@@ -303,7 +314,7 @@
 
 ---
 
-## v3.55.6 — September 6, 2026
+## v3.55.6 — September 7, 2026
 
 ### 🐛 Bug Fixes
 
@@ -311,7 +322,7 @@
 
 ---
 
-## v3.55.5 — September 6, 2026
+## v3.55.5 — September 7, 2026
 
 ### 🐛 Bug Fixes
 
@@ -319,7 +330,7 @@
 
 ---
 
-## v3.55.4 — September 6, 2026
+## v3.55.4 — September 7, 2026
 
 ### 🐛 Bug Fixes
 
@@ -327,7 +338,7 @@
 
 ---
 
-## v3.55.3 — September 6, 2026
+## v3.55.3 — September 7, 2026
 
 ### 🐛 Bug Fixes
 
@@ -335,7 +346,7 @@
 
 ---
 
-## v3.55.2 — September 6, 2026
+## v3.55.2 — September 7, 2026
 
 ### 🐛 Bug Fixes
 
@@ -343,7 +354,7 @@
 
 ---
 
-## v3.55.1 — September 6, 2026
+## v3.55.1 — September 7, 2026
 
 ### 🐛 Bug Fixes
 
@@ -351,7 +362,7 @@
 
 ---
 
-## v3.55.0 — September 6, 2026
+## v3.55.0 — September 7, 2026
 
 ### ✨ Features
 
@@ -359,7 +370,7 @@
 
 ---
 
-## v3.54.0 — September 6, 2026
+## v3.54.0 — September 7, 2026
 
 ### ✨ Features
 
@@ -368,7 +379,7 @@
 
 ---
 
-## v3.53.0 — September 6, 2026
+## v3.53.0 — September 7, 2026
 
 ### ✨ Features
 
@@ -376,7 +387,7 @@
 
 ---
 
-## v3.52.0 — September 6, 2026
+## v3.52.0 — September 7, 2026
 
 ### ✨ Features
 
@@ -384,7 +395,7 @@
 
 ---
 
-## v3.51.0 — September 6, 2026
+## v3.51.0 — September 7, 2026
 
 ### ✨ Features
 
@@ -392,7 +403,7 @@
 
 ---
 
-## v3.50.0 — September 6, 2026
+## v3.50.0 — September 7, 2026
 
 ### ✨ Features
 
@@ -400,7 +411,7 @@
 
 ---
 
-## v3.49.0 — September 4, 2026
+## v3.49.0 — September 5, 2026
 
 ### ✨ Features
 
@@ -408,7 +419,7 @@
 
 ---
 
-## v3.48.0 — September 4, 2026
+## v3.48.0 — September 5, 2026
 
 ### 🐛 Bug Fixes
 
@@ -420,7 +431,7 @@
 
 ---
 
-## v3.47.0 — September 4, 2026
+## v3.47.0 — September 5, 2026
 
 ### 🐛 Bug Fixes
 
@@ -432,7 +443,7 @@
 
 ---
 
-## v3.46.0 — September 4, 2026
+## v3.46.0 — September 5, 2026
 
 ### ✨ Features
 
@@ -441,7 +452,7 @@
 
 ---
 
-## v3.45.0 — September 4, 2026
+## v3.45.0 — September 5, 2026
 
 ### ✨ Features
 
@@ -449,7 +460,7 @@
 
 ---
 
-## v3.44.0 — September 4, 2026
+## v3.44.0 — September 5, 2026
 
 ### ✨ Features
 
@@ -457,7 +468,7 @@
 
 ---
 
-## v3.43.0 — September 4, 2026
+## v3.43.0 — September 5, 2026
 
 ### ✨ Features
 
@@ -465,7 +476,7 @@
 
 ---
 
-## v3.42.0 — September 3, 2026
+## v3.42.0 — September 4, 2026
 
 ### ✨ Features
 
@@ -473,7 +484,7 @@
 
 ---
 
-## v3.41.1 — September 3, 2026
+## v3.41.1 — September 4, 2026
 
 ### 🐛 Bug Fixes
 
@@ -481,7 +492,7 @@
 
 ---
 
-## v3.41.0 — September 2, 2026
+## v3.41.0 — September 3, 2026
 
 ### ✨ Features
 
@@ -489,7 +500,7 @@
 
 ---
 
-## v3.40.0 — September 2, 2026
+## v3.40.0 — September 3, 2026
 
 ### ✨ Features
 
@@ -497,7 +508,7 @@
 
 ---
 
-## v3.39.2 — August 31, 2026
+## v3.39.2 — September 1, 2026
 
 ### 🐛 Bug Fixes
 
@@ -505,7 +516,7 @@
 
 ---
 
-## v3.39.1 — August 29, 2026
+## v3.39.1 — August 30, 2026
 
 ### 🐛 Bug Fixes
 
@@ -513,7 +524,7 @@
 
 ---
 
-## v3.39.0 — August 29, 2026
+## v3.39.0 — August 30, 2026
 
 ### 🐛 Bug Fixes
 
@@ -526,7 +537,7 @@
 
 ---
 
-## v3.38.1 — August 29, 2026
+## v3.38.1 — August 30, 2026
 
 ### 🐛 Bug Fixes
 
@@ -542,7 +553,7 @@
 
 ---
 
-## v3.38.0 — August 20, 2026
+## v3.38.0 — August 21, 2026
 
 ### 🐛 Bug Fixes
 
@@ -554,7 +565,7 @@
 
 ---
 
-## v3.37.1 — August 20, 2026
+## v3.37.1 — August 21, 2026
 
 ### 🐛 Bug Fixes
 
@@ -562,7 +573,7 @@
 
 ---
 
-## v3.37.0 — August 19, 2026
+## v3.37.0 — August 20, 2026
 
 ### ✨ Features
 
@@ -570,7 +581,7 @@
 
 ---
 
-## v3.36.0 — August 19, 2026
+## v3.36.0 — August 20, 2026
 
 ### 🐛 Bug Fixes
 
@@ -587,7 +598,7 @@
 
 ---
 
-## v3.35.1 — August 18, 2026
+## v3.35.1 — August 19, 2026
 
 ### 🐛 Bug Fixes
 
@@ -595,7 +606,7 @@
 
 ---
 
-## v3.35.0 — August 15, 2026
+## v3.35.0 — August 16, 2026
 
 ### ✨ Features
 
@@ -607,7 +618,7 @@
 
 ---
 
-## v3.34.1 — August 15, 2026
+## v3.34.1 — August 16, 2026
 
 ### 🐛 Bug Fixes
 
@@ -615,7 +626,7 @@
 
 ---
 
-## v3.34.0 — August 15, 2026
+## v3.34.0 — August 16, 2026
 
 ### 🐛 Bug Fixes
 
@@ -643,7 +654,7 @@
 
 ---
 
-## v3.33.1 — August 14, 2026
+## v3.33.1 — August 15, 2026
 
 ### 🐛 Bug Fixes
 
@@ -651,7 +662,7 @@
 
 ---
 
-## v3.33.0 — August 13, 2026
+## v3.33.0 — August 14, 2026
 
 ### 🐛 Bug Fixes
 
@@ -675,7 +686,7 @@
 
 ---
 
-## v3.32.0 — August 13, 2026
+## v3.32.0 — August 14, 2026
 
 ### ✨ Features
 
@@ -684,7 +695,7 @@
 
 ---
 
-## v3.31.0 — August 13, 2026
+## v3.31.0 — August 14, 2026
 
 ### ✨ Features
 
@@ -692,7 +703,7 @@
 
 ---
 
-## v3.30.0 — August 13, 2026
+## v3.30.0 — August 14, 2026
 
 ### ✨ Features
 
@@ -700,7 +711,7 @@
 
 ---
 
-## v3.29.0 — August 13, 2026
+## v3.29.0 — August 14, 2026
 
 ### ✨ Features
 
@@ -709,7 +720,7 @@
 
 ---
 
-## v3.28.0 — August 13, 2026
+## v3.28.0 — August 14, 2026
 
 ### ✨ Features
 
@@ -717,7 +728,7 @@
 
 ---
 
-## v3.27.0 — August 13, 2026
+## v3.27.0 — August 14, 2026
 
 ### ✨ Features
 
@@ -725,7 +736,7 @@
 
 ---
 
-## v3.26.0 — August 13, 2026
+## v3.26.0 — August 14, 2026
 
 ### ✨ Features
 
@@ -733,7 +744,7 @@
 
 ---
 
-## v3.25.0 — August 13, 2026
+## v3.25.0 — August 14, 2026
 
 ### ✨ Features
 
@@ -741,7 +752,7 @@
 
 ---
 
-## v3.24.0 — August 13, 2026
+## v3.24.0 — August 14, 2026
 
 ### ✨ Features
 
@@ -749,7 +760,7 @@
 
 ---
 
-## v3.23.0 — August 13, 2026
+## v3.23.0 — August 14, 2026
 
 ### 🐛 Bug Fixes
 
@@ -762,7 +773,7 @@
 
 ---
 
-## v3.22.0 — August 13, 2026
+## v3.22.0 — August 14, 2026
 
 ### ✨ Features
 
@@ -770,7 +781,7 @@
 
 ---
 
-## v3.21.0 — August 13, 2026
+## v3.21.0 — August 14, 2026
 
 ### ✨ Features
 
@@ -778,7 +789,7 @@
 
 ---
 
-## v3.20.0 — August 13, 2026
+## v3.20.0 — August 14, 2026
 
 ### ✨ Features
 
@@ -786,7 +797,7 @@
 
 ---
 
-## v3.19.0 — August 13, 2026
+## v3.19.0 — August 14, 2026
 
 ### ✨ Features
 
@@ -794,7 +805,7 @@
 
 ---
 
-## v3.18.0 — August 13, 2026
+## v3.18.0 — August 14, 2026
 
 ### ✨ Features
 
@@ -802,7 +813,7 @@
 
 ---
 
-## v3.17.0 — August 13, 2026
+## v3.17.0 — August 14, 2026
 
 ### 🐛 Bug Fixes
 
@@ -814,7 +825,7 @@
 
 ---
 
-## v3.16.0 — August 11, 2026
+## v3.16.0 — August 12, 2026
 
 ### 🐛 Bug Fixes
 
@@ -827,7 +838,7 @@
 
 ---
 
-## v3.15.0 — August 11, 2026
+## v3.15.0 — August 12, 2026
 
 ### 🐛 Bug Fixes
 
@@ -856,7 +867,7 @@
 
 ---
 
-## v3.14.2 — August 11, 2026
+## v3.14.2 — August 12, 2026
 
 ### 🐛 Bug Fixes
 
@@ -864,7 +875,7 @@
 
 ---
 
-## v3.14.1 — August 11, 2026
+## v3.14.1 — August 12, 2026
 
 ### 🐛 Bug Fixes
 
@@ -876,7 +887,7 @@
 
 ---
 
-## v3.14.0 — August 11, 2026
+## v3.14.0 — August 12, 2026
 
 ### 🐛 Bug Fixes
 
@@ -893,7 +904,7 @@
 
 ---
 
-## v3.13.6 — August 7, 2026
+## v3.13.6 — August 8, 2026
 
 ### 🐛 Bug Fixes
 
@@ -901,7 +912,7 @@
 
 ---
 
-## v3.13.5 — August 7, 2026
+## v3.13.5 — August 8, 2026
 
 ### 🐛 Bug Fixes
 
@@ -909,7 +920,7 @@
 
 ---
 
-## v3.13.4 — August 7, 2026
+## v3.13.4 — August 8, 2026
 
 ### 🐛 Bug Fixes
 
@@ -917,7 +928,7 @@
 
 ---
 
-## v3.13.3 — August 6, 2026
+## v3.13.3 — August 7, 2026
 
 ### 🐛 Bug Fixes
 
@@ -927,7 +938,7 @@
 
 ---
 
-## v3.13.2 — August 5, 2026
+## v3.13.2 — August 6, 2026
 
 ### 🐛 Bug Fixes
 
@@ -941,7 +952,7 @@
 
 ---
 
-## v3.13.1 — August 5, 2026
+## v3.13.1 — August 6, 2026
 
 ### 🐛 Bug Fixes
 
@@ -950,7 +961,7 @@
 
 ---
 
-## v3.13.0 — August 4, 2026
+## v3.13.0 — August 5, 2026
 
 ### 🐛 Bug Fixes
 
@@ -971,7 +982,7 @@
 
 ---
 
-## v3.12.0 — July 8, 2026
+## v3.12.0 — July 9, 2026
 
 ### 🐛 Bug Fixes
 
@@ -983,7 +994,7 @@
 
 ---
 
-## v3.11.1 — July 8, 2026
+## v3.11.1 — July 9, 2026
 
 ### 🐛 Bug Fixes
 
@@ -995,7 +1006,7 @@
 
 ---
 
-## v3.11.0 — July 6, 2026
+## v3.11.0 — July 7, 2026
 
 ### 🐛 Bug Fixes
 
@@ -1009,7 +1020,7 @@
 
 ---
 
-## v3.10.0 — July 6, 2026
+## v3.10.0 — July 7, 2026
 
 ### ✨ Features
 
@@ -1018,7 +1029,7 @@
 
 ---
 
-## v3.9.1 — July 5, 2026
+## v3.9.1 — July 6, 2026
 
 ### 🐛 Bug Fixes
 
@@ -1026,7 +1037,7 @@
 
 ---
 
-## v3.9.0 — July 3, 2026
+## v3.9.0 — July 4, 2026
 
 ### ✨ Features
 
@@ -1034,7 +1045,7 @@
 
 ---
 
-## v3.8.2 — July 3, 2026
+## v3.8.2 — July 4, 2026
 
 ### 🐛 Bug Fixes
 
@@ -1045,7 +1056,7 @@
 
 ---
 
-## v3.8.1 — July 3, 2026
+## v3.8.1 — July 4, 2026
 
 ### 🐛 Bug Fixes
 
@@ -1055,7 +1066,7 @@
 
 ---
 
-## v3.8.0 — July 2, 2026
+## v3.8.0 — July 3, 2026
 
 ### 🐛 Bug Fixes
 
@@ -1067,7 +1078,7 @@
 
 ---
 
-## v3.7.0 — July 1, 2026
+## v3.7.0 — July 2, 2026
 
 ### 🐛 Bug Fixes
 
@@ -1080,7 +1091,7 @@
 
 ---
 
-## v3.6.0 — June 30, 2026
+## v3.6.0 — July 1, 2026
 
 ### 🐛 Bug Fixes
 
@@ -1094,7 +1105,7 @@
 
 ---
 
-## v3.5.3 — June 30, 2026
+## v3.5.3 — July 1, 2026
 
 ### 🐛 Bug Fixes
 
@@ -1103,7 +1114,7 @@
 
 ---
 
-## v3.5.2 — June 28, 2026
+## v3.5.2 — June 29, 2026
 
 ### 🐛 Bug Fixes
 
@@ -1111,7 +1122,7 @@
 
 ---
 
-## v3.5.1 — June 28, 2026
+## v3.5.1 — June 29, 2026
 
 ### 🐛 Bug Fixes
 
@@ -1120,7 +1131,7 @@
 
 ---
 
-## v3.5.0 — June 27, 2026
+## v3.5.0 — June 28, 2026
 
 ### 🐛 Bug Fixes
 
@@ -1156,7 +1167,7 @@
 
 ---
 
-## v3.4.0 — June 27, 2026
+## v3.4.0 — June 28, 2026
 
 ### 🐛 Bug Fixes
 
@@ -1169,7 +1180,7 @@
 
 ---
 
-## v3.3.0 — June 27, 2026
+## v3.3.0 — June 28, 2026
 
 ### 🐛 Bug Fixes
 
@@ -1181,7 +1192,7 @@
 
 ---
 
-## v3.2.0 — June 27, 2026
+## v3.2.0 — June 28, 2026
 
 ### 🐛 Bug Fixes
 
@@ -1203,7 +1214,7 @@
 
 ---
 
-## v3.1.0 — June 26, 2026
+## v3.1.0 — June 27, 2026
 
 ### 🐛 Bug Fixes
 
@@ -1223,7 +1234,7 @@
 
 ---
 
-## v3.0.0 — June 25, 2026
+## v3.0.0 — June 26, 2026
 
 ### 🐛 Bug Fixes
 
@@ -1260,7 +1271,7 @@
 
 ---
 
-## v2.5.1 — June 25, 2026
+## v2.5.1 — June 26, 2026
 
 ### 🐛 Bug Fixes
 
@@ -1268,7 +1279,7 @@
 
 ---
 
-## v2.5.0 — June 25, 2026
+## v2.5.0 — June 26, 2026
 
 ### 🐛 Bug Fixes
 
@@ -1284,7 +1295,7 @@
 
 ---
 
-## v2.4.0 — June 25, 2026
+## v2.4.0 — June 26, 2026
 
 ### 🐛 Bug Fixes
 
@@ -1303,7 +1314,7 @@
 
 ---
 
-## v2.3.1 — June 24, 2026
+## v2.3.1 — June 25, 2026
 
 ### 🐛 Bug Fixes
 
@@ -1311,7 +1322,7 @@
 
 ---
 
-## v2.3.0 — June 24, 2026
+## v2.3.0 — June 25, 2026
 
 ### 🐛 Bug Fixes
 
@@ -1327,7 +1338,7 @@
 
 ---
 
-## v2.2.0 — June 22, 2026
+## v2.2.0 — June 23, 2026
 
 ### 🐛 Bug Fixes
 
@@ -1339,7 +1350,7 @@
 
 ---
 
-## v2.1.0 — June 22, 2026
+## v2.1.0 — June 23, 2026
 
 ### 🐛 Bug Fixes
 
@@ -1353,7 +1364,7 @@
 
 ---
 
-## v2.0.0 — June 20, 2026
+## v2.0.0 — June 21, 2026
 
 ### 🐛 Bug Fixes
 
@@ -1401,7 +1412,7 @@
 
 ---
 
-## v1.10.0 — June 19, 2026
+## v1.10.0 — June 20, 2026
 
 ### ✨ Features
 
@@ -1409,7 +1420,7 @@
 
 ---
 
-## v1.9.1 — June 19, 2026
+## v1.9.1 — June 20, 2026
 
 ### 🐛 Bug Fixes
 
@@ -1417,7 +1428,7 @@
 
 ---
 
-## v1.9.0 — June 19, 2026
+## v1.9.0 — June 20, 2026
 
 ### 🐛 Bug Fixes
 
@@ -1431,7 +1442,7 @@
 
 ---
 
-## v1.8.4 — June 18, 2026
+## v1.8.4 — June 19, 2026
 
 ### 🐛 Bug Fixes
 
@@ -1439,7 +1450,7 @@
 
 ---
 
-## v1.8.3 — June 17, 2026
+## v1.8.3 — June 18, 2026
 
 ### 🐛 Bug Fixes
 
@@ -1447,7 +1458,7 @@
 
 ---
 
-## v1.8.2 — June 17, 2026
+## v1.8.2 — June 18, 2026
 
 ### 🐛 Bug Fixes
 
@@ -1455,7 +1466,7 @@
 
 ---
 
-## v1.8.1 — June 17, 2026
+## v1.8.1 — June 18, 2026
 
 ### 🐛 Bug Fixes
 
@@ -1463,7 +1474,7 @@
 
 ---
 
-## v1.8.0 — June 16, 2026
+## v1.8.0 — June 17, 2026
 
 ### ✨ Features
 
@@ -1471,7 +1482,7 @@
 
 ---
 
-## v1.7.2 — June 16, 2026
+## v1.7.2 — June 17, 2026
 
 ### 🐛 Bug Fixes
 
@@ -1479,7 +1490,7 @@
 
 ---
 
-## v1.7.1 — June 16, 2026
+## v1.7.1 — June 17, 2026
 
 ### 🐛 Bug Fixes
 
@@ -1487,7 +1498,7 @@
 
 ---
 
-## v1.7.0 — June 16, 2026
+## v1.7.0 — June 17, 2026
 
 ### ✨ Features
 
@@ -1495,7 +1506,7 @@
 
 ---
 
-## v1.6.7 — June 16, 2026
+## v1.6.7 — June 17, 2026
 
 ### 🐛 Bug Fixes
 
@@ -1504,7 +1515,7 @@
 
 ---
 
-## v1.6.6 — June 14, 2026
+## v1.6.6 — June 15, 2026
 
 ### 🐛 Bug Fixes
 
@@ -1513,7 +1524,7 @@
 
 ---
 
-## v1.6.5 — June 12, 2026
+## v1.6.5 — June 13, 2026
 
 ### 🐛 Bug Fixes
 
@@ -1522,7 +1533,7 @@
 
 ---
 
-## v1.2.3 — June 7, 2026
+## v1.2.3 — June 8, 2026
 
 ### 🐛 Bug Fixes
 
@@ -1530,7 +1541,7 @@
 
 ---
 
-## v1.2.2 — June 7, 2026
+## v1.2.2 — June 8, 2026
 
 ### 🐛 Bug Fixes
 
@@ -1538,7 +1549,7 @@
 
 ---
 
-## v1.2.1 — June 7, 2026
+## v1.2.1 — June 8, 2026
 
 ### ✨ Features
 
@@ -1546,7 +1557,7 @@
 
 ---
 
-## v1.2.0 — June 1, 2026
+## v1.2.0 — June 2, 2026
 
 ### ✨ Features
 
@@ -1554,7 +1565,7 @@
 
 ---
 
-## v1.1.1 — June 1, 2026
+## v1.1.1 — June 2, 2026
 
 ### 🐛 Bug Fixes
 
@@ -1562,7 +1573,7 @@
 
 ---
 
-## v1.1.0 — June 1, 2026
+## v1.1.0 — June 2, 2026
 
 ### 🐛 Bug Fixes
 
@@ -1575,7 +1586,7 @@
 
 ---
 
-## v1.0.3 — June 1, 2026
+## v1.0.3 — June 2, 2026
 
 ### 🐛 Bug Fixes
 
@@ -1583,7 +1594,7 @@
 
 ---
 
-## v1.0.2 — June 1, 2026
+## v1.0.2 — June 2, 2026
 
 ### 🐛 Bug Fixes
 
@@ -1592,7 +1603,7 @@
 
 ---
 
-## v1.0.1 — June 1, 2026
+## v1.0.1 — June 2, 2026
 
 ### 🐛 Bug Fixes
 
@@ -1601,7 +1612,7 @@
 
 ---
 
-## v1.0.0 — June 1, 2026
+## v1.0.0 — June 2, 2026
 
 ### 🐛 Bug Fixes
 

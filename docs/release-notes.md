@@ -5,6 +5,14 @@
 
 ---
 
+## v3.70.1 — September 27, 2026
+
+### 🐛 Bug Fixes
+
+- **Ci:** the publish job must clean release notes before tagging
+
+---
+
 ## v3.70.0 — September 27, 2026
 
 ### 🐛 Bug Fixes

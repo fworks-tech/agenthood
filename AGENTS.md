@@ -89,17 +89,13 @@ ambiguous requests surface to refinement. No request pays the same routing cost.
 - 70-100%: frontier tier (Opus, o1, Gemini 2.0)
 - If complexity confidence < 80%: run parallel evaluation before committing to a tier
 
-Every routing decision produces a type-safe record in `.agenthood/decisions/`:
-```json
-{
-  "member": "the-mediator",
-  "intent": "clear-implementation",
-  "confidence": 85,
-  "target": "the-builder",
-  "cascade_applied": true,
-  "parallel_evaluation": null
-}
-```
+Every routing decision produces a type-safe record in `.agenthood/routing/`.
+`intent` is one of `ambiguous`, `capacity-sensitive`, `entry-violation`,
+`clear-specialist`; `confidence` is an integer 0-100; `target` is a registered
+member; `reasoning` is the only free-text field. `agenthood verify` enforces
+all of it and reports every violation at once. The full record shape is in
+[skills/the-mediator/SKILL.md](skills/the-mediator/SKILL.md) — do not duplicate
+it here, or the two drift.
 
 Binary classification without confidence is a guess. Calibrated confidence with
 a cascade is a decision.

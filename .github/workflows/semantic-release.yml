@@ -72,6 +72,33 @@ jobs:
         if: steps.version.outputs.version != ''
         run: node scripts/herald-release.mjs notes "${{ steps.version.outputs.version }}" > herald-notes.md
 
+      - name: The Herald — gate the generated artifacts
+        if: steps.version.outputs.version != ''
+        run: |
+          # This PR is opened with GITHUB_TOKEN, and GitHub starts no workflow
+          # for a GITHUB_TOKEN push, so pr.yml never runs on the regenerated
+          # head. repository_dispatch is suppressed by the same guard, so there
+          # is no token-free way to get CI onto it. Whatever must be checked
+          # about these artifacts is therefore checked here, before the PR
+          # exists.
+          npx vitest run tests/release-config.test.ts
+
+          # herald-notes.md becomes the PR body, and a closing keyword in a
+          # merged PR body closes issues. The notes are built from commit
+          # subjects, so any subject that quotes one leaks straight through.
+          if grep -inE '\b(clos(e|es|ed)|fix(es|ed)?|resolv(e|es|ed))\b[[:space:]]+#[0-9]+' herald-notes.md; then
+            echo "::error::herald-notes.md carries a closing keyword; merging this PR would close those issues"
+            exit 1
+          fi
+
+          # A bare #N resolves against the repo on its own. Strip the linkified
+          # form first — that is what cleanLine exists to produce — then anything
+          # left is a reference the generator failed to rewrite.
+          if sed -E 's/\[#[0-9]+\]\([^)]*\)//g' herald-notes.md | grep -nE '#[0-9]+'; then
+            echo "::error::herald-notes.md carries a bare issue reference that is not linkified"
+            exit 1
+          fi
+
       - name: The Herald — open or refresh release PR
         if: steps.version.outputs.version != ''
         uses: peter-evans/create-pull-request@5f6978faf089d4d20b00c7766989d076bb2fc7f1

@@ -5,6 +5,21 @@ import { cleanLine } from '../scripts/generate-release-notes.ts'
 const WORKFLOW = readFileSync('.github/workflows/semantic-release.yml', 'utf8')
 const HELPER = readFileSync('scripts/herald-release.mjs', 'utf8')
 
+// The closing-keyword pattern is written in the workflow's shell step, so the
+// only way to hold it to the lines it must catch is to read it back out and
+// run it here. A copy of it in this file would pass while the workflow rotted.
+const closingKeywordPattern = () => {
+  const step = WORKFLOW.split('\n').find(l => l.includes('grep -inE') && l.includes('herald-notes.md'))
+  if (!step) throw new Error('no closing-keyword gate on herald-notes.md in semantic-release.yml')
+  const quoted = /grep -inE '(.+?)'/.exec(step)
+  if (!quoted) throw new Error(`closing-keyword gate is not a single-quoted grep: ${step.trim()}`)
+  // `[[:space:]]` is POSIX, which JS has never heard of; read as a class it
+  // means "any of [ : s p a c e" and the gate stops matching real lines. The
+  // quantifier has to move with it, or the pattern compiles to `\s++`.
+  const posix = quoted[1].replaceAll('[[:space:]]+', '\\s+').replaceAll('[[:space:]]', '\\s')
+  return new RegExp(posix, 'i')
+}
+
 describe('release configuration (Herald release-PR flow)', () => {
   it('computes the next version from conventional commits via commit-analyzer', () => {
     expect(HELPER).toContain('@semantic-release/commit-analyzer')
@@ -40,6 +55,28 @@ describe('release configuration (Herald release-PR flow)', () => {
     expect(gate).toBeLessThan(open)
     expect(WORKFLOW).toMatch(/herald-notes\.md carries a closing keyword/)
     expect(WORKFLOW).toMatch(/not linkified/)
+  })
+
+  it('flags a linkified closing keyword, the form the notes generator actually emits', () => {
+    // The real v3.69.0 line, merged with a `closes [#663](url)` in the body.
+    // herald-notes.md is the raw generateNotes output — cleanLine only ever
+    // runs over the published files — so GitHub's `Closes #663` trailer on the
+    // squash commit arrives linkified, and a gate that requires a bare `#N`
+    // lets it through. Issue #967.
+    const gate = closingKeywordPattern()
+    const V3690 =
+      '* **skills:** budget the context window at skill activation ' +
+      '([#966](https://github.com/fworks-tech/agenthood/issues/966)) ' +
+      '([726aebb](https://github.com/fworks-tech/agenthood/commit/726aebb)), ' +
+      'closes [#663](https://github.com/fworks-tech/agenthood/issues/663) ' +
+      '[#663](https://github.com/fworks-tech/agenthood/issues/663)'
+    expect(gate.test(V3690)).toBe(true)
+  })
+
+  it('still flags the bare form, and stays quiet on clean notes', () => {
+    const gate = closingKeywordPattern()
+    expect(gate.test('* **fix:** something breaks, fixes #900')).toBe(true)
+    expect(gate.test('* **deps:** bump x ([#1](https://x/1)) [#7](https://x/7)')).toBe(false)
   })
 
   it('publishes only when package.json is ahead of the latest tag', () => {

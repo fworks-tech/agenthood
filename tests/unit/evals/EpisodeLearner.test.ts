@@ -302,6 +302,7 @@ describe('EpisodeLearner', () => {
         complete: vi.fn(),
         stream: vi.fn(),
         embed: vi.fn().mockRejectedValue(new Error('embedding unsupported')),
+        getContextWindow: vi.fn().mockReturnValue(100000),
         setModel: vi.fn(),
       },
       memory: {

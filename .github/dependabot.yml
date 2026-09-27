@@ -7,6 +7,20 @@ updates:
     open-pull-requests-limit: 5
     labels:
       - dependencies
+    groups:
+      # Any lockfile rewrite drops the nested dev/optional/peer entries that
+      # npm 10 requires under @commitlint/read, breaking 'npm ci' on the Node
+      # version engines declares — dependabot-core #13931. Five separate PRs
+      # meant five identical lock repairs; grouped, it is one PR and one
+      # repair. See #944.
+      # update-types: minor keeps patch and minor together, so the group is
+      # still reviewable. Major stays separate on purpose: a major is the
+      # case that needs a human reading the changelog, and lumping one in
+      # would hide it behind 20 lockfile-only bumps.
+      minor-patch:
+        update-types:
+          - minor
+          - patch
     ignore:
       # tree-sitter grammars peer-pin the tree-sitter core ABI, so no grammar
       # can move alone. tree-sitter-go 0.25 wants core ^0.25 while every other

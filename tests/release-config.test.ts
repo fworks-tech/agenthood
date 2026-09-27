@@ -53,8 +53,7 @@ describe('release configuration (Herald release-PR flow)', () => {
     expect(gate).toBeGreaterThan(-1)
     expect(open).toBeGreaterThan(-1)
     expect(gate).toBeLessThan(open)
-    expect(WORKFLOW).toMatch(/herald-notes\.md carries a closing keyword after cleaning/)
-    expect(WORKFLOW).toMatch(/cleanLine rewrites/)
+    expect(WORKFLOW).toContain("herald-notes.md carries a linkified reference cleanLine did not rewrite")
   })
 
   it('flags a linkified closing keyword, the form the notes generator actually emits', () => {

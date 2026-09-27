@@ -126,3 +126,73 @@ describe('release notes issue references', () => {
     expect(changelog).not.toMatch(/,?\s*(?:closes?|fixes?)\s+\[#\d+\]/)
   })
 })
+
+describe('release notes linkify artifacts', () => {
+  // The real v3.68.3 line for #951, which quotes closing keywords and a
+  // link-shaped regex. conventional-changelog linkifies the quoted syntax
+  // into '[#N](https://.../issues/N)' and '[#1](.../issues/1)', then trails
+  // the line with a link per prose mention — seventeen refs, nearly all
+  // duplicates.
+  const LINKIFY =
+    '* **herald:** release notes stop leaking issue refs, changelog stops claiming false closures ' +
+    '([#951](https://github.com/fworks-tech/agenthood/issues/951)) ' +
+    '([73afc34](https://github.com/fworks-tech/agenthood/commit/73afc341a0c72472ea7127094aaef9ed093b7430)), ' +
+    'closes [#949](https://x/949) [#948](https://x/948) [#946](https://x/946) [#900](https://x/900) ' +
+    '[#947](https://x/947) [#945](https://x/945) [#N](https://github.com/fworks-tech/agenthood/issues/N) ' +
+    '[#N](https://github.com/fworks-tech/agenthood/issues/N) [#1](https://github.com/fworks-tech/agenthood/issues/1) ' +
+    '[#900](https://x/900) [#948](https://x/948) [#947](https://x/947) [#949](https://x/949) ' +
+    '[#900](https://x/900) [#945](https://x/945) [#946](https://x/946) [#900](https://x/900) ' +
+    '[#950](https://x/950) [#949](https://x/949)'
+
+  it('renders the real linkify-damaged line clean', () => {
+    expect(cleanLine(LINKIFY)).toBe(
+      '- **Herald:** release notes stop leaking issue refs, changelog stops claiming false closures ' +
+      '(#951), refs #949, #948, #946, #900, #947, #945, #1, #950'
+    )
+  })
+
+  it('publishes no raw markdown URL', () => {
+    // '#945[#N](https://.../issues/N)' is what reached docs/release-notes.md.
+    expect(cleanLine(LINKIFY)).not.toMatch(/\]\(https/)
+  })
+
+  it('does not glue the last ref to the link it could not match', () => {
+    // The separator was consumed by the capture group instead of asserted.
+    expect(cleanLine(LINKIFY)).not.toMatch(/#\d+\[/)
+  })
+
+  it('folds prose mentions into the refs list instead of trailing them', () => {
+    const line = cleanLine(LINKIFY)
+    expect(line).not.toMatch(/\(#951\)\)\s+#/)
+    expect(line.match(/#949/g)).toHaveLength(1)
+  })
+
+  it('drops a non-numeric label link entirely', () => {
+    expect(cleanLine('* **x:** y ([#1](https://x/1)), closes [#7](https://x/7) [#N](https://github.com/fworks-tech/agenthood/issues/N)'))
+      .toBe('- **X:** y (#1), refs #7')
+  })
+
+  it('drops the keyword when every ref in the list is invented', () => {
+    // Real v3.68.1 line. Stripping only the links left a dangling 'closes',
+    // which reads as a claim with nothing behind it.
+    const line = cleanLine(
+      '* **ci:** enforce PR descriptions link to an issue via doorman gate, ' +
+      'closes [#N](https://github.com/fworks-tech/agenthood/issues/N) [#N](https://github.com/fworks-tech/agenthood/issues/N)'
+    )
+    expect(line).toBe('- **Ci:** enforce PR descriptions link to an issue via doorman gate')
+    expect(line).not.toMatch(/closes|fixes/i)
+  })
+
+  it('drops a false closure the linkifier built out of a hyphenated word', () => {
+    // Real v3.16.0 line. The commit body said 'high-severity check' and
+    // closed nothing; the linkifier read it as a cross-repo ref and
+    // conventional-changelog attached a closing claim to it.
+    const line = cleanLine(
+      '* **ci:** exempt npm ecosystem tools from dependency audit ' +
+      '([8608af8](https://github.com/fworks-tech/agenthood/commit/8608af8)), ' +
+      'closes [hi#severity](https://github.com/hi/issues/severity)'
+    )
+    expect(line).toBe('- **Ci:** exempt npm ecosystem tools from dependency audit')
+    expect(line).not.toMatch(/closes|fixes/i)
+  })
+})

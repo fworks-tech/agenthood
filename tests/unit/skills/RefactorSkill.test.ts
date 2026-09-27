@@ -76,7 +76,7 @@ describe('RefactorSkill', () => {
     })
 
     it('includes original file content in LLM prompt', async () => {
-      vi.mocked(fsPromises.readFile).mockResolvedValue('original code' as unknown as Buffer)
+      vi.mocked(fsPromises.readFile).mockResolvedValue('original code' as unknown as string)
 
       await skill.execute({ path: 'src/x.ts', goal: 'simplify' }, context)
 
@@ -107,6 +107,7 @@ describe('RefactorSkill', () => {
           stream: vi.fn(),
           embed: vi.fn(),
           getContextWindow: vi.fn().mockReturnValue(8192),
+          setModel: vi.fn(),
         },
       })
 

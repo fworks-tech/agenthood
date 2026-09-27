@@ -197,7 +197,7 @@ describe('BaseAgent lifecycle', () => {
         provenance: {
           ...createTestContext().memory.provenance,
           track: trackProvenance,
-        },
+        } as unknown as ProvenanceStore,
       },
     })
 

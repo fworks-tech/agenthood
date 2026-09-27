@@ -2,6 +2,8 @@ import { describe, it, expect, vi } from 'vitest'
 import { WorkflowEngine } from '../../../src/workflows/WorkflowEngine.ts'
 import type { WorkflowDefinition } from '../../../src/workflows/types.ts'
 import type { ExecutionContext } from '../../../src/core/ExecutionContext.ts'
+import { EpisodicMemory } from '../../../src/core/types.ts'
+import { DecisionLog } from '../../../src/core/types.ts'
 
 const mockContext: ExecutionContext = {
   executionId: 'test-123',
@@ -9,14 +11,18 @@ const mockContext: ExecutionContext = {
   memory: {
     shortTerm: { add: vi.fn(), getRecent: vi.fn(), clear: vi.fn() },
     longTerm: { store: vi.fn(), retrieve: vi.fn() },
-    episodic: { record: vi.fn(), recall: vi.fn() },
+    episodic: { record: vi.fn(), recall: vi.fn(), getEpisode: vi.fn() } as unknown as EpisodicMemory,
     project: { getConventions: vi.fn(), getArchitecturalDecisions: vi.fn() },
     decisions: {
       record: vi.fn(),
       search: vi.fn(),
       recent: vi.fn(),
       get: vi.fn(),
-    },
+      all: vi.fn(),
+      addCausalRelationship: vi.fn(),
+      traceDecisionChain: vi.fn(),
+      analyzeDecisionImpact: vi.fn(),
+    } as unknown as DecisionLog,
   },
   llm: {} as any,
   prompts: { build: vi.fn() } as any,

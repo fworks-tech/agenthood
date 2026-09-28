@@ -91,7 +91,8 @@ jobs:
           *-- The Auditor, Agenthood*
           EOF
       - name: The Auditor — agent analysis
-        if: github.event_name == 'pull_request'
+        # disabled: no working LLM provider — was: if: github.event_name == 'pull_request'
+        if: false
         # Sends changed-file names to an external LLM provider.
         # Data handling and opt-out: docs/governance/agent-analysis-data.md
         uses: ./.github/actions/agent-analysis
@@ -134,6 +135,8 @@ jobs:
           HEAD_SHA: ${{ github.event.pull_request.head.sha }}
         run: .github/scripts/filesize-check.sh
       - name: The Warden — agent analysis
+        # disabled: no working LLM provider — delete this if: to re-enable
+        if: false
         # Sends changed-file names to an external LLM provider.
         # Data handling and opt-out: docs/governance/agent-analysis-data.md
         uses: ./.github/actions/agent-analysis

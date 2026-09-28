@@ -72,6 +72,8 @@ jobs:
           echo "Empty-diff guard passed: $PR_CHANGED changed file(s) in PR, diff resolved."
 
       - name: Run Reviewer via shared agent analysis
+        # disabled: no working LLM provider — delete this if: to re-enable
+        if: false
         uses: ./.github/actions/agent-analysis
         with:
           agent-name: the-reviewer

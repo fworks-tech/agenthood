@@ -1,4 +1,7 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest'
+import { rmSync } from 'node:fs'
+import { join } from 'node:path'
+import { TrajectoryStore } from '../../../src/core/TrajectoryStore.ts'
 
 vi.mock('../../../src/llm/LLMRouter.ts', () => ({
   LLMRouter: {
@@ -293,5 +296,54 @@ describe('applySandboxProfile', () => {
     applySandboxProfile(config)
     expect(config.interactive).toBe(false)
     expect(config.security).toBeUndefined()
+  })
+})
+
+describe('MemberRunner trajectory persistence', () => {
+  beforeEach(() => {
+    vi.mocked(LLMRouter.createForMember).mockResolvedValue(fakeCompletingProvider() as never)
+  })
+
+  function trajectoryId(runner: MemberRunner): string {
+    return runner.ctx.correlationId ?? runner.ctx.executionId
+  }
+
+  function cleanupTrajectory(runner: MemberRunner): void {
+    try {
+      rmSync(join(process.cwd(), '.agenthood', 'trajectories', `${trajectoryId(runner)}.json`))
+    } catch {
+      // already absent
+    }
+  }
+
+  it('saves a success trajectory loadable by correlation id', async () => {
+    const runner = makeRunner()
+    try {
+      await runner.runMemberTask('the-builder', 'ship it', {} as never)
+      const stored = new TrajectoryStore(process.cwd()).load(trajectoryId(runner))
+      expect(stored?.member).toBe('the-builder')
+      expect(stored?.task).toBe('ship it')
+      expect(stored?.steps).toHaveLength(1)
+      expect(stored?.steps[0].status).toBe('success')
+      expect(stored?.totalTokens).toBe(5)
+    } finally {
+      cleanupTrajectory(runner)
+    }
+  })
+
+  it('saves an error trajectory when the run fails', async () => {
+    vi.mocked(LLMRouter.createForMember).mockResolvedValue({
+      ...fakeCompletingProvider(),
+      complete: vi.fn().mockRejectedValue(new Error('provider exploded')),
+    } as never)
+    const runner = makeRunner()
+    try {
+      await expect(runner.runMemberTask('the-builder', 'ship it', {} as never)).rejects.toThrow('provider exploded')
+      const stored = new TrajectoryStore(process.cwd()).load(trajectoryId(runner))
+      expect(stored?.steps[0].status).toBe('error')
+      expect(stored?.steps[0].outputSummary).toContain('provider exploded')
+    } finally {
+      cleanupTrajectory(runner)
+    }
   })
 })

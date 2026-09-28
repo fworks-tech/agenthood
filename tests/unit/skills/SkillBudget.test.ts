@@ -2,7 +2,7 @@ import { describe, it, expect } from 'vitest'
 import { readFileSync, readdirSync, existsSync, mkdtempSync } from 'node:fs'
 import { join } from 'node:path'
 import { tmpdir } from 'node:os'
-import { TokenCounter } from '../../../src/core/TokenCounter.ts'
+import { countTokens } from '../../../src/core/modelPricing.ts'
 import { compressSkillBody, stripProcess, SkillBudget, SKILL_BUDGET_RATIO } from '../../../src/skills/activation/SkillBudget.ts'
 import { ActivateSkillTool } from '../../../src/skills/activation/ActivateSkillTool.ts'
 import type { ISkillManifest } from '../../../src/skills/discovery/ISkillManifest.ts'
@@ -60,12 +60,11 @@ describe('compressSkillBody', () => {
     // Level 1 is a gentle squeeze, because a step-dense member loses little:
     // the Scribe's Process is mostly numbered steps, and those are the
     // instruction. Level 2 is the real lever. Measured, not aspirational.
-    const counter = new TokenCounter()
     const body = bodyOf('the-scribe')
 
-    const full = counter.countTokens(body)
-    const level1 = counter.countTokens(compressSkillBody(body))
-    const level2 = counter.countTokens(stripProcess(body))
+    const full = countTokens(body)
+    const level1 = countTokens(compressSkillBody(body))
+    const level2 = countTokens(stripProcess(body))
 
     expect(level1).toBeLessThan(full)
     expect(level2).toBeLessThan(level1 * 0.5)
@@ -95,7 +94,7 @@ describe('compressSkillBody', () => {
 
 describe('SkillBudget', () => {
   it('leaves a body alone while the budget has room', () => {
-    const budget = new SkillBudget(undefined, 128000)
+    const budget = new SkillBudget(128000)
     const body = bodyOf('the-scribe')
     const fit = budget.fit(body)
 
@@ -105,7 +104,7 @@ describe('SkillBudget', () => {
 
   it('compresses once the running total passes the ratio', () => {
     // 8192 is ContextCompressor's default and a real small-model window.
-    const budget = new SkillBudget(undefined, 8192)
+    const budget = new SkillBudget(8192)
     let compressedAt = -1
 
     MEMBERS.forEach((name, i) => {
@@ -117,7 +116,7 @@ describe('SkillBudget', () => {
   })
 
   it('keeps 10+ members inside the window — the acceptance criterion', () => {
-    const budget = new SkillBudget(undefined, 8192)
+    const budget = new SkillBudget(8192)
 
     for (const name of MEMBERS.slice(0, 12)) budget.fit(bodyOf(name))
 
@@ -126,7 +125,7 @@ describe('SkillBudget', () => {
   })
 
   it('clamps rather than overflowing when even the compressed body is too big', () => {
-    const budget = new SkillBudget(undefined, 512)
+    const budget = new SkillBudget(512)
     const fit = budget.fit(bodyOf('the-reviewer'))
 
     expect(fit.compressed).toBe(true)

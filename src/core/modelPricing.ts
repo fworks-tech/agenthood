@@ -85,6 +85,12 @@ export function roundCost(cost: number): number {
   return Math.round(cost * 10000) / 10000
 }
 
+/** Approximate token accounting: chars/4 heuristic for all models (v1). */
+export function countTokens(text: string): number {
+  if (!text) return 0
+  return Math.max(1, Math.ceil(text.length / 4))
+}
+
 /** USD cost from token counts against the model pricing table. */
 export function estimateCostFromTokens(
   model: string,

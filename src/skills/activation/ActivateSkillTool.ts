@@ -1,7 +1,6 @@
 import type { ITool, ToolResult } from '../../tools/ITool.ts'
 import type { ExecutionContext } from '../../core/ExecutionContext.ts'
 import type { ISkillManifest } from '../discovery/ISkillManifest.ts'
-import { TokenCounter } from '../../core/TokenCounter.ts'
 import { recordSkillActivation } from './SkillStats.ts'
 import { SkillBudget } from './SkillBudget.ts'
 
@@ -27,7 +26,7 @@ export class ActivateSkillTool implements ITool {
     private manifests: Map<string, ISkillManifest>,
     contextWindow?: number,
   ) {
-    this.budget = new SkillBudget(new TokenCounter(), contextWindow)
+    this.budget = new SkillBudget(contextWindow)
   }
 
   async execute(input: unknown, context: ExecutionContext): Promise<ToolResult> {

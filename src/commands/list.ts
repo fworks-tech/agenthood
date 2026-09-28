@@ -13,7 +13,7 @@ import { MemberRegistry } from '../members/MemberRegistry.ts';
 import { resolveSkillsDir } from '../members.ts';
 import { SkillParser } from '../skills/discovery/SkillParser.ts';
 import type { SkillTier } from '../skills/discovery/ISkillManifest.ts';
-import { TokenCounter } from '../core/TokenCounter.ts';
+import { countTokens } from '../core/modelPricing.ts';
 import { DEFAULT_CONTEXT_WINDOW } from '../llm/providers/constants.ts';
 
 const TIER_BADGES: Record<SkillTier, string> = {
@@ -64,20 +64,20 @@ function groupByCategory(members: RegistryMember[]): Map<string, RegistryMember[
   return byCategory
 }
 
-function countActiveTokens(installedPath: string, counter: TokenCounter): number {
+function countActiveTokens(installedPath: string): number {
   try {
-    return counter.countTokens(readFileSync(installedPath, 'utf-8'))
+    return countTokens(readFileSync(installedPath, 'utf-8'))
   } catch {
     return 0
   }
 }
 
-function formatMemberRow(m: RegistryMember, skillsBase: string, counter: TokenCounter): { line: string; tokens: number } {
+function formatMemberRow(m: RegistryMember, skillsBase: string): { line: string; tokens: number } {
   const installedPath = join(skillsBase, m.name, `${m.name}.md`)
   const active = existsSync(installedPath)
   const status = active ? '✅' : '⬜'
   const badge = TIER_BADGES[readTier(join(skillsBase, m.name, 'SKILL.md'))]
-  const tokens = active ? countActiveTokens(installedPath, counter) : 0
+  const tokens = active ? countActiveTokens(installedPath) : 0
   const tokensCol = (`~${formatTokens(tokens)}`).padEnd(8)
   const line = `    ${status}  ${badge} ${m.name.padEnd(16)} ${m.tagline.padEnd(34)} ${m.permissionProfile.padEnd(12)} ${m.preferredProvider.padEnd(10)}${tokensCol}`
   return { line, tokens }
@@ -87,7 +87,6 @@ export async function list(): Promise<void> {
   const cwd = process.cwd();
   const skillsBase = resolveSkillsDir(cwd);
   const registry = new MemberRegistry();
-  const counter = new TokenCounter();
   let totalTokens = 0;
 
   const byCategory = groupByCategory(registry.list());
@@ -97,7 +96,7 @@ export async function list(): Promise<void> {
   for (const [cat, group] of byCategory) {
     console.log(`  ${CATEGORY_LABELS[cat] ?? cat}:`);
     for (const m of group) {
-      const { line, tokens } = formatMemberRow(m, skillsBase, counter)
+      const { line, tokens } = formatMemberRow(m, skillsBase)
       totalTokens += tokens;
       console.log(line);
     }

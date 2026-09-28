@@ -45,6 +45,14 @@ describe('loadConfig', () => {
     })
   })
 
+  it('keeps the sibling model when provider is a plain string', async () => {
+    await withFixture(JSON.stringify({ provider: 'opencode', model: 'deepseek-v4-flash' }), async () => {
+      const cfg = await loadConfig()
+      expect(cfg.provider).toBe('opencode')
+      expect(cfg.model).toBe('deepseek-v4-flash')
+    })
+  })
+
   it('parses the security block strict flag from config', async () => {
     await withFixture(JSON.stringify({ security: { strictSkillIntegrity: true } }), async () => {
       const cfg = await loadConfig()

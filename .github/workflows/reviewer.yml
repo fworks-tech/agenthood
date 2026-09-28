@@ -88,4 +88,4 @@ jobs:
           max-files: "5"
           include-diff: "false"
           api-key: ${{ secrets.OPENCODE_API_KEY }}
-          model: "opencode/mimo-v2.5"
+          model: "opencode/deepseek-v4-flash"

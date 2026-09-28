@@ -10,7 +10,10 @@ function pickBlock(raw: Record<string, unknown>, key: string): Record<string, un
 
 function parseProviderBlock(raw: Record<string, unknown>): { provider?: string; model?: string } {
   const provider = raw.provider
-  if (typeof provider === 'string') return { provider }
+  if (typeof provider === 'string') {
+    const model = raw.model
+    return { provider, model: typeof model === 'string' ? model : undefined }
+  }
   const block = pickBlock(raw, 'provider')
   if (!block) return {}
   return { provider: block.name as string | undefined, model: block.model as string | undefined }

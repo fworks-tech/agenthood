@@ -20,6 +20,8 @@ import { validateOutputFormat, reportFormatDeviation } from './outputFormat.ts'
 import { redactEventText } from '../core/RunEventBus.ts'
 import { TrajectoryStore } from '../core/TrajectoryStore.ts'
 import { estimateCostFromTokens } from '../core/modelPricing.ts'
+import { ConcurrencyQueue, type Priority } from '../core/ConcurrencyQueue.ts'
+import type { TraceSource } from '../core/types.ts'
 import { exportIfConfigured as exportIfMetricsConfigured } from '../metrics/config.ts'
 import { RunCheckpoint, type CheckpointData, type CheckpointStore } from '../checkpoint/RunCheckpoint.ts'
 
@@ -30,6 +32,16 @@ export interface MemberRunnerDeps {
   anomalyDetector: AnomalyDetector
   alertsPath: string
   checkpointStore?: CheckpointStore
+}
+
+/** Origin determines queue priority: direct requests first, batch last. */
+function priorityForSource(source: TraceSource | undefined): Priority {
+  switch (source) {
+    case 'automated':
+      return 'SCHEDULED'
+    default:
+      return 'USER'
+  }
 }
 
 /**
@@ -78,8 +90,12 @@ export function applySandboxProfile(config: LLMConfig): void {
  */
 export class MemberRunner {
   ctx!: ExecutionContext
+  private readonly queue = new ConcurrencyQueue()
 
-  constructor(private readonly deps: MemberRunnerDeps) {}
+  constructor(private readonly deps: MemberRunnerDeps) {
+    // unref'd: never holds a short-lived CLI open
+    this.queue.start()
+  }
 
   /** Member-specific executor: preferred provider + its own tool loop */
   async runMember(memberName: string, task: string, config: LLMConfig, resumeFrom?: string): Promise<boolean> {
@@ -101,6 +117,14 @@ export class MemberRunner {
    * @param resumeFrom - optional checkpoint ID to resume from
    */
   async runMemberTask(memberName: string, task: string, config: LLMConfig, resumeFrom?: string | { checkpointId: string; reply?: string }): Promise<MemberRunResult> {
+    // Arbitrate concurrent runs by origin: an interactive CLI request jumps
+    // ahead of scheduled rituals and batch evals sharing this process.
+    return this.queue.submit(`${memberName}: ${task.slice(0, 80)}`, priorityForSource(this.ctx.source), () =>
+      this.executeMemberTask(memberName, task, config, resumeFrom),
+    )
+  }
+
+  private async executeMemberTask(memberName: string, task: string, config: LLMConfig, resumeFrom?: string | { checkpointId: string; reply?: string }): Promise<MemberRunResult> {
     const { spec, llm, sReg, checkpointStore, checkpointData, seedMessages } =
       await this.prepareMemberContext(memberName, task, config, resumeFrom)
 

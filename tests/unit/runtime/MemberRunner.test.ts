@@ -2,6 +2,7 @@ import { describe, it, expect, vi, beforeEach } from 'vitest'
 import { rmSync } from 'node:fs'
 import { join } from 'node:path'
 import { TrajectoryStore } from '../../../src/core/TrajectoryStore.ts'
+import { ConcurrencyQueue } from '../../../src/core/ConcurrencyQueue.ts'
 
 vi.mock('../../../src/llm/LLMRouter.ts', () => ({
   LLMRouter: {
@@ -344,6 +345,44 @@ describe('MemberRunner trajectory persistence', () => {
       expect(stored?.steps[0].outputSummary).toContain('provider exploded')
     } finally {
       cleanupTrajectory(runner)
+    }
+  })
+})
+
+describe('MemberRunner queue arbitration', () => {
+  beforeEach(() => {
+    vi.mocked(LLMRouter.createForMember).mockResolvedValue(fakeCompletingProvider() as never)
+  })
+
+  function cleanup(runner: MemberRunner): void {
+    try {
+      rmSync(join(process.cwd(), '.agenthood', 'trajectories', `${runner.ctx.correlationId ?? runner.ctx.executionId}.json`))
+    } catch {
+      // already absent
+    }
+  }
+
+  it('submits cli runs at USER priority', async () => {
+    const runner = makeRunner()
+    runner.ctx.source = 'cli'
+    const submitSpy = vi.spyOn((runner as unknown as { queue: ConcurrencyQueue }).queue, 'submit')
+    try {
+      await runner.runMemberTask('the-builder', 'ship it', {} as never)
+      expect(submitSpy).toHaveBeenCalledWith(expect.any(String), 'USER', expect.any(Function))
+    } finally {
+      cleanup(runner)
+    }
+  })
+
+  it('submits automated runs at SCHEDULED priority', async () => {
+    const runner = makeRunner()
+    runner.ctx.source = 'automated'
+    const submitSpy = vi.spyOn((runner as unknown as { queue: ConcurrencyQueue }).queue, 'submit')
+    try {
+      await runner.runMemberTask('the-builder', 'ship it', {} as never)
+      expect(submitSpy).toHaveBeenCalledWith(expect.any(String), 'SCHEDULED', expect.any(Function))
+    } finally {
+      cleanup(runner)
     }
   })
 })

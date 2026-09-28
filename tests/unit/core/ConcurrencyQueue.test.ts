@@ -166,3 +166,58 @@ describe('ConcurrencyQueue', () => {
     q.stop() // noop
   })
 })
+
+describe('ConcurrencyQueue submit', () => {
+  it('resolves with the task value', async () => {
+    const q = new ConcurrencyQueue(1)
+    try {
+      await expect(q.submit('t', 'USER', async () => 42)).resolves.toBe(42)
+    } finally {
+      q.stop()
+    }
+  })
+
+  it('rejects when the task fails', async () => {
+    const q = new ConcurrencyQueue(1)
+    try {
+      await expect(q.submit('t', 'USER', async () => { throw new Error('boom') })).rejects.toThrow('boom')
+    } finally {
+      q.stop()
+    }
+  })
+
+  it('rejects a BACKGROUND submit when the queue is full', async () => {
+    const q = new ConcurrencyQueue(1)
+    const pending = () => new Promise<void>(() => {})
+    q.enqueue({ id: 'f', label: 'f', priority: 'USER', priorityValue: 2, enqueuedAt: Date.now(), execute: pending })
+    for (let i = 0; i < 10; i++) {
+      q.enqueue({ id: `w-${i}`, label: `w-${i}`, priority: 'BACKGROUND', priorityValue: 0, enqueuedAt: Date.now(), execute: pending })
+    }
+    try {
+      await expect(q.submit('late', 'BACKGROUND', async () => {})).rejects.toThrow(/rejected: queue full/)
+    } finally {
+      q.stop()
+    }
+  })
+
+  it('rejects the displaced submit when USER takes its slot', async () => {
+    const q = new ConcurrencyQueue(1)
+    const pending = () => new Promise<void>(() => {})
+    q.enqueue({ id: 'f', label: 'f', priority: 'USER', priorityValue: 2, enqueuedAt: Date.now(), execute: pending })
+    for (let i = 0; i < 9; i++) {
+      q.enqueue({ id: `w-${i}`, label: `w-${i}`, priority: 'SCHEDULED', priorityValue: 1, enqueuedAt: Date.now(), execute: pending })
+    }
+    // 10th waiter: the only BACKGROUND task, admitted (depth 9 < max 10)
+    const displaced = q.submit('victim', 'BACKGROUND', async () => {})
+    // queue is now full; a USER submit displaces the lowest-priority waiter.
+    // the slot stays occupied so boss never runs — assert it queued instead.
+    const user = q.submit('boss', 'USER', async () => 'ok')
+    void user.catch(() => {})
+    try {
+      await expect(displaced).rejects.toThrow(/displaced/)
+      expect(q.getStatus().queued).toBe(10)
+    } finally {
+      q.stop()
+    }
+  })
+})

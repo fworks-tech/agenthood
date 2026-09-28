@@ -93,8 +93,8 @@ check_commands_spec_sync() {
   local commands_changed spec_updated
   commands_changed=$(echo "$CHANGED" | grep "^src/commands/" || true)
   [ -z "$commands_changed" ] && return 0
-  spec_updated=$(echo "$CHANGED" | grep -E "^(CONTRIBUTING\.md|CLAUDE\.md)" || true)
-  [ -z "$spec_updated" ] && { echo "FAIL: src/commands/ changed but CONTRIBUTING.md nor CLAUDE.md was updated"; return 1; }
+  spec_updated=$(echo "$CHANGED" | grep -E "^CONTRIBUTING\.md" || true)
+  [ -z "$spec_updated" ] && { echo "FAIL: src/commands/ changed but CONTRIBUTING.md was not updated"; return 1; }
   return 0
 }
 

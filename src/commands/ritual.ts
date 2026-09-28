@@ -9,6 +9,7 @@
 
 import { existsSync, readdirSync, readFileSync } from 'node:fs'
 import { join } from 'node:path'
+import { load as loadYaml } from 'js-yaml'
 import type { CommandDescriptor } from './types.ts'
 import { run as runCli } from './run.ts'
 
@@ -24,12 +25,17 @@ interface RitualManifest {
 export function parseFrontmatter(content: string): Record<string, string> {
   const match = content.match(/^---\r?\n([\s\S]*?)\r?\n---/)
   if (!match) return {}
-  const fields: Record<string, string> = {}
-  for (const line of match[1].split('\n')) {
-    const m = line.match(/^([\w-]+):\s*(.+)$/)
-    if (!m) continue
-    fields[m[1]] = m[2].replace(/^["'](.*)["']$/, '$1')
+  let parsed: unknown
+  try {
+    parsed = loadYaml(match[1])
+  } catch {
+    return {}
   }
+  if (typeof parsed !== 'object' || parsed === null) return {}
+  // String() keeps the Record<string, string> contract: YAML typing
+  // (numbers, booleans) never leaks into manifest fields
+  const fields: Record<string, string> = {}
+  for (const [k, v] of Object.entries(parsed)) fields[k] = String(v)
   return fields
 }
 

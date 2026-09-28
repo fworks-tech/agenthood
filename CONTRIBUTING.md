@@ -119,6 +119,7 @@ The `agenthood` CLI auto-discovers commands from `src/commands/`: each file expo
   - `--interactive` enables human-in-the-loop confirmation prompts before tool execution.
 - `agenthood checkpoints` — list past run checkpoints (`--json`, `--prune` to remove old ones)
 - `agenthood trace` — list recent invocation traces (`--member`, `--limit`, `--since`, `--json`); subcommands: `visualize <id>` (ASCII timeline), `diff <id1> <id2>` (side-by-side comparison)
+- `agenthood goal` — track multi-step goals across runs, persisted to `.agenthood/goals.json`; subcommands: `create <description> [--issue <ref>]`, `list [--json]`, `show <id> [--json]`, `subgoal <id> <description>`, `status <id> <sub-id> <pending|in_progress|blocked|completed>`, `next <id>` (advance the next pending sub-goal)
 - `agenthood log` — list recent structured log entries (`--level`, `--member`, `--limit`, `--since`, `--json`, `--tail N`, `--follow`)
 - `agenthood status` — project health and member metrics (`--watch`, `--json`, `--drift`, `--member`, `--learner`)
 - `agenthood eval <member> --suite <path>` — run an eval suite against a member (`--baseline`, `--update-baseline`, `--benchmark <path>`, `--triggers <path>`, `--convergence`, `--history`, `--ab <member>`, `--json`). Repeatable `--provider <name>` overrides the config provider; two or more run the suite once per provider and print a comparison table (pass rate, avg time, avg tokens)

@@ -1,3 +1,18 @@
+## [3.70.2](https://github.com/fworks-tech/agenthood/compare/v3.70.1...v3.70.2) (2026-09-28)
+
+
+### Bug Fixes
+
+* **ci:** add sync-skills validation to prevent stale generated artifacts ([#961](https://github.com/fworks-tech/agenthood/issues/961)) ([f229e94](https://github.com/fworks-tech/agenthood/commit/f229e945e0fa76ad4c9065836552f6f5bfae3500))
+* **tests:** achieve full typecheck coverage for tests/ directory ([#963](https://github.com/fworks-tech/agenthood/issues/963)) ([4b15535](https://github.com/fworks-tech/agenthood/commit/4b15535238aa33dbacd69b4a9110b00fe67f1253))
+* **tests:** address remaining typecheck errors in test files ([#963](https://github.com/fworks-tech/agenthood/issues/963)) ([61be069](https://github.com/fworks-tech/agenthood/commit/61be069fb38c51e7843f28ffe192776820160398))
+* **tests:** address remaining typecheck errors with type assertions ([#963](https://github.com/fworks-tech/agenthood/issues/963)) ([dd86176](https://github.com/fworks-tech/agenthood/commit/dd861761c812cdc09fb42cf989c3b85be8906803))
+* **tests:** align 7 test files with current source API types ([#963](https://github.com/fworks-tech/agenthood/issues/963)) ([18d1277](https://github.com/fworks-tech/agenthood/commit/18d1277c4b43af878d802478e583ebe3a5b3b805))
+* **tests:** fix shared helpers and cascade mocks for typecheck coverage ([#963](https://github.com/fworks-tech/agenthood/issues/963)) ([4f61dca](https://github.com/fworks-tech/agenthood/commit/4f61dca5c3f7d3d75a2a18b9072697dafad2e180))
+* **tests:** resolve opencode-plugin ChildProcess type mismatches ([#963](https://github.com/fworks-tech/agenthood/issues/963)) ([a5bea8a](https://github.com/fworks-tech/agenthood/commit/a5bea8a4e88c22dffe92b2af462235175dc0b4fe))
+* **tests:** restore spy mocks and vitest import, clear typecheck gate ([#976](https://github.com/fworks-tech/agenthood/issues/976)) ([5d3e82b](https://github.com/fworks-tech/agenthood/commit/5d3e82b171e1eca37a3b566205d127f1b074d3ea)), refs #963
+* **tests:** revert opencode-plugin type casts to as any ([#963](https://github.com/fworks-tech/agenthood/issues/963)) ([c01fdc1](https://github.com/fworks-tech/agenthood/commit/c01fdc1907e2d14c43f0f93de71a0c7067efa742))
+
 ## [3.70.1](https://github.com/fworks-tech/agenthood/compare/v3.70.0...v3.70.1) (2026-09-27)
 
 

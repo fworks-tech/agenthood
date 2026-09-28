@@ -5,6 +5,22 @@
 
 ---
 
+## v3.70.2 — September 28, 2026
+
+### 🐛 Bug Fixes
+
+- **Ci:** add sync-skills validation to prevent stale generated artifacts (#961)
+- **Tests:** achieve full typecheck coverage for tests/ directory (#963)
+- **Tests:** address remaining typecheck errors in test files (#963)
+- **Tests:** address remaining typecheck errors with type assertions (#963)
+- **Tests:** align 7 test files with current source API types (#963)
+- **Tests:** fix shared helpers and cascade mocks for typecheck coverage (#963)
+- **Tests:** resolve opencode-plugin ChildProcess type mismatches (#963)
+- **Tests:** restore spy mocks and vitest import, clear typecheck gate (#976), refs #963
+- **Tests:** revert opencode-plugin type casts to as any (#963)
+
+---
+
 ## v3.70.1 — September 27, 2026
 
 ### 🐛 Bug Fixes

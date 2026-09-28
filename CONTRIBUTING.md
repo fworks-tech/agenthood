@@ -149,6 +149,8 @@ The `agenthood` CLI auto-discovers commands from `src/commands/`: each file expo
 - `agenthood upgrade --agenthood` — self-upgrade the agenthood package (backs up `.agenthood/config.json` first, pins the registry-validated version)
 Adding a command means adding a file in `src/commands/` and documenting it here.
 
+Colocation: helpers with a single consumer live in the consuming module (`status` windows in `status.ts`, cost/token math in `modelPricing.ts`) — `src/core/` and `src/utils/` are for shared code only.
+
 Config note: a string-form `provider` in `.agenthood/config.json` keeps the sibling `model` (see `loadConfig` in `src/commands/config.ts`).
 
 When a command wraps a caught error in a friendlier message, the original is attached via `{ cause }` so the underlying failure stays in the stack output (the v10 recommended ESLint set enforces this across `src/`).

@@ -18,6 +18,8 @@ import { ToolRegistry } from '../tools/ToolRegistry.ts'
 import { AskHumanSignal, AskHumanTool } from '../tools/human/AskHumanTool.ts'
 import { validateOutputFormat, reportFormatDeviation } from './outputFormat.ts'
 import { redactEventText } from '../core/RunEventBus.ts'
+import { TrajectoryStore } from '../core/TrajectoryStore.ts'
+import { estimateCostFromTokens } from '../core/modelPricing.ts'
 import { exportIfConfigured as exportIfMetricsConfigured } from '../metrics/config.ts'
 import { RunCheckpoint, type CheckpointData, type CheckpointStore } from '../checkpoint/RunCheckpoint.ts'
 
@@ -148,6 +150,7 @@ export class MemberRunner {
       const duration = Math.round(performance.now() - startTime)
       return this.completeRunSuccess({
         spec, result, duration, usage: loop.usage, metricsCollector, checkpointStore, checkpointData,
+        task, model: checkpointData.model ?? config.model ?? 'unknown',
       })
     } catch (err) {
       const duration = Math.round(performance.now() - startTime)
@@ -158,7 +161,10 @@ export class MemberRunner {
         this.emitParkedEvent(spec, err, duration)
         throw err
       }
-      this.recordRunFailure({ spec, err, duration, metricsCollector, checkpointStore, checkpointData })
+      this.recordRunFailure({
+        spec, err, duration, metricsCollector, checkpointStore, checkpointData,
+        task, model: checkpointData.model ?? config.model ?? 'unknown',
+      })
       throw err
     } finally {
       await this.flushTraces()
@@ -197,6 +203,51 @@ export class MemberRunner {
     return { spec, llm, sReg, checkpointStore, checkpointData, seedMessages }
   }
 
+  private persistTrajectory(args: {
+    spec: MemberSpec
+    task: string
+    model: string
+    status: 'success' | 'error'
+    outputSummary: string
+    usage: TokenUsage
+    duration: number
+  }): void {
+    // Trajectory persistence must never fail a run — trace visualize/diff
+    // read what this writes, but a write failure is not a run failure.
+    try {
+      const prompt = args.usage.promptTokens ?? 0
+      const completion = args.usage.completionTokens ?? 0
+      const cost = estimateCostFromTokens(args.model, prompt, completion)
+      const completedAt = new Date()
+      // id = correlation id so `trace visualize` accepts the ids users
+      // already see in `trace`/`log` output
+      const id = this.ctx.correlationId ?? this.ctx.executionId
+      new TrajectoryStore(process.cwd()).save({
+        id,
+        correlationId: id,
+        member: args.spec.name,
+        task: redactEventText(this.ctx, args.task),
+        steps: [{
+          step: 0,
+          model: args.model,
+          inputSummary: redactEventText(this.ctx, args.task).slice(0, 500),
+          outputSummary: args.outputSummary.slice(0, 2000),
+          tokens: { prompt, completion },
+          cost,
+          durationMs: args.duration,
+          status: args.status,
+        }],
+        totalTokens: prompt + completion,
+        totalCost: cost,
+        totalDurationMs: args.duration,
+        startedAt: new Date(completedAt.getTime() - args.duration).toISOString(),
+        completedAt: completedAt.toISOString(),
+      })
+    } catch {
+      // ignore — see above
+    }
+  }
+
   private completeRunSuccess(args: {
     spec: MemberSpec
     result: Pick<MemberRunResult, 'output'>
@@ -205,6 +256,8 @@ export class MemberRunner {
     metricsCollector: MetricsCollector
     checkpointStore: CheckpointStore
     checkpointData: CheckpointData
+    task: string
+    model: string
   }): MemberRunResult {
     if (args.spec.output_format) {
       const { valid, message } = validateOutputFormat(args.result.output, args.spec.output_format)
@@ -212,6 +265,15 @@ export class MemberRunner {
     }
     args.metricsCollector.record(args.spec.name, true, args.duration)
     args.checkpointStore.updateStatus(args.checkpointData.id, 'completed')
+    this.persistTrajectory({
+      spec: args.spec,
+      task: args.task,
+      model: args.model,
+      status: 'success',
+      outputSummary: redactEventText(this.ctx, args.result.output),
+      usage: args.usage,
+      duration: args.duration,
+    })
     this.ctx.events.emit({
       type: 'run.finished',
       executionId: this.ctx.executionId,
@@ -231,7 +293,20 @@ export class MemberRunner {
     metricsCollector: MetricsCollector
     checkpointStore: CheckpointStore
     checkpointData: CheckpointData
+    task: string
+    model: string
   }): void {
+    args.metricsCollector.record(args.spec.name, false, args.duration)
+    args.checkpointStore.updateStatus(args.checkpointData.id, 'failed')
+    this.persistTrajectory({
+      spec: args.spec,
+      task: args.task,
+      model: args.model,
+      status: 'error',
+      outputSummary: redactEventText(this.ctx, args.err instanceof Error ? args.err.message : String(args.err)),
+      usage: { promptTokens: 0, completionTokens: 0, totalTokens: 0 },
+      duration: args.duration,
+    })
     args.metricsCollector.record(args.spec.name, false, args.duration)
     args.checkpointStore.updateStatus(args.checkpointData.id, 'failed')
     this.ctx.events.emit({

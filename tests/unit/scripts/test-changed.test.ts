@@ -1,4 +1,5 @@
-// @ts-ignore
+import { describe, it, expect } from 'vitest'
+// @ts-expect-error untyped mjs module
 import { findTestFilesForSource, getTestFiles, rejectFlagLikePaths } from '../../../scripts/test-changed.mjs'
 
 const fakeIndex = new Map([

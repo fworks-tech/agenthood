@@ -1,16 +1,12 @@
 #!/usr/bin/env tsx
 import { readFileSync } from 'node:fs'
-import { join, dirname } from 'node:path'
+import { join } from 'node:path'
 import { fileURLToPath } from 'node:url'
 
 const ROOT = fileURLToPath(new URL('..', import.meta.url))
 
 const STALE_PATTERNS = [
   'clear-implementation',
-]
-
-const LEGITIMATE_DIRS = [
-  '.agenthood/decisions/',
 ]
 
 function main(): void {

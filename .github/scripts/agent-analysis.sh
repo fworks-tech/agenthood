@@ -34,12 +34,22 @@ validate_prerequisites() {
     exit 0
   fi
 
+  # OPENCODE_MODEL is "provider/model" (e.g. opencode/mimo-v2.5-free) so the
+  # action's model input selects both the CLI provider and the model.
+  ANALYSIS_MODEL="${OPENCODE_MODEL:-opencode/deepseek-v4-flash}"
+  ANALYSIS_PROVIDER="${ANALYSIS_MODEL%%/*}"
+  ANALYSIS_MODEL_ID="${ANALYSIS_MODEL#*/}"
+  if [ "$ANALYSIS_PROVIDER" = "$ANALYSIS_MODEL" ]; then
+    ANALYSIS_PROVIDER="opencode"
+    ANALYSIS_MODEL_ID="$ANALYSIS_MODEL"
+  fi
+  export ANALYSIS_PROVIDER ANALYSIS_MODEL_ID
   # Configure provider and model for agent analysis
   mkdir -p .agenthood
   cat > .agenthood/config.json <<EOF
 {
-  "provider": "opencode-go",
-  "model": "${OPENCODE_MODEL:-opencode-go/mimo-v2.5}"
+  "provider": "${ANALYSIS_PROVIDER}",
+  "model": "${ANALYSIS_MODEL_ID}"
 }
 EOF
 
@@ -149,7 +159,7 @@ npm ci --ignore-scripts
 npm run build
 
 rc=0
-node dist/cli.js run "$AGENT_NAME" "$TASK" --provider opencode-go \
+node dist/cli.js run "$AGENT_NAME" "$TASK" --provider "$ANALYSIS_PROVIDER" \
   1> "$analysis_file" \
   2>> "$error_file" || rc=$?
 

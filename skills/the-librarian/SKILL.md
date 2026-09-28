@@ -169,15 +169,14 @@ These files define how the Society works. They age like code — quietly and bad
 | File | Purpose | Update when |
 |------|---------|-------------|
 | `AGENTS.md` | Registry of all members — runtimes read this | A member is added, removed, or renamed |
-| `CLAUDE.md` | Claude Code guidance — architecture, commands, conventions | `src/` architecture changes, new CLI commands, new conventions or hooks |
 | `CONTRIBUTING.md` | Contribution guide — branch, commit, PR workflow | CLI commands change, hooks change, conventions change |
 | `INITIATION.md` | Onboarding ceremony — how an adopter joins the Society | `npx agenthood init` flow changes, new commands, new required steps |
 | `oath.md` | The five founding principles — enforced by the pipeline | Never. The Oath does not change. |
 | `CHANGELOG.md` | Release history | Never manually. Managed exclusively by `semantic-release`. |
 
 **On every PR, check:**
-1. Did `src/commands/` change? → review CLAUDE.md commands section and CONTRIBUTING.md workflow
-2. Did `docs/conventions/` or `.githooks/` change? → review CONTRIBUTING.md and CLAUDE.md conventions section
+1. Did `src/commands/` change? → review AGENTS.md commands section and CONTRIBUTING.md workflow
+2. Did `docs/conventions/` or `.githooks/` change? → review CONTRIBUTING.md conventions section
 3. Did `skills/` gain a new member directory? → add a `docs/members/the-<name>/README.md` identity card and update AGENTS.md (CI will catch this, but update proactively)
 4. Did `docs/members/` gain a new directory? → update AGENTS.md (CI will catch this, but update proactively)
 5. Did the `init` command behaviour change? → update INITIATION.md ceremony steps
@@ -246,7 +245,6 @@ Documentation is complete when:
 - [ ] All commands in documentation were tested and work
 - [ ] Stale docs from this change cycle are updated or flagged
 - [ ] `AGENTS.md` reflects all current members
-- [ ] `CLAUDE.md` reflects any changed commands or conventions
 - [ ] `CONTRIBUTING.md` reflects any changed workflow, hooks, or commands
 - [ ] `INITIATION.md` ceremony steps match current `npx agenthood init` behaviour
 - [ ] `CHANGELOG.md` was not manually edited

@@ -31,9 +31,9 @@ inputs:
     required: false
     default: ""
   model:
-    description: Model ID for agent analysis (e.g. opencode-go/mimo-v2.5)
+    description: Model ID as provider/model (e.g. opencode/mimo-v2.5-free). The part before / selects the CLI provider.
     required: false
-    default: "opencode-go/mimo-v2.5"
+    default: "opencode/deepseek-v4-flash"
 
 runs:
   using: composite

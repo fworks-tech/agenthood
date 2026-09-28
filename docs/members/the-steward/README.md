@@ -45,7 +45,7 @@ Knows each provider's caching mechanism and structures member loading accordingl
 | Provider | Cache Mechanism | Steward Strategy |
 |----------|----------------|-----------------|
 | Claude (API) | `cache_control: ephemeral` on system prompt blocks | Mark stable members (Oath, AGENTS.md, conventions) as cached; load task-specific member fresh |
-| Claude Code | CLAUDE.md + on-demand skills | Load only the member skill needed; CLAUDE.md holds the always-on constitution |
+| Claude Code | AGENTS.md + on-demand skills | Load only the member skill needed; AGENTS.md holds the always-on constitution |
 | OpenAI | Automatic prefix caching (>1024 tokens) | Structure system prompt with stable content first — cache hits are free |
 | Groq | Token-based, no persistent cache | Keep system prompt minimal; reload per request |
 | Ollama | Local KV cache on host | Cache entire model + system prompt; member skills loaded per task |

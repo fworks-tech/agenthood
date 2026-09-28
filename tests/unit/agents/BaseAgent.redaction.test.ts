@@ -5,7 +5,6 @@ import { RedactionFilter } from '../../../src/core/RedactionFilter.ts'
 import { ReActLoop } from '../../../src/reasoning/ReActLoop.ts'
 import { ToolRegistry } from '../../../src/tools/ToolRegistry.ts'
 import { contentHash } from '../../../src/utils/hash.ts'
-import { ProvenanceStore } from '../../../src/memory/ProvenanceStore.ts'
 
 describe('BaseAgent redaction', () => {
   it('redacts decision and provenance payloads when a redactor is configured', async () => {

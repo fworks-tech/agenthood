@@ -27,6 +27,8 @@ export interface QueuedTask {
   priorityValue: number
   enqueuedAt: number
   execute: () => Promise<void>
+  /** Invoked when the task is displaced by a USER request while queued. */
+  onDisplaced?: () => void
 }
 
 export interface QueueStatus {
@@ -130,7 +132,7 @@ export class ConcurrencyQueue {
       }
     }
 
-    this.queue.splice(lowestIdx, 1)
+    this.queue.splice(lowestIdx, 1)[0]?.onDisplaced?.()
   }
 
   /**
@@ -163,6 +165,9 @@ export class ConcurrencyQueue {
   start(): void {
     if (this.timerId) return
     this.timerId = setInterval(() => this.checkStarvation(), 10_000)
+    // never hold the process open: short-lived CLIs exit even if stop()
+    // is never called
+    if (typeof this.timerId === 'object') this.timerId.unref()
   }
 
   /** Stop the starvation checker. */
@@ -184,6 +189,42 @@ export class ConcurrencyQueue {
 
   statusLine(): string {
     const s = this.getStatus()
-    return `\u26A1 ${s.running} running  \u2022 ${s.queued} queued${s.paused > 0 ? `  \u2022 ${s.paused} paused (approval needed)` : ''}`
+    return `⚡ ${s.running} running  • ${s.queued} queued${s.paused > 0 ? `  • ${s.paused} paused (approval needed)` : ''}`
+  }
+
+  /**
+   * Submit awaitable work: resolves/rejects with the task outcome once a
+   * slot frees. A BACKGROUND task rejected on a full queue, or any task
+   * displaced by a USER request while queued, rejects instead of hanging.
+   */
+  submit<T>(label: string, priority: Priority, fn: () => Promise<T>): Promise<T> {
+    return new Promise<T>((resolve, reject) => {
+      const accepted = this.enqueue({
+        id: `${Date.now()}-${Math.random().toString(36).slice(2, 8)}`,
+        label,
+        priority,
+        priorityValue: PRIORITY_VALUE[priority],
+        enqueuedAt: Date.now(),
+        execute: async () => {
+          try {
+            resolve(await fn())
+          } catch (err) {
+            reject(err)
+          }
+        },
+        onDisplaced: () => reject(new QueueDisplacedError(`"${label}" displaced by a higher-priority request`)),
+      })
+      if (!accepted) {
+        reject(new QueueDisplacedError(`"${label}" rejected: queue full`))
+      }
+    })
+  }
+}
+
+/** Rejects a submit() whose task never ran: displaced or refused admission. */
+export class QueueDisplacedError extends Error {
+  constructor(message: string) {
+    super(message)
+    this.name = 'QueueDisplacedError'
   }
 }

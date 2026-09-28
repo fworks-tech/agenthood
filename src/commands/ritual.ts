@@ -101,7 +101,7 @@ export async function ritual(args: string[]): Promise<void> {
       process.exit(1)
     }
     const task = `${manifest.description}\n\nFollow the steps and report format defined in docs/rituals/${manifest.file}.`
-    await runCli([manifest.member, task])
+    await runCli([manifest.member, task], { source: 'automated' })
     return
   }
 

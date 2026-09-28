@@ -1,4 +1,5 @@
 import type { CommandDescriptor } from './types.ts'
+import type { TraceSource } from '../core/types.ts'
 import { MissingApiKeyError } from '../llm/validateApiKeys.ts'
 import { ApplicationContext } from '../runtime/ApplicationContext.ts'
 import { loadConfigOrExit } from './config.ts'
@@ -63,7 +64,7 @@ export const command: CommandDescriptor = {
   handler: (args) => run(args),
 }
 
-export async function run(args: string[]): Promise<void> {
+export async function run(args: string[], options?: { source?: TraceSource }): Promise<void> {
   const { positional, providerOverride, shouldDetect, resumeFrom, debug, interactive, sandbox } = parseFlags(args)
   const [agentName, ...taskParts] = positional
 
@@ -96,7 +97,7 @@ export async function run(args: string[]): Promise<void> {
   }
 
   const app = await ApplicationContext.create(process.cwd(), config)
-  app.ctx.source = 'cli'
+  app.ctx.source = options?.source ?? 'cli'
 
   if (shouldDetect) {
     await runDetection(app, task)

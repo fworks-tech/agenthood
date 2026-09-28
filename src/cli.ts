@@ -10,7 +10,10 @@
  * means adding a file, not touching this one.
  */
 
-import 'dotenv/config'
+import { existsSync as envFileExists } from 'node:fs'
+
+// dotenv/config parity: load .env when present, ignore when absent
+if (envFileExists('.env')) process.loadEnvFile()
 
 import { readdirSync } from 'node:fs';
 import { join, dirname } from 'node:path';

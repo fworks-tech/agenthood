@@ -113,6 +113,7 @@ Hooks are installed by `npx agenthood init` and enforce the format automatically
 The `agenthood` CLI auto-discovers commands from `src/commands/`: each file exports a `command: CommandDescriptor` (`name`, optional `aliases`, `description`, `handler(args)`) — `src/cli.ts` never changes. Helper modules in that directory simply export no descriptor (see `src/commands/types.ts`). Key commands:
 
 - `agenthood run <member> "<task>"` — invoke a member or core agent. Runs exit with code 1 on failure (via `process.exitCode`, so piped stderr is not truncated); the error is logged by the command, not the library — library callers calling `ApplicationContext.runMember`/`runAgent` receive the thrown error instead of a process exit.
+  - Concurrent runs in one process arbitrate through a shared ConcurrencyQueue by origin (`cli`/`playground`/`api` = USER priority, `automated` = SCHEDULED); rituals pass `automated` so an interactive run always jumps ahead.
   - A `--` separator ends flag parsing, so a task beginning with `-` is always treated as data (the opencode plugin passes it).
   - `--resume <id>` resumes from a checkpoint saved during a previous interrupted run.
   - `--debug` dumps raw LLM request/response payloads to `.agenthood/debug/` (keys redacted).

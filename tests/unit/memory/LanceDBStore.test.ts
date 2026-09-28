@@ -351,7 +351,7 @@ describe('LanceDBStore', () => {
 
       const s = new LanceDBStore(3)
       await s.connect('/tmp/test-lancedb')
-      const count = await s.prune({ maxSize: 10 })
+      const count = await s.prune({ maxSize: 10, pruneStrategy: 'lru' })
 
       expect(count).toBe(0)
       expect(mockTable.mockQuery).not.toHaveBeenCalled()

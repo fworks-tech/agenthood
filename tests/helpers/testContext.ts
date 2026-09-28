@@ -1,7 +1,7 @@
 import { randomUUID } from 'node:crypto'
 import { vi } from 'vitest'
 import type { ExecutionContext } from '../../src/core/ExecutionContext.ts'
-import { ProvenanceEntry, ProvenanceStore } from '../../src/memory/ProvenanceStore.ts'
+import { ProvenanceStore } from '../../src/memory/ProvenanceStore.ts'
 import { Tracer } from '../../src/core/Tracer.ts'
 import { RedactionFilter } from '../../src/core/RedactionFilter.ts'
 import { RunEventBus } from '../../src/core/RunEventBus.ts'

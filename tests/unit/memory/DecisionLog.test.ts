@@ -312,7 +312,7 @@ describe('DecisionLog', () => {
 
     it('loads legacy entries without the new optional fields', async () => {
       vi.mocked(existsSync).mockReturnValue(true)
-      vi.mocked(readdirSync).mockReturnValue(['dec-legacy.json'])
+      vi.mocked(readdirSync).mockReturnValue(['dec-legacy.json'] as never)
       vi.mocked(readFileSync).mockReturnValue(JSON.stringify(fixtureEntry))
 
       const log = new DecisionLog()

@@ -20,6 +20,7 @@ describe('EpisodeLearner', () => {
     }
 
     mockResidual = new ResidualMemory() as unknown as ResidualMemory
+    mockResidual.record = vi.fn()
 
     context = createTestContext({
       memory: {

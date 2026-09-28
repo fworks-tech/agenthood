@@ -51,7 +51,7 @@ describe('ProjectIngestion', () => {
   })
 
   it('indexes code files with tree-sitter and populates KGS', async () => {
-    vi.mocked(readdirSync).mockReturnValueOnce(['index.ts'])
+    vi.mocked(readdirSync).mockReturnValueOnce(['index.ts'] as never)
     vi.mocked(statSync).mockReturnValueOnce({ isDirectory: () => false, isFile: () => true, size: 100 } as ReturnType<typeof import('node:fs').statSync>)
     vi.mocked(readFileSync).mockReturnValueOnce('function hello() {} import { x } from "./utils"')
 
@@ -63,7 +63,7 @@ describe('ProjectIngestion', () => {
   })
 
   it('skips non-code files but adds them as file nodes', async () => {
-    vi.mocked(readdirSync).mockReturnValueOnce(['readme.md'])
+    vi.mocked(readdirSync).mockReturnValueOnce(['readme.md'] as never)
     vi.mocked(statSync).mockReturnValueOnce({ isDirectory: () => false, isFile: () => true, size: 50 } as ReturnType<typeof import('node:fs').statSync>)
     vi.mocked(readFileSync).mockReturnValueOnce('# Hello')
 
@@ -78,8 +78,8 @@ describe('ProjectIngestion', () => {
     const calls: string[] = []
     vi.mocked(readdirSync).mockImplementation((path: any) => {
       calls.push(path)
-      if (path === '/test') return ['node_modules', '.hidden', 'src']
-      return []
+      if (path === '/test') return ['node_modules', '.hidden', 'src'] as never
+      return [] as never
     })
     vi.mocked(statSync).mockImplementation((path: any) => ({
       isDirectory: () => typeof path === 'string' && (path.endsWith('node_modules') || path.endsWith('.hidden') || path.endsWith('src')),
@@ -92,7 +92,7 @@ describe('ProjectIngestion', () => {
   })
 
   it('gracefully handles unreadable files', async () => {
-    vi.mocked(readdirSync).mockReturnValueOnce(['index.ts'])
+    vi.mocked(readdirSync).mockReturnValueOnce(['index.ts'] as never)
     vi.mocked(statSync).mockReturnValueOnce({ isDirectory: () => false, isFile: () => true, size: 100 } as ReturnType<typeof import('node:fs').statSync>)
     vi.mocked(readFileSync).mockImplementationOnce(() => { throw new Error('permission denied') })
 

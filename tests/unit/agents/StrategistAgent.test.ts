@@ -1,7 +1,6 @@
 import { describe, it, expect, vi } from 'vitest'
 import { StrategistAgent } from '../../../src/agents/strategist/StrategistAgent.ts'
 import { RedactionFilter } from '../../../src/core/RedactionFilter.ts'
-import { createTestContext } from '../../helpers/testContext.ts'
 import { asPromptable } from '../../helpers/agentFixtures.ts'
 import { RunEventBus } from '../../../src/core/RunEventBus.ts'
 import type { ExecutionContext } from '../../../src/core/ExecutionContext.ts'

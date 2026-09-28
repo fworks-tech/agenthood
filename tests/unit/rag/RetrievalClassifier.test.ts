@@ -16,10 +16,13 @@ function mockContext(stmEntries: string[] = []): ExecutionContext {
       longTerm: {} as ExecutionContext['memory']['longTerm'],
       episodic: {} as ExecutionContext['memory']['episodic'],
       project: {} as ExecutionContext['memory']['project'],
+      decisions: {} as ExecutionContext['memory']['decisions'],
+      provenance: {} as ExecutionContext['memory']['provenance'],
     },
     llm: {} as ExecutionContext['llm'],
     prompts: { build: vi.fn() } as ExecutionContext['prompts'],
     tracer: {} as ExecutionContext['tracer'],
+    events: {} as ExecutionContext['events'],
     artifacts: [],
   }
 }

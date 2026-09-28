@@ -46,7 +46,7 @@ describe('discoverSkills packaged merge', () => {
   it('project skill wins over a packaged skill with the same name', async () => {
     const discovery = new SkillDiscovery(testDir)
     const packagedName = discovery.discoverPackaged().find((m) => m.name === 'docker')?.name
-    expect(packagedName).toBeTruthy()
+    if (!packagedName) throw new Error('packaged docker skill not found')
     const overrideDir = join(testDir, '.agents', 'skills', packagedName)
     mkdirSync(overrideDir, { recursive: true })
     writeFileSync(join(overrideDir, 'SKILL.md'), `---\nname: ${packagedName}\ndescription: Project override\n---\n# Overview\nOverride`)

@@ -112,7 +112,7 @@ describe('MemberRunner ask_human park', () => {
   })
 })
 
-function fakeCompletingProvider(): Record<string, unknown> {
+function fakeCompletingProvider(): any {
   return {
     complete: vi.fn().mockResolvedValue({
       content: 'all done',
@@ -243,8 +243,9 @@ describe('MemberRunner output_format validation', () => {
 
   function runnerWithFormat(output_format: string, mode: 'strict' | 'lenient' = 'lenient'): MemberRunner {
     const runner = makeRunner()
-    const spec = { ...runner.deps.members.get('the-builder'), output_format, output_format_mode: mode }
-    vi.spyOn(runner.deps.members, 'get').mockReturnValue(spec)
+    const deps = (runner as any).deps
+    const spec = { ...deps.members.get('the-builder'), output_format, output_format_mode: mode }
+    vi.spyOn(deps.members, 'get').mockReturnValue(spec)
     return runner
   }
 

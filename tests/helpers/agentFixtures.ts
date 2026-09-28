@@ -93,8 +93,10 @@ export function createAgentHarness(): {
   }
 
   const mockResidual: ResidualMemory = new ResidualMemory() as unknown as ResidualMemory
+  mockResidual.record = vi.fn()
 
   const mockLearner: EpisodeLearner = new EpisodeLearner() as unknown as EpisodeLearner
+  mockLearner.learn = vi.fn().mockResolvedValue(undefined)
 
   return { llm, toolRegistry, loop, mockLongTerm, mockResidual, mockLearner }
 }

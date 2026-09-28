@@ -163,7 +163,7 @@ describe('runMember', () => {
       dependencies: deps({
         existsCli: () => true,
         spawnProcess: () => child,
-      }),
+      }) as never,
     })
     expect(killed).toBe(true)
     expect(out).toContain('[timed out]')
@@ -174,7 +174,7 @@ describe('server tool execute', () => {
   it('runs the member in the caller directory through the mocked spawn', async () => {
     const child = fakeChild() as any
     state.spawnChild = child
-    const hooks = await pluginModule.server()
+    const hooks = await (pluginModule.server as any)()
     const def = hooks.tool?.['agenthood_run_member']
     setImmediate(() => {
       child.stdout.emit('data', Buffer.from('member says hi'))
@@ -187,12 +187,12 @@ describe('server tool execute', () => {
     expect(result).toEqual({ title: 'agenthood run the-oracle', output: 'member says hi' })
     expect(state.spawnCalls[0]?.args.slice(-4)).toEqual(['run', 'the-oracle', '--', 'hi'])
     expect(state.spawnCalls[0]?.options.cwd).toBe('/caller')
-    expect(state.spawnCalls[0]?.options.stdio).toEqual(['ignore', 'pipe', 'pipe'])
+    expect((state.spawnCalls[0]?.options as any).stdio).toEqual(['ignore', 'pipe', 'pipe'])
   })
 
   it('reports a missing CLI without spawning', async () => {
     state.cliExists = false
-    const hooks = await pluginModule.server()
+    const hooks = await (pluginModule.server as any)()
     const def = hooks.tool?.['agenthood_run_member']
     const result = await def?.execute(
       { member: 'the-oracle', task: 'hi' },

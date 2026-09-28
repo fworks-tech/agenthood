@@ -8,7 +8,7 @@ const mockFiles = vi.hoisted(() => ({
   'docs/adr/ADR-006-python-runtime.md': '# ADR-006: Python Runtime\n\nSuperseded by ADR-008.',
   'docs/conventions/COMMIT_CONVENTION.md': '# Commit Convention\nfeat: new feature\nfix: bug fix',
   'docs/conventions/.gitmessage': '# subject\n\n# body',
-}))
+} as Record<string, string>))
 
 vi.mock('node:fs', async (importOriginal) => {
   const actual = await importOriginal<typeof import('node:fs')>()

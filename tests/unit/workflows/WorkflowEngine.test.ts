@@ -23,10 +23,19 @@ const mockContext: ExecutionContext = {
       traceDecisionChain: vi.fn(),
       analyzeDecisionImpact: vi.fn(),
     } as unknown as DecisionLog,
+    provenance: {
+      track: vi.fn(),
+      get: vi.fn(),
+      recent: vi.fn(),
+      count: vi.fn(),
+      invalidate: vi.fn(),
+      verifyChain: vi.fn(),
+    } as unknown as ExecutionContext['memory']['provenance'],
   },
   llm: {} as any,
   prompts: { build: vi.fn() } as any,
   tracer: { startSpan: vi.fn(), endSpan: vi.fn(), record: vi.fn(), getRecent: vi.fn(), getByMember: vi.fn(), getByCorrelationId: vi.fn(), flush: vi.fn().mockResolvedValue(undefined), size: 0 },
+  events: {} as ExecutionContext['events'],
   artifacts: [],
 }
 

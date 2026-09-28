@@ -116,7 +116,6 @@
     "@modelcontextprotocol/server": "2.1.0",
     "@sentry/node": "11.0.0",
     "ajv": "8.20.0",
-    "dotenv": "18.0.3",
     "groq-sdk": "1.6.0",
     "js-yaml": "5.4.2",
     "openai": "7.23.0",

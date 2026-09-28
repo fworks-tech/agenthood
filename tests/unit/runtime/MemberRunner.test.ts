@@ -1,6 +1,7 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest'
 import { rmSync } from 'node:fs'
 import { join } from 'node:path'
+import { TrajectoryStore } from '../../../src/core/TrajectoryStore.ts'
 import { ConcurrencyQueue } from '../../../src/core/ConcurrencyQueue.ts'
 
 vi.mock('../../../src/llm/LLMRouter.ts', () => ({

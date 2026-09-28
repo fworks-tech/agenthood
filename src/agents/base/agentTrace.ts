@@ -2,7 +2,7 @@ import { join } from 'node:path'
 
 import type { ExecutionContext } from '../../core/ExecutionContext.ts'
 import { createTraceEnvelope } from '../../core/TraceEnvelope.ts'
-import { CostEstimator } from '../../core/CostEstimator.ts'
+import { estimateCost } from '../../core/modelPricing.ts'
 import { getMemberQualityScore } from '../../core/qualityScore.ts'
 import { reportBackgroundFailure } from '../../core/sentryReporter.ts'
 
@@ -64,8 +64,6 @@ export function redactSafely(
   }
 }
 
-const costEstimator = new CostEstimator()
-
 function buildAgentTraceEnvelope(args: AgentTraceArgs) {
   const { role, model, usage, toolUsage, input, output, durationMs, error, context } = args
   // tool-level LLM calls (WriteCode/Refactor/Explain) accumulate here
@@ -82,7 +80,7 @@ function buildAgentTraceEnvelope(args: AgentTraceArgs) {
       output: completionTokens,
       total: totalTokens,
     },
-    cost: costEstimator.computeCost(
+    cost: estimateCost(
       model,
       promptTokens,
       completionTokens,

@@ -95,3 +95,29 @@ export function estimateCostFromTokens(
   const cost = (inputTokens * inputPer1M + outputTokens * outputPer1M) / 1_000_000
   return roundCost(cost)
 }
+
+export interface CostEstimate {
+  estimatedCost: number
+  currency: 'USD'
+  model: string
+  inputTokens: number
+  outputTokens: number
+}
+
+const warnedModels = new Set<string>()
+
+/** Cost estimate with a one-time warning for models missing from the table. */
+export function estimateCost(model: string, inputTokens: number, outputTokens: number): CostEstimate {
+  const price = getModelPrice(model)
+  if (price === FALLBACK_PRICE && !warnedModels.has(model)) {
+    console.warn(`[modelPricing] unknown model "${model}" — using fallback pricing`)
+    warnedModels.add(model)
+  }
+  return {
+    estimatedCost: estimateCostFromTokens(model, inputTokens, outputTokens),
+    currency: 'USD',
+    model,
+    inputTokens,
+    outputTokens,
+  }
+}

@@ -2,12 +2,25 @@ import { copyFile, mkdir, readFile, writeFile, symlink } from 'node:fs/promises'
 import { existsSync } from 'node:fs'
 import { join, dirname } from 'node:path'
 import { fileURLToPath } from 'node:url'
-import { stripConfig } from '../utils/stripConfig.ts'
 import { RUNTIME_SKILL_DIRS, TARGET_DIRS } from '../members.ts'
 import type { Runtime } from '../members.ts'
 
 const __dirname = dirname(fileURLToPath(import.meta.url))
 const SOCIETY_ROOT = join(__dirname, '..', '..')
+
+/** Drops `_comment` documentation keys (recursively) from example configs. */
+function stripComments(obj: Record<string, unknown>): Record<string, unknown> {
+  return Object.fromEntries(
+    Object.entries(obj)
+      .filter(([k]) => !k.startsWith('_comment'))
+      .map(([k, v]) => [
+        k,
+        v && typeof v === 'object' && !Array.isArray(v)
+          ? stripComments(v as Record<string, unknown>)
+          : v,
+      ]),
+  )
+}
 
 async function safeCopy(src: string, dest: string, overwrite = false): Promise<void> {
   if (!existsSync(src)) {
@@ -89,7 +102,7 @@ export async function scaffoldConfig(cwd: string, runtime: Runtime, members: str
     } catch (err) {
       console.warn(`[agenthood] bundled config.example.json is malformed (${err instanceof Error ? err.message : err}) — using defaults`)
     }
-    const config = { ...stripConfig(raw), runtime, members }
+    const config = { ...stripComments(raw), runtime, members }
     await writeFile(configPath, JSON.stringify(config, null, 2) + '\n', 'utf8')
   } else {
     const config = {

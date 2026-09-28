@@ -195,4 +195,22 @@ function isMain(): boolean {
   }
 }
 
-if (isMain()) generate()
+if (isMain()) {
+  const cleanIdx = process.argv.indexOf('--clean')
+  if (cleanIdx >= 0) {
+    cleanFile(process.argv[cleanIdx + 1] ?? '-', process.argv[cleanIdx + 2] ?? '-')
+  } else {
+    generate()
+  }
+}
+
+/** `--clean` mode: strip herald markup from a file (or stdin) in place. */
+function cleanFile(input: string, output: string): void {
+  const text = input === '-' ? readFileSync(0, 'utf8') : readFileSync(input, 'utf8')
+  const cleaned = text.split('\n').map(cleanLine).join('\n')
+  if (output === '-') {
+    process.stdout.write(cleaned)
+  } else {
+    writeFileSync(output, cleaned)
+  }
+}

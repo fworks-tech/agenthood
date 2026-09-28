@@ -1,4 +1,4 @@
-import { TokenCounter } from '../../core/TokenCounter.ts'
+import { countTokens } from '../../core/modelPricing.ts'
 import { DEFAULT_CONTEXT_WINDOW } from '../../llm/providers/constants.ts'
 
 /** Share of the context window that skill bodies may occupy. */
@@ -99,7 +99,6 @@ export class SkillBudget {
   private used = 0
 
   constructor(
-    private readonly counter: TokenCounter = new TokenCounter(),
     private readonly contextWindow: number = DEFAULT_CONTEXT_WINDOW,
     private readonly ratio: number = SKILL_BUDGET_RATIO,
   ) {}
@@ -114,7 +113,7 @@ export class SkillBudget {
 
   /** Squeeze `body` until it fits what is left of the budget. */
   fit(body: string): { body: string; compressed: boolean; savedTokens: number } {
-    const full = this.counter.countTokens(body)
+    const full = countTokens(body)
     const remaining = this.limit - this.used
 
     if (full <= remaining) {
@@ -123,19 +122,19 @@ export class SkillBudget {
     }
 
     let result = compressSkillBody(body)
-    if (this.counter.countTokens(result) > remaining) result = stripProcess(result)
-    if (this.counter.countTokens(result) > remaining) {
+    if (countTokens(result) > remaining) result = stripProcess(result)
+    if (countTokens(result) > remaining) {
       result = this.clamp(result, remaining)
     }
-    if (this.counter.countTokens(result) > remaining) result = STRIPPED_NOTICE
+    if (countTokens(result) > remaining) result = STRIPPED_NOTICE
 
     // The ceiling is a hard promise, so an exhausted budget clamps the counter
     // rather than letting the last body push the run past it.
-    this.used = Math.min(this.limit, this.used + this.counter.countTokens(result))
+    this.used = Math.min(this.limit, this.used + countTokens(result))
     return {
       body: result,
       compressed: true,
-      savedTokens: full - this.counter.countTokens(result),
+      savedTokens: full - countTokens(result),
     }
   }
 

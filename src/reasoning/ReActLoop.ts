@@ -2,7 +2,7 @@ import type { ILLMProvider } from "../llm/ILLMProvider.ts"
 import type { ExecutionContext } from "../core/ExecutionContext.ts"
 import type { Message, TokenUsage, ToolCall, LLMResponse } from "../llm/types.ts"
 import { ContextCompressor } from "../core/ContextCompressor.ts"
-import { CostEstimator } from "../core/CostEstimator.ts"
+import { estimateCost } from "../core/modelPricing.ts"
 import { logCost } from "../core/CostLogger.ts"
 import { ToolRegistry, ToolNotFoundError } from "../tools/ToolRegistry.ts"
 import type { ITool } from "../tools/ITool.ts"
@@ -14,8 +14,6 @@ import { SKILL_ACTIVATION_PREFIX } from "../skills/activation/ActivateSkillTool.
 import { AskHumanSignal } from "../tools/human/AskHumanTool.ts"
 import { USER_QUERY_GUARD, TOOL_OUTPUT_GUARD, wrapUserQuery, wrapToolOutput } from "../agents/memberLore.ts"
 import * as readline from 'node:readline'
-
-const costEstimator = new CostEstimator()
 
 export class ToolLoopDetectedError extends Error {
   constructor(toolName: string, count: number) {
@@ -225,7 +223,7 @@ export class ReActLoop {
     completionTokens: number,
     contextWindow: number,
   ): void {
-    const stepCost = costEstimator.computeCost(this._model, promptTokens, completionTokens).estimatedCost
+    const stepCost = estimateCost(this._model, promptTokens, completionTokens).estimatedCost
     const reasoning = redactEventText(context, response.content)
     console.info(`[step ${step}] ${this._model} · ${promptTokens}+${completionTokens} tok · $${stepCost} · ${reasoning}`)
 

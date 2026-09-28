@@ -77,7 +77,7 @@ jobs:
 
       - name: The Herald — clean generated notes (drop false closures, linkified refs)
         if: steps.version.outputs.version != ''
-        run: npx tsx scripts/clean-herald-notes.ts herald-notes.md herald-notes.md
+        run: npx tsx scripts/generate-release-notes.ts --clean herald-notes.md herald-notes.md
 
       - name: The Herald — gate the generated artifacts
         if: steps.version.outputs.version != ''
@@ -168,7 +168,7 @@ jobs:
 
       - name: The Herald — clean release notes before tagging
         if: steps.pending.outputs.state == 'true'
-        run: npx tsx scripts/clean-herald-notes.ts herald-notes.md herald-notes.md
+        run: npx tsx scripts/generate-release-notes.ts --clean herald-notes.md herald-notes.md
 
       - name: The Herald — gate the generated artifacts
         if: steps.pending.outputs.state == 'true'

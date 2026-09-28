@@ -85,6 +85,12 @@ export function roundCost(cost: number): number {
   return Math.round(cost * 10000) / 10000
 }
 
+/** Approximate token accounting: chars/4 heuristic for all models (v1). */
+export function countTokens(text: string): number {
+  if (!text) return 0
+  return Math.max(1, Math.ceil(text.length / 4))
+}
+
 /** USD cost from token counts against the model pricing table. */
 export function estimateCostFromTokens(
   model: string,
@@ -94,4 +100,30 @@ export function estimateCostFromTokens(
   const { inputPer1M, outputPer1M } = getModelPrice(model)
   const cost = (inputTokens * inputPer1M + outputTokens * outputPer1M) / 1_000_000
   return roundCost(cost)
+}
+
+export interface CostEstimate {
+  estimatedCost: number
+  currency: 'USD'
+  model: string
+  inputTokens: number
+  outputTokens: number
+}
+
+const warnedModels = new Set<string>()
+
+/** Cost estimate with a one-time warning for models missing from the table. */
+export function estimateCost(model: string, inputTokens: number, outputTokens: number): CostEstimate {
+  const price = getModelPrice(model)
+  if (price === FALLBACK_PRICE && !warnedModels.has(model)) {
+    console.warn(`[modelPricing] unknown model "${model}" — using fallback pricing`)
+    warnedModels.add(model)
+  }
+  return {
+    estimatedCost: estimateCostFromTokens(model, inputTokens, outputTokens),
+    currency: 'USD',
+    model,
+    inputTokens,
+    outputTokens,
+  }
 }

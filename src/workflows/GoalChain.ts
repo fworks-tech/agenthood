@@ -147,8 +147,8 @@ export class GoalChain {
 
     for (const id of goalIds) {
       if (this.goals.some((g) => g.id === id)) continue
-      const goal = await this.getGoal(id)
-      if (goal) this.goals.push(goal)
+      // getGoal caches into this.goals itself — no second push here
+      await this.getGoal(id)
     }
   }
 }

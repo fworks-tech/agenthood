@@ -79,6 +79,7 @@ Commands:
   list                    List all members, their status, permission & provider
   ritual list             List declared rituals (docs/rituals/)
   ritual run <name>       Run a ritual manually (runs the bound member)
+  goal <subcommand>       Track multi-step goals (create, list, show, subgoal, status, next)
   verify [member]         Validate member SKILL.md integrity, spec conformance, and lockfile
                             Use --strict for lane overlap and injection-block checks
                             Use --update-lock to update lockfile hash

@@ -1,3 +1,12 @@
+# [3.71.0](https://github.com/fworks-tech/agenthood/compare/v3.70.2...v3.71.0) (2026-09-28)
+
+
+### Features
+
+* **goals:** add goal command backed by GoalChain ([#987](https://github.com/fworks-tech/agenthood/issues/987)) ([9379cc0](https://github.com/fworks-tech/agenthood/commit/9379cc0b02e8f2264fa0db973d6197c1e17c6dc7))
+* **runtime:** arbitrate member runs through ConcurrencyQueue by origin ([#986](https://github.com/fworks-tech/agenthood/issues/986)) ([c8c5f09](https://github.com/fworks-tech/agenthood/commit/c8c5f0940b507f2185a1e1e6081c526fc3adb809))
+* **trace:** persist one-step trajectory on run success and failure ([#985](https://github.com/fworks-tech/agenthood/issues/985)) ([5312bfa](https://github.com/fworks-tech/agenthood/commit/5312bfa2cc319449bb6677565e87c304399847cc))
+
 ## [3.70.2](https://github.com/fworks-tech/agenthood/compare/v3.70.1...v3.70.2) (2026-09-28)
 
 

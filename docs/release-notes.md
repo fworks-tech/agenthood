@@ -5,6 +5,16 @@
 
 ---
 
+## v3.71.0 — September 28, 2026
+
+### ✨ Features
+
+- **Goals:** add goal command backed by GoalChain (#987)
+- **Runtime:** arbitrate member runs through ConcurrencyQueue by origin (#986)
+- **Trace:** persist one-step trajectory on run success and failure (#985)
+
+---
+
 ## v3.70.2 — September 28, 2026
 
 ### 🐛 Bug Fixes

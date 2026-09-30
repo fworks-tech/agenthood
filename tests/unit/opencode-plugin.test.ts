@@ -287,3 +287,22 @@ describe('shipped skills and prompts', () => {
     expect(cfg.agent?.['the-steward']).toEqual(project.agent['the-steward'])
   })
 })
+
+describe('package root resolves to the opencode plugin (never the CLI)', () => {
+  it('main and exports["."] point at dist/opencode-plugin.js', () => {
+    // Bare `agenthood` must load the plugin: the old `./dist/cli.js` target
+    // printed HELP_TEXT and exited the host process on import (opencode died
+    // showing the member list instead of starting).
+    const pkg = JSON.parse(readFileSync(join(repoRoot, 'package.json'), 'utf8')) as {
+      main: string
+      exports: Record<string, string>
+    }
+    expect(pkg.main).toBe('./dist/opencode-plugin.js')
+    expect(pkg.exports['.']).toBe('./dist/opencode-plugin.js')
+    expect(pkg.exports['./server']).toBe('./dist/opencode-plugin.js')
+  })
+
+  it('importing the CLI module has no side effects (no help dump, no exit)', async () => {
+    await import('../../src/cli.ts')
+  })
+})

@@ -35,9 +35,9 @@
   "license": "MIT",
   "author": "Fabio Ritzel Borges <fritzelborges@gmail.com>",
   "type": "module",
-  "main": "./dist/cli.js",
+  "main": "./dist/opencode-plugin.js",
   "exports": {
-    ".": "./dist/cli.js",
+    ".": "./dist/opencode-plugin.js",
     "./server": "./dist/opencode-plugin.js",
     "./dist/commands/config.js": "./dist/commands/config.js",
     "./dist/core": "./dist/core/index.js",

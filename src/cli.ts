@@ -15,7 +15,7 @@ import { existsSync as envFileExists } from 'node:fs'
 // dotenv/config parity: load .env when present, ignore when absent
 if (envFileExists('.env')) process.loadEnvFile()
 
-import { readdirSync } from 'node:fs';
+import { readdirSync, realpathSync } from 'node:fs';
 import { join, dirname } from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 
@@ -146,6 +146,20 @@ function printHelp(): void {
   console.log(HELP_TEXT);
 }
 
-main().catch((err) => {
-  handleCliError(err, { exitCode: 2 })
-});
+// Direct-execution guard: opencode loads the package root as a plugin, and
+// tests or bundlers may import this module — importing must never run the CLI
+// (it would dump help text and exit the host process). Only auto-run when this
+// file is the invoked script. Both sides go through realpathSync so bin shims,
+// symlinks, and case-variant paths still match; unresolvable paths mean import.
+const invokedScript = process.argv[1];
+if (invokedScript != null) {
+  try {
+    if (realpathSync(fileURLToPath(import.meta.url)) === realpathSync(invokedScript)) {
+      main().catch((err) => {
+        handleCliError(err, { exitCode: 2 })
+      });
+    }
+  } catch {
+    // ignore — importing must never run the CLI
+  }
+}

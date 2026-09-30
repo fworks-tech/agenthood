@@ -13,10 +13,11 @@
  * runtime agent (enforced behavior + audit trail) instead of free-styling from
  * the skill text. The CLI (`dist/cli.js`) is untouched and spawned as-is.
  *
- * opencode resolves this module via the package `exports["./server"]` and
- * requires a default export of `{ id, server }` (see `@opencode-ai/plugin`'s
- * `PluginModule`). Config is loaded once at startup, not hot-reloaded: after
- * installing the plugin, opencode must be restarted.
+ * opencode resolves this module via the package root (`exports["."]`, so
+ * `{ "plugin": ["agenthood"] }` works) with `exports["./server"]` kept as an
+ * alias. Requires a default export of `{ id, server }` (see
+ * `@opencode-ai/plugin`'s `PluginModule`). Config is loaded once at startup,
+ * not hot-reloaded: after installing the plugin, opencode must be restarted.
  */
 
 import { spawn } from 'node:child_process'

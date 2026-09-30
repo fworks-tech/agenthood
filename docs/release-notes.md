@@ -5,6 +5,14 @@
 
 ---
 
+## v3.71.1 — September 30, 2026
+
+### 🐛 Bug Fixes
+
+- **Opencode:** support bare plugin specifier without killing host (#991), refs #990
+
+---
+
 ## v3.71.0 — September 28, 2026
 
 ### ✨ Features

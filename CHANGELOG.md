@@ -1,3 +1,10 @@
+## [3.71.1](https://github.com/fworks-tech/agenthood/compare/v3.71.0...v3.71.1) (2026-09-30)
+
+
+### Bug Fixes
+
+* **opencode:** support bare plugin specifier without killing host ([#991](https://github.com/fworks-tech/agenthood/issues/991)) ([ccca1c5](https://github.com/fworks-tech/agenthood/commit/ccca1c5b9fce6f40806fe9d3e3e210a5ad0ee1df)), refs #990
+
 # [3.71.0](https://github.com/fworks-tech/agenthood/compare/v3.70.2...v3.71.0) (2026-09-28)
 
 

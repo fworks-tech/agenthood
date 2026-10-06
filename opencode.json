@@ -12,9 +12,15 @@
     }
   },
   "agent": {
-    "the-steward": {
-      "description": "Route tasks to the minimal set of Agenthood members. Start here for any Agenthood task.",
-      "mode": "primary"
+    "agenthood-live": {
+      "description": "Run the Agenthood Society end-to-end: orchestrate member subagents in parallel with a Redis audit trail. Start here for any Agenthood task.",
+      "mode": "primary",
+      "permission": {
+        "task": { "the-*": "allow", "*": "deny" },
+        "skill": { "the-*": "allow" },
+        "edit": "allow",
+        "bash": "allow"
+      }
     }
   }
 }

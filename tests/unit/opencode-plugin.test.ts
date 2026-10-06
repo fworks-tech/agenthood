@@ -9,10 +9,14 @@ import pluginModule, {
   discoverMemberNames,
   formatRunResult,
   getMemberNames,
+  mirrorRunRecord,
+  parseRedisTarget,
   wireAgenthoodConfig,
 } from '../../src/opencode-plugin.ts'
+import type { RedisSocket, RunRecord } from '../../src/opencode-plugin.ts'
 import type { PluginConfig } from '../../src/opencode-plugin.ts'
 import { rawSpecs } from '../../src/members/member-specs.ts'
+import { syncLiveAgent, syncOpencodeAgents } from '../../scripts/sync-opencode-agents.ts'
 import { fakeChild, parseSkill, repoRoot } from '../helpers/opencodePluginFixtures.ts'
 
 describe('agenthood opencode plugin', () => {
@@ -21,15 +25,16 @@ describe('agenthood opencode plugin', () => {
     expect(typeof pluginModule.server).toBe('function')
   })
 
-  it('config hook wires the skills dir, AGENTS.md, and the-steward agent', async () => {
+  it('config hook wires the skills dir, AGENTS.md, and the agenthood-live agent', async () => {
     const hooks = await (pluginModule.server as any)()
     const cfg: PluginConfig = {}
     await hooks.config?.(cfg)
 
     expect(cfg.skills?.paths?.some((p) => p.endsWith('skills'))).toBe(true)
     expect(cfg.instructions?.some((i) => i.endsWith('AGENTS.md'))).toBe(true)
-    expect(cfg.agent?.['the-steward']?.mode).toBe('primary')
-    expect(cfg.agent?.['the-steward']?.description).toBeTruthy()
+    expect(cfg.agent?.['agenthood-live']?.mode).toBe('primary')
+    expect(cfg.agent?.['agenthood-live']?.description).toBeTruthy()
+    expect(cfg.agent?.['the-steward']).toBeUndefined()
   })
 
   it('registers agenthood_run_member with a member enum and task string', async () => {
@@ -128,8 +133,9 @@ describe('wireAgenthoodConfig', () => {
     wireAgenthoodConfig(cfg, paths, () => true)
     expect(cfg.skills?.paths).toEqual(['/pkg/skills'])
     expect(cfg.instructions).toEqual(['/pkg/AGENTS.md'])
-    expect(cfg.agent?.['the-steward']?.mode).toBe('primary')
-    expect(cfg.agent?.['the-steward']?.description).toBeTruthy()
+    expect(cfg.agent?.['agenthood-live']?.mode).toBe('primary')
+    expect(cfg.agent?.['agenthood-live']?.description).toBeTruthy()
+    expect(cfg.agent?.['the-steward']).toBeUndefined()
   })
 
   it('is idempotent and preserves existing entries', () => {
@@ -144,7 +150,7 @@ describe('wireAgenthoodConfig', () => {
     expect(cfg.skills?.urls).toEqual(['https://x'])
     expect(cfg.instructions).toEqual(['/other/START.md', '/pkg/AGENTS.md'])
     expect(cfg.agent?.build).toEqual({ description: 'b' })
-    expect(cfg.agent?.['the-steward']?.mode).toBe('primary')
+    expect(cfg.agent?.['agenthood-live']?.mode).toBe('primary')
   })
 
   it('skips instructions when the file is absent', () => {
@@ -154,11 +160,24 @@ describe('wireAgenthoodConfig', () => {
     expect(cfg.skills?.paths).toEqual(['/pkg/skills'])
   })
 
-  it('refreshes a stale steward entry', () => {
-    const cfg: PluginConfig = { agent: { 'the-steward': { description: 'old', mode: 'subagent' } } }
+  it('refreshes a stale live entry', () => {
+    const cfg: PluginConfig = { agent: { 'agenthood-live': { description: 'old', mode: 'subagent' } } }
     wireAgenthoodConfig(cfg, paths, () => false)
-    expect(cfg.agent?.['the-steward']?.mode).toBe('primary')
-    expect(cfg.agent?.['the-steward']?.description).toContain('minimal set')
+    expect(cfg.agent?.['agenthood-live']?.mode).toBe('primary')
+    expect(cfg.agent?.['agenthood-live']?.description).toContain('end-to-end')
+  })
+
+  it('validates permission shape at runtime', () => {
+    const cfg: PluginConfig = {}
+    const paths = { skillsPath: '/pkg/skills', instructionsPath: '/pkg/AGENTS.md' }
+    // Should not throw with valid permission shape
+    wireAgenthoodConfig(cfg, paths, () => true)
+    const perm = cfg.agent?.['agenthood-live']?.permission as Record<string, unknown> | undefined
+    expect(perm).toBeDefined()
+    expect(perm?.task).toEqual({ 'the-*': 'allow', '*': 'deny' })
+    expect(perm?.skill).toEqual({ 'the-*': 'allow' })
+    expect(perm?.edit).toBe('allow')
+    expect(perm?.bash).toBe('allow')
   })
 })
 
@@ -250,6 +269,124 @@ describe('formatRunResult', () => {
   })
 })
 
+describe('parseRedisTarget', () => {
+  it('returns null when unset, blank, or malformed', () => {
+    expect(parseRedisTarget(undefined)).toBeNull()
+    expect(parseRedisTarget('')).toBeNull()
+    expect(parseRedisTarget('   ')).toBeNull()
+    expect(parseRedisTarget('db:abc')).toBeNull()
+    expect(parseRedisTarget('db:0')).toBeNull()
+    expect(parseRedisTarget('db:99999')).toBeNull()
+  })
+
+  it('defaults the port and parses host:port', () => {
+    expect(parseRedisTarget('localhost')).toEqual({ host: 'localhost', port: 6379 })
+    expect(parseRedisTarget('localhost:6380')).toEqual({ host: 'localhost', port: 6380 })
+  })
+
+  describe('host allowlist (local/trusted-network only)', () => {
+    it('allows localhost', () => {
+      expect(parseRedisTarget('localhost:6379')).toEqual({ host: 'localhost', port: 6379 })
+    })
+
+    it('allows 127.0.0.1', () => {
+      expect(parseRedisTarget('127.0.0.1:6379')).toEqual({ host: '127.0.0.1', port: 6379 })
+    })
+
+    it('allows ::1 (IPv6 loopback) with bracket notation', () => {
+      expect(parseRedisTarget('[::1]:6379')).toEqual({ host: '::1', port: 6379 })
+    })
+
+    it('allows host.docker.internal (Docker Desktop)', () => {
+      expect(parseRedisTarget('host.docker.internal:6379')).toEqual({ host: 'host.docker.internal', port: 6379 })
+    })
+
+    it('rejects remote hostnames', () => {
+      expect(parseRedisTarget('remote-host:6379')).toBeNull()
+      expect(parseRedisTarget('redis.example.com:6379')).toBeNull()
+    })
+
+    it('rejects private IPs outside loopback', () => {
+      expect(parseRedisTarget('192.168.1.50:6379')).toBeNull()
+      expect(parseRedisTarget('10.0.0.1:6379')).toBeNull()
+      expect(parseRedisTarget('172.16.0.1:6379')).toBeNull()
+    })
+
+    it('rejects public IPs', () => {
+      expect(parseRedisTarget('8.8.8.8:6379')).toBeNull()
+      expect(parseRedisTarget('1.1.1.1:6379')).toBeNull()
+    })
+  })
+})
+
+describe('mirrorRunRecord', () => {
+  const record: RunRecord = { id: 'r1', member: 'the-scribe', task: 't', outcome: 'o', timestamp: 'ts' }
+
+  const fakeSocket = () => {
+    const emitter = new EventEmitter()
+    const written: Buffer[] = []
+    const socket: RedisSocket = {
+      write: (chunk: Buffer) => {
+        written.push(chunk)
+      },
+      once: (event: string, listener: (...args: unknown[]) => void) => {
+        emitter.once(event, listener)
+      },
+      on: (event: string, listener: (...args: unknown[]) => void) => {
+        emitter.on(event, listener)
+      },
+      destroy: () => {},
+    }
+    return { socket, written, emitter }
+  }
+
+  it('pipelines HSET + LPUSH and resolves true on +OK', async () => {
+    const { socket, written, emitter } = fakeSocket()
+    const pending = mirrorRunRecord({ host: 'h', port: 1 }, record, () => socket)
+    emitter.emit('data', Buffer.from('+OK\r\n+OK\r\n'))
+    await expect(pending).resolves.toBe(true)
+    const wire = Buffer.concat(written).toString('utf8')
+    expect(wire).toContain('agenthood:decisions:r1')
+    expect(wire).toContain('LPUSH')
+  })
+
+  it('resolves false on error replies and socket errors', async () => {
+    const first = fakeSocket()
+    const pendingErr = mirrorRunRecord({ host: 'h', port: 1 }, record, () => first.socket)
+    first.emitter.emit('data', Buffer.from('-ERR boom\r\n'))
+    await expect(pendingErr).resolves.toBe(false)
+
+    const second = fakeSocket()
+    const pendingSocket = mirrorRunRecord({ host: 'h', port: 1 }, record, () => second.socket)
+    second.emitter.emit('error', new Error('ECONNREFUSED'))
+    await expect(pendingSocket).resolves.toBe(false)
+  })
+
+  it('resolves false when connecting throws', async () => {
+    await expect(
+      mirrorRunRecord({ host: 'h', port: 1 }, record, () => {
+        throw new Error('nope')
+      }),
+    ).resolves.toBe(false)
+  })
+
+  it('sends AUTH first when a password is given', async () => {
+    const { socket, written, emitter } = fakeSocket()
+    const pending = mirrorRunRecord({ host: 'h', port: 1 }, record, () => socket, 'pw')
+    emitter.emit('data', Buffer.from('+OK\r\n+OK\r\n+OK\r\n'))
+    await expect(pending).resolves.toBe(true)
+    const wire = Buffer.concat(written).toString('utf8')
+    expect(wire.indexOf('AUTH')).toBeLessThan(wire.indexOf('HSET'))
+  })
+
+  it('resolves false when AUTH is rejected', async () => {
+    const { socket, emitter } = fakeSocket()
+    const pending = mirrorRunRecord({ host: 'h', port: 1 }, record, () => socket, 'wrong')
+    emitter.emit('data', Buffer.from('-WRONGPASS\r\n'))
+    await expect(pending).resolves.toBe(false)
+  })
+})
+
 describe('buildRunMemberTool', () => {
   it('registers nothing when no members ship', () => {
     expect(buildRunMemberTool([])).toEqual({})
@@ -279,12 +416,39 @@ describe('shipped skills and prompts', () => {
     expect(body.trim().length).toBeGreaterThan(50)
   })
 
-  it('plugin steward wiring matches the project opencode.json', async () => {
+  it('plugin live wiring matches the project opencode.json', async () => {
     const project = JSON.parse(readFileSync(join(repoRoot, 'opencode.json'), 'utf8'))
     const hooks = await (pluginModule.server as any)()
     const cfg: PluginConfig = {}
     await hooks.config?.(cfg)
-    expect(cfg.agent?.['the-steward']).toEqual(project.agent['the-steward'])
+    expect(cfg.agent?.['agenthood-live']).toEqual(project.agent['agenthood-live'])
+  })
+})
+
+describe('opencode agent sync', () => {
+  it('generates one valid single-frontmatter agent per registry member', async () => {
+    const { mkdtemp, rm } = await import('node:fs/promises')
+    const { tmpdir } = await import('node:os')
+    const dir = await mkdtemp(join(tmpdir(), 'agents-'))
+    try {
+      const written = syncOpencodeAgents(repoRoot, dir)
+      expect(written).toEqual(rawSpecs.map((s) => `${s.name}.md`).sort())
+      for (const file of written) {
+        const raw = readFileSync(join(dir, file), 'utf8')
+        const match = raw.match(/^---\r?\n([\s\S]*?)\r?\n---/)
+        expect(match, file).toBeTruthy()
+        expect(match?.[1]).toContain('mode: subagent')
+        expect(match?.[1]).toContain('description:')
+      }
+      const live = syncLiveAgent(dir)
+      expect(live).toBe('agenthood-live.md')
+      const liveRaw = readFileSync(join(dir, live), 'utf8')
+      const liveMatch = liveRaw.match(/^---\r?\n([\s\S]*?)\r?\n---/)
+      expect(liveMatch?.[1]).toContain('mode: primary')
+      expect(liveMatch?.[1]).toContain('task:')
+    } finally {
+      await rm(dir, { recursive: true, force: true })
+    }
   })
 })
 

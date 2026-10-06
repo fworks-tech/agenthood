@@ -25,6 +25,8 @@ jobs:
           node-version: 24
           cache: npm
 
+      - run: npm ci
+
       - run: .github/scripts/audit-check.sh
 
       - name: Resolve PR number and diff range

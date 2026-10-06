@@ -56,11 +56,11 @@ const srTree = (() => {
     let ls = ''
     let stderr = ''
     try {
-      // shell:false (default) — npm is a .cmd shim on Windows, Node resolves it.
-      // Stderr is captured for warning logging; do not ignore.
+      // shell:true needed on Windows to resolve npm.cmd
       const result = execFileSync('npm', ['ls', '--all', '--json'], {
         encoding: 'utf8',
         stdio: ['pipe', 'pipe', 'pipe'],
+        shell: true,
       })
       ls = result
     } catch (e) {
@@ -94,11 +94,62 @@ const srTree = (() => {
   } catch { return new Set() }
 })()
 
+// Also exempt transitive dependency NAMES of semantic-release toolchain packages
+const srTransitiveNames = (() => {
+  try {
+    let ls = ''
+    let stderr = ''
+    try {
+      // shell:true needed on Windows to resolve npm.cmd
+      const result = execFileSync('npm', ['ls', '--all', '--json'], {
+        encoding: 'utf8',
+        stdio: ['pipe', 'pipe', 'pipe'],
+        shell: true,
+      })
+      ls = result
+    } catch (e) {
+      const err = e
+      ls = typeof err?.stdout === 'string' ? err.stdout : ''
+      stderr = typeof err?.stderr === 'string' ? err.stderr : ''
+      const code = err?.status ?? 0
+      if (code !== 0 && code !== 1 && code !== 2) return new Set()
+      if (stderr) console.warn(`npm audit filter: npm ls stderr (transitive): ${stderr}`)
+    }
+    if (!ls) return new Set()
+    const tree = JSON.parse(ls)
+    const names = new Set()
+    const walk = (deps, underSR) => {
+      if (!deps) return
+      for (const [name, info] of Object.entries(deps)) {
+        const isSR = underSR || name === 'semantic-release' || name.startsWith('@semantic-release/')
+        if (underSR) names.add(name) // Add transitive dep NAMES of SR packages
+        walk(info.dependencies, isSR)
+      }
+    }
+    walk(tree.dependencies, false)
+    return names
+  } catch { return new Set() }
+})()
+
+// Extract package name from node path (handles both top-level and nested node_modules)
+function pkgNameFromNode(nodePath) {
+  // node_modules/pkg -> pkg
+  // node_modules/@scope/pkg -> @scope/pkg
+  // node_modules/foo/node_modules/pkg -> pkg
+  // node_modules/foo/node_modules/@scope/pkg -> @scope/pkg
+  const parts = nodePath.split('/')
+  const idx = parts.lastIndexOf('node_modules')
+  if (idx === -1 || idx === parts.length - 1) return nodePath
+  const after = parts.slice(idx + 1)
+  return after.length === 2 && after[0].startsWith('@') ? after.join('/') : after[after.length - 1]
+}
+
 const isExemptNode = (n) =>
   n === 'node_modules/npm' || n.startsWith('node_modules/npm/') ||
   n === 'node_modules/semantic-release' || n.startsWith('node_modules/semantic-release/') ||
   n.startsWith('node_modules/@semantic-release/') ||
-  srTree.has(n.replace(/^node_modules\//, ''))
+  srTree.has(n.replace(/^node_modules\//, '')) ||
+  srTransitiveNames.has(pkgNameFromNode(n))
 
 let bad = false
 for (const [name, v] of Object.entries(audit.vulnerabilities || {})) {

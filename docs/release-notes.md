@@ -5,6 +5,14 @@
 
 ---
 
+## v3.72.0 — October 6, 2026
+
+### ✨ Features
+
+- **Orchestration:** agenthood-live autonomous orchestrator plugin (#1001)
+
+---
+
 ## v3.71.1 — September 30, 2026
 
 ### 🐛 Bug Fixes

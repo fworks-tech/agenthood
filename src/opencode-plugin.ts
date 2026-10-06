@@ -8,7 +8,7 @@
  *
  * The plugin wires what the repo's `opencode.json` wires locally — the skills
  * directory and AGENTS.md instructions — by mutating the merged config in the
- * `config` hook, plus a primary `the-steward` router agent. It also registers
+ * `config` hook, plus a primary `agenthood-live` orchestrator agent. It also registers
  * `agenthood_run_member`, a tool that executes a Society member as a real
  * runtime agent (enforced behavior + audit trail) instead of free-styling from
  * the skill text. The CLI (`dist/cli.js`) is untouched and spawned as-is.
@@ -100,10 +100,18 @@ export function wireAgenthoodConfig(
     if (!cfg.instructions.includes(paths.instructionsPath)) cfg.instructions.push(paths.instructionsPath)
   }
   cfg.agent ??= {}
-  cfg.agent['the-steward'] = {
-    description: 'Route tasks to the minimal set of Agenthood members. Start here for any Agenthood task.',
+  // The SDK agent permission type predates the task/skill fan-out keys the
+  // opencode docs describe, so the literal cannot satisfy it directly. Cast
+  // locally; the keys pass through the merged JSON config untouched, same
+  // rationale as skills.paths above.
+  cfg.agent['agenthood-live'] = {
+    description: 'Run the Agenthood Society end-to-end: orchestrate member subagents in parallel with a Redis audit trail. Start here for any Agenthood task.',
     mode: 'primary',
-  }
+    permission: {
+      task: { 'the-*': 'allow', '*': 'deny' },
+      skill: { 'the-*': 'allow' },
+    },
+  } as unknown as NonNullable<NonNullable<Config['agent']>[string]>
 }
 
 // Caps so one runaway member run cannot flood the session context.

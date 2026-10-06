@@ -110,6 +110,8 @@ export function wireAgenthoodConfig(
     permission: {
       task: { 'the-*': 'allow', '*': 'deny' },
       skill: { 'the-*': 'allow' },
+      edit: 'allow',
+      bash: 'allow',
     },
   } as unknown as NonNullable<NonNullable<Config['agent']>[string]>
 }

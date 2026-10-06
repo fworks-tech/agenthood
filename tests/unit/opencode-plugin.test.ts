@@ -13,7 +13,7 @@ import pluginModule, {
 } from '../../src/opencode-plugin.ts'
 import type { PluginConfig } from '../../src/opencode-plugin.ts'
 import { rawSpecs } from '../../src/members/member-specs.ts'
-import { syncOpencodeAgents } from '../../scripts/sync-opencode-agents.ts'
+import { syncLiveAgent, syncOpencodeAgents } from '../../scripts/sync-opencode-agents.ts'
 import { fakeChild, parseSkill, repoRoot } from '../helpers/opencodePluginFixtures.ts'
 
 describe('agenthood opencode plugin', () => {
@@ -306,6 +306,12 @@ describe('opencode agent sync', () => {
         expect(match?.[1]).toContain('mode: subagent')
         expect(match?.[1]).toContain('description:')
       }
+      const live = syncLiveAgent(dir)
+      expect(live).toBe('agenthood-live.md')
+      const liveRaw = readFileSync(join(dir, live), 'utf8')
+      const liveMatch = liveRaw.match(/^---\r?\n([\s\S]*?)\r?\n---/)
+      expect(liveMatch?.[1]).toContain('mode: primary')
+      expect(liveMatch?.[1]).toContain('task:')
     } finally {
       await rm(dir, { recursive: true, force: true })
     }

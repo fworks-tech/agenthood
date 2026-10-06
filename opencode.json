@@ -17,7 +17,9 @@
       "mode": "primary",
       "permission": {
         "task": { "the-*": "allow", "*": "deny" },
-        "skill": { "the-*": "allow" }
+        "skill": { "the-*": "allow" },
+        "edit": "allow",
+        "bash": "allow"
       }
     }
   }

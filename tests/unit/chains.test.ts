@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest'
-import { readdirSync, readFileSync } from 'node:fs'
+import { readdirSync, readFileSync, existsSync } from 'node:fs'
 import { join } from 'node:path'
 import { load as loadYaml } from 'js-yaml'
 import { rawSpecs } from '../../src/members/member-specs.ts'
@@ -76,6 +76,17 @@ describe('chains.yaml', () => {
     const text = readFileSync(join(repoRoot, 'chains.yaml'), 'utf8')
     for (const alias of DEPRECATED_ALIASES) {
       expect(text, alias).not.toContain(alias)
+    }
+  })
+
+  it('incident-triage chain references only existing infra skills', () => {
+    const incidentChain = chains.find((c) => c.name === 'incident-triage')
+    expect(incidentChain).toBeDefined()
+    for (const node of incidentChain!.sequence) {
+      for (const tool of node.tools ?? []) {
+        const skillPath = join(repoRoot, 'skills', tool)
+        expect(existsSync(skillPath), `${tool} skill directory must exist at ${skillPath}`).toBe(true)
+      }
     }
   })
 })

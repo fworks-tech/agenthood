@@ -120,6 +120,21 @@ export function wireAgenthoodConfig(
       bash: 'allow',
     },
   } as unknown as NonNullable<NonNullable<Config['agent']>[string]>
+
+  // Runtime guard: validate permission shape matches expected schema.
+  // If the SDK changes the permission type, this throws with a clear message
+  // instead of silently producing invalid config.
+  const p = cfg.agent['agenthood-live'].permission as Record<string, unknown>
+  const required = ['task', 'skill', 'edit', 'bash'] as const
+  for (const key of required) {
+    if (!(key in p)) throw new Error(`agenthood-live permission missing required key: ${key}`)
+  }
+  const task = p.task as Record<string, string>
+  const skill = p.skill as Record<string, string>
+  if (task['the-*'] !== 'allow' || task['*'] !== 'deny') throw new Error('agenthood-live permission.task has unexpected shape')
+  if (skill['the-*'] !== 'allow') throw new Error('agenthood-live permission.skill has unexpected shape')
+  if (p.edit !== 'allow') throw new Error('agenthood-live permission.edit must be "allow"')
+  if (p.bash !== 'allow') throw new Error('agenthood-live permission.bash must be "allow"')
 }
 
 // Caps so one runaway member run cannot flood the session context.
@@ -239,10 +254,39 @@ const MAX_OUTCOME_CHARS = 500
 
 // AGENTHOOD_REDIS=host[:port] mirrors member runs to Redis; unset means
 // file-only audit (zero-infra default). Malformed values disable mirroring.
+// Only local/trusted-network hosts are allowed to prevent plaintext AUTH
+// over untrusted networks. Allowed: localhost, 127.0.0.1, ::1, host.docker.internal.
+const ALLOWED_REDIS_HOSTS = new Set(['localhost', '127.0.0.1', '::1', 'host.docker.internal'])
+
+function splitHostPort(raw: string): { host: string; portRaw: string | undefined } | null {
+  // Handle IPv6 addresses like [::1]:6379 or ::1:6379
+  const trimmed = raw.trim()
+  if (trimmed.startsWith('[')) {
+    // [host]:port format
+    const bracketEnd = trimmed.indexOf(']')
+    if (bracketEnd === -1) return null
+    const host = trimmed.slice(1, bracketEnd)
+    const rest = trimmed.slice(bracketEnd + 1)
+    const portRaw = rest.startsWith(':') ? rest.slice(1) : undefined
+    return { host, portRaw }
+  }
+  // IPv4 or hostname: split on last colon
+  const lastColon = trimmed.lastIndexOf(':')
+  if (lastColon === -1) {
+    return { host: trimmed, portRaw: undefined }
+  }
+  const host = trimmed.slice(0, lastColon)
+  const portRaw = trimmed.slice(lastColon + 1)
+  return { host, portRaw }
+}
+
 export function parseRedisTarget(raw: string | undefined): RedisTarget | null {
   if (!raw || raw.trim().length === 0) return null
-  const [host, portRaw] = raw.trim().split(':')
+  const split = splitHostPort(raw)
+  if (!split) return null
+  const { host, portRaw } = split
   if (!host) return null
+  if (!ALLOWED_REDIS_HOSTS.has(host)) return null
   if (portRaw === undefined) return { host, port: DEFAULT_REDIS_PORT }
   const port = Number(portRaw)
   if (!Number.isInteger(port) || port <= 0 || port > 65535) return null

@@ -54,12 +54,31 @@ const srTree = (() => {
     // npm ls exits non-zero on peer/extraneous problems yet still prints the
     // JSON tree to stdout — keep it from the error object instead of losing it
     let ls = ''
+    let stderr = ''
     try {
-      // shell:true resolves the npm shim on Windows; stderr is ignored via stdio
-      ls = execFileSync('npm', ['ls', '--all', '--json'], { encoding: 'utf8', stdio: ['pipe', 'pipe', 'ignore'], shell: true })
+      // shell:false (default) — npm is a .cmd shim on Windows, Node resolves it.
+      // Stderr is captured for warning logging; do not ignore.
+      const result = execFileSync('npm', ['ls', '--all', '--json'], {
+        encoding: 'utf8',
+        stdio: ['pipe', 'pipe', 'pipe'],
+      })
+      ls = result
     } catch (e) {
-      ls = typeof e?.stdout === 'string' ? e.stdout : ''
+      const err = e
+      ls = typeof err?.stdout === 'string' ? err.stdout : ''
+      stderr = typeof err?.stderr === 'string' ? err.stderr : ''
+      // npm ls exits 1 (deps issues), 2 (extraneous), or other (EACCES, corrupt lockfile).
+      // Only 0, 1, 2 are expected. Fail closed on unexpected codes.
+      const code = err?.status ?? 0
+      if (code !== 0 && code !== 1 && code !== 2) {
+        console.error(`npm audit filter: npm ls exited with unexpected code ${code}: ${stderr}`)
+        process.exit(1)
+      }
+      if (stderr) {
+        console.warn(`npm audit filter: npm ls stderr: ${stderr}`)
+      }
     }
+    if (!ls) return new Set()
     const tree = JSON.parse(ls)
     const names = new Set()
     const walk = (deps, underSR) => {

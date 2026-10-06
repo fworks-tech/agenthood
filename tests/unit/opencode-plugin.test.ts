@@ -166,6 +166,18 @@ describe('wireAgenthoodConfig', () => {
     expect(cfg.agent?.['agenthood-live']?.mode).toBe('primary')
     expect(cfg.agent?.['agenthood-live']?.description).toContain('end-to-end')
   })
+
+  it('validates permission shape at runtime', () => {
+    const cfg: PluginConfig = {}
+    const paths = { skillsPath: '/pkg/skills', instructionsPath: '/pkg/AGENTS.md' }
+    // Should not throw with valid permission shape
+    wireAgenthoodConfig(cfg, paths, () => true)
+    expect(cfg.agent?.['agenthood-live']?.permission).toBeDefined()
+    expect(cfg.agent?.['agenthood-live']?.permission?.task).toEqual({ 'the-*': 'allow', '*': 'deny' })
+    expect(cfg.agent?.['agenthood-live']?.permission?.skill).toEqual({ 'the-*': 'allow' })
+    expect(cfg.agent?.['agenthood-live']?.permission?.edit).toBe('allow')
+    expect(cfg.agent?.['agenthood-live']?.permission?.bash).toBe('allow')
+  })
 })
 
 describe('appendCapped', () => {
@@ -268,7 +280,41 @@ describe('parseRedisTarget', () => {
 
   it('defaults the port and parses host:port', () => {
     expect(parseRedisTarget('localhost')).toEqual({ host: 'localhost', port: 6379 })
-    expect(parseRedisTarget('db:6380')).toEqual({ host: 'db', port: 6380 })
+    expect(parseRedisTarget('localhost:6380')).toEqual({ host: 'localhost', port: 6380 })
+  })
+
+  describe('host allowlist (local/trusted-network only)', () => {
+    it('allows localhost', () => {
+      expect(parseRedisTarget('localhost:6379')).toEqual({ host: 'localhost', port: 6379 })
+    })
+
+    it('allows 127.0.0.1', () => {
+      expect(parseRedisTarget('127.0.0.1:6379')).toEqual({ host: '127.0.0.1', port: 6379 })
+    })
+
+    it('allows ::1 (IPv6 loopback) with bracket notation', () => {
+      expect(parseRedisTarget('[::1]:6379')).toEqual({ host: '::1', port: 6379 })
+    })
+
+    it('allows host.docker.internal (Docker Desktop)', () => {
+      expect(parseRedisTarget('host.docker.internal:6379')).toEqual({ host: 'host.docker.internal', port: 6379 })
+    })
+
+    it('rejects remote hostnames', () => {
+      expect(parseRedisTarget('remote-host:6379')).toBeNull()
+      expect(parseRedisTarget('redis.example.com:6379')).toBeNull()
+    })
+
+    it('rejects private IPs outside loopback', () => {
+      expect(parseRedisTarget('192.168.1.50:6379')).toBeNull()
+      expect(parseRedisTarget('10.0.0.1:6379')).toBeNull()
+      expect(parseRedisTarget('172.16.0.1:6379')).toBeNull()
+    })
+
+    it('rejects public IPs', () => {
+      expect(parseRedisTarget('8.8.8.8:6379')).toBeNull()
+      expect(parseRedisTarget('1.1.1.1:6379')).toBeNull()
+    })
   })
 })
 

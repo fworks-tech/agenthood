@@ -7,6 +7,7 @@ import {
   PARALLEL_EVALUATION_THRESHOLD,
   auditRoutingRecords,
   validateRoutingDecision,
+  writeRoutingDecision,
 } from '../../../src/reasoning/routing.ts'
 import type { RoutingDecision } from '../../../src/reasoning/routing.ts'
 
@@ -113,6 +114,36 @@ describe('validateRoutingDecision', () => {
 
   it('ignores unknown extra keys rather than dropping the record', () => {
     expect(validateRoutingDecision({ ...decision(), sneaky: 'value' }, MEMBERS)).toEqual([])
+  })
+})
+
+describe('writeRoutingDecision', () => {
+  let dir: string
+
+  beforeEach(() => {
+    dir = mkdtempSync(join(tmpdir(), 'routing-write-'))
+  })
+
+  afterEach(() => {
+    rmSync(dir, { recursive: true, force: true })
+  })
+
+  it('writes a valid record the auditor accepts', () => {
+    const filePath = writeRoutingDecision(dir, decision(), MEMBERS)
+    expect(filePath).toBe(join(dir, 'route-1.json'))
+    expect(auditRoutingRecords(dir, MEMBERS)).toEqual([])
+  })
+
+  it('creates a missing routing directory', () => {
+    const nested = join(dir, 'deep', 'routing')
+    writeRoutingDecision(nested, decision(), MEMBERS)
+    expect(auditRoutingRecords(nested, MEMBERS)).toEqual([])
+  })
+
+  it('refuses an invalid record with every violation listed', () => {
+    expect(() => writeRoutingDecision(dir, decision({ target: 'nobody', confidence: 12 }), MEMBERS)).toThrow(
+      /not a registered member/,
+    )
   })
 })
 

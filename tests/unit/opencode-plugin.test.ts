@@ -9,8 +9,11 @@ import pluginModule, {
   discoverMemberNames,
   formatRunResult,
   getMemberNames,
+  mirrorRunRecord,
+  parseRedisTarget,
   wireAgenthoodConfig,
 } from '../../src/opencode-plugin.ts'
+import type { RedisSocket, RunRecord } from '../../src/opencode-plugin.ts'
 import type { PluginConfig } from '../../src/opencode-plugin.ts'
 import { rawSpecs } from '../../src/members/member-specs.ts'
 import { syncLiveAgent, syncOpencodeAgents } from '../../scripts/sync-opencode-agents.ts'
@@ -250,6 +253,90 @@ describe('formatRunResult', () => {
 
   it('appends stderr and non-zero exit codes', () => {
     expect(formatRunResult({ stdout: 'ok', stderr: 'warn', code: 3 })).toBe('ok\n[stderr]\nwarn\n[exit code 3]')
+  })
+})
+
+describe('parseRedisTarget', () => {
+  it('returns null when unset, blank, or malformed', () => {
+    expect(parseRedisTarget(undefined)).toBeNull()
+    expect(parseRedisTarget('')).toBeNull()
+    expect(parseRedisTarget('   ')).toBeNull()
+    expect(parseRedisTarget('db:abc')).toBeNull()
+    expect(parseRedisTarget('db:0')).toBeNull()
+    expect(parseRedisTarget('db:99999')).toBeNull()
+  })
+
+  it('defaults the port and parses host:port', () => {
+    expect(parseRedisTarget('localhost')).toEqual({ host: 'localhost', port: 6379 })
+    expect(parseRedisTarget('db:6380')).toEqual({ host: 'db', port: 6380 })
+  })
+})
+
+describe('mirrorRunRecord', () => {
+  const record: RunRecord = { id: 'r1', member: 'the-scribe', task: 't', outcome: 'o', timestamp: 'ts' }
+
+  const fakeSocket = () => {
+    const emitter = new EventEmitter()
+    const written: Buffer[] = []
+    const socket: RedisSocket = {
+      write: (chunk: Buffer) => {
+        written.push(chunk)
+      },
+      once: (event: string, listener: (...args: unknown[]) => void) => {
+        emitter.once(event, listener)
+      },
+      on: (event: string, listener: (...args: unknown[]) => void) => {
+        emitter.on(event, listener)
+      },
+      destroy: () => {},
+    }
+    return { socket, written, emitter }
+  }
+
+  it('pipelines HSET + LPUSH and resolves true on +OK', async () => {
+    const { socket, written, emitter } = fakeSocket()
+    const pending = mirrorRunRecord({ host: 'h', port: 1 }, record, () => socket)
+    emitter.emit('data', Buffer.from('+OK\r\n+OK\r\n'))
+    await expect(pending).resolves.toBe(true)
+    const wire = Buffer.concat(written).toString('utf8')
+    expect(wire).toContain('agenthood:decisions:r1')
+    expect(wire).toContain('LPUSH')
+  })
+
+  it('resolves false on error replies and socket errors', async () => {
+    const first = fakeSocket()
+    const pendingErr = mirrorRunRecord({ host: 'h', port: 1 }, record, () => first.socket)
+    first.emitter.emit('data', Buffer.from('-ERR boom\r\n'))
+    await expect(pendingErr).resolves.toBe(false)
+
+    const second = fakeSocket()
+    const pendingSocket = mirrorRunRecord({ host: 'h', port: 1 }, record, () => second.socket)
+    second.emitter.emit('error', new Error('ECONNREFUSED'))
+    await expect(pendingSocket).resolves.toBe(false)
+  })
+
+  it('resolves false when connecting throws', async () => {
+    await expect(
+      mirrorRunRecord({ host: 'h', port: 1 }, record, () => {
+        throw new Error('nope')
+      }),
+    ).resolves.toBe(false)
+  })
+
+  it('sends AUTH first when a password is given', async () => {
+    const { socket, written, emitter } = fakeSocket()
+    const pending = mirrorRunRecord({ host: 'h', port: 1 }, record, () => socket, 'pw')
+    emitter.emit('data', Buffer.from('+OK\r\n+OK\r\n+OK\r\n'))
+    await expect(pending).resolves.toBe(true)
+    const wire = Buffer.concat(written).toString('utf8')
+    expect(wire.indexOf('AUTH')).toBeLessThan(wire.indexOf('HSET'))
+  })
+
+  it('resolves false when AUTH is rejected', async () => {
+    const { socket, emitter } = fakeSocket()
+    const pending = mirrorRunRecord({ host: 'h', port: 1 }, record, () => socket, 'wrong')
+    emitter.emit('data', Buffer.from('-WRONGPASS\r\n'))
+    await expect(pending).resolves.toBe(false)
   })
 })
 

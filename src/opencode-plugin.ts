@@ -11,7 +11,10 @@
  * `config` hook, plus a primary `agenthood-live` orchestrator agent. It also registers
  * `agenthood_run_member`, a tool that executes a Society member as a real
  * runtime agent (enforced behavior + audit trail) instead of free-styling from
- * the skill text. The CLI (`dist/cli.js`) is untouched and spawned as-is.
+ * the skill text. The CLI (`dist/cli.js`) is untouched and spawned as-is. A
+ * `tool.execute.after` hook mirrors each member run to Redis when
+ * AGENTHOOD_REDIS=host[:port] is set (unset means file-only audit), with the
+ * optional AGENTHOOD_REDIS_PASSWORD sent as RESP AUTH first.
  *
  * opencode resolves this module via the package root (`exports["."]`, so
  * `{ "plugin": ["agenthood"] }` works) with `exports["./server"]` kept as an
@@ -22,7 +25,10 @@
 
 import { spawn } from 'node:child_process'
 import type { ChildProcess } from 'node:child_process'
+import { randomUUID } from 'node:crypto'
 import { existsSync, readdirSync } from 'node:fs'
+import { connect } from 'node:net'
+import type { Socket } from 'node:net'
 import { dirname, join } from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { z } from 'zod'
@@ -222,6 +228,109 @@ export async function executeRunMember(
   }
 }
 
+export interface RedisTarget {
+  host: string
+  port: number
+}
+
+const DEFAULT_REDIS_PORT = 6379
+const REDIS_TIMEOUT_MS = 2000
+const MAX_OUTCOME_CHARS = 500
+
+// AGENTHOOD_REDIS=host[:port] mirrors member runs to Redis; unset means
+// file-only audit (zero-infra default). Malformed values disable mirroring.
+export function parseRedisTarget(raw: string | undefined): RedisTarget | null {
+  if (!raw || raw.trim().length === 0) return null
+  const [host, portRaw] = raw.trim().split(':')
+  if (!host) return null
+  if (portRaw === undefined) return { host, port: DEFAULT_REDIS_PORT }
+  const port = Number(portRaw)
+  if (!Number.isInteger(port) || port <= 0 || port > 65535) return null
+  return { host, port }
+}
+
+export interface RunRecord {
+  id: string
+  member: string
+  task: string
+  outcome: string
+  timestamp: string
+}
+
+export interface RedisSocket {
+  write(chunk: Buffer): void
+  once(event: string, listener: (...args: unknown[]) => void): void
+  on(event: string, listener: (...args: unknown[]) => void): void
+  destroy(): void
+}
+
+export type RedisConnect = (target: RedisTarget) => RedisSocket
+
+function respCommand(args: string[]): Buffer {
+  const parts: Buffer[] = [Buffer.from(`*${args.length}\r\n`)]
+  for (const arg of args) {
+    const bytes = Buffer.from(arg, 'utf8')
+    parts.push(Buffer.from(`$${bytes.length}\r\n`), bytes, Buffer.from('\r\n'))
+  }
+  return Buffer.concat(parts)
+}
+
+// Minimal RESP client (bulk strings only, pipelined HSET + LPUSH). Fail-silent
+// by contract: the audit mirror must never break the session it observes.
+export async function mirrorRunRecord(
+  target: RedisTarget,
+  record: RunRecord,
+  openSocket: RedisConnect = (t) => connect(t.port, t.host) as Socket,
+  auth?: string,
+): Promise<boolean> {
+  return new Promise((resolve) => {
+    let settled = false
+    let socket: RedisSocket
+    try {
+      socket = openSocket(target)
+    } catch {
+      resolve(false)
+      return
+    }
+    const done = (ok: boolean) => {
+      if (settled) return
+      settled = true
+      clearTimeout(timer)
+      socket.destroy()
+      resolve(ok)
+    }
+    const timer = setTimeout(() => done(false), REDIS_TIMEOUT_MS)
+    let buffer = ''
+    let replies = 0
+    const expected = auth ? 3 : 2
+    socket.once('error', () => done(false))
+    socket.on('data', (chunk: unknown) => {
+      buffer += Buffer.isBuffer(chunk) ? chunk.toString('utf8') : String(chunk)
+      let idx: number
+      while ((idx = buffer.indexOf('\r\n')) >= 0) {
+        const line = buffer.slice(0, idx)
+        buffer = buffer.slice(idx + 2)
+        replies += 1
+        if (line.startsWith('-')) {
+          done(false)
+          return
+        }
+        if (replies >= expected) {
+          done(true)
+          return
+        }
+      }
+    })
+    const outcome = record.outcome.slice(0, MAX_OUTCOME_CHARS)
+    const commands = auth ? [respCommand(['AUTH', auth])] : []
+    commands.push(
+      respCommand(['HSET', `agenthood:decisions:${record.id}`, 'member', record.member, 'task', record.task, 'outcome', outcome, 'timestamp', record.timestamp]),
+      respCommand(['LPUSH', 'agenthood:decisions:log', record.id]),
+    )
+    socket.write(Buffer.concat(commands))
+  })
+}
+
 export function buildRunMemberTool(names: string[]): Record<string, ToolDefinition> {
   if (names.length === 0) return {}
   return {
@@ -249,6 +358,24 @@ const server: Plugin = async () => {
       })
     },
     tool: buildRunMemberTool(getMemberNames()),
+    'tool.execute.after': async (input) => {
+      if (input.tool !== 'agenthood_run_member') return
+      const target = parseRedisTarget(process.env.AGENTHOOD_REDIS)
+      if (!target) return
+      const args = (input.args ?? {}) as { member?: unknown; task?: unknown }
+      await mirrorRunRecord(
+        target,
+        {
+          id: randomUUID(),
+          member: typeof args.member === 'string' ? args.member : 'unknown',
+          task: typeof args.task === 'string' ? args.task : '',
+          outcome: 'agenthood_run_member completed',
+          timestamp: new Date().toISOString(),
+        },
+        undefined,
+        process.env.AGENTHOOD_REDIS_PASSWORD,
+      )
+    },
   }
   return hooks
 }

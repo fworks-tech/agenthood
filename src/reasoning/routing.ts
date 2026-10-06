@@ -1,4 +1,4 @@
-import { existsSync, readFileSync, readdirSync } from 'node:fs'
+import { existsSync, mkdirSync, readFileSync, readdirSync, writeFileSync } from 'node:fs'
 import { join } from 'node:path'
 
 /** The Mediator's four intent buckets, slugs for the prose in
@@ -133,6 +133,23 @@ export function validateRoutingDecision(raw: unknown, knownMembers: readonly str
   }
 
   return errors
+}
+
+/**
+ * Persists one routing decision to `routingDir/<id>.json`, refusing to write
+ * records that would fail `agenthood verify`. Fail-closed: a violating record
+ * throws with every violation listed instead of corrupting the audit trail.
+ * Returns the written file path.
+ */
+export function writeRoutingDecision(routingDir: string, decision: RoutingDecision, knownMembers: readonly string[]): string {
+  const errors = validateRoutingDecision(decision, knownMembers)
+  if (errors.length > 0) {
+    throw new Error(`refusing to write invalid routing decision "${decision.id}": ${errors.join('; ')}`)
+  }
+  mkdirSync(routingDir, { recursive: true })
+  const filePath = join(routingDir, `${decision.id}.json`)
+  writeFileSync(filePath, JSON.stringify(decision, null, 2), 'utf8')
+  return filePath
 }
 
 export type RoutingAudit = { file: string; errors: string[] }

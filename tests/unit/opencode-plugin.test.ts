@@ -172,11 +172,12 @@ describe('wireAgenthoodConfig', () => {
     const paths = { skillsPath: '/pkg/skills', instructionsPath: '/pkg/AGENTS.md' }
     // Should not throw with valid permission shape
     wireAgenthoodConfig(cfg, paths, () => true)
-    expect(cfg.agent?.['agenthood-live']?.permission).toBeDefined()
-    expect(cfg.agent?.['agenthood-live']?.permission?.task).toEqual({ 'the-*': 'allow', '*': 'deny' })
-    expect(cfg.agent?.['agenthood-live']?.permission?.skill).toEqual({ 'the-*': 'allow' })
-    expect(cfg.agent?.['agenthood-live']?.permission?.edit).toBe('allow')
-    expect(cfg.agent?.['agenthood-live']?.permission?.bash).toBe('allow')
+    const perm = cfg.agent?.['agenthood-live']?.permission as Record<string, unknown> | undefined
+    expect(perm).toBeDefined()
+    expect(perm?.task).toEqual({ 'the-*': 'allow', '*': 'deny' })
+    expect(perm?.skill).toEqual({ 'the-*': 'allow' })
+    expect(perm?.edit).toBe('allow')
+    expect(perm?.bash).toBe('allow')
   })
 })
 

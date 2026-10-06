@@ -13,6 +13,7 @@ import pluginModule, {
 } from '../../src/opencode-plugin.ts'
 import type { PluginConfig } from '../../src/opencode-plugin.ts'
 import { rawSpecs } from '../../src/members/member-specs.ts'
+import { syncOpencodeAgents } from '../../scripts/sync-opencode-agents.ts'
 import { fakeChild, parseSkill, repoRoot } from '../helpers/opencodePluginFixtures.ts'
 
 describe('agenthood opencode plugin', () => {
@@ -21,15 +22,16 @@ describe('agenthood opencode plugin', () => {
     expect(typeof pluginModule.server).toBe('function')
   })
 
-  it('config hook wires the skills dir, AGENTS.md, and the-steward agent', async () => {
+  it('config hook wires the skills dir, AGENTS.md, and the agenthood-live agent', async () => {
     const hooks = await (pluginModule.server as any)()
     const cfg: PluginConfig = {}
     await hooks.config?.(cfg)
 
     expect(cfg.skills?.paths?.some((p) => p.endsWith('skills'))).toBe(true)
     expect(cfg.instructions?.some((i) => i.endsWith('AGENTS.md'))).toBe(true)
-    expect(cfg.agent?.['the-steward']?.mode).toBe('primary')
-    expect(cfg.agent?.['the-steward']?.description).toBeTruthy()
+    expect(cfg.agent?.['agenthood-live']?.mode).toBe('primary')
+    expect(cfg.agent?.['agenthood-live']?.description).toBeTruthy()
+    expect(cfg.agent?.['the-steward']).toBeUndefined()
   })
 
   it('registers agenthood_run_member with a member enum and task string', async () => {
@@ -128,8 +130,9 @@ describe('wireAgenthoodConfig', () => {
     wireAgenthoodConfig(cfg, paths, () => true)
     expect(cfg.skills?.paths).toEqual(['/pkg/skills'])
     expect(cfg.instructions).toEqual(['/pkg/AGENTS.md'])
-    expect(cfg.agent?.['the-steward']?.mode).toBe('primary')
-    expect(cfg.agent?.['the-steward']?.description).toBeTruthy()
+    expect(cfg.agent?.['agenthood-live']?.mode).toBe('primary')
+    expect(cfg.agent?.['agenthood-live']?.description).toBeTruthy()
+    expect(cfg.agent?.['the-steward']).toBeUndefined()
   })
 
   it('is idempotent and preserves existing entries', () => {
@@ -144,7 +147,7 @@ describe('wireAgenthoodConfig', () => {
     expect(cfg.skills?.urls).toEqual(['https://x'])
     expect(cfg.instructions).toEqual(['/other/START.md', '/pkg/AGENTS.md'])
     expect(cfg.agent?.build).toEqual({ description: 'b' })
-    expect(cfg.agent?.['the-steward']?.mode).toBe('primary')
+    expect(cfg.agent?.['agenthood-live']?.mode).toBe('primary')
   })
 
   it('skips instructions when the file is absent', () => {
@@ -154,11 +157,11 @@ describe('wireAgenthoodConfig', () => {
     expect(cfg.skills?.paths).toEqual(['/pkg/skills'])
   })
 
-  it('refreshes a stale steward entry', () => {
-    const cfg: PluginConfig = { agent: { 'the-steward': { description: 'old', mode: 'subagent' } } }
+  it('refreshes a stale live entry', () => {
+    const cfg: PluginConfig = { agent: { 'agenthood-live': { description: 'old', mode: 'subagent' } } }
     wireAgenthoodConfig(cfg, paths, () => false)
-    expect(cfg.agent?.['the-steward']?.mode).toBe('primary')
-    expect(cfg.agent?.['the-steward']?.description).toContain('minimal set')
+    expect(cfg.agent?.['agenthood-live']?.mode).toBe('primary')
+    expect(cfg.agent?.['agenthood-live']?.description).toContain('end-to-end')
   })
 })
 
@@ -279,12 +282,33 @@ describe('shipped skills and prompts', () => {
     expect(body.trim().length).toBeGreaterThan(50)
   })
 
-  it('plugin steward wiring matches the project opencode.json', async () => {
+  it('plugin live wiring matches the project opencode.json', async () => {
     const project = JSON.parse(readFileSync(join(repoRoot, 'opencode.json'), 'utf8'))
     const hooks = await (pluginModule.server as any)()
     const cfg: PluginConfig = {}
     await hooks.config?.(cfg)
-    expect(cfg.agent?.['the-steward']).toEqual(project.agent['the-steward'])
+    expect(cfg.agent?.['agenthood-live']).toEqual(project.agent['agenthood-live'])
+  })
+})
+
+describe('opencode agent sync', () => {
+  it('generates one valid single-frontmatter agent per registry member', async () => {
+    const { mkdtemp, rm } = await import('node:fs/promises')
+    const { tmpdir } = await import('node:os')
+    const dir = await mkdtemp(join(tmpdir(), 'agents-'))
+    try {
+      const written = syncOpencodeAgents(repoRoot, dir)
+      expect(written).toEqual(rawSpecs.map((s) => `${s.name}.md`).sort())
+      for (const file of written) {
+        const raw = readFileSync(join(dir, file), 'utf8')
+        const match = raw.match(/^---\r?\n([\s\S]*?)\r?\n---/)
+        expect(match, file).toBeTruthy()
+        expect(match?.[1]).toContain('mode: subagent')
+        expect(match?.[1]).toContain('description:')
+      }
+    } finally {
+      await rm(dir, { recursive: true, force: true })
+    }
   })
 })
 

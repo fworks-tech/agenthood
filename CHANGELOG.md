@@ -1,3 +1,10 @@
+# [3.72.0](https://github.com/fworks-tech/agenthood/compare/v3.71.1...v3.72.0) (2026-10-06)
+
+
+### Features
+
+* **orchestration:** agenthood-live autonomous orchestrator plugin ([#1001](https://github.com/fworks-tech/agenthood/issues/1001)) ([564696e](https://github.com/fworks-tech/agenthood/commit/564696e58c368b5482a3b411c603f879ef5a3681))
+
 ## [3.71.1](https://github.com/fworks-tech/agenthood/compare/v3.71.0...v3.71.1) (2026-09-30)
 
 

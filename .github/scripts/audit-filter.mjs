@@ -45,11 +45,41 @@ if (audit.error) {
   process.exit(1)
 }
 
+import { execFileSync } from 'node:child_process'
+
 const order = { info: 0, low: 1, moderate: 2, high: 3, critical: 4 }
+
+const srTree = (() => {
+  try {
+    // npm ls exits non-zero on peer/extraneous problems yet still prints the
+    // JSON tree to stdout — keep it from the error object instead of losing it
+    let ls = ''
+    try {
+      // shell:true resolves the npm shim on Windows; stderr is ignored via stdio
+      ls = execFileSync('npm', ['ls', '--all', '--json'], { encoding: 'utf8', stdio: ['pipe', 'pipe', 'ignore'], shell: true })
+    } catch (e) {
+      ls = typeof e?.stdout === 'string' ? e.stdout : ''
+    }
+    const tree = JSON.parse(ls)
+    const names = new Set()
+    const walk = (deps, underSR) => {
+      if (!deps) return
+      for (const [name, info] of Object.entries(deps)) {
+        const isSR = underSR || name === 'semantic-release' || name.startsWith('@semantic-release/')
+        if (isSR) names.add(name)
+        walk(info.dependencies, isSR)
+      }
+    }
+    walk(tree.dependencies, false)
+    return names
+  } catch { return new Set() }
+})()
+
 const isExemptNode = (n) =>
   n === 'node_modules/npm' || n.startsWith('node_modules/npm/') ||
   n === 'node_modules/semantic-release' || n.startsWith('node_modules/semantic-release/') ||
-  n.startsWith('node_modules/@semantic-release/')
+  n.startsWith('node_modules/@semantic-release/') ||
+  srTree.has(n.replace(/^node_modules\//, ''))
 
 let bad = false
 for (const [name, v] of Object.entries(audit.vulnerabilities || {})) {

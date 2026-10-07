@@ -2,7 +2,33 @@
 
 All notable changes to the Agenthood VS Code Extension will be documented in this file.
 
-## [Unreleased]
+## [1.0.0] - 2026-10-07
+
+### Features
+- 🏛️ First stable release — full Society integration for VS Code
+- 🎛️ Command palette: init, check, oath, activate, deactivate, list, ask reviewer
+- 📊 Status bar showing active member count (e.g., "3/16")
+- 📋 Member Watch view in Activity Bar with member status icons
+- ✅ Inline commit message validation (Conventional Commits)
+- 🔍 Secret detection in source files (Auditor)
+- 📚 Documentation nudges for stale docs (Librarian)
+- 🛡️ SCM input validation (Doorman)
+- 🤖 Code review annotations (Reviewer)
+
+### Added
+- MemberWatchProvider tree view with watching/triggered/not-installed states
+- ObserverService for file system events
+- ReviewerService for PR review annotations
+- AuditorService for secret detection
+- LibrarianService for documentation nudges
+- DoormanService for commit validation
+- Full test suite (47 tests passing)
+- Support for multiple runtime directories (.claude/, .codebuddy/, .github/, .agenthood/)
+
+### Changed
+- Centralized AGENTHOOD_MEMBERS constant (16 members)
+- Dynamic member filtering in activation/deactivation commands
+- Terminal command execution with output channel logging
 
 ## [0.1.0] - 2026-09-16
 

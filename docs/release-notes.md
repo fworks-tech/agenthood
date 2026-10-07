@@ -5,6 +5,14 @@
 
 ---
 
+## v3.73.0 — October 7, 2026
+
+### ✨ Features
+
+- **Vscode:** bump extension to v1.0.0 for Marketplace publish (#1007)
+
+---
+
 ## v3.72.0 — October 6, 2026
 
 ### ✨ Features

@@ -1,3 +1,10 @@
+# [3.73.0](https://github.com/fworks-tech/agenthood/compare/v3.72.1...v3.73.0) (2026-10-07)
+
+
+### Features
+
+* **vscode:** bump extension to v1.0.0 for Marketplace publish ([#1007](https://github.com/fworks-tech/agenthood/issues/1007)) ([c8e5617](https://github.com/fworks-tech/agenthood/commit/c8e561731383b1238d61901b7e8e0b2a50514789))
+
 # [3.72.0](https://github.com/fworks-tech/agenthood/compare/v3.71.1...v3.72.0) (2026-10-06)
 
 

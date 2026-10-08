@@ -94,12 +94,16 @@ function fromAnthropic(data: { content?: AnthropicResponseBlock[]; usage?: { inp
 export class OpenCodeProvider extends ChatCompletionsProvider {
   private readonly apiKey: string
   private readonly baseUrl: string
+  private readonly anthropicBaseUrl: string
   private readonly sessionId: string
 
   constructor(config: LLMConfig, runtimeOptions: { goTier?: boolean } = {}) {
     const isInsideClient = !!process.env.OPENCODE_CLIENT_SESSION
     const apiKey = config.apiKey ?? process.env.OPENCODE_API_KEY ?? ""
+    // OpenAI SDK expects baseURL with /v1 (appends /chat/completions)
     const baseUrl = config.baseUrl ?? "https://opencode.ai/zen/v1"
+    // Anthropic SDK expects baseURL WITHOUT /v1 (appends /v1/messages)
+    const anthropicBaseUrl = baseUrl.replace(/\/v1$/, '')
     const sessionId = process.env.OPENCODE_CLIENT_SESSION || randomUUID()
 
     const options: ChatCompletionsProviderOptions = {
@@ -122,6 +126,7 @@ export class OpenCodeProvider extends ChatCompletionsProvider {
     super(config, options)
     this.apiKey = apiKey
     this.baseUrl = baseUrl
+    this.anthropicBaseUrl = anthropicBaseUrl
     this.sessionId = sessionId
   }
 
@@ -138,13 +143,13 @@ export class OpenCodeProvider extends ChatCompletionsProvider {
     const { default: Anthropic } = await import("@anthropic-ai/sdk")
     return new Anthropic({
       authToken: this.apiKey || undefined,
-      baseURL: this.baseUrl,
+      baseURL: this.anthropicBaseUrl,
       defaultHeaders: { "x-opencode-session": this.sessionId },
     })
   }
 
   private async messagesRequest(body: Record<string, unknown>, stream = false): Promise<Response> {
-    const url = `${this.baseUrl}/v1/messages`
+    const url = `${this.anthropicBaseUrl}/v1/messages`
     const res = await fetch(url, {
       method: 'POST',
       headers: {

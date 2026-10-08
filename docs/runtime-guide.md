@@ -307,6 +307,38 @@ npx agenthood status --alerts           # recent anomaly alerts (cost spikes, qu
 
 Exit code is `1` if any check fails, otherwise `0` (warnings alone do not fail). `--json` emits `{ checks: [...], healthy: boolean }` for scripting.
 
+### Third-party skill lockfile (`skills-lock.json`)
+
+`agenthood install` writes a per-runtime `skills-lock.json` alongside the installed skill directories (e.g., `.claude/skills/skills-lock.json`, `.agenthood/skills/skills-lock.json`). It pins the exact content of each installed third-party skill so CI can verify reproducibility with `agenthood install --frozen`.
+
+```json
+{
+  "version": 1,
+  "skills": {
+    "my-custom-skill": {
+      "source": "https://github.com/user/repo",
+      "version": "a1b2c3d4...",
+      "installedAt": "2026-10-08T12:34:56.789Z"
+    }
+  }
+}
+```
+
+| Field | Description |
+|-------|-------------|
+| `version` | Schema version (currently `1`) |
+| `skills.<name>.source` | Original install source (URL or git repo) |
+| `skills.<name>.version` | SHA-256 of the skill's `SKILL.md` at install time — enables drift detection |
+| `skills.<name>.installedAt` | ISO timestamp of installation |
+
+**`agenthood install --frozen <source>`** verifies:
+1. `skills-lock.json` exists and is valid JSON
+2. The requested skill is already in the lockfile (frozen mode refuses to add new skills)
+3. The fetched skill's `SKILL.md` hash matches the locked `version`
+4. No other locked skill present on disk has drifted from its locked hash
+
+If any check fails, the command exits non-zero with a detailed report. This mirrors `npm ci` semantics for third-party skills.
+
 Evaluate members against fixed suites with baseline gating:
 
 ```bash

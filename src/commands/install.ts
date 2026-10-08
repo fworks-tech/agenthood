@@ -14,6 +14,8 @@ import { loadSkillsLockfile, saveSkillsLockfile } from './skillsLock.ts'
 import { SkillParser, SPEC_NAME_RE } from '../skills/discovery/SkillParser.ts'
 import { resolveSkillFile } from '../skills/discovery/skillFile.ts'
 import { validateRemoteUrl, fetchRemoteText, GIT_TIMEOUT_MS } from '../skills/discovery/RemoteSkillSource.ts'
+import { assertFrozenInstall, reportFrozenFailure } from '../skills/frozen.ts'
+import { contentHash } from '../utils/hash.ts'
 
 function isGitUrl(url: string): boolean {
   return /\.git$/.test(url) || /^git@/.test(url) || /^https?:\/\/.*\/.*\/.*\/.*$/.test(url)
@@ -107,20 +109,25 @@ function writeSkillToDestination(skillMdPath: string, skillsDir: string, name: s
   if (existsSync(destDir)) throw new Error(`Skill "${name}" already exists. Use a different name or remove it first.`)
   cpSync(skillMdPath, join(destDir, 'SKILL.md'))
   const lock = loadSkillsLockfile(skillsDir)
-  lock.skills[name] = { source, installedAt: new Date().toISOString() }
+  // `version` is the SHA-256 of the SKILL.md we just wrote, so a later
+  // `install --frozen` / `verify` can detect drift. Pre-#604 locks omit it and
+  // the frozen gate treats absence as presence-only rather than drift.
+  lock.skills[name] = { source, version: contentHash(readFileSync(skillMdPath, 'utf-8')), installedAt: new Date().toISOString() }
   saveSkillsLockfile(skillsDir, lock)
 }
 
 export async function install(args: string[]): Promise<void> {
   const dryRun = args.includes('--dry-run')
+  const frozen = args.includes('--frozen')
   const source = args.filter((a) => !a.startsWith('--'))[0]
   if (!source) {
-    console.error('\nUsage: agenthood install <url-or-git-repo> [--dry-run]\n')
+    console.error('\nUsage: agenthood install <url-or-git-repo> [--dry-run] [--frozen]\n')
     console.error('Examples:')
     console.error('  agenthood install https://github.com/user/repo')
     console.error('  agenthood install https://example.com/skill/SKILL.md')
     console.error('  agenthood install git@github.com:user/repo.git')
-    console.error('  agenthood install https://github.com/user/repo --dry-run\n')
+    console.error('  agenthood install https://github.com/user/repo --dry-run')
+    console.error('  agenthood install https://github.com/user/repo --frozen\n')
     process.exit(1)
     return
   }
@@ -137,6 +144,14 @@ export async function install(args: string[]): Promise<void> {
     const skillMdPath = await fetchSkillSource(source, tmpDir)
     const name = resolveSkillName(skillMdPath)
     const destDir = join(skillsDir, name)
+
+    if (frozen) {
+      // --frozen means the lockfile is the source of truth. It must describe the
+      // skill on disk, and the requested skill must already be in it — otherwise
+      // this install would rewrite skills-lock.json.
+      const report = assertFrozenInstall(cwd, source, name, contentHash(readFileSync(skillMdPath, 'utf-8')))
+      if (!report.ok) reportFrozenFailure(report)
+    }
 
     if (dryRun) {
       console.log(`\n  Dry run — would install "${name}" from ${source}`)

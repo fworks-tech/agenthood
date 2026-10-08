@@ -109,7 +109,7 @@ jobs:
           MEMBER: ${{ matrix.member }}
           TASK: ${{ matrix.task }}
           OPENCODE_API_KEY: ${{ secrets.OPENCODE_API_KEY }}
-          OPENCODE_MODEL: opencode-go/mimo-v2.5
+          OPENCODE_MODEL: qwen3.8-flash
           GH_TOKEN: ${{ github.token }}
         run: |
           if [ -z "${OPENCODE_API_KEY:-}" ]; then
@@ -118,10 +118,10 @@ jobs:
           fi
 
           mkdir -p .agenthood
-          printf '{\n  "provider": "opencode-go",\n  "model": "%s"\n}\n' "$OPENCODE_MODEL" > .agenthood/config.json
+          printf '{\n  "provider": "opencode",\n  "model": "%s"\n}\n' "$OPENCODE_MODEL" > .agenthood/config.json
 
           npm ci --ignore-scripts
           npm run build
 
           echo "## The $RITUAL_NAME ritual — $MEMBER" >> "$GITHUB_STEP_SUMMARY"
-          node dist/cli.js run "$MEMBER" "$TASK" --provider opencode-go 2>&1 | tee -a "$GITHUB_STEP_SUMMARY"
+          node dist/cli.js run "$MEMBER" "$TASK" --provider opencode 2>&1 | tee -a "$GITHUB_STEP_SUMMARY"

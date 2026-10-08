@@ -17,13 +17,13 @@ export interface FrozenReport {
   problems: string[]
 }
 
-function loadLock(projectPath: string): { lock?: { skills?: Record<string, { source: string; version?: string }> }; problems: string[] } {
+function loadLock(projectPath: string): { lock?: { skills?: Record<string, { source: string; version?: string; contentHash?: string }> }; problems: string[] } {
   const lockPath = join(resolveSkillsDir(projectPath), SKILLS_LOCKFILE)
   try {
     if (!existsSync(lockPath)) {
       return { problems: [`${SKILLS_LOCKFILE} not found — run \`agenthood install\` without --frozen to create it`] }
     }
-    return { lock: JSON.parse(readFileSync(lockPath, 'utf-8')) as { skills?: Record<string, { source: string; version?: string }> }, problems: [] }
+    return { lock: JSON.parse(readFileSync(lockPath, 'utf-8')) as { skills?: Record<string, { source: string; version?: string; contentHash?: string }> }, problems: [] }
   } catch (err) {
     return { problems: [`${SKILLS_LOCKFILE} is unreadable: ${(err as Error)?.message ?? err}`] }
   }
@@ -51,18 +51,18 @@ export function assertFrozenInstall(projectPath: string, source: string, name: s
     // A different URL for the same skill name is a different artifact.
     problems.push(`"${name}" is locked from "${entry.source}", not "${source}"`)
   }
-  if (entry.version && entry.version !== fetchedHash) {
+  if (entry.contentHash && entry.contentHash !== fetchedHash) {
     problems.push(`"${name}" fetched hash does not match the locked hash in ${SKILLS_LOCKFILE}`)
   }
-  if (!entry.version) {
+  if (!entry.contentHash) {
     problems.push(`"${name}" has no locked checksum in ${SKILLS_LOCKFILE} — run \`agenthood install\` once without --frozen to pin it`)
   }
 
   for (const [otherName, other] of Object.entries(locked)) {
     const skillMd = join(resolveSkillsDir(projectPath), otherName, 'SKILL.md')
     if (!existsSync(skillMd)) continue
-    if (!other.version) continue
-    if (contentHash(readFileSync(skillMd, 'utf-8')) !== other.version) {
+    if (!other.contentHash) continue
+    if (contentHash(readFileSync(skillMd, 'utf-8')) !== other.contentHash) {
       problems.push(`"${otherName}" drifted from its locked hash in ${SKILLS_LOCKFILE}`)
     }
   }
@@ -83,7 +83,7 @@ export function checkFrozen(projectPath: string, requestedNames: string[]): Froz
   const lockPath = join(skillsDir, SKILLS_LOCKFILE)
   const problems: string[] = []
 
-  let lock: { skills?: Record<string, { source: string; version?: string }> }
+  let lock: { skills?: Record<string, { source: string; version?: string; contentHash?: string }> }
   try {
     if (!existsSync(lockPath)) {
       return { ok: false, problems: [`${SKILLS_LOCKFILE} not found — run \`agenthood install\` without --frozen to create it`] }
@@ -110,8 +110,8 @@ export function checkFrozen(projectPath: string, requestedNames: string[]): Froz
     // A pre-#604 lock carries no version. Absence of a hash is not evidence of
     // drift, so presence is all we can check — refusing would break every
     // install made before checksums existed.
-    if (!entry.version) continue
-    if (contentHash(readFileSync(skillMd, 'utf-8')) !== entry.version) {
+    if (!entry.contentHash) continue
+    if (contentHash(readFileSync(skillMd, 'utf-8')) !== entry.contentHash) {
       problems.push(`"${name}" drifted from its locked hash in ${SKILLS_LOCKFILE}`)
     }
   }

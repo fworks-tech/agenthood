@@ -54,7 +54,8 @@ function toAnthropicBody(req: LLMRequest, model: string) {
   for (const m of req.messages) {
     if (m.role === 'system') { system = system ? `${system}\n${m.content}` : m.content; continue }
     if (m.role === 'tool') {
-      messages.push({ role: 'user', content: [{ type: 'tool_result', tool_use_id: m.name ?? m.tool_call_id ?? '', content: m.content }] })
+      // Prefer tool_call_id (the Anthropic tool_use block ID) over name.
+      messages.push({ role: 'user', content: [{ type: 'tool_result', tool_use_id: m.tool_call_id ?? m.name ?? '', content: m.content }] })
       continue
     }
     const blocks: unknown[] = []
@@ -68,6 +69,8 @@ function toAnthropicBody(req: LLMRequest, model: string) {
     messages,
     max_tokens: req.maxTokens ?? 4096,
     ...(req.temperature !== undefined ? { temperature: req.temperature } : {}),
+    ...(req.top_p !== undefined ? { top_p: req.top_p } : {}),
+    ...(req.stop?.length ? { stop_sequences: req.stop } : {}),
     ...(req.tools?.length ? { tools: req.tools.map((t) => ({ name: t.name, description: t.description, input_schema: t.inputSchema })) } : {}),
   }
 }
@@ -128,6 +131,9 @@ export class OpenCodeProvider extends ChatCompletionsProvider {
 
   // The OpenAI SDK only speaks chat-completions; messages/responses/systemone
   // models need their own endpoint. Rejected with a pointer, not a silent 400.
+  // When inside the OpenCode client session (no standalone API key), we use a
+  // fetch-based transport with the session header instead of the Anthropic SDK,
+  // which requires either apiKey or authToken.
   private async anthropicClient(): Promise<import("@anthropic-ai/sdk").default> {
     const { default: Anthropic } = await import("@anthropic-ai/sdk")
     return new Anthropic({
@@ -135,6 +141,25 @@ export class OpenCodeProvider extends ChatCompletionsProvider {
       baseURL: this.baseUrl,
       defaultHeaders: { "x-opencode-session": this.sessionId },
     })
+  }
+
+  private async messagesRequest(body: Record<string, unknown>, stream = false): Promise<Response> {
+    const url = `${this.baseUrl}/v1/messages`
+    const res = await fetch(url, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': this.apiKey ? `Bearer ${this.apiKey}` : '',
+        'x-opencode-session': this.sessionId,
+        'anthropic-version': '2023-06-01',
+      },
+      body: JSON.stringify({ ...body, stream }),
+    })
+    if (!res.ok) {
+      const text = await res.text()
+      throw new Error(`Zen messages request failed: ${res.status} ${text}`)
+    }
+    return res
   }
 
   getContextWindow(): number {
@@ -145,8 +170,14 @@ export class OpenCodeProvider extends ChatCompletionsProvider {
     const protocol = this.protocol()
     if (protocol === 'chat') return super.complete(request)
     if (protocol === 'messages') {
+      const body = toAnthropicBody(request, this._model)
+      // Use fetch for client-session (no apiKey), SDK otherwise
+      if (!this.apiKey) {
+        const res = await this.messagesRequest(body)
+        return fromAnthropic(await res.json() as { content?: AnthropicResponseBlock[]; usage?: { input_tokens?: number; output_tokens?: number }; model?: string }, this._model)
+      }
       const client = await this.anthropicClient()
-      const res = (await client.messages.create(toAnthropicBody(request, this._model) as never)) as {
+      const res = (await client.messages.create(body as never)) as {
         content?: AnthropicResponseBlock[]; usage?: { input_tokens?: number; output_tokens?: number }; model?: string
       }
       return fromAnthropic(res, this._model)
@@ -161,8 +192,40 @@ export class OpenCodeProvider extends ChatCompletionsProvider {
     const protocol = this.protocol()
     if (protocol === 'chat') return super.stream(request)
     if (protocol === 'messages') {
+      const body = toAnthropicBody(request, this._model)
+      // Use fetch for client-session (no apiKey), SDK otherwise
+      if (!this.apiKey) {
+        const res = await this.messagesRequest(body, true)
+        async function* generate(): AsyncGenerator<LLMChunk> {
+          const reader = res.body?.getReader()
+          if (!reader) { yield { delta: '', done: true }; return }
+          const decoder = new TextDecoder()
+          let buffer = ''
+          while (true) {
+            const { done, value } = await reader.read()
+            if (done) break
+            buffer += decoder.decode(value, { stream: true })
+            const lines = buffer.split('\n')
+            buffer = lines.pop() ?? ''
+            for (const line of lines) {
+              if (line.startsWith('data: ')) {
+                const data = line.slice(6).trim()
+                if (data === '[DONE]') { yield { delta: '', done: true }; return }
+                try {
+                  const event = JSON.parse(data)
+                  if (event.type === 'content_block_delta' && event.delta?.type === 'text_delta' && event.delta.text) {
+                    yield { delta: event.delta.text, done: false }
+                  }
+                } catch { /* ignore malformed SSE lines */ }
+              }
+            }
+          }
+          yield { delta: '', done: true }
+        }
+        return generate()
+      }
       const client = await this.anthropicClient()
-      const stream = await client.messages.create({ ...toAnthropicBody(request, this._model), stream: true } as never) as unknown as AsyncIterable<{
+      const stream = await client.messages.create({ ...body, stream: true } as never) as unknown as AsyncIterable<{
         type: string; delta?: { type?: string; text?: string }
       }>
       async function* generate(): AsyncGenerator<LLMChunk> {
@@ -175,6 +238,9 @@ export class OpenCodeProvider extends ChatCompletionsProvider {
       }
       return generate()
     }
-    return super.stream(request)
+    if (protocol === 'systemone') {
+      throw new UnsupportedOperationError(`Jev "${this._model}" is a decision model (no prose); call decideWithJev() from llm/systemone.ts`, 'OpenCode')
+    }
+    throw new UnsupportedOperationError(`Zen "${this._model}" is served on /v1/responses, which this provider does not implement yet`, 'OpenCode')
   }
 }

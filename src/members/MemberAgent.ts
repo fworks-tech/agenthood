@@ -24,7 +24,7 @@ import { RefactorSkill } from '../tools/code/RefactorSkill.ts'
 import { PrSyncSkill } from '../tools/pr/PrSyncSkill.ts'
 import { AskHumanTool } from '../tools/human/AskHumanTool.ts'
 import { SubagentTaskSkill } from '../tools/core/SubagentTaskSkill.ts'
-import { escapeXml, wrapProjectContext, loadProjectContext, wrapSkillsCatalog, SKILLS_CATALOG_GUARD, wrapSkillContent, SKILL_CONTENT_GUARD } from '../agents/memberLore.ts'
+import { escapeXml, wrapProjectContext, loadProjectContext, wrapSkillsCatalog, SKILLS_CATALOG_GUARD, wrapSkillContent, SKILL_CONTENT_GUARD, wrapRepoInstructions, REPO_INSTRUCTIONS_GUARD } from '../agents/memberLore.ts'
 import { checkSkillIntegrity, describeIntegrityFailure, recordSkillIntegrityDrift, SkillIntegrityError } from '../utils/skillIntegrity.ts'
 import type { SkillIntegrityFailure } from '../utils/skillIntegrity.ts'
 import { sharedConversationalStyle, CUSTOM_SOURCE_PREFIX } from './MemberRegistry.ts'
@@ -208,6 +208,18 @@ export class MemberAgent extends BaseAgent {
         '## Available Skills',
         SKILLS_CATALOG_GUARD,
         wrapSkillsCatalog(context.skillsCatalog),
+      )
+    }
+
+    // Repo guidance lands after the catalog so a skill description can never
+    // outrank the project's own rules in recency (ADR-029: untrusted content is
+    // data; this file is repo-controlled but still not agenthood-authored).
+    if (context.repoInstructions) {
+      parts.push(
+        '',
+        '## Repository Instructions',
+        REPO_INSTRUCTIONS_GUARD,
+        wrapRepoInstructions(context.repoInstructions),
       )
     }
 

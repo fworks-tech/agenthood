@@ -1,5 +1,20 @@
 # Runtime Guide
 
+## Per-Repo Agent Instructions
+
+At session start, `agenthood run` reads agent guidance from the project root:
+`AGENTS.md` if present, otherwise `CLAUDE.md`. `AGENTS.md` wins when both exist —
+it is the cross-client convention, `CLAUDE.md` the older alias. The runtime reads
+these files and never writes them; they belong to the repository.
+
+The content is appended to each member's system prompt in a `<repo_instructions>`
+boundary, after the skills catalog, with a guard stating that it is project guidance
+and never overrides safety boundaries or tool permissions. Injected boundary tags are
+stripped, so a cloned repository cannot close the tag and speak as the harness.
+
+Content is truncated at 64 KB with a visible marker — the file is guidance, not a data
+channel. Only the project root is scanned; nested `AGENTS.md` files are ignored.
+
 ## Provider Failover Configuration
 
 The runtime supports automatic provider failover when a provider fails (rate limit, outage, auth error). Configure an ordered list of providers in `.agenthood/config.json`:

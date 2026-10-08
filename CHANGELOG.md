@@ -1,3 +1,10 @@
+# [3.75.0](https://github.com/fworks-tech/agenthood/compare/v3.74.0...v3.75.0) (2026-10-08)
+
+
+### Features
+
+* **llm:** make the OpenCode Zen provider protocol-aware and add Jev System One ([#1012](https://github.com/fworks-tech/agenthood/issues/1012)) ([66b83d7](https://github.com/fworks-tech/agenthood/commit/66b83d7dd637742ecb06dd5c1637ffba1e434bf6)), refs #589
+
 # [3.74.0](https://github.com/fworks-tech/agenthood/compare/v3.73.0...v3.74.0) (2026-10-08)
 
 

@@ -5,6 +5,14 @@
 
 ---
 
+## v3.75.0 — October 8, 2026
+
+### ✨ Features
+
+- **Llm:** make the OpenCode Zen provider protocol-aware and add Jev System One (#1012), refs #589
+
+---
+
 ## v3.74.0 — October 8, 2026
 
 ### ✨ Features

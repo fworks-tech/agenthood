@@ -47,6 +47,7 @@ import { OracleAgent } from '../agents/OracleAgent.ts'
 import { MemberRunner } from './MemberRunner.ts'
 import type { CheckpointStore } from '../checkpoint/RunCheckpoint.ts'
 import { connectVectorStore, discoverSkills, loadSocietyGraph } from './contextSetup.ts'
+import { loadRepoInstructions } from './repoInstructions.ts'
 
 /** Composition root for `agenthood run` — commands consume one of these. */
 export interface ApplicationContextOptions {
@@ -123,6 +124,7 @@ export class ApplicationContext {
       artifacts: [],
       oracle: { ask: (q: string) => oracleAgent.ask(q, this.ctx) },
       skillsCatalog: skills.catalog || undefined,
+      repoInstructions: loadRepoInstructions(projectPath) || undefined,
       sentry,
       redactor,
       usage: { promptTokens: 0, completionTokens: 0, totalTokens: 0 },

@@ -14,7 +14,7 @@ function writeSkill(name: string, body: string): void {
 }
 
 /**
- * version is the content hash of SKILL.md at install time — the same hash
+ * contentHash is the SHA-256 of SKILL.md at install time — the same hash
  * `agenthood verify` locks for members. Callers pass the expected body so the
  * fixture and the lockfile agree by construction.
  */
@@ -26,7 +26,7 @@ function writeSkillsLock(skills: Record<string, { source: string; body?: string 
         name,
         {
           source: s.source,
-          ...(s.body !== undefined ? { version: contentHash(`---\nname: ${name}\ndescription: A probe\n---\n${s.body}`) } : {}),
+          ...(s.body !== undefined ? { contentHash: contentHash(`---\nname: ${name}\ndescription: A probe\n---\n${s.body}`) } : {}),
           installedAt: '2026-10-08T00:00:00.000Z',
         },
       ]),

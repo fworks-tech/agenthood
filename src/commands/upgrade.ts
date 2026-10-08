@@ -1,13 +1,14 @@
 import type { CommandDescriptor } from './types.ts'
 import { SkillRegistryClient } from '../skills/registry/SkillRegistryClient.ts'
 import { resolveSkillsDir } from '../members.ts'
-import { loadSkillsLockfile, saveSkillsLockfile } from './skillsLock.ts'
+import { loadSkillsLockfile, saveSkillsLockfile, type LockEntry, type Lockfile } from './skillsLock.ts'
 import { existsSync, readFileSync, writeFileSync, mkdirSync } from 'node:fs'
 import { join, dirname } from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { execFileSync } from 'node:child_process'
 import { systemError } from '../core/cliError.ts'
 import { fetchRemoteText } from '../skills/discovery/RemoteSkillSource.ts'
+import { contentHash } from '../utils/hash.ts'
 
 const NPM_LATEST_URL = 'https://registry.npmjs.org/agenthood/latest'
 
@@ -72,17 +73,6 @@ function backupConfig(configDir: string): void {
   }
 }
 
-interface LockEntry {
-  source: string
-  version?: string
-  installedAt: string
-}
-
-interface Lockfile {
-  version: number
-  skills: Record<string, LockEntry>
-}
-
 function printHelp(): void {
   console.log(`Usage:
   npx agenthood upgrade [skill-name]
@@ -121,10 +111,15 @@ async function resolveUpgradeTarget(
       return false
     }
 
+    // Download the skill to compute its content hash for drift detection
+    const skillContent = await client.download(name, remote.version)
+    const hash = contentHash(skillContent)
+
     console.log(`  ${name}: upgrading from ${entry?.version ?? 'unknown'} to v${remote.version}`)
     lock.skills[name] = {
       source: entry?.source ?? `registry:${name}`,
       version: remote.version,
+      contentHash: hash,
       installedAt: new Date().toISOString(),
     }
     return true

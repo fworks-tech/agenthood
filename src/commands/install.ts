@@ -104,16 +104,25 @@ function resolveSkillName(skillMdPath: string): string {
   return name
 }
 
-function writeSkillToDestination(skillMdPath: string, skillsDir: string, name: string, source: string, destDir: string): void {
+function writeSkillToDestination(skillMdPath: string, skillsDir: string, name: string, source: string, destDir: string, frozen = false): void {
   mkdirSync(skillsDir, { recursive: true })
   if (existsSync(destDir)) throw new Error(`Skill "${name}" already exists. Use a different name or remove it first.`)
   cpSync(skillMdPath, join(destDir, 'SKILL.md'))
+  const content = readFileSync(skillMdPath, 'utf-8')
+  const hash = contentHash(content)
   const lock = loadSkillsLockfile(skillsDir)
-  // `version` is the SHA-256 of the SKILL.md we just wrote, so a later
-  // `install --frozen` / `verify` can detect drift. Pre-#604 locks omit it and
-  // the frozen gate treats absence as presence-only rather than drift.
-  lock.skills[name] = { source, version: contentHash(readFileSync(skillMdPath, 'utf-8')), installedAt: new Date().toISOString() }
-  saveSkillsLockfile(skillsDir, lock)
+  // Store both semantic version (for display/upgrade) and content hash (for drift detection).
+  // URL/git installs don't have a registry version; use a placeholder.
+  const existing = lock.skills[name]
+  lock.skills[name] = {
+    source,
+    version: existing?.version ?? '1.0.0',
+    contentHash: hash,
+    installedAt: new Date().toISOString(),
+  }
+  if (!frozen) {
+    saveSkillsLockfile(skillsDir, lock)
+  }
 }
 
 export async function install(args: string[]): Promise<void> {
@@ -159,10 +168,14 @@ export async function install(args: string[]): Promise<void> {
       return
     }
 
-    writeSkillToDestination(skillMdPath, skillsDir, name, source, destDir)
+    writeSkillToDestination(skillMdPath, skillsDir, name, source, destDir, frozen)
 
-    console.log(`  ✓ ${name} installed to ${join(skillsDir, name)}`)
-    console.log(`  ✓ Locked in ${SKILLS_LOCKFILE}\n`)
+    if (!frozen) {
+      console.log(`  ✓ ${name} installed to ${join(skillsDir, name)}`)
+      console.log(`  ✓ Locked in ${SKILLS_LOCKFILE}\n`)
+    } else {
+      console.log(`  ✓ Frozen verified — ${name} matches lockfile\n`)
+    }
   } catch (err) {
     console.error(`  ✗ Install failed: ${(err as Error)?.message ?? err}`)
     process.exit(1)

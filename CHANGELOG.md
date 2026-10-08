@@ -1,3 +1,10 @@
+# [3.74.0](https://github.com/fworks-tech/agenthood/compare/v3.73.0...v3.74.0) (2026-10-08)
+
+
+### Features
+
+* **llm:** add OpenCode client session backend for agenthood run ([#1009](https://github.com/fworks-tech/agenthood/issues/1009)) ([ca7aecb](https://github.com/fworks-tech/agenthood/commit/ca7aecbfcde0922ed074a8cbeb25291b85ea1cd8))
+
 # [3.73.0](https://github.com/fworks-tech/agenthood/compare/v3.72.1...v3.73.0) (2026-10-07)
 
 

@@ -5,6 +5,7 @@ import { SKILLS_LOCKFILE } from '../members.ts'
 export interface SkillsLockEntry {
   source: string
   version?: string
+  contentHash?: string
   installedAt: string
 }
 
@@ -12,6 +13,9 @@ export interface SkillsLockfile {
   version: number
   skills: Record<string, SkillsLockEntry>
 }
+
+export type LockEntry = SkillsLockEntry
+export type Lockfile = SkillsLockfile
 
 export function loadSkillsLockfile(skillsDir: string): SkillsLockfile {
   const lockPath = join(skillsDir, SKILLS_LOCKFILE)

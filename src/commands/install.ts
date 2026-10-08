@@ -14,6 +14,8 @@ import { loadSkillsLockfile, saveSkillsLockfile } from './skillsLock.ts'
 import { SkillParser, SPEC_NAME_RE } from '../skills/discovery/SkillParser.ts'
 import { resolveSkillFile } from '../skills/discovery/skillFile.ts'
 import { validateRemoteUrl, fetchRemoteText, GIT_TIMEOUT_MS } from '../skills/discovery/RemoteSkillSource.ts'
+import { assertFrozenInstall, reportFrozenFailure } from '../skills/frozen.ts'
+import { contentHash } from '../utils/hash.ts'
 
 function isGitUrl(url: string): boolean {
   return /\.git$/.test(url) || /^git@/.test(url) || /^https?:\/\/.*\/.*\/.*\/.*$/.test(url)
@@ -102,25 +104,39 @@ function resolveSkillName(skillMdPath: string): string {
   return name
 }
 
-function writeSkillToDestination(skillMdPath: string, skillsDir: string, name: string, source: string, destDir: string): void {
+function writeSkillToDestination(skillMdPath: string, skillsDir: string, name: string, source: string, destDir: string, frozen = false): void {
   mkdirSync(skillsDir, { recursive: true })
   if (existsSync(destDir)) throw new Error(`Skill "${name}" already exists. Use a different name or remove it first.`)
   cpSync(skillMdPath, join(destDir, 'SKILL.md'))
+  const content = readFileSync(skillMdPath, 'utf-8')
+  const hash = contentHash(content)
   const lock = loadSkillsLockfile(skillsDir)
-  lock.skills[name] = { source, installedAt: new Date().toISOString() }
-  saveSkillsLockfile(skillsDir, lock)
+  // Store both semantic version (for display/upgrade) and content hash (for drift detection).
+  // URL/git installs don't have a registry version; use a placeholder.
+  const existing = lock.skills[name]
+  lock.skills[name] = {
+    source,
+    version: existing?.version ?? '1.0.0',
+    contentHash: hash,
+    installedAt: new Date().toISOString(),
+  }
+  if (!frozen) {
+    saveSkillsLockfile(skillsDir, lock)
+  }
 }
 
 export async function install(args: string[]): Promise<void> {
   const dryRun = args.includes('--dry-run')
+  const frozen = args.includes('--frozen')
   const source = args.filter((a) => !a.startsWith('--'))[0]
   if (!source) {
-    console.error('\nUsage: agenthood install <url-or-git-repo> [--dry-run]\n')
+    console.error('\nUsage: agenthood install <url-or-git-repo> [--dry-run] [--frozen]\n')
     console.error('Examples:')
     console.error('  agenthood install https://github.com/user/repo')
     console.error('  agenthood install https://example.com/skill/SKILL.md')
     console.error('  agenthood install git@github.com:user/repo.git')
-    console.error('  agenthood install https://github.com/user/repo --dry-run\n')
+    console.error('  agenthood install https://github.com/user/repo --dry-run')
+    console.error('  agenthood install https://github.com/user/repo --frozen\n')
     process.exit(1)
     return
   }
@@ -138,16 +154,28 @@ export async function install(args: string[]): Promise<void> {
     const name = resolveSkillName(skillMdPath)
     const destDir = join(skillsDir, name)
 
+    if (frozen) {
+      // --frozen means the lockfile is the source of truth. It must describe the
+      // skill on disk, and the requested skill must already be in it — otherwise
+      // this install would rewrite skills-lock.json.
+      const report = assertFrozenInstall(cwd, source, name, contentHash(readFileSync(skillMdPath, 'utf-8')))
+      if (!report.ok) reportFrozenFailure(report)
+    }
+
     if (dryRun) {
       console.log(`\n  Dry run — would install "${name}" from ${source}`)
       console.log(`  Destination: ${destDir}\n`)
       return
     }
 
-    writeSkillToDestination(skillMdPath, skillsDir, name, source, destDir)
+    writeSkillToDestination(skillMdPath, skillsDir, name, source, destDir, frozen)
 
-    console.log(`  ✓ ${name} installed to ${join(skillsDir, name)}`)
-    console.log(`  ✓ Locked in ${SKILLS_LOCKFILE}\n`)
+    if (!frozen) {
+      console.log(`  ✓ ${name} installed to ${join(skillsDir, name)}`)
+      console.log(`  ✓ Locked in ${SKILLS_LOCKFILE}\n`)
+    } else {
+      console.log(`  ✓ Frozen verified — ${name} matches lockfile\n`)
+    }
   } catch (err) {
     console.error(`  ✗ Install failed: ${(err as Error)?.message ?? err}`)
     process.exit(1)

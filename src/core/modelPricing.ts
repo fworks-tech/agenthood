@@ -44,6 +44,8 @@ const PRICING_TABLE: Array<{ match: string; price: ModelPrice }> = [
   { match: 'mistral', price: { provider: 'ollama', inputPer1M: 0, outputPer1M: 0 } },
   // OpenCode Go / Zen (https://opencode.ai/docs/go/ — base tier pricing)
   { match: 'deepseek-v4-flash', price: { provider: 'opencode', inputPer1M: 0.14, outputPer1M: 0.28 } },
+  { match: 'glm-5.3-flash', price: { provider: 'opencode', inputPer1M: 0.15, outputPer1M: 0.5 } },
+  { match: 'qwen3.8-flash', price: { provider: 'opencode', inputPer1M: 0.15, outputPer1M: 0.47 } },
   { match: 'longcat-2.0', price: { provider: 'opencode', inputPer1M: 0.30, outputPer1M: 1.20 } },
   { match: 'mimo-v2.5', price: { provider: 'opencode', inputPer1M: 0.14, outputPer1M: 0.28 } },
   { match: 'deepseek-v4-pro', price: { provider: 'opencode', inputPer1M: 0.435, outputPer1M: 0.87 } },

@@ -69,11 +69,20 @@ describe("OpenCodeProvider stream error mapping", () => {
     mockCreate.mockReset();
   });
 
+  // These map the chat-completions (OpenAI SDK) path's error classification.
+  // Pin a chat-protocol model — the package default is a /v1/messages model,
+  // which would route around the mocked OpenAI client entirely.
+  function chatProvider() {
+    const provider = new OpenCodeProvider({ apiKey: "key" });
+    provider.setModel("deepseek-v4-flash");
+    return provider;
+  }
+
   it("maps 429 to RateLimitedError with retry-after", async () => {
     const err = makeSdkError(429, "rate limited");
     err.headers = { "retry-after": "5" };
     mockCreate.mockRejectedValue(err);
-    const provider = new OpenCodeProvider({ apiKey: "key" });
+    const provider = chatProvider();
 
     await expect(provider.stream({ messages: [{ role: "user", content: "hi" }] })).rejects.toThrow(
       RateLimitedError,
@@ -82,7 +91,7 @@ describe("OpenCodeProvider stream error mapping", () => {
 
   it("maps 401 to AuthError", async () => {
     mockCreate.mockRejectedValue(makeSdkError(401, "unauthorized"));
-    const provider = new OpenCodeProvider({ apiKey: "key" });
+    const provider = chatProvider();
 
     await expect(provider.stream({ messages: [{ role: "user", content: "hi" }] })).rejects.toThrow(
       AuthError,
@@ -93,7 +102,7 @@ describe("OpenCodeProvider stream error mapping", () => {
     const err = new Error("connect failed") as Error & { code?: string };
     err.name = "TimeoutError";
     mockCreate.mockRejectedValue(err);
-    const provider = new OpenCodeProvider({ apiKey: "key" });
+    const provider = chatProvider();
 
     await expect(provider.stream({ messages: [{ role: "user", content: "hi" }] })).rejects.toThrow(
       TimeoutError,

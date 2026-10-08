@@ -15,6 +15,9 @@ export type {
   RoutingConfig,
 } from "./types.ts"
 export { LLMRouter, ComplexityScorer } from "./LLMRouter.ts"
+export { decideWithJev, chooseWithJev, JEV_DEFAULT_MODEL } from "./systemone.ts"
+export type { JevQuestion, JevAnswer, JevOptions } from "./systemone.ts"
+export { zenProtocolForModel, isZenMessagesModel } from "./providers/zenEndpoints.ts"
 export { ProviderChain, AllProvidersFailedError, classifyError } from "./ProviderFailover.ts"
 export type { ClassifiedError } from "./providerFailoverTypes.ts"
 export {

@@ -65,7 +65,7 @@ describe("OpenCodeGoProvider", () => {
     };
     await provider.complete(request);
     const body = mockCreate.mock.calls[0][0];
-    expect(body).toMatchObject({ model: "mimo-v2.5" });
+    expect(body).toMatchObject({ model: "glm-5.3-flash" });
     expect(body).toHaveProperty("tools");
     expect(body).toHaveProperty("temperature", 0.7);
     expect(body).toHaveProperty("max_tokens", 2048);

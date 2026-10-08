@@ -5,6 +5,14 @@
 
 ---
 
+## v3.74.0 — October 8, 2026
+
+### ✨ Features
+
+- **Llm:** add OpenCode client session backend for agenthood run (#1009)
+
+---
+
 ## v3.73.0 — October 7, 2026
 
 ### ✨ Features

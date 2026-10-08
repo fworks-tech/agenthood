@@ -44,21 +44,31 @@ const opencodeConverters: ParamConverters = {
 
 export class OpenCodeProvider extends ChatCompletionsProvider {
   constructor(config: LLMConfig, runtimeOptions: { goTier?: boolean } = {}) {
+    // Detect if running inside the OpenCode client session — users whose Zen
+    // access exists only inside the client (no standalone API key) should be
+    // able to use agenthood run without OPENCODE_API_KEY set.
+    const isInsideClient = !!process.env.OPENCODE_CLIENT_SESSION
+
     const options: ChatCompletionsProviderOptions = {
       providerName: "OpenCode",
       apiKeyEnv: "OPENCODE_API_KEY",
-      requireApiKey: true,
+      // When inside the OpenCode client, the session auth is handled by the
+      // x-opencode-session header; no standalone API key is required.
+      requireApiKey: !isInsideClient,
       signupUrl: "https://opencode.ai",
       baseUrlDefault: "https://opencode.ai/zen/v1",
       defaultModel: OPENCODE_DEFAULT_MODEL,
       contextWindow: DEFAULT_CONTEXT_WINDOW,
       converters: opencodeConverters,
       paramsBuilder: runtimeOptions.goTier ? buildGoCompleteParams : undefined,
-      createClient: (apiKey, baseUrl) => new OpenAI({
-        apiKey,
-        baseURL: baseUrl,
-        defaultHeaders: { "x-opencode-session": randomUUID() },
-      }),
+      createClient: (apiKey, baseUrl) =>
+        new OpenAI({
+          apiKey: isInsideClient ? undefined : apiKey,
+          baseURL: baseUrl,
+          defaultHeaders: {
+            "x-opencode-session": process.env.OPENCODE_CLIENT_SESSION || randomUUID(),
+          },
+        }),
     };
     super(config, options);
   }

@@ -21,13 +21,16 @@ function makeSdkError(status: number, message = "api error") {
   return err;
 }
 
+// Helper to create a provider with optional session env var
 describe("OpenCodeProvider constructor", () => {
   beforeEach(() => {
     delete process.env.OPENCODE_API_KEY;
+    delete process.env.OPENCODE_CLIENT_SESSION;
   });
 
   afterEach(() => {
     delete process.env.OPENCODE_API_KEY;
+    delete process.env.OPENCODE_CLIENT_SESSION;
   });
 
   it("uses config.apiKey if provided", () => {
@@ -35,17 +38,28 @@ describe("OpenCodeProvider constructor", () => {
     expect(provider).toBeDefined();
   });
 
-  it("falls back to OPENCODE_API_KEY env var", () => {
+  it("falls back to OPENCODE_API_KEY env var when no client session", () => {
     process.env.OPENCODE_API_KEY = "env-key";
+    delete process.env.OPENCODE_CLIENT_SESSION;
     const provider = new OpenCodeProvider({});
     expect(provider).toBeDefined();
   });
 
-  it("throws MissingApiKeyError when no key is set", () => {
+  it("does not require API key when OPENCODE_CLIENT_SESSION is set", () => {
+    process.env.OPENCODE_CLIENT_SESSION = "test-session-123";
+    delete process.env.OPENCODE_API_KEY;
+    const provider = new OpenCodeProvider({});
+    expect(provider).toBeDefined();
+  });
+
+  it("throws MissingApiKeyError when no key is set and no client session", () => {
+    delete process.env.OPENCODE_CLIENT_SESSION;
+    delete process.env.OPENCODE_API_KEY;
     expect(() => new OpenCodeProvider({})).toThrow(MissingApiKeyError);
   });
 
-  it("throws a clear message naming the env var", () => {
+  it("throws a clear message naming the env var when no key is set and no client session", () => {
+    delete process.env.OPENCODE_CLIENT_SESSION;
     expect(() => new OpenCodeProvider({})).toThrow(/OPENCODE_API_KEY/);
   });
 });

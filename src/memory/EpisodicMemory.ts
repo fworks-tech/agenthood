@@ -1,5 +1,6 @@
 import type { ILLMProvider } from "../llm/ILLMProvider.ts"
 import type { IVectorStore } from "./VectorStore.ts"
+import type { EpisodicMemory } from "../core/types.ts"
 
 export interface EpisodeEntry {
   episode: string
@@ -7,7 +8,7 @@ export interface EpisodeEntry {
   timestamp: Date
 }
 
-export class EpisodicMemoryImpl {
+export class EpisodicMemoryImpl implements EpisodicMemory {
   private vectorStore: IVectorStore
   private embedder?: ILLMProvider
 

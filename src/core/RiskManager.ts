@@ -1,4 +1,5 @@
 import type { ITool } from '../tools/ITool.ts'
+import { minimatch } from 'minimatch'
 
 /** Per-tool constraints that define acceptable execution boundaries. */
 export interface RiskPolicy {
@@ -32,39 +33,9 @@ const DEFAULT_POLICY: RiskPolicy = {
   maxFileSizeBytes: 5 * 1024 * 1024,
 }
 
-/**
- * Simple glob matcher supporting * (single segment) and ** (multi-segment).
- * Uses backtracking so ** matches across directory boundaries.
- */
+/** Glob matcher using minimatch (value, pattern order). */
 function matchesGlob(pattern: string, value: string): boolean {
-  if (pattern === '**') return true
-  const parts = pattern.split('/')
-  const valueParts = value.replace(/\\/g, '/').split('/')
-
-  let pi = 0
-  let vi = 0
-  let backtrackP = -1
-  let backtrackV = -1
-
-  while (vi < valueParts.length) {
-    if (pi < parts.length && (parts[pi] === '**')) {
-      backtrackP = pi
-      backtrackV = vi
-      pi++
-    } else if (pi < parts.length && (parts[pi] === valueParts[vi] || parts[pi] === '*')) {
-      pi++
-      vi++
-    } else if (backtrackP !== -1) {
-      pi = backtrackP + 1
-      vi = ++backtrackV
-    } else {
-      return false
-    }
-  }
-
-  while (pi < parts.length && parts[pi] === '**') pi++
-
-  return pi >= parts.length
+  return minimatch(value.replace(/\\/g, '/'), pattern, { dot: true })
 }
 
 /**

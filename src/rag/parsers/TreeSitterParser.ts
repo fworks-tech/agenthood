@@ -11,10 +11,6 @@ export interface CodeEntity {
 
 export type SupportedLanguage = 'typescript' | 'javascript' | 'python' | 'go'
 
-export interface IParser {
-  parse(source: string, language: SupportedLanguage, filePath: string): CodeEntity[]
-}
-
 const LANGUAGE_MAP: Record<SupportedLanguage, string[]> = {
   typescript: ['.ts', '.tsx', '.mts', '.cts'],
   javascript: ['.js', '.jsx', '.mjs', '.cjs'],
@@ -70,7 +66,7 @@ interface TreeSitterParserInstance {
   parse(source: string): TreeSitterTree
 }
 
-export class TreeSitterParser implements IParser {
+export class TreeSitterParser {
   private parsers: Map<SupportedLanguage, TreeSitterParserInstance> = new Map()
   private ready = false
 

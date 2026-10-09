@@ -5,7 +5,7 @@ import { resolveSocietyMembersDir, MEMBER_NAMES } from '../../../src/members.ts'
 
 describe('resolveSocietyMembersDir (#740)', () => {
   it('points at the canonical skills/ dir where member SKILL.md files live', () => {
-    expect(existsSync(join(resolveSocietyMembersDir(), 'the-architect', 'SKILL.md'))).toBe(true)
+    expect(existsSync(join(resolveSocietyMembersDir(), 'architect', 'SKILL.md'))).toBe(true)
   })
 
   it('resolves every society member to an on-disk SKILL.md (verify can run on this repo)', () => {

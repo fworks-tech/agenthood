@@ -4,15 +4,15 @@ import { evaluateSurfaces, formatTriggerReport, loadTriggerSet, runTriggerRate }
 import type { TriggerQuerySet } from '../../../src/evals/trigger.ts'
 
 const set: TriggerQuerySet = {
-  member: 'the-scribe',
+  member: 'scribe',
   shouldTrigger: ['write a commit message'],
   shouldNotTrigger: ['debug the crash'],
 }
 
 describe('loadTriggerSet', () => {
   it('reads and validates the shipped sample set', () => {
-    const loaded = loadTriggerSet(join(process.cwd(), 'evals', 'triggers', 'the-scribe.json'))
-    expect(loaded.member).toBe('the-scribe')
+    const loaded = loadTriggerSet(join(process.cwd(), 'evals', 'triggers', 'scribe.json'))
+    expect(loaded.member).toBe('scribe')
     expect(loaded.shouldTrigger.length).toBeGreaterThanOrEqual(5)
     expect(loaded.shouldNotTrigger.length).toBeGreaterThanOrEqual(4)
   })
@@ -42,7 +42,7 @@ describe('evaluateSurfaces', () => {
 describe('formatTriggerReport', () => {
   it('renders the header, surface rows, split line, and healthy note', () => {
     const lines = formatTriggerReport({
-      member: 'the-scribe',
+      member: 'scribe',
       shouldTrigger: 5,
       shouldNot: 4,
       ranked: [{ surface: 'keyword', metrics: { precision: 1, recall: 1, accuracy: 1, f1: 1, truePositive: 5, falsePositive: 0, falseNegative: 0, trueNegative: 4 } }],
@@ -53,7 +53,7 @@ describe('formatTriggerReport', () => {
       recs: [],
     })
     const out = lines.join('\n')
-    expect(out).toContain('Trigger rate — the-scribe')
+    expect(out).toContain('Trigger rate — scribe')
     expect(out).toContain('5 should-trigger, 4 should-not')
     expect(out).toContain('keyword')
     expect(out).toMatch(/train 1\.00 \(3q\) \| validation 0\.80 \(2q\)/)

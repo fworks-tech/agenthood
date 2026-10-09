@@ -11,7 +11,7 @@ import { buildLorePrompt } from './memberLore.ts'
 
 const __filename = fileURLToPath(import.meta.url)
 const __dirname = dirname(__filename)
-const SKILL_PATH = join(__dirname, '..', '..', 'members', 'the-reviewer', 'SKILL.md')
+const SKILL_PATH = join(__dirname, '..', '..', 'members', 'reviewer', 'SKILL.md')
 
 export class ReviewerAgent extends BaseAgent {
   role = 'reviewer'

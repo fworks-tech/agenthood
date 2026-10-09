@@ -32,11 +32,11 @@ describe('EvalRunner', () => {
   it('runs the runner against each task and computes per-task scores', async () => {
     const { runner, inputs } = stubRunner('the answer')
     const judge = stubJudge({ faithfulness: 0.9, relevance: 0.8, context_recall: 0.7, answer_correctness: 0.6 })
-    const report = await new EvalRunner(runner, judge).run(suite, 'the-reviewer')
+    const report = await new EvalRunner(runner, judge).run(suite, 'reviewer')
 
     expect(inputs).toEqual(['task one', 'task two'])
     expect(report.suiteName).toBe('demo-suite')
-    expect(report.member).toBe('the-reviewer')
+    expect(report.member).toBe('reviewer')
     expect(report.timestamp).toBeTruthy()
     expect(report.tasks).toHaveLength(2)
     for (const task of report.tasks) {
@@ -199,7 +199,7 @@ describe('buildEvalResults', () => {
   it('converts a report into EvalResult episodes', async () => {
     const { runner } = stubRunner('out')
     const judge = stubJudge({ faithfulness: 0.9 })
-    const report = await new EvalRunner(runner, judge).run(suite, 'the-reviewer')
+    const report = await new EvalRunner(runner, judge).run(suite, 'reviewer')
     const results = buildEvalResults(report)
 
     expect(results).toHaveLength(2)
@@ -207,7 +207,7 @@ describe('buildEvalResults', () => {
       expect(result.episodeId).toMatch(/^eval-/)
       expect(result.scores).toEqual({ faithfulness: 0.9 })
       expect(result.durationMs).toBe(10)
-      expect(result.metadata?.member).toBe('the-reviewer')
+      expect(result.metadata?.member).toBe('reviewer')
       expect(result.metadata?.task).toBeTruthy()
     }
   })

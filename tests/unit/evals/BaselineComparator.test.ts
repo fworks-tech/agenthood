@@ -8,7 +8,7 @@ import type { EvalReport } from '../../../src/evals/EvalRunner.ts'
 function report(aggregate: Record<string, number>): EvalReport {
   return {
     suiteName: 'demo-suite',
-    member: 'the-reviewer',
+    member: 'reviewer',
     timestamp: '2026-08-14T00:00:00.000Z',
     tasks: [],
     aggregate,
@@ -16,7 +16,7 @@ function report(aggregate: Record<string, number>): EvalReport {
 }
 
 const baseline = {
-  member: 'the-reviewer',
+  member: 'reviewer',
   suiteName: 'demo-suite',
   timestamp: '2026-08-13T00:00:00.000Z',
   taskCount: 2,
@@ -87,11 +87,11 @@ describe('BaselineComparator', () => {
 
   it('saves a baseline file that can be loaded back', () => {
     const dir = mkdtempSync(join(tmpdir(), 'agenthood-baseline-'))
-    const path = join(dir, 'baselines', 'the-reviewer.json')
+    const path = join(dir, 'baselines', 'reviewer.json')
     try {
       const comparator = new BaselineComparator()
       const saved = comparator.saveBaseline(report({ faithfulness: 0.8 }), path)
-      expect(saved.member).toBe('the-reviewer')
+      expect(saved.member).toBe('reviewer')
       expect(saved.suiteName).toBe('demo-suite')
       expect(saved.taskCount).toBe(0)
       expect(comparator.loadBaseline(path)).toEqual(saved)

@@ -2,7 +2,7 @@ import { existsSync, mkdirSync, readFileSync, readdirSync, writeFileSync } from 
 import { join } from 'node:path'
 
 /** The Mediator's four intent buckets, slugs for the prose in
- * skills/the-mediator/SKILL.md "Classifying Intent". An intent outside this
+ * skills/mediator/SKILL.md "Classifying Intent". An intent outside this
  * set is bucket 1 by definition — a prompt that fits none of the four is
  * under-specified, not a fifth kind.
  */

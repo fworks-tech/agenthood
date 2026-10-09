@@ -6,7 +6,7 @@ import type { TraceEnvelope } from '../../../src/core/types.ts'
 
 function envelope(input: string, output = 'safe output'): TraceEnvelope {
   return createTraceEnvelope({
-    member: 'the-reviewer',
+    member: 'reviewer',
     input,
     output,
     durationMs: 10,

@@ -72,9 +72,16 @@ export function discoverMemberNames(
   },
 ): string[] {
   try {
+    // Match member directories (without 'the-' prefix)
+    const memberNames = new Set([
+      'scribe', 'architect', 'builder', 'reviewer', 'tester', 'debugger',
+      'auditor', 'herald', 'librarian', 'doorman', 'oracle', 'envoy',
+      'sentinel', 'warden', 'strategist', 'steward', 'operator', 'mediator',
+      'mailman', 'inspector',
+    ])
     return fs
       .readdir(skillsDir)
-      .filter((entry) => entry.isDirectory() && entry.name.startsWith('the-') && fs.exists(join(skillsDir, entry.name, 'SKILL.md')))
+      .filter((entry) => entry.isDirectory() && memberNames.has(entry.name) && fs.exists(join(skillsDir, entry.name, 'SKILL.md')))
       .map((entry) => entry.name)
       .sort()
   } catch (err) {
@@ -382,7 +389,7 @@ export function buildRunMemberTool(names: string[]): Record<string, ToolDefiniti
       description:
         'Run an Agenthood Society member as a real agent on a task (enforced behavior + audit trail). '
         + `Members: ${names.join(', ')}. `
-        + 'Use the-steward to route ambiguous tasks to the minimal member set first.',
+        + 'Use steward to route ambiguous tasks to the minimal member set first.',
       args: {
         member: z.enum(names as [string, ...string[]]),
         task: z.string().describe('Task for the member, e.g. "write a commit message for the current diff"'),

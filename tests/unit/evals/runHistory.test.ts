@@ -25,16 +25,16 @@ afterEach(() => {
 
 describe('RunHistory', () => {
   it('append creates the directory and writes a JSONL line', () => {
-    const history = new RunHistory('the-scribe', tempDir)
-    history.append(run({ member: 'the-scribe' }))
+    const history = new RunHistory('scribe', tempDir)
+    history.append(run({ member: 'scribe' }))
 
-    const path = RunHistory.historyPath('the-scribe', tempDir)
+    const path = RunHistory.historyPath('scribe', tempDir)
     const content = readFileSync(path, 'utf8')
-    expect(JSON.parse(content.trim())).toMatchObject({ member: 'the-scribe', passRate: 0.8 })
+    expect(JSON.parse(content.trim())).toMatchObject({ member: 'scribe', passRate: 0.8 })
   })
 
   it('load returns records oldest-first', () => {
-    const history = new RunHistory('the-scribe', tempDir)
+    const history = new RunHistory('scribe', tempDir)
     history.append(run({ timestamp: '2025-01-01T00:00:00.000Z', passRate: 0.7 }))
     history.append(run({ timestamp: '2025-01-02T00:00:00.000Z', passRate: 0.9 }))
 
@@ -45,7 +45,7 @@ describe('RunHistory', () => {
   })
 
   it('loadForSuite filters by suite name', () => {
-    const history = new RunHistory('the-scribe', tempDir)
+    const history = new RunHistory('scribe', tempDir)
     history.append(run({ suiteName: 'suite-a', passRate: 0.7 }))
     history.append(run({ suiteName: 'suite-b', passRate: 0.8 }))
     history.append(run({ suiteName: 'suite-a', passRate: 0.9 }))
@@ -61,7 +61,7 @@ describe('RunHistory', () => {
   })
 
   it('clear removes the history file', () => {
-    const history = new RunHistory('the-scribe', tempDir)
+    const history = new RunHistory('scribe', tempDir)
     history.append(run({}))
     expect(history.load()).toHaveLength(1)
 
@@ -70,16 +70,16 @@ describe('RunHistory', () => {
   })
 
   it('clear is a no-op when file is already gone', () => {
-    const history = new RunHistory('the-scribe', tempDir)
+    const history = new RunHistory('scribe', tempDir)
     expect(() => history.clear()).not.toThrow()
   })
 
   it('load skips malformed lines', () => {
-    const path = RunHistory.historyPath('the-scribe', tempDir)
+    const path = RunHistory.historyPath('scribe', tempDir)
     mkdirSync(tempDir, { recursive: true })
     writeFileSync(path, `{"valid":true}\nnot-json\n{"also":true}\n`)
 
-    const history = new RunHistory('the-scribe', tempDir)
+    const history = new RunHistory('scribe', tempDir)
     const loaded = history.load()
     expect(loaded).toHaveLength(2)
   })

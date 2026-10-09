@@ -23,7 +23,7 @@ vi.mock('../../../src/evals/descriptionOptimizer.ts', () => ({
 
 vi.mock('../../../src/commands/evalTriggers.ts', () => ({
   loadTriggerSet: () => ({
-    member: 'the-scribe',
+    member: 'scribe',
     shouldTrigger: ['write a commit'],
     shouldNotTrigger: ['debug code'],
   }),
@@ -71,19 +71,19 @@ describe('optimize command', () => {
 
   it('--json outputs machine-readable result', async () => {
     const logSpy = vi.spyOn(console, 'log').mockImplementation(() => {})
-    await command.handler(['the-scribe', '--triggers', 'test.json', '--json'])
+    await command.handler(['scribe', '--triggers', 'test.json', '--json'])
     const output = logSpy.mock.calls.map((c) => c[0]).join('')
     const parsed = JSON.parse(output)
-    expect(parsed.member).toBe('the-scribe')
+    expect(parsed.member).toBe('scribe')
     expect(parsed.improved).toBe(true)
     logSpy.mockRestore()
   })
 
   it('prints human-readable result by default', async () => {
     const logSpy = vi.spyOn(console, 'log').mockImplementation(() => {})
-    await command.handler(['the-scribe', '--triggers', 'test.json'])
+    await command.handler(['scribe', '--triggers', 'test.json'])
     const output = logSpy.mock.calls.map((c) => c[0]).join('')
-    expect(output).toContain('Description Optimization — the-scribe')
+    expect(output).toContain('Description Optimization — scribe')
     expect(output).toContain('Original:')
     expect(output).toContain('Best:')
     expect(output).toContain('Improved:')

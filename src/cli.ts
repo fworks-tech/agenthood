@@ -73,7 +73,7 @@ Commands:
   check                   Run the Doorman's health check
   activate <member>       Activate a specific member skill
   deactivate <member>     Deactivate a member skill
-  run <member> "<task>"   Run a Society member (the-scribe, the-reviewer, …)
+  run <member> "<task>"   Run a Society member (scribe, reviewer, …)
                             Use --detect to auto-detect members for the task
                             Use --provider <name> to override the LLM provider
   list                    List all members, their status, permission & provider
@@ -128,12 +128,12 @@ Members:\n${ALL_MEMBERS.map(({ name, tagline }) => `  ${name.padEnd(20)} ${tagli
 
 Examples:
   npx agenthood init
-  npx agenthood activate the-scribe
+  npx agenthood activate scribe
   npx agenthood check
   npx agenthood verify
   npx agenthood status --watch
   npx agenthood list
-  npx agenthood rollback the-scribe --dry-run
+  npx agenthood rollback scribe --dry-run
   npx agenthood ritual run morning-briefing
   npx agenthood workflow review-pr
   npx agenthood oath

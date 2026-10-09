@@ -7,7 +7,7 @@ import type { ExecutionContext } from '../../../src/core/ExecutionContext.ts'
 function baseEvent(overrides: Partial<RunEvent> = {}): RunEvent {
   return {
     executionId: 'exec-1',
-    member: 'the-scribe',
+    member: 'scribe',
     timestamp: '2026-01-01T00:00:00Z',
     type: 'run.started',
     task: 'write a commit message',
@@ -21,7 +21,7 @@ function makeEvent<T extends RunEvent['type']>(
 ): RunEvent & { type: T } {
   return {
     executionId: 'exec-1',
-    member: 'the-scribe',
+    member: 'scribe',
     timestamp: '2026-01-01T00:00:00Z',
     type,
     ...extra,

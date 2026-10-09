@@ -9,7 +9,7 @@ export interface RawSpec {
   preferredProvider: ProviderName
   /**
    * The lane map's "Owned Decisions" — what only this member may decide.
-   * Must mirror the Lane Map table in skills/the-sentinel/SKILL.md
+   * Must mirror the Lane Map table in skills/sentinel/SKILL.md
    * (parity enforced by tests/unit/members/lane-map-parity.test.ts).
    * Shared tokens between members = lane overlap (verify --strict).
    */
@@ -20,7 +20,7 @@ export interface RawSpec {
 
 export const rawSpecs: RawSpec[] = [
   {
-    name: 'the-scribe',
+    name: 'scribe',
     description: 'Writes conventional commit messages, PR descriptions, and changelogs',
     tagline: 'Commits, PRs, changelogs',
     category: 'engineering',
@@ -29,7 +29,7 @@ export const rawSpecs: RawSpec[] = [
     ownedDecisions: ['Commit messages', 'PR descriptions'],
   },
   {
-    name: 'the-architect',
+    name: 'architect',
     description: 'Drives spec-first development, task decomposition, and architecture decisions',
     tagline: 'Specs, planning, ADRs',
     category: 'engineering',
@@ -38,7 +38,7 @@ export const rawSpecs: RawSpec[] = [
     ownedDecisions: ['Specs', 'ADRs', 'Task decomposition', 'Branch scope'],
   },
   {
-    name: 'the-builder',
+    name: 'builder',
     description: 'Turns concrete requirements into the smallest verified code change',
     tagline: 'Coding and implementation',
     category: 'engineering',
@@ -47,7 +47,7 @@ export const rawSpecs: RawSpec[] = [
     ownedDecisions: ['Smallest verified change', 'Local validation', 'Handover'],
   },
   {
-    name: 'the-reviewer',
+    name: 'reviewer',
     description: 'Conducts five-axis code review: correctness, security, performance, maintainability, test coverage',
     tagline: 'Five-axis code review',
     category: 'validation',
@@ -56,7 +56,7 @@ export const rawSpecs: RawSpec[] = [
     ownedDecisions: ['Review criteria', 'Approval gates'],
   },
   {
-    name: 'the-tester',
+    name: 'tester',
     description: 'Writes tests before implementation (TDD), maintains coverage targets, and validates acceptance criteria',
     tagline: 'TDD and test generation',
     category: 'engineering',
@@ -65,7 +65,7 @@ export const rawSpecs: RawSpec[] = [
     ownedDecisions: ['TDD process', 'Coverage targets', 'Test types'],
   },
   {
-    name: 'the-debugger',
+    name: 'debugger',
     description: 'Five-step debugging protocol: reproduce, isolate, hypothesize, test, fix',
     tagline: 'Root cause analysis',
     category: 'engineering',
@@ -74,7 +74,7 @@ export const rawSpecs: RawSpec[] = [
     ownedDecisions: ['Root cause protocol', 'Investigation steps'],
   },
   {
-    name: 'the-auditor',
+    name: 'auditor',
     description: 'OWASP Top 10 security review, dependency audit, secrets scanning',
     tagline: 'Security and dependencies',
     category: 'validation',
@@ -83,7 +83,7 @@ export const rawSpecs: RawSpec[] = [
     ownedDecisions: ['OWASP', 'Secrets', 'Dependency vulnerabilities'],
   },
   {
-    name: 'the-herald',
+    name: 'herald',
     description: 'Manages semver determination, changelog generation, and release publishing',
     tagline: 'Releases and versioning',
     category: 'lifecycle',
@@ -92,7 +92,7 @@ export const rawSpecs: RawSpec[] = [
     ownedDecisions: ['Semver', 'changelogs', 'Release notes'],
   },
   {
-    name: 'the-librarian',
+    name: 'librarian',
     description: 'Keeps documentation synchronized with code changes',
     tagline: 'Documentation and ADRs',
     category: 'knowledge',
@@ -101,7 +101,7 @@ export const rawSpecs: RawSpec[] = [
     ownedDecisions: ['ADR storage', 'Doc sync', 'Knowledge management'],
   },
   {
-    name: 'the-doorman',
+    name: 'doorman',
     description: 'Validates commit messages against conventional commit rules. Gatekeeps every commit',
     tagline: 'Validation and enforcement',
     category: 'validation',
@@ -110,7 +110,7 @@ export const rawSpecs: RawSpec[] = [
     ownedDecisions: ['Hook setup', 'Lint', 'Gate checks', 'Health checks'],
   },
   {
-    name: 'the-oracle',
+    name: 'oracle',
     description: 'Cross-session institutional memory. Retrieves past decisions, patterns, and context',
     tagline: 'Research and knowledge',
     category: 'knowledge',
@@ -119,7 +119,7 @@ export const rawSpecs: RawSpec[] = [
     ownedDecisions: ['Member templates', 'Naming', 'Registration maps'],
   },
   {
-    name: 'the-envoy',
+    name: 'envoy',
     description: 'Cross-runtime translator. Adapts skills for non-Anthropic providers',
     tagline: 'Communication and handoffs',
     category: 'lifecycle',
@@ -128,7 +128,7 @@ export const rawSpecs: RawSpec[] = [
     ownedDecisions: ['Skill format mapping', 'Bootstrap', 'Skill matrix'],
   },
   {
-    name: 'the-sentinel',
+    name: 'sentinel',
     description: 'Guards quality standards: validates member schema, ADR presence, CI gate integrity',
     tagline: 'Member file validation',
     category: 'validation',
@@ -137,7 +137,7 @@ export const rawSpecs: RawSpec[] = [
     ownedDecisions: ['Member consistency', 'Contradiction detection', 'Drift'],
   },
   {
-    name: 'the-warden',
+    name: 'warden',
     description: 'Enforces project conventions: file naming, directory structure, import rules',
     tagline: 'File size enforcement',
     category: 'validation',
@@ -146,7 +146,7 @@ export const rawSpecs: RawSpec[] = [
     ownedDecisions: ['Smell identification', 'Architectural decay', 'Complexity'],
   },
   {
-    name: 'the-strategist',
+    name: 'strategist',
     description: 'Translates ambiguous goals into structured problem statements, success criteria, and ranked priorities',
     tagline: 'Goal refinement and requirement discovery',
     category: 'engineering',
@@ -155,7 +155,7 @@ export const rawSpecs: RawSpec[] = [
     ownedDecisions: ['Problem statements', 'Success measures', 'Ranked priorities'],
   },
   {
-    name: 'the-steward',
+    name: 'steward',
     description: 'Monitors context window capacity and routes member loads to the minimal required set',
     tagline: 'Context economy and load routing',
     category: 'lifecycle',
@@ -164,7 +164,7 @@ export const rawSpecs: RawSpec[] = [
     ownedDecisions: ['Load routing', 'Cache strategy', 'Session triage'],
   },
   {
-    name: 'the-operator',
+    name: 'operator',
     description: 'Manages runtime health, deployment, incidents, rollback, and monitoring',
     tagline: 'Deployment, incidents, rollback',
     category: 'lifecycle',
@@ -173,7 +173,7 @@ export const rawSpecs: RawSpec[] = [
     ownedDecisions: ['Deployment', 'Incidents', 'Rollback', 'Monitoring'],
   },
   {
-    name: 'the-mediator',
+    name: 'mediator',
     description: 'Listens to user prompts first, classifies intent, and hands off to the right specialist',
     tagline: 'First in line — intent routing',
     category: 'lifecycle',
@@ -182,7 +182,7 @@ export const rawSpecs: RawSpec[] = [
     ownedDecisions: ['Intake', 'Intent classification', 'Handoff sequencing', 'Orchestration entry'],
   },
   {
-    name: 'the-mailman',
+    name: 'mailman',
     description: 'Manages message delivery, content scheduling, notification dispatch, and cross-posting across channels',
     tagline: 'Delivery and cross-posting',
     category: 'lifecycle',
@@ -191,7 +191,7 @@ export const rawSpecs: RawSpec[] = [
     ownedDecisions: ['Message dispatch', 'Content scheduling', 'Cross-posting'],
   },
   {
-    name: 'the-inspector',
+    name: 'inspector',
     description: 'Solves and generates challenging visual-reasoning benchmarks: pixel ranking, cross-panel mapping, graph-cut classification, and confidence estimation',
     tagline: 'Pixel-level visual reasoning',
     category: 'validation',

@@ -97,14 +97,14 @@ describe('MemberRunner ask_human park', () => {
     })
 
     try {
-      const err = await runner.runMemberTask('the-builder', 'deploy the app', {} as never).catch((e) => e)
+      const err = await runner.runMemberTask('builder', 'deploy the app', {} as never).catch((e) => e)
       expect(err).toBeInstanceOf(AskHumanSignal)
       expect((err as AskHumanSignal).payload).toEqual({ question: 'Which region?', context: 'deploy thread' })
 
       const awaiting = events.filter((e) => e.type === 'run.awaiting_input')
       expect(awaiting).toHaveLength(1)
       expect(awaiting[0]).toMatchObject({
-        member: 'the-builder',
+        member: 'builder',
         question: 'Which region?',
         context: 'deploy thread',
       })
@@ -137,10 +137,10 @@ describe('MemberRunner checkpoint store injection', () => {
     const store: CheckpointStore = { load: vi.fn(), save: vi.fn(), updateStatus: vi.fn() }
     const runner = makeRunner(store)
 
-    await runner.runMemberTask('the-builder', 'ship it', {} as never)
+    await runner.runMemberTask('builder', 'ship it', {} as never)
 
     expect(store.save).toHaveBeenCalledWith(
-      expect.objectContaining({ member: 'the-builder', task: 'ship it', status: 'running' }),
+      expect.objectContaining({ member: 'builder', task: 'ship it', status: 'running' }),
     )
     expect(store.updateStatus).toHaveBeenCalledWith(expect.any(String), 'completed')
   })
@@ -150,7 +150,7 @@ describe('MemberRunner checkpoint store injection', () => {
     const store: CheckpointStore = { load: vi.fn(), save: vi.fn(), updateStatus: vi.fn() }
     const runner = makeRunner(store)
 
-    await runner.runMemberTask('the-builder', 'deploy the app', {} as never).catch(() => undefined)
+    await runner.runMemberTask('builder', 'deploy the app', {} as never).catch(() => undefined)
 
     expect(store.save).toHaveBeenLastCalledWith(
       expect.objectContaining({
@@ -171,7 +171,7 @@ describe('MemberRunner resume(seed) parity', () => {
     vi.mocked(LLMRouter.createForMember).mockResolvedValue(provider as never)
     const cp = {
       id: 'cp-1',
-      member: 'the-builder',
+      member: 'builder',
       task: 'deploy the app',
       step: 2,
       messages: [
@@ -193,7 +193,7 @@ describe('MemberRunner resume(seed) parity', () => {
     const store: CheckpointStore = { load: vi.fn().mockReturnValue(cp), save: vi.fn(), updateStatus: vi.fn() }
     const runner = makeRunner(store)
 
-    await runner.runMemberTask('the-builder', 'deploy the app', {} as never, { checkpointId: 'cp-1', reply: 'us-east' })
+    await runner.runMemberTask('builder', 'deploy the app', {} as never, { checkpointId: 'cp-1', reply: 'us-east' })
 
     const sent: { role: string; content: string; tool_call_id?: string }[] =
       provider.complete.mock.calls[0][0].messages
@@ -210,7 +210,7 @@ describe('MemberRunner resume(seed) parity', () => {
     vi.mocked(LLMRouter.createForMember).mockResolvedValue(provider as never)
     const cp = {
       id: 'cp-2',
-      member: 'the-builder',
+      member: 'builder',
       task: 'deploy the app',
       step: 1,
       messages: [
@@ -231,7 +231,7 @@ describe('MemberRunner resume(seed) parity', () => {
     const store: CheckpointStore = { load: vi.fn().mockReturnValue(cp), save: vi.fn(), updateStatus: vi.fn() }
     const runner = makeRunner(store)
 
-    await runner.runMemberTask('the-builder', 'deploy the app', {} as never, 'cp-2')
+    await runner.runMemberTask('builder', 'deploy the app', {} as never, 'cp-2')
 
     const sent = provider.complete.mock.calls[0][0].messages
     expect(sent).toContainEqual(
@@ -248,14 +248,14 @@ describe('MemberRunner output_format validation', () => {
   function runnerWithFormat(output_format: string, mode: 'strict' | 'lenient' = 'lenient'): MemberRunner {
     const runner = makeRunner()
     const deps = (runner as any).deps
-    const spec = { ...deps.members.get('the-builder'), output_format, output_format_mode: mode }
+    const spec = { ...deps.members.get('builder'), output_format, output_format_mode: mode }
     vi.spyOn(deps.members, 'get').mockReturnValue(spec)
     return runner
   }
 
   it('does nothing when output matches the declared pattern', async () => {
     const runner = runnerWithFormat('^all done$')
-    const { output } = await runner.runMemberTask('the-builder', 'ship it', {} as never)
+    const { output } = await runner.runMemberTask('builder', 'ship it', {} as never)
     expect(output).toBe('all done')
   })
 
@@ -263,7 +263,7 @@ describe('MemberRunner output_format validation', () => {
     const warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {})
     try {
       const runner = runnerWithFormat('^## Plan', 'lenient')
-      const { output } = await runner.runMemberTask('the-builder', 'ship it', {} as never)
+      const { output } = await runner.runMemberTask('builder', 'ship it', {} as never)
       expect(output).toBe('all done')
       expect(warnSpy).toHaveBeenCalledWith(expect.stringContaining('output_format deviation'))
     } finally {
@@ -273,7 +273,7 @@ describe('MemberRunner output_format validation', () => {
 
   it('throws OutputFormatError in strict mode on a deviation', async () => {
     const runner = runnerWithFormat('^## Plan', 'strict')
-    await expect(runner.runMemberTask('the-builder', 'ship it', {} as never)).rejects.toThrow(/output_format deviation/)
+    await expect(runner.runMemberTask('builder', 'ship it', {} as never)).rejects.toThrow(/output_format deviation/)
   })
 })
 
@@ -320,9 +320,9 @@ describe('MemberRunner trajectory persistence', () => {
   it('saves a success trajectory loadable by correlation id', async () => {
     const runner = makeRunner()
     try {
-      await runner.runMemberTask('the-builder', 'ship it', {} as never)
+      await runner.runMemberTask('builder', 'ship it', {} as never)
       const stored = new TrajectoryStore(process.cwd()).load(trajectoryId(runner))
-      expect(stored?.member).toBe('the-builder')
+      expect(stored?.member).toBe('builder')
       expect(stored?.task).toBe('ship it')
       expect(stored?.steps).toHaveLength(1)
       expect(stored?.steps[0].status).toBe('success')
@@ -339,7 +339,7 @@ describe('MemberRunner trajectory persistence', () => {
     } as never)
     const runner = makeRunner()
     try {
-      await expect(runner.runMemberTask('the-builder', 'ship it', {} as never)).rejects.toThrow('provider exploded')
+      await expect(runner.runMemberTask('builder', 'ship it', {} as never)).rejects.toThrow('provider exploded')
       const stored = new TrajectoryStore(process.cwd()).load(trajectoryId(runner))
       expect(stored?.steps[0].status).toBe('error')
       expect(stored?.steps[0].outputSummary).toContain('provider exploded')
@@ -367,7 +367,7 @@ describe('MemberRunner queue arbitration', () => {
     runner.ctx.source = 'cli'
     const submitSpy = vi.spyOn((runner as unknown as { queue: ConcurrencyQueue }).queue, 'submit')
     try {
-      await runner.runMemberTask('the-builder', 'ship it', {} as never)
+      await runner.runMemberTask('builder', 'ship it', {} as never)
       expect(submitSpy).toHaveBeenCalledWith(expect.any(String), 'USER', expect.any(Function))
     } finally {
       cleanup(runner)
@@ -379,7 +379,7 @@ describe('MemberRunner queue arbitration', () => {
     runner.ctx.source = 'automated'
     const submitSpy = vi.spyOn((runner as unknown as { queue: ConcurrencyQueue }).queue, 'submit')
     try {
-      await runner.runMemberTask('the-builder', 'ship it', {} as never)
+      await runner.runMemberTask('builder', 'ship it', {} as never)
       expect(submitSpy).toHaveBeenCalledWith(expect.any(String), 'SCHEDULED', expect.any(Function))
     } finally {
       cleanup(runner)

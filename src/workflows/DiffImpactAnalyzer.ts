@@ -38,22 +38,22 @@ const AREA_PATTERNS: { pattern: RegExp; area: string }[] = [
 ]
 
 const REVIEWER_BY_AREA: Record<string, string[]> = {
-  cli: ['the-doorman', 'the-steward'],
-  workflows: ['the-architect', 'the-steward'],
-  agents: ['the-architect', 'the-reviewer'],
-  memory: ['the-architect', 'the-oracle'],
-  rag: ['the-architect', 'the-reviewer'],
-  llm: ['the-architect', 'the-envoy'],
-  tools: ['the-architect', 'the-scribe'],
-  reasoning: ['the-architect', 'the-steward'],
-  core: ['the-architect', 'the-reviewer'],
-  members: ['the-sentinel', 'the-oracle'],
-  'skill-files': ['the-sentinel', 'the-oracle'],
-  tests: ['the-tester'],
-  docs: ['the-librarian'],
-  ci: ['the-doorman'],
-  dependencies: ['the-auditor'],
-  'build-config': ['the-steward'],
+  cli: ['doorman', 'steward'],
+  workflows: ['architect', 'steward'],
+  agents: ['architect', 'reviewer'],
+  memory: ['architect', 'oracle'],
+  rag: ['architect', 'reviewer'],
+  llm: ['architect', 'envoy'],
+  tools: ['architect', 'scribe'],
+  reasoning: ['architect', 'steward'],
+  core: ['architect', 'reviewer'],
+  members: ['sentinel', 'oracle'],
+  'skill-files': ['sentinel', 'oracle'],
+  tests: ['tester'],
+  docs: ['librarian'],
+  ci: ['doorman'],
+  dependencies: ['auditor'],
+  'build-config': ['steward'],
 }
 
 export class DiffImpactAnalyzer {

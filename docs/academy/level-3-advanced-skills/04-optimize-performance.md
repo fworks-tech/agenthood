@@ -69,7 +69,7 @@ The `LLMRouter` inspects each request and routes it to the model whose capabilit
 
 ```bash
 # The Society's runtime reports cost alongside the result
-agenthood run the-scribe "write a commit message for the current diff"
+agenthood run scribe "write a commit message for the current diff"
 ```
 
 Output with cost visibility:

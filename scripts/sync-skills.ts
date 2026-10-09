@@ -13,8 +13,8 @@ function main(): void {
   const errors: string[] = []
   for (const pattern of STALE_PATTERNS) {
     const files = [
-      join(ROOT, 'skills/the-steward/SKILL.md'),
-      join(ROOT, 'skills/the-mediator/SKILL.md'),
+      join(ROOT, 'skills/steward/SKILL.md'),
+      join(ROOT, 'skills/mediator/SKILL.md'),
       join(ROOT, 'AGENTS.md'),
     ]
     for (const file of files) {

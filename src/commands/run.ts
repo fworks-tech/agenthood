@@ -45,7 +45,7 @@ export function parseFlags(args: string[]): { positional: string[]; providerOver
 
 function printUsage(): never {
   userError('Usage: agenthood run <agent> "<task description>"', {
-    fix: 'Provide an agent name and task. Example: agenthood run the-scribe "write a commit message"',
+    fix: 'Provide an agent name and task. Example: agenthood run scribe "write a commit message"',
   })
 }
 
@@ -60,7 +60,7 @@ async function runDetection(app: ApplicationContext, task: string): Promise<void
 
 export const command: CommandDescriptor = {
   name: 'run',
-  description: 'Run a Society member (the-scribe, the-reviewer, …)',
+  description: 'Run a Society member (scribe, reviewer, …)',
   handler: (args) => run(args),
 }
 

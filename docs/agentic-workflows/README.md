@@ -52,7 +52,7 @@ This decision is documented in [ADR-001](../adr/ADR-001-markdown-skills-over-cod
 
 1. Open your AI coding assistant (Claude Code, OpenAI Codex CLI, etc.)
 2. Load the relevant Society member skill — e.g., for PR review, load
-   `skills/the-reviewer/SKILL.md`
+   `skills/reviewer/SKILL.md`
 3. Paste the template's **Steps** section as your prompt
 4. Add context: the issue body, PR diff, CI log, or merge commit as applicable
 5. The member will follow the steps and produce the appropriate output
@@ -60,7 +60,7 @@ This decision is documented in [ADR-001](../adr/ADR-001-markdown-skills-over-cod
 **Example — triaging a new issue in Claude Code:**
 
 ```
-/load .claude/skills/the-doorman/the-doorman.md
+/load .claude/skills/doorman/doorman.md
 
 A new issue was just opened: [paste issue URL or body]
 

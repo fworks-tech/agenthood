@@ -27,7 +27,7 @@ Each agent is a single `.md` file that describes a role, its responsibilities, s
 1. **Install the Society** — `npm install --save-dev agenthood && npx agenthood init` (or `npx skills add fworks-tech/agenthood` via [skills.sh](https://skills.sh/fworks-tech/agenthood))
 2. **Load into your runtime** — point Claude Code, Copilot, or your agent framework at the skills directory
 3. **Invoke any agent** — ask the Reviewer to check your PR, ask the Auditor to scan your auth flow. They know their role. They have *standards*.
-4. **Run them autonomously** — `agenthood run the-scribe "write a commit message"` executes a member as a real LLM agent; chain them for full-lifecycle work
+4. **Run them autonomously** — `agenthood run scribe "write a commit message"` executes a member as a real LLM agent; chain them for full-lifecycle work
 
 Every member run records one decision and one provenance entry in `.agenthood/decisions/` and `.agenthood/provenance/` — a tamper-evident hash chain you can audit. See [ADR-015](docs/adr/ADR-015-decision-intelligence-and-provenance.md).
 
@@ -41,26 +41,26 @@ Every role a real software team needs — available as a skill file with impecca
 
 | | Agent | Role |
 |---|-------|------|
-| ✍️ | [The Scribe](skills/the-scribe/SKILL.md) | Commits, PRs, changelogs |
-| 🏗️ | [The Architect](skills/the-architect/SKILL.md) | System design, ADRs, tech decisions |
-| 🛠️ | [The Builder](skills/the-builder/SKILL.md) | Coding, implementation, refactoring, validation |
-| 🔍 | [The Reviewer](skills/the-reviewer/SKILL.md) | Code review, standards enforcement |
-| 🧪 | [The Tester](skills/the-tester/SKILL.md) | TDD, coverage, edge cases |
-| 🐛 | [The Debugger](skills/the-debugger/SKILL.md) | Error triage, root cause analysis |
-| 🔒 | [The Auditor](skills/the-auditor/SKILL.md) | Security, vulnerability scanning, dependency audit |
-| 📦 | [The Herald](skills/the-herald/SKILL.md) | Releases, versioning, changelogs |
-| 📝 | [The Librarian](skills/the-librarian/SKILL.md) | Documentation, API references |
-| 🚪 | [The Doorman](skills/the-doorman/SKILL.md) | Validation, branch protection, health checks |
-| 🔮 | [The Oracle](skills/the-oracle/SKILL.md) | Institutional knowledge, authoring templates |
-| 🌐 | [The Envoy](skills/the-envoy/SKILL.md) | Cross-provider translation, convention validation |
-| 👁️ | [The Sentinel](skills/the-sentinel/SKILL.md) | Integrity, cross-member contradiction detection |
-| ⚖️ | [The Warden](skills/the-warden/SKILL.md) | Code health, complexity enforcement |
-| 🧭 | [The Steward](skills/the-steward/SKILL.md) | Context economy, provider cache strategies |
-| 🚦 | [The Mediator](skills/the-mediator/SKILL.md) | First-in-line intent routing, handoff sequencing |
-| 🎯 | [The Strategist](skills/the-strategist/SKILL.md) | Goal refinement, requirement discovery |
-| 🩺 | [The Operator](skills/the-operator/SKILL.md) | Runtime health, deployments, rollback |
-| 👁️ | [The Inspector](skills/the-inspector/SKILL.md) | Visual-reasoning benchmarking, pixel analysis |
-| 📬 | [The Mailman](skills/the-mailman/SKILL.md) | Message delivery, scheduling, cross-posting |
+| ✍️ | [The Scribe](skills/scribe/SKILL.md) | Commits, PRs, changelogs |
+| 🏗️ | [The Architect](skills/architect/SKILL.md) | System design, ADRs, tech decisions |
+| 🛠️ | [The Builder](skills/builder/SKILL.md) | Coding, implementation, refactoring, validation |
+| 🔍 | [The Reviewer](skills/reviewer/SKILL.md) | Code review, standards enforcement |
+| 🧪 | [The Tester](skills/tester/SKILL.md) | TDD, coverage, edge cases |
+| 🐛 | [The Debugger](skills/debugger/SKILL.md) | Error triage, root cause analysis |
+| 🔒 | [The Auditor](skills/auditor/SKILL.md) | Security, vulnerability scanning, dependency audit |
+| 📦 | [The Herald](skills/herald/SKILL.md) | Releases, versioning, changelogs |
+| 📝 | [The Librarian](skills/librarian/SKILL.md) | Documentation, API references |
+| 🚪 | [The Doorman](skills/doorman/SKILL.md) | Validation, branch protection, health checks |
+| 🔮 | [The Oracle](skills/oracle/SKILL.md) | Institutional knowledge, authoring templates |
+| 🌐 | [The Envoy](skills/envoy/SKILL.md) | Cross-provider translation, convention validation |
+| 👁️ | [The Sentinel](skills/sentinel/SKILL.md) | Integrity, cross-member contradiction detection |
+| ⚖️ | [The Warden](skills/warden/SKILL.md) | Code health, complexity enforcement |
+| 🧭 | [The Steward](skills/steward/SKILL.md) | Context economy, provider cache strategies |
+| 🚦 | [The Mediator](skills/mediator/SKILL.md) | First-in-line intent routing, handoff sequencing |
+| 🎯 | [The Strategist](skills/strategist/SKILL.md) | Goal refinement, requirement discovery |
+| 🩺 | [The Operator](skills/operator/SKILL.md) | Runtime health, deployments, rollback |
+| 👁️ | [The Inspector](skills/inspector/SKILL.md) | Visual-reasoning benchmarking, pixel analysis |
+| 📬 | [The Mailman](skills/mailman/SKILL.md) | Message delivery, scheduling, cross-posting |
 
 ---
 
@@ -84,17 +84,17 @@ Execute members as real LLM agents that reason, act, and remember across session
 # From the repo clone (when installed via npm, the runtime is pre-built)
 npm run build                              # build the runtime (once)
 npx agenthood list                          # see available agents
-npx agenthood run the-scribe "write a commit message for the current diff"
-npx agenthood run the-reviewer "review the changes in the last commit"
-npx agenthood run the-architect "plan the implementation for issue #42"
+npx agenthood run scribe "write a commit message for the current diff"
+npx agenthood run reviewer "review the changes in the last commit"
+npx agenthood run architect "plan the implementation for issue #42"
 npx agenthood verify                    # validate member SKILL.md integrity (add --conflicts to scan for overlapping skill descriptions)
 npx agenthood status --watch            # live project health monitoring
 npx agenthood trace                     # list recent invocation traces
 npx agenthood log                       # list recent structured log entries
 npx agenthood health                    # runtime health checks (exit 0/1/2)
 npx agenthood doctor                    # all diagnostics in one pass: node, version, config, API keys, providers, skill files, lockfile integrity, git hooks (exit 0/1)
-npx agenthood eval the-reviewer --suite evals/benchmarks/review-pr.json  # scored eval with baseline gating
-npx agenthood rollback the-scribe       # restore SKILL.md from lockfile
+npx agenthood eval reviewer --suite evals/benchmarks/review-pr.json  # scored eval with baseline gating
+npx agenthood rollback scribe       # restore SKILL.md from lockfile
 npx agenthood workflow review-pr        # execute the review-pr workflow
 ```
 
@@ -105,7 +105,7 @@ Log entries are persisted to the same NDJSON store as traces (`.agenthood/traces
 ```bash
 npx agenthood log                      # recent entries (default limit 20)
 npx agenthood log --level warn         # filter by debug|info|warn|error
-npx agenthood log --member the-scribe --limit 50
+npx agenthood log --member scribe --limit 50
 npx agenthood log --since 1h --json    # machine-readable JSON output
 ```
 
@@ -175,7 +175,7 @@ npm i -g agenthood   # add @<version> to pin, e.g. agenthood@3.42.0
 }
 ```
 
-The plugin wires the Society into opencode: all 20 member skills (`skills/`), `AGENTS.md` instructions, a primary `the-steward` router agent, and an `agenthood_run_member` tool that executes a member as a real runtime agent (enforced behavior + audit trail). After adding or updating the plugin entry, **quit and restart opencode** — config is loaded once at startup, not hot-reloaded.
+The plugin wires the Society into opencode: all 20 member skills (`skills/`), `AGENTS.md` instructions, a primary `steward` router agent, and an `agenthood_run_member` tool that executes a member as a real runtime agent (enforced behavior + audit trail). After adding or updating the plugin entry, **quit and restart opencode** — config is loaded once at startup, not hot-reloaded.
 
 The [Agenthood Studio playground](https://agenthood.flabs.tech/studio/playground) exercises the same runtime through a browser UI — every chat request runs through `agenthood/dist/llm` with provider routing, failover, and streaming.
 

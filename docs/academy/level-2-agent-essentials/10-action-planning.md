@@ -56,7 +56,7 @@ const plan = await architect.plan({
 
 ```bash
 # The Architect produces a plan; nothing executes until approved
-npx agenthood run the-architect "plan: add OAuth2 login to the API"
+npx agenthood run architect "plan: add OAuth2 login to the API"
 ```
 
 Output:

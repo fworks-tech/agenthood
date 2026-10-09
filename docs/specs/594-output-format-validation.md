@@ -25,7 +25,7 @@ Runtime validation in `MemberRunner` (where output is produced), so every `agent
 ### Frontmatter (member SKILL.md)
 ```yaml
 ---
-name: the-architect
+name: architect
 description: ...
 output_format: ^(## .+\n)+.*   # regex the full output must match
 output_format_mode: strict       # strict | lenient (default: lenient)

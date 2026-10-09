@@ -52,8 +52,8 @@ suite('agenthood CLI end-to-end journey (#673)', () => {
   it('lists the Society members from the built package', () => {
     const { code, out } = cli('list');
     expect(code).toBe(0);
-    expect(out).toContain('the-scribe');
-    expect(out).toContain('the-architect');
+    expect(out).toContain('scribe');
+    expect(out).toContain('architect');
   });
 
   it('reports status in a clean project without erroring', () => {

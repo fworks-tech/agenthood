@@ -2,7 +2,7 @@
 name: morning-briefing
 schedule: "0 8 * * 1-5"
 priority: SCHEDULED
-member: the-herald
+member: herald
 description: Daily 8am standup generated from git activity, open PRs, and idle work detection.
 ---
 

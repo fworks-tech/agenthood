@@ -5,8 +5,8 @@
 | Layer | What | Example |
 |---|---|---|
 | Skill | Workflow with steps and exit criteria | code-review |
-| Member | Role with perspective and output format | the-reviewer |
-| Command | User-facing entry point | `agenthood run the-reviewer` |
+| Member | Role with perspective and output format | reviewer |
+| Command | User-facing entry point | `agenthood run reviewer` |
 
 ## Rules
 

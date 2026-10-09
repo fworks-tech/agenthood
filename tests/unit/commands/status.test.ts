@@ -88,7 +88,7 @@ describe('status command', () => {
     })
     vi.mocked(readFileSync).mockImplementation((path) => {
       const p = path as string
-      if (p.includes('config.json')) return JSON.stringify({ version: '1', members: ['the-scribe', 'the-architect'] })
+      if (p.includes('config.json')) return JSON.stringify({ version: '1', members: ['scribe', 'architect'] })
       return ''
     })
 
@@ -105,7 +105,7 @@ describe('status command', () => {
       const p = path as string
       return p.includes('lock')
     })
-    vi.mocked(readFileSync).mockReturnValue(JSON.stringify({ version: 1, members: { 'the-scribe': {}, 'the-architect': {} } }))
+    vi.mocked(readFileSync).mockReturnValue(JSON.stringify({ version: 1, members: { 'scribe': {}, 'architect': {} } }))
 
     const log = vi.spyOn(console, 'log').mockImplementation(() => {})
 
@@ -163,13 +163,13 @@ describe('status command', () => {
     })
     vi.mocked(readdirSync).mockImplementation((path) => {
       const p = path as string
-      if (p.includes('skills')) return [{ name: 'the-scribe', isDirectory: () => true }] as any
+      if (p.includes('skills')) return [{ name: 'scribe', isDirectory: () => true }] as any
       return []
     })
     vi.mocked(readFileSync).mockImplementation((path) => {
       const p = path as string
-      if (p.includes('the-scribe.md')) return 'some content'
-      return JSON.stringify({ version: 1, members: { 'the-scribe': { version: 'abc123' } } })
+      if (p.includes('scribe.md')) return 'some content'
+      return JSON.stringify({ version: 1, members: { 'scribe': { version: 'abc123' } } })
     })
 
     const log = vi.spyOn(console, 'log').mockImplementation(() => {})
@@ -189,13 +189,13 @@ describe('status command', () => {
     })
     vi.mocked(readdirSync).mockImplementation((path) => {
       const p = path as string
-      if (p.includes('skills')) return [{ name: 'the-scribe', isDirectory: () => true }] as any
+      if (p.includes('skills')) return [{ name: 'scribe', isDirectory: () => true }] as any
       return []
     })
     vi.mocked(readFileSync).mockImplementation((path) => {
       const p = path as string
-      if (p.includes('the-scribe.md')) return 'some content'
-      return JSON.stringify({ version: 1, members: { 'the-scribe': { version: 'def456' } } })
+      if (p.includes('scribe.md')) return 'some content'
+      return JSON.stringify({ version: 1, members: { 'scribe': { version: 'def456' } } })
     })
 
     const log = vi.spyOn(console, 'log').mockImplementation(() => {})
@@ -205,7 +205,7 @@ describe('status command', () => {
 
     const output = log.mock.calls.flat().join(' ')
     expect(output).toContain('Drift detected')
-    expect(output).toContain('the-scribe')
+    expect(output).toContain('scribe')
     expect(exit).toHaveBeenCalledWith(0)
   })
 
@@ -213,24 +213,24 @@ describe('status command', () => {
     vi.mocked(existsSync).mockReturnValue(false)
     const log = vi.spyOn(console, 'log').mockImplementation(() => {})
 
-    await status(['--member', 'the-scribe'])
+    await status(['--member', 'scribe'])
 
     expect(log.mock.calls.flat().join(' ')).toContain('No traces recorded')
   })
 
   it('prints a per-member window table with --member', async () => {
     const traces = [
-      { member: 'the-scribe', cost: 0.01, qualityScore: 0.8, durationMs: 100, tokenCount: { input: 10, output: 5, total: 15 }, status: 'success', timestamp: new Date().toISOString() },
+      { member: 'scribe', cost: 0.01, qualityScore: 0.8, durationMs: 100, tokenCount: { input: 10, output: 5, total: 15 }, status: 'success', timestamp: new Date().toISOString() },
     ].map((e) => JSON.stringify(e)).join('\n')
     vi.mocked(existsSync).mockImplementation((path) => (path as string).includes('traces'))
     vi.mocked(readFileSync).mockReturnValue(traces)
 
     const log = vi.spyOn(console, 'log').mockImplementation(() => {})
 
-    await status(['--member', 'the-scribe'])
+    await status(['--member', 'scribe'])
 
     const output = log.mock.calls.flat().join(' ')
-    expect(output).toContain('Trace Summary — the-scribe')
+    expect(output).toContain('Trace Summary — scribe')
     expect(output).toContain('1h')
     expect(output).toContain('24h')
     expect(output).toContain('7d')
@@ -239,18 +239,18 @@ describe('status command', () => {
 
   it('outputs parseable JSON with --member --json', async () => {
     const traces = [
-      { member: 'the-scribe', cost: 0.02, qualityScore: null, durationMs: 200, tokenCount: { input: 20, output: 10, total: 30 }, status: 'success', timestamp: new Date().toISOString() },
+      { member: 'scribe', cost: 0.02, qualityScore: null, durationMs: 200, tokenCount: { input: 20, output: 10, total: 30 }, status: 'success', timestamp: new Date().toISOString() },
     ].map((e) => JSON.stringify(e)).join('\n')
     vi.mocked(existsSync).mockImplementation((path) => (path as string).includes('traces'))
     vi.mocked(readFileSync).mockReturnValue(traces)
 
     const log = vi.spyOn(console, 'log').mockImplementation(() => {})
 
-    await status(['--member', 'the-scribe', '--json'])
+    await status(['--member', 'scribe', '--json'])
 
     const lastCall = log.mock.calls[log.mock.calls.length - 1][0]
     const parsed = JSON.parse(lastCall as string)
-    expect(parsed.member).toBe('the-scribe')
+    expect(parsed.member).toBe('scribe')
     expect(parsed.all.callCount).toBe(1)
     expect(parsed.all.totalCost).toBeCloseTo(0.02, 4)
   })
@@ -286,8 +286,8 @@ describe('status --alerts', () => {
   it('renders recent alerts from the anomalies file', async () => {
     vi.mocked(existsSync).mockImplementation((path) => (path as string).includes('anomalies.ndjson'))
     vi.mocked(readFileSync).mockReturnValue(
-      '{"type":"cost_spike","member":"the-builder","current":4,"baseline":0.5,"timestamp":"2026-08-14T00:00:00.000Z"}\n' +
-      '{"type":"quality_drop","member":"the-reviewer","current":0.4,"baseline":0.8,"timestamp":"2026-08-14T00:01:00.000Z"}\n',
+      '{"type":"cost_spike","member":"builder","current":4,"baseline":0.5,"timestamp":"2026-08-14T00:00:00.000Z"}\n' +
+      '{"type":"quality_drop","member":"reviewer","current":0.4,"baseline":0.8,"timestamp":"2026-08-14T00:01:00.000Z"}\n',
     )
     const log = vi.spyOn(console, 'log').mockImplementation(() => {})
 
@@ -296,12 +296,12 @@ describe('status --alerts', () => {
     const output = log.mock.calls.flat().join(' ')
     expect(output).toContain('cost_spike')
     expect(output).toContain('quality_drop')
-    expect(output).toContain('the-builder')
+    expect(output).toContain('builder')
   })
 
   it('outputs JSON with --alerts --json', async () => {
     vi.mocked(existsSync).mockImplementation((path) => (path as string).includes('anomalies.ndjson'))
-    vi.mocked(readFileSync).mockReturnValue('{"type":"cost_spike","member":"the-builder","current":4,"baseline":0.5,"timestamp":"2026-08-14T00:00:00.000Z"}\n')
+    vi.mocked(readFileSync).mockReturnValue('{"type":"cost_spike","member":"builder","current":4,"baseline":0.5,"timestamp":"2026-08-14T00:00:00.000Z"}\n')
     const log = vi.spyOn(console, 'log').mockImplementation(() => {})
 
     await status(['--alerts', '--json'])

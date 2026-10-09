@@ -6,26 +6,26 @@ import { loadEvalSuite } from '../../../src/evals/evalSuiteSchema.ts'
 
 /** The 20 Agenthood members that must each ship an assertion-graded eval suite. */
 const MEMBERS = [
-  'the-architect',
-  'the-auditor',
-  'the-builder',
-  'the-debugger',
-  'the-doorman',
-  'the-envoy',
-  'the-herald',
-  'the-inspector',
-  'the-librarian',
-  'the-mailman',
-  'the-mediator',
-  'the-operator',
-  'the-oracle',
-  'the-reviewer',
-  'the-scribe',
-  'the-sentinel',
-  'the-steward',
-  'the-strategist',
-  'the-tester',
-  'the-warden',
+  'architect',
+  'auditor',
+  'builder',
+  'debugger',
+  'doorman',
+  'envoy',
+  'herald',
+  'inspector',
+  'librarian',
+  'mailman',
+  'mediator',
+  'operator',
+  'oracle',
+  'reviewer',
+  'scribe',
+  'sentinel',
+  'steward',
+  'strategist',
+  'tester',
+  'warden',
 ]
 
 const REPO_ROOT = join(dirname(fileURLToPath(import.meta.url)), '..', '..', '..')
@@ -34,7 +34,7 @@ const baselineDir = join(REPO_ROOT, '.agenthood', 'baselines')
 
 describe('member benchmark suites (#656)', () => {
   it('ships one suite per member', () => {
-    const files = readdirSync(dir).filter((f) => f.startsWith('the-') && f.endsWith('.json'))
+    const files = readdirSync(dir).filter((f) => f.endsWith('.json') && MEMBERS.some(m => f === `${m}.json`))
     expect(files.sort()).toEqual(MEMBERS.map((m) => `${m}.json`).sort())
   })
 

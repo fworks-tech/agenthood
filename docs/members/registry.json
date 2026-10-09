@@ -2,7 +2,7 @@
   "version": 1,
   "members": [
     {
-      "name": "the-strategist",
+      "name": "strategist",
       "displayName": "The Strategist",
       "tagline": "The right solution starts with the right problem.",
       "role": "goal refinement, requirement discovery, ambiguity resolution",
@@ -10,7 +10,7 @@
       "priority": 0
     },
     {
-      "name": "the-scribe",
+      "name": "scribe",
       "displayName": "The Scribe",
       "tagline": "Turns your diff into prose worth reading",
       "role": "commit messages, PR descriptions, changelogs",
@@ -18,7 +18,7 @@
       "priority": 1
     },
     {
-      "name": "the-architect",
+      "name": "architect",
       "displayName": "The Architect",
       "tagline": "No code before the blueprint",
       "role": "spec-driven development, planning, ADRs",
@@ -26,7 +26,7 @@
       "priority": 2
     },
     {
-      "name": "the-builder",
+      "name": "builder",
       "displayName": "The Builder",
       "tagline": "Builds the smallest verified change",
       "role": "coding, implementation, refactoring, test updates, local validation",
@@ -34,7 +34,7 @@
       "priority": 18
     },
     {
-      "name": "the-reviewer",
+      "name": "reviewer",
       "displayName": "The Reviewer",
       "tagline": "Five axes. No mercy. All respect.",
       "role": "code review, quality gates",
@@ -42,7 +42,7 @@
       "priority": 3
     },
     {
-      "name": "the-tester",
+      "name": "tester",
       "displayName": "The Tester",
       "tagline": "Red. Green. Refactor. Repeat.",
       "role": "TDD, test generation, coverage",
@@ -50,7 +50,7 @@
       "priority": 4
     },
     {
-      "name": "the-debugger",
+      "name": "debugger",
       "displayName": "The Debugger",
       "tagline": "Five steps to every root cause. No guessing allowed.",
       "role": "error triage, root cause analysis",
@@ -58,7 +58,7 @@
       "priority": 5
     },
     {
-      "name": "the-auditor",
+      "name": "auditor",
       "displayName": "The Auditor",
       "tagline": "Reads everything. Trusts nothing.",
       "role": "security review, dependency audit",
@@ -66,7 +66,7 @@
       "priority": 6
     },
     {
-      "name": "the-herald",
+      "name": "herald",
       "displayName": "The Herald",
       "tagline": "Announces with ceremony. Ships with precision.",
       "role": "semantic versioning, release notes",
@@ -74,7 +74,7 @@
       "priority": 7
     },
     {
-      "name": "the-librarian",
+      "name": "librarian",
       "displayName": "The Librarian",
       "tagline": "Every decision, recorded for posterity.",
       "role": "documentation, knowledge management",
@@ -82,7 +82,7 @@
       "priority": 8
     },
     {
-      "name": "the-doorman",
+      "name": "doorman",
       "displayName": "The Doorman",
       "tagline": "Nothing gets in without proper credentials.",
       "role": "validation, health checks, enforcement",
@@ -90,7 +90,7 @@
       "priority": 9
     },
     {
-      "name": "the-oracle",
+      "name": "oracle",
       "displayName": "The Oracle",
       "tagline": "Ask me anything about the Society. I have read every scroll.",
       "role": "institutional knowledge, member authoring templates, naming guidance",
@@ -98,7 +98,7 @@
       "priority": 10
     },
     {
-      "name": "the-envoy",
+      "name": "envoy",
       "displayName": "The Envoy",
       "tagline": "One Society. Every runtime. No exceptions.",
       "role": "cross-provider translation, bootstrap generation, convention validation",
@@ -106,7 +106,7 @@
       "priority": 11
     },
     {
-      "name": "the-sentinel",
+      "name": "sentinel",
       "displayName": "The Sentinel",
       "tagline": "The Society cannot enforce standards it no longer understands.",
       "role": "Society document integrity, cross-member contradiction detection, structural drift",
@@ -114,7 +114,7 @@
       "priority": 12
     },
     {
-      "name": "the-warden",
+      "name": "warden",
       "displayName": "The Warden",
       "tagline": "The chaos does not arrive all at once. I am here for the accumulation.",
       "role": "code smell detection, complexity enforcement, architectural boundary violations",
@@ -122,7 +122,7 @@
       "priority": 13
     },
     {
-      "name": "the-steward",
+      "name": "steward",
       "displayName": "The Steward",
       "tagline": "I was born from the situation I exist to prevent.",
       "role": "context economy, member routing, provider cache strategy, session triage",
@@ -130,7 +130,7 @@
       "priority": 14
     },
     {
-      "name": "the-operator",
+      "name": "operator",
       "displayName": "The Operator",
       "tagline": "Health is not a goal; it is a practice.",
       "role": "runtime health, deployment, incidents, rollback, monitoring",
@@ -138,7 +138,7 @@
       "priority": 15
     },
     {
-      "name": "the-mailman",
+      "name": "mailman",
       "displayName": "The Mailman",
       "tagline": "Neither snow nor rain nor API rate limits shall stay this courier from the swift completion of their rounds.",
       "role": "message delivery, content scheduling, notification dispatch, cross-posting",
@@ -146,7 +146,7 @@
       "priority": 16
     },
     {
-      "name": "the-inspector",
+      "name": "inspector",
       "displayName": "The Inspector",
       "tagline": "Every pixel accounted for. Every boundary crossed with intent.",
       "role": "visual-reasoning benchmarking, pixel-level analysis, multi-panel correspondence",
@@ -154,7 +154,7 @@
       "priority": 17
     },
     {
-      "name": "the-mediator",
+      "name": "mediator",
       "displayName": "The Mediator",
       "tagline": "First in line — intent routing",
       "role": "intent classification, first-line handoff, orchestration entry",

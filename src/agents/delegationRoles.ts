@@ -3,4 +3,4 @@
 // qualify: architect and qa hold write skills (WriteFileSkill/WriteCodeSkill)
 // and are intentionally excluded. Shared by DeveloperAgent and MemberAgent so
 // the allowlist cannot drift apart.
-export const DELEGATION_ALLOWED_ROLES = ['reviewer', 'the-oracle'] as const
+export const DELEGATION_ALLOWED_ROLES = ['reviewer', 'oracle'] as const

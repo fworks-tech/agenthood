@@ -15,7 +15,7 @@ export interface OracleAgentOptions {
 }
 
 export class OracleAgent extends BaseAgent {
-  role = 'the-oracle'
+  role = 'oracle'
   // restricted profile per docs/architecture/agent-system.md: read-only tools
   protected tools: ITool[] = [new ReadFileSkill(), new SearchCodebaseSkill()]
   private readonly knowledgeGraph?: IGraphStore

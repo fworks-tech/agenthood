@@ -66,7 +66,7 @@ function mockEnv(): { agent: OracleAgent; context: ExecutionContext } {
 describe('OracleAgent', () => {
   it('has the correct role', () => {
     const { agent } = mockEnv()
-    expect(agent.role).toBe('the-oracle')
+    expect(agent.role).toBe('oracle')
   })
 
   it('asks a question and returns answer via LLM', async () => {
@@ -90,7 +90,7 @@ describe('OracleAgent', () => {
     const { agent, context } = mockEnv()
     const result = await agent.run('what is the oath?', context)
     expect(result.output).toContain('Oracle answers')
-    expect(result.role).toBe('the-oracle')
+    expect(result.role).toBe('oracle')
   })
 
   it('emits a trace envelope with cost and quality fields on run', async () => {
@@ -100,7 +100,7 @@ describe('OracleAgent', () => {
     const record = vi.mocked(context.tracer.record)
     expect(record).toHaveBeenCalledOnce()
     const [env] = record.mock.calls[0]
-    expect(env.member).toBe('the-oracle')
+    expect(env.member).toBe('oracle')
     expect(env.status).toBe('success')
     expect(env.cost).toBeGreaterThanOrEqual(0)
     expect(env.qualityScore).toBeNull()
@@ -132,7 +132,7 @@ describe('OracleAgent', () => {
 
     expect(captureException).toHaveBeenCalledTimes(1)
     const [, opts] = captureException.mock.calls[0]
-    expect(opts.tags).toMatchObject({ member: 'the-oracle', model: 'the-oracle' })
+    expect(opts.tags).toMatchObject({ member: 'oracle', model: 'oracle' })
   })
 
   it('records the responding model on the trace envelope', async () => {

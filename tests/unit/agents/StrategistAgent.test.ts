@@ -36,7 +36,7 @@ function mockEnv(): { agent: StrategistAgent; context: ExecutionContext } {
 describe('StrategistAgent', () => {
   it('has the correct role', () => {
     const { agent } = mockEnv()
-    expect(agent.role).toBe('the-strategist')
+    expect(agent.role).toBe('strategist')
   })
 
   it('produces a structured brief from an ambiguous goal', async () => {

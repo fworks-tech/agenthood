@@ -1,8 +1,8 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest'
 
 const mockFiles = vi.hoisted(() => ({
-  'skills/the-scribe/SKILL.md': '# The Scribe\nWrites commit messages.',
-  'skills/the-architect/SKILL.md': '# The Architect\nPlans implementations.',
+  'skills/scribe/SKILL.md': '# The Scribe\nWrites commit messages.',
+  'skills/architect/SKILL.md': '# The Architect\nPlans implementations.',
   'docs/adr/ADR-008-typescript-runtime.md': '# ADR-008: TypeScript Runtime\n\nSupersedes: ADR-006, ADR-007\n\nDecision: Use TypeScript.',
   'docs/adr/ADR-009-groq-provider.md': '# ADR-009: Groq Provider\n\nDecision: Use Groq. See ADR-008.',
   'docs/adr/ADR-006-python-runtime.md': '# ADR-006: Python Runtime\n\nSuperseded by ADR-008.',
@@ -24,7 +24,7 @@ vi.mock('node:fs', async (importOriginal) => {
     readdirSync: vi.fn().mockImplementation((path: string, options?: { withFileTypes?: boolean }) => {
       const relPath = path.replace(/\\/g, '/').replace(/^.*?\/base\//, '').replace(/\/$/, '')
       if (relPath === 'skills') {
-        const names = ['the-scribe', 'the-architect']
+        const names = ['scribe', 'architect']
         if (options?.withFileTypes) {
           return names.map((name) => ({ name, isDirectory: () => true, isFile: () => false }))
         }
@@ -67,8 +67,8 @@ describe('SocietyIndexer', () => {
     const nodes = knowledgeGraph.search('')
     const members = nodes.filter((n) => n.type === 'member')
     expect(members.length).toBe(2)
-    expect(members.some((m) => m.label === 'the-scribe')).toBe(true)
-    expect(members.some((m) => m.label === 'the-architect')).toBe(true)
+    expect(members.some((m) => m.label === 'scribe')).toBe(true)
+    expect(members.some((m) => m.label === 'architect')).toBe(true)
   })
 
   it('indexes ADRs and creates supersedes edges', async () => {

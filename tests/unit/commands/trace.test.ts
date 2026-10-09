@@ -29,8 +29,8 @@ const envelope = (member: string, timestamp: string, status = 'success') =>
   })
 
 const tracesNdjson = [
-  envelope('the-scribe', '2026-07-01T10:00:00.000Z'),
-  envelope('the-reviewer', '2026-07-01T11:00:00.000Z', 'error'),
+  envelope('scribe', '2026-07-01T10:00:00.000Z'),
+  envelope('reviewer', '2026-07-01T11:00:00.000Z', 'error'),
 ].map((e) => JSON.stringify(e)).join('\n')
 
 describe('trace command', () => {
@@ -66,8 +66,8 @@ describe('trace command', () => {
     await trace()
 
     const output = log.mock.calls.flat().join(' ')
-    expect(output).toContain('the-scribe')
-    expect(output).toContain('the-reviewer')
+    expect(output).toContain('scribe')
+    expect(output).toContain('reviewer')
     expect(output).toContain('$0.0012')
     expect(output).toContain('error')
   })
@@ -77,11 +77,11 @@ describe('trace command', () => {
     vi.mocked(readFileSync).mockReturnValue(tracesNdjson)
     const log = vi.spyOn(console, 'log').mockImplementation(() => {})
 
-    await trace(['--member', 'the-scribe'])
+    await trace(['--member', 'scribe'])
 
     const output = log.mock.calls.flat().join(' ')
-    expect(output).toContain('the-scribe')
-    expect(output).not.toContain('the-reviewer')
+    expect(output).toContain('scribe')
+    expect(output).not.toContain('reviewer')
   })
 
   it('returns empty message when filter matches nothing', async () => {
@@ -89,7 +89,7 @@ describe('trace command', () => {
     vi.mocked(readFileSync).mockReturnValue(tracesNdjson)
     const log = vi.spyOn(console, 'log').mockImplementation(() => {})
 
-    await trace(['--member', 'the-architect'])
+    await trace(['--member', 'architect'])
 
     expect(log.mock.calls.flat().join(' ')).toContain('No traces match')
   })
@@ -102,8 +102,8 @@ describe('trace command', () => {
     await trace(['--limit', '1'])
 
     const output = log.mock.calls.flat().join(' ')
-    expect(output).toContain('the-reviewer') // newest first
-    expect(output).not.toContain('the-scribe')
+    expect(output).toContain('reviewer') // newest first
+    expect(output).not.toContain('scribe')
   })
 
   it('filters by --since', async () => {
@@ -114,8 +114,8 @@ describe('trace command', () => {
     await trace(['--since', '2026-07-01T10:30:00.000Z'])
 
     const output = log.mock.calls.flat().join(' ')
-    expect(output).toContain('the-reviewer')
-    expect(output).not.toContain('the-scribe')
+    expect(output).toContain('reviewer')
+    expect(output).not.toContain('scribe')
   })
 
   it('produces parseable JSON with --json', async () => {
@@ -128,12 +128,12 @@ describe('trace command', () => {
     const raw = log.mock.calls.flat().join('')
     const parsed = JSON.parse(raw)
     expect(parsed.traces).toHaveLength(2)
-    expect(parsed.traces[0].member).toBe('the-reviewer')
+    expect(parsed.traces[0].member).toBe('reviewer')
   })
 
   it('excludes log entries from trace output', async () => {
     const logEntry = {
-      ...envelope('the-scribe', '2026-07-01T09:30:00.000Z'),
+      ...envelope('scribe', '2026-07-01T09:30:00.000Z'),
       entryType: 'log',
       level: 'warn',
       message: 'drift detected',
@@ -145,7 +145,7 @@ describe('trace command', () => {
     await trace()
 
     const output = logSpy.mock.calls.flat().join(' ')
-    expect(output).toContain('the-scribe')
+    expect(output).toContain('scribe')
     expect(output).not.toContain('drift detected')
   })
 

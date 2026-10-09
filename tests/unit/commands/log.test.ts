@@ -33,7 +33,7 @@ const logEnvelope = (member: string, level: string, message: string, timestamp: 
 })
 
 const traceEnvelope = createTraceEnvelope({
-  member: 'the-scribe',
+  member: 'scribe',
   input: 'task',
   output: 'output',
   durationMs: 1500,
@@ -46,8 +46,8 @@ const traceEnvelope = createTraceEnvelope({
 })
 
 const logsNdjson = [
-  logEnvelope('the-scribe', 'info', 'booted', '2026-07-01T10:00:00.000Z'),
-  logEnvelope('the-warden', 'warn', 'complexity rising', '2026-07-01T11:00:00.000Z'),
+  logEnvelope('scribe', 'info', 'booted', '2026-07-01T10:00:00.000Z'),
+  logEnvelope('warden', 'warn', 'complexity rising', '2026-07-01T11:00:00.000Z'),
   logEnvelope('system', 'error', 'provider down', '2026-07-01T12:00:00.000Z'),
   traceEnvelope,
 ].map((e) => JSON.stringify(e)).join('\n')
@@ -110,7 +110,7 @@ describe('log command', () => {
     vi.mocked(readFileSync).mockReturnValue(logsNdjson)
     const logSpy = vi.spyOn(console, 'log').mockImplementation(() => {})
 
-    await log(['--member', 'the-scribe'])
+    await log(['--member', 'scribe'])
 
     const output = logSpy.mock.calls.flat().join(' ')
     expect(output).toContain('booted')

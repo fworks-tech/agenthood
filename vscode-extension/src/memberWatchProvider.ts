@@ -9,38 +9,38 @@ type MemberStatus = 'watching' | 'triggered' | 'not-installed';
 const TRIGGER_DURATION_MS = 3000;
 
 const MEMBER_DISPLAY_NAMES: Record<string, string> = {
-  'the-scribe': 'The Scribe',
-  'the-architect': 'The Architect',
-  'the-reviewer': 'The Reviewer',
-  'the-tester': 'The Tester',
-  'the-debugger': 'The Debugger',
-  'the-auditor': 'The Auditor',
-  'the-herald': 'The Herald',
-  'the-librarian': 'The Librarian',
-  'the-doorman': 'The Doorman',
-  'the-oracle': 'The Oracle',
-  'the-envoy': 'The Envoy',
-  'the-sentinel': 'The Sentinel',
-  'the-warden': 'The Warden',
-  'the-steward': 'The Steward',
+  'scribe': 'The Scribe',
+  'architect': 'The Architect',
+  'reviewer': 'The Reviewer',
+  'tester': 'The Tester',
+  'debugger': 'The Debugger',
+  'auditor': 'The Auditor',
+  'herald': 'The Herald',
+  'librarian': 'The Librarian',
+  'doorman': 'The Doorman',
+  'oracle': 'The Oracle',
+  'envoy': 'The Envoy',
+  'sentinel': 'The Sentinel',
+  'warden': 'The Warden',
+  'steward': 'The Steward',
 };
 
 export function getMemberTriggers(memberId: string): RegExp[] {
   const map: Record<string, RegExp[]> = {
-    'the-reviewer': [/\.(ts|js|tsx|jsx|py|go|java|cs)$/],
-    'the-warden': [/\.(ts|js|tsx|jsx|py|go|java|cs)$/],
-    'the-librarian': [/\.md$/],
-    'the-tester': [/\.(test|spec)\.(ts|js|tsx|jsx|py)$/],
-    'the-auditor': [/package\.json$/, /\.lock$/, /\.(ts|js|env)$/],
-    'the-architect': [],
-    'the-sentinel': [/members\/.*\.md$/, /skills\/.*\.md$/],
-    'the-oracle': [/members\/.*\.md$/, /skills\/.*\.md$/],
-    'the-doorman': [/COMMIT_EDITMSG$/, /HEAD$/],
-    'the-scribe': [/COMMIT_EDITMSG$/, /ORIG_HEAD$/],
-    'the-herald': [],
-    'the-debugger': [],
-    'the-envoy': [],
-    'the-steward': [],
+    'reviewer': [/\.(ts|js|tsx|jsx|py|go|java|cs)$/],
+    'warden': [/\.(ts|js|tsx|jsx|py|go|java|cs)$/],
+    'librarian': [/\.md$/],
+    'tester': [/\.(test|spec)\.(ts|js|tsx|jsx|py)$/],
+    'auditor': [/package\.json$/, /\.lock$/, /\.(ts|js|env)$/],
+    'architect': [],
+    'sentinel': [/members\/.*\.md$/, /skills\/.*\.md$/],
+    'oracle': [/members\/.*\.md$/, /skills\/.*\.md$/],
+    'doorman': [/COMMIT_EDITMSG$/, /HEAD$/],
+    'scribe': [/COMMIT_EDITMSG$/, /ORIG_HEAD$/],
+    'herald': [],
+    'debugger': [],
+    'envoy': [],
+    'steward': [],
   };
   return map[memberId] ?? [];
 }
@@ -134,8 +134,8 @@ export class MemberWatchProvider implements vscode.TreeDataProvider<MemberItem>,
 
     // File create triggers The Architect
     this.observer.onDidCreate(() => {
-      if (this.statuses.get('the-architect') !== 'not-installed') {
-        this.trigger('the-architect');
+      if (this.statuses.get('architect') !== 'not-installed') {
+        this.trigger('architect');
       }
     });
   }

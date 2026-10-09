@@ -33,6 +33,29 @@ export class MemberNotFoundError extends Error {
 
 export class MemberRegistry {
   private specs: Map<string, MemberSpec> = new Map()
+  /** Backward-compat aliases: old "the-*" names -> new names. */
+  private static readonly ALIASES: Record<string, string> = {
+    'the-scribe': 'scribe',
+    'the-architect': 'architect',
+    'the-builder': 'builder',
+    'the-reviewer': 'reviewer',
+    'the-tester': 'tester',
+    'the-debugger': 'debugger',
+    'the-auditor': 'auditor',
+    'the-herald': 'herald',
+    'the-librarian': 'librarian',
+    'the-doorman': 'doorman',
+    'the-oracle': 'oracle',
+    'the-envoy': 'envoy',
+    'the-sentinel': 'sentinel',
+    'the-warden': 'warden',
+    'the-strategist': 'strategist',
+    'the-steward': 'steward',
+    'the-operator': 'operator',
+    'the-mediator': 'mediator',
+    'the-mailman': 'mailman',
+    'the-inspector': 'inspector',
+  }
 
   constructor() {
     for (const raw of rawSpecs) {
@@ -44,7 +67,6 @@ export class MemberRegistry {
 
       if (existsSync(skillPath)) {
         const content = readFileSync(skillPath, 'utf-8')
-        // Strip YAML front-matter (--- ... ---) leaving only the prompt body
         const body = stripFrontmatter(content).trim()
         systemPrompt = body
         outputFormat = extractFrontmatterField(content, 'output_format')
@@ -71,14 +93,19 @@ export class MemberRegistry {
     }
   }
 
+  private resolveName(name: string): string {
+    return MemberRegistry.ALIASES[name] ?? name
+  }
+
   get(name: string): MemberSpec {
-    const spec = this.specs.get(name)
+    const canonical = this.resolveName(name)
+    const spec = this.specs.get(canonical)
     if (!spec) throw new MemberNotFoundError(name)
     return spec
   }
 
   has(name: string): boolean {
-    return this.specs.has(name)
+    return this.specs.has(this.resolveName(name))
   }
 
   list(): MemberSpec[] {

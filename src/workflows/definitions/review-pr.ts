@@ -53,7 +53,7 @@ export function createReviewPrWorkflow(): { definition: WorkflowDefinition; prot
     {
       name: 'code-review',
       type: 'agent',
-      agentName: 'the-reviewer',
+      agentName: 'reviewer',
       task: 'Review code changes for correctness, security, and maintainability',
     },
     {

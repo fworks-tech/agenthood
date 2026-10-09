@@ -38,13 +38,13 @@ Maintains a rolling 7-day delivery log. Answers: what was delivered in the last 
 
 ```
 # Schedule a cross-post
-npx agenthood run the-mailman "schedule ./content/blog/my-post.mdx to devto,twitter,linkedin at 2026-07-10T14:00:00Z"
+npx agenthood run mailman "schedule ./content/blog/my-post.mdx to devto,twitter,linkedin at 2026-07-10T14:00:00Z"
 
 # Check delivery health
-npx agenthood run the-mailman "audit delivery logs for the last 24 hours"
+npx agenthood run mailman "audit delivery logs for the last 24 hours"
 
 # Set up a notification pipeline
-npx agenthood run the-mailman "configure webhook notifications for PR merges to Slack and email"
+npx agenthood run mailman "configure webhook notifications for PR merges to Slack and email"
 ```
 
 ---
@@ -61,4 +61,4 @@ npx agenthood run the-mailman "configure webhook notifications for PR merges to 
 
 ## Skill File
 
-→ [`SKILL.md`](../../skills/the-mailman/SKILL.md) — load this into your agent runtime
+→ [`SKILL.md`](../../skills/mailman/SKILL.md) — load this into your agent runtime

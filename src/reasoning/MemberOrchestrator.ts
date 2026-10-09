@@ -80,12 +80,12 @@ export class MemberOrchestrator {
         score += 3
       }
 
-      if (trigger.name === 'the-oracle' && context.projectContext === 'agenthood') {
+      if (trigger.name === 'oracle' && context.projectContext === 'agenthood') {
         score += 2
       }
 
-      if (trigger.name === 'the-oracle') {
-        for (const memberName of ['the-scribe', 'the-architect', 'the-reviewer']) {
+      if (trigger.name === 'oracle') {
+        for (const memberName of ['scribe', 'architect', 'reviewer']) {
           if (message.includes(memberName)) {
             score += 1
           }

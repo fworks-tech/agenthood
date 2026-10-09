@@ -39,7 +39,7 @@ npx agenthood check      # verifica se está tudo funcionando
 ### 3. Rode seu primeiro membro
 
 ```bash
-npx agenthood run the-scribe "escreva uma mensagem de commit para o diff atual"
+npx agenthood run scribe "escreva uma mensagem de commit para o diff atual"
 ```
 
 ## Seu primeiro commit com The Scribe

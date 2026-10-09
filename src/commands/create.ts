@@ -8,7 +8,7 @@
 import { existsSync, mkdirSync, writeFileSync } from 'node:fs'
 import { join } from 'node:path'
 import type { CommandDescriptor } from './types.ts'
-import { resolveSkillsDir, MEMBER_NAMES } from '../members.ts'
+import { resolveSkillsDir, isKnownMember } from '../members.ts'
 import { SPEC_NAME_RE } from '../skills/discovery/SkillParser.ts'
 
 export const command: CommandDescriptor = {
@@ -63,7 +63,7 @@ export async function create(args: string[]): Promise<void> {
     return
   }
 
-  if (MEMBER_NAMES.includes(name)) {
+  if (isKnownMember(name)) {
     console.error(`  ✗ "${name}" is a Society member name — reserved, choose another`)
     process.exit(1)
     return

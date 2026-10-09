@@ -11,7 +11,7 @@ import type { TriggerQuerySet, Predictor } from '../../../src/evals/trigger.ts'
 import { SchemaValidationError } from '../../../src/core/SchemaValidator.ts'
 
 const set: TriggerQuerySet = {
-  member: 'the-scribe',
+  member: 'scribe',
   shouldTrigger: ['write a commit message', 'draft the changelog'],
   shouldNotTrigger: ['refactor this function', 'find the security bug'],
 }
@@ -20,7 +20,7 @@ const fixed = (selected: string | null): Predictor => () => selected
 
 describe('scoreTriggers', () => {
   it('classifies tp/fn/fp/tn and derives metrics', async () => {
-    const m = await scoreTriggers(set, fixed('the-scribe'))
+    const m = await scoreTriggers(set, fixed('scribe'))
     expect(m).toMatchObject({ truePositive: 2, falseNegative: 0, falsePositive: 2, trueNegative: 0 })
     expect(m.precision).toBe(0.5)
     expect(m.recall).toBe(1)
@@ -28,7 +28,7 @@ describe('scoreTriggers', () => {
   })
 
   it('scores a perfect predictor at 1 across the board', async () => {
-    const predict: Predictor = (q) => (set.shouldTrigger.includes(q) ? 'the-scribe' : null)
+    const predict: Predictor = (q) => (set.shouldTrigger.includes(q) ? 'scribe' : null)
     const m = await scoreTriggers(set, predict)
     expect(m).toMatchObject({ truePositive: 2, falseNegative: 0, falsePositive: 0, trueNegative: 2 })
     expect(m.precision).toBe(1)
@@ -46,8 +46,8 @@ describe('scoreTriggers', () => {
 describe('splitTriggers', () => {
   it('partitions each bucket train-first and is deterministic', () => {
     const { train, validation } = splitTriggers(set, 0.5)
-    expect(train.member).toBe('the-scribe')
-    expect(validation.member).toBe('the-scribe')
+    expect(train.member).toBe('scribe')
+    expect(validation.member).toBe('scribe')
     const allT = train.shouldTrigger.concat(validation.shouldTrigger).sort()
     expect(allT).toEqual([...set.shouldTrigger].sort())
     // deterministic across calls
@@ -63,19 +63,19 @@ describe('splitTriggers', () => {
 
 describe('keywordPredictor (MemberOrchestrator surface)', () => {
   it('selects the scribe for commit/changelog language', () => {
-    expect(keywordPredictor()('write a commit message for this')).toBe('the-scribe')
+    expect(keywordPredictor()('write a commit message for this')).toBe('scribe')
   })
 
   it('does not select the scribe for unrelated work', () => {
     const p = keywordPredictor()
-    expect(p('investigate this segmentation fault and debug the crash')).not.toBe('the-scribe')
+    expect(p('investigate this segmentation fault and debug the crash')).not.toBe('scribe')
   })
 })
 
 describe('semanticPredictor (embeddings surface)', () => {
   const descriptions = [
-    { name: 'the-scribe', description: 'commit messages changelog' },
-    { name: 'the-debugger', description: 'debug errors crashes' },
+    { name: 'scribe', description: 'commit messages changelog' },
+    { name: 'debugger', description: 'debug errors crashes' },
   ]
   // deterministic fake embedder keyed by substring of the description/query
   const embed = async (text: string) => {
@@ -86,8 +86,8 @@ describe('semanticPredictor (embeddings surface)', () => {
 
   it('picks the most similar member description', async () => {
     const p = semanticPredictor(descriptions, embed)
-    expect(await p('write commit stuff')).toBe('the-scribe')
-    expect(await p('debug the crash')).toBe('the-debugger')
+    expect(await p('write commit stuff')).toBe('scribe')
+    expect(await p('debug the crash')).toBe('debugger')
   })
 
   it('returns null below the min score', async () => {

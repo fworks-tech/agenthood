@@ -34,7 +34,7 @@ describe('agenthood opencode plugin', () => {
     expect(cfg.instructions?.some((i) => i.endsWith('AGENTS.md'))).toBe(true)
     expect(cfg.agent?.['agenthood-live']?.mode).toBe('primary')
     expect(cfg.agent?.['agenthood-live']?.description).toBeTruthy()
-    expect(cfg.agent?.['the-steward']).toBeUndefined()
+    expect(cfg.agent?.['steward']).toBeUndefined()
   })
 
   it('registers agenthood_run_member with a member enum and task string', async () => {
@@ -76,14 +76,16 @@ describe('discoverMemberNames', () => {
     const names = discoverMemberNames(
       '/skills',
       fakeFs([
-        { name: 'the-zulu', dir: true, skill: true },
-        { name: 'the-alpha', dir: true, skill: true },
+        { name: 'zulu', dir: true, skill: true },
+        { name: 'alpha', dir: true, skill: true },
         { name: 'plain-file', dir: false, skill: false },
-        { name: 'the-noskill', dir: true, skill: false },
-        { name: 'aws', dir: true, skill: true },
+        { name: 'noskill', dir: true, skill: false },
+        { name: 'architect', dir: true, skill: true },
+        { name: 'builder', dir: true, skill: true },
       ]),
     )
-    expect(names).toEqual(['the-alpha', 'the-zulu'])
+    // Only 'architect' and 'builder' are in the known member names set
+    expect(names).toEqual(['architect', 'builder'])
     expect(warnings).toEqual([])
   })
 
@@ -135,7 +137,7 @@ describe('wireAgenthoodConfig', () => {
     expect(cfg.instructions).toEqual(['/pkg/AGENTS.md'])
     expect(cfg.agent?.['agenthood-live']?.mode).toBe('primary')
     expect(cfg.agent?.['agenthood-live']?.description).toBeTruthy()
-    expect(cfg.agent?.['the-steward']).toBeUndefined()
+    expect(cfg.agent?.['steward']).toBeUndefined()
   })
 
   it('is idempotent and preserves existing entries', () => {
@@ -320,7 +322,7 @@ describe('parseRedisTarget', () => {
 })
 
 describe('mirrorRunRecord', () => {
-  const record: RunRecord = { id: 'r1', member: 'the-scribe', task: 't', outcome: 'o', timestamp: 'ts' }
+  const record: RunRecord = { id: 'r1', member: 'scribe', task: 't', outcome: 'o', timestamp: 'ts' }
 
   const fakeSocket = () => {
     const emitter = new EventEmitter()
@@ -393,9 +395,9 @@ describe('buildRunMemberTool', () => {
   })
 
   it('registers the member tool for shipped members', () => {
-    const tools = buildRunMemberTool(['the-oracle'])
+    const tools = buildRunMemberTool(['oracle'])
     expect(Object.keys(tools)).toEqual(['agenthood_run_member'])
-    expect(tools.agenthood_run_member.description).toContain('the-oracle')
+    expect(tools.agenthood_run_member.description).toContain('oracle')
   })
 })
 

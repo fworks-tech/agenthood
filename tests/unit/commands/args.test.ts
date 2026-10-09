@@ -7,8 +7,8 @@ afterEach(() => {
 
 describe('parseStoreInspectArgs', () => {
   it('parses shared observability flags with defaults', () => {
-    const out = parseStoreInspectArgs(['--member', 'the-scribe', '--limit', '5', '--since', '1h', '--json'])
-    expect(out.member).toBe('the-scribe')
+    const out = parseStoreInspectArgs(['--member', 'scribe', '--limit', '5', '--since', '1h', '--json'])
+    expect(out.member).toBe('scribe')
     expect(out.limit).toBe(5)
     expect(out.since).toBeTruthy()
     expect(out.json).toBe(true)
@@ -34,13 +34,13 @@ describe('parseStoreInspectArgs', () => {
 
   it('delegates unknown flags to onFlag and consumes their value on true', () => {
     const seen: Array<[string, string | undefined]> = []
-    const out = parseStoreInspectArgs(['--level', 'warn', '--member', 'the-warden'], (flag, value) => {
+    const out = parseStoreInspectArgs(['--level', 'warn', '--member', 'warden'], (flag, value) => {
       seen.push([flag, value])
       if (flag === '--level') return true
       return false
     })
     expect(seen).toEqual([['--level', 'warn']])
-    expect(out.member).toBe('the-warden')
+    expect(out.member).toBe('warden')
   })
 
   it('does not consume the next arg when onFlag returns false', () => {

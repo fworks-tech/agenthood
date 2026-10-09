@@ -3,7 +3,7 @@ import type { ExecutionContext } from '../../core/ExecutionContext.ts'
 import type { ITool } from '../../tools/ITool.ts'
 
 export class OperatorAgent extends WrappedTaskAgent {
-  role = 'the-operator'
+  role = 'operator'
   protected tools: ITool[] = []
   protected readonly taskIntro = 'Triage the following runtime situation and produce an operation report.'
   protected readonly outputFormat = buildOutputFormat([

@@ -11,6 +11,6 @@ describe('DELEGATION_ALLOWED_ROLES', () => {
   })
 
   it('contains only read-only analysis agents', () => {
-    expect(DELEGATION_ALLOWED_ROLES).toEqual(['reviewer', 'the-oracle'])
+    expect(DELEGATION_ALLOWED_ROLES).toEqual(['reviewer', 'oracle'])
   })
 })

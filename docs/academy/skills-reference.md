@@ -12,7 +12,7 @@
 
 **Specialty:** Commit messages, PR descriptions, changelogs
 **Tools:** `file.read`, `file.write`, `file.search`, `explain_code`, `pr_sync`
-**Runtime:** `npx agenthood run the-scribe "write a commit message for the current diff"`
+**Runtime:** `npx agenthood run scribe "write a commit message for the current diff"`
 
 ### The Architect
 
@@ -20,7 +20,7 @@
 
 **Specialty:** System design, ADRs, task decomposition, tech decisions
 **Tools:** `file.read`, `file.write`, `code.write`, `file.search`, `explain_code`
-**Runtime:** `npx agenthood run the-architect "plan the implementation for issue #42"`
+**Runtime:** `npx agenthood run architect "plan the implementation for issue #42"`
 
 ### The Builder
 
@@ -28,7 +28,7 @@
 
 **Specialty:** Coding, implementation, refactoring, local validation
 **Tools:** `file.read`, `file.write`, `code.write`, `file.search`, `explain_code`
-**Runtime:** `npx agenthood run the-builder "implement the auth refactor"`
+**Runtime:** `npx agenthood run builder "implement the auth refactor"`
 
 ### The Tester
 
@@ -36,7 +36,7 @@
 
 **Specialty:** TDD, test generation, coverage enforcement, edge cases
 **Tools:** `file.read`, `file.write`, `code.write`, `file.search`, `explain_code`
-**Runtime:** `npx agenthood run the-tester "write tests for the auth module"`
+**Runtime:** `npx agenthood run tester "write tests for the auth module"`
 
 ### The Debugger
 
@@ -44,7 +44,7 @@
 
 **Specialty:** Error triage, root cause analysis, systematic recovery
 **Tools:** `file.read`, `file.write`, `file.search`, `explain_code`
-**Runtime:** `npx agenthood run the-debugger "diagnose the CI failure"`
+**Runtime:** `npx agenthood run debugger "diagnose the CI failure"`
 
 ### The Strategist
 
@@ -52,7 +52,7 @@
 
 **Specialty:** Goal refinement, requirement discovery, ambiguity resolution
 **Tools:** `file.read`, `file.write`, `file.search`, `explain_code`
-**Runtime:** `npx agenthood run the-strategist "clarify the goals for the API rewrite"`
+**Runtime:** `npx agenthood run strategist "clarify the goals for the API rewrite"`
 
 ---
 
@@ -64,7 +64,7 @@
 
 **Specialty:** Code review across correctness, readability, architecture, security, performance
 **Tools:** `file.read`, `file.write`
-**Runtime:** `npx agenthood run the-reviewer "review the latest commit"`
+**Runtime:** `npx agenthood run reviewer "review the latest commit"`
 
 ### The Auditor
 
@@ -72,7 +72,7 @@
 
 **Specialty:** Security review, dependency audit, secrets scanning, OWASP Top 10
 **Tools:** `file.read`, `file.write`, `file.search`
-**Runtime:** `npx agenthood run the-auditor "audit the authentication module"`
+**Runtime:** `npx agenthood run auditor "audit the authentication module"`
 
 ### The Doorman
 
@@ -80,7 +80,7 @@
 
 **Specialty:** Commit message validation, branch protection, health checks, enforcement
 **Tools:** `file.read`, `file.write`, `file.search`, `explain_code`
-**Runtime:** `npx agenthood run the-doorman "validate the current branch"`
+**Runtime:** `npx agenthood run doorman "validate the current branch"`
 
 ### The Sentinel
 
@@ -88,7 +88,7 @@
 
 **Specialty:** Member file integrity, cross-member contradiction detection, structural drift
 **Tools:** `file.read`, `file.write`, `file.search`
-**Runtime:** `npx agenthood run the-sentinel "audit member files for consistency"`
+**Runtime:** `npx agenthood run sentinel "audit member files for consistency"`
 
 ### The Warden
 
@@ -96,7 +96,7 @@
 
 **Specialty:** Code smell detection, complexity enforcement, architectural boundary violations
 **Tools:** `file.read`, `file.write`, `file.search`, `explain_code`
-**Runtime:** `npx agenthood run the-warden "scan for code smells"`
+**Runtime:** `npx agenthood run warden "scan for code smells"`
 
 ---
 
@@ -108,7 +108,7 @@
 
 **Specialty:** Visual-reasoning benchmarking, pixel ranking, cross-panel mapping, graph-cut classification, confidence calibration
 **Tools:** `image_load`, `pixel_rank`, `coordinate_map`, `cut_classify`, `confidence_score`
-**Runtime:** `npx agenthood run the-inspector "rank the 4 darkest pixels in panel (a) and map them to panel (c)"`
+**Runtime:** `npx agenthood run inspector "rank the 4 darkest pixels in panel (a) and map them to panel (c)"`
 
 ---
 
@@ -120,7 +120,7 @@
 
 **Specialty:** Documentation management, ADR creation, API references, knowledge management
 **Tools:** `file.read`, `file.write`, `file.search`, `explain_code`
-**Runtime:** `npx agenthood run the-librarian "document the API endpoints"`
+**Runtime:** `npx agenthood run librarian "document the API endpoints"`
 **Society memory:** every run writes a decision record (`.agenthood/decisions/`) + provenance entry (`.agenthood/provenance/`) — the audit trail the Librarian's postmortems link to
 
 ### The Oracle
@@ -129,7 +129,7 @@
 
 **Specialty:** Institutional knowledge, member authoring templates, naming guidance, convention rationale
 **Tools:** `file.read`, `file.write`, `file.search`, `explain_code`
-**Runtime:** `npx agenthood run the-oracle "what members should I activate for a library project?"`
+**Runtime:** `npx agenthood run oracle "what members should I activate for a library project?"`
 **Society memory:** past member decisions are searchable as precedent via `DecisionSearch` — the Oracle can answer "how did we decide X before?" from `.agenthood/decisions/`
 
 ---
@@ -142,7 +142,7 @@
 
 **Specialty:** Intent classification, first-line handoff, orchestration entry
 **Tools:** `file.read`, `file.write`, `file.search`, `explain_code`
-**Runtime:** `npx agenthood run the-mediator "classify this request and route it to the right member"`
+**Runtime:** `npx agenthood run mediator "classify this request and route it to the right member"`
 
 ### The Herald
 
@@ -150,7 +150,7 @@
 
 **Specialty:** Semantic versioning, changelog generation, release notes, scheduled reports
 **Tools:** `file.read`, `file.write`, `file.search`, `explain_code`
-**Runtime:** `npx agenthood run the-herald "generate the changelog for the next release"`
+**Runtime:** `npx agenthood run herald "generate the changelog for the next release"`
 
 ### The Envoy
 
@@ -158,7 +158,7 @@
 
 **Specialty:** Cross-provider translation, bootstrap generation, convention validation across runtimes
 **Tools:** `file.read`, `file.write`, `file.search`, `explain_code`
-**Runtime:** `npx agenthood run the-envoy "translate skills for Copilot"`
+**Runtime:** `npx agenthood run envoy "translate skills for Copilot"`
 
 ### The Steward
 
@@ -166,7 +166,7 @@
 
 **Specialty:** Context economy, member routing, provider cache strategy, session triage
 **Tools:** `file.read`, `file.write`, `file.search`, `explain_code`
-**Runtime:** `npx agenthood run the-steward "optimize the agent configuration"`
+**Runtime:** `npx agenthood run steward "optimize the agent configuration"`
 **Society memory:** the provenance store's hash chain gives the Steward a tamper-evident record of past sessions to triage against
 
 ### The Operator
@@ -175,7 +175,7 @@
 
 **Specialty:** Runtime health, deployment, incidents, rollback, monitoring
 **Tools:** `file.read`, `file.write`, `file.search`, `explain_code`
-**Runtime:** `npx agenthood run the-operator "check the deployment health"`
+**Runtime:** `npx agenthood run operator "check the deployment health"`
 
 ### The Mailman
 
@@ -183,7 +183,7 @@
 
 **Specialty:** Message delivery, content scheduling, notification dispatch, cross-posting
 **Tools:** `file.read`, `file.write`, `file.search`, `explain_code`
-**Runtime:** `npx agenthood run the-mailman "schedule the weekly report"`
+**Runtime:** `npx agenthood run mailman "schedule the weekly report"`
 
 ---
 
@@ -198,7 +198,7 @@ PR body synchronization is handled by The Reviewer (replaced The Manuscript in v
 npx agenthood pr-sync --pr 42
 
 # Context-aware path (loads full Society context)
-npx agenthood run the-scribe "sync PR #42"
+npx agenthood run scribe "sync PR #42"
 ```
 
 ---

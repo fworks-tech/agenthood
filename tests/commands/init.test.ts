@@ -135,13 +135,13 @@ describe('init command', () => {
 
   it('--ci honors --runtime and --members selections', async () => {
     const { init } = await import( '../../src/commands/init.ts')
-    await init(['--ci', '--runtime', 'copilot', '--members', 'the-scribe,the-builder'])
+    await init(['--ci', '--runtime', 'copilot', '--members', 'scribe,builder'])
     const writeCalls = vi.mocked(writeFile).mock.calls.map((c) => c as [string, string])
     const configCall = writeCalls.find(([path]) => path.includes('config.json') && !path.includes('example'))
     expect(configCall).toBeTruthy()
     const config = JSON.parse(configCall![1])
     expect(config.runtime).toBe('copilot')
-    expect(config.members).toEqual(['the-scribe', 'the-builder'])
+    expect(config.members).toEqual(['scribe', 'builder'])
   })
 
   it('--ci rejects an unknown runtime and member', async () => {
@@ -149,7 +149,7 @@ describe('init command', () => {
     vi.spyOn(process, 'exit').mockImplementation((() => { throw new Error('process.exit') }) as never)
     const { init } = await import( '../../src/commands/init.ts')
     await expect(init(['--ci', '--runtime', 'vscode'])).rejects.toThrow('process.exit')
-    await expect(init(['--ci', '--members', 'the-scribe,nope'])).rejects.toThrow('process.exit')
+    await expect(init(['--ci', '--members', 'scribe,nope'])).rejects.toThrow('process.exit')
     expect(vi.mocked(writeFile)).not.toHaveBeenCalled()
   })
 

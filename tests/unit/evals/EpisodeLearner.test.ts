@@ -374,11 +374,11 @@ describe('EpisodeLearner status', () => {
   it('counts bands and members across learn() calls', async () => {
     const learner = new EpisodeLearner()
 
-    await learner.learn({ episodeId: 'a', scores: { x: 0.9 }, metadata: { member: 'the-scribe' } }, context)
-    await learner.learn({ episodeId: 'b', scores: { x: 0.85 }, metadata: { member: 'the-scribe' } }, context)
-    await learner.learn({ episodeId: 'c', scores: { x: 0.95 }, metadata: { member: 'the-reviewer' } }, context)
-    await learner.learn({ episodeId: 'd', scores: { x: 0.3 }, metadata: { member: 'the-scribe' } }, context)
-    await learner.learn({ episodeId: 'e', scores: { x: 0.2 }, metadata: { member: 'the-reviewer' } }, context)
+    await learner.learn({ episodeId: 'a', scores: { x: 0.9 }, metadata: { member: 'scribe' } }, context)
+    await learner.learn({ episodeId: 'b', scores: { x: 0.85 }, metadata: { member: 'scribe' } }, context)
+    await learner.learn({ episodeId: 'c', scores: { x: 0.95 }, metadata: { member: 'reviewer' } }, context)
+    await learner.learn({ episodeId: 'd', scores: { x: 0.3 }, metadata: { member: 'scribe' } }, context)
+    await learner.learn({ episodeId: 'e', scores: { x: 0.2 }, metadata: { member: 'reviewer' } }, context)
 
     const status = learner.getStatus()
     expect(status.totalEpisodes).toBe(5)
@@ -386,13 +386,13 @@ describe('EpisodeLearner status', () => {
     expect(status.lowScoreCount).toBe(2)
     expect(status.midScoreCount).toBe(0)
     expect(status.lastUpdate).toBeTruthy()
-    expect(status.memberBreakdown['the-scribe']).toEqual({ learned: 2, antipatterns: 1 })
-    expect(status.memberBreakdown['the-reviewer']).toEqual({ learned: 1, antipatterns: 1 })
+    expect(status.memberBreakdown['scribe']).toEqual({ learned: 2, antipatterns: 1 })
+    expect(status.memberBreakdown['reviewer']).toEqual({ learned: 1, antipatterns: 1 })
   })
 
   it('counts mid-band episodes separately', async () => {
     const learner = new EpisodeLearner()
-    await learner.learn({ episodeId: 'm', scores: { x: 0.6 }, metadata: { member: 'the-scribe' } }, context)
+    await learner.learn({ episodeId: 'm', scores: { x: 0.6 }, metadata: { member: 'scribe' } }, context)
     expect(learner.getStatus().midScoreCount).toBe(1)
     expect(learner.getStatus().lowScoreCount).toBe(0)
   })
@@ -400,7 +400,7 @@ describe('EpisodeLearner status', () => {
   it('reports a rising confidence trend for improving scores', async () => {
     const learner = new EpisodeLearner()
     for (const score of [0.4, 0.45, 0.8, 0.85, 0.9, 0.95]) {
-      await learner.learn({ episodeId: String(score), scores: { x: score }, metadata: { member: 'the-scribe' } }, context)
+      await learner.learn({ episodeId: String(score), scores: { x: score }, metadata: { member: 'scribe' } }, context)
     }
     expect(learner.getStatus().confidenceTrend).toBe('rising')
   })
@@ -408,14 +408,14 @@ describe('EpisodeLearner status', () => {
   it('reports a falling confidence trend for degrading scores', async () => {
     const learner = new EpisodeLearner()
     for (const score of [0.9, 0.85, 0.4, 0.35, 0.3, 0.25]) {
-      await learner.learn({ episodeId: String(score), scores: { x: score }, metadata: { member: 'the-scribe' } }, context)
+      await learner.learn({ episodeId: String(score), scores: { x: score }, metadata: { member: 'scribe' } }, context)
     }
     expect(learner.getStatus().confidenceTrend).toBe('falling')
   })
 
   it('does not count episodes with empty scores', async () => {
     const learner = new EpisodeLearner()
-    await learner.learn({ episodeId: 'empty', scores: {}, metadata: { member: 'the-scribe' } }, context)
+    await learner.learn({ episodeId: 'empty', scores: {}, metadata: { member: 'scribe' } }, context)
     expect(learner.getStatus().totalEpisodes).toBe(0)
   })
 })

@@ -8,7 +8,7 @@
 import { existsSync, rmSync } from 'node:fs'
 import { join } from 'node:path'
 import type { CommandDescriptor } from './types.ts'
-import { resolveSkillsDir, SKILLS_LOCKFILE, MEMBER_NAMES } from '../members.ts'
+import { resolveSkillsDir, SKILLS_LOCKFILE, isKnownMember } from '../members.ts'
 import { loadSkillsLockfile, saveSkillsLockfile } from './skillsLock.ts'
 import { SPEC_NAME_RE } from '../skills/discovery/SkillParser.ts'
 
@@ -48,7 +48,7 @@ export async function remove(args: string[]): Promise<void> {
     return
   }
 
-  if (MEMBER_NAMES.includes(name)) {
+  if (isKnownMember(name)) {
     console.error(`  ✗ "${name}" is a Society member — use \`agenthood deactivate ${name}\` instead`)
     process.exit(1)
     return

@@ -3,8 +3,8 @@ import { parseEvalArgs, parseReplayLimit } from '../../../src/commands/evalArgs.
 
 describe('parseEvalArgs', () => {
   it('parses value flags, boolean flags, and positionals', () => {
-    const parsed = parseEvalArgs(['the-scribe', '--suite', 's.json', '--baseline', 'b.json', '--json', '--replay', '--limit', '7'])
-    expect(parsed.member).toBe('the-scribe')
+    const parsed = parseEvalArgs(['scribe', '--suite', 's.json', '--baseline', 'b.json', '--json', '--replay', '--limit', '7'])
+    expect(parsed.member).toBe('scribe')
     expect(parsed.suitePath).toBe('s.json')
     expect(parsed.baselinePath).toBe('b.json')
     expect(parsed.shouldJson).toBe(true)
@@ -15,15 +15,15 @@ describe('parseEvalArgs', () => {
   })
 
   it('keeps defaults when no flags are given', () => {
-    const parsed = parseEvalArgs(['the-scribe'])
+    const parsed = parseEvalArgs(['scribe'])
     expect(parsed.replayLimit).toBe(50)
     expect(parsed.shouldJson).toBe(false)
     expect(parsed.shouldReplay).toBe(false)
   })
 
   it('collects repeated --provider flags and defaults to none', () => {
-    expect(parseEvalArgs(['the-scribe']).providers).toEqual([])
-    const parsed = parseEvalArgs(['the-scribe', '--suite', 's.json', '--provider', 'groq', '--provider', 'openai'])
+    expect(parseEvalArgs(['scribe']).providers).toEqual([])
+    const parsed = parseEvalArgs(['scribe', '--suite', 's.json', '--provider', 'groq', '--provider', 'openai'])
     expect(parsed.providers).toEqual(['groq', 'openai'])
   })
 

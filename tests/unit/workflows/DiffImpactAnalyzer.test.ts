@@ -66,8 +66,8 @@ describe('DiffImpactAnalyzer', () => {
 
     const result = analyzer.analyze()
 
-    expect(result.suggestedReviewers).toContain('the-doorman')
-    expect(result.suggestedReviewers).toContain('the-steward')
+    expect(result.suggestedReviewers).toContain('doorman')
+    expect(result.suggestedReviewers).toContain('steward')
   })
 
   it('returns high risk for core changes', () => {

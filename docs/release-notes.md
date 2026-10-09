@@ -658,7 +658,7 @@
 
 ### ✨ Features
 
-- **Members:** reframe steward load routing and add the-mediator (#482), refs #474
+- **Members:** reframe steward load routing and add mediator (#482), refs #474
 
 ---
 
@@ -666,7 +666,7 @@
 
 ### 🐛 Bug Fixes
 
-- **Core:** clean up MemberAgent delegation smell and sanitize the-mailman (#469)
+- **Core:** clean up MemberAgent delegation smell and sanitize mailman (#469)
 
 ---
 
@@ -1067,15 +1067,15 @@
 - **Docs:** update member counts and skill links after canonicalization
 - **Marketplace:** add new members to agenthood-all bundle and update counts
 - **Marketplace:** align copy with 19 members
-- **Members:** satisfy sentinel and librarian checks for the-builder
+- **Members:** satisfy sentinel and librarian checks for builder
 - **Runtime:** route skill file changes to oracle and sentinel triggers
 - **Runtime:** watch skills dir for operator drift and test sentinel pattern
 
 ### ✨ Features
 
 - **Members:** add builder member
-- **Members:** bring the-builder to full society standards
-- **Runtime:** add the-builder to member triggers
+- **Members:** bring builder to full society standards
+- **Runtime:** add builder to member triggers
 
 ---
 
@@ -1319,8 +1319,8 @@
 - **Docs:** correct check count to 21 and fix insert->add API example, refs #286
 - **Docs:** fix mentioned shipped version
 - **Init,check:** align init ceremony with health check expectations, refs #286
-- **Skills:** add output format section to the-reviewer SKILL.md for consistent rendering, refs #286
-- sync skills/the-reviewer/SKILL.md with members/ changes, refs #286
+- **Skills:** add output format section to reviewer SKILL.md for consistent rendering, refs #286
+- sync skills/reviewer/SKILL.md with members/ changes, refs #286
 - **The-reviewer:** address review findings on output format and README, refs #286
 - **The-reviewer:** flatten heading hierarchy and add intra-section spacing example, refs #286
 - **The-reviewer:** use [SEVERITY] placeholder and move meta-instruction outside template, refs #286
@@ -1735,14 +1735,14 @@
 - **Hooks:** add commit-msg hook
 - **Hooks:** add pre-commit hook
 - **Members:** add branch scope and PR scope validation to architect and doorman
-- **Members:** add N+1 commit pattern and PR granularity to the-scribe
-- **Members:** add the-envoy
-- **Members:** add the-oracle
-- **Members:** add the-sentinel
-- **Members:** add the-steward
-- **Members:** add the-warden
-- **Members:** register the-oracle and the-envoy in indexes
-- **Members:** register the-sentinel and the-warden in indexes
+- **Members:** add N+1 commit pattern and PR granularity to scribe
+- **Members:** add envoy
+- **Members:** add oracle
+- **Members:** add sentinel
+- **Members:** add steward
+- **Members:** add warden
+- **Members:** register oracle and envoy in indexes
+- **Members:** register sentinel and warden in indexes
 - **Platform:** add npm package, VS Code extension, portals rename, and INITIATION
 - **Setup:** add setup.sh, makefile, devcontainer
 - **Society:** add skill files, rituals, agentic workflows, CI, and intelligence

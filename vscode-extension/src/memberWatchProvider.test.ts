@@ -7,23 +7,23 @@ import { getMemberTriggers, getInstalledMembers, MemberItem } from './memberWatc
 
 suite('MemberWatchProvider — pure helpers', () => {
   test('getMemberTriggers returns patterns for trigger-capable members', () => {
-    const auditorPatterns = getMemberTriggers('the-auditor');
+    const auditorPatterns = getMemberTriggers('auditor');
     assert.ok(auditorPatterns.length > 0, 'The Auditor should have trigger patterns');
     assert.ok(auditorPatterns.some((p) => p.test('package.json')));
   });
 
   test('getMemberTriggers returns empty array for passive members', () => {
-    const stewardPatterns = getMemberTriggers('the-steward');
+    const stewardPatterns = getMemberTriggers('steward');
     assert.deepStrictEqual(stewardPatterns, []);
   });
 
-  test('getMemberTriggers: the-reviewer triggers on .ts files', () => {
-    const patterns = getMemberTriggers('the-reviewer');
+  test('getMemberTriggers: reviewer triggers on .ts files', () => {
+    const patterns = getMemberTriggers('reviewer');
     assert.ok(patterns.some((p) => p.test('src/foo.ts')));
   });
 
-  test('getMemberTriggers: the-librarian triggers on .md files only', () => {
-    const patterns = getMemberTriggers('the-librarian');
+  test('getMemberTriggers: librarian triggers on .md files only', () => {
+    const patterns = getMemberTriggers('librarian');
     assert.ok(patterns.some((p) => p.test('README.md')));
     assert.ok(!patterns.some((p) => p.test('src/foo.ts')));
   });
@@ -34,13 +34,13 @@ suite('MemberWatchProvider — pure helpers', () => {
     fs.mkdirSync(configDir, { recursive: true });
     fs.writeFileSync(
       path.join(configDir, 'config.json'),
-      JSON.stringify({ members: ['the-scribe', 'the-reviewer'] }),
+      JSON.stringify({ members: ['scribe', 'reviewer'] }),
     );
 
     const installed = getInstalledMembers(tmpDir);
-    assert.ok(installed.has('the-scribe'));
-    assert.ok(installed.has('the-reviewer'));
-    assert.ok(!installed.has('the-auditor'));
+    assert.ok(installed.has('scribe'));
+    assert.ok(installed.has('reviewer'));
+    assert.ok(!installed.has('auditor'));
 
     fs.rmSync(tmpDir, { recursive: true, force: true });
   });
@@ -51,19 +51,19 @@ suite('MemberWatchProvider — pure helpers', () => {
   });
 
   test('MemberItem: watching status produces eye icon description', () => {
-    const item = new MemberItem('the-scribe', 'watching');
+    const item = new MemberItem('scribe', 'watching');
     assert.strictEqual(item.description, 'watching');
     assert.strictEqual(item.contextValue, 'member-watching');
   });
 
   test('MemberItem: triggered status produces activated description', () => {
-    const item = new MemberItem('the-scribe', 'triggered');
+    const item = new MemberItem('scribe', 'triggered');
     assert.strictEqual(item.description, 'activated');
     assert.strictEqual(item.contextValue, 'member-triggered');
   });
 
   test('MemberItem: not-installed status produces correct description', () => {
-    const item = new MemberItem('the-scribe', 'not-installed');
+    const item = new MemberItem('scribe', 'not-installed');
     assert.strictEqual(item.description, 'not installed');
     assert.strictEqual(item.contextValue, 'member-not-installed');
   });

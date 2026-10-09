@@ -148,7 +148,7 @@ For the failover chain with model fallback:
 | Check | Command |
 |-------|---------|
 | No type errors | `npx tsc --noEmit` |
-| Basic completion | `npx agenthood run the-scribe "hello" --provider opencode` |
+| Basic completion | `npx agenthood run scribe "hello" --provider opencode` |
 | All tests pass | `npx vitest run --exclude 'vscode-extension/**'` |
 | Failover triggers | Configure a bad API key for OpenCode + working Groq backup |
 

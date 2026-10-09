@@ -54,13 +54,13 @@ infra skills appear exclusively as task tools, never as chain nodes.
 
 ## Loop
 
-1. CLASSIFY intent via the-mediator (confidence cascade, routing record).
+1. CLASSIFY intent via mediator (confidence cascade, routing record).
 2. PLAN the member sequence; fan out independent members in parallel via the
    task tool (one member per call, exact return shape, depth <= 2).
 3. COLLECT returns, then GATE: reviewer zero [blocking], doorman pass,
    tests and build green.
 4. APPROVE fans out no further — done. REVISE re-runs (max 3 rounds; round 2
-   still [blocking] routes to the-architect for a rewrite). ESCALATE via the
+   still [blocking] routes to architect for a rewrite). ESCALATE via the
    question tool, then abort — never auto-merge past a standing block.
 5. Termination is participants plus mandatory gates; non-participants abstain.
 

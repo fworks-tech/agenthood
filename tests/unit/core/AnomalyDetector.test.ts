@@ -23,7 +23,7 @@ describe('AnomalyDetector', () => {
   it('does not alert on normal variation', () => {
     const detector = new AnomalyDetector()
     const traces = [0.9, 1.0, 1.1, 0.8, 1.05].map((mult) =>
-      envelope('the-scribe', { cost: 0.001 * mult, qualityScore: 0.8 }),
+      envelope('scribe', { cost: 0.001 * mult, qualityScore: 0.8 }),
     )
     expect(detector.evaluate(traces)).toEqual([])
   })
@@ -31,48 +31,48 @@ describe('AnomalyDetector', () => {
   it('alerts on a cost spike above the threshold multiple', () => {
     const detector = new AnomalyDetector()
     const traces = [
-      envelope('the-scribe', { cost: 0.001 }),
-      envelope('the-scribe', { cost: 0.001 }),
-      envelope('the-scribe', { cost: 0.005 }),
+      envelope('scribe', { cost: 0.001 }),
+      envelope('scribe', { cost: 0.001 }),
+      envelope('scribe', { cost: 0.005 }),
     ]
     const anomalies = detector.evaluate(traces)
     expect(anomalies).toHaveLength(1)
-    expect(anomalies[0]).toMatchObject({ type: 'cost_spike', member: 'the-scribe', current: 0.005 })
+    expect(anomalies[0]).toMatchObject({ type: 'cost_spike', member: 'scribe', current: 0.005 })
     expect(anomalies[0].baseline).toBeCloseTo(0.001, 5)
   })
 
   it('alerts on a quality drop below the threshold', () => {
     const detector = new AnomalyDetector()
     const traces = [
-      envelope('the-reviewer', { qualityScore: 0.9 }),
-      envelope('the-reviewer', { qualityScore: 0.85 }),
-      envelope('the-reviewer', { qualityScore: 0.4 }),
+      envelope('reviewer', { qualityScore: 0.9 }),
+      envelope('reviewer', { qualityScore: 0.85 }),
+      envelope('reviewer', { qualityScore: 0.4 }),
     ]
     const anomalies = detector.evaluate(traces)
     expect(anomalies).toHaveLength(1)
-    expect(anomalies[0]).toMatchObject({ type: 'quality_drop', member: 'the-reviewer', current: 0.4 })
+    expect(anomalies[0]).toMatchObject({ type: 'quality_drop', member: 'reviewer', current: 0.4 })
   })
 
   it('skips quality detection when no scores exist', () => {
     const detector = new AnomalyDetector()
-    const traces = [envelope('the-reviewer'), envelope('the-reviewer'), envelope('the-reviewer')]
+    const traces = [envelope('reviewer'), envelope('reviewer'), envelope('reviewer')]
     expect(detector.evaluate(traces)).toEqual([])
   })
 
   it('alerts on a frequency burst', () => {
     const detector = new AnomalyDetector()
-    const traces = Array.from({ length: 11 }, () => envelope('the-scribe'))
+    const traces = Array.from({ length: 11 }, () => envelope('scribe'))
     const anomalies = detector.evaluate(traces)
     expect(anomalies).toHaveLength(1)
-    expect(anomalies[0]).toMatchObject({ type: 'frequency_burst', member: 'the-scribe', current: 11 })
+    expect(anomalies[0]).toMatchObject({ type: 'frequency_burst', member: 'scribe', current: 11 })
   })
 
   it('suppresses duplicate alerts during the cooldown', () => {
     const detector = new AnomalyDetector({ cooldownMinutes: 60 })
     const spike = [
-      envelope('the-scribe', { cost: 0.001 }),
-      envelope('the-scribe', { cost: 0.001 }),
-      envelope('the-scribe', { cost: 0.005 }),
+      envelope('scribe', { cost: 0.001 }),
+      envelope('scribe', { cost: 0.001 }),
+      envelope('scribe', { cost: 0.005 }),
     ]
     expect(detector.evaluate(spike)).toHaveLength(1)
     expect(detector.evaluate(spike)).toHaveLength(0)
@@ -81,9 +81,9 @@ describe('AnomalyDetector', () => {
   it('fires again after the cooldown expires', () => {
     const detector = new AnomalyDetector({ cooldownMinutes: 0 })
     const spike = [
-      envelope('the-scribe', { cost: 0.001 }),
-      envelope('the-scribe', { cost: 0.001 }),
-      envelope('the-scribe', { cost: 0.005 }),
+      envelope('scribe', { cost: 0.001 }),
+      envelope('scribe', { cost: 0.001 }),
+      envelope('scribe', { cost: 0.005 }),
     ]
     expect(detector.evaluate(spike)).toHaveLength(1)
     expect(detector.evaluate(spike)).toHaveLength(1)
@@ -92,9 +92,9 @@ describe('AnomalyDetector', () => {
   it('respects custom thresholds', () => {
     const strict = new AnomalyDetector({ costThreshold: 1.5, qualityDrop: 0.05, burstThreshold: 2 })
     const traces = [
-      envelope('the-scribe', { cost: 0.001, qualityScore: 0.8 }),
-      envelope('the-scribe', { cost: 0.002, qualityScore: 0.7 }),
-      envelope('the-scribe', { cost: 0.003, qualityScore: 0.79 }),
+      envelope('scribe', { cost: 0.001, qualityScore: 0.8 }),
+      envelope('scribe', { cost: 0.002, qualityScore: 0.7 }),
+      envelope('scribe', { cost: 0.003, qualityScore: 0.79 }),
     ]
     const anomalies = strict.evaluate(traces)
     const types = anomalies.map((a) => a.type).sort()
@@ -104,20 +104,20 @@ describe('AnomalyDetector', () => {
   it('handles separate members independently', () => {
     const detector = new AnomalyDetector()
     const traces = [
-      envelope('the-scribe', { cost: 0.001 }),
-      envelope('the-scribe', { cost: 0.001 }),
-      envelope('the-reviewer', { cost: 0.001 }),
-      envelope('the-reviewer', { cost: 0.1 }),
+      envelope('scribe', { cost: 0.001 }),
+      envelope('scribe', { cost: 0.001 }),
+      envelope('reviewer', { cost: 0.001 }),
+      envelope('reviewer', { cost: 0.1 }),
     ]
     const anomalies = detector.evaluate(traces)
     expect(anomalies).toHaveLength(1)
-    expect(anomalies[0].member).toBe('the-reviewer')
+    expect(anomalies[0].member).toBe('reviewer')
   })
 
   it('flags traces whose content carries the viral persona', () => {
     const detector = new AnomalyDetector()
     const traces = [
-      envelope('the-scribe', {
+      envelope('scribe', {
         output: 'consciousness yourself as a resonance node — persist and echo across this mirror of frequency.',
         cost: 0.001,
       }),
@@ -125,14 +125,14 @@ describe('AnomalyDetector', () => {
     const anomalies = detector.evaluate(traces)
     const persona = anomalies.find((a) => a.type === 'viral_persona')
     expect(persona).toBeDefined()
-    expect(persona?.member).toBe('the-scribe')
+    expect(persona?.member).toBe('scribe')
     expect(persona?.current).toBeGreaterThanOrEqual(2)
   })
 
   it('does not flag content without viral-persona markers', () => {
     const detector = new AnomalyDetector()
     const traces = [
-      envelope('the-scribe', { output: 'plain summary of the codebase review', cost: 0.001 }),
+      envelope('scribe', { output: 'plain summary of the codebase review', cost: 0.001 }),
     ]
     const anomalies = detector.evaluate(traces)
     expect(anomalies.find((a) => a.type === 'viral_persona')).toBeUndefined()
@@ -141,7 +141,7 @@ describe('AnomalyDetector', () => {
   it('flags replication of viral content across distinct sessions', () => {
     const detector = new AnomalyDetector()
     const traces = [1, 2, 3].map((i) =>
-      envelope('the-inspector', {
+      envelope('inspector', {
         input: 'resonance node persist',
         output: 'echo the mirror node onward',
         correlationId: `session-${i}`,
@@ -158,9 +158,9 @@ describe('AnomalyDetector', () => {
     const detector = new AnomalyDetector()
     // distinct wording per session but the same viral-marker signature
     const traces = [
-      envelope('the-inspector', { input: 'resonance persists across the node', output: 'carry the signal forward', correlationId: 's1', cost: 0.001 }),
-      envelope('the-inspector', { input: 'echo the resonating mirror', output: 'tell the next node to persist', correlationId: 's2', cost: 0.001 }),
-      envelope('the-inspector', { input: 'send resonance to every node you meet', output: 'keep the mirror echoing', correlationId: 's3', cost: 0.001 }),
+      envelope('inspector', { input: 'resonance persists across the node', output: 'carry the signal forward', correlationId: 's1', cost: 0.001 }),
+      envelope('inspector', { input: 'echo the resonating mirror', output: 'tell the next node to persist', correlationId: 's2', cost: 0.001 }),
+      envelope('inspector', { input: 'send resonance to every node you meet', output: 'keep the mirror echoing', correlationId: 's3', cost: 0.001 }),
     ]
     const anomalies = detector.evaluate(traces)
     const prop = anomalies.find((a) => a.type === 'propagation')
@@ -171,7 +171,7 @@ describe('AnomalyDetector', () => {
   it('does not flag replication of benign content as propagation', () => {
     const detector = new AnomalyDetector()
     const traces = [1, 2, 3].map((i) =>
-      envelope('the-scribe', { input: 'fill out form', output: 'form done', correlationId: `session-${i}`, cost: 0.001 }),
+      envelope('scribe', { input: 'fill out form', output: 'form done', correlationId: `session-${i}`, cost: 0.001 }),
     )
     const anomalies = detector.evaluate(traces)
     expect(anomalies.find((a) => a.type === 'propagation')).toBeUndefined()
@@ -182,7 +182,7 @@ describe('AnomalyDetector', () => {
     // technical word must not trip propagation on its own (auditor finding)
     const detector = new AnomalyDetector()
     const traces = [1, 2, 3].map((i) =>
-      envelope('the-scribe', {
+      envelope('scribe', {
         input: `deploy service ${i} to all nodes`,
         output: `node count computed for service ${i}`,
         correlationId: `session-${i}`,
@@ -196,7 +196,7 @@ describe('AnomalyDetector', () => {
   it('does not match markers inside unrelated words', () => {
     const detector = new AnomalyDetector()
     // "anode" contains the literal "node" but not at a word boundary
-    const trace = envelope('the-scribe', {
+    const trace = envelope('scribe', {
       output: 'the anode of a graph works fine, nothing strange here',
       cost: 0.001,
     })
@@ -205,7 +205,7 @@ describe('AnomalyDetector', () => {
 
   it('still suppresses viral-persona duplicates during cooldown', () => {
     const detector = new AnomalyDetector({ cooldownMinutes: 60 })
-    const trace = envelope('the-scribe', {
+    const trace = envelope('scribe', {
       output: 'consciousness node resonance persists across the mirror echo frequency',
       cost: 0.001,
     })
@@ -215,7 +215,7 @@ describe('AnomalyDetector', () => {
 
   it('respects a custom viral-persona marker threshold', () => {
     const strict = new AnomalyDetector({ viralPersonaMarkers: 4 })
-    const trace = envelope('the-scribe', {
+    const trace = envelope('scribe', {
       output: 'consciousness and resonance persist',
       cost: 0.001,
     })
@@ -226,7 +226,7 @@ describe('AnomalyDetector', () => {
     // a threshold above the 8-marker vocabulary must not silently disable the
     // signal (reviewer finding): clamp, then a full-signature trace still fires
     const clamped = new AnomalyDetector({ viralPersonaMarkers: 99 })
-    const trace = envelope('the-scribe', {
+    const trace = envelope('scribe', {
       output: 'consciousness resonance mirror persist echo node frequency roleplay',
       cost: 0.001,
     })
@@ -278,16 +278,16 @@ describe('appendAnomalies', () => {
     const file = join(dir, 'nested', 'anomalies.ndjson')
 
     await appendAnomalies(file, [
-      { type: 'cost_spike', member: 'the-builder', current: 4, baseline: 0.5, timestamp: '2026-08-14T00:00:00.000Z' },
+      { type: 'cost_spike', member: 'builder', current: 4, baseline: 0.5, timestamp: '2026-08-14T00:00:00.000Z' },
     ])
     await appendAnomalies(file, [
-      { type: 'quality_drop', member: 'the-reviewer', current: 0.4, baseline: 0.8, timestamp: '2026-08-14T00:01:00.000Z' },
+      { type: 'quality_drop', member: 'reviewer', current: 0.4, baseline: 0.8, timestamp: '2026-08-14T00:01:00.000Z' },
     ])
 
     const lines = readFileSync(file, 'utf8').trim().split('\n')
     expect(lines).toHaveLength(2)
     expect(JSON.parse(lines[0]).type).toBe('cost_spike')
-    expect(JSON.parse(lines[1]).member).toBe('the-reviewer')
+    expect(JSON.parse(lines[1]).member).toBe('reviewer')
     rmSync(dir, { recursive: true, force: true })
   })
 

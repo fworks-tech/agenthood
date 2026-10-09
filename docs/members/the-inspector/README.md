@@ -45,10 +45,10 @@ Auto-creates new multi-panel test items that combine the above challenges, outpu
 
 ```
 # Run against a visual-reasoning benchmark
-npx agenthood run the-inspector "find the 4 darkest pixels in panel (a) top 2 rows, map to panel (c), count source-side"
+npx agenthood run inspector "find the 4 darkest pixels in panel (a) top 2 rows, map to panel (c), count source-side"
 
 # Generate a new benchmark item
-npx agenthood run the-inspector "create a 3-panel benchmark with a diagonal cut and 6 candidate pixels"
+npx agenthood run inspector "create a 3-panel benchmark with a diagonal cut and 6 candidate pixels"
 
 # Deploy as HTTP endpoint
 POST /visual-reasoning
@@ -72,4 +72,4 @@ POST /visual-reasoning
 
 ## Skill File
 
-→ [`SKILL.md`](../../skills/the-inspector/SKILL.md) — load this into your agent runtime
+→ [`SKILL.md`](../../skills/inspector/SKILL.md) — load this into your agent runtime

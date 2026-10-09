@@ -55,10 +55,10 @@ Compare the two approaches on the same task — writing a commit message from a 
 # result = await chain.ainvoke({ diff })  # what prompt? what params?
 
 # The Agenthood way: explicit, inspectable, typed
-agenthood run the-scribe "write a commit message for the current diff"
+agenthood run scribe "write a commit message for the current diff"
 ```
 
-The Society member produces a Conventional Commit message with no hidden prompt assembly. The skill file (`skills/the-scribe/SKILL.md`) is the prompt — readable, versioned, and editable.
+The Society member produces a Conventional Commit message with no hidden prompt assembly. The skill file (`skills/scribe/SKILL.md`) is the prompt — readable, versioned, and editable.
 
 ---
 

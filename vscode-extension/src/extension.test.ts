@@ -8,11 +8,11 @@ suite('AGENTHOOD_MEMBERS', () => {
 
   test('contains expected members', () => {
     const expectedMembers = [
-      'the-doorman',
-      'the-scribe',
-      'the-reviewer',
-      'the-oracle',
-      'the-steward',
+      'doorman',
+      'scribe',
+      'reviewer',
+      'oracle',
+      'steward',
     ];
     expectedMembers.forEach(member => {
       assert.ok(AGENTHOOD_MEMBERS.includes(member), `missing member: ${member}`);

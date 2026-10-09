@@ -1,84 +1,84 @@
 # Agenthood Live orchestration chains.
-# Only the-* members route and sequence; infra skills appear exclusively
+# Members route and sequence; infra skills appear exclusively
 # under tools:, never as chain nodes. Guards are policy: a standing block
 # stops the chain, and merges/commits require their gatekeeper.
 chains:
   - name: build
     sequence:
-      - member: the-tester
-      - member: the-builder
-      - member: the-reviewer
-      - member: the-doorman
+      - member: tester
+      - member: builder
+      - member: reviewer
+      - member: doorman
     guards: { stop_on_blocking: true, doorman_before_merge: true, scribe_before_commit: true }
     max_rounds: 3
   - name: review
     sequence:
-      - member: the-reviewer
-      - member: the-auditor
-      - member: the-warden
+      - member: reviewer
+      - member: auditor
+      - member: warden
     guards: { stop_on_blocking: true, doorman_before_merge: true, scribe_before_commit: true }
     max_rounds: 3
   - name: security
     sequence:
-      - member: the-auditor
+      - member: auditor
         tools: [sentry]
-      - member: the-warden
-      - member: the-scribe
+      - member: warden
+      - member: scribe
     guards: { stop_on_blocking: true, doorman_before_merge: true, scribe_before_commit: true }
     max_rounds: 3
   - name: planning
     sequence:
-      - member: the-strategist
-      - member: the-architect
-      - member: the-tester
-      - member: the-builder
+      - member: strategist
+      - member: architect
+      - member: tester
+      - member: builder
     guards: { stop_on_blocking: true, doorman_before_merge: true, scribe_before_commit: true }
     max_rounds: 3
   - name: bug
     sequence:
-      - member: the-debugger
+      - member: debugger
         tools: [sentry]
-      - member: the-tester
-      - member: the-reviewer
+      - member: tester
+      - member: reviewer
     guards: { stop_on_blocking: true, doorman_before_merge: true, scribe_before_commit: true }
     max_rounds: 3
   - name: release
     sequence:
-      - member: the-scribe
+      - member: scribe
         tools: [github]
-      - member: the-herald
+      - member: herald
         tools: [github]
     guards: { stop_on_blocking: true, doorman_before_merge: true, scribe_before_commit: true }
     max_rounds: 3
   - name: authoring
     sequence:
-      - member: the-oracle
-      - member: the-sentinel
-      - member: the-builder
+      - member: oracle
+      - member: sentinel
+      - member: builder
     guards: { stop_on_blocking: true, doorman_before_merge: true, scribe_before_commit: true }
     max_rounds: 3
   - name: full
     sequence:
-      - member: the-strategist
-      - member: the-architect
-      - member: the-tester
-      - member: the-builder
-      - member: the-reviewer
-      - member: the-auditor
-      - member: the-warden
-      - member: the-doorman
-      - member: the-scribe
-      - member: the-herald
-      - member: the-librarian
+      - member: strategist
+      - member: architect
+      - member: tester
+      - member: builder
+      - member: reviewer
+      - member: auditor
+      - member: warden
+      - member: doorman
+      - member: scribe
+      - member: herald
+      - member: librarian
     guards: { stop_on_blocking: true, doorman_before_merge: true, scribe_before_commit: true }
     max_rounds: 3
   - name: incident-triage
     sequence:
-      - member: the-mediator
-      - member: the-debugger
+      - member: mediator
+      - member: debugger
         tools: [sentry]
-      - member: the-tester
+      - member: tester
         tools: [postgres]
-      - member: the-builder
+      - member: builder
     guards: { stop_on_blocking: true, doorman_before_merge: true, scribe_before_commit: true }
     max_rounds: 3

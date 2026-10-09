@@ -53,7 +53,7 @@ const reasoning = await cot.reason({
 
 ```bash
 # The Society's runtime uses ReAct by default
-agenthood run the-debugger "the test suite is failing on test/auth.test.ts:42"
+agenthood run debugger "the test suite is failing on test/auth.test.ts:42"
 ```
 
 Watch the loop produce visible reasoning steps:

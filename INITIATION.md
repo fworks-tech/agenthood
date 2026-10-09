@@ -94,9 +94,9 @@ npm run build
 npx agenthood list
 
 # Invoke a member against a real task
-npx agenthood run the-scribe "write a commit message for the current diff"
-npx agenthood run the-architect "plan the implementation for issue #42"
-npx agenthood run the-reviewer "review the open PR"
+npx agenthood run scribe "write a commit message for the current diff"
+npx agenthood run architect "plan the implementation for issue #42"
+npx agenthood run reviewer "review the open PR"
 ```
 
 The runtime reads the same `.agenthood/config.json` the CLI created — no

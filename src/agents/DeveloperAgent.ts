@@ -19,7 +19,7 @@ import { DELEGATION_ALLOWED_ROLES } from './delegationRoles.ts'
 
 const __filename = fileURLToPath(import.meta.url)
 const __dirname = dirname(__filename)
-const SKILL_PATH = join(__dirname, '..', '..', 'members', 'the-builder', 'SKILL.md')
+const SKILL_PATH = join(__dirname, '..', '..', 'members', 'builder', 'SKILL.md')
 
 export interface DeveloperAgentOptions extends BaseAgentOptions {
   agentRegistry: AgentRegistry

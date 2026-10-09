@@ -26,6 +26,22 @@ export const ALL_MEMBERS: Member[] = registry.list().map((s) => ({
 
 export const MEMBER_NAMES: string[] = ALL_MEMBERS.map(m => m.name)
 
+/** All canonical names plus backward-compat "the-*" aliases. */
+export const MEMBER_NAMES_WITH_ALIASES: string[] = [
+  ...MEMBER_NAMES,
+  ...Object.keys(MemberRegistry['ALIASES']),
+]
+
+/** Resolve a member name (canonical or "the-*" alias) to its canonical form. */
+export function resolveMemberName(name: string): string {
+  return registry['resolveName']?.(name) ?? name
+}
+
+/** Check if a name is a known member (canonical or alias). */
+export function isKnownMember(name: string): boolean {
+  return registry.has(name)
+}
+
 /** Canonical on-disk home of the Society's own authored member skills:
  * `<pkgRoot>/skills/<member>/SKILL.md`. `verify` (integrity) and `rollback`
  * resolve members through this single source instead of each hardcoding a

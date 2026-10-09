@@ -69,7 +69,7 @@ describe('remove command', () => {
 
   it('refuses to remove a Society member', async () => {
     exitSpy()
-    await expect(remove(['the-scribe'])).rejects.toThrow('process.exit')
+    await expect(remove(['scribe'])).rejects.toThrow('process.exit')
     expect(output.join('\n')).toContain('deactivate')
     expect(vi.mocked(rmSync)).not.toHaveBeenCalled()
   })

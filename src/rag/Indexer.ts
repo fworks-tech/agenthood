@@ -2,13 +2,13 @@ import { readFileSync, existsSync, mkdirSync, writeFileSync, renameSync } from "
 import { readdirSync } from "node:fs"
 import { extname, join } from "node:path"
 import type { ILLMProvider } from "../llm/ILLMProvider.ts"
-import type { IVectorStore, VectorRecord } from "../memory/VectorStore.ts"
-import type { ChunkStrategy, HierarchicalChunkStrategy, ParentChunk } from "./ChunkStrategy.ts"
+import type { VectorRecord, IVectorStore } from "../memory/VectorStore.ts"
+import type { HierarchicalChunkStrategy, ParentChunk } from "./ChunkStrategy.ts"
 import { FixedSizeChunkStrategy } from "./ChunkStrategy.ts"
 import { TreeSitterParser, languageFromFile } from "./parsers/TreeSitterParser.ts"
 
 export interface IndexOptions {
-  chunkStrategy?: ChunkStrategy
+  chunkStrategy?: FixedSizeChunkStrategy
   hierarchicalChunkStrategy?: HierarchicalChunkStrategy
   embedder: ILLMProvider
   vectorStore: IVectorStore
@@ -24,7 +24,7 @@ export interface IndexStats {
 }
 
 export class Indexer {
-  private chunkStrategy: ChunkStrategy
+  private chunkStrategy: FixedSizeChunkStrategy
   private hierarchicalStrategy?: HierarchicalChunkStrategy
   private embedder: ILLMProvider
   private vectorStore: IVectorStore

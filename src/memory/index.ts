@@ -1,6 +1,5 @@
-export type { IVectorStore } from "./VectorStore.ts"
 export { LanceDBStore } from "./VectorStore.ts"
-export type { VectorRecord, VectorSearchResult } from "./VectorStore.ts"
+export type { VectorRecord, VectorSearchResult, IVectorStore } from "./VectorStore.ts"
 export { ResidualMemory } from "./ResidualMemory.ts"
 export type { TraceSignal, ResidualMemoryOptions } from "./ResidualMemory.ts"
 export { InMemoryStore } from "./stores/InMemoryStore.ts"

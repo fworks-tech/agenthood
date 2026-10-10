@@ -109,7 +109,7 @@
     "node": ">=22.14.0"
   },
   "dependencies": {
-    "@anthropic-ai/sdk": "0.128.0",
+    "@anthropic-ai/sdk": "0.131.0",
     "@lancedb/lancedb": "0.30.0",
     "@modelcontextprotocol/server": "2.3.0",
     "@sentry/node": "11.4.0",

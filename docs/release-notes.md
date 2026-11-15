@@ -5,6 +5,14 @@
 
 ---
 
+## v3.76.1 — November 15, 2026
+
+### 🐛 Bug Fixes
+
+- apply the repository audit findings (#1047)
+
+---
+
 ## v3.76.0 — November 15, 2026
 
 ### 🐛 Bug Fixes

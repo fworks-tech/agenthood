@@ -2,9 +2,11 @@ import { describe, it, expect, beforeEach, afterEach } from 'vitest'
 import { LLMRouter, ComplexityScorer } from '../../../src/llm/LLMRouter.ts'
 import { GroqProvider } from '../../../src/llm/providers/GroqProvider.ts'
 import { OllamaProvider } from '../../../src/llm/providers/OllamaProvider.ts'
+import { StubProvider, STUB_PROVIDER_ENV } from '../../../src/llm/providers/StubProvider.ts'
 import { ProviderChain } from '../../../src/llm/ProviderFailover.ts'
 import type { ILLMProvider } from '../../../src/llm/ILLMProvider.ts'
 import type { LLMRequest } from '../../../src/llm/types.ts'
+import type { ProviderName } from '../../../src/members/types.ts'
 
 // GroqProvider now fails fast without a key — provide one for routing tests
 beforeEach(() => {
@@ -201,6 +203,46 @@ describe('LLMRouter', () => {
       const newConfig = { provider: 'ollama', apiKey: 'new-key' }
       const reinitialized = await LLMRouter.reinitializeProvider('ollama', newConfig)
       expect(reinitialized).toBeDefined()
+      // the model-keyed cache must be dropped, or a rotated key keeps the old client
+      expect(reinitialized).not.toBe(provider)
     })
+  })
+})
+
+describe('createForMember model override (#1040)', () => {
+  beforeEach(() => {
+    process.env[STUB_PROVIDER_ENV] = '1'
+    StubProvider.resetScript()
+  })
+
+  afterEach(() => {
+    delete process.env[STUB_PROVIDER_ENV]
+    StubProvider.resetScript()
+  })
+
+  const stubChain = (modelOverride?: string) =>
+    LLMRouter.createForMember(
+      'stub' as ProviderName,
+      { providers: [{ name: 'stub', model: 'entry-model' }] },
+      modelOverride,
+    )
+
+  it('the pinned model wins over the provider entry model', async () => {
+    const chain = await stubChain('member-model')
+    await expect(chain.complete(makeRequest())).resolves.toMatchObject({ model: 'member-model' })
+  })
+
+  it('keeps the entry model when the member pins none', async () => {
+    const chain = await stubChain()
+    await expect(chain.complete(makeRequest())).resolves.toMatchObject({ model: 'entry-model' })
+  })
+
+  it('caches per model so a later member does not inherit the first model', async () => {
+    const first = await LLMRouter.create({ provider: 'ollama', model: 'model-a' })
+    const second = await LLMRouter.create({ provider: 'ollama', model: 'model-b' })
+    const same = await LLMRouter.create({ provider: 'ollama', model: 'model-a' })
+
+    expect(first).not.toBe(second)
+    expect(first).toBe(same)
   })
 })

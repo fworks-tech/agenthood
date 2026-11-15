@@ -19,6 +19,13 @@ describe('package exports — programmatic subpaths (#739)', () => {
     expect(existsSync(join(repoRoot, 'src', 'core', 'index.ts'))).toBe(true)
   })
 
+  it('exposes the member registry and types for host runtimes (#1040)', () => {
+    expect(exports['./dist/members/MemberRegistry.js']).toBe('./dist/members/MemberRegistry.js')
+    expect(exports['./dist/members/types.js']).toBe('./dist/members/types.js')
+    expect(existsSync(join(repoRoot, 'src', 'members', 'MemberRegistry.ts'))).toBe(true)
+    expect(existsSync(join(repoRoot, 'src', 'members', 'types.ts'))).toBe(true)
+  })
+
   it('keeps the exports map lockdown — no wildcard subpaths', () => {
     const wildcards = Object.keys(exports).filter((key) => key.includes('*'))
     expect(wildcards).toEqual([])

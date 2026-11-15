@@ -218,15 +218,16 @@ export class LLMRouter {
   static async createForMember(
     preferredProvider: ProviderName,
     config: LLMConfig,
+    modelOverride?: string,
   ): Promise<ILLMProvider> {
     LLMRouter.config = config
     if (config.providers?.length) {
       // preference beats priority — member ask overrides operator order
       const sorted = [...config.providers].sort(sortProvidersByPriority)
       const prefEntry = sorted.find((e) => e.name === preferredProvider)
-      const orderedEntries: ProviderEntry[] = prefEntry
-        ? [prefEntry, ...sorted.filter((e) => e.name !== preferredProvider)]
-        : [{ name: preferredProvider } as ProviderEntry, ...sorted]
+      const base: ProviderEntry = prefEntry ?? { name: preferredProvider }
+      const preferred: ProviderEntry = modelOverride ? { ...base, model: modelOverride } : base
+      const orderedEntries: ProviderEntry[] = [preferred, ...sorted.filter((e) => e.name !== preferredProvider)]
       const { instances, names, modelMap } = await LLMRouter.buildChainFromEntries(
         orderedEntries,
         config,
@@ -241,7 +242,8 @@ export class LLMRouter {
       }
     }
     const order: ProviderName[] = [preferredProvider, 'groq', 'openai', 'ollama']
-    return LLMRouter.buildProviderChain(order, config)
+    const effective = modelOverride ? { ...config, model: modelOverride } : config
+    return LLMRouter.buildProviderChain(order, effective)
   }
 
   private static entryToConfig(entry: ProviderEntry, base: LLMConfig): LLMConfig {
@@ -302,10 +304,15 @@ export class LLMRouter {
    * Get a cached provider instance or initialise it on first access.
    * Deduplicates concurrent init requests so the same provider is
    * only constructed once even if multiple callers race.
+   *
+   * Keyed by (provider, model): a provider object is bound to the model it was
+   * constructed with, so a member-pinned model must not reuse the instance
+   * that carries the shared config model.
    */
   private static async getOrInit(name: string, config: LLMConfig): Promise<ILLMProvider | null> {
-    if (LLMRouter.instances.has(name)) return LLMRouter.instances.get(name)!
-    if (LLMRouter.initPromises.has(name)) return LLMRouter.initPromises.get(name)!
+    const key = LLMRouter.cacheKey(name, config)
+    if (LLMRouter.instances.has(key)) return LLMRouter.instances.get(key)!
+    if (LLMRouter.initPromises.has(key)) return LLMRouter.initPromises.get(key)!
 
     const promise = (async () => {
       const factory = LLMRouter.providerFactories[name]
@@ -313,15 +320,29 @@ export class LLMRouter {
       try {
         const inst = await factory(config)
         const wrapped = withRequestRedaction(inst, OUTBOUND_REDACTOR)
-        LLMRouter.instances.set(name, wrapped)
+        LLMRouter.instances.set(key, wrapped)
         return wrapped
       } catch {
         return null
       }
     })()
 
-    LLMRouter.initPromises.set(name, promise)
+    LLMRouter.initPromises.set(key, promise)
     return promise
+  }
+
+  private static cacheKey(name: string, config: LLMConfig): string {
+    return `${name}::${config.model ?? ''}`
+  }
+
+  /** Drops every cached model variant of a provider — a rotated key invalidates all of them. */
+  private static evict(name: string): void {
+    const prefix = `${name}::`
+    for (const key of [...LLMRouter.instances.keys(), ...LLMRouter.initPromises.keys()]) {
+      if (!key.startsWith(prefix)) continue
+      LLMRouter.instances.delete(key)
+      LLMRouter.initPromises.delete(key)
+    }
   }
 
   /**
@@ -336,8 +357,7 @@ export class LLMRouter {
   }
 
   static async reinitializeProvider(name: string, config: LLMConfig): Promise<ILLMProvider | null> {
-    LLMRouter.instances.delete(name)
-    LLMRouter.initPromises.delete(name)
+    LLMRouter.evict(name)
     LLMRouter.config = config
     return LLMRouter.getOrInit(name, config)
   }

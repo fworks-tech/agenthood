@@ -10,7 +10,7 @@
 import { readFileSync, existsSync } from 'node:fs'
 import { join, dirname } from 'node:path'
 import { fileURLToPath } from 'node:url'
-import type { MemberSpec, PermissionProfile, MemberCategory } from './types.ts'
+import type { MemberSpec, PermissionProfile, MemberCategory, CustomMemberDefinition } from './types.ts'
 import { rawSpecs } from './member-specs.ts'
 import { stripFrontmatter, extractFrontmatterField } from '../agents/memberLore.ts'
 
@@ -30,6 +30,13 @@ export class MemberNotFoundError extends Error {
     this.name = 'MemberNotFoundError'
   }
 }
+
+/** Synthetic sourcePath marker: custom members have no SKILL.md on disk. */
+export const CUSTOM_SOURCE_PREFIX = 'custom:'
+
+const CUSTOM_NAME_PATTERN = /^[a-z0-9][a-z0-9-]{1,63}$/
+const MAX_SYSTEM_PROMPT_CHARS = 20_000
+const MAX_DESCRIPTION_CHARS = 500
 
 export class MemberRegistry {
   private specs: Map<string, MemberSpec> = new Map()
@@ -116,6 +123,53 @@ export class MemberRegistry {
     return this.list().filter((s) => s.category === category)
   }
 
+  /**
+   * Adds a host-owned member. Tools are intersected with the permission
+   * profile, so a definition can narrow its scope but never widen it.
+   * Registration is append-only: a name collision (built-in, alias, or a
+   * previously registered custom member) is an error, never an overwrite.
+   */
+  register(def: CustomMemberDefinition): MemberSpec {
+    if (!CUSTOM_NAME_PATTERN.test(def.name)) {
+      throw new Error(`invalid custom member name "${def.name}": must match [a-z0-9][a-z0-9-]{1,63}`)
+    }
+    if (this.has(def.name)) {
+      throw new Error(`custom member "${def.name}" collides with an existing member`)
+    }
+    const description = def.description?.trim() ?? ''
+    const systemPrompt = def.systemPrompt?.trim() ?? ''
+    if (!description) throw new Error(`custom member "${def.name}" needs a non-empty description`)
+    if (description.length > MAX_DESCRIPTION_CHARS) {
+      throw new Error(`custom member "${def.name}" description exceeds ${MAX_DESCRIPTION_CHARS} characters`)
+    }
+    if (!systemPrompt) throw new Error(`custom member "${def.name}" needs a non-empty systemPrompt`)
+    if (systemPrompt.length > MAX_SYSTEM_PROMPT_CHARS) {
+      throw new Error(`custom member "${def.name}" systemPrompt exceeds ${MAX_SYSTEM_PROMPT_CHARS} characters`)
+    }
+
+    const permissionProfile = def.permissionProfile ?? 'restricted'
+    if (!Object.hasOwn(MemberRegistry.toolsByProfile, permissionProfile)) {
+      throw new Error(`custom member "${def.name}" has unknown permissionProfile "${permissionProfile}"`)
+    }
+    const spec: MemberSpec = {
+      name: def.name,
+      description,
+      category: def.category ?? 'engineering',
+      tagline: def.tagline ?? description,
+      permissionProfile,
+      preferredProvider: def.preferredProvider ?? 'anthropic',
+      tools: def.tools
+        ? MemberRegistry.intersectDeclaredTools(def.tools.join(' '), permissionProfile)
+        : this.defaultTools(permissionProfile),
+      systemPrompt,
+      sourcePath: `${CUSTOM_SOURCE_PREFIX}${def.name}`,
+      canDelegate: def.canDelegate ?? false,
+      model: def.model,
+    }
+    this.specs.set(def.name, spec)
+    return spec
+  }
+
   // Only tools TOOL_MAP can actually construct are advertised; listing a
   // tool here that MemberAgent cannot instantiate would silently drop it
   // from every member run (see MemberAgent.addTool).
@@ -133,7 +187,7 @@ export class MemberRegistry {
   })()
 
   private defaultTools(permission: PermissionProfile): string[] {
-    return MemberRegistry.toolsByProfile[permission]
+    return [...MemberRegistry.toolsByProfile[permission]]
   }
 
   /** SKILL.md allowed-tools may only narrow, never expand: declared ∩ profile. */

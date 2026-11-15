@@ -40,4 +40,27 @@ export interface MemberSpec {
   output_format?: string
   /** Whether a format deviation fails the run (strict) or warns (lenient) */
   output_format_mode?: OutputFormatMode
+  /** Per-member model override; wins over the shared config model for this run */
+  model?: string
+}
+
+/**
+ * A host-registered member (Atlaslink custom agents). Everything optional
+ * defaults to the narrowest profile, so an incomplete definition fails closed.
+ */
+export interface CustomMemberDefinition {
+  /** Slug, `[a-z0-9][a-z0-9-]{1,63}`; must not collide with an existing member. */
+  name: string
+  description: string
+  /** Body only — frontmatter is optional and not required. */
+  systemPrompt: string
+  category?: MemberCategory
+  tagline?: string
+  permissionProfile?: PermissionProfile
+  preferredProvider?: ProviderName
+  /** Intersected with the profile's tools; can only narrow, never expand. */
+  tools?: string[]
+  /** Per-agent model override */
+  model?: string
+  canDelegate?: boolean
 }

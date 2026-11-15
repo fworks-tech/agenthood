@@ -217,12 +217,20 @@ export class MemberRunner {
 
     const spec = this.deps.members.get(memberName)
     const memberProvider = (config.provider ?? spec.preferredProvider) as ProviderName
-    const llm = await LLMRouter.createForMember(memberProvider, config)
+    // A member may pin its own model (Atlaslink custom agents); it wins over
+    // the shared config model but never overrides the provider preference.
+    const llm = await LLMRouter.createForMember(memberProvider, config, spec.model)
     const sReg = new ToolRegistry()
     if (!sReg.has('ask_human')) sReg.register(new AskHumanTool())
 
     const checkpointStore = this.deps.checkpointStore ?? new RunCheckpoint(process.cwd())
-    const checkpointData = this.prepareCheckpoint(checkpointStore, spec, task, resumeFrom)
+    const checkpointData = this.prepareCheckpoint(
+      checkpointStore,
+      spec,
+      task,
+      resumeFrom,
+      spec.model ?? config.model,
+    )
     const seedMessages = this.resumeSeed(checkpointData, resumeFrom)
     return { spec, llm, sReg, checkpointStore, checkpointData, seedMessages }
   }
@@ -361,6 +369,7 @@ export class MemberRunner {
     spec: { name: string },
     task: string,
     resumeFrom?: string | { checkpointId: string; reply?: string },
+    model?: string,
   ): CheckpointData {
     const resumeId = typeof resumeFrom === 'string' ? resumeFrom : resumeFrom?.checkpointId
     if (resumeId) {
@@ -376,7 +385,8 @@ export class MemberRunner {
       step: 0,
       messages: [],
       usage: { promptTokens: 0, completionTokens: 0, totalTokens: 0 },
-      model: '',
+      // a tool-less run never reaches onStepComplete, so seed the model here
+      model: model ?? '',
       activatedSkills: [],
       status: 'running',
       createdAt: new Date().toISOString(),

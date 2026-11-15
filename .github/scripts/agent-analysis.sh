@@ -177,7 +177,13 @@ if [ -s "$body_file" ]; then
 fi
 
 if [ "$rc" -ne 0 ]; then
-  echo "::warning::${AGENT_NAME} CLI exited with code $rc -- analysis may be incomplete"
+  echo "::error::${AGENT_NAME} CLI exited with code $rc -- failing closed, analysis incomplete"
+  exit 1
+fi
+
+if [ -z "$(verdicts_for "$analysis_file")" ]; then
+  echo "::error::${AGENT_NAME} produced no decision verdict -- failing closed"
+  exit 1
 fi
 
 if ! check_decision_gate "$analysis_file" "$AGENT_NAME"; then

@@ -3,7 +3,9 @@ export interface ShortTermMemoryEntry {
   timestamp: Date
 }
 
-export class ShortTermMemoryImpl {
+import type { ShortTermMemory } from '../core/types.ts'
+
+export class ShortTermMemoryImpl implements ShortTermMemory {
   private buffer: ShortTermMemoryEntry[] = []
   private capacity: number
   private ttlMs: number

@@ -92,9 +92,7 @@
     "@opencode-ai/plugin": "^1.17.15",
     "@semantic-release/commit-analyzer": "^13.0.1",
     "@semantic-release/release-notes-generator": "^14.1.1",
-    "@types/js-yaml": "^4.0.9",
     "@types/node": "^26.5.0",
-    "@types/normalize-package-data": "^2.4.4",
     "@vitest/coverage-v8": "^5.0.3",
     "apache-arrow": "^18.1.0",
     "eslint": "^10.8.0",
@@ -114,7 +112,7 @@
     "@anthropic-ai/sdk": "0.128.0",
     "@lancedb/lancedb": "0.30.0",
     "@modelcontextprotocol/server": "2.3.0",
-    "@sentry/node": "11.4.0",
+    "@sentry/node": "11.12.0",
     "ajv": "8.20.0",
     "groq-sdk": "1.6.0",
     "js-yaml": "5.4.2",
@@ -123,10 +121,12 @@
     "tree-sitter-go": "0.23.4",
     "tree-sitter-python": "0.23.2",
     "tree-sitter-typescript": "0.23.2",
-    "zod": "^4.5.4"
+    "zod": "^4.6.7"
   },
   "overrides": {
     "js-yaml": "5.4.2",
-    "zod": "^4.5.4"
+    "zod": "^4.6.7",
+    "effect": "^4.1.4",
+    "fast-uri": "^3.1.9"
   }
 }

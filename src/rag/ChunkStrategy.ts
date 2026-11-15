@@ -17,10 +17,6 @@ export interface CodeEntityStub {
   endLine: number
 }
 
-export interface ChunkStrategy {
-  chunk(text: string, options?: ChunkOptions): Chunk[]
-}
-
 export interface ParentChunk {
   id: string
   content: string
@@ -42,7 +38,7 @@ export interface HierarchicalChunkStrategy {
 
 const TOKEN_ESTIMATE_RATIO = 4
 
-export class FixedSizeChunkStrategy implements ChunkStrategy {
+export class FixedSizeChunkStrategy {
   chunk(text: string, options?: ChunkOptions): Chunk[] {
     const chunkSize = options?.chunkSize ?? 512
     const overlap = options?.overlap ?? 64

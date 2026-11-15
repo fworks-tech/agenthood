@@ -6,7 +6,7 @@ import { estimateCost } from '../../core/modelPricing.ts'
 import { getMemberQualityScore } from '../../core/qualityScore.ts'
 import { reportBackgroundFailure } from '../../core/sentryReporter.ts'
 
-export interface AgentTraceArgs {
+interface AgentTraceArgs {
   role: string
   model: string
   usage: { promptTokens?: number; completionTokens?: number; totalTokens?: number } | undefined
@@ -28,7 +28,7 @@ function redact(context: ExecutionContext, text: string): string {
   return context.redactor.redactText(text)
 }
 
-export interface RedactSafelyOptions {
+interface RedactSafelyOptions {
   event: string
   member: string
   model: string

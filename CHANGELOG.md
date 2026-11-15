@@ -1,3 +1,15 @@
+# [3.76.0](https://github.com/fworks-tech/agenthood/compare/v3.75.0...v3.76.0) (2026-11-15)
+
+
+### Bug Fixes
+
+* **deps:** clear npm audit advisories blocking dependency PRs ([#1042](https://github.com/fworks-tech/agenthood/issues/1042)) ([5940e36](https://github.com/fworks-tech/agenthood/commit/5940e3690f2658420a6ed4a8f6c345bb2982dbfd))
+
+
+### Features
+
+* **skills:** rename members to drop 'the-' prefix for cross-tool compatibility ([#583](https://github.com/fworks-tech/agenthood/issues/583)) ([#1016](https://github.com/fworks-tech/agenthood/issues/1016)) ([27c78e3](https://github.com/fworks-tech/agenthood/commit/27c78e36af299969a88b30f40c821464e1922308))
+
 # [3.75.0](https://github.com/fworks-tech/agenthood/compare/v3.74.0...v3.75.0) (2026-10-08)
 
 

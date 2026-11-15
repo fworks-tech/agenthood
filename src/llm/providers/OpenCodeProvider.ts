@@ -91,6 +91,47 @@ function fromAnthropic(data: { content?: AnthropicResponseBlock[]; usage?: { inp
   }
 }
 
+// OpenAI `/v1/responses` shape (GPT, Grok, Muse). System messages become
+// `instructions`; tool calls and results are top-level input items.
+function toResponsesBody(req: LLMRequest, model: string) {
+  let instructions: string | undefined
+  const input: unknown[] = []
+  for (const m of req.messages) {
+    if (m.role === 'system') { instructions = instructions ? `${instructions}\n${m.content}` : m.content; continue }
+    if (m.role === 'tool') {
+      input.push({ type: 'function_call_output', call_id: m.tool_call_id ?? m.name ?? '', output: m.content })
+      continue
+    }
+    if (m.content) input.push({ role: m.role, content: m.content })
+    for (const tc of m.toolCalls ?? []) input.push({ type: 'function_call', call_id: tc.id, name: tc.name, arguments: JSON.stringify(tc.args) })
+  }
+  return {
+    model,
+    ...(instructions ? { instructions } : {}),
+    input,
+    max_output_tokens: req.maxTokens ?? 4096,
+    ...(req.temperature !== undefined ? { temperature: req.temperature } : {}),
+    ...(req.top_p !== undefined ? { top_p: req.top_p } : {}),
+    ...(req.tools?.length ? { tools: req.tools.map((t) => ({ type: 'function', name: t.name, description: t.description, parameters: t.inputSchema })) } : {}),
+  }
+}
+
+type ResponsesOutputItem = { type: string; content?: { type: string; text?: string }[]; call_id?: string; name?: string; arguments?: string }
+
+function fromResponses(data: { output?: ResponsesOutputItem[]; usage?: { input_tokens?: number; output_tokens?: number }; model?: string }, fallbackModel: string): LLMResponse {
+  const items = data.output ?? []
+  const content = items.filter((i) => i.type === 'message').flatMap((i) => i.content ?? []).filter((c) => c.type === 'output_text').map((c) => c.text ?? '').join('')
+  const toolCalls = items.filter((i) => i.type === 'function_call').map((i) => ({ id: i.call_id!, name: i.name!, args: JSON.parse(i.arguments || '{}') as Record<string, unknown> }))
+  const promptTokens = data.usage?.input_tokens ?? 0
+  const completionTokens = data.usage?.output_tokens ?? 0
+  return {
+    content,
+    toolCalls: toolCalls.length ? toolCalls : undefined,
+    usage: { promptTokens, completionTokens, totalTokens: promptTokens + completionTokens },
+    model: data.model ?? fallbackModel,
+  }
+}
+
 export class OpenCodeProvider extends ChatCompletionsProvider {
   private readonly apiKey: string
   private readonly baseUrl: string
@@ -134,8 +175,8 @@ export class OpenCodeProvider extends ChatCompletionsProvider {
     return zenProtocolForModel(this._model)
   }
 
-  // The OpenAI SDK only speaks chat-completions; messages/responses/systemone
-  // models need their own endpoint. Rejected with a pointer, not a silent 400.
+  // The chat client covers chat models; messages and responses models use their
+  // own endpoints. Jev decision models have no prose, so they are rejected.
   // When inside the OpenCode client session (no standalone API key), we use a
   // fetch-based transport with the session header instead of the Anthropic SDK,
   // which requires either apiKey or authToken.
@@ -190,7 +231,8 @@ export class OpenCodeProvider extends ChatCompletionsProvider {
     if (protocol === 'systemone') {
       throw new UnsupportedOperationError(`Jev "${this._model}" is a decision model (no prose); call decideWithJev() from llm/systemone.ts`, 'OpenCode')
     }
-    throw new UnsupportedOperationError(`Zen "${this._model}" is served on /v1/responses, which this provider does not implement yet`, 'OpenCode')
+    const res = await (this.client as OpenAI).responses.create(toResponsesBody(request, this._model) as never)
+    return fromResponses(res as unknown as Parameters<typeof fromResponses>[0], this._model)
   }
 
   async stream(request: LLMRequest): Promise<AsyncGenerator<LLMChunk>> {
@@ -246,6 +288,15 @@ export class OpenCodeProvider extends ChatCompletionsProvider {
     if (protocol === 'systemone') {
       throw new UnsupportedOperationError(`Jev "${this._model}" is a decision model (no prose); call decideWithJev() from llm/systemone.ts`, 'OpenCode')
     }
-    throw new UnsupportedOperationError(`Zen "${this._model}" is served on /v1/responses, which this provider does not implement yet`, 'OpenCode')
+    const stream = await (this.client as OpenAI).responses.create({ ...toResponsesBody(request, this._model), stream: true } as never) as unknown as AsyncIterable<{
+      type: string; delta?: string
+    }>
+    async function* generate(): AsyncGenerator<LLMChunk> {
+      for await (const event of stream) {
+        if (event.type === 'response.output_text.delta' && event.delta) yield { delta: event.delta, done: false }
+      }
+      yield { delta: '', done: true }
+    }
+    return generate()
   }
 }

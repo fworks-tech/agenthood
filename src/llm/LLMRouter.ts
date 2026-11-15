@@ -149,7 +149,7 @@ export class LLMRouter {
     LLMRouter.config = config
 
     if (config.provider && config.provider in LLMRouter.providerFactories) {
-      const inst = await LLMRouter.getOrInit(config.provider)
+      const inst = await LLMRouter.getOrInit(config.provider, config)
       if (inst) return inst
     }
 
@@ -292,8 +292,8 @@ export class LLMRouter {
   private static async resolveSingle(name: string, config: LLMConfig): Promise<ILLMProvider> {
     const preferred = config.provider && config.provider in LLMRouter.providerFactories ? config.provider : undefined
     return (
-      (await LLMRouter.getOrInit(name)) ??
-      (preferred ? await LLMRouter.getOrInit(preferred) : null) ??
+      (await LLMRouter.getOrInit(name, config)) ??
+      (preferred ? await LLMRouter.getOrInit(preferred, config) : null) ??
       await LLMRouter.buildDefaultChain(config)
     )
   }
@@ -303,7 +303,7 @@ export class LLMRouter {
    * Deduplicates concurrent init requests so the same provider is
    * only constructed once even if multiple callers race.
    */
-  private static async getOrInit(name: string): Promise<ILLMProvider | null> {
+  private static async getOrInit(name: string, config: LLMConfig): Promise<ILLMProvider | null> {
     if (LLMRouter.instances.has(name)) return LLMRouter.instances.get(name)!
     if (LLMRouter.initPromises.has(name)) return LLMRouter.initPromises.get(name)!
 
@@ -311,7 +311,7 @@ export class LLMRouter {
       const factory = LLMRouter.providerFactories[name]
       if (!factory) return null
       try {
-        const inst = await factory(LLMRouter.config)
+        const inst = await factory(config)
         const wrapped = withRequestRedaction(inst, OUTBOUND_REDACTOR)
         LLMRouter.instances.set(name, wrapped)
         return wrapped
@@ -332,14 +332,14 @@ export class LLMRouter {
    *  unlike reinitializeProvider this reuses an existing instance. */
   static async getProvider(name: string, config: LLMConfig): Promise<ILLMProvider | null> {
     LLMRouter.config = config
-    return LLMRouter.getOrInit(name)
+    return LLMRouter.getOrInit(name, config)
   }
 
   static async reinitializeProvider(name: string, config: LLMConfig): Promise<ILLMProvider | null> {
     LLMRouter.instances.delete(name)
     LLMRouter.initPromises.delete(name)
     LLMRouter.config = config
-    return LLMRouter.getOrInit(name)
+    return LLMRouter.getOrInit(name, config)
   }
 
   private static buildChainConfig(config: LLMConfig) {
@@ -363,7 +363,7 @@ export class LLMRouter {
 
   private static async buildProviderChain(
     order: ProviderName[],
-    config?: LLMConfig,
+    config: LLMConfig = {},
   ): Promise<ILLMProvider> {
     // Each factory cold-imports its SDK, so a serial loop makes chain-build
     // latency the SUM of every SDK load — enough to time out unit tests under
@@ -371,7 +371,7 @@ export class LLMRouter {
     // re-applies `order`, so failover behaviour is unchanged.
     const providers = new Map<string, ILLMProvider>()
     const initOrder = [...new Set(order)].filter((n) => n in LLMRouter.providerFactories)
-    const inited = await Promise.all(initOrder.map((n) => LLMRouter.getOrInit(n)))
+    const inited = await Promise.all(initOrder.map((n) => LLMRouter.getOrInit(n, config ?? {})))
     initOrder.forEach((n, i) => {
       const inst = inited[i]
       if (inst) providers.set(n, inst)

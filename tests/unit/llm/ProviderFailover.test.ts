@@ -339,7 +339,7 @@ describe('ProviderChain', () => {
       expect(provider.setModel).toHaveBeenCalledWith('haiku')
     })
 
-    it('trips embed provider permanently on AuthError instead of hardcoded 60s', async () => {
+    it('trips embed provider on AuthError with a long but finite cooldown', async () => {
       const provider = {
         complete: vi.fn(),
         stream: vi.fn(),
@@ -355,10 +355,11 @@ describe('ProviderChain', () => {
 
       await chain.embed('test text')
 
-      // Should be OPEN with Infinity cooldown, not 60_000
+      // Long enough to stop hammering, finite so a rotated key revives it
       const state = chain.getBreakerState('primary')!
       expect(state.state).toBe('OPEN')
-      expect(state.cooldownUntil).toBe(Infinity)
+      expect(state.cooldownUntil).toBeGreaterThan(Date.now())
+      expect(state.cooldownUntil).toBeLessThan(Infinity)
     })
 
     it('downgrades model on embed when primary model fails', async () => {

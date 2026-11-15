@@ -1,3 +1,10 @@
+## [3.76.1](https://github.com/fworks-tech/agenthood/compare/v3.76.0...v3.76.1) (2026-11-15)
+
+
+### Bug Fixes
+
+* apply the repository audit findings ([#1047](https://github.com/fworks-tech/agenthood/issues/1047)) ([89f56e8](https://github.com/fworks-tech/agenthood/commit/89f56e89065ba48a329bc3d7ef5cb042a09c7e19))
+
 # [3.76.0](https://github.com/fworks-tech/agenthood/compare/v3.75.0...v3.76.0) (2026-11-15)
 
 

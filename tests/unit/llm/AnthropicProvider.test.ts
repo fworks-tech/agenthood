@@ -96,7 +96,7 @@ describe("AnthropicProvider.complete()", () => {
     expect(res.toolCalls).toEqual([{ id: "tu_1", name: "read_file", args: { path: "a.ts" } }]);
   });
 
-  it("caches the system prompt and forwards sampling params + stop sequences", async () => {
+  it("caches the system prompt and forwards stop sequences", async () => {
     mockCreate.mockResolvedValue(response([{ type: "text", text: "ok" }]));
     await new AnthropicProvider({ apiKey: "k" }).complete(
       req({
@@ -109,8 +109,9 @@ describe("AnthropicProvider.complete()", () => {
     );
     const params = mockCreate.mock.calls[0][0];
     expect(params.max_tokens).toBe(123);
-    expect(params.temperature).toBe(0.2);
-    expect(params.top_p).toBe(0.9);
+    // SDK 1.x removed sampling params from the Messages API
+    expect(params).not.toHaveProperty("temperature");
+    expect(params).not.toHaveProperty("top_p");
     expect(params.stop_sequences).toEqual(["END"]);
     // system becomes a two-block cache-controlled array
     expect(params.system[0]).toMatchObject({ type: "text", text: "be terse" });

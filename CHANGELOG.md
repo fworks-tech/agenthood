@@ -1,3 +1,11 @@
+## [3.77.1](https://github.com/fworks-tech/agenthood/compare/v3.77.0...v3.77.1) (2026-11-15)
+
+
+### Bug Fixes
+
+* **llm:** restore the reviewer bot on gpt-5-nano via /v1/responses ([#1056](https://github.com/fworks-tech/agenthood/issues/1056)) ([cec2259](https://github.com/fworks-tech/agenthood/commit/cec225968e129fcf7e37988a21d38231089a6075))
+* **llm:** surface incomplete responses and raise the output budget ([#1059](https://github.com/fworks-tech/agenthood/issues/1059)) ([df8fe02](https://github.com/fworks-tech/agenthood/commit/df8fe02312e4229d485c7358f6d0c011ef7177eb))
+
 # [3.77.0](https://github.com/fworks-tech/agenthood/compare/v3.76.1...v3.77.0) (2026-11-15)
 
 

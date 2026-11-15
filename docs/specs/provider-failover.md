@@ -192,8 +192,8 @@ Test scenarios:
 **Location:** `tests/e2e/resilience.test.ts`
 
 Test scenarios:
-- ✅ `agenthood run the-scribe` with Groq rate limit → completes via fallback
-- ✅ `agenthood run the-architect` with network timeout → retries and completes
+- ✅ `agenthood run scribe` with Groq rate limit → completes via fallback
+- ✅ `agenthood run architect` with network timeout → retries and completes
 - ✅ Multi-member execution (The Architect → The Scribe) with provider failure mid-chain
 - ✅ Provider recovery: Groq fails, recovers after cooldown, reused in next execution
 

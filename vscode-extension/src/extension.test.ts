@@ -8,11 +8,11 @@ suite('AGENTHOOD_MEMBERS', () => {
 
   test('contains expected members', () => {
     const expectedMembers = [
-      'the-doorman',
-      'the-scribe',
-      'the-reviewer',
-      'the-oracle',
-      'the-steward',
+      'doorman',
+      'scribe',
+      'reviewer',
+      'oracle',
+      'steward',
     ];
     expectedMembers.forEach(member => {
       assert.ok(AGENTHOOD_MEMBERS.includes(member), `missing member: ${member}`);
@@ -21,7 +21,7 @@ suite('AGENTHOOD_MEMBERS', () => {
 
   test('member names follow naming convention', () => {
     AGENTHOOD_MEMBERS.forEach(member => {
-      assert.match(member, /^the-[a-z]+$/);
+      assert.match(member, /^[a-z]+$/);
     });
   });
 });

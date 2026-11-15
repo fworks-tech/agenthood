@@ -20,7 +20,9 @@ export function fakeChild(): FakeChild {
 }
 
 export function parseSkill(path: string): { front: Record<string, string>; body: string } {
-  const lines = readFileSync(path, 'utf8').split('\n')
+  const content = readFileSync(path, 'utf8')
+  // Normalize line endings to handle both LF and CRLF
+  const lines = content.replace(/\r\n/g, '\n').split('\n')
   if (lines[0] !== '---') throw new Error(`missing frontmatter in ${path}`)
   const end = lines.indexOf('---', 1)
   if (end < 2) throw new Error(`unterminated frontmatter in ${path}`)

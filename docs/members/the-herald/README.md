@@ -64,8 +64,8 @@ Summarizes the day's work:
 
 ```bash
 # Run directly via the CLI — slash commands like /herald release are not implemented (#790)
-npx agenthood run the-herald "release: determine the next version and generate release notes"
-npx agenthood run the-herald "changelog: update CHANGELOG.md from commit history"
+npx agenthood run herald "release: determine the next version and generate release notes"
+npx agenthood run herald "changelog: update CHANGELOG.md from commit history"
 # The two rituals below also run on their declared schedules (npx agenthood ritual run morning-briefing)
 ```
 
@@ -85,4 +85,4 @@ The schedules below are declared in `docs/rituals/` and run in CI via `.github/w
 
 ## Skill File
 
-→ [`SKILL.md`](../../skills/the-herald/SKILL.md) — load this into your agent runtime
+→ [`SKILL.md`](../../skills/herald/SKILL.md) — load this into your agent runtime

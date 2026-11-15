@@ -52,7 +52,7 @@ Rituals are scheduled automations — a markdown manifest in `docs/rituals/` tha
 name: morning-briefing
 schedule: '0 8 * * 1-5'   # weekdays, 8am
 priority: SCHEDULED
-member: the-herald
+member: herald
 description: Daily 8am standup generated from git activity, open PRs, and idle work detection.
 ---
 ```
@@ -63,7 +63,7 @@ description: Daily 8am standup generated from git activity, open PRs, and idle w
 name: the-watchman
 schedule: '0 */2 * * *'   # every 2 hours
 priority: BACKGROUND
-member: the-doorman
+member: doorman
 description: Every 2 hours, checks for uncommitted changes sitting idle and branches drifting from main.
 ---
 ```

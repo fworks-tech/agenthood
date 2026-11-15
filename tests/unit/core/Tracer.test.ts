@@ -6,7 +6,7 @@ import type { TraceStore } from '../../../src/core/TraceStore.ts'
 
 function makeEnvelope(overrides: Partial<TraceEnvelope> = {}): TraceEnvelope {
   return createTraceEnvelope({
-    member: 'the-scribe',
+    member: 'scribe',
     input: 'write a commit message',
     output: 'feat: add widget',
     durationMs: 123,
@@ -22,30 +22,30 @@ function makeEnvelope(overrides: Partial<TraceEnvelope> = {}): TraceEnvelope {
 describe('Tracer', () => {
   it('records and retrieves traces', () => {
     const tracer = new Tracer(1000)
-    tracer.record(makeEnvelope({ member: 'the-scribe' }))
-    tracer.record(makeEnvelope({ member: 'the-reviewer', correlationId: 'corr-2' }))
+    tracer.record(makeEnvelope({ member: 'scribe' }))
+    tracer.record(makeEnvelope({ member: 'reviewer', correlationId: 'corr-2' }))
 
     expect(tracer.getRecent(10)).toHaveLength(2)
   })
 
   it('returns most recent traces first', () => {
     const tracer = new Tracer(1000)
-    tracer.record(makeEnvelope({ member: 'the-scribe' }))
-    tracer.record(makeEnvelope({ member: 'the-reviewer' }))
+    tracer.record(makeEnvelope({ member: 'scribe' }))
+    tracer.record(makeEnvelope({ member: 'reviewer' }))
 
     const recent = tracer.getRecent(2)
-    expect(recent[0].member).toBe('the-reviewer')
-    expect(recent[1].member).toBe('the-scribe')
+    expect(recent[0].member).toBe('reviewer')
+    expect(recent[1].member).toBe('scribe')
   })
 
   it('filters by member', () => {
     const tracer = new Tracer(1000)
-    tracer.record(makeEnvelope({ member: 'the-scribe' }))
-    tracer.record(makeEnvelope({ member: 'the-reviewer' }))
-    tracer.record(makeEnvelope({ member: 'the-scribe' }))
+    tracer.record(makeEnvelope({ member: 'scribe' }))
+    tracer.record(makeEnvelope({ member: 'reviewer' }))
+    tracer.record(makeEnvelope({ member: 'scribe' }))
 
-    expect(tracer.getByMember('the-scribe')).toHaveLength(2)
-    expect(tracer.getByMember('the-reviewer')).toHaveLength(1)
+    expect(tracer.getByMember('scribe')).toHaveLength(2)
+    expect(tracer.getByMember('reviewer')).toHaveLength(1)
     expect(tracer.getByMember('unknown')).toHaveLength(0)
   })
 

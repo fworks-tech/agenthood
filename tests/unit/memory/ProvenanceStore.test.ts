@@ -17,11 +17,11 @@ afterEach(() => {
   rmSync(dir, { recursive: true, force: true })
 })
 
-function entryFor(entityId: string, agentId = 'the-scribe'): Omit<ProvenanceEntry, 'checksum' | 'sequenceId' | 'previousChecksum'> {
+function entryFor(entityId: string, agentId = 'scribe'): Omit<ProvenanceEntry, 'checksum' | 'sequenceId' | 'previousChecksum'> {
   return {
     entityId,
     entityType: 'decision',
-    activityId: 'run:the-scribe',
+    activityId: 'run:scribe',
     agentId,
     agentType: 'software_agent',
     role: 'generator',
@@ -55,7 +55,7 @@ describe('ProvenanceStore', () => {
     it('returns entry by id', async () => {
       await store.track(entryFor('exec-1'))
       const entry = await store.get('exec-1')
-      expect(entry?.agentId).toBe('the-scribe')
+      expect(entry?.agentId).toBe('scribe')
     })
 
     it('returns undefined for missing entry', async () => {
@@ -123,11 +123,11 @@ describe('ProvenanceStore', () => {
       await store.track(entryFor('exec-1'))
       await store.track(entryFor('exec-2'))
 
-      await store.invalidate('exec-1', 'the-sentinel', 'source retracted')
+      await store.invalidate('exec-1', 'sentinel', 'source retracted')
 
       const entry = await store.get('exec-1')
       expect(entry?.invalidated).toBe(true)
-      expect(entry?.invalidatedBy).toBe('the-sentinel')
+      expect(entry?.invalidatedBy).toBe('sentinel')
       expect(entry?.invalidatedReason).toBe('source retracted')
 
       const result = await store.verifyChain()
@@ -135,7 +135,7 @@ describe('ProvenanceStore', () => {
     })
 
     it('throws for unknown entity', async () => {
-      await expect(store.invalidate('exec-missing', 'the-sentinel', 'nope')).rejects.toThrow('not found')
+      await expect(store.invalidate('exec-missing', 'sentinel', 'nope')).rejects.toThrow('not found')
     })
   })
 })

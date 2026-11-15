@@ -72,4 +72,4 @@ provably theirs.
 
 ## Skill File
 
-→ [`SKILL.md`](../../skills/the-mediator/SKILL.md) — load this into your agent runtime
+→ [`SKILL.md`](../../skills/mediator/SKILL.md) — load this into your agent runtime

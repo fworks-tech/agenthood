@@ -5,7 +5,7 @@ import type { DetectionContext } from '../../../src/reasoning/MemberOrchestrator
 describe('MemberOrchestrator', () => {
   const orchestrator = new MemberOrchestrator()
 
-  it('detects the-reviewer for review tasks', () => {
+  it('detects reviewer for review tasks', () => {
     const context: DetectionContext = {
       userMessage: 'review this pull request for correctness',
     }
@@ -13,10 +13,10 @@ describe('MemberOrchestrator', () => {
     const results = orchestrator.detectMembers(context)
     const members = results.map((r) => r.member)
 
-    expect(members).toContain('the-reviewer')
+    expect(members).toContain('reviewer')
   })
 
-  it('detects the-architect for design tasks', () => {
+  it('detects architect for design tasks', () => {
     const context: DetectionContext = {
       userMessage: 'plan the architecture for the OAuth2 integration',
     }
@@ -24,10 +24,10 @@ describe('MemberOrchestrator', () => {
     const results = orchestrator.detectMembers(context)
     const members = results.map((r) => r.member)
 
-    expect(members).toContain('the-architect')
+    expect(members).toContain('architect')
   })
 
-  it('detects the-builder for implementation tasks', () => {
+  it('detects builder for implementation tasks', () => {
     const context: DetectionContext = {
       userMessage: 'implement the rate limiter for the API endpoint',
     }
@@ -35,15 +35,15 @@ describe('MemberOrchestrator', () => {
     const results = orchestrator.detectMembers(context)
     const members = results.map((r) => r.member)
 
-    expect(members).toContain('the-builder')
+    expect(members).toContain('builder')
   })
 
-  it('routes implement-stage tasks to the-builder', () => {
+  it('routes implement-stage tasks to builder', () => {
     const stageMembers = orchestrator.getForStage('implement')
-    expect(stageMembers).toContain('the-builder')
+    expect(stageMembers).toContain('builder')
   })
 
-  it('detects the-tester when tests are mentioned', () => {
+  it('detects tester when tests are mentioned', () => {
     const context: DetectionContext = {
       userMessage: 'write unit tests for the auth module',
     }
@@ -51,10 +51,10 @@ describe('MemberOrchestrator', () => {
     const results = orchestrator.detectMembers(context)
     const members = results.map((r) => r.member)
 
-    expect(members).toContain('the-tester')
+    expect(members).toContain('tester')
   })
 
-  it('detects the-scribe for commit messages', () => {
+  it('detects scribe for commit messages', () => {
     const context: DetectionContext = {
       userMessage: 'write a commit message for the staged changes',
     }
@@ -62,10 +62,10 @@ describe('MemberOrchestrator', () => {
     const results = orchestrator.detectMembers(context)
     const members = results.map((r) => r.member)
 
-    expect(members).toContain('the-scribe')
+    expect(members).toContain('scribe')
   })
 
-  it('detects the-debugger for error messages', () => {
+  it('detects debugger for error messages', () => {
     const context: DetectionContext = {
       userMessage: 'debug the CI failure in the test suite',
     }
@@ -73,10 +73,10 @@ describe('MemberOrchestrator', () => {
     const results = orchestrator.detectMembers(context)
     const members = results.map((r) => r.member)
 
-    expect(members).toContain('the-debugger')
+    expect(members).toContain('debugger')
   })
 
-  it('detects the-auditor for security tasks', () => {
+  it('detects auditor for security tasks', () => {
     const context: DetectionContext = {
       userMessage: 'run a security audit on the authentication module',
     }
@@ -84,10 +84,10 @@ describe('MemberOrchestrator', () => {
     const results = orchestrator.detectMembers(context)
     const members = results.map((r) => r.member)
 
-    expect(members).toContain('the-auditor')
+    expect(members).toContain('auditor')
   })
 
-  it('detects the-herald for release tasks', () => {
+  it('detects herald for release tasks', () => {
     const context: DetectionContext = {
       userMessage: 'prepare the release notes and bump the version',
     }
@@ -95,43 +95,43 @@ describe('MemberOrchestrator', () => {
     const results = orchestrator.detectMembers(context)
     const members = results.map((r) => r.member)
 
-    expect(members).toContain('the-herald')
+    expect(members).toContain('herald')
   })
 
-  it('detects the-oracle when skill files changed', () => {
+  it('detects oracle when skill files changed', () => {
     const context: DetectionContext = {
-      userMessage: 'what does the-scribe do',
-      changedFiles: ['skills/the-scribe/SKILL.md'],
+      userMessage: 'what does scribe do',
+      changedFiles: ['skills/scribe/SKILL.md'],
     }
 
     const results = orchestrator.detectMembers(context)
     const members = results.map((r) => r.member)
 
-    expect(members).toContain('the-oracle')
+    expect(members).toContain('oracle')
   })
 
-  it('detects the-sentinel via skill file changes', () => {
-    const context: DetectionContext = {
-      userMessage: 'keep the society running',
-      changedFiles: ['skills/the-scribe/SKILL.md', 'skills/the-doorman/SKILL.md'],
-    }
-
-    const results = orchestrator.detectMembers(context)
-    const members = results.map((r) => r.member)
-
-    expect(members).toContain('the-sentinel')
-  })
-
-  it('detects the-operator via skill file changes', () => {
+  it('detects sentinel via skill file changes', () => {
     const context: DetectionContext = {
       userMessage: 'keep the society running',
-      changedFiles: ['skills/the-scribe/SKILL.md', 'skills/the-doorman/SKILL.md'],
+      changedFiles: ['skills/scribe/SKILL.md', 'skills/doorman/SKILL.md'],
     }
 
     const results = orchestrator.detectMembers(context)
     const members = results.map((r) => r.member)
 
-    expect(members).toContain('the-operator')
+    expect(members).toContain('sentinel')
+  })
+
+  it('detects operator via skill file changes', () => {
+    const context: DetectionContext = {
+      userMessage: 'keep the society running',
+      changedFiles: ['skills/scribe/SKILL.md', 'skills/doorman/SKILL.md'],
+    }
+
+    const results = orchestrator.detectMembers(context)
+    const members = results.map((r) => r.member)
+
+    expect(members).toContain('operator')
   })
 
   it('returns empty for unrelated tasks below threshold', () => {
@@ -152,9 +152,9 @@ describe('MemberOrchestrator', () => {
     const results = orchestrator.detectMembers(context)
     const members = results.map((r) => r.member)
 
-    expect(members).toContain('the-architect')
-    expect(members).toContain('the-tester')
-    expect(members).toContain('the-reviewer')
+    expect(members).toContain('architect')
+    expect(members).toContain('tester')
+    expect(members).toContain('reviewer')
   })
 
   it('ranks results by score', () => {
@@ -179,7 +179,7 @@ describe('MemberOrchestrator', () => {
 
     expect(defaultMember).toBeTruthy()
     if (defaultMember) {
-      expect(['the-reviewer', 'the-auditor', 'the-architect']).toContain(defaultMember)
+      expect(['reviewer', 'auditor', 'architect']).toContain(defaultMember)
     }
   })
 

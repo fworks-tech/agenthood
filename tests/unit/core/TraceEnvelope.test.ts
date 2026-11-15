@@ -5,7 +5,7 @@ import { contentHash } from '../../../src/utils/hash.ts'
 describe('createTraceEnvelope', () => {
   it('produces a complete envelope with hashes and defaults', () => {
     const env = createTraceEnvelope({
-      member: 'the-scribe',
+      member: 'scribe',
       input: 'input text',
       output: 'output text',
       durationMs: 42,
@@ -17,7 +17,7 @@ describe('createTraceEnvelope', () => {
     })
 
     expect(env).toMatchObject({
-      member: 'the-scribe',
+      member: 'scribe',
       inputHash: contentHash('input text'),
       outputHash: contentHash('output text'),
       durationMs: 42,
@@ -36,7 +36,7 @@ describe('createTraceEnvelope', () => {
 
   it('honours source and model overrides', () => {
     const env = createTraceEnvelope({
-      member: 'the-builder',
+      member: 'builder',
       input: 'i',
       output: 'o',
       durationMs: 1,

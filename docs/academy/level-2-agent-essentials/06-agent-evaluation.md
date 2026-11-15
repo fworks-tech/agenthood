@@ -33,9 +33,9 @@ import { EvalRunner, LLMJudge, loadEvalSuite } from 'agenthood';
 
 const suite = loadEvalSuite('./evals/benchmarks/review-pr.json');
 const judge = new LLMJudge(llm);
-const runner = new EvalRunner((task) => runMember('the-reviewer', task), judge);
+const runner = new EvalRunner((task) => runMember('reviewer', task), judge);
 
-const report = await runner.run(suite, 'the-reviewer');
+const report = await runner.run(suite, 'reviewer');
 
 // report.aggregate = {
 //   faithfulness:       0.87,
@@ -53,13 +53,13 @@ The `BaselineComparator` compares every run against the stored baseline (`.agent
 
 ```bash
 # Eval suites run like tests; benchmark fixtures ship in evals/benchmarks/
-npx agenthood eval the-reviewer --suite evals/benchmarks/review-pr.json --update-baseline
+npx agenthood eval reviewer --suite evals/benchmarks/review-pr.json --update-baseline
 ```
 
 Expected output:
 
 ```
-Eval Report — the-reviewer (review-pr)
+Eval Report — reviewer (review-pr)
   Suite: review-pr | Tasks: 3 | Timestamp: 2026-08-14T00:00:00.000Z
 
   Task                                     Faith    Relv.    CtxR.    Corr.   Status
@@ -69,7 +69,7 @@ Eval Report — the-reviewer (review-pr)
 
   Aggregate: faithfulness 0.87, relevance 0.94, context_recall 0.81, answer_correctness 0.92
 
-  No baseline at .agenthood/baselines/the-reviewer.json — run with --update-baseline to create one.
+  No baseline at .agenthood/baselines/reviewer.json — run with --update-baseline to create one.
 ```
 
 The regression flag is the point. A green test suite tells you nothing about answer quality. The eval command tells you exactly which metric dropped and on which case, and a later run exits non-zero when quality regresses against the stored baseline.

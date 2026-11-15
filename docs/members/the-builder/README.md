@@ -57,4 +57,4 @@ Prepares the change for The Reviewer: a diff small enough to review in one pass,
 
 ## Skill File
 
-→ [`SKILL.md`](../../skills/the-builder/SKILL.md) — load this into your agent runtime
+→ [`SKILL.md`](../../skills/builder/SKILL.md) — load this into your agent runtime

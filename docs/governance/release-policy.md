@@ -98,7 +98,7 @@ When a member or convention is replaced, the new one must reference the old one 
 
 ```yaml
 ---
-name: the-reviewer
+name: reviewer
 supersedes: the-manuscript
 ---
 ```

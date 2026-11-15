@@ -11,7 +11,7 @@ import { contentHash } from '../../../src/utils/hash.ts'
 
 function makeSpec(overrides: Partial<MemberSpec>): MemberSpec {
   return {
-    name: 'the-tester',
+    name: 'tester',
     description: 'A test member',
     category: 'engineering',
     tagline: 'tests',
@@ -205,10 +205,10 @@ describe('MemberAgent SKILL.md integrity check', () => {
 
   it('records drift durably and warns (non-strict) without throwing', async () => {
     const skillPath = join(dir, 'SKILL.md')
-    writeFileSync(skillPath, '---\nname: the-tester\n---\nCanonical body.', 'utf8')
+    writeFileSync(skillPath, '---\nname: tester\n---\nCanonical body.', 'utf8')
     writeFileSync(join(dir, 'agenthood.lock'), JSON.stringify({
       version: 1,
-      members: { 'the-tester': { version: contentHash('stale body') } },
+      members: { 'tester': { version: contentHash('stale body') } },
     }), 'utf8')
 
     const agent = makeAgent(skillPath)
@@ -220,17 +220,17 @@ describe('MemberAgent SKILL.md integrity check', () => {
 
     const entry = driftRecord(spy)
     expect(entry).toBeDefined()
-    expect(entry?.member).toBe('the-tester')
+    expect(entry?.member).toBe('tester')
     expect(driftWarns(warnSpy)).toBe(true)
     warnSpy.mockRestore()
   })
 
   it('blocks the run under strict mode after recording an audit entry', async () => {
     const skillPath = join(dir, 'SKILL.md')
-    writeFileSync(skillPath, '---\nname: the-tester\n---\nCanonical body.', 'utf8')
+    writeFileSync(skillPath, '---\nname: tester\n---\nCanonical body.', 'utf8')
     writeFileSync(join(dir, 'agenthood.lock'), JSON.stringify({
       version: 1,
-      members: { 'the-tester': { version: contentHash('stale body') } },
+      members: { 'tester': { version: contentHash('stale body') } },
     }), 'utf8')
 
     const agent = makeAgent(skillPath, { strictSkillIntegrity: true })
@@ -243,7 +243,7 @@ describe('MemberAgent SKILL.md integrity check', () => {
 
   it('warns and records when the lockfile is absent (non-strict)', async () => {
     const skillPath = join(dir, 'SKILL.md')
-    writeFileSync(skillPath, '---\nname: the-tester\n---\nCanonical body.', 'utf8')
+    writeFileSync(skillPath, '---\nname: tester\n---\nCanonical body.', 'utf8')
 
     const agent = makeAgent(skillPath)
     const context = createTestContext()
@@ -259,7 +259,7 @@ describe('MemberAgent SKILL.md integrity check', () => {
 
   it('blocks the run when the lockfile is absent under strict mode', async () => {
     const skillPath = join(dir, 'SKILL.md')
-    writeFileSync(skillPath, '---\nname: the-tester\n---\nCanonical body.', 'utf8')
+    writeFileSync(skillPath, '---\nname: tester\n---\nCanonical body.', 'utf8')
 
     const agent = makeAgent(skillPath, { strictSkillIntegrity: true })
     const context = createTestContext()
@@ -272,7 +272,7 @@ describe('MemberAgent SKILL.md integrity check', () => {
   it('warns and records when the skill file is missing (non-strict)', async () => {
     writeFileSync(join(dir, 'agenthood.lock'), JSON.stringify({
       version: 1,
-      members: { 'the-tester': { version: contentHash('anything') } },
+      members: { 'tester': { version: contentHash('anything') } },
     }), 'utf8')
 
     const agent = makeAgent(join(dir, 'absent', 'SKILL.md'))
@@ -289,7 +289,7 @@ describe('MemberAgent SKILL.md integrity check', () => {
 
   it('warns and records when the lockfile is corrupt (non-strict)', async () => {
     const skillPath = join(dir, 'SKILL.md')
-    writeFileSync(skillPath, '---\nname: the-tester\n---\nCanonical body.', 'utf8')
+    writeFileSync(skillPath, '---\nname: tester\n---\nCanonical body.', 'utf8')
     writeFileSync(join(dir, 'agenthood.lock'), '{ not json', 'utf8')
 
     const agent = makeAgent(skillPath)
@@ -306,7 +306,7 @@ describe('MemberAgent SKILL.md integrity check', () => {
 
   it('blocks the run when the lockfile is corrupt under strict mode', async () => {
     const skillPath = join(dir, 'SKILL.md')
-    writeFileSync(skillPath, '---\nname: the-tester\n---\nCanonical body.', 'utf8')
+    writeFileSync(skillPath, '---\nname: tester\n---\nCanonical body.', 'utf8')
     writeFileSync(join(dir, 'agenthood.lock'), '{ not json', 'utf8')
 
     const agent = makeAgent(skillPath, { strictSkillIntegrity: true })

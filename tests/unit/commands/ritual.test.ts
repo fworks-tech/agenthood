@@ -9,7 +9,7 @@ const MORNING = [
   'name: morning-briefing',
   'schedule: "0 8 * * 1-5"',
   'priority: SCHEDULED',
-  'member: the-herald',
+  'member: herald',
   'description: Daily 8am standup generated from git activity, open PRs, and idle work detection.',
   '---',
   '',
@@ -20,7 +20,7 @@ const WATCHMAN = [
   '---',
   "schedule: '0 */2 * * *'",
   'priority: BACKGROUND',
-  'member: the-doorman',
+  'member: doorman',
   'name: the-watchman',
   'description: Every 2 hours, checks for uncommitted changes sitting idle and branches drifting from main.',
   '---',
@@ -34,7 +34,7 @@ describe('parseFrontmatter', () => {
     expect(fields.name).toBe('morning-briefing')
     expect(fields.schedule).toBe('0 8 * * 1-5')
     expect(fields.priority).toBe('SCHEDULED')
-    expect(fields.member).toBe('the-herald')
+    expect(fields.member).toBe('herald')
   })
 
   it('returns an empty object without frontmatter', () => {

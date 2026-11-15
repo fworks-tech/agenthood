@@ -83,4 +83,4 @@ Portal setup: [`docs/portals/sentry.md`](../../portals/sentry.md).
 
 ## Skill File
 
-→ [`SKILL.md`](../../skills/the-debugger/SKILL.md) — load this into your agent runtime
+→ [`SKILL.md`](../../skills/debugger/SKILL.md) — load this into your agent runtime

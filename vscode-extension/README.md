@@ -121,7 +121,7 @@ The TypeScript runtime is accessible via the integrated terminal:
 ```bash
 npm run build
 npx agenthood list               # list all members
-npx agenthood run the-scribe "..."   # invoke a member
+npx agenthood run scribe "..."   # invoke a member
 ```
 
 A future version of this extension will surface `agenthood` commands directly

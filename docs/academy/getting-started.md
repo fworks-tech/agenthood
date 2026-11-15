@@ -88,7 +88,7 @@ npx agenthood pr-sync --pr 42
 npx agenthood pr-sync --pr 42 --dry-run
 
 # Context-aware — The Scribe loads your conventions and ADRs first
-npx agenthood run the-scribe "sync PR #42"
+npx agenthood run scribe "sync PR #42"
 ```
 
 On each run, The Scribe detects new commits since the last sync, updates the `## What Changed` section, and posts a reviewer comment. Your `## Why` and `## How to Test` sections are never touched.
@@ -105,7 +105,7 @@ The Society reads from `.agenthood/config.json`, scaffolded by `init`:
 {
   "version": "1",
   "runtime": "claude-code",
-  "members": ["the-scribe", "the-architect", "the-reviewer", "..."],
+  "members": ["scribe", "architect", "reviewer", "..."],
   "hooks": { "hooksPath": ".githooks" },
   "conventions": {
     "commitTemplate": ".gitmessage",

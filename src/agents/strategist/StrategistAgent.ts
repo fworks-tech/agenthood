@@ -3,7 +3,7 @@ import type { ExecutionContext } from '../../core/ExecutionContext.ts'
 import type { ITool } from '../../tools/ITool.ts'
 
 export class StrategistAgent extends WrappedTaskAgent {
-  role = 'the-strategist'
+  role = 'strategist'
   protected tools: ITool[] = []
   protected readonly taskIntro = 'Transform the following goal into a structured brief.'
   protected readonly outputFormat = buildOutputFormat([

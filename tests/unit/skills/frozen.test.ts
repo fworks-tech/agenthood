@@ -99,12 +99,12 @@ describe('checkFrozen', () => {
   })
 
   it('ignores member skills when only user skills are checked', () => {
-    writeSkill('the-scribe', 'member copy')
+    writeSkill('scribe', 'member copy')
     writeSkillsLock({ alpha: { source: 'https://example.com/alpha', body: 'original' } })
     writeSkill('alpha', 'original')
     const report = checkFrozen(dir, [])
     expect(report.ok).toBe(true)
-    expect(report.problems.some((p) => p.includes('the-scribe'))).toBe(false)
+    expect(report.problems.some((p) => p.includes('scribe'))).toBe(false)
   })
 
   it('tolerates a corrupt lockfile by reporting it rather than throwing', () => {

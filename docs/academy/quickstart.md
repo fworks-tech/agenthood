@@ -60,7 +60,7 @@ command below hands the new skill's *format* to a member that is registered. To
 use it as a standalone prompt, invoke it in your provider's skill path instead:
 
 ```bash
-npx agenthood run the-scribe "format app.ts using the code-formatter rules"
+npx agenthood run scribe "format app.ts using the code-formatter rules"
 ```
 
 ---

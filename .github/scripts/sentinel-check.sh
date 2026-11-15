@@ -13,7 +13,7 @@ check_readme_for_member() {
 
 check_sections_for_member() {
   local name="$1" dir="$2" section fail=0
-  local skill="skills/$name/SKILL.md"
+  local skill="skills/${name#the-}/SKILL.md"
   [ ! -f "$skill" ] && return 0
   for section in "${REQUIRED_SECTIONS[@]}"; do
     ! grep -qF "$section" "$skill" && echo "FAIL [$name]: SKILL.md missing '$section'" && fail=1
@@ -22,17 +22,17 @@ check_sections_for_member() {
 }
 
 check_registration_for_member() {
-  local name="$1" idx fail=0
+  local name="$1" canonical="${1#the-}" idx fail=0
   for idx in $INDEXES; do
-    ! grep -q "$name" "$idx" && echo "FAIL [$name]: not registered in $idx" && fail=1
+    ! grep -q "$canonical" "$idx" && echo "FAIL [$name]: not registered in $idx" && fail=1
   done
   return $fail
 }
 
 check_sync_for_member() {
-  local name="$1"
+  local name="$1" canonical="${1#the-}"
   local member_file="docs/members/$name/SKILL.md"
-  local skill_file="skills/$name/SKILL.md"
+  local skill_file="skills/$canonical/SKILL.md"
   if [ -f "$member_file" ]; then
     echo "FAIL [$name]: duplicate $member_file must not exist (skills/ is canonical)"; return 1
   fi
@@ -45,7 +45,7 @@ check_no_orphan_skills() {
   local fail=0 name
   for dir in skills/*/; do
     name=$(basename "$dir")
-    if [ ! -d "docs/members/$name" ]; then
+    if [ ! -d "docs/members/$name" ] && [ ! -d "docs/members/the-$name" ]; then
       echo "WARN [skills/$name]: clear-named skill (no matching member — expected for mirror skills)"
     fi
   done

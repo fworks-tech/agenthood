@@ -19,6 +19,10 @@ import { classifyError, AllProvidersFailedError } from './ProviderFailoverError.
 import { TimeoutError } from './errors.ts'
 export { classifyError, AllProvidersFailedError }
 
+/** Cooldown after a permanent failure (bad key, unpaid account). Long enough
+ *  to stop hammering, short enough that a fix revives the provider. */
+const PERMANENT_COOLDOWN_MS = 5 * 60_000
+
 /**
  * Orchestrates multiple LLM providers with failover, circuit breaker,
  * failure classification, and probe recovery.
@@ -143,7 +147,9 @@ export class ProviderChain implements ILLMProvider {
     errors.push(`${name}: ${msg}`)
 
     if (classified.permanent) {
-      this.tripBreaker(name, Infinity)
+      // long but finite: a rotated key or a fixed account must be able to
+      // revive this provider without restarting a long-lived host
+      this.tripBreaker(name, PERMANENT_COOLDOWN_MS, true)
     } else if (classified.retryable) {
       this.tripBreaker(name, classified.cooldownMs)
     }
@@ -155,7 +161,9 @@ export class ProviderChain implements ILLMProvider {
   }
 
   /** Shared model-fallback path: re-attempt on each remaining model until one
-   * succeeds or a hard-stop failure ends the walk; throws the last error. */
+   * succeeds or a hard-stop failure ends the walk; throws the last error.
+   * The provider is left on its configured model: it is shared via the
+   * LLMRouter instance cache, so a sticky fallback would leak into later runs. */
   private async tryRemainingModels<T>(
     provider: ILLMProvider,
     name: string,
@@ -163,18 +171,23 @@ export class ProviderChain implements ILLMProvider {
     firstError: unknown,
   ): Promise<T> {
     let lastError = firstError
-    if (!ProviderChain.isHardStop(classifyError(firstError))) {
-      for (const model of this.modelMap.get(name)?.slice(1) ?? []) {
-        try {
-          provider.setModel(model)
-          return await attempt()
-        } catch (err) {
-          lastError = err
-          if (ProviderChain.isHardStop(classifyError(err))) break
+    const models = this.modelMap.get(name) ?? []
+    try {
+      if (!ProviderChain.isHardStop(classifyError(firstError))) {
+        for (const model of models.slice(1)) {
+          try {
+            provider.setModel(model)
+            return await attempt()
+          } catch (err) {
+            lastError = err
+            if (ProviderChain.isHardStop(classifyError(err))) break
+          }
         }
       }
+      throw lastError
+    } finally {
+      if (models.length > 0) provider.setModel(models[0])
     }
-    throw lastError
   }
 
   /** Test-only construction helper — production chains are assembled by
@@ -252,21 +265,18 @@ export class ProviderChain implements ILLMProvider {
     breaker.probeScheduledAt = 0
   }
 
-  private tripBreaker(name: string, cooldownMs: number): void {
+  private tripBreaker(name: string, cooldownMs: number, permanent = false): void {
     const breaker = this.circuitBreakers.get(name)
     if (!breaker) return
 
     breaker.failureCount++
 
-    if (cooldownMs === Infinity) {
-      breaker.state = 'OPEN'
-      breaker.cooldownUntil = Infinity
-      breaker.probeScheduledAt = 0
-      return
+    // A permanent failure (bad key, unpaid account) trips on the spot: waiting
+    // for the threshold just burns the remaining attempts on a dead provider.
+    if (!permanent) {
+      const threshold = this.chainConfig.failureThreshold ?? 1
+      if (breaker.failureCount < threshold) return
     }
-
-    const threshold = this.chainConfig.failureThreshold ?? 1
-    if (breaker.failureCount < threshold) return
 
     breaker.state = 'OPEN'
     const effectiveCooldown = this.chainConfig.cooldownMs ?? cooldownMs

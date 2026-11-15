@@ -1,7 +1,7 @@
-import { readFile, writeFile, lstat, realpath } from 'node:fs/promises'
-import { resolve } from 'node:path'
+import { readFile, writeFile } from 'node:fs/promises'
 import type { ITool, ToolResult } from '../ITool.ts'
 import type { ExecutionContext } from '../../core/ExecutionContext.ts'
+import { resolveInsideProject } from '../pathGuard.ts'
 
 export class RefactorSkill implements ITool {
   name = 'refactor'
@@ -17,27 +17,12 @@ export class RefactorSkill implements ITool {
 
   async execute(input: unknown, context: ExecutionContext): Promise<ToolResult> {
     const { path, goal } = input as { path: string; goal: string }
-    const resolvedPath = resolve(context.project.localPath, path)
-
-    if (!resolvedPath.startsWith(context.project.localPath)) {
-      return { success: false, output: '', error: `Path traversal denied: "${path}"` }
-    }
-
-    try {
-      const stats = await lstat(resolvedPath).catch(() => null)
-      if (stats?.isSymbolicLink()) {
-        const real = await realpath(resolvedPath)
-        if (!real.startsWith(context.project.localPath)) {
-          return { success: false, output: '', error: `Symlink traversal denied: "${path}"` }
-        }
-      }
-    } catch {
-      // lstat/realpath failure handled below
-    }
+    const resolved = await resolveInsideProject(context.project.localPath, path)
+    if (!resolved.ok) return { success: false, output: '', error: resolved.error }
 
     let original: string
     try {
-      original = await readFile(resolvedPath, 'utf-8')
+      original = await readFile(resolved.path, 'utf-8')
     } catch (err) {
       const msg = err instanceof Error ? err.message : String(err)
       return { success: false, output: '', error: `Cannot read "${path}": ${msg}` }
@@ -63,7 +48,7 @@ export class RefactorSkill implements ITool {
     }
 
     try {
-      await writeFile(resolvedPath, refactored, 'utf-8')
+      await writeFile(resolved.path, refactored, 'utf-8')
     } catch (err) {
       const msg = err instanceof Error ? err.message : String(err)
       return { success: false, output: '', error: `Cannot write "${path}": ${msg}` }

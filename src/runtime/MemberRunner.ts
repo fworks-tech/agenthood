@@ -331,8 +331,6 @@ export class MemberRunner {
       usage: { promptTokens: 0, completionTokens: 0, totalTokens: 0 },
       duration: args.duration,
     })
-    args.metricsCollector.record(args.spec.name, false, args.duration)
-    args.checkpointStore.updateStatus(args.checkpointData.id, 'failed')
     this.ctx.events.emit({
       type: 'run.failed',
       executionId: this.ctx.executionId,

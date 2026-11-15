@@ -49,6 +49,14 @@ function getCheckpointDir(cwd: string): string {
   return join(cwd, CHECKPOINT_DIR)
 }
 
+/** Ids become file names — anything outside this charset could escape the folder. */
+function checkpointPath(dir: string, id: string): string {
+  if (!/^[A-Za-z0-9_-]+$/.test(id)) {
+    throw new Error(`Invalid checkpoint id: "${id}" — must match [a-zA-Z0-9_-]+`)
+  }
+  return join(dir, `${id}.json`)
+}
+
 function ensureDir(dir: string): void {
   if (!existsSync(dir)) mkdirSync(dir, { recursive: true })
 }
@@ -62,13 +70,13 @@ export class RunCheckpoint {
 
   save(data: CheckpointData): void {
     ensureDir(this.dir)
-    const filePath = join(this.dir, `${data.id}.json`)
+    const filePath = checkpointPath(this.dir, data.id)
     data.updatedAt = new Date().toISOString()
     writeFileSync(filePath, JSON.stringify(data, null, 2) + '\n', 'utf-8')
   }
 
   load(id: string): CheckpointData | undefined {
-    const filePath = join(this.dir, `${id}.json`)
+    const filePath = checkpointPath(this.dir, id)
     if (!existsSync(filePath)) return undefined
     try {
       return JSON.parse(readFileSync(filePath, 'utf-8'))

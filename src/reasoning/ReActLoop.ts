@@ -10,6 +10,7 @@ import { ThinkingBudget } from "./ThinkingBudget.ts"
 import { validateSchema, SchemaValidationError } from "../core/SchemaValidator.ts"
 import { redactEventText } from "../core/RunEventBus.ts"
 import { isShutdownRequested } from "../core/shutdown.ts"
+import { SafetyGuard } from "../core/SafetyGuard.ts"
 import { SKILL_ACTIVATION_PREFIX } from "../skills/activation/ActivateSkillTool.ts"
 import { AskHumanSignal } from "../tools/human/AskHumanTool.ts"
 import { USER_QUERY_GUARD, TOOL_OUTPUT_GUARD, wrapUserQuery, wrapToolOutput } from "../agents/memberLore.ts"
@@ -57,6 +58,7 @@ export class ShutdownRequestedError extends Error {
 export interface ReActLoopOptions {
   budget?: ThinkingBudget
   compressor?: ContextCompressor
+  guard?: SafetyGuard
   loopWindow?: number
   loopThreshold?: number
   maxSteps?: number
@@ -94,6 +96,7 @@ export class ReActLoop {
 
   private readonly budget: ThinkingBudget
   private readonly compressor: ContextCompressor
+  private readonly guard: SafetyGuard
   private readonly loopWindow: number
   private readonly loopThreshold: number
   private readonly maxSteps: number
@@ -108,6 +111,7 @@ export class ReActLoop {
   ) {
     this.budget = options.budget ?? new ThinkingBudget()
     this.compressor = options.compressor ?? new ContextCompressor(llm)
+    this.guard = options.guard ?? new SafetyGuard()
     this.loopWindow = options.loopWindow ?? 5
     this.loopThreshold = options.loopThreshold ?? 3
     this.maxSteps = options.maxSteps ?? 100
@@ -146,6 +150,7 @@ export class ReActLoop {
       if (isShutdownRequested()) {
         throw new ShutdownRequestedError(step, this.usage, this._model)
       }
+      this.guard.checkSessionRuntime()
       if (step >= this.maxSteps) {
         const lastContent = messages[messages.length - 1]?.content ?? ''
         const partialResult = `Max steps (${this.maxSteps}) exceeded. Partial result:\n${lastContent}`
@@ -154,7 +159,6 @@ export class ReActLoop {
       const response = await this.runStep(step, messages, context);
 
       if (!response.toolCalls || response.toolCalls.length === 0) {
-        context.tracer.endSpan(`react-step-${step}`, { status: "completed" });
         return response.content;
       }
 
@@ -169,10 +173,6 @@ export class ReActLoop {
       }
 
       this.onStepComplete?.(step, messages, { ...this.usage }, this._model);
-
-      context.tracer.endSpan(`react-step-${step}`, {
-        toolCount: response.toolCalls.length,
-      });
     }
   }
 
@@ -182,7 +182,6 @@ export class ReActLoop {
     context: ExecutionContext,
   ): Promise<LLMResponse> {
     this.budget.check(step);
-    context.tracer.startSpan(`react-step-${step}`);
 
     const request = {
       messages,
@@ -277,9 +276,9 @@ export class ReActLoop {
       const signature = `${toolCall.name}:${JSON.stringify(toolCall.args)}`
       const occurrences = recentCalls.filter((s) => s === signature).length
       if (occurrences >= this.loopThreshold - 1) {
-        context.tracer.endSpan(`react-step-${step}`, { status: "loop-detected" });
         throw new ToolLoopDetectedError(toolCall.name, occurrences + 1);
       }
+      this.guard.countToolInvocation()
       recentCalls.push(signature)
       if (recentCalls.length > this.loopWindow) recentCalls.shift()
 
@@ -401,7 +400,7 @@ export class ReActLoop {
       rl.question('', (answer) => {
         rl.close()
         const decision = answer.trim().toLowerCase()
-        const approved = decision === 'y' || decision === 'yes' || decision === ''
+        const approved = decision === 'y' || decision === 'yes'
         context.events.emit({
           type: 'tool.approval',
           executionId: context.executionId,

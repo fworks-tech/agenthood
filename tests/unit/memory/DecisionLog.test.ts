@@ -7,12 +7,13 @@ vi.mock('node:fs', async (importOriginal) => {
     existsSync: vi.fn(),
     readFileSync: vi.fn(),
     writeFileSync: vi.fn(),
+    renameSync: vi.fn(),
     mkdirSync: vi.fn(),
     readdirSync: vi.fn(),
   }
 })
 
-import { existsSync, readFileSync, writeFileSync, mkdirSync, readdirSync } from 'node:fs'
+import { existsSync, readFileSync, writeFileSync, renameSync, mkdirSync, readdirSync } from 'node:fs'
 import { DecisionLog } from '../../../src/memory/DecisionLog.ts'
 import type { DecisionEntry } from '../../../src/memory/DecisionLog.ts'
 
@@ -36,6 +37,7 @@ describe('DecisionLog', () => {
     vi.mocked(existsSync).mockReturnValue(false)
     vi.mocked(readdirSync).mockReturnValue([])
     vi.mocked(writeFileSync).mockReturnValue(undefined)
+    vi.mocked(renameSync).mockReturnValue(undefined)
     vi.mocked(mkdirSync).mockReturnValue(undefined)
   })
 
@@ -48,10 +50,9 @@ describe('DecisionLog', () => {
       const log = new DecisionLog()
       await log.record(fixtureEntry)
 
-      expect(writeFileSync).toHaveBeenCalledWith(
-        expect.stringContaining('dec-20260601-001.json'),
+      expect(renameSync).toHaveBeenCalledWith(
         expect.any(String),
-        'utf8',
+        expect.stringContaining('dec-20260601-001.json'),
       )
       const written = JSON.parse(vi.mocked(writeFileSync).mock.calls[0][1] as string)
       expect(written.id).toBe('dec-20260601-001')
@@ -209,7 +210,7 @@ describe('DecisionLog', () => {
       await log.addCausalRelationship('dec-001', 'dec-002', 'CAUSED')
 
       const edgesCall = vi.mocked(writeFileSync).mock.calls.find(
-        (call) => String(call[0]).endsWith('edges.json'),
+        (call) => String(call[0]).includes('edges.json'),
       )
       expect(edgesCall).toBeDefined()
       const written = JSON.parse(edgesCall![1] as string)
@@ -231,7 +232,7 @@ describe('DecisionLog', () => {
       await log.addCausalRelationship('dec-001', 'dec-002', 'INFLUENCED')
 
       const edgesCalls = vi.mocked(writeFileSync).mock.calls.filter(
-        (call) => String(call[0]).endsWith('edges.json'),
+        (call) => String(call[0]).includes('edges.json'),
       )
       const last = JSON.parse(edgesCalls[edgesCalls.length - 1][1] as string)
       expect(last.edges).toHaveLength(1)

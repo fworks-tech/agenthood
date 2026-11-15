@@ -118,7 +118,7 @@ The `agenthood` CLI auto-discovers commands from `src/commands/`: each file expo
   - A `--` separator ends flag parsing, so a task beginning with `-` is always treated as data (the opencode plugin passes it).
   - `--resume <id>` resumes from a checkpoint saved during a previous interrupted run.
   - `--debug` dumps raw LLM request/response payloads to `.agenthood/debug/` (keys redacted).
-  - `--interactive` enables human-in-the-loop confirmation prompts before tool execution.
+  - `--interactive` enables human-in-the-loop confirmation prompts before tool execution. Only an explicit `y`/`yes` approves; any other answer, including a bare Enter, declines the call.
 - `agenthood checkpoints` — list past run checkpoints (`--json`, `--prune` to remove old ones)
 - `agenthood trace` — list recent invocation traces (`--member`, `--limit`, `--since`, `--json`); subcommands: `visualize <id>` (ASCII timeline), `diff <id1> <id2>` (side-by-side comparison)
 - `agenthood goal` — track multi-step goals across runs, persisted to `.agenthood/goals.json`; subcommands: `create <description> [--issue <ref>]`, `list [--json]`, `show <id> [--json]`, `subgoal <id> <description>`, `status <id> <sub-id> <pending|in_progress|blocked|completed>`, `next <id>` (advance the next pending sub-goal)
@@ -146,7 +146,7 @@ The `agenthood` CLI auto-discovers commands from `src/commands/`: each file expo
 - `agenthood init --ci [--runtime <name>] [--members all|a,b,c]` — non-interactive setup for CI: never prompts, keeps an existing setup unless `--force`
 - `agenthood diff [member]` — show member SKILL.md changes vs the versions locked in agenthood.lock (exit 1 on drift; lockfile keys validated, hostile keys warned)
 - `agenthood create <name>` — scaffold a new skill directory with a SKILL.md template (name must match the spec pattern)
-- `agenthood run <member> <task> --sandbox` — run under the strict local profile: ADR-020 strict skill-integrity gate plus confirmation before every tool call (or `security.sandbox: true` in config; container isolation is phase 2, #884)
+- `agenthood run <member> <task> --sandbox` — run under the strict local profile: ADR-020 strict skill-integrity gate plus confirmation before every tool call (or `security.sandbox: true` in config; container isolation is phase 2, #884). A tool call runs only on an explicit `y`/`yes`.
 - `agenthood upgrade --agenthood` — self-upgrade the agenthood package (backs up `.agenthood/config.json` first, pins the registry-validated version)
 Adding a command means adding a file in `src/commands/` and documenting it here.
 

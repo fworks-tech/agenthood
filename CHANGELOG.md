@@ -1,3 +1,10 @@
+# [3.77.0](https://github.com/fworks-tech/agenthood/compare/v3.76.1...v3.77.0) (2026-11-15)
+
+
+### Features
+
+* **members:** add host-registered custom members ([#1051](https://github.com/fworks-tech/agenthood/issues/1051)) ([5e40ad2](https://github.com/fworks-tech/agenthood/commit/5e40ad2dd85c61c25dc8512c5c50583c32cc1e65)), refs #1040
+
 ## [3.76.1](https://github.com/fworks-tech/agenthood/compare/v3.76.0...v3.76.1) (2026-11-15)
 
 

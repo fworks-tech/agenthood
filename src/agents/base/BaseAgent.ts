@@ -73,10 +73,8 @@ export abstract class BaseAgent {
     // member or delegated subagent can be induced to propagate self-replicating
     // ideas (see ADR-020)
     const guardedPrompt = systemPrompt ? `${systemPrompt}\n\n${MIND_VIRUS_IMMUNITY_WARNING}` : systemPrompt;
-    context.tracer.startSpan(this.role);
 
     const { output, error, durationMs } = await this.lifecycle.runStage(execute, guardedPrompt, input);
-    context.tracer.endSpan(this.role, { output });
 
     this.lifecycle.recordTrace({ input, output, durationMs, error, context });
     this.lifecycle.recordResidual(input, context);

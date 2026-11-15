@@ -50,8 +50,6 @@ export interface TraceEnvelope {
 }
 
 export interface Tracer {
-  startSpan(name: string): void
-  endSpan(name: string, data?: Record<string, unknown>): void
   record(envelope: TraceEnvelope): void
   getRecent(n: number): TraceEnvelope[]
   getByMember(memberId: string): TraceEnvelope[]

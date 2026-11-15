@@ -86,11 +86,6 @@ export class EpisodeLearner {
       await this.storeOutcome('antipattern', data, context)
     } else {
       this.midScoreCount++
-      context.tracer.endSpan("episode-learner", {
-        action: "skip",
-        episodeId: evalResult.episodeId,
-        avgScore,
-      })
     }
   }
 

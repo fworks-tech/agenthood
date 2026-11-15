@@ -264,6 +264,22 @@ export class ReActLoop {
     }, context.project.localPath)
   }
 
+  /** Reason the active skill scope forbids this tool, or undefined when allowed. */
+  private deniedBySkillScope(toolName: string, context: ExecutionContext): string | undefined {
+    if (toolName === 'activate_skill') return undefined
+    const allowed = new Set<string>()
+    let declared = false
+    for (const skill of this.activatedSkills) {
+      const tools = context.skillAllowedTools?.(skill)
+      if (!tools) continue
+      declared = true
+      for (const tool of tools) allowed.add(tool)
+    }
+    if (!declared || allowed.has(toolName)) return undefined
+    const names = [...allowed].join(', ') || '(none)'
+    return `Tool "${toolName}" is not declared by the active skill (${[...this.activatedSkills].join(', ')}). Allowed: ${names}`
+  }
+
   /** Skills activated since the last cost entry, then cleared. */
   private stepActivatedSkills(): string[] {
     if (this.pendingSkillActivations.size === 0) return []
@@ -288,6 +304,30 @@ export class ReActLoop {
       this.guard.countToolInvocation()
       recentCalls.push(signature)
       if (recentCalls.length > this.loopWindow) recentCalls.shift()
+
+      // A skill that declares allowed-tools narrows the tools the model may use
+      // while it is active. Activation itself stays available, otherwise the
+      // next skill could never be loaded.
+      const denied = this.deniedBySkillScope(toolCall.name, context)
+      if (denied) {
+        context.events.emit({
+          type: "tool.denied",
+          executionId: context.executionId,
+          member: this._member,
+          correlationId: context.correlationId,
+          timestamp: new Date().toISOString(),
+          step,
+          name: toolCall.name,
+          reason: denied,
+        })
+        messages.push({
+          role: "tool",
+          content: `Error: ${denied}`,
+          tool_call_id: toolCall.id,
+          name: toolCall.name,
+        })
+        continue
+      }
 
       context.events.emit({
         type: "tool.called",

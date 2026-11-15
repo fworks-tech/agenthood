@@ -346,3 +346,80 @@ describe('prompt-injection hardening', () => {
     rmSync(projectDir, { recursive: true, force: true })
   })
 })
+
+describe('ReActLoop skill tool scope', () => {
+  const skill = (name: string): ITool => ({
+    name,
+    description: 'A test tool',
+    inputSchema: { type: 'object', properties: {} },
+    execute: vi.fn().mockResolvedValue({ success: true, output: 'ok' }),
+  })
+
+  it('denies a tool the active skill did not declare', async () => {
+    const llm = mockProvider({ toolCalls: [{ name: 'file.write', args: {} }] })
+    const reg = new ToolRegistry()
+    const write = skill('file.write')
+    reg.register(write)
+    const loop = new ReActLoop(llm, reg)
+    loop.activatedSkills.add('auditor')
+    const ctx = createTestContext()
+    ctx.skillAllowedTools = () => ['file.read', 'ask_human']
+    const denied: string[] = []
+    ctx.events.subscribe((e) => {
+      if (e.type === 'tool.denied') denied.push(e.name)
+    })
+
+    await loop.run('system prompt', 'write', ctx)
+
+    expect(write.execute).not.toHaveBeenCalled()
+    expect(denied).toEqual(['file.write'])
+  })
+
+  it('allows a declared tool and reports the denial to the model', async () => {
+    const llm = mockProvider({ toolCalls: [{ name: 'file.read', args: {} }, { name: 'file.write', args: {} }] })
+    const reg = new ToolRegistry()
+    const read = skill('file.read')
+    const write = skill('file.write')
+    reg.register(read)
+    reg.register(write)
+    const loop = new ReActLoop(llm, reg)
+    loop.activatedSkills.add('auditor')
+    const ctx = createTestContext()
+    ctx.skillAllowedTools = () => ['file.read']
+
+    await loop.run('system prompt', 'read then write', ctx)
+
+    expect(read.execute).toHaveBeenCalled()
+    expect(write.execute).not.toHaveBeenCalled()
+  })
+
+  it('leaves tools unrestricted when no active skill declares allowed-tools', async () => {
+    const llm = mockProvider({ toolCalls: [{ name: 'file.write', args: {} }] })
+    const reg = new ToolRegistry()
+    const write = skill('file.write')
+    reg.register(write)
+    const loop = new ReActLoop(llm, reg)
+    loop.activatedSkills.add('silent-skill')
+    const ctx = createTestContext()
+    ctx.skillAllowedTools = () => undefined
+
+    await loop.run('system prompt', 'write', ctx)
+
+    expect(write.execute).toHaveBeenCalled()
+  })
+
+  it('keeps skill activation available while a scope is enforced', async () => {
+    const llm = mockProvider({ toolCalls: [{ name: 'activate_skill', args: { skill_name: 'x' } }] })
+    const reg = new ToolRegistry()
+    const activate = skill('activate_skill')
+    reg.register(activate)
+    const loop = new ReActLoop(llm, reg)
+    loop.activatedSkills.add('auditor')
+    const ctx = createTestContext()
+    ctx.skillAllowedTools = () => ['file.read']
+
+    await loop.run('system prompt', 'activate', ctx)
+
+    expect(activate.execute).toHaveBeenCalled()
+  })
+})

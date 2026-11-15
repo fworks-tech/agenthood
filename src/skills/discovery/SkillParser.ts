@@ -9,6 +9,19 @@ export interface ParsedSkill {
   name: string
   description: string
   body: string
+  allowedTools?: string[]
+}
+
+/** `allowed-tools` is spec'd as a space-separated string, but lists and commas
+ *  appear in the wild. Returns undefined when the skill declares none. */
+export function parseAllowedTools(value: unknown): string[] | undefined {
+  const parts = Array.isArray(value) ? value : [value]
+  const tools = parts
+    .filter((p): p is string => typeof p === 'string')
+    .flatMap((p) => p.split(/[\s,]+/))
+    .map((p) => p.trim())
+    .filter(Boolean)
+  return tools.length > 0 ? [...new Set(tools)] : undefined
 }
 
 export interface ParsedRaw {
@@ -56,6 +69,7 @@ export class SkillParser {
       name: typeof raw.frontmatter.name === 'string' ? raw.frontmatter.name : filePath,
       description: typeof raw.frontmatter.description === 'string' ? raw.frontmatter.description : '',
       body: raw.body,
+      allowedTools: parseAllowedTools(raw.frontmatter['allowed-tools'] ?? raw.frontmatter.allowed_tools),
     }
   }
 
@@ -78,7 +92,7 @@ export class SkillParser {
     }
   }
 
-  parseManifest(filePath: string, directory: string, body: string, name = '', description = '', tier: SkillTier = 'community'): ISkillManifest {
+  parseManifest(filePath: string, directory: string, body: string, name = '', description = '', tier: SkillTier = 'community', allowedTools?: string[]): ISkillManifest {
     const resources: string[] = []
     try {
       for (const entry of readdirSync(directory, { withFileTypes: true })) {
@@ -100,6 +114,7 @@ export class SkillParser {
       directory,
       body,
       resources,
+      ...(allowedTools ? { allowedTools } : {}),
     }
   }
 

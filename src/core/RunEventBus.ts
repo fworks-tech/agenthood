@@ -14,6 +14,7 @@ export type RunEvent =
   | (RunEventBase & { type: 'tool.called'; step: number; name: string; args: unknown })
   | (RunEventBase & { type: 'tool.result'; step: number; name: string; output: string; durationMs: number })
   | (RunEventBase & { type: 'tool.approval'; step: number; name: string; approved: boolean })
+  | (RunEventBase & { type: 'tool.denied'; step: number; name: string; reason: string })
   | (RunEventBase & { type: 'decision.recorded'; decisionId: string; outcome: string })
   | (RunEventBase & { type: 'provenance.recorded'; checksum: string })
   | (RunEventBase & { type: 'run.finished'; output: string; durationMs: number })

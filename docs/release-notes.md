@@ -5,6 +5,14 @@
 
 ---
 
+## v3.77.0 — November 15, 2026
+
+### ✨ Features
+
+- **Members:** add host-registered custom members (#1051), refs #1040
+
+---
+
 ## v3.76.1 — November 15, 2026
 
 ### 🐛 Bug Fixes

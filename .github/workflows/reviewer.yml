@@ -91,4 +91,5 @@ jobs:
           max-files: "5"
           include-diff: "false"
           api-key: ${{ secrets.OPENCODE_API_KEY }}
-          model: "opencode/deepseek-v4-flash"
+          model: "opencode/gpt-5-nano"
+          warning-threshold: "3"

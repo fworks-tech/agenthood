@@ -33,7 +33,11 @@ inputs:
   model:
     description: Model ID as provider/model (e.g. opencode/mimo-v2.5-free). The part before / selects the CLI provider.
     required: false
-    default: "opencode/deepseek-v4-flash"
+    default: "opencode/gpt-5-nano"
+  warning-threshold:
+    description: Warnings above which the decision gate blocks the job
+    required: false
+    default: "2"
 
 runs:
   using: composite
@@ -53,5 +57,6 @@ runs:
         INLINE_FINDINGS: ${{ inputs.inline-findings }}
         OPENCODE_API_KEY: ${{ inputs.api-key }}
         OPENCODE_MODEL: ${{ inputs.model }}
+        AGENTHOOD_WARNING_THRESHOLD: ${{ inputs.warning-threshold }}
         GH_TOKEN: ${{ github.token }}
       run: .github/scripts/agent-analysis.sh

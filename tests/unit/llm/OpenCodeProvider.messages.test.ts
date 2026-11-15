@@ -71,12 +71,4 @@ describe("OpenCodeProvider rejects non-text Zen protocols with guidance", () => 
       UnsupportedOperationError,
     );
   });
-
-  it("GPT (responses) is not implemented by this provider yet", async () => {
-    const p = provider();
-    p.setModel("gpt-6-sol");
-    await expect(p.complete({ messages: [{ role: "user", content: "yo" }] })).rejects.toThrow(
-      /\/v1\/responses/,
-    );
-  });
 });

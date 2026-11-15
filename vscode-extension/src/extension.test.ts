@@ -21,7 +21,7 @@ suite('AGENTHOOD_MEMBERS', () => {
 
   test('member names follow naming convention', () => {
     AGENTHOOD_MEMBERS.forEach(member => {
-      assert.match(member, /^the-[a-z]+$/);
+      assert.match(member, /^[a-z]+$/);
     });
   });
 });

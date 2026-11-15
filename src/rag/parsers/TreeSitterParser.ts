@@ -60,6 +60,8 @@ interface TreeSitterNode {
 
 interface TreeSitterTree {
   rootNode: TreeSitterNode
+  /** Frees the native tree. Present at runtime; absent from tree-sitter 0.21 typings. */
+  delete?: () => void
 }
 
 interface TreeSitterParserInstance {
@@ -99,9 +101,13 @@ export class TreeSitterParser {
 
     try {
       const tree = parser.parse(source)
-      const entities: CodeEntity[] = []
-      this.walkTree(tree.rootNode, filePath, entities, new Set())
-      return entities
+      try {
+        const entities: CodeEntity[] = []
+        this.walkTree(tree.rootNode, filePath, entities, new Set())
+        return entities
+      } finally {
+        tree.delete?.()
+      }
     } catch {
       return this.fallbackParse(source, filePath)
     }

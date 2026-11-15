@@ -36,7 +36,12 @@ function listChains(): void {
 export async function workflow(args: string[]): Promise<void> {
   const [name, ...rest] = args
 
-  if (!name || name === 'list') {
+  if (!name) {
+    userError('Usage: agenthood workflow <name>', { fix: 'Examples: workflow list, workflow run build "<task>", workflow review-pr' })
+    return
+  }
+
+  if (name === 'list') {
     listChains()
     return
   }

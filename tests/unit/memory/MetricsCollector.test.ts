@@ -7,12 +7,13 @@ vi.mock('node:fs', async (importOriginal) => {
     existsSync: vi.fn(),
     readFileSync: vi.fn(),
     writeFileSync: vi.fn(),
+    renameSync: vi.fn(),
     mkdirSync: vi.fn(),
     readdirSync: vi.fn(),
   }
 })
 
-import { existsSync, readFileSync, writeFileSync, mkdirSync, readdirSync } from 'node:fs'
+import { existsSync, readFileSync, writeFileSync, renameSync, mkdirSync, readdirSync } from 'node:fs'
 import { MetricsCollector } from '../../../src/memory/MetricsCollector.ts'
 
 describe('MetricsCollector', () => {
@@ -23,10 +24,12 @@ describe('MetricsCollector', () => {
     vi.mocked(existsSync).mockReset()
     vi.mocked(readdirSync).mockReset()
     vi.mocked(writeFileSync).mockReset()
+    vi.mocked(renameSync).mockReset()
     vi.mocked(mkdirSync).mockReset()
     vi.mocked(existsSync).mockReturnValue(false)
     vi.mocked(readdirSync).mockReturnValue([])
     vi.mocked(writeFileSync).mockReturnValue(undefined)
+    vi.mocked(renameSync).mockReturnValue(undefined)
     vi.mocked(mkdirSync).mockReturnValue(undefined)
     collector = new MetricsCollector(testDir)
   })

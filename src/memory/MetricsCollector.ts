@@ -1,5 +1,6 @@
-import { existsSync, mkdirSync, readFileSync, readdirSync, writeFileSync } from 'node:fs'
+import { existsSync, mkdirSync, readFileSync, readdirSync } from 'node:fs'
 import { join } from 'node:path'
+import { writeFileAtomic } from '../utils/atomicWrite.ts'
 
 export interface MemberMetrics {
   invocations: number
@@ -47,7 +48,7 @@ export class MetricsCollector {
     if (!existsSync(this.metricsDir)) {
       mkdirSync(this.metricsDir, { recursive: true })
     }
-    writeFileSync(path, JSON.stringify(metrics, null, 2) + '\n', 'utf8')
+    writeFileAtomic(path, JSON.stringify(metrics, null, 2) + '\n')
   }
 
   getStats(member: string): MemberMetrics | null {
@@ -100,7 +101,7 @@ export class MetricsCollector {
   clear(member: string): void {
     const path = join(this.metricsDir, `${member}.json`)
     if (existsSync(path)) {
-      writeFileSync(path, JSON.stringify(this.emptyMetrics(), null, 2) + '\n', 'utf8')
+      writeFileAtomic(path, JSON.stringify(this.emptyMetrics(), null, 2) + '\n')
     }
   }
 

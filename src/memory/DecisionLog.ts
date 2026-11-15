@@ -1,4 +1,5 @@
-import { existsSync, mkdirSync, readFileSync, writeFileSync, readdirSync } from 'node:fs'
+import { existsSync, mkdirSync, readFileSync, readdirSync } from 'node:fs'
+import { writeFileAtomic } from '../utils/atomicWrite.ts'
 import { join } from 'node:path'
 import type { CausalRelationType, DecisionLogEntry as CoreDecisionLogEntry } from '../core/types.ts'
 
@@ -45,7 +46,7 @@ export class DecisionLog {
     const safeId = this.sanitizeId(entry.id)
     const filePath = join(this.decisionsDir, `${safeId}.json`)
     this.ensureDir()
-    writeFileSync(filePath, JSON.stringify(entry, null, 2), 'utf8')
+    writeFileAtomic(filePath, JSON.stringify(entry, null, 2))
     this.cache.set(entry.id, entry)
   }
 
@@ -55,7 +56,8 @@ export class DecisionLog {
     const target = await this.get(targetId)
     if (!target) throw new Error(`DecisionLog: target decision "${targetId}" not found`)
 
-    const edges = this.loadEdges()
+    // union with disk: another instance may have appended since this one cached
+    const edges = this.liveEdges()
     const edge: CausalEdge = {
       id: `edge-${sourceId}-${targetId}-${relationshipType.toLowerCase()}`,
       source: sourceId,
@@ -193,26 +195,35 @@ export class DecisionLog {
 
   private loadEdges(): CausalEdge[] {
     if (this.edgesCache) return this.edgesCache
-    const edgesPath = join(this.decisionsDir, EDGES_FILE)
-    if (!existsSync(edgesPath)) {
-      this.edgesCache = []
-      return this.edgesCache
-    }
-    try {
-      const raw = readFileSync(edgesPath, 'utf8')
-      const data = JSON.parse(raw) as { edges: CausalEdge[] }
-      this.edgesCache = Array.isArray(data.edges) ? data.edges : []
-    } catch {
-      this.edgesCache = []
-    }
+    this.edgesCache = this.readEdgesFromDisk()
     return this.edgesCache
+  }
+
+  /** This instance's edges unioned with what is on disk — another instance may
+   *  have appended since the cache was filled, and neither may be dropped. */
+  private liveEdges(): CausalEdge[] {
+    const byId = new Map<string, CausalEdge>()
+    for (const edge of this.edgesCache ?? []) byId.set(edge.id, edge)
+    for (const edge of this.readEdgesFromDisk()) byId.set(edge.id, edge)
+    return [...byId.values()]
+  }
+
+  private readEdgesFromDisk(): CausalEdge[] {
+    const edgesPath = join(this.decisionsDir, EDGES_FILE)
+    if (!existsSync(edgesPath)) return []
+    try {
+      const data = JSON.parse(readFileSync(edgesPath, 'utf8')) as { edges: CausalEdge[] }
+      return Array.isArray(data.edges) ? data.edges : []
+    } catch {
+      return []
+    }
   }
 
   private saveEdges(edges: CausalEdge[]): void {
     this.edgesCache = edges
     const edgesPath = join(this.decisionsDir, EDGES_FILE)
     this.ensureDir()
-    writeFileSync(edgesPath, JSON.stringify({ edges }, null, 2), 'utf8')
+    writeFileAtomic(edgesPath, JSON.stringify({ edges }, null, 2))
   }
 
   private sanitizeId(id: string): string {

@@ -5,8 +5,8 @@ set -euo pipefail
 # closing keyword (`close`, `closes`, `closed`, `fix`, `fixes`, `fixed`,
 # `resolve`, `resolves`, `resolved`) plus an issue number (AGENTS.md). The
 # keyword is case-insensitive, may be followed by an optional colon, and the
-# issue number may be written with or without `#`. Draft PRs and bot PRs
-# (Dependabot/Renovate) are skipped by the calling workflow.
+# issue number must carry `#`: GitHub ignores `fixes 3` and closes nothing.
+# Draft PRs and bot PRs (Dependabot/Renovate) are skipped by the calling workflow.
 
 PR_NUMBER="${PR_NUMBER:-}"
 if [[ ! "$PR_NUMBER" =~ ^[0-9]+$ ]]; then
@@ -20,7 +20,7 @@ else
   BODY=$(gh pr view "$PR_NUMBER" --repo "${GITHUB_REPOSITORY:?}" --json body --jq .body)
 fi
 
-if grep -qiE '\b(clos(e[sd]?)?|fix(e[sd]?)?|resolve[sd]?)\b[[:space:]]*:?[[:space:]]*#?[0-9]+' <<< "$BODY"; then
+if grep -qiE '\b(clos(e[sd]?)?|fix(e[sd]?)?|resolve[sd]?)\b[[:space:]]*:?[[:space:]]*#[0-9]+' <<< "$BODY"; then
   echo "The Doorman: PR body links to an issue via a closing keyword."
   exit 0
 fi

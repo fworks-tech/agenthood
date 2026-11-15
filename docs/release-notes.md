@@ -5,6 +5,15 @@
 
 ---
 
+## v3.77.1 — November 15, 2026
+
+### 🐛 Bug Fixes
+
+- **Llm:** restore the reviewer bot on gpt-5-nano via /v1/responses (#1056)
+- **Llm:** surface incomplete responses and raise the output budget (#1059)
+
+---
+
 ## v3.77.0 — November 15, 2026
 
 ### ✨ Features

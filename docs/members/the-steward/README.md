@@ -108,4 +108,4 @@ When context reaches 90%, The Steward emits this alert:
 
 ## Skill File
 
-→ [`SKILL.md`](../../skills/the-steward/SKILL.md) — load this into your agent runtime
+→ [`SKILL.md`](../../skills/steward/SKILL.md) — load this into your agent runtime

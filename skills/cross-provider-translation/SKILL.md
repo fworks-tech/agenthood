@@ -139,8 +139,8 @@ Full provider onboarding in one pass:
 **Performed by:** The Envoy (Agenthood)
 
 ## Translated Skills
-- [x] the-scribe → [target path]
-- [x] the-architect → [target path]
+- [x] scribe → [target path]
+- [x] architect → [target path]
 ...
 
 ## Conventions Enforced

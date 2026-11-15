@@ -122,7 +122,7 @@ const impact = await decisions.analyzeDecisionImpact('dec-001') // descendants
 
 // Provenance integrity — reads from disk, never the cache
 const result = await provenance.verifyChain()             // { valid: true } or broken entry
-await provenance.invalidate('exec-1', 'the-sentinel', 'source retracted') // tombstone
+await provenance.invalidate('exec-1', 'sentinel', 'source retracted') // tombstone
 
 // Precedent search (on-demand; embeds via ILLMProvider.embed() into LanceDB)
 const search = new DecisionSearch(vectorStore)
@@ -226,7 +226,7 @@ const orchestrator = new MemberOrchestrator()
 const detected = orchestrator.detectMembers({
   userMessage: 'review this PR and check for security issues',
 })
-// [{ member: 'the-reviewer', score: 4 }, { member: 'the-auditor', score: 2 }]
+// [{ member: 'reviewer', score: 4 }, { member: 'auditor', score: 2 }]
 ```
 
 ## CLI Provider Override
@@ -342,14 +342,14 @@ If any check fails, the command exits non-zero with a detailed report. This mirr
 Evaluate members against fixed suites with baseline gating:
 
 ```bash
-npx agenthood eval the-reviewer --suite evals/benchmarks/review-pr.json --update-baseline
-npx agenthood eval the-reviewer --suite evals/benchmarks/review-pr.json   # exit 1 on regression
+npx agenthood eval reviewer --suite evals/benchmarks/review-pr.json --update-baseline
+npx agenthood eval reviewer --suite evals/benchmarks/review-pr.json   # exit 1 on regression
 ```
 
 Scores (faithfulness, relevance, context_recall via LLM-as-judge; answer_correctness via embedding cosine) aggregate into baselines at `.agenthood/baselines/<member>.json`, which also feed each member's per-trace `qualityScore`. Replay evaluation re-runs historical envelopes against their stored inputs to surface behavior drift:
 
 ```bash
-npx agenthood eval the-reviewer --replay --limit 50   # drift report at .agenthood/evals/replay-report.json
+npx agenthood eval reviewer --replay --limit 50   # drift report at .agenthood/evals/replay-report.json
 ```
 
 Privacy and lifecycle config in `.agenthood/config.json`:

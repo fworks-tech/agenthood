@@ -593,14 +593,14 @@
 
 ### Features
 
-* **members:** reframe steward load routing and add the-mediator ([#482](https://github.com/fworks-tech/agenthood/issues/482)) ([7c22904](https://github.com/fworks-tech/agenthood/commit/7c2290449d501021c5a61441d92f68e09db31a3b)), refs #474
+* **members:** reframe steward load routing and add mediator ([#482](https://github.com/fworks-tech/agenthood/issues/482)) ([7c22904](https://github.com/fworks-tech/agenthood/commit/7c2290449d501021c5a61441d92f68e09db31a3b)), refs #474
 
 ## [3.37.1](https://github.com/fworks-tech/agenthood/compare/v3.37.0...v3.37.1) (2026-08-21)
 
 
 ### Bug Fixes
 
-* **core:** clean up MemberAgent delegation smell and sanitize the-mailman ([#469](https://github.com/fworks-tech/agenthood/issues/469)) ([1a209ae](https://github.com/fworks-tech/agenthood/commit/1a209aebd3cb854bff9af876980d39663bbceeab))
+* **core:** clean up MemberAgent delegation smell and sanitize mailman ([#469](https://github.com/fworks-tech/agenthood/issues/469)) ([1a209ae](https://github.com/fworks-tech/agenthood/commit/1a209aebd3cb854bff9af876980d39663bbceeab))
 
 # [3.37.0](https://github.com/fworks-tech/agenthood/compare/v3.36.0...v3.37.0) (2026-08-20)
 
@@ -973,7 +973,7 @@
 * **docs:** update member counts and skill links after canonicalization ([760e55f](https://github.com/fworks-tech/agenthood/commit/760e55f9a1c4394ef0dcb39e9ec14f37ee0fd930))
 * **marketplace:** add new members to agenthood-all bundle and update counts ([23acbd2](https://github.com/fworks-tech/agenthood/commit/23acbd2af08b19164dbccff79eedd6f62e87d092))
 * **marketplace:** align copy with 19 members ([af96478](https://github.com/fworks-tech/agenthood/commit/af9647827a0836bd98f2e970ec23b70e57fd8ff0))
-* **members:** satisfy sentinel and librarian checks for the-builder ([ec0ed5d](https://github.com/fworks-tech/agenthood/commit/ec0ed5d2e37241e1d198621adf94e82717dac3ad))
+* **members:** satisfy sentinel and librarian checks for builder ([ec0ed5d](https://github.com/fworks-tech/agenthood/commit/ec0ed5d2e37241e1d198621adf94e82717dac3ad))
 * **runtime:** route skill file changes to oracle and sentinel triggers ([a304a8b](https://github.com/fworks-tech/agenthood/commit/a304a8bcfda2805deedaea5ccf3d33db56233eef))
 * **runtime:** watch skills dir for operator drift and test sentinel pattern ([697e339](https://github.com/fworks-tech/agenthood/commit/697e3394fa6cfafe0184333aaf803b0dd056db21))
 
@@ -981,8 +981,8 @@
 ### Features
 
 * **members:** add builder member ([449a81c](https://github.com/fworks-tech/agenthood/commit/449a81ca344f9c45562e8826ebf2f8c82ef3e049))
-* **members:** bring the-builder to full society standards ([3a67f51](https://github.com/fworks-tech/agenthood/commit/3a67f51422014562d7c2e860e144468defd6672a))
-* **runtime:** add the-builder to member triggers ([fa9b2a9](https://github.com/fworks-tech/agenthood/commit/fa9b2a905149c29e6f70f1f482dd6a86f41d2524))
+* **members:** bring builder to full society standards ([3a67f51](https://github.com/fworks-tech/agenthood/commit/3a67f51422014562d7c2e860e144468defd6672a))
+* **runtime:** add builder to member triggers ([fa9b2a9](https://github.com/fworks-tech/agenthood/commit/fa9b2a905149c29e6f70f1f482dd6a86f41d2524))
 
 # [3.12.0](https://github.com/fworks-tech/agenthood/compare/v3.11.1...v3.12.0) (2026-07-09)
 
@@ -1216,11 +1216,11 @@
 * **docs:** correct check count to 21 and fix insert->add API example ([deb2591](https://github.com/fworks-tech/agenthood/commit/deb25910ac6a15c3317d794750df59a6b43e1ffa)), refs #286
 * **docs:** fix mentioned shipped version ([60a43e1](https://github.com/fworks-tech/agenthood/commit/60a43e14650628d23f61fefbb3910d1f9cf779bb))
 * **init,check:** align init ceremony with health check expectations ([cd0a6bc](https://github.com/fworks-tech/agenthood/commit/cd0a6bc5bf29254e2c1cecafcd0880f9580fec4c)), refs #286
-* **skills:** add output format section to the-reviewer SKILL.md for consistent rendering ([86c7162](https://github.com/fworks-tech/agenthood/commit/86c71629f394cc334ad5becce99bff95d135cf2e)), refs #286
-* sync skills/the-reviewer/SKILL.md with members/ changes ([473707d](https://github.com/fworks-tech/agenthood/commit/473707d01972ac51af1da2e7cab61ba4927ff825)), refs #286
-* **the-reviewer:** address review findings on output format and README ([8aa91f9](https://github.com/fworks-tech/agenthood/commit/8aa91f950d4de39de8ded7760cf66346d43440dc)), refs #286
-* **the-reviewer:** flatten heading hierarchy and add intra-section spacing example ([faa73fc](https://github.com/fworks-tech/agenthood/commit/faa73fc3ce08367d8010d8ac261e9a01bdd15c0f)), refs #286
-* **the-reviewer:** use [SEVERITY] placeholder and move meta-instruction outside template ([e073edb](https://github.com/fworks-tech/agenthood/commit/e073edba897975a88ed2078d1ccb97980a05ec06)), refs #286
+* **skills:** add output format section to reviewer SKILL.md for consistent rendering ([86c7162](https://github.com/fworks-tech/agenthood/commit/86c71629f394cc334ad5becce99bff95d135cf2e)), refs #286
+* sync skills/reviewer/SKILL.md with members/ changes ([473707d](https://github.com/fworks-tech/agenthood/commit/473707d01972ac51af1da2e7cab61ba4927ff825)), refs #286
+* **reviewer:** address review findings on output format and README ([8aa91f9](https://github.com/fworks-tech/agenthood/commit/8aa91f950d4de39de8ded7760cf66346d43440dc)), refs #286
+* **reviewer:** flatten heading hierarchy and add intra-section spacing example ([faa73fc](https://github.com/fworks-tech/agenthood/commit/faa73fc3ce08367d8010d8ac261e9a01bdd15c0f)), refs #286
+* **reviewer:** use [SEVERITY] placeholder and move meta-instruction outside template ([e073edb](https://github.com/fworks-tech/agenthood/commit/e073edba897975a88ed2078d1ccb97980a05ec06)), refs #286
 
 
 ### Features
@@ -1614,14 +1614,14 @@
 * **hooks:** add commit-msg hook ([a2ce2f6](https://github.com/fworks-tech/agenthood/commit/a2ce2f60cc4857ea3980bb479f2ef3b049e22f55))
 * **hooks:** add pre-commit hook ([865a3df](https://github.com/fworks-tech/agenthood/commit/865a3dfb7554a98fc6ab76aead3fff757ba347c9))
 * **members:** add branch scope and PR scope validation to architect and doorman ([fbc8757](https://github.com/fworks-tech/agenthood/commit/fbc8757c2e7acfdd442a3f5ad74911710e10a230))
-* **members:** add N+1 commit pattern and PR granularity to the-scribe ([0c36975](https://github.com/fworks-tech/agenthood/commit/0c36975286448de3b3efe3e9e166f5439ea8ab74))
-* **members:** add the-envoy ([09a7e40](https://github.com/fworks-tech/agenthood/commit/09a7e40eeccfe36f30901e8087d60a97d83d3491))
-* **members:** add the-oracle ([fd5be2a](https://github.com/fworks-tech/agenthood/commit/fd5be2ac25038696271c40d22fb9cca19ef6a823))
-* **members:** add the-sentinel ([323a428](https://github.com/fworks-tech/agenthood/commit/323a42886ea1fe1430b3f27b7c043ad76bf76c3c))
-* **members:** add the-steward ([99c7203](https://github.com/fworks-tech/agenthood/commit/99c7203ecd34053f0b4c40f8b3c309d5c9728417))
-* **members:** add the-warden ([029c4d3](https://github.com/fworks-tech/agenthood/commit/029c4d37c90b36e33ffa07a36d5aa8ad0ccb54c6))
-* **members:** register the-oracle and the-envoy in indexes ([b36358e](https://github.com/fworks-tech/agenthood/commit/b36358ebc339be3d9d1a8f60ddd952a6bdc2e480))
-* **members:** register the-sentinel and the-warden in indexes ([21f45af](https://github.com/fworks-tech/agenthood/commit/21f45af230ee5465b9532fa13656031a58317b60))
+* **members:** add N+1 commit pattern and PR granularity to scribe ([0c36975](https://github.com/fworks-tech/agenthood/commit/0c36975286448de3b3efe3e9e166f5439ea8ab74))
+* **members:** add envoy ([09a7e40](https://github.com/fworks-tech/agenthood/commit/09a7e40eeccfe36f30901e8087d60a97d83d3491))
+* **members:** add oracle ([fd5be2a](https://github.com/fworks-tech/agenthood/commit/fd5be2ac25038696271c40d22fb9cca19ef6a823))
+* **members:** add sentinel ([323a428](https://github.com/fworks-tech/agenthood/commit/323a42886ea1fe1430b3f27b7c043ad76bf76c3c))
+* **members:** add steward ([99c7203](https://github.com/fworks-tech/agenthood/commit/99c7203ecd34053f0b4c40f8b3c309d5c9728417))
+* **members:** add warden ([029c4d3](https://github.com/fworks-tech/agenthood/commit/029c4d37c90b36e33ffa07a36d5aa8ad0ccb54c6))
+* **members:** register oracle and envoy in indexes ([b36358e](https://github.com/fworks-tech/agenthood/commit/b36358ebc339be3d9d1a8f60ddd952a6bdc2e480))
+* **members:** register sentinel and warden in indexes ([21f45af](https://github.com/fworks-tech/agenthood/commit/21f45af230ee5465b9532fa13656031a58317b60))
 * **platform:** add npm package, VS Code extension, portals rename, and INITIATION ([cd83c19](https://github.com/fworks-tech/agenthood/commit/cd83c19ddabfbd439c540dc5e97600ae35d00af1))
 * **setup:** add setup.sh, makefile, devcontainer ([f5165a9](https://github.com/fworks-tech/agenthood/commit/f5165a9266672db9a19039ac05a4a9f598ed16cf))
 * **society:** add skill files, rituals, agentic workflows, CI, and intelligence ([94ad925](https://github.com/fworks-tech/agenthood/commit/94ad9252d9c190936f043f29af135f89c79b8af9))

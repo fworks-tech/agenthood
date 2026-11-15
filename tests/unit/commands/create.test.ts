@@ -49,7 +49,7 @@ describe('create command', () => {
 
   it('refuses Society member names', async () => {
     exitSpy()
-    await expect(create(['the-scribe'])).rejects.toThrow('process.exit')
+    await expect(create(['scribe'])).rejects.toThrow('process.exit')
     expect(output.join('\n')).toContain('reserved')
     expect(vi.mocked(writeFileSync)).not.toHaveBeenCalled()
   })

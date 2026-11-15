@@ -11,17 +11,17 @@ import {
 } from '../../../src/reasoning/routing.ts'
 import type { RoutingDecision } from '../../../src/reasoning/routing.ts'
 
-const MEMBERS = ['the-mediator', 'the-steward', 'the-builder', 'the-strategist']
+const MEMBERS = ['mediator', 'steward', 'builder', 'strategist']
 
 function decision(overrides: Partial<RoutingDecision> = {}): RoutingDecision {
   return {
     id: 'route-1',
     timestamp: '2026-09-27T03:00:00.000Z',
-    member: 'the-mediator',
+    member: 'mediator',
     intent: 'clear-specialist',
     confidence: 95,
     confidence_factors: ['single specialist lane'],
-    target: 'the-builder',
+    target: 'builder',
     reasoning: 'Prompt names one implementation task',
     alternatives_considered: [],
     cascade_applied: false,
@@ -41,10 +41,10 @@ describe('validateRoutingDecision', () => {
       confidence: 60,
       cascade_applied: true,
       parallel_evaluation: {
-        asked: ['the-strategist', 'the-doorman'],
+        asked: ['strategist', 'doorman'],
         responses: [
-          { member: 'the-strategist', agrees: true, classification: 'ambiguous' },
-          { member: 'the-doorman', agrees: true, classification: 'ambiguous' },
+          { member: 'strategist', agrees: true, classification: 'ambiguous' },
+          { member: 'doorman', agrees: true, classification: 'ambiguous' },
         ],
         outcome: 'consensus',
       },
@@ -74,8 +74,8 @@ describe('validateRoutingDecision', () => {
   })
 
   it('rejects a target that is not a registered member', () => {
-    expect(validateRoutingDecision(decision({ target: 'the-librarian' }), MEMBERS))
-      .toContain('target "the-librarian" is not a registered member')
+    expect(validateRoutingDecision(decision({ target: 'librarian' }), MEMBERS))
+      .toContain('target "librarian" is not a registered member')
   })
 
   it('rejects an id that could escape the routing directory', () => {
@@ -93,7 +93,7 @@ describe('validateRoutingDecision', () => {
     const errors = validateRoutingDecision(decision({
       confidence: 50,
       cascade_applied: true,
-      parallel_evaluation: { asked: ['the-strategist'], responses: [], outcome: 'consensus' },
+      parallel_evaluation: { asked: ['strategist'], responses: [], outcome: 'consensus' },
     }), MEMBERS)
     expect(errors).toContain('parallel_evaluation must ask at least two other members')
   })

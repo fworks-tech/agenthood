@@ -24,14 +24,14 @@ describe('Logger', () => {
 
   it('persists a log entry with level/message/member to the shared NDJSON store', async () => {
     const logger = new Logger({ projectPath: dir, source: 'api' })
-    await logger.log('warn', 'drift detected', 'the-scribe')
+    await logger.log('warn', 'drift detected', 'scribe')
 
     expect(existsSync(traceFile())).toBe(true)
     const [entry] = readEntries()
     expect(entry.entryType).toBe('log')
     expect(entry.level).toBe('warn')
     expect(entry.message).toBe('drift detected')
-    expect(entry.member).toBe('the-scribe')
+    expect(entry.member).toBe('scribe')
     expect(entry.source).toBe('api')
     expect(entry.timestamp).toBeTruthy()
   })
@@ -54,7 +54,7 @@ describe('Logger', () => {
 
   it('attaches metadata and a shared correlationId', async () => {
     const logger = new Logger({ projectPath: dir })
-    await logger.error('boom', 'the-auditor', { code: 42 })
+    await logger.error('boom', 'auditor', { code: 42 })
     const [entry] = readEntries()
     expect(entry.metadata).toEqual({ code: 42 })
     expect(entry.correlationId).toBeTruthy()
@@ -65,7 +65,7 @@ describe('Logger', () => {
     const events: unknown[] = []
     bus.subscribe((e) => events.push(e))
     const logger = new Logger({ projectPath: dir, events: bus })
-    await logger.warn('watch out', 'the-warden')
+    await logger.warn('watch out', 'warden')
 
     expect(events).toHaveLength(1)
     const evt = events[0] as { type: string; level: string; message: string }
@@ -79,7 +79,7 @@ describe('Logger', () => {
     const events: unknown[] = []
     bus.subscribe((e) => events.push(e))
     const logger = new Logger({ projectPath: dir, events: bus, redactor: new RedactionFilter() })
-    await logger.info('key sk-abc1234567 leaked', 'the-scribe', { owner: 'dev@example.com' })
+    await logger.info('key sk-abc1234567 leaked', 'scribe', { owner: 'dev@example.com' })
 
     const [entry] = readEntries()
     expect(entry.message).toBe('key [REDACTED] leaked')

@@ -3,12 +3,12 @@ import { readFileSync } from 'node:fs'
 import { fileURLToPath } from 'node:url'
 import { rawSpecs } from '../../../src/members/member-specs.ts'
 
-const skillPath = fileURLToPath(new URL('../../../skills/the-sentinel/SKILL.md', import.meta.url))
+const skillPath = fileURLToPath(new URL('../../../skills/sentinel/SKILL.md', import.meta.url))
 
 describe('lane map parity', () => {
   it('rawSpecs.ownedDecisions mirrors the SKILL.md lane map', () => {
     const md = readFileSync(skillPath, 'utf8')
-    const table = md.match(/\| The Strategist \|[\s\S]*?\| The Mailman \|.*\|/)?.[0]
+    const table = md.match(/\| strategist \|[\s\S]*?\| mailman \|.*\|/)?.[0]
     expect(table, 'lane map table not found').toBeDefined()
 
     const mdEntries = new Map<string, string[]>()
@@ -17,7 +17,8 @@ describe('lane map parity', () => {
       if (cells.length < 5 || !cells[1]) continue
       // skip the markdown separator row |------|-------|-----|
       if (/^-+$/.test(cells[1])) continue
-      const member = cells[1].toLowerCase().replace(/\s+/g, '-')
+      // Member name is already in lowercase with hyphens (e.g., "strategist")
+      const member = cells[1]
       const decisions = cells[3].split(',').map((d) => d.trim()).filter(Boolean)
       mdEntries.set(member, decisions)
     }

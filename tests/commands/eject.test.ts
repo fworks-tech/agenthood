@@ -57,16 +57,16 @@ describe('eject command', () => {
     vi.mocked(readdirSync).mockImplementation((dir: unknown) => {
       const d = String(dir).replace(/\\/g, '/')
       return (d.endsWith('.claude/skills') || d.endsWith('.github/skills') || d.endsWith('.gemini/skills')
-        ? ['the-scribe', 'the-reviewer', 'foreign-skill']
+        ? ['scribe', 'reviewer', 'foreign-skill']
         : []) as never[]
     })
     const { eject } = await import( '../../src/commands/eject.ts')
     await eject()
     const removed = normalized(vi.mocked(rm))
-    expect(removed.some((p) => p.endsWith('.claude/skills/the-scribe'))).toBe(true)
-    expect(removed.some((p) => p.endsWith('.claude/skills/the-reviewer'))).toBe(true)
-    expect(removed.some((p) => p.endsWith('.github/skills/the-scribe'))).toBe(true)
-    expect(removed.some((p) => p.endsWith('.gemini/skills/the-scribe'))).toBe(true)
+    expect(removed.some((p) => p.endsWith('.claude/skills/scribe'))).toBe(true)
+    expect(removed.some((p) => p.endsWith('.claude/skills/reviewer'))).toBe(true)
+    expect(removed.some((p) => p.endsWith('.github/skills/scribe'))).toBe(true)
+    expect(removed.some((p) => p.endsWith('.gemini/skills/scribe'))).toBe(true)
     expect(removed.some((p) => p.endsWith('foreign-skill'))).toBe(false)
     expect(removed.some((p) => p.endsWith('.claude/skills'))).toBe(false)
   })

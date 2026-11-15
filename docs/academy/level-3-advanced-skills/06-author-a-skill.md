@@ -89,7 +89,7 @@ Validate, then invoke through any member run that has it in scope:
 
 ```bash
 npx agenthood verify            # frontmatter shape + name↔directory match
-npx agenthood run the-scribe "summarize meeting.txt using the-notetaker's format"  
+npx agenthood run scribe "summarize meeting.txt using the-notetaker's format"  
 ```
 
 `agenthood run` executes registered members, not arbitrary skill files — so the demo

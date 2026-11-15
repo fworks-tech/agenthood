@@ -54,7 +54,7 @@ import type { TraceEnvelope } from '../../../src/core/types.ts'
 
 function makeEnvelope(overrides: Partial<TraceEnvelope> = {}): TraceEnvelope {
   return createTraceEnvelope({
-    member: 'the-scribe',
+    member: 'scribe',
     input: 'task',
     output: 'out',
     durationMs: 10,
@@ -101,12 +101,12 @@ describe('LanceDBTraceStore', () => {
 
     expect(mockTable.mockAdd).toHaveBeenCalledTimes(1)
     const row = mockTable.mockAdd.mock.calls[0][0][0]
-    expect(row.member).toBe('the-scribe')
+    expect(row.member).toBe('scribe')
     expect(row.correlation_id).toBe('corr-1')
     expect(row.status).toBe('success')
     expect(row.cost).toBe(0.001)
     expect(row.token_total).toBe(2)
-    expect(JSON.parse(row.envelope).member).toBe('the-scribe')
+    expect(JSON.parse(row.envelope).member).toBe('scribe')
   })
 
   it('throws when not connected', async () => {
@@ -117,12 +117,12 @@ describe('LanceDBTraceStore', () => {
   it('queries by member', async () => {
     const store = new LanceDBTraceStore()
     await store.connect('/tmp/test-lancedb')
-    mockTable.mockQuery.mockResolvedValue([{ envelope: JSON.stringify(makeEnvelope({ member: 'the-scribe' })) }])
+    mockTable.mockQuery.mockResolvedValue([{ envelope: JSON.stringify(makeEnvelope({ member: 'scribe' })) }])
 
-    const results = await store.query({ member: 'the-scribe' })
+    const results = await store.query({ member: 'scribe' })
     expect(results).toHaveLength(1)
-    expect(results[0].member).toBe('the-scribe')
-    expect(mockTable.mockQuery.mock.calls[0][0]).toContain("member = 'the-scribe'")
+    expect(results[0].member).toBe('scribe')
+    expect(mockTable.mockQuery.mock.calls[0][0]).toContain("member = 'scribe'")
   })
 
   it('queries by time range with descending order', async () => {

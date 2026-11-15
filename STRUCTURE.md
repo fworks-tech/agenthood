@@ -10,26 +10,26 @@ agenthood/
 │   └── COMMIT_CONVENTION.md
 │
 ├── docs/members/                         ← Member identity cards (README per member)
-│   ├── the-scribe/
-│   ├── the-architect/
-│   ├── the-builder/
-│   ├── the-strategist/
-│   ├── the-reviewer/
-│   ├── the-tester/
-│   ├── the-debugger/
-│   ├── the-auditor/
-│   ├── the-herald/
-│   ├── the-inspector/
-│   ├── the-mailman/
-│   ├── the-librarian/
-│   ├── the-doorman/
-│   ├── the-operator/
-│   ├── the-oracle/
-│   ├── the-envoy/
-│   ├── the-sentinel/
-│   ├── the-warden/
-│   ├── the-steward/
-│   └── the-mediator/
+│   ├── scribe/
+│   ├── architect/
+│   ├── builder/
+│   ├── strategist/
+│   ├── reviewer/
+│   ├── tester/
+│   ├── debugger/
+│   ├── auditor/
+│   ├── herald/
+│   ├── inspector/
+│   ├── mailman/
+│   ├── librarian/
+│   ├── doorman/
+│   ├── operator/
+│   ├── oracle/
+│   ├── envoy/
+│   ├── sentinel/
+│   ├── warden/
+│   ├── steward/
+│   └── mediator/
 │
 ├── docs/rituals/                         ← Scheduled automations
 │   ├── morning-briefing.md

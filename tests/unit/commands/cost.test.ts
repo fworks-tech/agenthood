@@ -4,9 +4,9 @@ import { join } from 'node:path'
 import { tmpdir } from 'node:os'
 
 const mockCosts = [
-  { timestamp: '2026-01-15T10:00:00Z', member: 'the-scribe', model: 'gpt-4o-mini', provider: 'openai', promptTokens: 1000, completionTokens: 500, totalTokens: 1500, costUsd: 0.001 },
-  { timestamp: '2026-01-15T11:00:00Z', member: 'the-reviewer', model: 'claude-3-5-sonnet', provider: 'anthropic', promptTokens: 2000, completionTokens: 1000, totalTokens: 3000, costUsd: 0.015 },
-  { timestamp: '2026-01-16T10:00:00Z', member: 'the-scribe', model: 'gpt-4o-mini', provider: 'openai', promptTokens: 500, completionTokens: 200, totalTokens: 700, costUsd: 0.0005 },
+  { timestamp: '2026-01-15T10:00:00Z', member: 'scribe', model: 'gpt-4o-mini', provider: 'openai', promptTokens: 1000, completionTokens: 500, totalTokens: 1500, costUsd: 0.001 },
+  { timestamp: '2026-01-15T11:00:00Z', member: 'reviewer', model: 'claude-3-5-sonnet', provider: 'anthropic', promptTokens: 2000, completionTokens: 1000, totalTokens: 3000, costUsd: 0.015 },
+  { timestamp: '2026-01-16T10:00:00Z', member: 'scribe', model: 'gpt-4o-mini', provider: 'openai', promptTokens: 500, completionTokens: 200, totalTokens: 700, costUsd: 0.0005 },
 ]
 
 import { command } from '../../../src/commands/cost.ts'
@@ -35,7 +35,7 @@ describe('cost command', () => {
   it('readCosts parses JSONL file', () => {
     const costs = readCosts(testDir)
     expect(costs.length).toBe(3)
-    expect(costs[0].member).toBe('the-scribe')
+    expect(costs[0].member).toBe('scribe')
   })
 
   it('readCosts returns empty array for missing file', () => {
@@ -49,7 +49,7 @@ describe('cost command', () => {
   it('logCost appends to file', () => {
     logCost({
       timestamp: '2026-01-17T10:00:00Z',
-      member: 'the-doorman',
+      member: 'doorman',
       model: 'gpt-4o-mini',
       provider: 'openai',
       promptTokens: 100,
@@ -59,14 +59,14 @@ describe('cost command', () => {
     }, testDir)
     const costs = readCosts(testDir)
     expect(costs.length).toBe(4)
-    expect(costs[3].member).toBe('the-doorman')
+    expect(costs[3].member).toBe('doorman')
   })
 
   it('logCost creates directory if missing', () => {
     const newDir = join(tmpdir(), `agenthood-cost-new-${Date.now()}`)
     logCost({
       timestamp: '2026-01-17T10:00:00Z',
-      member: 'the-doorman',
+      member: 'doorman',
       model: 'gpt-4o-mini',
       provider: 'openai',
       promptTokens: 100,

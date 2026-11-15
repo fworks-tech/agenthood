@@ -5,7 +5,7 @@ import type { ILLMProvider } from '../../../src/llm/ILLMProvider.ts'
 import type { EmbedFn } from '../../../src/evals/ReplayEvaluator.ts'
 
 const TRIGGER_SET: TriggerQuerySet = {
-  member: 'the-scribe',
+  member: 'scribe',
   shouldTrigger: [
     'write a commit message',
     'draft the changelog',
@@ -51,9 +51,9 @@ describe('DescriptionOptimizer', () => {
       f1ImprovementThreshold: 0.5,
     })
 
-    const result = await optimizer.optimize('the-scribe', TRIGGER_SET)
+    const result = await optimizer.optimize('scribe', TRIGGER_SET)
 
-    expect(result.member).toBe('the-scribe')
+    expect(result.member).toBe('scribe')
     expect(result.iterations).toBe(1)
     expect(result.variants.length).toBe(3)
   })
@@ -66,7 +66,7 @@ describe('DescriptionOptimizer', () => {
       f1ImprovementThreshold: 0,
     })
 
-    const result = await optimizer.optimize('the-scribe', TRIGGER_SET)
+    const result = await optimizer.optimize('scribe', TRIGGER_SET)
 
     expect(result.iterations).toBeLessThanOrEqual(2)
   })

@@ -61,7 +61,7 @@ When the runtime is active, you can provide tools directly to an agent:
 
 ```bash
 # Invoke an agent and provide it with filesystem skills
-npx agenthood run the-architect "Draft an ADR" --tools fs-write,fs-read
+npx agenthood run architect "Draft an ADR" --tools fs-write,fs-read
 ```
 
 Or in TypeScript (future milestone):

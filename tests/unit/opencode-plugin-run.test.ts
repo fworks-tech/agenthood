@@ -48,7 +48,7 @@ describe('runMember', () => {
 
   it('reports a missing CLI without spawning', async () => {
     let spawned = false
-    const out = await runMember('the-oracle', 'task', {
+    const out = await runMember('oracle', 'task', {
       directory: '/proj',
       abort: new AbortController().signal,
       dependencies: {
@@ -66,7 +66,7 @@ describe('runMember', () => {
   it('spawns the CLI in the caller directory and formats the result', async () => {
     const child = fakeChild() as any
     let seen: { command: string; args: string[]; options: { cwd: string } } | undefined
-    const out = await runMember('the-oracle', 'do it', {
+    const out = await runMember('oracle', 'do it', {
       directory: '/proj',
       abort: new AbortController().signal,
       dependencies: {
@@ -82,14 +82,14 @@ describe('runMember', () => {
         },
       },
     })
-    expect(seen?.args.slice(-4)).toEqual(['run', 'the-oracle', '--', 'do it'])
+    expect(seen?.args.slice(-4)).toEqual(['run', 'oracle', '--', 'do it'])
     expect(seen?.options).toEqual({ cwd: '/proj' })
     expect(out).toBe('all good\n[stderr]\nnote\n[exit code 2]')
   })
 
   it('keeps spawn failures as plain text', async () => {
     const child = fakeChild() as any
-    const out = await runMember('the-oracle', 'task', {
+    const out = await runMember('oracle', 'task', {
       directory: '/proj',
       abort: new AbortController().signal,
       dependencies: {
@@ -110,7 +110,7 @@ describe('runMember', () => {
     const child = fakeChild() as any
     const checked: string[] = []
     const out = await runMember(
-      'the-oracle',
+      'oracle',
       'task',
       {
         directory: '/proj',
@@ -134,7 +134,7 @@ describe('runMember', () => {
   it('keeps a leading-dash task as data behind --', async () => {
     const child = fakeChild() as any
     let seen: { args: string[] } | undefined
-    await runMember('the-oracle', '--detect this looks like a flag', {
+    await runMember('oracle', '--detect this looks like a flag', {
       directory: '/proj',
       abort: new AbortController().signal,
       dependencies: {
@@ -146,7 +146,7 @@ describe('runMember', () => {
         },
       },
     })
-    expect(seen?.args.slice(-4)).toEqual(['run', 'the-oracle', '--', '--detect this looks like a flag'])
+    expect(seen?.args.slice(-4)).toEqual(['run', 'oracle', '--', '--detect this looks like a flag'])
   })
 
   it('kills and reports a CLI that never closes', async () => {
@@ -156,7 +156,7 @@ describe('runMember', () => {
       killed = true
       return true
     }
-    const out = await runMember('the-oracle', 'task', {
+    const out = await runMember('oracle', 'task', {
       directory: '/proj',
       abort: new AbortController().signal,
       timeoutMs: 20,
@@ -181,11 +181,11 @@ describe('server tool execute', () => {
       child.emit('close', 0)
     })
     const result = await def?.execute(
-      { member: 'the-oracle', task: 'hi' },
+      { member: 'oracle', task: 'hi' },
       { directory: '/caller', abort: new AbortController().signal } as never,
     )
-    expect(result).toEqual({ title: 'agenthood run the-oracle', output: 'member says hi' })
-    expect(state.spawnCalls[0]?.args.slice(-4)).toEqual(['run', 'the-oracle', '--', 'hi'])
+    expect(result).toEqual({ title: 'agenthood run oracle', output: 'member says hi' })
+    expect(state.spawnCalls[0]?.args.slice(-4)).toEqual(['run', 'oracle', '--', 'hi'])
     expect(state.spawnCalls[0]?.options.cwd).toBe('/caller')
     expect((state.spawnCalls[0]?.options as any).stdio).toEqual(['ignore', 'pipe', 'pipe'])
   })
@@ -195,11 +195,11 @@ describe('server tool execute', () => {
     const hooks = await (pluginModule.server as any)()
     const def = hooks.tool?.['agenthood_run_member']
     const result = await def?.execute(
-      { member: 'the-oracle', task: 'hi' },
+      { member: 'oracle', task: 'hi' },
       { directory: '/caller', abort: new AbortController().signal } as never,
     )
     expect(result).toEqual({
-      title: 'agenthood run the-oracle',
+      title: 'agenthood run oracle',
       output: expect.stringContaining('agenthood CLI not found'),
     })
     expect(state.spawnCalls).toEqual([])

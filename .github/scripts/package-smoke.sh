@@ -33,7 +33,7 @@ for required in \
   "package/dist/cli.js" \
   "package/scripts/postinstall.mjs" \
   "package/AGENTS.md" \
-  "package/skills/the-scribe/SKILL.md" \
+  "package/skills/scribe/SKILL.md" \
   "package/docs/members/registry.json"; do
   if ! grep -x "$required" >/dev/null <<<"$FILES"; then
     echo "The Envoy: tarball missing required file: $required" >&2

@@ -8,8 +8,33 @@ const repoRoot = join(import.meta.dirname, '..', '..', '..')
 function catalogNames(filePath: string): Set<string> {
   const content = readFileSync(filePath, 'utf8')
   const names = new Set<string>()
-  for (const match of content.matchAll(/the-[a-z]+/g)) {
-    names.add(match[0])
+  // Match both old 'the-*' and new names
+  for (const match of content.matchAll(/(?:the-)?[a-z]+(?:-[a-z]+)*/g)) {
+    const name = match[0]
+    // Filter to only known member names (old or new)
+    const known = [
+      'the-scribe', 'scribe',
+      'the-architect', 'architect',
+      'the-builder', 'builder',
+      'the-reviewer', 'reviewer',
+      'the-tester', 'tester',
+      'the-debugger', 'debugger',
+      'the-auditor', 'auditor',
+      'the-herald', 'herald',
+      'the-librarian', 'librarian',
+      'the-doorman', 'doorman',
+      'the-oracle', 'oracle',
+      'the-envoy', 'envoy',
+      'the-sentinel', 'sentinel',
+      'the-warden', 'warden',
+      'the-strategist', 'strategist',
+      'the-steward', 'steward',
+      'the-operator', 'operator',
+      'the-mediator', 'mediator',
+      'the-mailman', 'mailman',
+      'the-inspector', 'inspector',
+    ]
+    if (known.includes(name)) names.add(name)
   }
   return names
 }

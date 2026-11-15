@@ -5,14 +5,14 @@ name: The Rituals — Scheduled Watches
 
 on:
   schedule:
-    - cron: '0 8 * * 1-5' # morning-briefing — the-herald
-    - cron: '0 9 * * 1-5' # the-inspection — the-doorman
-    - cron: '0 18 * * 1-5' # evening-report — the-herald
-    - cron: '0 */2 * * *' # the-watchman — the-doorman
+    - cron: '0 8 * * 1-5' # morning-briefing — herald
+    - cron: '0 9 * * 1-5' # the-inspection — doorman
+    - cron: '0 18 * * 1-5' # evening-report — herald
+    - cron: '0 */2 * * *' # the-watchman — doorman
   workflow_dispatch:
     inputs:
       ritual:
-        description: Ritual to run (morning-briefing | the-inspection | evening-report | the-watchman)
+        description: Ritual to run (morning-briefing | inspection | evening-report | watchman)
         type: string
         required: true
 
@@ -34,7 +34,7 @@ jobs:
         include:
           - name: morning-briefing
             schedule: '0 8 * * 1-5'
-            member: the-herald
+            member: herald
             task: >-
               Run the Morning Briefing ritual: list merged PRs from the last 24 hours,
               open PRs sorted by age with author and days open, and branches with commits
@@ -42,31 +42,31 @@ jobs:
               work and branches idle longer than 2 hours. Produce the Morning Briefing
               report in the format defined in docs/rituals/morning-briefing.md.
               Use the git and gh CLIs.
-          - name: the-inspection
+          - name: inspection
             schedule: '0 9 * * 1-5'
-            member: the-doorman
+            member: doorman
             task: >-
               Run The Inspection ritual: scan the repository for TODO and FIXME comments
               (file:line for each), source files exceeding 500 lines, wildcard dependency
               versions in package.json, and source files without a corresponding test
               file. Produce the Daily Inspection report in the format defined in
-              docs/rituals/the-inspection.md.
+              docs/rituals/inspection.md.
           - name: evening-report
             schedule: '0 18 * * 1-5'
-            member: the-herald
+            member: herald
             task: >-
               Run the Evening Report ritual: list commits and merged PRs since 08:00
               local today, issues closed today, and branches with commits today but no
               merged PR. Produce the Evening Report with day stats in the format defined
               in docs/rituals/evening-report.md. Use the git and gh CLIs.
-          - name: the-watchman
+          - name: watchman
             schedule: '0 */2 * * *'
-            member: the-doorman
+            member: doorman
             task: >-
               Run The Watchman ritual: identify uncommitted changes with files idle
               longer than 2 hours and branches more than 20 commits behind main.
               Produce the Watchman Alert in the format defined in
-              docs/rituals/the-watchman.md; if nothing exceeds thresholds, report that
+              docs/rituals/watchman.md; if nothing exceeds thresholds, report that
               all is quiet.
     steps:
       # Job-level `if:` cannot use the matrix context (GitHub rejects the whole

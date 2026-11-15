@@ -97,8 +97,6 @@ export class AnthropicProvider implements ILLMProvider {
         system,
         messages,
         max_tokens: request.maxTokens ?? 4096,
-        temperature: request.temperature,
-        top_p: request.top_p,
         stop_sequences: request.stop,
         tools,
       })
@@ -153,8 +151,6 @@ export class AnthropicProvider implements ILLMProvider {
       system,
       messages,
       max_tokens: request.maxTokens ?? 4096,
-      temperature: request.temperature,
-      top_p: request.top_p,
       stream: true,
       tools,
     })

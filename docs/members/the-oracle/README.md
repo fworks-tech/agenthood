@@ -81,4 +81,4 @@ or a portal is registered. No file gets forgotten.
 
 ## Skill File
 
-→ [`SKILL.md`](../../skills/the-oracle/SKILL.md) — load this into your agent runtime
+→ [`SKILL.md`](../../skills/oracle/SKILL.md) — load this into your agent runtime

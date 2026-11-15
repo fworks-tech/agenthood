@@ -37,7 +37,7 @@ const github = new GitHubSkill({ token: process.env.GITHUB_TOKEN });
 await github.createComment({
   repo: 'fworks-tech/agenthood',
   pr: 181,
-  body: 'Reviewed by the-reviewer. 0 blockers, 2 nits. See trace.',
+  body: 'Reviewed by reviewer. 0 blockers, 2 nits. See trace.',
 });
 
 await github.openPR({
@@ -59,7 +59,7 @@ Each method is a typed contract — input schema, output schema, logged executio
 
 ```bash
 # The Society's runtime composes portal skills into agent workflows
-npx agenthood run the-herald "ship: cut release v1.8.0 and announce it"
+npx agenthood run herald "ship: cut release v1.8.0 and announce it"
 ```
 
 The Herald orchestrates across portals — one agent, multiple integrations, one audit trail:

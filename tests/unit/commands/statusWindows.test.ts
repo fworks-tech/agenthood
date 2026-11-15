@@ -5,7 +5,7 @@ import type { TraceEnvelope } from '../../../src/core/types.ts'
 
 function makeEnvelope(overrides: Partial<TraceEnvelope> = {}): TraceEnvelope {
   return createTraceEnvelope({
-    member: 'the-scribe',
+    member: 'scribe',
     input: 'task',
     output: 'out',
     durationMs: 100,
@@ -22,7 +22,7 @@ function makeEnvelope(overrides: Partial<TraceEnvelope> = {}): TraceEnvelope {
 describe('summarizeMemberWindows', () => {
   it('produces the standard window set', () => {
     const traces = [makeEnvelope()]
-    const windows = summarizeMemberWindows(traces, 'the-scribe')
+    const windows = summarizeMemberWindows(traces, 'scribe')
 
     expect(windows.map((w) => w.label)).toEqual(['1h', '24h', '7d', 'all'])
     const all = windows.find((w) => w.label === 'all')
@@ -32,7 +32,7 @@ describe('summarizeMemberWindows', () => {
   it('counts only traces within each window', () => {
     const old = makeEnvelope({ timestamp: new Date(Date.now() - 86_400_000 * 3).toISOString() })
     const fresh = makeEnvelope()
-    const windows = summarizeMemberWindows([old, fresh], 'the-scribe')
+    const windows = summarizeMemberWindows([old, fresh], 'scribe')
 
     const h1 = windows.find((w) => w.label === '1h')
     const d7 = windows.find((w) => w.label === '7d')
@@ -43,7 +43,7 @@ describe('summarizeMemberWindows', () => {
   })
 
   it('returns null summaries when the member has no traces', () => {
-    const windows = summarizeMemberWindows([makeEnvelope({ member: 'other' })], 'the-scribe')
+    const windows = summarizeMemberWindows([makeEnvelope({ member: 'other' })], 'scribe')
     for (const w of windows) expect(w.summary).toBeNull()
   })
 })

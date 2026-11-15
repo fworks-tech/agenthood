@@ -32,7 +32,7 @@ function stubLlm(content = '0.8'): ILLMProvider {
 function stubApp(llm: ILLMProvider, runTask = async () => ({ output: 'a thorough review', durationMs: 5 })) {
   return {
     ctx: { source: undefined },
-    members: { has: (n: string) => n === 'the-reviewer' },
+    members: { has: (n: string) => n === 'reviewer' },
     llm,
     runner: { runMemberTask: runTask },
   } as unknown as ApplicationContext
@@ -58,7 +58,7 @@ describe('eval command', () => {
     const err = vi.spyOn(console, 'error').mockImplementation(() => {})
 
     await expect(evalMember([])).rejects.toThrow('process.exit')
-    await expect(evalMember(['the-reviewer'])).rejects.toThrow('process.exit')
+    await expect(evalMember(['reviewer'])).rejects.toThrow('process.exit')
 
     expect(exit).toHaveBeenCalledWith(1)
     expect(err.mock.calls.flat().join(' ')).toContain('Usage: agenthood eval')
@@ -68,7 +68,7 @@ describe('eval command', () => {
     vi.spyOn(process, 'exit').mockImplementation((() => { throw new Error('process.exit') }) as never)
     const err = vi.spyOn(console, 'error').mockImplementation(() => {})
 
-    await expect(evalMember(['the-reviewer', '--suite', join(tmpdir(), 'nope.json')])).rejects.toThrow('process.exit')
+    await expect(evalMember(['reviewer', '--suite', join(tmpdir(), 'nope.json')])).rejects.toThrow('process.exit')
     expect(err.mock.calls.flat().join(' ')).toContain('Invalid eval suite')
   })
 
@@ -86,10 +86,10 @@ describe('eval command', () => {
     vi.mocked(ApplicationContext.create).mockResolvedValue(stubApp(stubLlm(), runTask))
     const log = vi.spyOn(console, 'log').mockImplementation(() => {})
 
-    await evalMember(['the-reviewer', '--suite', suitePath])
+    await evalMember(['reviewer', '--suite', suitePath])
 
     const output = log.mock.calls.flat().join(' ')
-    expect(output).toContain('Eval Report — the-reviewer')
+    expect(output).toContain('Eval Report — reviewer')
     expect(output).toContain('completed')
     expect(output).toContain('Aggregate: faithfulness 0.80, relevance 0.80, context_recall 0.80, answer_correctness 1.00')
     expect(runTask).toHaveBeenCalledTimes(3)
@@ -102,7 +102,7 @@ describe('eval command', () => {
     const log = vi.spyOn(console, 'log').mockImplementation(() => {})
 
     try {
-      await evalMember(['the-reviewer', '--suite', suitePath, '--baseline', baselineFile, '--update-baseline'])
+      await evalMember(['reviewer', '--suite', suitePath, '--baseline', baselineFile, '--update-baseline'])
       expect(existsSync(baselineFile)).toBe(true)
       expect(log.mock.calls.flat().join(' ')).toContain('Baseline saved')
     } finally {
@@ -117,9 +117,9 @@ describe('eval command', () => {
     const log = vi.spyOn(console, 'log').mockImplementation(() => {})
 
     try {
-      await evalMember(['the-reviewer', '--suite', suitePath, '--baseline', baselineFile, '--update-baseline'])
+      await evalMember(['reviewer', '--suite', suitePath, '--baseline', baselineFile, '--update-baseline'])
       log.mockClear()
-      await evalMember(['the-reviewer', '--suite', suitePath, '--baseline', baselineFile])
+      await evalMember(['reviewer', '--suite', suitePath, '--baseline', baselineFile])
       expect(log.mock.calls.flat().join(' ')).toContain('Result: PASS')
     } finally {
       rmSync(dir, { recursive: true, force: true })
@@ -133,11 +133,11 @@ describe('eval command', () => {
     const log = vi.spyOn(console, 'log').mockImplementation(() => {})
 
     try {
-      await evalMember(['the-reviewer', '--suite', suitePath, '--baseline', baselineFile, '--update-baseline'])
+      await evalMember(['reviewer', '--suite', suitePath, '--baseline', baselineFile, '--update-baseline'])
 
       vi.mocked(ApplicationContext.create).mockResolvedValue(stubApp(stubLlm('0.4')))
       vi.spyOn(process, 'exit').mockImplementation((() => { throw new Error('process.exit') }) as never)
-      await expect(evalMember(['the-reviewer', '--suite', suitePath, '--baseline', baselineFile])).rejects.toThrow('process.exit')
+      await expect(evalMember(['reviewer', '--suite', suitePath, '--baseline', baselineFile])).rejects.toThrow('process.exit')
       expect(log.mock.calls.flat().join(' ')).toContain('Result: FLAG')
     } finally {
       rmSync(dir, { recursive: true, force: true })
@@ -150,7 +150,7 @@ describe('eval command', () => {
     const log = vi.spyOn(console, 'log').mockImplementation(() => {})
 
     try {
-      await evalMember(['the-reviewer', '--suite', suitePath, '--baseline', join(dir, 'missing.json')])
+      await evalMember(['reviewer', '--suite', suitePath, '--baseline', join(dir, 'missing.json')])
       expect(log.mock.calls.flat().join(' ')).toContain('--update-baseline')
     } finally {
       rmSync(dir, { recursive: true, force: true })
@@ -199,7 +199,7 @@ describe('eval --replay', () => {
   function stubReplayApp(llm: ILLMProvider, output = 'rerun output', embedResult: number[] = [1, 0]) {
     vi.mocked(ApplicationContext.create).mockResolvedValue({
       ctx: { source: undefined },
-      members: { has: (n: string) => n === 'the-reviewer' },
+      members: { has: (n: string) => n === 'reviewer' },
       llm: {
         ...llm,
         embed: vi.fn().mockResolvedValue(embedResult),
@@ -209,26 +209,26 @@ describe('eval --replay', () => {
   }
 
   it('replays stored traces and reports drift in JSON', async () => {
-    writeTrace('the-reviewer', 'review this PR', 'looks good')
+    writeTrace('reviewer', 'review this PR', 'looks good')
     stubReplayApp(stubLlm())
     const log = vi.spyOn(console, 'log').mockImplementation(() => {})
 
-    await evalMember(['the-reviewer', '--replay', '--json'])
+    await evalMember(['reviewer', '--replay', '--json'])
 
     const output = log.mock.calls.flat().join(' ')
     const report = JSON.parse(output)
     expect(report.replayCount).toBe(1)
-    expect(report.tasks[0].member).toBe('the-reviewer')
+    expect(report.tasks[0].member).toBe('reviewer')
     expect(report.tasks[0].newOutput).toBe('rerun output')
     expect(report.tasks[0].similarity).not.toBeNull()
   })
 
   it('persists the report file under .agenthood/evals', async () => {
-    writeTrace('the-reviewer', 'review this PR', 'looks good')
+    writeTrace('reviewer', 'review this PR', 'looks good')
     stubReplayApp(stubLlm())
     const log = vi.spyOn(console, 'log').mockImplementation(() => {})
 
-    await evalMember(['the-reviewer', '--replay'])
+    await evalMember(['reviewer', '--replay'])
 
     expect(log.mock.calls.flat().join(' ')).toContain('Replay Report')
     const reportPath = join(projectDir, '.agenthood', 'evals', 'replay-report.json')
@@ -238,7 +238,7 @@ describe('eval --replay', () => {
   })
 
   it('redacts re-run output before persisting when redaction is enabled', async () => {
-    writeTrace('the-reviewer', 'review this PR', 'looks good')
+    writeTrace('reviewer', 'review this PR', 'looks good')
     mkdirSync(join(projectDir, '.agenthood'), { recursive: true })
     writeFileSync(
       join(projectDir, '.agenthood', 'config.json'),
@@ -246,7 +246,7 @@ describe('eval --replay', () => {
     )
     stubReplayApp(stubLlm(), 'contact dev@example.com with sk-abc1234567')
 
-    await evalMember(['the-reviewer', '--replay'])
+    await evalMember(['reviewer', '--replay'])
 
     const report = JSON.parse(readFileSync(join(projectDir, '.agenthood', 'evals', 'replay-report.json'), 'utf8'))
     // The pair targets different strings: the redaction placeholder appears,
@@ -260,7 +260,7 @@ describe('eval --replay', () => {
     const exit = vi.spyOn(process, 'exit').mockImplementation((() => { throw new Error('process.exit') }) as never)
     const err = vi.spyOn(console, 'error').mockImplementation(() => {})
 
-    await expect(evalMember(['the-reviewer', '--replay'])).rejects.toThrow('process.exit')
+    await expect(evalMember(['reviewer', '--replay'])).rejects.toThrow('process.exit')
 
     expect(err.mock.calls.flat().join(' ')).toContain('No traces')
     expect(exit).toHaveBeenCalledWith(1)

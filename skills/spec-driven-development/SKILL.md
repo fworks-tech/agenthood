@@ -88,8 +88,8 @@ When the parent merges, rebase the child onto main before its own review.
 
 **The N+1 branch pattern** (for independent parallel units):
 ```
-feat/43-add-the-sentinel   ← independent, can merge in any order
-feat/43-add-the-warden     ← independent, can merge in any order
+feat/43-add-sentinel   ← independent, can merge in any order
+feat/43-add-warden     ← independent, can merge in any order
 feat/43-register-members   ← depends on both above; merges last
 ```
 

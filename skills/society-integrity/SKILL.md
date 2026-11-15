@@ -89,13 +89,13 @@ Date: YYYY-MM-DD
 
 ✅ Commits: no conflicts across all members
 ⚠️  PRs: 1 conflict
-    - the-scribe allows "grouping rationale" exception for N+1 pattern
-    - the-doorman flags any PR requiring "and" without checking for N+1 exception
-    Suggested resolution: add N+1 exception clause to the-doorman's PR Scope Validation
+    - scribe allows "grouping rationale" exception for N+1 pattern
+    - doorman flags any PR requiring "and" without checking for N+1 exception
+    Suggested resolution: add N+1 exception clause to doorman's PR Scope Validation
 ❌ Reviews: 1 conflict
-    - the-reviewer requires all CI checks pass before approval
-    - the-doorman health check does not include CI status in its report
-    Suggested resolution: add CI status to the-doorman's health check output
+    - reviewer requires all CI checks pass before approval
+    - doorman health check does not include CI status in its report
+    Suggested resolution: add CI status to doorman's health check output
 ```
 
 ### Lane Map

@@ -88,4 +88,4 @@ The Reviewer labels every comment with severity:
 
 ## Skill File
 
-→ [`SKILL.md`](../../skills/the-reviewer/SKILL.md) — load this into your agent runtime
+→ [`SKILL.md`](../../skills/reviewer/SKILL.md) — load this into your agent runtime

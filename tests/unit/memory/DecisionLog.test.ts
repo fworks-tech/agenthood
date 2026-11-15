@@ -19,7 +19,7 @@ import type { DecisionEntry } from '../../../src/memory/DecisionLog.ts'
 const fixtureEntry: DecisionEntry = {
   id: 'dec-20260601-001',
   timestamp: '2026-06-01T12:00:00.000Z',
-  member: 'the-architect',
+  member: 'architect',
   task: 'choose vector store for memory layer',
   decision: 'Use LanceDB for vector storage',
   rationale: 'LanceDB provides embedded vector search without external services',
@@ -55,7 +55,7 @@ describe('DecisionLog', () => {
       )
       const written = JSON.parse(vi.mocked(writeFileSync).mock.calls[0][1] as string)
       expect(written.id).toBe('dec-20260601-001')
-      expect(written.member).toBe('the-architect')
+      expect(written.member).toBe('architect')
     })
 
     it('creates directory if missing', async () => {
@@ -89,7 +89,7 @@ describe('DecisionLog', () => {
       const log = new DecisionLog()
       const entry = await log.get('dec-20260601-001')
       expect(entry).toBeDefined()
-      expect(entry!.member).toBe('the-architect')
+      expect(entry!.member).toBe('architect')
     })
   })
 
@@ -98,7 +98,7 @@ describe('DecisionLog', () => {
       const log = new DecisionLog()
       await log.record(fixtureEntry)
 
-      const results = await log.search('the-architect')
+      const results = await log.search('architect')
       expect(results).toHaveLength(1)
       expect(results[0].matchField).toBe('member')
     })
@@ -118,7 +118,7 @@ describe('DecisionLog', () => {
       await log.record({
         ...fixtureEntry,
         id: 'dec-20260602-002',
-        member: 'the-tester',
+        member: 'tester',
         task: 'set up test framework',
         decision: 'Use Vitest',
         rationale: 'Vitest is fast and compatible with Vite',
@@ -127,9 +127,9 @@ describe('DecisionLog', () => {
         tags: ['testing'],
       })
 
-      const results = await log.search('test', { member: 'the-tester' })
+      const results = await log.search('test', { member: 'tester' })
       expect(results).toHaveLength(1)
-      expect(results[0].entry.member).toBe('the-tester')
+      expect(results[0].entry.member).toBe('tester')
     })
 
     it('filters by tags', async () => {

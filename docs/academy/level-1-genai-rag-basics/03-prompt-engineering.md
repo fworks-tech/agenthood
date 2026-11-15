@@ -53,7 +53,7 @@ You can view the Society's mastery of prompt engineering by reading any of the m
 
 ```bash
 # Read The Reviewer's strict prompt instructions
-cat skills/the-reviewer/SKILL.md
+cat skills/reviewer/SKILL.md
 ```
 
 Or programmatically (future milestone):

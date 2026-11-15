@@ -159,7 +159,8 @@ npm ci --ignore-scripts
 npm run build
 
 rc=0
-node dist/cli.js run "$AGENT_NAME" "$TASK" --provider "$ANALYSIS_PROVIDER" \
+# Bounded so a stalled provider cannot hold the job until GitHub's 6h limit.
+timeout --kill-after=30 600 node dist/cli.js run "$AGENT_NAME" "$TASK" --provider "$ANALYSIS_PROVIDER" \
   1> "$analysis_file" \
   2>> "$error_file" || rc=$?
 
@@ -176,7 +177,13 @@ if [ -s "$body_file" ]; then
 fi
 
 if [ "$rc" -ne 0 ]; then
-  echo "::warning::${AGENT_NAME} CLI exited with code $rc -- analysis may be incomplete"
+  echo "::error::${AGENT_NAME} CLI exited with code $rc -- failing closed, analysis incomplete"
+  exit 1
+fi
+
+if [ -z "$(verdicts_for "$analysis_file")" ]; then
+  echo "::error::${AGENT_NAME} produced no decision verdict -- failing closed"
+  exit 1
 fi
 
 if ! check_decision_gate "$analysis_file" "$AGENT_NAME"; then

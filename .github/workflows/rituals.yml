@@ -112,6 +112,7 @@ jobs:
           OPENCODE_MODEL: qwen3.8-flash
           GH_TOKEN: ${{ github.token }}
         run: |
+          set -o pipefail
           if [ -z "${OPENCODE_API_KEY:-}" ]; then
             echo "::notice::OPENCODE_API_KEY not set -- skipping $MEMBER ritual run."
             exit 0

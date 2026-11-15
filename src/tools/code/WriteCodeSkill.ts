@@ -1,6 +1,9 @@
+import { writeFile, mkdir } from 'node:fs/promises'
+import { dirname } from 'node:path'
 import type { ITool } from '../ITool.ts'
 import type { ToolResult } from '../ITool.ts'
 import type { ExecutionContext } from '../../core/ExecutionContext.ts'
+import { resolveInsideProject } from '../pathGuard.ts'
 
 export class WriteCodeSkill implements ITool {
   name = 'write_code'
@@ -22,6 +25,9 @@ export class WriteCodeSkill implements ITool {
       language: string
     }
 
+    const resolved = await resolveInsideProject(context.project.localPath, targetFile)
+    if (!resolved.ok) return { success: false, output: '', error: resolved.error }
+
     const conventions = await context.memory.project.getConventions()
     const prompt = context.prompts.build('write_code', {
       spec,
@@ -38,6 +44,14 @@ export class WriteCodeSkill implements ITool {
       context.usage.promptTokens += response.usage.promptTokens ?? 0
       context.usage.completionTokens += response.usage.completionTokens ?? 0
       context.usage.totalTokens += response.usage.totalTokens ?? 0
+    }
+
+    try {
+      await mkdir(dirname(resolved.path), { recursive: true })
+      await writeFile(resolved.path, response.content, 'utf-8')
+    } catch (err) {
+      const msg = err instanceof Error ? err.message : String(err)
+      return { success: false, output: '', error: `Cannot write "${targetFile}": ${msg}` }
     }
 
     return { success: true, output: response.content }

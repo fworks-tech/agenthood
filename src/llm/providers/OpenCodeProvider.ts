@@ -109,7 +109,7 @@ function toResponsesBody(req: LLMRequest, model: string) {
     model,
     ...(instructions ? { instructions } : {}),
     input,
-    max_output_tokens: req.maxTokens ?? 4096,
+    max_output_tokens: req.maxTokens ?? 16384,
     ...(req.temperature !== undefined ? { temperature: req.temperature } : {}),
     ...(req.top_p !== undefined ? { top_p: req.top_p } : {}),
     ...(req.tools?.length ? { tools: req.tools.map((t) => ({ type: 'function', name: t.name, description: t.description, parameters: t.inputSchema })) } : {}),
@@ -118,10 +118,12 @@ function toResponsesBody(req: LLMRequest, model: string) {
 
 type ResponsesOutputItem = { type: string; content?: { type: string; text?: string }[]; call_id?: string; name?: string; arguments?: string }
 
-function fromResponses(data: { output?: ResponsesOutputItem[]; usage?: { input_tokens?: number; output_tokens?: number }; model?: string }, fallbackModel: string): LLMResponse {
+function fromResponses(data: { status?: string; incomplete_details?: { reason?: string }; output?: ResponsesOutputItem[]; usage?: { input_tokens?: number; output_tokens?: number }; model?: string }, fallbackModel: string): LLMResponse {
   const items = data.output ?? []
   const content = items.filter((i) => i.type === 'message').flatMap((i) => i.content ?? []).filter((c) => c.type === 'output_text').map((c) => c.text ?? '').join('')
   const toolCalls = items.filter((i) => i.type === 'function_call').map((i) => ({ id: i.call_id!, name: i.name!, args: JSON.parse(i.arguments || '{}') as Record<string, unknown> }))
+  if (data.status === 'incomplete') throw new Error(`Zen "${fallbackModel}" stopped early: ${data.incomplete_details?.reason ?? 'unknown reason'}`)
+  if (!content && toolCalls.length === 0) throw new Error(`Zen "${fallbackModel}" returned an empty response`)
   const promptTokens = data.usage?.input_tokens ?? 0
   const completionTokens = data.usage?.output_tokens ?? 0
   return {

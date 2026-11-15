@@ -35,8 +35,35 @@ describe("OpenCodeProvider /v1/responses protocol (GPT, Grok, Muse)", () => {
     expect(res.usage).toMatchObject({ promptTokens: 3, completionTokens: 2, totalTokens: 5 });
   });
 
+  it("fails when the response stops early instead of returning empty text", async () => {
+    mockResponsesCreate.mockResolvedValue({
+      status: "incomplete",
+      incomplete_details: { reason: "max_output_tokens" },
+      output: [{ type: "reasoning" }],
+      usage: {},
+    });
+    const p = provider();
+    p.setModel("gpt-5-nano");
+    await expect(p.complete({ messages: [{ role: "user", content: "yo" }] })).rejects.toThrow(/max_output_tokens/);
+  });
+
+  it("fails when the response has neither text nor tool calls", async () => {
+    mockResponsesCreate.mockResolvedValue({ status: "completed", output: [], usage: {} });
+    const p = provider();
+    p.setModel("gpt-5-nano");
+    await expect(p.complete({ messages: [{ role: "user", content: "yo" }] })).rejects.toThrow(/empty response/);
+  });
+
+  it("allows a larger output budget by default so reasoning does not starve the answer", async () => {
+    mockResponsesCreate.mockResolvedValue({ output: [{ type: "message", content: [{ type: "output_text", text: "ok" }] }], usage: {} });
+    const p = provider();
+    p.setModel("gpt-5-nano");
+    await p.complete({ messages: [{ role: "user", content: "yo" }] });
+    expect(mockResponsesCreate.mock.calls[0][0].max_output_tokens).toBe(16384);
+  });
+
   it("hoists the system message into instructions and round-trips tool results", async () => {
-    mockResponsesCreate.mockResolvedValue({ output: [], usage: {} });
+    mockResponsesCreate.mockResolvedValue({ output: [{ type: "message", content: [{ type: "output_text", text: "ok" }] }], usage: {} });
     const p = provider();
     p.setModel("gpt-5-nano");
     await p.complete({

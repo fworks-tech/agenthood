@@ -172,6 +172,26 @@ describe('custom member registration (#1040)', () => {
   it('rejects an empty description', () => {
     expect(() => new MemberRegistry().register({ ...base, description: ' ' })).toThrow(/non-empty description/)
   })
+
+  it('rejects an oversized description', () => {
+    expect(() => new MemberRegistry().register({ ...base, description: 'x'.repeat(501) })).toThrow(/description exceeds 500/)
+  })
+
+  it('rejects an unknown permission profile, including prototype keys', () => {
+    const registry = new MemberRegistry()
+    for (const permissionProfile of ['trusted ', 'admin', 'constructor'] as never[]) {
+      expect(() => registry.register({ ...base, permissionProfile })).toThrow(/unknown permissionProfile/)
+    }
+  })
+
+  it('does not share the profile tool array with the registry', () => {
+    const registry = new MemberRegistry()
+    const spec = registry.register({ ...base, name: 'isolated-one' })
+    spec.tools.push('pr_sync')
+    const other = registry.register({ ...base, name: 'isolated-two' })
+    expect(other.tools).not.toContain('pr_sync')
+    expect(new MemberRegistry().get('reviewer').tools).not.toContain('pr_sync')
+  })
 })
 
 describe('allowed-tools enforcement (#641)', () => {

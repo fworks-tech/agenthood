@@ -186,6 +186,7 @@ Hosts that embed Agenthood as a library can register their own members. A custom
 ```ts
 import { ApplicationContext } from 'agenthood/dist/runtime/ApplicationContext.js'
 import type { CustomMemberDefinition } from 'agenthood/dist/members/types.js'
+import type { LLMConfig } from 'agenthood/dist/llm/types.js'
 
 const releaseCaptain: CustomMemberDefinition = {
   name: 'release-captain',             // [a-z0-9][a-z0-9-]{1,63}, must not collide
@@ -195,6 +196,8 @@ const releaseCaptain: CustomMemberDefinition = {
   tools: ['file.read', 'file.search'], // intersected with the profile, never widens it
   model: 'claude-sonnet-5-5',          // optional per-member model
 }
+
+const config: LLMConfig = { providers: [{ name: 'anthropic' }] }
 
 const app = await ApplicationContext.create(process.cwd(), config, {
   customMembers: [releaseCaptain],

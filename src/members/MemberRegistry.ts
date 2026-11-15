@@ -36,6 +36,7 @@ export const CUSTOM_SOURCE_PREFIX = 'custom:'
 
 const CUSTOM_NAME_PATTERN = /^[a-z0-9][a-z0-9-]{1,63}$/
 const MAX_SYSTEM_PROMPT_CHARS = 20_000
+const MAX_DESCRIPTION_CHARS = 500
 
 export class MemberRegistry {
   private specs: Map<string, MemberSpec> = new Map()
@@ -138,12 +139,18 @@ export class MemberRegistry {
     const description = def.description?.trim() ?? ''
     const systemPrompt = def.systemPrompt?.trim() ?? ''
     if (!description) throw new Error(`custom member "${def.name}" needs a non-empty description`)
+    if (description.length > MAX_DESCRIPTION_CHARS) {
+      throw new Error(`custom member "${def.name}" description exceeds ${MAX_DESCRIPTION_CHARS} characters`)
+    }
     if (!systemPrompt) throw new Error(`custom member "${def.name}" needs a non-empty systemPrompt`)
     if (systemPrompt.length > MAX_SYSTEM_PROMPT_CHARS) {
       throw new Error(`custom member "${def.name}" systemPrompt exceeds ${MAX_SYSTEM_PROMPT_CHARS} characters`)
     }
 
     const permissionProfile = def.permissionProfile ?? 'restricted'
+    if (!Object.hasOwn(MemberRegistry.toolsByProfile, permissionProfile)) {
+      throw new Error(`custom member "${def.name}" has unknown permissionProfile "${permissionProfile}"`)
+    }
     const spec: MemberSpec = {
       name: def.name,
       description,
@@ -180,7 +187,7 @@ export class MemberRegistry {
   })()
 
   private defaultTools(permission: PermissionProfile): string[] {
-    return MemberRegistry.toolsByProfile[permission]
+    return [...MemberRegistry.toolsByProfile[permission]]
   }
 
   /** SKILL.md allowed-tools may only narrow, never expand: declared ∩ profile. */

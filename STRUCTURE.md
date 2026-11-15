@@ -79,7 +79,7 @@ agenthood/
 │   ├── skills/                      ← ISkill, SkillRegistry
 │   ├── core/                        ← SafetyGuard, ConcurrencyQueue, RiskManager, SchemaValidator, observability (Tracer, TraceStore, RedactionFilter, AnomalyDetector, healthCheck, qualityScore)
 │   ├── reasoning/                   ← ReActLoop, ThinkingBudget
-│   ├── workflows/                   ← WorkflowEngine, QualityGates, DiffImpactAnalyzer, WorkflowCheckpoint, GoalChain
+│   ├── workflows/                   ← WorkflowEngine, chains.yaml runner, QualityGates, DiffImpactAnalyzer, WorkflowCheckpoint, GoalChain
 │   ├── memory/                      ← ResidualMemory, IMemoryStore, VectorStore (LanceDB), ShortTermMemory, LongTermMemory, EpisodicMemory, ProjectMemory, PersonalisationStore, DecisionLog (causal chains), ProvenanceStore (hash chain), DecisionSearch, GraphSnapshot
 │   ├── memory/stores/               ← InMemoryStore
 │   ├── rag/                         ← KnowledgeGraphStore, ChunkStrategy, Indexer, Retriever

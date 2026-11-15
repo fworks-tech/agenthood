@@ -18,6 +18,7 @@ the *what* and *why*, not the implementation.
 | [provider-failover.md](provider-failover.md) | Multi-LLM support, failure classification, fallback chains |
 | [built-in-tools.md](built-in-tools.md) | Core tool registry, tool scoping per member, safety caps |
 | [decision-intelligence.md](decision-intelligence.md) | Decision records, causal chains, provenance integrity, precedent search |
+| [chain-workflows.md](chain-workflows.md) | `chains.yaml` composition, guards, and running a chain |
 
 ---
 

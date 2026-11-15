@@ -116,7 +116,9 @@ Commands:
                             Use --suite <path> (required), --baseline <path>
                             Use --update-baseline to store this run as baseline
                             Use --json for machine-readable output
-  workflow <name>         Execute a workflow (e.g. review-pr)
+  workflow list           List chains from chains.yaml and built-in workflows
+  workflow run <chain>    Run a chain: workflow run build "<task>"
+  workflow <name>         Execute a built-in workflow (e.g. review-pr)
   pr-sync                 Sync PR body and post comment for new commits
   oath                    Print the Society's oath
   eject                   Remove the Society from your project
@@ -135,6 +137,7 @@ Examples:
   npx agenthood list
   npx agenthood rollback scribe --dry-run
   npx agenthood ritual run morning-briefing
+  npx agenthood workflow run build "implement issue #42"
   npx agenthood workflow review-pr
   npx agenthood oath
 

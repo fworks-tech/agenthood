@@ -39,6 +39,8 @@ export interface ExecutionContext {
   skillsCatalog?: string
   /** Per-repo agent guidance read from AGENTS.md / CLAUDE.md (#567) */
   repoInstructions?: string
+  /** Tools a skill declares via `allowed-tools`; undefined means unrestricted (#582) */
+  skillAllowedTools?: (skillName: string) => string[] | undefined
   /** Optional Sentry error reporting configuration from .agenthood/config.json */
   sentry?: { dsn?: string }
   /** Shared redactor guarding trace, decision, and provenance payloads */

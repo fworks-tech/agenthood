@@ -8,4 +8,6 @@ export interface ISkillManifest {
   directory: string
   body: string
   resources: string[]
+  /** Tools the skill declares it may use (`allowed-tools`). Undeclared = no restriction. */
+  allowedTools?: string[]
 }

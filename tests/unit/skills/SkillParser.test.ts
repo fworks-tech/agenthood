@@ -192,4 +192,28 @@ describe("SkillParser", () => {
       for (const e of errs) expect(e.fix.length).toBeGreaterThan(0)
     })
   })
+
+  describe("allowed-tools", () => {
+    it("parses a space-separated allowed-tools string", () => {
+      const file = writeSkill(dir, "---\nname: s\ndescription: d\nallowed-tools: file.read file.write ask_human\n---\nBody.")
+      expect(parser.parse(file)?.allowedTools).toEqual(["file.read", "file.write", "ask_human"])
+    })
+
+    it("accepts list and comma-separated forms", () => {
+      const list = writeSkill(dir, "---\nname: s\ndescription: d\nallowed-tools:\n  - file.read\n  - file.write\n---\nBody.")
+      expect(parser.parse(list)?.allowedTools).toEqual(["file.read", "file.write"])
+      const csv = writeSkill(dir, "---\nname: s\ndescription: d\nallowed-tools: file.read, file.write\n---\nBody.")
+      expect(parser.parse(csv)?.allowedTools).toEqual(["file.read", "file.write"])
+    })
+
+    it("leaves the field undefined when the skill declares none", () => {
+      const file = writeSkill(dir, "---\nname: s\ndescription: d\n---\nBody.")
+      expect(parser.parse(file)?.allowedTools).toBeUndefined()
+    })
+
+    it("carries allowed-tools onto the manifest", () => {
+      expect(parser.parseManifest("/x/SKILL.md", "/x", "body", "s", "d", "community", ["file.read"])).toMatchObject({ allowedTools: ["file.read"] })
+      expect(parser.parseManifest("/x/SKILL.md", "/x", "body", "s", "d")).not.toHaveProperty("allowedTools")
+    })
+  })
 })

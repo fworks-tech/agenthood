@@ -15,14 +15,8 @@ import type { ToolRegistry } from '../tools/ToolRegistry.ts'
 import type { ILLMProvider } from '../llm/ILLMProvider.ts'
 import { DELEGATION_ALLOWED_ROLES } from '../agents/delegationRoles.ts'
 import type { AgentRegistry } from '../core/AgentRegistry.ts'
-import { ReadFileSkill } from '../tools/project/ReadFileSkill.ts'
-import { WriteFileSkill } from '../tools/project/WriteFileSkill.ts'
-import { WriteCodeSkill } from '../tools/code/WriteCodeSkill.ts'
-import { SearchCodebaseSkill } from '../tools/code/SearchCodebaseSkill.ts'
-import { ExplainCodeSkill } from '../tools/code/ExplainCodeSkill.ts'
-import { RefactorSkill } from '../tools/code/RefactorSkill.ts'
-import { PrSyncSkill } from '../tools/pr/PrSyncSkill.ts'
 import { AskHumanTool } from '../tools/human/AskHumanTool.ts'
+import { TOOL_VOCABULARY } from './toolVocabulary.ts'
 import { SubagentTaskSkill } from '../tools/core/SubagentTaskSkill.ts'
 import { escapeXml, wrapProjectContext, loadProjectContext, wrapSkillsCatalog, SKILLS_CATALOG_GUARD, wrapSkillContent, SKILL_CONTENT_GUARD, wrapRepoInstructions, REPO_INSTRUCTIONS_GUARD } from '../agents/memberLore.ts'
 import { checkSkillIntegrity, describeIntegrityFailure, recordSkillIntegrityDrift, SkillIntegrityError } from '../utils/skillIntegrity.ts'
@@ -30,16 +24,7 @@ import type { SkillIntegrityFailure } from '../utils/skillIntegrity.ts'
 import { sharedConversationalStyle, CUSTOM_SOURCE_PREFIX } from './MemberRegistry.ts'
 import type { EpisodeLearner } from '../evals/EpisodeLearner.ts'
 
-const TOOL_MAP: Record<string, new (...args: never[]) => ITool> = {
-  'ask_human': AskHumanTool,
-  'file.read': ReadFileSkill,
-  'file.write': WriteFileSkill,
-  'file.search': SearchCodebaseSkill,
-  'code.write': WriteCodeSkill,
-  'code.refactor': RefactorSkill,
-  'code.explain': ExplainCodeSkill,
-  'pr_sync': PrSyncSkill,
-}
+const TOOL_MAP = TOOL_VOCABULARY
 
 // Tools that can mutate project state require at least a 'standard' profile;
 // the registry derives spec.tools from the profile, so this is defense-in-depth
@@ -101,7 +86,7 @@ export class MemberAgent extends BaseAgent {
 
     // fail closed: members without instantiable tools get read-only access
     if (tools.length === 0) {
-      tools.push(new ReadFileSkill())
+      tools.push(new TOOL_VOCABULARY['file.read']())
     }
 
     // every member can park for human input regardless of spec.tools/profile

@@ -194,7 +194,7 @@ export class SkillDiscovery {
       for (const f of findings) {
         console.warn(`[SkillDiscovery] "${entry}" — possible injection (${f.pattern}): "${f.excerpt}"`)
       }
-      const manifest = this.parser.parseManifest(skillMdPath, fullPath, parsed.body, parsed.name || entry, parsed.description, tier)
+      const manifest = this.parser.parseManifest(skillMdPath, fullPath, parsed.body, parsed.name || entry, parsed.description, tier, parsed.allowedTools)
       const packaged = isPackagedDir(fullPath)
       if (!packaged) this.verifyIntegrity(parsed.name || entry, skillMdPath)
       // A packaged file whose frontmatter name disagrees with its directory

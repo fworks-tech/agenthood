@@ -20,6 +20,7 @@ import { LLMRouter } from '../llm/LLMRouter.ts'
 import type { ILLMProvider } from '../llm/ILLMProvider.ts'
 import type { LLMConfig } from '../llm/types.ts'
 import { MemberRegistry } from '../members/index.ts'
+import { toRegistryToolNames } from '../members/toolVocabulary.ts'
 import type { CustomMemberDefinition } from '../members/index.ts'
 import { DecisionLog } from '../memory/DecisionLog.ts'
 import { EpisodicMemoryImpl } from '../memory/EpisodicMemory.ts'
@@ -125,6 +126,7 @@ export class ApplicationContext {
       oracle: { ask: (q: string) => oracleAgent.ask(q, this.ctx) },
       skillsCatalog: skills.catalog || undefined,
       repoInstructions: loadRepoInstructions(projectPath) || undefined,
+      skillAllowedTools: (name) => toRegistryToolNames(skills.manifests.get(name)?.allowedTools),
       sentry,
       redactor,
       usage: { promptTokens: 0, completionTokens: 0, totalTokens: 0 },

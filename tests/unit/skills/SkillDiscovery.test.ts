@@ -24,6 +24,9 @@ describe('SkillDiscovery', () => {
   })
 
   afterEach(() => {
+    // spyOn(console, 'warn') persists across tests otherwise; a leaked spy
+    // swallows warnings that the next assertion counts.
+    vi.restoreAllMocks()
     rmSync(testDir, { recursive: true, force: true })
   })
 

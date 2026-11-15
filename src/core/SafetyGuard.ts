@@ -28,7 +28,7 @@ const DEFAULT_CAPS: SafetyCaps = {
   maxStreamEvents: 2_000,
   maxToolInvocations: 400,
   maxSessionRuntimeMs: 600_000,     // 10 minutes
-  maxFileEditsPerFile: 8,
+  maxFileEditsPerFile: 4,
   maxTerminalCommands: 10,
   maxWebSearches: 8,
 }
@@ -37,7 +37,7 @@ const MAXIMUM_CAPS: SafetyCaps = {
   maxStreamEvents: 10_000,
   maxToolInvocations: 2_000,
   maxSessionRuntimeMs: 3_600_000,   // 60 minutes
-  maxFileEditsPerFile: 8,
+  maxFileEditsPerFile: 4,
   maxTerminalCommands: 10,
   maxWebSearches: 8,
 }
@@ -144,7 +144,7 @@ export class SafetyGuard {
       this.caps[key] = Math.min(this.caps[key], MAXIMUM_CAPS[key])
     }
     this.sessionStart = Date.now()
-    this.loopThreshold = 4
+    this.loopThreshold = this.caps.maxFileEditsPerFile
   }
 
   /** Check whether a terminal command is permitted given the profile. */
@@ -200,15 +200,11 @@ export class SafetyGuard {
     this.fileEditCounts.set(filePath, count)
 
     if (count >= this.loopThreshold) {
-      // Alert but don't throw — member should justify or stop
       throw new LoopDetectedError(filePath, count)
     }
 
-    // Also count as a tool invocation and check file-edits-per-file cap
+    // Also count as a tool invocation
     this.countToolInvocation()
-    if (count > this.caps.maxFileEditsPerFile) {
-      throw new SafetyLimitError('file edits per file', count, this.caps.maxFileEditsPerFile)
-    }
   }
 
   /** Register a web search. */

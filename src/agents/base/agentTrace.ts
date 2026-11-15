@@ -9,6 +9,7 @@ import { reportBackgroundFailure } from '../../core/sentryReporter.ts'
 interface AgentTraceArgs {
   role: string
   model: string
+  provider?: string
   usage: { promptTokens?: number; completionTokens?: number; totalTokens?: number } | undefined
   toolUsage: { promptTokens?: number; completionTokens?: number; totalTokens?: number } | undefined
   input: string
@@ -65,7 +66,7 @@ export function redactSafely(
 }
 
 function buildAgentTraceEnvelope(args: AgentTraceArgs) {
-  const { role, model, usage, toolUsage, input, output, durationMs, error, context } = args
+  const { role, model, provider, usage, toolUsage, input, output, durationMs, error, context } = args
   // tool-level LLM calls (WriteCode/Refactor/Explain) accumulate here
   const promptTokens = (usage?.promptTokens ?? 0) + (toolUsage?.promptTokens ?? 0)
   const completionTokens = (usage?.completionTokens ?? 0) + (toolUsage?.completionTokens ?? 0)
@@ -84,6 +85,7 @@ function buildAgentTraceEnvelope(args: AgentTraceArgs) {
       model,
       promptTokens,
       completionTokens,
+      provider,
     ).estimatedCost,
     qualityScore: getMemberQualityScore(role, join(context.project.localPath, '.agenthood', 'baselines')),
     status: error ? 'error' : 'success',

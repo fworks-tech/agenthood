@@ -77,7 +77,7 @@ export class ProviderChain implements ILLMProvider {
       try {
         const result = await this.executeWithStrategy(provider, request, i)
         this.onSuccess(name)
-        return result
+        return { ...result, provider: name }
       } catch (err) {
         this.recordProviderFailure(name, err, errors)
 

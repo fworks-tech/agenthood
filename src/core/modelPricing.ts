@@ -46,12 +46,17 @@ const PRICING_TABLE: Array<{ match: string; price: ModelPrice }> = [
   { match: 'mistral', price: { provider: 'ollama', inputPer1M: 0, outputPer1M: 0 } },
 ]
 
+/** Catalog rates belong to OpenCode; other providers keep their own table prices. */
+function usesOpenCodeCatalog(provider?: string): boolean {
+  return provider?.trim().toLowerCase().startsWith('opencode') ?? false
+}
+
 /** OpenCode Zen/Go prices come from the live catalog snapshot; `promptTokens` picks the context tier. */
-export function getModelPrice(model: string, promptTokens = 0): ModelPrice {
+export function getModelPrice(model: string, promptTokens = 0, provider?: string): ModelPrice {
   const normalized = model.trim().toLowerCase()
   if (!normalized) return FALLBACK_PRICE
 
-  const catalog = getCatalogModel(normalized)
+  const catalog = usesOpenCodeCatalog(provider) ? getCatalogModel(normalized) : undefined
   if (catalog) {
     const tier = catalog.tiers.filter((t) => t.above < promptTokens).at(-1)
     return {
@@ -87,8 +92,9 @@ export function estimateCostFromTokens(
   model: string,
   inputTokens: number,
   outputTokens: number,
+  provider?: string,
 ): number {
-  const { inputPer1M, outputPer1M } = getModelPrice(model, inputTokens)
+  const { inputPer1M, outputPer1M } = getModelPrice(model, inputTokens, provider)
   const cost = (inputTokens * inputPer1M + outputTokens * outputPer1M) / 1_000_000
   return roundCost(cost)
 }
@@ -104,14 +110,14 @@ export interface CostEstimate {
 const warnedModels = new Set<string>()
 
 /** Cost estimate with a one-time warning for models missing from the table. */
-export function estimateCost(model: string, inputTokens: number, outputTokens: number): CostEstimate {
-  const price = getModelPrice(model, inputTokens)
+export function estimateCost(model: string, inputTokens: number, outputTokens: number, provider?: string): CostEstimate {
+  const price = getModelPrice(model, inputTokens, provider)
   if (price === FALLBACK_PRICE && !warnedModels.has(model)) {
     console.warn(`[modelPricing] unknown model "${model}" — using fallback pricing`)
     warnedModels.add(model)
   }
   return {
-    estimatedCost: estimateCostFromTokens(model, inputTokens, outputTokens),
+    estimatedCost: estimateCostFromTokens(model, inputTokens, outputTokens, provider),
     currency: 'USD',
     model,
     inputTokens,

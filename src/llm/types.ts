@@ -58,6 +58,8 @@ export interface LLMResponse {
   toolCalls?: ToolCall[]
   usage: TokenUsage
   model: string
+  /** Provider that answered, so cost is priced against the right table. */
+  provider?: string
 }
 
 export interface LLMChunk {

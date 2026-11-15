@@ -73,6 +73,7 @@ export class ReActLoop {
   private pendingSkillActivations = new Set<string>()
   usage: TokenUsage = { promptTokens: 0, completionTokens: 0, totalTokens: 0 }
   private _model = ""
+  private _provider: string | undefined
 
   /** Responding model of the most recent step; the loop owns the write. */
   get model(): string {
@@ -81,6 +82,11 @@ export class ReActLoop {
 
   setModel(model: string): void {
     this._model = model
+  }
+
+  /** Provider that served the most recent step, used for pricing. */
+  get provider(): string | undefined {
+    return this._provider
   }
 
   private _member = ""
@@ -198,6 +204,7 @@ export class ReActLoop {
 
     const response = await this.llm.complete(request);
     this._model = response.model || this._model;
+    this._provider = response.provider ?? this._provider;
     const promptTokens = response.usage?.promptTokens ?? 0;
     const completionTokens = response.usage?.completionTokens ?? 0;
     this.usage.promptTokens += promptTokens;
@@ -222,7 +229,7 @@ export class ReActLoop {
     completionTokens: number,
     contextWindow: number,
   ): void {
-    const stepCost = estimateCost(this._model, promptTokens, completionTokens).estimatedCost
+    const stepCost = estimateCost(this._model, promptTokens, completionTokens, response.provider ?? this._provider).estimatedCost
     const reasoning = redactEventText(context, response.content)
     console.info(`[step ${step}] ${this._model} · ${promptTokens}+${completionTokens} tok · $${stepCost} · ${reasoning}`)
 

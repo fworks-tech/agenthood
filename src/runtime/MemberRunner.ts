@@ -174,7 +174,7 @@ export class MemberRunner {
       const duration = Math.round(performance.now() - startTime)
       return this.completeRunSuccess({
         spec, result, duration, usage: loop.usage, metricsCollector, checkpointStore, checkpointData,
-        task, model: checkpointData.model ?? config.model ?? 'unknown',
+        task, model: checkpointData.model ?? config.model ?? 'unknown', provider: loop.provider,
       })
     } catch (err) {
       const duration = Math.round(performance.now() - startTime)
@@ -187,7 +187,7 @@ export class MemberRunner {
       }
       this.recordRunFailure({
         spec, err, duration, metricsCollector, checkpointStore, checkpointData,
-        task, model: checkpointData.model ?? config.model ?? 'unknown',
+        task, model: checkpointData.model ?? config.model ?? 'unknown', provider: loop.provider,
       })
       throw err
     } finally {
@@ -239,6 +239,7 @@ export class MemberRunner {
     spec: MemberSpec
     task: string
     model: string
+    provider?: string
     status: 'success' | 'error'
     outputSummary: string
     usage: TokenUsage
@@ -249,7 +250,7 @@ export class MemberRunner {
     try {
       const prompt = args.usage.promptTokens ?? 0
       const completion = args.usage.completionTokens ?? 0
-      const cost = estimateCostFromTokens(args.model, prompt, completion)
+      const cost = estimateCostFromTokens(args.model, prompt, completion, args.provider)
       const completedAt = new Date()
       // id = correlation id so `trace visualize` accepts the ids users
       // already see in `trace`/`log` output
@@ -290,6 +291,7 @@ export class MemberRunner {
     checkpointData: CheckpointData
     task: string
     model: string
+    provider?: string
   }): MemberRunResult {
     if (args.spec.output_format) {
       const { valid, message } = validateOutputFormat(args.result.output, args.spec.output_format)
@@ -301,6 +303,7 @@ export class MemberRunner {
       spec: args.spec,
       task: args.task,
       model: args.model,
+      provider: args.provider,
       status: 'success',
       outputSummary: redactEventText(this.ctx, args.result.output),
       usage: args.usage,
@@ -327,6 +330,7 @@ export class MemberRunner {
     checkpointData: CheckpointData
     task: string
     model: string
+    provider?: string
   }): void {
     args.metricsCollector.record(args.spec.name, false, args.duration)
     args.checkpointStore.updateStatus(args.checkpointData.id, 'failed')
@@ -334,6 +338,7 @@ export class MemberRunner {
       spec: args.spec,
       task: args.task,
       model: args.model,
+      provider: args.provider,
       status: 'error',
       outputSummary: redactEventText(this.ctx, args.err instanceof Error ? args.err.message : String(args.err)),
       usage: { promptTokens: 0, completionTokens: 0, totalTokens: 0 },

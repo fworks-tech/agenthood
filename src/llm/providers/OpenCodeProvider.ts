@@ -89,6 +89,7 @@ function fromAnthropic(data: { content?: AnthropicResponseBlock[]; usage?: { inp
     toolCalls: toolCalls.length ? toolCalls : undefined,
     usage: { promptTokens, completionTokens, totalTokens: promptTokens + completionTokens },
     model: data.model ?? fallbackModel,
+    provider: 'OpenCode',
   }
 }
 
@@ -132,6 +133,7 @@ function fromResponses(data: { status?: string; incomplete_details?: { reason?: 
     toolCalls: toolCalls.length ? toolCalls : undefined,
     usage: { promptTokens, completionTokens, totalTokens: promptTokens + completionTokens },
     model: data.model ?? fallbackModel,
+    provider: 'OpenCode',
   }
 }
 

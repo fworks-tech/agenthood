@@ -1,85 +1,85 @@
 {
   "version": 1,
   "members": {
-    "the-architect": {
-      "version": "57f49c525ccb145619c1b10f8242d7003aaead50bc1de1c03220a5bfe166e921",
-      "updatedAt": "2026-09-21T02:52:42.884Z"
+    "architect": {
+      "version": "909f05a0281bdae394382fd6b9a403754ce815d46b4b8c510a0079f15fcc3e8a",
+      "updatedAt": "2026-11-15T22:11:45.532Z"
     },
-    "the-auditor": {
-      "version": "fe15592bac79311f367c86ec3eb4becdf82b801059ceb37fd0db97b3ea569271",
-      "updatedAt": "2026-09-21T02:52:42.884Z"
+    "auditor": {
+      "version": "512755c8c13ddb98c964aac86942a8b125d334a6cd21d6f044418b2d987e5183",
+      "updatedAt": "2026-11-15T22:11:45.532Z"
     },
-    "the-builder": {
-      "version": "2a633df7158081ad3e3691c1002e99274cb477546dda1856eb8f58c970b7c3ae",
-      "updatedAt": "2026-09-21T02:52:42.884Z"
+    "builder": {
+      "version": "3d3cd47dadd763d8b084061dafcdc9e2591f99182781dd62e897957ba98ed89d",
+      "updatedAt": "2026-11-15T22:11:45.532Z"
     },
-    "the-debugger": {
-      "version": "4a7c6a07e21c44f74095d51e31da32d343e7e575479155ee275c85c4e7c5fe72",
-      "updatedAt": "2026-09-21T02:52:42.884Z"
+    "debugger": {
+      "version": "f21119828a53050be251c728dc3674732525f064190af20bacd9f4f11ccde0e0",
+      "updatedAt": "2026-11-15T22:11:45.532Z"
     },
-    "the-doorman": {
-      "version": "579550758d432758a7f5b4617e5b4378ee8bd71e4a3e04d0d0cc7d362b6e5fdf",
-      "updatedAt": "2026-09-21T02:52:42.884Z"
+    "doorman": {
+      "version": "3d13094c65af370bcea313edea29c0ef1a8f1a8f4301a587d0a054383171d800",
+      "updatedAt": "2026-11-15T22:11:45.532Z"
     },
-    "the-envoy": {
-      "version": "e3e41b9480ffc66cd24d059c2631a5c6a992eb995556250ad83ca5746922122c",
-      "updatedAt": "2026-09-21T02:52:42.884Z"
+    "envoy": {
+      "version": "b0feb76c56b9dc3ae12c20f32891826e3f98c7b6df52ba914795e52c223aebfc",
+      "updatedAt": "2026-11-15T22:11:45.532Z"
     },
-    "the-herald": {
-      "version": "9bbcc94a979fc12a095220432d3978b70075476b4748018bf0217d2e979c6a63",
-      "updatedAt": "2026-09-21T02:52:42.884Z"
+    "herald": {
+      "version": "413b2f69f7e6e3313ca5d208fcbf1e55cef3bda50eeefafa408c375b3a7e3aa2",
+      "updatedAt": "2026-11-15T22:11:45.532Z"
     },
-    "the-inspector": {
-      "version": "2681f3acf96ba298c31ff0939d9e34f80770c058ffcc7ecbfc20079fa31a608b",
-      "updatedAt": "2026-09-21T02:52:42.884Z"
+    "inspector": {
+      "version": "9c137127d1b349ebdea26abba3fa79152add638c304dc1dce9430b9ed863d1f4",
+      "updatedAt": "2026-11-15T22:11:45.532Z"
     },
-    "the-librarian": {
-      "version": "20edf294a75b41344c60b14371283be65457e6c49c1bed47a84b78c55c17a6d7",
-      "updatedAt": "2026-09-28T03:27:30.701Z"
+    "librarian": {
+      "version": "5b05a7beb857f20e18e709aa2b86e7b793e612ae17c47d10ce2bc5aeeae7074e",
+      "updatedAt": "2026-11-15T22:11:45.532Z"
     },
-    "the-mailman": {
-      "version": "ee5cdc200629e4b453dce2fc4412b3d5c0a5fce67694945b8d52d4c418d0ac55",
-      "updatedAt": "2026-09-21T02:52:42.884Z"
+    "mailman": {
+      "version": "d3ec1b0408910b453a538131247801d966c86107a08d1e63b9c667c474099eb4",
+      "updatedAt": "2026-11-15T22:11:45.532Z"
     },
-    "the-mediator": {
-      "version": "d2ed27246af1493e8651526c63655788431407cdeac8cac2d19d7830ead0db4d",
-      "updatedAt": "2026-09-27T03:13:24.030Z"
+    "mediator": {
+      "version": "698b1ee10575dce943b74d0dc09bdfca8a6b325f5c8721d8f1e0ee77470e1d8e",
+      "updatedAt": "2026-11-15T22:11:45.532Z"
     },
-    "the-operator": {
-      "version": "2fd14596cad2415b7b7cbc186a7aa2aada02b36df495732ee4bc5d86f17675e9",
-      "updatedAt": "2026-09-21T02:52:42.884Z"
+    "operator": {
+      "version": "83f35c01b811b5199bd0f94189f9aaedfd232de8693fd51e20a6789a81af9df5",
+      "updatedAt": "2026-11-15T22:11:45.532Z"
     },
-    "the-oracle": {
-      "version": "18e3d604d0dc602269bb00f4774e9c912157532182420f7c8109de4b8f3f70b8",
-      "updatedAt": "2026-09-21T02:52:42.884Z"
+    "oracle": {
+      "version": "0da9bbd3cd54c7d575a0bc7002a9de65afc21e3af1a373c8f5d807b08afb87ce",
+      "updatedAt": "2026-11-15T22:11:45.532Z"
     },
-    "the-reviewer": {
-      "version": "21e4e14a3d197f687193dbc1ec8b10c35d51f509218d82b0a95a47d29b1ac4da",
-      "updatedAt": "2026-09-21T02:52:42.884Z"
+    "reviewer": {
+      "version": "2188b765aa06a13c5e6ecfc51b9449d7d91a3d4b4d1053920d15f3e1d78f3f03",
+      "updatedAt": "2026-11-15T22:11:45.532Z"
     },
-    "the-scribe": {
-      "version": "3be3dbd7b265f952816bc076cb20c54d986aefc912beb0161188bb81ef063a75",
-      "updatedAt": "2026-09-21T02:52:42.884Z"
+    "scribe": {
+      "version": "1425b7786791755ee47c04708bef2ecba3f79d019c2e1b56744c234dfc511821",
+      "updatedAt": "2026-11-15T22:11:45.532Z"
     },
-    "the-sentinel": {
-      "version": "259ff00a562ad9a0fa85c8dbfff010bf3bd33a9681f82b90d5e0c7e2f1769e1a",
-      "updatedAt": "2026-09-21T02:52:42.884Z"
+    "sentinel": {
+      "version": "075dafc75f58036ad6c1cd2608c16b7e21cf4564d5c985fad510d46add7d0272",
+      "updatedAt": "2026-11-15T22:11:45.532Z"
     },
-    "the-steward": {
-      "version": "5e22f5b9b8d9ffb09129eac82f0da9d795dc9d7c39382bea7bf5ec6c906b5ec6",
-      "updatedAt": "2026-09-28T03:27:30.701Z"
+    "steward": {
+      "version": "2a4d2bba5666e62753c778d1a649928d3f31472841c9d081f3c2abc81ecae5b6",
+      "updatedAt": "2026-11-15T22:11:45.532Z"
     },
-    "the-strategist": {
-      "version": "cfdf21f220669df8b2e086889f382e985375502c1450f5abdaefa2fe6eeeca6e",
-      "updatedAt": "2026-09-21T02:52:42.884Z"
+    "strategist": {
+      "version": "993a6a34cd22da13aa4ad48b557dd0765a1f6c989fb50d8fdb3eec0deab1fe4e",
+      "updatedAt": "2026-11-15T22:11:45.532Z"
     },
-    "the-tester": {
-      "version": "dd1b6f3aaa09f463ef113ee9d3ce39267d50f85d792d9f5b5f4cef9acb1a9fdf",
-      "updatedAt": "2026-09-21T02:52:42.884Z"
+    "tester": {
+      "version": "6b6e369537a416f5d368402f302e528cb64e11d351bf887b958cfd9acd3cf82b",
+      "updatedAt": "2026-11-15T22:11:45.532Z"
     },
-    "the-warden": {
-      "version": "f2dfe675b2e8de8b76b1a008f569ed829b9dd673ac526d88f2204f54f99fb43b",
-      "updatedAt": "2026-09-21T02:52:42.884Z"
+    "warden": {
+      "version": "8acce90261513aabcfe1fc8004eda3f649ed9720e5282ec6da61dba9deac864c",
+      "updatedAt": "2026-11-15T22:11:45.532Z"
     }
   }
 }

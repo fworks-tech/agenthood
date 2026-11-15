@@ -127,6 +127,33 @@ For a full walkthrough — install, commands, CI pipeline, and next steps — se
 
 ---
 
+## Compose
+
+4.0 makes members and workflows data.
+
+**Custom members.** Hosts register their own agents instead of mapping them onto
+built-ins:
+
+```ts
+const app = await ApplicationContext.create(cwd, config, {
+  customMembers: [{ name: 'tenant-auditor', description: '…', systemPrompt: '…',
+    permissionProfile: 'restricted', tools: ['file.read'], model: 'glm-5.3-flash' }],
+})
+```
+
+**Chains.** Declare a workflow in `chains.yaml` and run it — every step goes
+through `MemberRunner`, so traces, decisions and provenance are unchanged:
+
+```bash
+agenthood workflow list
+agenthood workflow run build "implement issue #42"
+```
+
+**Audit.** Trajectories now store one step per turn; `trace --skill` and
+`trace --tool` answer "who used this, and what did it cost".
+
+See [examples/compose](examples/compose) and [MIGRATION.md](MIGRATION.md).
+
 ## What's shipped
 
 ### Runtime (TypeScript CLI)

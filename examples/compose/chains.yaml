@@ -1,0 +1,11 @@
+# A project chain (#609). Copy to your project root.
+#   agenthood workflow list
+#   agenthood workflow run compose-demo "describe the small change you want"
+chains:
+  - name: compose-demo
+    sequence:
+      - member: architect
+      - member: builder
+      - member: reviewer
+    guards: { stop_on_blocking: true }
+    max_rounds: 2

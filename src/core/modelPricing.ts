@@ -1,3 +1,5 @@
+import { getCatalogModel } from '../llm/providers/opencodeCatalog.ts'
+
 export type PricingProvider = 'openai' | 'anthropic' | 'groq' | 'ollama' | 'opencode' | 'other'
 
 export interface ModelPrice {
@@ -42,35 +44,22 @@ const PRICING_TABLE: Array<{ match: string; price: ModelPrice }> = [
   { match: 'llama3', price: { provider: 'ollama', inputPer1M: 0, outputPer1M: 0 } },
   { match: 'phi3', price: { provider: 'ollama', inputPer1M: 0, outputPer1M: 0 } },
   { match: 'mistral', price: { provider: 'ollama', inputPer1M: 0, outputPer1M: 0 } },
-  // OpenCode Go / Zen (https://opencode.ai/docs/go/ — base tier pricing)
-  { match: 'deepseek-v4-flash', price: { provider: 'opencode', inputPer1M: 0.14, outputPer1M: 0.28 } },
-  { match: 'glm-5.3-flash', price: { provider: 'opencode', inputPer1M: 0.15, outputPer1M: 0.5 } },
-  { match: 'qwen3.8-flash', price: { provider: 'opencode', inputPer1M: 0.15, outputPer1M: 0.47 } },
-  { match: 'longcat-2.0', price: { provider: 'opencode', inputPer1M: 0.30, outputPer1M: 1.20 } },
-  { match: 'mimo-v2.5', price: { provider: 'opencode', inputPer1M: 0.14, outputPer1M: 0.28 } },
-  { match: 'deepseek-v4-pro', price: { provider: 'opencode', inputPer1M: 0.435, outputPer1M: 0.87 } },
-  { match: 'grok-4.5', price: { provider: 'opencode', inputPer1M: 2, outputPer1M: 6 } },
-  { match: 'gpt-5.6-luna', price: { provider: 'opencode', inputPer1M: 0.2, outputPer1M: 1.2 } },
-  { match: 'glm-5.2', price: { provider: 'opencode', inputPer1M: 1.4, outputPer1M: 4.4 } },
-  { match: 'glm-5.1', price: { provider: 'opencode', inputPer1M: 1.4, outputPer1M: 4.4 } },
-  { match: 'kimi-k3', price: { provider: 'opencode', inputPer1M: 3, outputPer1M: 15 } },
-  { match: 'kimi-k2.7-code', price: { provider: 'opencode', inputPer1M: 0.95, outputPer1M: 4 } },
-  { match: 'kimi-k2.6', price: { provider: 'opencode', inputPer1M: 0.95, outputPer1M: 4 } },
-  { match: 'mimo-v2.5-pro', price: { provider: 'opencode', inputPer1M: 0.435, outputPer1M: 0.87 } },
-  { match: 'mimo-v2.5', price: { provider: 'opencode', inputPer1M: 0.14, outputPer1M: 0.28 } },
-  { match: 'minimax-m3', price: { provider: 'opencode', inputPer1M: 0.3, outputPer1M: 1.2 } },
-  { match: 'minimax-m2.7', price: { provider: 'opencode', inputPer1M: 0.3, outputPer1M: 1.2 } },
-  { match: 'minimax-m2.5', price: { provider: 'opencode', inputPer1M: 0.3, outputPer1M: 1.2 } },
-  { match: 'qwen3.8-max', price: { provider: 'opencode', inputPer1M: 2, outputPer1M: 6 } },
-  { match: 'qwen3.7-max', price: { provider: 'opencode', inputPer1M: 2.5, outputPer1M: 7.5 } },
-  { match: 'qwen3.7-plus', price: { provider: 'opencode', inputPer1M: 0.4, outputPer1M: 1.6 } },
-  { match: 'qwen3.6-plus', price: { provider: 'opencode', inputPer1M: 0.5, outputPer1M: 3 } },
-  { match: 'hy3', price: { provider: 'opencode', inputPer1M: 0.14, outputPer1M: 0.58 } },
 ]
 
-export function getModelPrice(model: string): ModelPrice {
+/** OpenCode Zen/Go prices come from the live catalog snapshot; `promptTokens` picks the context tier. */
+export function getModelPrice(model: string, promptTokens = 0): ModelPrice {
   const normalized = model.trim().toLowerCase()
   if (!normalized) return FALLBACK_PRICE
+
+  const catalog = getCatalogModel(normalized)
+  if (catalog) {
+    const tier = catalog.tiers.filter((t) => t.above < promptTokens).at(-1)
+    return {
+      provider: 'opencode',
+      inputPer1M: tier?.input ?? catalog.input,
+      outputPer1M: tier?.output ?? catalog.output,
+    }
+  }
 
   const exact = PRICING_TABLE.find(({ match }) => normalized === match)
   if (exact) return exact.price
@@ -99,7 +88,7 @@ export function estimateCostFromTokens(
   inputTokens: number,
   outputTokens: number,
 ): number {
-  const { inputPer1M, outputPer1M } = getModelPrice(model)
+  const { inputPer1M, outputPer1M } = getModelPrice(model, inputTokens)
   const cost = (inputTokens * inputPer1M + outputTokens * outputPer1M) / 1_000_000
   return roundCost(cost)
 }
@@ -116,7 +105,7 @@ const warnedModels = new Set<string>()
 
 /** Cost estimate with a one-time warning for models missing from the table. */
 export function estimateCost(model: string, inputTokens: number, outputTokens: number): CostEstimate {
-  const price = getModelPrice(model)
+  const price = getModelPrice(model, inputTokens)
   if (price === FALLBACK_PRICE && !warnedModels.has(model)) {
     console.warn(`[modelPricing] unknown model "${model}" — using fallback pricing`)
     warnedModels.add(model)

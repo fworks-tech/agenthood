@@ -1,40 +1,30 @@
 /**
  * src/llm/providers/zenEndpoints.ts
  *
- * OpenCode Zen is not a single API. Each model family is served on its own
- * endpoint (https://opencode.ai/docs/zen/#endpoints), but the `opencode`
- * provider is built on the OpenAI chat-completions client, which only speaks
- * `/v1/chat/completions`. Asking it for a `/v1/messages` model (Claude,
- * qwen3.8-flash) or a `/v1/responses` model (GPT/Grok) 400s or hangs — which
- * surfaces to a caller as an agent that never answers.
- *
- * This module is the single source of truth for "which endpoint does this Zen
- * model live on", so the provider can route to the right protocol instead of
- * assuming chat. Pure and dependency-free: the model catalog rotates, so keep
- * the prefix sets aligned with the Zen docs and the live `/v1/models` list.
+ * OpenCode Zen is not a single API. Each model is served on its own endpoint
+ * (https://opencode.ai/docs/zen/#endpoints), and the live `/v1/models` catalog
+ * lists those endpoints per model in its `api` field. Routing reads that
+ * catalog so the provider never assumes chat for a messages or responses model.
  */
 
-export type ZenProtocol = 'chat' | 'messages' | 'responses' | 'systemone'
+import { getCatalogModel } from './opencodeCatalog.ts'
 
-// Qwen is split across endpoints — qwen3.8-max is chat-completions while
-// qwen3.8-flash and the qwen3.x plus/max are Anthropic-style messages — so it
-// is matched by explicit id, never a `qwen` prefix.
-const MESSAGES_EXACT = new Set([
-  'qwen3.8-flash',
-  'qwen3.7-max',
-  'qwen3.7-plus',
-  'qwen3.6-plus',
-  'qwen3.5-plus',
-])
-const RESPONSES_PREFIXES = ['gpt-', 'grok-', 'muse-spark']
+export type ZenProtocol = 'chat' | 'messages' | 'responses' | 'generate-content' | 'systemone'
 
-export function isZenMessagesModel(model: string): boolean {
-  return model.startsWith('claude-') || MESSAGES_EXACT.has(model)
-}
+const PROTOCOL_PRIORITY: Array<[string, ZenProtocol]> = [
+  ['messages', 'messages'],
+  ['responses', 'responses'],
+  ['chat-completions', 'chat'],
+  ['generate-content', 'generate-content'],
+]
 
 export function zenProtocolForModel(model: string): ZenProtocol {
+  // System One (jev) models are not published in /models; the prefix is the only signal.
   if (model.startsWith('jev-')) return 'systemone'
-  if (isZenMessagesModel(model)) return 'messages'
-  if (RESPONSES_PREFIXES.some((p) => model.startsWith(p))) return 'responses'
-  return 'chat'
+  const apis = getCatalogModel(model)?.apis ?? []
+  return PROTOCOL_PRIORITY.find(([api]) => apis.includes(api))?.[1] ?? 'chat'
+}
+
+export function isZenMessagesModel(model: string): boolean {
+  return zenProtocolForModel(model) === 'messages'
 }

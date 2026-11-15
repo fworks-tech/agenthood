@@ -7,6 +7,7 @@ import { buildGoCompleteParams } from "./openai-params.ts"
 import { DEFAULT_CONTEXT_WINDOW, OPENCODE_DEFAULT_MODEL } from "./constants.ts"
 import { UnsupportedOperationError } from "../errors.ts"
 import { zenProtocolForModel } from "./zenEndpoints.ts"
+import { getCatalogModel } from "./opencodeCatalog.ts"
 import type { ZenProtocol } from "./zenEndpoints.ts"
 import { randomUUID } from "node:crypto"
 
@@ -211,7 +212,7 @@ export class OpenCodeProvider extends ChatCompletionsProvider {
   }
 
   getContextWindow(): number {
-    return this.protocol() === 'messages' ? 200000 : super.getContextWindow()
+    return getCatalogModel(this._model)?.contextWindow ?? super.getContextWindow()
   }
 
   async complete(request: LLMRequest): Promise<LLMResponse> {
@@ -232,6 +233,9 @@ export class OpenCodeProvider extends ChatCompletionsProvider {
     }
     if (protocol === 'systemone') {
       throw new UnsupportedOperationError(`Jev "${this._model}" is a decision model (no prose); call decideWithJev() from llm/systemone.ts`, 'OpenCode')
+    }
+    if (protocol === 'generate-content') {
+      throw new UnsupportedOperationError(`Zen "${this._model}" uses the generate-content protocol, which this provider does not implement`, 'OpenCode')
     }
     const res = await (this.client as OpenAI).responses.create(toResponsesBody(request, this._model) as never)
     return fromResponses(res as unknown as Parameters<typeof fromResponses>[0], this._model)
@@ -289,6 +293,9 @@ export class OpenCodeProvider extends ChatCompletionsProvider {
     }
     if (protocol === 'systemone') {
       throw new UnsupportedOperationError(`Jev "${this._model}" is a decision model (no prose); call decideWithJev() from llm/systemone.ts`, 'OpenCode')
+    }
+    if (protocol === 'generate-content') {
+      throw new UnsupportedOperationError(`Zen "${this._model}" uses the generate-content protocol, which this provider does not implement`, 'OpenCode')
     }
     const stream = await (this.client as OpenAI).responses.create({ ...toResponsesBody(request, this._model), stream: true } as never) as unknown as AsyncIterable<{
       type: string; delta?: string

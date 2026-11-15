@@ -1,0 +1,1189 @@
+{
+  "models": [
+    {
+      "id": "beam-free",
+      "apis": [
+        "chat-completions"
+      ],
+      "contextWindow": 1048576,
+      "outputLimit": 131072,
+      "input": 0,
+      "output": 0,
+      "tiers": []
+    },
+    {
+      "id": "big-pickle",
+      "apis": [
+        "chat-completions"
+      ],
+      "contextWindow": 200000,
+      "outputLimit": 32000,
+      "input": 0,
+      "output": 0,
+      "tiers": []
+    },
+    {
+      "id": "claude-fable-5",
+      "apis": [
+        "messages"
+      ],
+      "contextWindow": 1000000,
+      "outputLimit": 128000,
+      "input": 10,
+      "output": 50,
+      "tiers": []
+    },
+    {
+      "id": "claude-fable-5-1",
+      "apis": [
+        "messages"
+      ],
+      "contextWindow": 1000000,
+      "outputLimit": 128000,
+      "input": 10,
+      "output": 50,
+      "tiers": []
+    },
+    {
+      "id": "claude-fable-5-2",
+      "apis": [
+        "messages"
+      ],
+      "contextWindow": 1000000,
+      "outputLimit": 128000,
+      "input": 8,
+      "output": 40,
+      "tiers": []
+    },
+    {
+      "id": "claude-haiku-4-5",
+      "apis": [
+        "messages"
+      ],
+      "contextWindow": 200000,
+      "outputLimit": 64000,
+      "input": 1,
+      "output": 5,
+      "tiers": []
+    },
+    {
+      "id": "claude-haiku-5-5",
+      "apis": [
+        "messages"
+      ],
+      "contextWindow": 1000000,
+      "outputLimit": 128000,
+      "input": 0.1,
+      "output": 0.5,
+      "tiers": [
+        {
+          "above": 100000,
+          "input": 0.5,
+          "output": 2.5
+        }
+      ]
+    },
+    {
+      "id": "claude-opus-4-5",
+      "apis": [
+        "messages"
+      ],
+      "contextWindow": 200000,
+      "outputLimit": 64000,
+      "input": 5,
+      "output": 25,
+      "tiers": []
+    },
+    {
+      "id": "claude-opus-4-6",
+      "apis": [
+        "messages"
+      ],
+      "contextWindow": 1000000,
+      "outputLimit": 128000,
+      "input": 5,
+      "output": 25,
+      "tiers": []
+    },
+    {
+      "id": "claude-opus-4-7",
+      "apis": [
+        "messages"
+      ],
+      "contextWindow": 1000000,
+      "outputLimit": 128000,
+      "input": 5,
+      "output": 25,
+      "tiers": []
+    },
+    {
+      "id": "claude-opus-4-8",
+      "apis": [
+        "messages"
+      ],
+      "contextWindow": 1000000,
+      "outputLimit": 128000,
+      "input": 5,
+      "output": 25,
+      "tiers": []
+    },
+    {
+      "id": "claude-opus-5",
+      "apis": [
+        "messages"
+      ],
+      "contextWindow": 1000000,
+      "outputLimit": 128000,
+      "input": 5,
+      "output": 25,
+      "tiers": []
+    },
+    {
+      "id": "claude-opus-5-5",
+      "apis": [
+        "messages"
+      ],
+      "contextWindow": 1000000,
+      "outputLimit": 128000,
+      "input": 4,
+      "output": 20,
+      "tiers": []
+    },
+    {
+      "id": "claude-sonnet-4-5",
+      "apis": [
+        "messages"
+      ],
+      "contextWindow": 1000000,
+      "outputLimit": 64000,
+      "input": 3,
+      "output": 15,
+      "tiers": [
+        {
+          "above": 200000,
+          "input": 6,
+          "output": 22.5
+        }
+      ]
+    },
+    {
+      "id": "claude-sonnet-4-6",
+      "apis": [
+        "messages"
+      ],
+      "contextWindow": 1000000,
+      "outputLimit": 64000,
+      "input": 3,
+      "output": 15,
+      "tiers": []
+    },
+    {
+      "id": "claude-sonnet-5",
+      "apis": [
+        "messages"
+      ],
+      "contextWindow": 1000000,
+      "outputLimit": 128000,
+      "input": 2,
+      "output": 10,
+      "tiers": []
+    },
+    {
+      "id": "claude-sonnet-5-5",
+      "apis": [
+        "messages"
+      ],
+      "contextWindow": 1000000,
+      "outputLimit": 128000,
+      "input": 2,
+      "output": 10,
+      "tiers": []
+    },
+    {
+      "id": "deepseek-v4-pro",
+      "apis": [
+        "chat-completions"
+      ],
+      "contextWindow": 1000000,
+      "outputLimit": 384000,
+      "input": 1.74,
+      "output": 3.48,
+      "tiers": []
+    },
+    {
+      "id": "deepseek-v4.1-flash",
+      "apis": [
+        "chat-completions"
+      ],
+      "contextWindow": 1000000,
+      "outputLimit": 384000,
+      "input": 0.3,
+      "output": 1.2,
+      "tiers": []
+    },
+    {
+      "id": "deepseek-v4.1-flash-free",
+      "apis": [
+        "chat-completions"
+      ],
+      "contextWindow": 200000,
+      "outputLimit": 32000,
+      "input": 0,
+      "output": 0,
+      "tiers": []
+    },
+    {
+      "id": "flint-40b-free",
+      "apis": [
+        "chat-completions"
+      ],
+      "contextWindow": 262144,
+      "outputLimit": 65536,
+      "input": 0,
+      "output": 0,
+      "tiers": []
+    },
+    {
+      "id": "gemini-3.5-flash",
+      "apis": [
+        "generate-content"
+      ],
+      "contextWindow": 1048576,
+      "outputLimit": 65536,
+      "input": 1.5,
+      "output": 9,
+      "tiers": []
+    },
+    {
+      "id": "gemini-3.5-flash-lite",
+      "apis": [
+        "generate-content"
+      ],
+      "contextWindow": 1048576,
+      "outputLimit": 65536,
+      "input": 0.3,
+      "output": 2.5,
+      "tiers": []
+    },
+    {
+      "id": "gemini-3.6-flash",
+      "apis": [
+        "generate-content"
+      ],
+      "contextWindow": 1048576,
+      "outputLimit": 65536,
+      "input": 0.75,
+      "output": 3.75,
+      "tiers": []
+    },
+    {
+      "id": "gemini-3.7-flash",
+      "apis": [
+        "generate-content"
+      ],
+      "contextWindow": 1048576,
+      "outputLimit": 65536,
+      "input": 0.75,
+      "output": 3.75,
+      "tiers": []
+    },
+    {
+      "id": "gemini-3.8-flash",
+      "apis": [
+        "generate-content"
+      ],
+      "contextWindow": 1048576,
+      "outputLimit": 65536,
+      "input": 0.75,
+      "output": 3.75,
+      "tiers": []
+    },
+    {
+      "id": "gemini-4-argon",
+      "apis": [
+        "generate-content"
+      ],
+      "contextWindow": 1048576,
+      "outputLimit": 65536,
+      "input": 2,
+      "output": 10,
+      "tiers": []
+    },
+    {
+      "id": "gemini-4-carbon",
+      "apis": [
+        "generate-content"
+      ],
+      "contextWindow": 1048576,
+      "outputLimit": 65536,
+      "input": 2,
+      "output": 10,
+      "tiers": []
+    },
+    {
+      "id": "gemini-4-hydrogen",
+      "apis": [
+        "generate-content"
+      ],
+      "contextWindow": 1048576,
+      "outputLimit": 65536,
+      "input": 1.5,
+      "output": 7.5,
+      "tiers": []
+    },
+    {
+      "id": "glm-5",
+      "apis": [
+        "chat-completions"
+      ],
+      "contextWindow": 204800,
+      "outputLimit": 131072,
+      "input": 1,
+      "output": 3.2,
+      "tiers": []
+    },
+    {
+      "id": "glm-5.1",
+      "apis": [
+        "chat-completions"
+      ],
+      "contextWindow": 204800,
+      "outputLimit": 131072,
+      "input": 1.4,
+      "output": 4.4,
+      "tiers": []
+    },
+    {
+      "id": "glm-5.2",
+      "apis": [
+        "chat-completions"
+      ],
+      "contextWindow": 1000000,
+      "outputLimit": 131072,
+      "input": 1.4,
+      "output": 4.4,
+      "tiers": []
+    },
+    {
+      "id": "glm-5.3",
+      "apis": [
+        "chat-completions"
+      ],
+      "contextWindow": 1000000,
+      "outputLimit": 131072,
+      "input": 1.4,
+      "output": 4.4,
+      "tiers": []
+    },
+    {
+      "id": "glm-5.3-flash",
+      "apis": [
+        "chat-completions"
+      ],
+      "contextWindow": 1000000,
+      "outputLimit": 131072,
+      "input": 0.15,
+      "output": 0.5,
+      "tiers": []
+    },
+    {
+      "id": "glm-5.3-flash-free",
+      "apis": [
+        "chat-completions"
+      ],
+      "contextWindow": 200000,
+      "outputLimit": 32000,
+      "input": 0,
+      "output": 0,
+      "tiers": []
+    },
+    {
+      "id": "gpt-5",
+      "apis": [
+        "responses"
+      ],
+      "contextWindow": 400000,
+      "outputLimit": 128000,
+      "input": 1.07,
+      "output": 8.5,
+      "tiers": []
+    },
+    {
+      "id": "gpt-5-codex",
+      "apis": [
+        "responses"
+      ],
+      "contextWindow": 400000,
+      "outputLimit": 128000,
+      "input": 1.07,
+      "output": 8.5,
+      "tiers": []
+    },
+    {
+      "id": "gpt-5-nano",
+      "apis": [
+        "responses"
+      ],
+      "contextWindow": 400000,
+      "outputLimit": 128000,
+      "input": 0.05,
+      "output": 0.4,
+      "tiers": []
+    },
+    {
+      "id": "gpt-5.1",
+      "apis": [
+        "responses"
+      ],
+      "contextWindow": 400000,
+      "outputLimit": 128000,
+      "input": 1.07,
+      "output": 8.5,
+      "tiers": []
+    },
+    {
+      "id": "gpt-5.1-codex",
+      "apis": [
+        "responses"
+      ],
+      "contextWindow": 400000,
+      "outputLimit": 128000,
+      "input": 1.07,
+      "output": 8.5,
+      "tiers": []
+    },
+    {
+      "id": "gpt-5.1-codex-max",
+      "apis": [
+        "responses"
+      ],
+      "contextWindow": 400000,
+      "outputLimit": 128000,
+      "input": 1.25,
+      "output": 10,
+      "tiers": []
+    },
+    {
+      "id": "gpt-5.1-codex-mini",
+      "apis": [
+        "responses"
+      ],
+      "contextWindow": 400000,
+      "outputLimit": 128000,
+      "input": 0.25,
+      "output": 2,
+      "tiers": []
+    },
+    {
+      "id": "gpt-5.2",
+      "apis": [
+        "responses"
+      ],
+      "contextWindow": 400000,
+      "outputLimit": 128000,
+      "input": 1.75,
+      "output": 14,
+      "tiers": []
+    },
+    {
+      "id": "gpt-5.2-codex",
+      "apis": [
+        "responses"
+      ],
+      "contextWindow": 400000,
+      "outputLimit": 128000,
+      "input": 1.75,
+      "output": 14,
+      "tiers": []
+    },
+    {
+      "id": "gpt-5.3-codex",
+      "apis": [
+        "responses"
+      ],
+      "contextWindow": 400000,
+      "outputLimit": 128000,
+      "input": 1.75,
+      "output": 14,
+      "tiers": []
+    },
+    {
+      "id": "gpt-5.3-codex-spark",
+      "apis": [
+        "responses"
+      ],
+      "contextWindow": 128000,
+      "outputLimit": 128000,
+      "input": 1.75,
+      "output": 14,
+      "tiers": []
+    },
+    {
+      "id": "gpt-5.4",
+      "apis": [
+        "responses"
+      ],
+      "contextWindow": 1050000,
+      "outputLimit": 128000,
+      "input": 2.5,
+      "output": 15,
+      "tiers": [
+        {
+          "above": 272000,
+          "input": 5,
+          "output": 22.5
+        }
+      ]
+    },
+    {
+      "id": "gpt-5.4-mini",
+      "apis": [
+        "responses"
+      ],
+      "contextWindow": 400000,
+      "outputLimit": 128000,
+      "input": 0.75,
+      "output": 4.5,
+      "tiers": []
+    },
+    {
+      "id": "gpt-5.4-nano",
+      "apis": [
+        "responses"
+      ],
+      "contextWindow": 400000,
+      "outputLimit": 128000,
+      "input": 0.2,
+      "output": 1.25,
+      "tiers": []
+    },
+    {
+      "id": "gpt-5.4-pro",
+      "apis": [
+        "responses"
+      ],
+      "contextWindow": 1050000,
+      "outputLimit": 128000,
+      "input": 30,
+      "output": 180,
+      "tiers": []
+    },
+    {
+      "id": "gpt-5.5",
+      "apis": [
+        "responses"
+      ],
+      "contextWindow": 1050000,
+      "outputLimit": 128000,
+      "input": 5,
+      "output": 30,
+      "tiers": [
+        {
+          "above": 272000,
+          "input": 10,
+          "output": 45
+        }
+      ]
+    },
+    {
+      "id": "gpt-5.5-pro",
+      "apis": [
+        "responses"
+      ],
+      "contextWindow": 1050000,
+      "outputLimit": 128000,
+      "input": 30,
+      "output": 180,
+      "tiers": []
+    },
+    {
+      "id": "gpt-5.6-luna",
+      "apis": [
+        "responses"
+      ],
+      "contextWindow": 1050000,
+      "outputLimit": 128000,
+      "input": 0.2,
+      "output": 1.2,
+      "tiers": [
+        {
+          "above": 272000,
+          "input": 0.4,
+          "output": 1.8
+        }
+      ]
+    },
+    {
+      "id": "gpt-5.6-sol",
+      "apis": [
+        "responses"
+      ],
+      "contextWindow": 1050000,
+      "outputLimit": 128000,
+      "input": 4,
+      "output": 20,
+      "tiers": [
+        {
+          "above": 272000,
+          "input": 8,
+          "output": 30
+        }
+      ]
+    },
+    {
+      "id": "gpt-5.6-terra",
+      "apis": [
+        "responses"
+      ],
+      "contextWindow": 1050000,
+      "outputLimit": 128000,
+      "input": 2,
+      "output": 12,
+      "tiers": [
+        {
+          "above": 272000,
+          "input": 4,
+          "output": 18
+        }
+      ]
+    },
+    {
+      "id": "gpt-6-astra",
+      "apis": [
+        "responses"
+      ],
+      "contextWindow": 1050000,
+      "outputLimit": 128000,
+      "input": 10,
+      "output": 50,
+      "tiers": [
+        {
+          "above": 272000,
+          "input": 20,
+          "output": 75
+        }
+      ]
+    },
+    {
+      "id": "gpt-6-luna",
+      "apis": [
+        "responses"
+      ],
+      "contextWindow": 1050000,
+      "outputLimit": 128000,
+      "input": 0.1,
+      "output": 0.5,
+      "tiers": [
+        {
+          "above": 272000,
+          "input": 0.2,
+          "output": 0.75
+        }
+      ]
+    },
+    {
+      "id": "gpt-6-sol",
+      "apis": [
+        "responses"
+      ],
+      "contextWindow": 1050000,
+      "outputLimit": 128000,
+      "input": 2,
+      "output": 10,
+      "tiers": [
+        {
+          "above": 272000,
+          "input": 4,
+          "output": 15
+        }
+      ]
+    },
+    {
+      "id": "gpt-6.1-sol",
+      "apis": [
+        "responses"
+      ],
+      "contextWindow": 1050000,
+      "outputLimit": 128000,
+      "input": 2,
+      "output": 10,
+      "tiers": [
+        {
+          "above": 272000,
+          "input": 4,
+          "output": 15
+        }
+      ]
+    },
+    {
+      "id": "grok-4.5",
+      "apis": [
+        "responses"
+      ],
+      "contextWindow": 500000,
+      "outputLimit": 500000,
+      "input": 2,
+      "output": 6,
+      "tiers": [
+        {
+          "above": 200000,
+          "input": 4,
+          "output": 12
+        }
+      ]
+    },
+    {
+      "id": "grok-4.6",
+      "apis": [
+        "responses"
+      ],
+      "contextWindow": 500000,
+      "outputLimit": 500000,
+      "input": 2,
+      "output": 6,
+      "tiers": [
+        {
+          "above": 200000,
+          "input": 4,
+          "output": 12
+        }
+      ]
+    },
+    {
+      "id": "grok-4.7",
+      "apis": [
+        "responses"
+      ],
+      "contextWindow": 500000,
+      "outputLimit": 500000,
+      "input": 2,
+      "output": 6,
+      "tiers": [
+        {
+          "above": 200000,
+          "input": 4,
+          "output": 12
+        }
+      ]
+    },
+    {
+      "id": "grok-build-0.1",
+      "apis": [
+        "responses"
+      ],
+      "contextWindow": 256000,
+      "outputLimit": 256000,
+      "input": 1,
+      "output": 2,
+      "tiers": []
+    },
+    {
+      "id": "hy3",
+      "apis": [
+        "chat-completions"
+      ],
+      "contextWindow": 256000,
+      "outputLimit": 128000,
+      "input": 0.14,
+      "output": 0.58,
+      "tiers": []
+    },
+    {
+      "id": "hy4",
+      "apis": [
+        "chat-completions"
+      ],
+      "contextWindow": 1048576,
+      "outputLimit": 65536,
+      "input": 0.834,
+      "output": 2.501,
+      "tiers": []
+    },
+    {
+      "id": "hy4-preview",
+      "apis": [
+        "chat-completions"
+      ],
+      "contextWindow": 1024000,
+      "outputLimit": 64000,
+      "input": 0.834,
+      "output": 2.501,
+      "tiers": []
+    },
+    {
+      "id": "iceman-contributor-free",
+      "apis": [
+        "chat-completions"
+      ],
+      "contextWindow": 262144,
+      "outputLimit": 131072,
+      "input": 0,
+      "output": 0,
+      "tiers": []
+    },
+    {
+      "id": "iceman-free",
+      "apis": [
+        "chat-completions"
+      ],
+      "contextWindow": 262144,
+      "outputLimit": 131072,
+      "input": 0,
+      "output": 0,
+      "tiers": []
+    },
+    {
+      "id": "inkling-2-small-free",
+      "apis": [
+        "chat-completions"
+      ],
+      "contextWindow": 1048576,
+      "outputLimit": 131072,
+      "input": 0,
+      "output": 0,
+      "tiers": []
+    },
+    {
+      "id": "kimi-k2.5",
+      "apis": [
+        "chat-completions"
+      ],
+      "contextWindow": 262144,
+      "outputLimit": 65536,
+      "input": 0.6,
+      "output": 3,
+      "tiers": []
+    },
+    {
+      "id": "kimi-k2.6",
+      "apis": [
+        "chat-completions"
+      ],
+      "contextWindow": 262144,
+      "outputLimit": 65536,
+      "input": 0.95,
+      "output": 4,
+      "tiers": []
+    },
+    {
+      "id": "kimi-k2.7-code",
+      "apis": [
+        "chat-completions"
+      ],
+      "contextWindow": 262144,
+      "outputLimit": 262144,
+      "input": 0.95,
+      "output": 4,
+      "tiers": []
+    },
+    {
+      "id": "kimi-k3",
+      "apis": [
+        "chat-completions"
+      ],
+      "contextWindow": 1048576,
+      "outputLimit": 1048576,
+      "input": 3,
+      "output": 15,
+      "tiers": []
+    },
+    {
+      "id": "kimi-k3.1-pro",
+      "apis": [
+        "chat-completions"
+      ],
+      "contextWindow": 1048576,
+      "outputLimit": 1048576,
+      "input": 2,
+      "output": 10,
+      "tiers": []
+    },
+    {
+      "id": "longcat-2.0",
+      "apis": [
+        "chat-completions"
+      ],
+      "contextWindow": 1000000,
+      "outputLimit": 131072,
+      "input": 0.3,
+      "output": 1.2,
+      "tiers": []
+    },
+    {
+      "id": "longcat-2.5-free",
+      "apis": [
+        "chat-completions"
+      ],
+      "contextWindow": 1000000,
+      "outputLimit": 262144,
+      "input": 0,
+      "output": 0,
+      "tiers": []
+    },
+    {
+      "id": "mimo-v2.6-flash",
+      "apis": [
+        "chat-completions"
+      ],
+      "contextWindow": 1048576,
+      "outputLimit": 131072,
+      "input": 0.14,
+      "output": 0.28,
+      "tiers": []
+    },
+    {
+      "id": "mimo-v2.6-flash-free",
+      "apis": [
+        "chat-completions"
+      ],
+      "contextWindow": 200000,
+      "outputLimit": 32000,
+      "input": 0,
+      "output": 0,
+      "tiers": []
+    },
+    {
+      "id": "mimo-v2.6-pro",
+      "apis": [
+        "chat-completions"
+      ],
+      "contextWindow": 1048576,
+      "outputLimit": 131072,
+      "input": 0.435,
+      "output": 0.87,
+      "tiers": []
+    },
+    {
+      "id": "minimax-m2.5",
+      "apis": [
+        "chat-completions"
+      ],
+      "contextWindow": 204800,
+      "outputLimit": 131072,
+      "input": 0.3,
+      "output": 1.2,
+      "tiers": []
+    },
+    {
+      "id": "minimax-m2.7",
+      "apis": [
+        "chat-completions"
+      ],
+      "contextWindow": 204800,
+      "outputLimit": 131072,
+      "input": 0.3,
+      "output": 1.2,
+      "tiers": []
+    },
+    {
+      "id": "minimax-m3",
+      "apis": [
+        "chat-completions"
+      ],
+      "contextWindow": 512000,
+      "outputLimit": 128000,
+      "input": 0.3,
+      "output": 1.2,
+      "tiers": []
+    },
+    {
+      "id": "minimax-m3.1-flash",
+      "apis": [
+        "chat-completions"
+      ],
+      "contextWindow": 1000000,
+      "outputLimit": 512000,
+      "input": 0.15,
+      "output": 0.6,
+      "tiers": []
+    },
+    {
+      "id": "minimax-m3.1-flash-free",
+      "apis": [
+        "chat-completions"
+      ],
+      "contextWindow": 1000000,
+      "outputLimit": 512000,
+      "input": 0,
+      "output": 0,
+      "tiers": []
+    },
+    {
+      "id": "mistral-large-4",
+      "apis": [
+        "chat-completions"
+      ],
+      "contextWindow": 524288,
+      "outputLimit": 262144,
+      "input": 0.68,
+      "output": 2.09,
+      "tiers": []
+    },
+    {
+      "id": "muse-ember-1.0",
+      "apis": [
+        "responses"
+      ],
+      "contextWindow": 1048576,
+      "outputLimit": 270000,
+      "input": 0.1,
+      "output": 0.5,
+      "tiers": [
+        {
+          "above": 200000,
+          "input": 0.3,
+          "output": 1.5
+        }
+      ]
+    },
+    {
+      "id": "muse-spark-1.2",
+      "apis": [
+        "responses"
+      ],
+      "contextWindow": 1048576,
+      "outputLimit": 131072,
+      "input": 1.25,
+      "output": 4.25,
+      "tiers": []
+    },
+    {
+      "id": "muse-spark-1.2-contributor",
+      "apis": [
+        "responses"
+      ],
+      "contextWindow": 1048576,
+      "outputLimit": 131072,
+      "input": 0.1,
+      "output": 0.2,
+      "tiers": []
+    },
+    {
+      "id": "muse-spark-1.3",
+      "apis": [
+        "responses"
+      ],
+      "contextWindow": 1048576,
+      "outputLimit": 131072,
+      "input": 1.25,
+      "output": 4.25,
+      "tiers": []
+    },
+    {
+      "id": "muse-spark-1.3-contributor",
+      "apis": [
+        "responses"
+      ],
+      "contextWindow": 1048576,
+      "outputLimit": 131072,
+      "input": 0.1,
+      "output": 0.2,
+      "tiers": []
+    },
+    {
+      "id": "muse-wonder-1.0",
+      "apis": [
+        "responses"
+      ],
+      "contextWindow": 1048576,
+      "outputLimit": 131072,
+      "input": 4,
+      "output": 20,
+      "tiers": []
+    },
+    {
+      "id": "nemotron-3.5-lightning-free",
+      "apis": [
+        "chat-completions"
+      ],
+      "contextWindow": 262144,
+      "outputLimit": 262144,
+      "input": 0,
+      "output": 0,
+      "tiers": []
+    },
+    {
+      "id": "nemotron-3.5-super-vl-free",
+      "apis": [
+        "chat-completions"
+      ],
+      "contextWindow": 1048576,
+      "outputLimit": 131072,
+      "input": 0,
+      "output": 0,
+      "tiers": []
+    },
+    {
+      "id": "qwen3.5-plus",
+      "apis": [
+        "messages"
+      ],
+      "contextWindow": 262144,
+      "outputLimit": 65536,
+      "input": 0.2,
+      "output": 1.2,
+      "tiers": []
+    },
+    {
+      "id": "qwen3.6-plus",
+      "apis": [
+        "messages"
+      ],
+      "contextWindow": 262144,
+      "outputLimit": 65536,
+      "input": 0.5,
+      "output": 3,
+      "tiers": []
+    },
+    {
+      "id": "qwen3.7-plus",
+      "apis": [
+        "messages"
+      ],
+      "contextWindow": 1000000,
+      "outputLimit": 65536,
+      "input": 0.4,
+      "output": 1.6,
+      "tiers": [
+        {
+          "above": 256000,
+          "input": 1.2,
+          "output": 4.8
+        }
+      ]
+    },
+    {
+      "id": "qwen3.8-flash",
+      "apis": [
+        "messages"
+      ],
+      "contextWindow": 1000000,
+      "outputLimit": 131072,
+      "input": 0.15,
+      "output": 0.47,
+      "tiers": []
+    },
+    {
+      "id": "qwen3.8-max",
+      "apis": [
+        "chat-completions"
+      ],
+      "contextWindow": 262144,
+      "outputLimit": 131072,
+      "input": 2,
+      "output": 6,
+      "tiers": []
+    },
+    {
+      "id": "step-5-preview",
+      "apis": [
+        "chat-completions"
+      ],
+      "contextWindow": 1000000,
+      "outputLimit": 65536,
+      "input": 1,
+      "output": 2.7,
+      "tiers": []
+    }
+  ]
+}

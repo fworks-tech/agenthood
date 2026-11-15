@@ -1,6 +1,6 @@
 ---
 name: pull-request-assistant
-description: Composite of the-scribe and the-reviewer for pull requests. Generates comprehensive pull request descriptions and conducts structured code reviews with security, performance, testing, and documentation focus areas. Use when opening a PR or reviewing one before merge.
+description: Composite of scribe and reviewer for pull requests. Generates comprehensive pull request descriptions and conducts structured code reviews with security, performance, testing, and documentation focus areas. Use when opening a PR or reviewing one before merge.
 license: MIT
 ---
 

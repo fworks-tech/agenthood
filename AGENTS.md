@@ -51,26 +51,26 @@ to understand the Society's standards before taking any action in a repository.
 
 Load skills from `skills/` to activate specialized agents:
 
-- `the-scribe` — commit messages, PR descriptions, changelogs
-- `the-architect` — spec-driven development, planning, ADRs
-- `the-builder` — coding, implementation, refactoring, test updates, local validation
-- `the-reviewer` — code review, quality gates
-- `the-tester` — TDD, test generation, coverage
-- `the-debugger` — error triage, root cause analysis
-- `the-auditor` — security review, dependency audit
-- `the-herald` — semantic versioning, release notes
-- `the-librarian` — documentation, knowledge management
-- `the-doorman` — validation, health checks, enforcement
-- `the-oracle` — institutional knowledge, member authoring templates, naming guidance
-- `the-envoy` — cross-provider translation, bootstrap generation, convention validation
-- `the-sentinel` — Society document integrity, cross-member contradiction detection, structural drift
-- `the-warden` — code smell detection, complexity enforcement, architectural boundary violations
-- `the-steward` — context economy, member routing, provider cache strategy, session triage
-- `the-mediator` — first-in-line intent routing, handoff sequencing
-- `the-operator` — runtime health, deployment, incidents, rollback, monitoring
-- `the-strategist` — goal refinement, requirement discovery, ambiguity resolution
-- `the-mailman` — message delivery, content scheduling, notification dispatch, cross-posting
-- `the-inspector` — visual-reasoning benchmarking, pixel-level analysis, multi-panel correspondence
+- `scribe` — commit messages, PR descriptions, changelogs
+- `architect` — spec-driven development, planning, ADRs
+- `builder` — coding, implementation, refactoring, test updates, local validation
+- `reviewer` — code review, quality gates
+- `tester` — TDD, test generation, coverage
+- `debugger` — error triage, root cause analysis
+- `auditor` — security review, dependency audit
+- `herald` — semantic versioning, release notes
+- `librarian` — documentation, knowledge management
+- `doorman` — validation, health checks, enforcement
+- `oracle` — institutional knowledge, member authoring templates, naming guidance
+- `envoy` — cross-provider translation, bootstrap generation, convention validation
+- `sentinel` — Society document integrity, cross-member contradiction detection, structural drift
+- `warden` — code smell detection, complexity enforcement, architectural boundary violations
+- `steward` — context economy, member routing, provider cache strategy, session triage
+- `mediator` — first-in-line intent routing, handoff sequencing
+- `operator` — runtime health, deployment, incidents, rollback, monitoring
+- `strategist` — goal refinement, requirement discovery, ambiguity resolution
+- `mailman` — message delivery, content scheduling, notification dispatch, cross-posting
+- `inspector` — visual-reasoning benchmarking, pixel-level analysis, multi-panel correspondence
 
 ## Confidence-Gated Routing
 
@@ -94,7 +94,7 @@ Every routing decision produces a type-safe record in `.agenthood/routing/`.
 `clear-specialist`; `confidence` is an integer 0-100; `target` is a registered
 member; `reasoning` is the only free-text field. `agenthood verify` enforces
 all of it and reports every violation at once. The full record shape is in
-[skills/the-mediator/SKILL.md](skills/the-mediator/SKILL.md) — do not duplicate
+[skills/mediator/SKILL.md](skills/mediator/SKILL.md) — do not duplicate
 it here, or the two drift.
 
 Binary classification without confidence is a guess. Calibrated confidence with
@@ -117,9 +117,9 @@ npm run build
 npx agenthood list
 
 # Invoke any member against a task
-npx agenthood run the-scribe "write a commit message for the current diff"
-npx agenthood run the-reviewer "review the open PR"
-npx agenthood run the-architect "plan the implementation for issue #42"
+npx agenthood run scribe "write a commit message for the current diff"
+npx agenthood run reviewer "review the open PR"
+npx agenthood run architect "plan the implementation for issue #42"
 ```
 
 The runtime reads `.agenthood/config.json` (written by `npx agenthood init`) and respects

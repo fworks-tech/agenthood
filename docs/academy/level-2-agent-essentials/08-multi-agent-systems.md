@@ -35,14 +35,14 @@ import { WorkflowEngine, AgentStep, ParallelStep } from 'agenthood';
 
 // The orchestrator — not the agents — decides the execution graph
 const pipeline = new WorkflowEngine()
-  .step(new AgentStep('the-architect', { task: 'plan the feature' }))
-  .step(new AgentStep('the-tester',    { task: 'write tests from the plan' }))
-  .step(new AgentStep('the-builder', { task: 'implement against the tests' }))
+  .step(new AgentStep('architect', { task: 'plan the feature' }))
+  .step(new AgentStep('tester',    { task: 'write tests from the plan' }))
+  .step(new AgentStep('builder', { task: 'implement against the tests' }))
   .step(new ParallelStep([
-      new AgentStep('the-reviewer',  { task: 'review the diff' }),
-      new AgentStep('the-auditor',   { task: 'audit dependencies' }),
+      new AgentStep('reviewer',  { task: 'review the diff' }),
+      new AgentStep('auditor',   { task: 'audit dependencies' }),
   ]))
-  .step(new AgentStep('the-scribe', { task: 'write the commit message' }));
+  .step(new AgentStep('scribe', { task: 'write the commit message' }));
 
 const result = await pipeline.run();
 ```
@@ -55,23 +55,23 @@ Each `AgentStep` receives exactly the inputs the orchestrator provides — no ag
 
 ```bash
 # The Steward routes a multi-member task through the orchestrator
-npx agenthood run the-steward "ship: add OAuth2 login to the API"
+npx agenthood run steward "ship: add OAuth2 login to the API"
 ```
 
 The orchestrator log shows the linear invocation graph — no peer-to-peer tangle:
 
 ```
-route  → the-architect (plan)
-exec   → the-architect: "3 endpoints to add, 1 middleware to extend"
-route  → the-tester (tests)
-exec   → the-tester: "6 tests written — 3 happy path, 3 error cases"
-route  → the-builder (implement)
-exec   → the-builder: "OAuth2 middleware + 3 handlers implemented"
-route  → parallel [the-reviewer, the-auditor]
-exec   → the-reviewer: "approved, 1 nit"
-exec   → the-auditor:  "no new vulnerabilities"
-route  → the-scribe (commit)
-exec   → the-scribe:  "feat(auth): add OAuth2 login to API"
+route  → architect (plan)
+exec   → architect: "3 endpoints to add, 1 middleware to extend"
+route  → tester (tests)
+exec   → tester: "6 tests written — 3 happy path, 3 error cases"
+route  → builder (implement)
+exec   → builder: "OAuth2 middleware + 3 handlers implemented"
+route  → parallel [reviewer, auditor]
+exec   → reviewer: "approved, 1 nit"
+exec   → auditor:  "no new vulnerabilities"
+route  → scribe (commit)
+exec   → scribe:  "feat(auth): add OAuth2 login to API"
 done   → 5 members, 0 failures, 1 human approval gate
 ```
 

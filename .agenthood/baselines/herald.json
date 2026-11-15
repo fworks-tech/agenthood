@@ -1,0 +1,9 @@
+{
+  "member": "herald",
+  "suiteName": "herald",
+  "timestamp": "2026-09-08T04:43:52.770Z",
+  "taskCount": 5,
+  "aggregate": {
+    "assertions": 1
+  }
+}

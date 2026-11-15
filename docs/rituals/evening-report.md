@@ -2,7 +2,7 @@
 name: evening-report
 schedule: "0 18 * * 1-5"
 priority: SCHEDULED
-member: the-herald
+member: herald
 description: End-of-day summary of work completed, in-progress tasks, and tomorrow's starting point.
 ---
 

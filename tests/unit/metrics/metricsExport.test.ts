@@ -17,15 +17,15 @@ const SOCKET_TIMEOUT = 15000
 
 function seed(cwd: string): void {
   const metrics = new MetricsCollector(join(cwd, '.agenthood', 'metrics'))
-  metrics.record('the-scribe', true, 1000)
-  metrics.record('the-scribe', true, 3000)
-  metrics.record('the-reviewer', false, 2000)
+  metrics.record('scribe', true, 1000)
+  metrics.record('scribe', true, 3000)
+  metrics.record('reviewer', false, 2000)
   logCost({
-    timestamp: '2026-09-25T10:00:00Z', member: 'the-scribe', model: 'llama-3.3-70b', provider: 'groq',
+    timestamp: '2026-09-25T10:00:00Z', member: 'scribe', model: 'llama-3.3-70b', provider: 'groq',
     promptTokens: 100, completionTokens: 50, totalTokens: 150, costUsd: 0.0002,
   }, cwd)
   logCost({
-    timestamp: '2026-09-25T11:00:00Z', member: 'the-reviewer', model: 'gpt-4o-mini', provider: 'openai',
+    timestamp: '2026-09-25T11:00:00Z', member: 'reviewer', model: 'gpt-4o-mini', provider: 'openai',
     promptTokens: 200, completionTokens: 20, totalTokens: 220, costUsd: 0.0001,
   }, cwd)
 }
@@ -63,10 +63,10 @@ describe('metrics export (#651)', () => {
       seed(cwd)
       const text = renderPrometheus(collectSnapshot(cwd))
       expect(text).toContain('# TYPE agenthood_member_invocations_total counter')
-      expect(text).toContain('agenthood_member_invocations_total{member="the-scribe"} 2')
-      expect(text).toContain('agenthood_member_success_rate{member="the-scribe"} 1.000000')
-      expect(text).toContain('agenthood_member_success_rate{member="the-reviewer"} 0.000000')
-      expect(text).toContain('agenthood_member_duration_ms_avg{member="the-scribe"} 2000.000')
+      expect(text).toContain('agenthood_member_invocations_total{member="scribe"} 2')
+      expect(text).toContain('agenthood_member_success_rate{member="scribe"} 1.000000')
+      expect(text).toContain('agenthood_member_success_rate{member="reviewer"} 0.000000')
+      expect(text).toContain('agenthood_member_duration_ms_avg{member="scribe"} 2000.000')
       expect(text).toContain('agenthood_provider_cost_usd_total{provider="groq"} 0.00020000')
       expect(text).toContain('agenthood_provider_tokens_total{provider="openai"} 220')
     })
@@ -96,8 +96,8 @@ describe('metrics export (#651)', () => {
     it('emits counters and gauges with sanitized names', () => {
       seed(cwd)
       const datagrams = renderStatsD(collectSnapshot(cwd))
-      expect(datagrams).toContain('agenthood.member.the-scribe.invocations:2|c')
-      expect(datagrams).toContain('agenthood.member.the-reviewer.failures:1|c')
+      expect(datagrams).toContain('agenthood.member.scribe.invocations:2|c')
+      expect(datagrams).toContain('agenthood.member.reviewer.failures:1|c')
       expect(datagrams).toContain('agenthood.provider.groq.cost_usd_total:0.00020000|c')
       expect(datagrams).toContain('agenthood.tokens_total:370|c')
     })
@@ -146,7 +146,7 @@ describe('metrics export (#651)', () => {
       expect(res.status).toBe(200)
       expect(res.headers.get('content-type')).toContain('text/plain')
       const body = await res.text()
-      expect(body).toContain('agenthood_member_invocations_total{member="the-scribe"} 2')
+      expect(body).toContain('agenthood_member_invocations_total{member="scribe"} 2')
       expect(body).toContain('# TYPE agenthood_provider_cost_usd_total counter')
     }, SOCKET_TIMEOUT)
 
@@ -161,9 +161,9 @@ describe('metrics export (#651)', () => {
       seed(cwd)
       server = await startMetricsServer({ cwd, port: 0 })
       port = (server.address() as AddressInfo).port
-      new MetricsCollector(join(cwd, '.agenthood', 'metrics')).record('the-scribe', false, 1000)
+      new MetricsCollector(join(cwd, '.agenthood', 'metrics')).record('scribe', false, 1000)
       const body = await (await fetch(`http://127.0.0.1:${port}/metrics`)).text()
-      expect(body).toContain('agenthood_member_invocations_total{member="the-scribe"} 3')
+      expect(body).toContain('agenthood_member_invocations_total{member="scribe"} 3')
     }, SOCKET_TIMEOUT)
   })
 })

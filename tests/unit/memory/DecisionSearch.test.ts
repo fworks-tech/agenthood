@@ -59,7 +59,7 @@ describe('DecisionSearch', () => {
       await log.record({
         id: 'dec-001',
         timestamp: '2026-08-11T00:00:00.000Z',
-        member: 'the-architect',
+        member: 'architect',
         task: 'choose storage',
         decision: 'Use LanceDB',
         rationale: 'embedded',
@@ -70,7 +70,7 @@ describe('DecisionSearch', () => {
       await log.record({
         id: 'dec-002',
         timestamp: '2026-08-11T00:00:00.000Z',
-        member: 'the-tester',
+        member: 'tester',
         task: 'choose test runner',
         decision: 'Use Vitest',
         rationale: 'fast',
@@ -90,7 +90,7 @@ describe('DecisionSearch', () => {
       await log.record({
         id: 'dec-001',
         timestamp: '2026-08-11T00:00:00.000Z',
-        member: 'the-architect',
+        member: 'architect',
         task: 'choose storage',
         decision: 'Use LanceDB',
         rationale: 'embedded',
@@ -111,7 +111,7 @@ describe('DecisionSearch', () => {
       await log.record({
         id: 'dec-001',
         timestamp: '2026-08-11T00:00:00.000Z',
-        member: 'the-architect',
+        member: 'architect',
         task: 'choose storage',
         decision: 'Use LanceDB',
         rationale: 'embedded',

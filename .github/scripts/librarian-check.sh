@@ -36,13 +36,15 @@ check_single_registration() {
 check_member_registration() {
   local fail=0
   while IFS= read -r FILE; do
-    if echo "$FILE" | grep -qE "^docs/members/the-[a-z-]+/"; then
-      NAME=$(echo "$FILE" | sed 's|docs/members/\(the-[a-z-]*\)/.*|\1|')
+    if echo "$FILE" | grep -qE "^docs/members/(the-)?[a-z-]+/"; then
+      NAME=$(echo "$FILE" | sed -E 's|docs/members/(the-)?([a-z-]+)/.*|\2|')
       check_single_registration "$NAME" || fail=1
     fi
-    if echo "$FILE" | grep -qE "^skills/the-[a-z-]+/"; then
-      NAME=$(echo "$FILE" | sed 's|skills/\(the-[a-z-]*\)/.*|\1|')
-      check_single_registration "$NAME" || fail=1
+    if echo "$FILE" | grep -qE "^skills/[a-z-]+/"; then
+      NAME=$(echo "$FILE" | sed -E 's|skills/([a-z-]+)/.*|\1|')
+      if [ -d "docs/members/the-$NAME" ] || [ -d "docs/members/$NAME" ]; then
+        check_single_registration "$NAME" || fail=1
+      fi
     fi
   done < <(echo "$CHANGED")
   return $fail
@@ -54,18 +56,12 @@ check_all_members_indexed() {
     [ -d "$MEMBER_DIR" ] || continue
     NAME=$(basename "$MEMBER_DIR")
     [ "$NAME" = "README.md" ] && continue
-    if ! grep -q "$NAME" AGENTS.md; then
+    CANONICAL="${NAME#the-}"
+    if ! grep -q "$CANONICAL" AGENTS.md; then
       echo "FAIL: $NAME exists in docs/members/ but not in AGENTS.md"; fail=1
     fi
-  done
-  for SKILL_DIR in skills/the-*/; do
-    [ -d "$SKILL_DIR" ] || continue
-    NAME=$(basename "$SKILL_DIR")
-    if [ ! -d "docs/members/$NAME" ]; then
-      echo "FAIL: $NAME exists in skills/ but has no identity card in docs/members/"; fail=1
-    fi
-    if ! grep -q "$NAME" AGENTS.md; then
-      echo "FAIL: $NAME exists in skills/ but not in AGENTS.md"; fail=1
+    if [ ! -f "skills/$CANONICAL/SKILL.md" ]; then
+      echo "FAIL: $NAME has no canonical skills/$CANONICAL/SKILL.md"; fail=1
     fi
   done
   return $fail

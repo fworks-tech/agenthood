@@ -197,7 +197,7 @@ this repo (`src/`), per [ADR-008](../adr/ADR-008-typescript-runtime-over-python.
 | This doc | Implemented as | Status |
 |----------|----------------|--------|
 | Members (skill files) | `skills/<name>/SKILL.md` | ✅ Shipped |
-| Core agent roles (runtime) | `developer` → The Builder, `qa` → The Tester, `architect` → The Architect, `reviewer` → The Reviewer, `the-oracle` → The Oracle (`src/agents/`) | ✅ Shipped |
+| Core agent roles (runtime) | `developer` → The Builder, `qa` → The Tester, `architect` → The Architect, `reviewer` → The Reviewer, `oracle` → The Oracle (`src/agents/`) | ✅ Shipped |
 | Member subagent specs (tools, permissions) | `src/members/MemberRegistry.ts` | ✅ v2.0.0 |
 | Tool scoping per member | `MemberSpec.tools` in `MemberRegistry` | ✅ v2.0.0 |
 | Permission profiles | `MemberSpec.permissions` in `MemberRegistry` | ✅ v2.0.0 |

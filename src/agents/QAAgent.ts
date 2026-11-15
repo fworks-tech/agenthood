@@ -13,7 +13,7 @@ import { buildLorePrompt } from './memberLore.ts'
 
 const __filename = fileURLToPath(import.meta.url)
 const __dirname = dirname(__filename)
-const SKILL_PATH = join(__dirname, '..', '..', 'members', 'the-tester', 'SKILL.md')
+const SKILL_PATH = join(__dirname, '..', '..', 'members', 'tester', 'SKILL.md')
 
 export class QAAgent extends BaseAgent {
   role = 'qa'

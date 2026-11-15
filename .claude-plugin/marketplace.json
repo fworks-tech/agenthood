@@ -15,74 +15,74 @@
       "source": "./",
       "strict": false,
       "skills": [
-        "./skills/the-scribe",
-        "./skills/the-architect",
-        "./skills/the-strategist",
-        "./skills/the-tester",
-        "./skills/the-debugger",
-        "./skills/the-reviewer",
-        "./skills/the-auditor",
-        "./skills/the-operator",
-        "./skills/the-doorman",
-        "./skills/the-sentinel",
-        "./skills/the-warden",
-        "./skills/the-librarian",
-        "./skills/the-oracle",
-        "./skills/the-herald",
-        "./skills/the-envoy",
-        "./skills/the-steward",
-        "./skills/the-builder",
-        "./skills/the-mediator",
-        "./skills/the-mailman",
-        "./skills/the-inspector"
+        "./skills/scribe",
+        "./skills/architect",
+        "./skills/strategist",
+        "./skills/tester",
+        "./skills/debugger",
+        "./skills/reviewer",
+        "./skills/auditor",
+        "./skills/operator",
+        "./skills/doorman",
+        "./skills/sentinel",
+        "./skills/warden",
+        "./skills/librarian",
+        "./skills/oracle",
+        "./skills/herald",
+        "./skills/envoy",
+        "./skills/steward",
+        "./skills/builder",
+        "./skills/mediator",
+        "./skills/mailman",
+        "./skills/inspector"
       ]
     },
     {
       "name": "agenthood-engineering",
-      "description": "Engineering workflow skills: commit messages & PR descriptions (the-scribe), spec-first architecture planning (the-architect), goal refinement and requirement discovery (the-strategist), TDD test generation (the-tester), and systematic error diagnosis (the-debugger).",
+      "description": "Engineering workflow skills: commit messages & PR descriptions (scribe), spec-first architecture planning (architect), goal refinement and requirement discovery (strategist), TDD test generation (tester), and systematic error diagnosis (debugger).",
       "source": "./",
       "strict": false,
       "skills": [
-        "./skills/the-scribe",
-        "./skills/the-architect",
-        "./skills/the-strategist",
-        "./skills/the-tester",
-        "./skills/the-debugger"
+        "./skills/scribe",
+        "./skills/architect",
+        "./skills/strategist",
+        "./skills/tester",
+        "./skills/debugger"
       ]
     },
     {
       "name": "agenthood-validation",
-      "description": "Validation and quality skills: multi-axis code review (the-reviewer), security & dependency audit (the-auditor), commit/PR/branch convention enforcement (the-doorman), cross-member contradiction detection (the-sentinel), and code smell & complexity enforcement (the-warden).",
+      "description": "Validation and quality skills: multi-axis code review (reviewer), security & dependency audit (auditor), commit/PR/branch convention enforcement (doorman), cross-member contradiction detection (sentinel), and code smell & complexity enforcement (warden).",
       "source": "./",
       "strict": false,
       "skills": [
-        "./skills/the-reviewer",
-        "./skills/the-auditor",
-        "./skills/the-doorman",
-        "./skills/the-sentinel",
-        "./skills/the-warden"
+        "./skills/reviewer",
+        "./skills/auditor",
+        "./skills/doorman",
+        "./skills/sentinel",
+        "./skills/warden"
       ]
     },
     {
       "name": "agenthood-knowledge",
-      "description": "Knowledge and documentation skills: API references, ADRs, READMEs (the-librarian) and institutional knowledge about member format, naming conventions, and Society structure (the-oracle).",
+      "description": "Knowledge and documentation skills: API references, ADRs, READMEs (librarian) and institutional knowledge about member format, naming conventions, and Society structure (oracle).",
       "source": "./",
       "strict": false,
       "skills": [
-        "./skills/the-librarian",
-        "./skills/the-oracle"
+        "./skills/librarian",
+        "./skills/oracle"
       ]
     },
     {
       "name": "agenthood-lifecycle",
-      "description": "Release lifecycle skills: semantic versioning, changelogs, release notes (the-herald), cross-provider translation and bootstrap generation (the-envoy), runtime health, deployments, rollback (the-operator), and context window management and member routing (the-steward).",
+      "description": "Release lifecycle skills: semantic versioning, changelogs, release notes (herald), cross-provider translation and bootstrap generation (envoy), runtime health, deployments, rollback (operator), and context window management and member routing (steward).",
       "source": "./",
       "strict": false,
       "skills": [
-        "./skills/the-herald",
-        "./skills/the-envoy",
-        "./skills/the-operator",
-        "./skills/the-steward"
+        "./skills/herald",
+        "./skills/envoy",
+        "./skills/operator",
+        "./skills/steward"
       ]
     }
   ]

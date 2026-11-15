@@ -1,4 +1,4 @@
-import { MEMBER_NAMES } from '../members.ts'
+import { MEMBER_NAMES, isKnownMember } from '../members.ts'
 
 /** Shared usage/unknown-member validation for activate/deactivate */
 export function requireMember(member: string | undefined, verb: string): string {
@@ -7,7 +7,7 @@ export function requireMember(member: string | undefined, verb: string): string 
     console.error('Members:', MEMBER_NAMES.join(', '))
     process.exit(1)
   }
-  if (!MEMBER_NAMES.includes(member)) {
+  if (!isKnownMember(member)) {
     console.error(`\nUnknown member: "${member}"`)
     console.error('Available members:', MEMBER_NAMES.join(', '))
     process.exit(1)

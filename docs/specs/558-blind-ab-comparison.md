@@ -141,8 +141,8 @@ Exit codes: 0 = A wins or tie, 1 = B wins (useful for CI gating on regression).
 ### Output Format
 
 ```
-  A/B Comparison — the-scribe (A) vs the-scribe-v2 (B)
-  Suite: the-scribe.json | Tasks: 5 | Metrics: clarity, completeness, accuracy
+  A/B Comparison — scribe (A) vs scribe-v2 (B)
+  Suite: scribe.json | Tasks: 5 | Metrics: clarity, completeness, accuracy
 
   Per-task:
   Task 1: "Write a commit message..."

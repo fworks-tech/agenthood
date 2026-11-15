@@ -5,7 +5,7 @@ failed=0
 for dir in docs/members/*/; do
   name=$(basename "$dir")
   [ "$name" = "README.md" ] && continue
-  skill="skills/$name/SKILL.md"
+  skill="skills/${name#the-}/SKILL.md"
   [ ! -f "$skill" ] && echo "FAIL [$name]: missing SKILL.md" && failed=1 && continue
   fm=$(awk '/^---/{count++; if(count==2) exit} count==1' "$skill")
   if [ -z "$fm" ]; then

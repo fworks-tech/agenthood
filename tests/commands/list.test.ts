@@ -42,7 +42,7 @@ describe('list command', () => {
 
   it('shows active for members whose skill file exists', async () => {
     vi.mocked(existsSync).mockImplementation((p) =>
-      typeof p === 'string' && p.includes('the-scribe')
+      typeof p === 'string' && p.includes('scribe')
     )
     const { list } = await import( '../../src/commands/list.ts')
     await list()
@@ -70,7 +70,7 @@ describe('list command', () => {
 
   it('shows token estimates for active skills', async () => {
     vi.mocked(existsSync).mockImplementation((p) =>
-      typeof p === 'string' && p.includes('the-scribe')
+      typeof p === 'string' && p.includes('scribe')
     )
     vi.mocked(readFileSync).mockReturnValue('x'.repeat(400))
     const { list } = await import( '../../src/commands/list.ts')

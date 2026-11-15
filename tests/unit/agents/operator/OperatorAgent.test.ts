@@ -4,9 +4,9 @@ import { RedactionFilter } from '../../../../src/core/RedactionFilter.ts'
 import { asPromptable } from '../../../helpers/agentFixtures.ts'
 
 describe('OperatorAgent', () => {
-  it('has role the-operator', () => {
+  it('has role operator', () => {
     const agent = new OperatorAgent({} as any, {} as any, {} as any)
-    expect(agent.role).toBe('the-operator')
+    expect(agent.role).toBe('operator')
   })
 
   it('generates system prompt', async () => {
@@ -30,7 +30,7 @@ describe('OperatorAgent', () => {
     expect(promptArg).toContain('## Action Taken')
     expect(promptArg).toContain('## Outcome')
     expect(promptArg).toContain('## Escalation')
-    expect(result.role).toBe('the-operator')
+    expect(result.role).toBe('operator')
     expect(result.output).toBe('ok')
   })
 

@@ -148,10 +148,10 @@ describe('ApplicationContext run pipeline', () => {
     )
     const app = await ApplicationContext.create(projectDir, {} as never)
 
-    await expect(app.runner.runMemberTask('the-builder', 'write a test', {} as never)).rejects.toThrow('provider exploded')
+    await expect(app.runner.runMemberTask('builder', 'write a test', {} as never)).rejects.toThrow('provider exploded')
 
     const env = app.ctx.tracer.getRecent(1)[0]
-    expect(env.member).toBe('the-builder')
+    expect(env.member).toBe('builder')
     expect(env.status).toBe('error')
   })
 
@@ -161,7 +161,7 @@ describe('ApplicationContext run pipeline', () => {
     const app = await ApplicationContext.create(projectDir, {} as never)
     app.ctx.source = 'cli'
 
-    await app.runner.runMemberTask('the-builder', 'write a test', {} as never)
+    await app.runner.runMemberTask('builder', 'write a test', {} as never)
 
     const env = app.ctx.tracer.getRecent(1)[0]
     expect(env.source).toBe('cli')

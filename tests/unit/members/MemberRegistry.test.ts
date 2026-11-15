@@ -10,10 +10,10 @@ describe('MemberRegistry', () => {
 
   it('returns correct spec for each known member', () => {
     const names = [
-      'the-scribe', 'the-architect', 'the-builder', 'the-reviewer', 'the-tester',
-      'the-debugger', 'the-auditor', 'the-herald', 'the-librarian',
-      'the-doorman', 'the-oracle', 'the-envoy', 'the-sentinel',
-      'the-warden', 'the-steward', 'the-strategist', 'the-operator', 'the-inspector', 'the-mailman', 'the-mediator',
+      'scribe', 'architect', 'builder', 'reviewer', 'tester',
+      'debugger', 'auditor', 'herald', 'librarian',
+      'doorman', 'oracle', 'envoy', 'sentinel',
+      'warden', 'steward', 'strategist', 'operator', 'inspector', 'mailman', 'mediator',
     ]
     for (const name of names) {
       const spec = registry.get(name)
@@ -33,8 +33,8 @@ describe('MemberRegistry', () => {
   })
 
   it('has() returns correctly', () => {
-    expect(registry.has('the-scribe')).toBe(true)
-    expect(registry.has('the-reviewer')).toBe(true)
+    expect(registry.has('scribe')).toBe(true)
+    expect(registry.has('reviewer')).toBe(true)
     expect(registry.has('fake-member')).toBe(false)
   })
 
@@ -49,13 +49,13 @@ describe('MemberRegistry', () => {
     expect(knowledge.length).toBeGreaterThanOrEqual(1)
     expect(lifecycle.length).toBeGreaterThanOrEqual(1)
 
-    // Total should be 20 (16 original + the-inspector + the-mailman + the-builder + the-mediator)
+    // Total should be 20 (16 original + inspector + mailman + builder + mediator)
     expect(engineering.length + validation.length + knowledge.length + lifecycle.length).toBe(20)
   })
 
   it('permission profiles match architecture docs', () => {
-    const restricted = ['the-reviewer', 'the-auditor', 'the-doorman', 'the-oracle', 'the-envoy', 'the-sentinel', 'the-warden', 'the-steward', 'the-mediator']
-    const standard = ['the-scribe', 'the-architect', 'the-builder', 'the-tester', 'the-debugger', 'the-herald', 'the-librarian', 'the-inspector']
+    const restricted = ['reviewer', 'auditor', 'doorman', 'oracle', 'envoy', 'sentinel', 'warden', 'steward', 'mediator']
+    const standard = ['scribe', 'architect', 'builder', 'tester', 'debugger', 'herald', 'librarian', 'inspector']
 
     for (const name of restricted) {
       expect(registry.get(name).permissionProfile).toBe('restricted')
@@ -66,12 +66,12 @@ describe('MemberRegistry', () => {
   })
 
   it('preferred providers match architecture docs', () => {
-    expect(registry.get('the-scribe').preferredProvider).toBe('anthropic')
-    expect(registry.get('the-architect').preferredProvider).toBe('anthropic')
-    expect(registry.get('the-reviewer').preferredProvider).toBe('anthropic')
-    expect(registry.get('the-doorman').preferredProvider).toBe('ollama')
-    expect(registry.get('the-steward').preferredProvider).toBe('groq')
-    expect(registry.get('the-mediator').preferredProvider).toBe('anthropic')
+    expect(registry.get('scribe').preferredProvider).toBe('anthropic')
+    expect(registry.get('architect').preferredProvider).toBe('anthropic')
+    expect(registry.get('reviewer').preferredProvider).toBe('anthropic')
+    expect(registry.get('doorman').preferredProvider).toBe('ollama')
+    expect(registry.get('steward').preferredProvider).toBe('groq')
+    expect(registry.get('mediator').preferredProvider).toBe('anthropic')
   })
 
   it('loads system prompt from SKILL.md for each member', () => {

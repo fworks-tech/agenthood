@@ -16,7 +16,7 @@ function tempDir(): string {
 
 function makeEnvelope(overrides: Partial<TraceEnvelope> = {}): TraceEnvelope {
   return createTraceEnvelope({
-    member: 'the-scribe',
+    member: 'scribe',
     input: 'task',
     output: 'out',
     durationMs: 10,
@@ -46,13 +46,13 @@ describe('JSONFileTraceStore', () => {
 
   it('queries by member', async () => {
     const store = new JSONFileTraceStore(join(tempDir(), 'traces.ndjson'))
-    await store.store(makeEnvelope({ member: 'the-scribe' }))
-    await store.store(makeEnvelope({ member: 'the-reviewer' }))
-    await store.store(makeEnvelope({ member: 'the-scribe' }))
+    await store.store(makeEnvelope({ member: 'scribe' }))
+    await store.store(makeEnvelope({ member: 'reviewer' }))
+    await store.store(makeEnvelope({ member: 'scribe' }))
 
-    const scribes = await store.query({ member: 'the-scribe' })
+    const scribes = await store.query({ member: 'scribe' })
     expect(scribes).toHaveLength(2)
-    expect(scribes.every((e) => e.member === 'the-scribe')).toBe(true)
+    expect(scribes.every((e) => e.member === 'scribe')).toBe(true)
   })
 
   it('queries by time range', async () => {
@@ -81,13 +81,13 @@ describe('JSONFileTraceStore', () => {
   it('loads persisted traces from disk on construction', async () => {
     const file = join(tempDir(), 'traces.ndjson')
     const first = new JSONFileTraceStore(file)
-    await first.store(makeEnvelope({ member: 'the-builder', timestamp: '2026-01-01T00:00:00.000Z' }))
-    await first.store(makeEnvelope({ member: 'the-tester', timestamp: '2026-01-01T00:00:01.000Z' }))
+    await first.store(makeEnvelope({ member: 'builder', timestamp: '2026-01-01T00:00:00.000Z' }))
+    await first.store(makeEnvelope({ member: 'tester', timestamp: '2026-01-01T00:00:01.000Z' }))
 
     const second = new JSONFileTraceStore(file)
     const all = await second.query()
     expect(all).toHaveLength(2)
-    expect(all[0].member).toBe('the-tester')
+    expect(all[0].member).toBe('tester')
   })
 
   it('skips corrupt lines when loading', async () => {
@@ -104,7 +104,7 @@ describe('JSONFileTraceStore', () => {
     const file = join(tempDir(), 'traces.ndjson')
     const store = new JSONFileTraceStore(file)
     await store.store(makeEnvelope())
-    await store.store(makeEnvelope({ member: 'the-reviewer' }))
+    await store.store(makeEnvelope({ member: 'reviewer' }))
 
     const lines = readFileSync(file, 'utf8').trim().split('\n')
     expect(lines).toHaveLength(2)

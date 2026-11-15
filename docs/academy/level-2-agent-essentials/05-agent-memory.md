@@ -76,7 +76,7 @@ society-graph snapshots. The full design is in
 ## Hands-on example
 
 ```bash
-agenthood run the-builder "fix the same bug we fixed in the billing service last week"
+agenthood run builder "fix the same bug we fixed in the billing service last week"
 ```
 
 The agent queries episodic memory for past billing-service fixes, retrieves the relevant trace, and applies the learned pattern. Without episodic memory, it would start from scratch:

@@ -5,7 +5,7 @@ import type { RunMemberFn } from '../../../src/evals/EvalRunner.ts'
 
 function envelope(overrides: Partial<TraceEnvelope> = {}): TraceEnvelope {
   return {
-    member: 'the-reviewer',
+    member: 'reviewer',
     inputHash: 'h-in',
     outputHash: 'h-out',
     durationMs: 10,
@@ -111,10 +111,10 @@ describe('ReplayEvaluator', () => {
   it('lists the distinct members in the replayed traces', async () => {
     const runner: RunMemberFn = async () => ({ output: 'out', durationMs: 1 })
     const report = await new ReplayEvaluator(runner, vi.fn(async () => [1])).replay([
-      envelope({ member: 'the-reviewer', input: 'x', output: 'y' }),
-      envelope({ member: 'the-scribe', input: 'u', output: 'v' }),
+      envelope({ member: 'reviewer', input: 'x', output: 'y' }),
+      envelope({ member: 'scribe', input: 'u', output: 'v' }),
     ])
 
-    expect(report.members).toEqual(['the-reviewer', 'the-scribe'])
+    expect(report.members).toEqual(['reviewer', 'scribe'])
   })
 })

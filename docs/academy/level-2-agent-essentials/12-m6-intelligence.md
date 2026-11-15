@@ -87,12 +87,12 @@ const members = orchestrator.detectMembers({
 });
 
 // [
-//   { member: 'the-auditor', score: 6, matchedKeywords: ['security'], ... },
-//   { member: 'the-reviewer', score: 4, matchedKeywords: ['review'], ... },
+//   { member: 'auditor', score: 6, matchedKeywords: ['security'], ... },
+//   { member: 'reviewer', score: 4, matchedKeywords: ['review'], ... },
 // ]
 
 const lead = orchestrator.getDefaultMember(members);
-// 'the-auditor'
+// 'auditor'
 ```
 
 Phase 1 implements keyword-based member detection and stage routing, used by The Steward to route tasks to the right Society member.

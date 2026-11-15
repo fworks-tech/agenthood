@@ -35,14 +35,14 @@ const planAndBuild: WorkflowDefinition = {
   name: 'plan-and-build',
   description: 'Plan, test, implement, and review a change',
   steps: [
-    { name: 'plan', type: 'agent', agentName: 'the-architect', task: 'plan the auth refactor' },
+    { name: 'plan', type: 'agent', agentName: 'architect', task: 'plan the auth refactor' },
     { name: 'approve', type: 'human-in-loop', task: 'approve the plan' },
-    { name: 'test', type: 'agent', agentName: 'the-tester', task: 'write tests for the plan' },
+    { name: 'test', type: 'agent', agentName: 'tester', task: 'write tests for the plan' },
     { name: 'implement-and-doc', type: 'parallel', subSteps: [
-      { name: 'implement', type: 'agent', agentName: 'the-builder', task: 'implement the refactor' },
-      { name: 'docs', type: 'agent', agentName: 'the-librarian', task: 'update the docs' },
+      { name: 'implement', type: 'agent', agentName: 'builder', task: 'implement the refactor' },
+      { name: 'docs', type: 'agent', agentName: 'librarian', task: 'update the docs' },
     ]},
-    { name: 'review', type: 'agent', agentName: 'the-reviewer', task: 'review the changes' },
+    { name: 'review', type: 'agent', agentName: 'reviewer', task: 'review the changes' },
   ],
 };
 
@@ -57,19 +57,19 @@ Each step produces a typed output that the next step consumes. The `HumanInLoopS
 
 ```bash
 # Run a predefined Society workflow
-npx agenthood run the-steward "ship: add rate limiting to the API middleware"
+npx agenthood run steward "ship: add rate limiting to the API middleware"
 ```
 
 The Steward routes the task through the appropriate members: Architect plans, Tester writes tests, Developer implements, Reviewer reviews. Each step's output is logged:
 
 ```
-[1/5] the-architect  → plan: 3 files to modify, 1 new dependency
+[1/5] architect  → plan: 3 files to modify, 1 new dependency
 [2/5] HUMAN GATE     → approve-plan: approved
-[3/5] the-tester     → 4 tests written (2 unit, 2 integration)
+[3/5] tester     → 4 tests written (2 unit, 2 integration)
 [4/5] parallel:
-        the-builder → implemented rateLimiter.ts
-        the-librarian → updated README and ADR-011 stub
-[5/5] the-reviewer   → approved, 0 blockers, 2 nits
+        builder → implemented rateLimiter.ts
+        librarian → updated README and ADR-011 stub
+[5/5] reviewer   → approved, 0 blockers, 2 nits
 ```
 
 ---

@@ -3,6 +3,7 @@ import type { ExecutionContext } from "../core/ExecutionContext.ts"
 import type { Message, TokenUsage, ToolCall, LLMResponse } from "../llm/types.ts"
 import { ContextCompressor } from "../core/ContextCompressor.ts"
 import { estimateCost } from "../core/modelPricing.ts"
+import type { TrajectoryStep, TrajectoryToolCall } from "../core/TrajectoryStore.ts"
 import { logCost } from "../core/CostLogger.ts"
 import { ToolRegistry, ToolNotFoundError } from "../tools/ToolRegistry.ts"
 import type { ITool } from "../tools/ITool.ts"
@@ -74,6 +75,12 @@ export class ReActLoop {
   usage: TokenUsage = { promptTokens: 0, completionTokens: 0, totalTokens: 0 }
   private _model = ""
   private _provider: string | undefined
+  private _steps: TrajectoryStep[] = []
+
+  /** Per-step audit of the current run, newest last (#605). */
+  get steps(): TrajectoryStep[] {
+    return this._steps
+  }
 
   /** Responding model of the most recent step; the loop owns the write. */
   get model(): string {
@@ -149,6 +156,7 @@ export class ReActLoop {
 
     this.usage = { promptTokens: 0, completionTokens: 0, totalTokens: 0 };
     this._model = "";
+    this._steps = [];
 
     const recentCalls: string[] = [];
 
@@ -165,11 +173,13 @@ export class ReActLoop {
       const response = await this.runStep(step, messages, context);
 
       if (!response.toolCalls || response.toolCalls.length === 0) {
+        this.recordStep(step, response, [], context);
         return response.content;
       }
 
       try {
-        await this.runToolCalls(response.toolCalls, messages, recentCalls, step, context);
+        const tools = await this.runToolCalls(response.toolCalls, messages, recentCalls, step, context);
+        this.recordStep(step, response, tools, context);
       } catch (err) {
         // a park must land in the checkpoint with its dangling ask_human call
         if (err instanceof AskHumanSignal) {
@@ -294,7 +304,8 @@ export class ReActLoop {
     recentCalls: string[],
     step: number,
     context: ExecutionContext,
-  ): Promise<void> {
+  ): Promise<TrajectoryToolCall[]> {
+    const outcomes: TrajectoryToolCall[] = []
     for (const toolCall of toolCalls) {
       const signature = `${toolCall.name}:${JSON.stringify(toolCall.args)}`
       const occurrences = recentCalls.filter((s) => s === signature).length
@@ -326,6 +337,7 @@ export class ReActLoop {
           tool_call_id: toolCall.id,
           name: toolCall.name,
         })
+        outcomes.push({ name: toolCall.name, input: this.toolInput(toolCall, context), output: denied, status: 'error' })
         continue
       }
 
@@ -349,6 +361,7 @@ export class ReActLoop {
             tool_call_id: toolCall.id,
             name: toolCall.name,
           })
+          outcomes.push({ name: toolCall.name, input: this.toolInput(toolCall, context), output: 'User declined this action.', status: 'error' })
           continue
         }
       }
@@ -382,7 +395,42 @@ export class ReActLoop {
         output: redactEventText(context, content),
         durationMs,
       });
+
+      outcomes.push({
+        name: toolCall.name,
+        input: this.toolInput(toolCall, context),
+        output: redactEventText(context, content).slice(0, 2000),
+        status: /^\s*error:/i.test(content) ? 'error' : 'success',
+      })
     }
+    return outcomes
+  }
+
+  private toolInput(toolCall: ToolCall, context: ExecutionContext): string {
+    return redactEventText(context, JSON.stringify(toolCall.args ?? {})).slice(0, 500)
+  }
+
+  private recordStep(
+    step: number,
+    response: LLMResponse,
+    tools: TrajectoryToolCall[],
+    context: ExecutionContext,
+  ): void {
+    const promptTokens = response.usage?.promptTokens ?? 0
+    const completionTokens = response.usage?.completionTokens ?? 0
+    const model = response.model || this._model
+    this._steps.push({
+      step,
+      model,
+      inputSummary: '',
+      outputSummary: redactEventText(context, response.content).slice(0, 2000),
+      tokens: { prompt: promptTokens, completion: completionTokens },
+      cost: estimateCost(model, promptTokens, completionTokens).estimatedCost,
+      durationMs: 0,
+      status: 'success',
+      skills: [...this.activatedSkills],
+      tools,
+    })
   }
 
   private async executeTool(

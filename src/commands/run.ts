@@ -1,6 +1,5 @@
 import type { CommandDescriptor } from './types.ts'
 import type { TraceSource } from '../core/types.ts'
-import { MissingApiKeyError } from '../llm/validateApiKeys.ts'
 import { ApplicationContext } from '../runtime/ApplicationContext.ts'
 import { loadConfigOrExit } from './config.ts'
 import { requestShutdown, resetShutdown } from '../core/shutdown.ts'
@@ -87,14 +86,7 @@ export async function run(args: string[], options?: { source?: TraceSource }): P
   }
   const task = taskParts.join(" ")
 
-  try {
-    ApplicationContext.validateConfig(config)
-  } catch (err) {
-    if (err instanceof MissingApiKeyError) {
-      throw err
-    }
-    throw err
-  }
+  ApplicationContext.validateConfig(config)
 
   const app = await ApplicationContext.create(process.cwd(), config)
   app.ctx.source = options?.source ?? 'cli'

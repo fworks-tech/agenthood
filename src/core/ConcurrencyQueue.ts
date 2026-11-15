@@ -34,14 +34,12 @@ export interface QueuedTask {
 export interface QueueStatus {
   running: number
   queued: number
-  paused: number
   slotsTotal: number
 }
 
 export class ConcurrencyQueue {
   private queue: QueuedTask[] = []
   private running = 0
-  private paused = 0
   private slotCount: number
   private readonly maxDepth: number
   private readonly starvationMs: number
@@ -182,14 +180,13 @@ export class ConcurrencyQueue {
     return {
       running: this.running,
       queued: this.queue.length,
-      paused: this.paused,
       slotsTotal: this.slotCount,
     }
   }
 
   statusLine(): string {
     const s = this.getStatus()
-    return `⚡ ${s.running} running  • ${s.queued} queued${s.paused > 0 ? `  • ${s.paused} paused (approval needed)` : ''}`
+    return `⚡ ${s.running} running  • ${s.queued} queued`
   }
 
   /**

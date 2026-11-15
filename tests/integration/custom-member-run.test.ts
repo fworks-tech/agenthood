@@ -81,7 +81,7 @@ describe('custom member end-to-end (#1040)', () => {
     const runner = makeRunner(checkpoints)
     const models: string[] = []
     runner.ctx.events.subscribe((e: RunEvent) => {
-      if (e.type === 'reasoning') models.push(e.model)
+      if (e.type === 'reasoning' && e.model) models.push(e.model)
     })
 
     try {

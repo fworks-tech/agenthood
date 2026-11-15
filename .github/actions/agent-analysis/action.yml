@@ -33,7 +33,7 @@ inputs:
   model:
     description: Model ID as provider/model (e.g. opencode/mimo-v2.5-free). The part before / selects the CLI provider.
     required: false
-    default: "opencode/deepseek-v4-flash"
+    default: "opencode/gpt-5-nano"
 
 runs:
   using: composite

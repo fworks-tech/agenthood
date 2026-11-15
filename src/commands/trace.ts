@@ -32,19 +32,23 @@ function printTrajectory(t: Trajectory): void {
 
   for (const step of t.steps) {
     const statusIcon = step.status === 'success' ? '✓' : step.status === 'error' ? '✗' : step.status === 'human-input' ? '◉' : '↻'
-    const toolInfo = step.tool ? ` → ${step.tool}` : ''
+    const called = step.tools?.map((t) => t.name) ?? (step.tool ? [step.tool] : [])
+    const toolInfo = called.length > 0 ? ` → ${called.join(', ')}` : ''
     const humanInfo = step.humanDecision ? ` [${step.humanDecision}]` : ''
     console.log(`  ┌─ Step ${step.step} ─────────────────────────────────────────────────┐`)
     console.log(`  │ ${statusIcon} Model: ${step.model}${toolInfo}${humanInfo}`)
+    if (step.skills?.length) console.log(`  │ Skills: ${step.skills.join(', ')}`)
     console.log(`  │ Tokens: ${step.tokens.prompt.toLocaleString()} prompt + ${step.tokens.completion.toLocaleString()} completion`)
     console.log(`  │ Cost: $${step.cost.toFixed(4)} | Duration: ${formatDuration(step.durationMs)}`)
-    if (step.toolInput) {
-      const input = step.toolInput.length > 80 ? step.toolInput.slice(0, 80) + '...' : step.toolInput
-      console.log(`  │ Input: ${input}`)
+    const toolInputs = step.tools?.map((t) => `${t.name}: ${t.input}`) ?? (step.toolInput ? [step.toolInput] : [])
+    const toolOutputs = step.tools?.map((t) => t.output) ?? (step.toolOutput ? [step.toolOutput] : [])
+    for (const input of toolInputs) {
+      const text = input.length > 80 ? input.slice(0, 80) + '...' : input
+      console.log(`  │ Input: ${text}`)
     }
-    if (step.toolOutput) {
-      const output = step.toolOutput.length > 80 ? step.toolOutput.slice(0, 80) + '...' : step.toolOutput
-      console.log(`  │ Output: ${output}`)
+    for (const output of toolOutputs) {
+      const text = output.length > 80 ? output.slice(0, 80) + '...' : output
+      console.log(`  │ Output: ${text}`)
     }
     console.log(`  └──────────────────────────────────────────────────────────────┘`)
   }
@@ -72,6 +76,55 @@ function printDiff(t1: Trajectory, t2: Trajectory): void {
   console.log()
 }
 
+function flagValue(args: string[], flag: string): string | undefined {
+  const i = args.indexOf(flag)
+  return i >= 0 ? args[i + 1] : undefined
+}
+
+function stepUsedSkill(step: Trajectory['steps'][number], skill: string): boolean {
+  return step.skills?.includes(skill) === true
+}
+
+function stepUsedTool(step: Trajectory['steps'][number], tool: string): boolean {
+  return step.tool === tool || step.tools?.some((t) => t.name === tool) === true
+}
+
+/** Trajectories whose steps used a skill or called a tool, newest first (#605). */
+export function matchTrajectories(
+  trajectories: Trajectory[],
+  filter: { skill?: string; tool?: string; member?: string; since?: string },
+): Trajectory[] {
+  return trajectories
+    .filter((t) => !filter.member || t.member === filter.member)
+    .filter((t) => !filter.since || t.completedAt >= filter.since)
+    .filter((t) => !filter.skill || t.steps.some((s) => stepUsedSkill(s, filter.skill!)))
+    .filter((t) => !filter.tool || t.steps.some((s) => stepUsedTool(s, filter.tool!)))
+    .sort((a, b) => b.completedAt.localeCompare(a.completedAt))
+}
+
+function printTrajectoryList(
+  trajectories: Trajectory[],
+  filter: { skill?: string; tool?: string; member?: string; since?: string; json?: boolean },
+): void {
+  const matched = matchTrajectories(trajectories, filter)
+
+  if (filter.json) {
+    console.log(JSON.stringify({ trajectories: matched }, null, 2))
+    return
+  }
+  if (matched.length === 0) {
+    console.log('No trajectories match the given filters.')
+    return
+  }
+
+  const header = `${'Id'.padEnd(10)} ${'Member'.padEnd(18)} ${'Steps'.padEnd(6)} ${'Cost'.padEnd(10)} Completed`
+  console.log(`\n  ${header}`)
+  for (const t of matched) {
+    console.log(`  ${t.id.slice(0, 8).padEnd(10)} ${t.member.padEnd(18)} ${String(t.steps.length).padEnd(6)} $${t.totalCost.toFixed(4).padEnd(9)} ${t.completedAt}`)
+  }
+  console.log()
+}
+
 function printHelp(): void {
   console.log(`Usage:
   npx agenthood trace [options]
@@ -82,6 +135,8 @@ Inspect recent member invocation traces from the observability store.
 
 Options:
   --member <name>   Filter by member name
+  --skill <name>    List trajectories whose steps used this skill
+  --tool <name>     List trajectories whose steps called this tool
   --limit <n>       Maximum number of traces (default 20)
   --since <time>    Only traces newer than <time> (ISO date or 1h/24h/7d)
   --json            Machine-readable JSON output
@@ -139,10 +194,19 @@ export async function trace(args: string[] = []): Promise<void> {
 
   const tracesPath = resolveTraceStorePath(cwd, loadObservabilityConfig(cwd))
 
+  const skill = flagValue(args, '--skill')
+  const tool = flagValue(args, '--tool')
   const parsed = parseStoreInspectArgs(args)
   const { member, limit, since, json } = parsed
   if (parsed.help) {
     printHelp()
+    return
+  }
+
+  // Skill and tool only exist on step-level trajectories, so those flags switch
+  // the listing from trace envelopes to trajectories (#605).
+  if (skill || tool) {
+    printTrajectoryList(new TrajectoryStore(cwd).list(), { skill, tool, member, since, json })
     return
   }
 

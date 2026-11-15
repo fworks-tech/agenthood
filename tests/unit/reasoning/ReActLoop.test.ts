@@ -423,3 +423,56 @@ describe('ReActLoop skill tool scope', () => {
     expect(activate.execute).toHaveBeenCalled()
   })
 })
+
+describe('ReActLoop per-step trajectory', () => {
+  it('records one step per LLM turn with its tools and active skills', async () => {
+    const tool: ITool = {
+      name: 'read_file',
+      description: 'Read',
+      inputSchema: { type: 'object', properties: {} },
+      execute: vi.fn().mockResolvedValue({ success: true, output: 'contents' }),
+    }
+    const llm = mockProvider({ toolCalls: [{ name: 'read_file', args: { path: 'a.ts' } }] })
+    const reg = new ToolRegistry()
+    reg.register(tool)
+    const loop = new ReActLoop(llm, reg)
+    const ctx = createTestContext()
+
+    await loop.run('system prompt', 'read a.ts', ctx)
+
+    expect(loop.steps).toHaveLength(2)
+    expect(loop.steps[0].tools).toEqual([
+      { name: 'read_file', input: '{"path":"a.ts"}', output: 'contents', status: 'success' },
+    ])
+    expect(loop.steps[0].tokens).toEqual({ prompt: 10, completion: 5 })
+    expect(loop.steps[1].tools).toEqual([])
+    expect(loop.steps[1].outputSummary).toBe('final answer')
+  })
+
+  it('resets the recorded steps on each run', async () => {
+    const loop = new ReActLoop(mockProvider(), new ToolRegistry())
+    await loop.run('system prompt', 'one', createTestContext())
+    await loop.run('system prompt', 'two', createTestContext())
+    expect(loop.steps).toHaveLength(1)
+  })
+
+  it('records a denied tool with error status', async () => {
+    const tool: ITool = {
+      name: 'file.write',
+      description: 'Write',
+      inputSchema: { type: 'object', properties: {} },
+      execute: vi.fn(),
+    }
+    const llm = mockProvider({ toolCalls: [{ name: 'file.write', args: {} }] })
+    const reg = new ToolRegistry()
+    reg.register(tool)
+    const loop = new ReActLoop(llm, reg)
+    loop.activatedSkills.add('auditor')
+    const ctx = createTestContext()
+    ctx.skillAllowedTools = () => ['file.read']
+
+    await loop.run('system prompt', 'write', ctx)
+
+    expect(loop.steps[0].tools?.[0]).toMatchObject({ name: 'file.write', status: 'error' })
+  })
+})

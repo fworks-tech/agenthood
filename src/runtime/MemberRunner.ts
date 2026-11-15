@@ -19,6 +19,7 @@ import { AskHumanSignal, AskHumanTool } from '../tools/human/AskHumanTool.ts'
 import { validateOutputFormat, reportFormatDeviation } from './outputFormat.ts'
 import { redactEventText } from '../core/RunEventBus.ts'
 import { TrajectoryStore } from '../core/TrajectoryStore.ts'
+import type { TrajectoryStep } from '../core/TrajectoryStore.ts'
 import { estimateCostFromTokens } from '../core/modelPricing.ts'
 import { ConcurrencyQueue, type Priority } from '../core/ConcurrencyQueue.ts'
 import type { TraceSource } from '../core/types.ts'
@@ -174,7 +175,7 @@ export class MemberRunner {
       const duration = Math.round(performance.now() - startTime)
       return this.completeRunSuccess({
         spec, result, duration, usage: loop.usage, metricsCollector, checkpointStore, checkpointData,
-        task, model: checkpointData.model ?? config.model ?? 'unknown', provider: loop.provider,
+        task, model: checkpointData.model ?? config.model ?? 'unknown', provider: loop.provider, steps: loop.steps,
       })
     } catch (err) {
       const duration = Math.round(performance.now() - startTime)
@@ -187,7 +188,7 @@ export class MemberRunner {
       }
       this.recordRunFailure({
         spec, err, duration, metricsCollector, checkpointStore, checkpointData,
-        task, model: checkpointData.model ?? config.model ?? 'unknown', provider: loop.provider,
+        task, model: checkpointData.model ?? config.model ?? 'unknown', provider: loop.provider, steps: loop.steps,
       })
       throw err
     } finally {
@@ -240,6 +241,8 @@ export class MemberRunner {
     task: string
     model: string
     provider?: string
+    /** Per-step audit from the ReAct loop; empty falls back to one summary step. */
+    steps?: TrajectoryStep[]
     status: 'success' | 'error'
     outputSummary: string
     usage: TokenUsage
@@ -260,16 +263,18 @@ export class MemberRunner {
         correlationId: id,
         member: args.spec.name,
         task: redactEventText(this.ctx, args.task),
-        steps: [{
-          step: 0,
-          model: args.model,
-          inputSummary: redactEventText(this.ctx, args.task).slice(0, 500),
-          outputSummary: args.outputSummary.slice(0, 2000),
-          tokens: { prompt, completion },
-          cost,
-          durationMs: args.duration,
-          status: args.status,
-        }],
+        steps: args.steps?.length
+          ? args.steps
+          : [{
+              step: 0,
+              model: args.model,
+              inputSummary: redactEventText(this.ctx, args.task).slice(0, 500),
+              outputSummary: args.outputSummary.slice(0, 2000),
+              tokens: { prompt, completion },
+              cost,
+              durationMs: args.duration,
+              status: args.status,
+            }],
         totalTokens: prompt + completion,
         totalCost: cost,
         totalDurationMs: args.duration,
@@ -292,6 +297,7 @@ export class MemberRunner {
     task: string
     model: string
     provider?: string
+    steps?: TrajectoryStep[]
   }): MemberRunResult {
     if (args.spec.output_format) {
       const { valid, message } = validateOutputFormat(args.result.output, args.spec.output_format)
@@ -304,6 +310,7 @@ export class MemberRunner {
       task: args.task,
       model: args.model,
       provider: args.provider,
+      steps: args.steps,
       status: 'success',
       outputSummary: redactEventText(this.ctx, args.result.output),
       usage: args.usage,
@@ -331,6 +338,7 @@ export class MemberRunner {
     task: string
     model: string
     provider?: string
+    steps?: TrajectoryStep[]
   }): void {
     args.metricsCollector.record(args.spec.name, false, args.duration)
     args.checkpointStore.updateStatus(args.checkpointData.id, 'failed')
@@ -339,6 +347,7 @@ export class MemberRunner {
       task: args.task,
       model: args.model,
       provider: args.provider,
+      steps: args.steps,
       status: 'error',
       outputSummary: redactEventText(this.ctx, args.err instanceof Error ? args.err.message : String(args.err)),
       usage: { promptTokens: 0, completionTokens: 0, totalTokens: 0 },

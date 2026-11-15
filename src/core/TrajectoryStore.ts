@@ -1,12 +1,25 @@
 import { existsSync, mkdirSync, readdirSync, readFileSync, writeFileSync } from 'node:fs'
 import { join } from 'node:path'
 
+/** One tool call inside a ReAct step; a step may call several. */
+export interface TrajectoryToolCall {
+  name: string
+  input: string
+  output: string
+  status: 'success' | 'error'
+}
+
 export interface TrajectoryStep {
   step: number
   model: string
+  /** Legacy single-tool fields, still read from older trajectory files. */
   tool?: string
   toolInput?: string
   toolOutput?: string
+  /** Skills active when the step ran (#605) */
+  skills?: string[]
+  /** Every tool the step called, in order (#605) */
+  tools?: TrajectoryToolCall[]
   inputSummary: string
   outputSummary: string
   tokens: { prompt: number; completion: number }

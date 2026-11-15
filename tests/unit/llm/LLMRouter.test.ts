@@ -203,6 +203,8 @@ describe('LLMRouter', () => {
       const newConfig = { provider: 'ollama', apiKey: 'new-key' }
       const reinitialized = await LLMRouter.reinitializeProvider('ollama', newConfig)
       expect(reinitialized).toBeDefined()
+      // the model-keyed cache must be dropped, or a rotated key keeps the old client
+      expect(reinitialized).not.toBe(provider)
     })
   })
 })

@@ -159,7 +159,8 @@ npm ci --ignore-scripts
 npm run build
 
 rc=0
-node dist/cli.js run "$AGENT_NAME" "$TASK" --provider "$ANALYSIS_PROVIDER" \
+# Bounded so a stalled provider cannot hold the job until GitHub's 6h limit.
+timeout --kill-after=30 600 node dist/cli.js run "$AGENT_NAME" "$TASK" --provider "$ANALYSIS_PROVIDER" \
   1> "$analysis_file" \
   2>> "$error_file" || rc=$?
 

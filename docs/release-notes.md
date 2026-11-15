@@ -5,6 +5,18 @@
 
 ---
 
+## v3.76.0 — November 15, 2026
+
+### 🐛 Bug Fixes
+
+- **Deps:** clear npm audit advisories blocking dependency PRs (#1042)
+
+### ✨ Features
+
+- **Skills:** rename members to drop 'the-' prefix for cross-tool compatibility (#583) (#1016)
+
+---
+
 ## v3.75.0 — October 8, 2026
 
 ### ✨ Features
@@ -1321,9 +1333,9 @@
 - **Init,check:** align init ceremony with health check expectations, refs #286
 - **Skills:** add output format section to reviewer SKILL.md for consistent rendering, refs #286
 - sync skills/reviewer/SKILL.md with members/ changes, refs #286
-- **The-reviewer:** address review findings on output format and README, refs #286
-- **The-reviewer:** flatten heading hierarchy and add intra-section spacing example, refs #286
-- **The-reviewer:** use [SEVERITY] placeholder and move meta-instruction outside template, refs #286
+- **Reviewer:** address review findings on output format and README, refs #286
+- **Reviewer:** flatten heading hierarchy and add intra-section spacing example, refs #286
+- **Reviewer:** use [SEVERITY] placeholder and move meta-instruction outside template, refs #286
 
 ### ✨ Features
 

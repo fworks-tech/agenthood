@@ -88,6 +88,92 @@ describe('MemberRegistry', () => {
   })
 })
 
+describe('custom member registration (#1040)', () => {
+  const base = {
+    name: 'release-captain',
+    description: 'Owns release readiness for one product',
+    systemPrompt: 'You are the release captain. Verify the checklist before shipping.',
+  }
+
+  it('registers a member visible to has/get/list/listByCategory', () => {
+    const registry = new MemberRegistry()
+    const spec = registry.register(base)
+
+    expect(spec.name).toBe('release-captain')
+    expect(registry.has('release-captain')).toBe(true)
+    expect(registry.get('release-captain')).toBe(spec)
+    expect(registry.list()).toHaveLength(21)
+    expect(registry.list().at(-1)).toBe(spec)
+    expect(registry.listByCategory('engineering')).toContainEqual(spec)
+  })
+
+  it('applies fail-closed defaults', () => {
+    const spec = new MemberRegistry().register(base)
+
+    expect(spec.category).toBe('engineering')
+    expect(spec.tagline).toBe(base.description)
+    expect(spec.permissionProfile).toBe('restricted')
+    expect(spec.canDelegate).toBe(false)
+    expect(spec.sourcePath).toBe('custom:release-captain')
+    expect(spec.tools).toEqual(['file.read', 'file.search', 'code.explain'])
+  })
+
+  it('honors an explicit profile and model', () => {
+    const spec = new MemberRegistry().register({
+      ...base,
+      permissionProfile: 'standard',
+      model: 'claude-sonnet-5-5',
+      canDelegate: true,
+    })
+
+    expect(spec.permissionProfile).toBe('standard')
+    expect(spec.model).toBe('claude-sonnet-5-5')
+    expect(spec.canDelegate).toBe(true)
+    expect(spec.tools).toContain('file.write')
+  })
+
+  it('declared tools narrow the profile and never expand it', () => {
+    const registry = new MemberRegistry()
+    const spec = registry.register({ ...base, tools: ['file.read', 'pr_sync', 'code.write'] })
+    expect(spec.tools).toEqual(['file.read'])
+  })
+
+  it('an empty tool list yields no tools (fail closed)', () => {
+    expect(new MemberRegistry().register({ ...base, tools: [] }).tools).toEqual([])
+  })
+
+  it('rejects a built-in name collision', () => {
+    expect(() => new MemberRegistry().register({ ...base, name: 'builder' })).toThrow(/collides with an existing member/)
+  })
+
+  it('rejects a legacy alias collision', () => {
+    expect(() => new MemberRegistry().register({ ...base, name: 'the-scribe' })).toThrow(/collides/)
+  })
+
+  it('rejects registering the same name twice', () => {
+    const registry = new MemberRegistry()
+    registry.register(base)
+    expect(() => registry.register(base)).toThrow(/collides/)
+  })
+
+  it('rejects invalid slugs', () => {
+    const registry = new MemberRegistry()
+    for (const name of ['Release Captain', 'a', '-captain', 'CAPTAIN', 'cap_tain', 'has space']) {
+      expect(() => registry.register({ ...base, name })).toThrow(/invalid custom member name/)
+    }
+  })
+
+  it('rejects an empty or oversized system prompt', () => {
+    const registry = new MemberRegistry()
+    expect(() => registry.register({ ...base, systemPrompt: '   ' })).toThrow(/non-empty systemPrompt/)
+    expect(() => registry.register({ ...base, systemPrompt: 'x'.repeat(20_001) })).toThrow(/exceeds 20000/)
+  })
+
+  it('rejects an empty description', () => {
+    expect(() => new MemberRegistry().register({ ...base, description: ' ' })).toThrow(/non-empty description/)
+  })
+})
+
 describe('allowed-tools enforcement (#641)', () => {
   it('intersectDeclaredTools narrows the profile set to declared tools only', () => {
     const result = MemberRegistry.intersectDeclaredTools('file.read code.write', 'restricted')

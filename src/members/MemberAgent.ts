@@ -27,7 +27,7 @@ import { SubagentTaskSkill } from '../tools/core/SubagentTaskSkill.ts'
 import { escapeXml, wrapProjectContext, loadProjectContext, wrapSkillsCatalog, SKILLS_CATALOG_GUARD, wrapSkillContent, SKILL_CONTENT_GUARD } from '../agents/memberLore.ts'
 import { checkSkillIntegrity, describeIntegrityFailure, recordSkillIntegrityDrift, SkillIntegrityError } from '../utils/skillIntegrity.ts'
 import type { SkillIntegrityFailure } from '../utils/skillIntegrity.ts'
-import { sharedConversationalStyle } from './MemberRegistry.ts'
+import { sharedConversationalStyle, CUSTOM_SOURCE_PREFIX } from './MemberRegistry.ts'
 import type { EpisodeLearner } from '../evals/EpisodeLearner.ts'
 
 const TOOL_MAP: Record<string, new (...args: never[]) => ITool> = {
@@ -222,6 +222,10 @@ export class MemberAgent extends BaseAgent {
    * (A09: a silently inert persistence-vector control is worse than none).
    */
   private async verifySkillIntegrity(context: ExecutionContext): Promise<void> {
+    // Host-registered members have no SKILL.md on disk and no lock entry; the
+    // host owns their content, so there is nothing to hash against the lockfile.
+    if (this.spec.sourcePath.startsWith(CUSTOM_SOURCE_PREFIX)) return
+
     const status = checkSkillIntegrity(this.spec.name, this.spec.sourcePath)
     if (status === 'clean') return
 

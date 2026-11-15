@@ -20,6 +20,7 @@ import { LLMRouter } from '../llm/LLMRouter.ts'
 import type { ILLMProvider } from '../llm/ILLMProvider.ts'
 import type { LLMConfig } from '../llm/types.ts'
 import { MemberRegistry } from '../members/index.ts'
+import type { CustomMemberDefinition } from '../members/index.ts'
 import { DecisionLog } from '../memory/DecisionLog.ts'
 import { EpisodicMemoryImpl } from '../memory/EpisodicMemory.ts'
 import { GraphSnapshot } from '../memory/GraphSnapshot.ts'
@@ -54,6 +55,8 @@ export interface ApplicationContextOptions {
   skills: { catalog: string; manifests: Map<string, ISkillManifest> }
   sentry?: { dsn?: string }
   checkpointStore?: CheckpointStore
+  /** Host-registered members, applied after the built-in Society. */
+  customMembers?: CustomMemberDefinition[]
 }
 
 export class ApplicationContext {
@@ -75,11 +78,12 @@ export class ApplicationContext {
     llm: ILLMProvider,
     options: ApplicationContextOptions,
   ) {
-    const { societyGraph, vectorStore, skills, sentry, checkpointStore } = options
+    const { societyGraph, vectorStore, skills, sentry, checkpointStore, customMembers } = options
     this.llm = llm
     this.societyGraph = societyGraph
     this.agents = new AgentRegistry()
     this.members = new MemberRegistry()
+    for (const def of customMembers ?? []) this.members.register(def)
     this.episodeLearner = new EpisodeLearner(undefined, new EmbeddingIndex(vectorStore))
     this.alertsPath = join(projectPath, '.agenthood', 'alerts', 'anomalies.ndjson')
 
@@ -138,7 +142,7 @@ export class ApplicationContext {
   static async create(
     projectPath: string,
     config: LLMConfig,
-    host?: { checkpointStore?: CheckpointStore },
+    host?: { checkpointStore?: CheckpointStore; customMembers?: CustomMemberDefinition[] },
   ): Promise<ApplicationContext> {
     const llm = await LLMRouter.create(config)
     const societyGraph = loadSocietyGraph(projectPath)
@@ -150,6 +154,7 @@ export class ApplicationContext {
       skills,
       sentry: config.sentry,
       checkpointStore: host?.checkpointStore,
+      customMembers: host?.customMembers,
     })
     try {
       await reindexLegacyPatterns(new EmbeddingIndex(vectorStore), vectorStore, (text) => llm.embed(text))

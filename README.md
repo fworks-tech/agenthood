@@ -179,6 +179,34 @@ The plugin wires the Society into opencode: all 20 member skills (`skills/`), `A
 
 The [Agenthood Studio playground](https://agenthood.flabs.tech/studio/playground) exercises the same runtime through a browser UI — every chat request runs through `agenthood/dist/llm` with provider routing, failover, and streaming.
 
+### Custom members (host runtimes)
+
+Hosts that embed Agenthood as a library can register their own members. A custom member runs through the same ReAct loop, tool registry, checkpoints, events, and audit trail as the built-in Society — no forked execution path.
+
+```ts
+import { ApplicationContext } from 'agenthood/dist/runtime/ApplicationContext.js'
+import type { CustomMemberDefinition } from 'agenthood/dist/members/types.js'
+
+const releaseCaptain: CustomMemberDefinition = {
+  name: 'release-captain',             // [a-z0-9][a-z0-9-]{1,63}, must not collide
+  description: 'Owns release readiness for one product',
+  systemPrompt: 'Verify the checklist before shipping.', // body only, no frontmatter
+  permissionProfile: 'restricted',     // default: restricted
+  tools: ['file.read', 'file.search'], // intersected with the profile, never widens it
+  model: 'claude-sonnet-5-5',          // optional per-member model
+}
+
+const app = await ApplicationContext.create(process.cwd(), config, {
+  customMembers: [releaseCaptain],
+})
+
+await app.runner.runMemberTask('release-captain', 'is v4 ready?', config)
+```
+
+`app.members.list()` returns built-ins and custom members together, and `app.members.register(def)` works without the composition-time option. Registration is append-only: a built-in name collision, an invalid slug, an empty or oversized system prompt, and a duplicate name all throw. Declared `tools` can only narrow the permission profile; a custom member with no `tools` gets the profile defaults.
+
+Custom members have no `SKILL.md` on disk, so the skill-integrity gate does not apply to them — the host owns their content. When `model` is set it wins over the shared config model for that member's runs, and it reaches the provider request, the `reasoning` event, the checkpoint, and the cost row.
+
 ---
 
 ## Architecture

@@ -155,6 +155,17 @@ describe('ApplicationContext run pipeline', () => {
     expect(env.status).toBe('error')
   })
 
+  it('registers customMembers alongside the built-in Society', async () => {
+    const app = await ApplicationContext.create(projectDir, {} as never, {
+      customMembers: [
+        { name: 'release-captain', description: 'Owns release readiness', systemPrompt: 'Verify the checklist.' },
+      ],
+    })
+
+    expect(app.members.list()).toHaveLength(21)
+    expect(app.members.get('release-captain').sourcePath).toBe('custom:release-captain')
+  })
+
   it('succeeds when the LLM reports usage and stamps source from the context', async () => {
     vi.mocked(LLMRouter.create).mockResolvedValue(fakeProvider() as never)
     vi.mocked(LLMRouter.createForMember).mockResolvedValue(fakeProvider() as never)

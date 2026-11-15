@@ -2,7 +2,8 @@ name: Society — PR Standards
 
 on:
   pull_request:
-    branches: [main]
+    # Workstream PRs target the 4.0 epic branch, not main (#1050).
+    branches: [main, feat/issue-1050-v4-compose]
     types: [opened, synchronize, reopened]
   push:
     branches: [main]

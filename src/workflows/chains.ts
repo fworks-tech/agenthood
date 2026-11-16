@@ -116,8 +116,8 @@ export function toWorkflowDefinition(chain: ChainDefinition, task: string): Work
   return {
     name: chain.name,
     description: `Chain ${chain.name}`,
-    steps: chain.steps.map((step) => ({
-      name: `${chain.name}:${step.member}`,
+    steps: chain.steps.map((step, index) => ({
+      name: `${chain.name}:${index}:${step.member}`,
       type: 'agent',
       input: { member: step.member, task: step.task ?? task },
     })),

@@ -102,12 +102,22 @@ type(scope)!: subject
 - subject: imperative, lowercase, <=150 chars, no trailing period
 ```
 
-Hooks are installed by `npx agenthood init` and enforce the format automatically:
+Hooks are opt-in for this repository. Activate them once per clone:
+
+```bash
+npm run build
+node dist/cli.js setup
+```
+
+`setup` points `core.hooksPath` at `.githooks`, marks the hook scripts executable, and wires the commit template. `node dist/cli.js doctor` verifies the result and reports `core.hooksPath → .githooks (pre-commit active)`.
+
 - `.githooks/commit-msg`: local validation (types, breaking-change `!`, subject rules); stock `git revert` messages pass through
 - `.githooks/pre-commit`: blocks commits to main, audits secrets, checks file sizes
 - `.githooks/pre-push`: blocks pushes to `main` and requires `type/issue-NUMBER-...` branch names; the issue-existence check is advisory only
 - `.githooks/prepare-commit-msg`: installs the commit message template
-- CI re-validates the same rules in the PR workflow (`docs/conventions/commitlint.config.ts`)
+- CI re-validates the same rules in the PR workflow (`docs/conventions/commitlint.config.ts`), so a clone without active hooks still cannot merge a non-conforming commit
+
+The hooks are POSIX shell scripts. They run under `/bin/sh` on Linux and macOS and under Git Bash on Windows. Treat them like any other reviewed code: a change to `.githooks/` appears in the PR diff and passes the same review gate.
 
 ### Pull Requests
 

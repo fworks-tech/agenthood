@@ -2,7 +2,7 @@ import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest'
 import { mkdirSync, mkdtempSync, rmSync, writeFileSync } from 'node:fs'
 import { join } from 'node:path'
 import { tmpdir } from 'node:os'
-import { reportDuplicates, reportSkillRequirements, reportTokenBudgets } from '../../../src/commands/verifySkills.ts'
+import { reportContribSkills, reportDuplicates, reportSkillRequirements, reportTokenBudgets } from '../../../src/commands/verifySkills.ts'
 
 let dir: string
 
@@ -139,5 +139,38 @@ describe('cross-location duplicates (#616)', () => {
       { path: other, scope: 'user' },
     ])
     expect(output()).toContain('no duplicate names')
+  })
+})
+
+describe('third-party members (#154)', () => {
+  const contrib = (name: string, frontmatter: string) => {
+    const target = join(dir, 'skills', 'contrib', name)
+    mkdirSync(target, { recursive: true })
+    writeFileSync(join(target, 'SKILL.md'), `---
+name: ${name}
+description: ${name} skill
+${frontmatter}---
+Body`)
+  }
+
+  it('stays quiet when there is no contrib directory', () => {
+    reportContribSkills(dir)
+    expect(output()).toBe('')
+  })
+
+  it('passes when every contrib skill names an owner and a source', () => {
+    contrib('the-good', `metadata:
+  author: someone
+source_url: https://example.test/skill
+`)
+    reportContribSkills(dir)
+    expect(output()).toContain('named and sourced')
+  })
+
+  it('reports a missing owner and a missing source separately', () => {
+    contrib('the-bare', '')
+    reportContribSkills(dir)
+    expect(output()).toContain('metadata.author')
+    expect(output()).toContain('source_url')
   })
 })

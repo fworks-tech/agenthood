@@ -13,7 +13,7 @@ import { validateSchema, SchemaValidationError } from "../core/SchemaValidator.t
 import { redactEventText } from "../core/RunEventBus.ts"
 import { isShutdownRequested } from "../core/shutdown.ts"
 import { SafetyGuard } from "../core/SafetyGuard.ts"
-import { SKILL_ACTIVATION_PREFIX } from "../skills/activation/ActivateSkillTool.ts"
+import { activatedSkillName } from "../skills/activation/skillContent.ts"
 import { AskHumanSignal } from "../tools/human/AskHumanTool.ts"
 import { USER_QUERY_GUARD, TOOL_OUTPUT_GUARD, wrapUserQuery, wrapToolOutput } from "../agents/memberLore.ts"
 import * as readline from 'node:readline'
@@ -356,12 +356,10 @@ export class ReActLoop {
       const result = await this.executeTool(toolCall, context);
       const durationMs = Math.round(performance.now() - toolStart)
       const content = typeof result === 'string' ? result : JSON.stringify(result)
-      if (content.startsWith(SKILL_ACTIVATION_PREFIX)) {
-        const nameMatch = content.match(/<skill_content name="([^"]+)">/)
-        if (nameMatch) {
-          this.activatedSkills.add(nameMatch[1])
-          this.pendingSkillActivations.add(nameMatch[1])
-        }
+      const activated = activatedSkillName(content)
+      if (activated) {
+        this.activatedSkills.add(activated)
+        this.pendingSkillActivations.add(activated)
       }
       messages.push({
         role: "tool",

@@ -1,5 +1,6 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest'
-import { rmSync } from 'node:fs'
+import { mkdtempSync, rmSync } from 'node:fs'
+import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 import { TrajectoryStore } from '../../../src/core/TrajectoryStore.ts'
 import { ConcurrencyQueue } from '../../../src/core/ConcurrencyQueue.ts'
@@ -297,6 +298,46 @@ describe('applySandboxProfile', () => {
     applySandboxProfile(config)
     expect(config.interactive).toBe(false)
     expect(config.security).toBeUndefined()
+  })
+})
+
+describe('MemberRunner explicit skill activation (#530, #585)', () => {
+  it('loads /skill into the system prompt, strips it from the task, and registers activate_skill', async () => {
+    const provider = fakeCompletingProvider()
+    vi.mocked(LLMRouter.createForMember).mockResolvedValue(provider as never)
+    const runner = makeRunner()
+    runner.ctx.skillManifests = new Map([
+      [
+        'scribe',
+        {
+          name: 'scribe',
+          description: 'Writes commit messages.',
+          tier: 'official',
+          location: join(process.cwd(), 'skills', 'scribe', 'SKILL.md'),
+          directory: join(process.cwd(), 'skills', 'scribe'),
+          body: 'SCRIBE BODY',
+          resources: [],
+        },
+      ],
+    ])
+
+    // Activating a skill records a local stat, so keep it out of the repo root.
+    const projectDir = mkdtempSync(join(tmpdir(), 'runner-skill-'))
+    runner.ctx.project.localPath = projectDir
+    try {
+      await runner.runMemberTask('builder', '/scribe write the message', {} as never)
+    } finally {
+      rmSync(projectDir, { recursive: true, force: true })
+    }
+
+    const request = provider.complete.mock.calls[0][0]
+    expect(request.messages[0].content).toContain('SCRIBE BODY')
+    // The loop keeps appending to the same array, so find the task message
+    // rather than trusting the last element of the captured request.
+    const taskMessage = request.messages.find((m: { role: string }) => m.role === 'user')?.content ?? ''
+    expect(taskMessage).toContain('write the message')
+    expect(taskMessage).not.toContain('/scribe')
+    expect((request.tools ?? []).map((tool: { name: string }) => tool.name)).toContain('activate_skill')
   })
 })
 

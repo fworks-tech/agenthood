@@ -18,7 +18,7 @@ import type { AgentRegistry } from '../core/AgentRegistry.ts'
 import { AskHumanTool } from '../tools/human/AskHumanTool.ts'
 import { TOOL_VOCABULARY } from './toolVocabulary.ts'
 import { SubagentTaskSkill } from '../tools/core/SubagentTaskSkill.ts'
-import { escapeXml, wrapProjectContext, loadProjectContext, wrapSkillsCatalog, SKILLS_CATALOG_GUARD, wrapSkillContent, SKILL_CONTENT_GUARD, wrapRepoInstructions, REPO_INSTRUCTIONS_GUARD } from '../agents/memberLore.ts'
+import { escapeXml, wrapProjectContext, loadProjectContext, wrapSkillsCatalog, SKILLS_CATALOG_GUARD, wrapSkillContent, SKILL_CONTENT_GUARD, wrapRepoInstructions, REPO_INSTRUCTIONS_GUARD, sanitizeBoundaryTags } from '../agents/memberLore.ts'
 import { checkSkillIntegrity, describeIntegrityFailure, recordSkillIntegrityDrift, SkillIntegrityError } from '../utils/skillIntegrity.ts'
 import type { SkillIntegrityFailure } from '../utils/skillIntegrity.ts'
 import { sharedConversationalStyle, CUSTOM_SOURCE_PREFIX } from './MemberRegistry.ts'
@@ -43,6 +43,8 @@ export interface MemberAgentOptions {
   episodeLearner?: EpisodeLearner
   /** Strict mode blocks the run when the injected SKILL.md drifts from agenthood.lock (ADR-020). */
   strictSkillIntegrity?: boolean
+  /** Skill blocks loaded by an explicit `/skill-name` before the model saw the task (#530). */
+  explicitSkills?: string[]
 }
 
 export class MemberAgent extends BaseAgent {
@@ -50,6 +52,7 @@ export class MemberAgent extends BaseAgent {
   protected tools: ITool[]
   private agentRegistry?: AgentRegistry
   private readonly strictSkillIntegrity: boolean
+  private readonly explicitSkills: string[]
   private readonly warnedTools = new Set<string>()
 
   constructor(
@@ -62,6 +65,7 @@ export class MemberAgent extends BaseAgent {
     super(llm, reasoningLoop, toolRegistry, { episodeLearner: options.episodeLearner })
     this.agentRegistry = options.agentRegistry
     this.strictSkillIntegrity = options.strictSkillIntegrity === true
+    this.explicitSkills = options.explicitSkills ?? []
     this.role = spec.name
     this.tools = this.buildTools()
   }
@@ -194,6 +198,17 @@ export class MemberAgent extends BaseAgent {
         SKILLS_CATALOG_GUARD,
         wrapSkillsCatalog(context.skillsCatalog),
       )
+    }
+
+    // Explicit `/skill-name` activation is a user order, not model judgment, so
+    // it lands after the catalog and is always present in this run (#530).
+    if (this.explicitSkills.length > 0) {
+      parts.push('', '## Activated Skills', SKILL_CONTENT_GUARD)
+      for (const block of this.explicitSkills) {
+        // Inserted raw so the <skill_content> structure survives; boundary tags
+        // are stripped first so a SKILL.md body cannot break out of it.
+        parts.push(sanitizeBoundaryTags(block, 'skill_directives', 'skill_content'))
+      }
     }
 
     // Repo guidance lands after the catalog so a skill description can never

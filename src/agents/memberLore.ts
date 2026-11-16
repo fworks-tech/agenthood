@@ -23,8 +23,23 @@ export function escapeXml(text: string): string {
  * then escapes remaining markup so it can never read as instructions.
  */
 function wrapTagged(text: string, tag: string): string {
-  const safe = escapeXml(text.replace(new RegExp(`</?${tag}\\b[^>]*>`, 'gi'), '').replace(new RegExp(`</?${tag}\\b`, 'gi'), ''))
+  const safe = escapeXml(sanitizeBoundaryTags(text, tag))
   return `<${tag}>\n${safe}\n</${tag}>`
+}
+
+/**
+ * Remove any occurrence of a harness boundary tag from content that is inserted
+ * raw, so untrusted text cannot close the boundary and speak as the harness.
+ * Covers attributes and partial-tag variants.
+ */
+export function sanitizeBoundaryTags(text: string, ...tags: string[]): string {
+  return tags.reduce(
+    (acc, tag) =>
+      acc
+        .replace(new RegExp(`</?${tag}\\b[^>]*>`, 'gi'), '')
+        .replace(new RegExp(`</?${tag}\\b`, 'gi'), ''),
+    text,
+  )
 }
 
 export function wrapProjectContext(text: string): string {

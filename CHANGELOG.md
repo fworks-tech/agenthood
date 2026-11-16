@@ -1,3 +1,15 @@
+# [3.78.0](https://github.com/fworks-tech/agenthood/compare/v3.77.1...v3.78.0) (2026-11-16)
+
+
+### Bug Fixes
+
+* **core:** scope OpenCode catalog pricing to OpenCode providers ([#1064](https://github.com/fworks-tech/agenthood/issues/1064)) ([3690853](https://github.com/fworks-tech/agenthood/commit/369085309eb40977b6b0026db9127fbf6cd170b5)), refs #1062
+
+
+### Features
+
+* **llm:** derive OpenCode pricing and routing from the live model catalog ([#1063](https://github.com/fworks-tech/agenthood/issues/1063)) ([3c0ce51](https://github.com/fworks-tech/agenthood/commit/3c0ce516e0acf595fd2f652d08093e422415988c)), refs #1060
+
 ## [3.77.1](https://github.com/fworks-tech/agenthood/compare/v3.77.0...v3.77.1) (2026-11-15)
 
 

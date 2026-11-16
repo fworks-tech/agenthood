@@ -37,6 +37,9 @@ vscode-extension/.vscode-test/
 .agenthood/costs.jsonl
 .agenthood/evals/
 .agenthood/traces/
+.agenthood/skill-output/
+.agenthood/skill-exec-audit.ndjson
+.agenthood/skill-resources.json
 !.agenthood/config.json
 !.agenthood/config.example.json
 .claude/scheduled_tasks.lock

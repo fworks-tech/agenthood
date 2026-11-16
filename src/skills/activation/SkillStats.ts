@@ -61,3 +61,23 @@ export function recordSkillActivation(projectPath: string, skill: string, succes
 export function triggerRate(stat: SkillStat): number | null {
   return stat.activations === 0 ? null : stat.successes / stat.activations
 }
+
+/**
+ * Local-only tally of which bundled resources a skill actually used (#543).
+ * Names only — never contents — so a skill's heavily-read reference files are
+ * visible without a privacy cost.
+ */
+export function recordResourceAccess(projectPath: string, skill: string, resource: string): void {
+  if (!analyticsEnabled(projectPath)) return
+  const path = join(projectPath, '.agenthood', 'skill-resources.json')
+  let tallies: Record<string, Record<string, number>> = {}
+  try {
+    tallies = JSON.parse(readFileSync(path, 'utf8')) as Record<string, Record<string, number>>
+  } catch {
+    // first access, or an unreadable file — start over
+  }
+  tallies[skill] ??= {}
+  tallies[skill][resource] = (tallies[skill][resource] ?? 0) + 1
+  mkdirSync(join(projectPath, '.agenthood'), { recursive: true })
+  writeFileSync(path, `${JSON.stringify(tallies, null, 2)}\n`, 'utf8')
+}

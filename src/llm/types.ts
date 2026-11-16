@@ -33,6 +33,8 @@ export interface JSONSchemaProperty {
   maxLength?: number
   /** Allowed values — `activate_skill` constrains the name to discovered skills (#531). */
   enum?: string[]
+  /** Element schema for `type: 'array'` (ADR-036 script arguments). */
+  items?: JSONSchemaProperty
 }
 
 export interface TokenUsage {
@@ -98,6 +100,8 @@ export interface SkillsConfig {
   disabled?: string[]
   /** `false` disables fallback activation chains (#613). */
   fallback?: boolean
+  /** Per-script timeout, default 120000ms (#546). */
+  scriptTimeoutMs?: number
 }
 
 /** One remote catalog (ADR-035). `tokenEnv` names an env var — never a literal token. */
@@ -130,7 +134,15 @@ export interface LLMConfig {  provider?: string
   /** Optional Sentry error reporting from .agenthood/config.json */
   sentry?: { dsn?: string }
   /** Mind-virus persistence-vector hardening from .agenthood/config.json (ADR-020) */
-  security?: { strictSkillIntegrity?: boolean; sandbox?: boolean; dockerIsolation?: boolean }
+  security?: {
+    strictSkillIntegrity?: boolean
+    sandbox?: boolean
+    dockerIsolation?: boolean
+    /** Directories of activated skills are readable without a prompt (#536). */
+    autoAllowSkillDirs?: boolean
+    /** Authors whose scripts may run on the host (ADR-036). */
+    trustedAuthors?: string[]
+  }
   /** Log full LLM request/response to .agenthood/debug/ */
   debug?: boolean
   /** Pause before each tool call for human confirmation */

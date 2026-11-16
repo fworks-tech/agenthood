@@ -86,7 +86,10 @@ optional skill (`skill: "web-research"`), so research noise does not enter the
 calling window. The `think_tool` equivalent is the member's own Process section:
 reflection is instructions, not a tool round-trip.
 
-A runnable copy lives in [`examples/research/chains.yaml`](../../examples/research/chains.yaml).
+The research skill itself ships as [`skills/web-research/SKILL.md`](../../skills/web-research/SKILL.md):
+plan the subtopics, delegate each to a parallel agent with its own search budget, save findings as files
+with citations, then synthesise one cited report. A runnable chain lives in
+[`examples/research/chains.yaml`](../../examples/research/chains.yaml).
 
 ## 4. Content builder (#344)
 

@@ -76,7 +76,9 @@ and leaves the judgement to the author.
 
 - Code comments follow the same rules as prose. No em dash, no stock phrasing.
 - Generated files (`docs/release-notes.md`, `CHANGELOG.md`, `docs/api/`) are not
-  edited by hand. Fix the generator instead.
+  edited by hand. Fix the generator instead. Historical entries in the two
+  changelogs were normalized once when this rule landed; new entries come from
+  the generator.
 - A string that mirrors an external identifier keeps that identifier exactly.
 
 ## Check

@@ -1,26 +1,5 @@
-import { readFileSync, existsSync } from 'node:fs'
-import { join } from 'node:path'
 import type { CommandDescriptor } from './types.ts'
-
-export interface CostEntry {
-  timestamp: string
-  member: string
-  model: string
-  provider: string
-  promptTokens: number
-  completionTokens: number
-  totalTokens: number
-  costUsd: number
-  skills?: string[]
-}
-
-function readCosts(cwd: string): CostEntry[] {
-  const path = join(cwd, '.agenthood', 'costs.jsonl')
-  if (!existsSync(path)) return []
-  const content = readFileSync(path, 'utf8').trim()
-  if (!content) return []
-  return content.split('\n').map((l) => JSON.parse(l) as CostEntry)
-}
+import { readCosts, type CostEntry } from '../core/CostLogger.ts'
 
 export interface SkillCostRow {
   activations: number

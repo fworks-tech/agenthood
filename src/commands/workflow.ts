@@ -82,15 +82,7 @@ async function runChainCommand(args: string[]): Promise<void> {
     return
   }
 
-  let chain
-  try {
-    chain = readChains().find((c) => c.name === chainName)
-  } catch (err) {
-    userError(`Cannot read chains.yaml: ${err instanceof Error ? err.message : String(err)}`, {
-      fix: 'Fix the YAML shape described in docs/architecture/chain-workflows.md.',
-    })
-    return
-  }
+  const chain = readChains().find((c) => c.name === chainName)
   if (!chain) {
     const available = readChains().map((c) => c.name)
     userError(`Unknown chain: "${chainName}"`, { fix: `Available chains: ${available.join(', ') || 'none'}` })

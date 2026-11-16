@@ -255,12 +255,15 @@ export class MemberRunner {
       const completion = args.usage.completionTokens ?? 0
       const cost = estimateCostFromTokens(args.model, prompt, completion, args.provider)
       const completedAt = new Date()
-      // id = correlation id so `trace visualize` accepts the ids users
-      // already see in `trace`/`log` output
-      const id = this.ctx.correlationId ?? this.ctx.executionId
-      new TrajectoryStore(process.cwd()).save({
+      // A chain runs several members under one correlation id. The first run
+      // keeps that id so `trace visualize` accepts what users already see; later
+      // runs get a suffix instead of overwriting the earlier trajectory.
+      const correlationId = this.ctx.correlationId ?? this.ctx.executionId
+      const store = new TrajectoryStore(process.cwd())
+      const id = store.load(correlationId) ? `${correlationId}-${crypto.randomUUID().slice(0, 8)}` : correlationId
+      store.save({
         id,
-        correlationId: id,
+        correlationId,
         member: args.spec.name,
         task: redactEventText(this.ctx, args.task),
         steps: args.steps?.length

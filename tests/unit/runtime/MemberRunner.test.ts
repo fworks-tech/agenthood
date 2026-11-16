@@ -332,6 +332,23 @@ describe('MemberRunner trajectory persistence', () => {
     }
   })
 
+  it('keeps every run of one correlation id as its own trajectory', async () => {
+    const runner = makeRunner()
+    const store = new TrajectoryStore(process.cwd())
+    try {
+      await runner.runMemberTask('builder', 'first', {} as never)
+      await runner.runMemberTask('reviewer', 'second', {} as never)
+      const runs = store.list().filter((t) => t.correlationId === trajectoryId(runner))
+      expect(runs.map((t) => t.member).sort()).toEqual(['builder', 'reviewer'])
+      expect(new Set(runs.map((t) => t.id)).size).toBe(2)
+      expect(store.load(trajectoryId(runner))?.member).toBe('builder')
+    } finally {
+      for (const t of store.list().filter((t) => t.correlationId === trajectoryId(runner))) {
+        rmSync(join(process.cwd(), '.agenthood', 'trajectories', `${t.id}.json`))
+      }
+    }
+  })
+
   it('saves an error trajectory when the run fails', async () => {
     vi.mocked(LLMRouter.createForMember).mockResolvedValue({
       ...fakeCompletingProvider(),

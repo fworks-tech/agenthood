@@ -265,7 +265,7 @@ export class ReActLoop {
       timestamp: new Date().toISOString(),
       member: this._member,
       model: response.model,
-      provider: response.model.includes('gpt') ? 'openai' : response.model.includes('claude') ? 'anthropic' : response.model.includes('llama') ? 'groq' : 'other',
+      provider: response.provider ?? this._provider ?? 'unknown',
       promptTokens,
       completionTokens,
       totalTokens: promptTokens + completionTokens,

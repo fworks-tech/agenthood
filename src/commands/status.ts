@@ -111,7 +111,7 @@ function reportDrift(cwd: string): void {
     }
   }
   if (driftFound.length === 0) {
-    console.log('\n  No drift detected \u2014 all members match lockfile.\n')
+    console.log('\n  No drift detected: all members match lockfile.\n')
   } else {
     console.log(`\n  Drift detected in ${driftFound.length} member(s):\n`)
     for (const m of driftFound) {

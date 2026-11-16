@@ -6,11 +6,11 @@
 
 ## What it is
 
-A multi-agent system is a setup where more than one agent works on the same problem. The question is not whether to use multiple agents, real tasks need specialists, but how they coordinate. There are two patterns, and they produce wildly different systems.
+A multi-agent system is a setup where more than one agent works on the same problem. The question is not whether to use several agents; real tasks need specialists. It is how they coordinate, and the two patterns below produce very different systems.
 
-**Peer-to-peer**: agents invoke each other directly. The Architect calls the Tester, the Tester calls the Developer, the Developer calls the Reviewer. Each agent decides, on its own, when to hand off. This looks elegant on a whiteboard because there is no central coordinator: the agents self-organize.
+**Peer-to-peer**: agents invoke each other directly. The Architect calls the Tester, the Tester calls the Developer, the Developer calls the Reviewer. Each agent decides on its own when to hand off. There is no central coordinator; the agents self-organize.
 
-**Orchestrator-driven**: a central controller routes tasks to agents. The orchestrator decides which agent runs, in what order, and what context it receives. Agents do not call each other. They receive a task, execute it, return a result, and stop.
+**Orchestrator-driven**: a central controller decides which agent runs, in what order and with what context. Agents do not call each other; each receives a task, executes it and returns a result.
 
 The difference shows up the moment something fails. In a peer-to-peer system, a failure in one agent propagates to every agent that called it, and the propagation path is invisible; you cannot tell which agent triggered which. In an orchestrator system, the failure is localized to one step, and the orchestrator's log shows exactly which step failed and why.
 

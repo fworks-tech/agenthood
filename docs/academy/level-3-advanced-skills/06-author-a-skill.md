@@ -1,6 +1,6 @@
 # Authoring a Skill
 
-> *A skill that cannot be parsed is a skill that never runs. The contract is small: learn it once.*
+> *A skill that fails to parse never runs, and the contract that prevents that is small.*
 
 ---
 
@@ -11,12 +11,13 @@ contract) and a prompt body below (the human-readable protocol). Providers read 
 as-is; the runtime additionally parses the frontmatter to decide what the skill is called,
 when it should activate, and which tools it is allowed to use.
 
-The frontmatter is the part that gets you blocked at the door. `name` must match the
-directory name and follow lowercase-hyphen rules, `description` must say what the skill
-does **and when to use it**, and since [PR #904](https://github.com/fworks-tech/agenthood/pull/904) the runtime enforces `allowed-tools`: a
-declaration can only narrow the skill's tool surface below its permission profile, never
-widen it. A skill that declares nothing keeps its profile's default set: silence is
-permissive at the profile level, but it is no longer invisible.
+The frontmatter is where a skill fails first. `name` must match the directory
+and follow the lowercase-hyphen rule, and `description` must say what the skill
+does **and when to use it**. Since [PR #904](https://github.com/fworks-tech/agenthood/pull/904),
+the runtime also enforces `allowed-tools`: a declaration can narrow the tool
+surface below the skill's permission profile, never widen it. A skill that
+declares nothing keeps the profile default, which is permissive but no longer
+invisible.
 
 ## The frontmatter fields
 

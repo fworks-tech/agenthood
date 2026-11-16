@@ -41,7 +41,7 @@ That is 10 lines. Three rules: `name` matches the directory (lowercase-hyphen), 
 npx agenthood verify
 ```
 
-Expected: the skill parses cleanly. If you typo `name: code-formatters` (directory mismatch), `verify` fails before anything loads, that is the gate doing its job.
+Expected: the skill parses cleanly. If you typo `name: code-formatters` (directory mismatch), `verify` fails before anything loads. That is the gate doing its job.
 
 ---
 

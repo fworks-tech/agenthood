@@ -60,6 +60,8 @@ hearing the pattern.
 - Vary the opening: start with the problem, the artifact, or a concrete example.
 - Do not close on an aphorism. End on the consequence or the check that follows.
 - One triad per page is enough. Three parallel sentences in a row is a tell.
+- In a tutorial, say what the reader will build and what runs at the end.
+  Skip the announcement that the article is about to begin.
 - Italics do not make a verb stronger: "It *announces* it" is louder than
   "It announces the release".
 

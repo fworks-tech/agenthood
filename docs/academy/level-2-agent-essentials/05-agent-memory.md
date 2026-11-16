@@ -6,11 +6,11 @@
 
 ## What it is
 
-Agent memory is the system that lets an agent carry information forward: across iterations of a single task, and across tasks entirely. Without it, every reasoning step starts from zero. With it, the agent remembers what it tried, what worked, what the codebase looks like, and what it learned last time.
+Agent memory carries information forward, both across the iterations of one task and across separate tasks. Without it, every step starts from zero. With it, the agent remembers what it tried, what worked, what the codebase looks like and what it learned last time.
 
-Not all memory is the same. A working context buffer that holds the last few tool outputs is fundamentally different from a persistent knowledge store that survives process restarts. Treating them as one thing produces the two most common memory failures: context overflow (the working buffer grows until it pushes out the prompt itself) and stale poisoning (the persistent store accumulates facts that were true last month but are wrong today).
+Memory types differ. A working buffer that holds the last few tool outputs has little in common with a store that survives a process restart. Treating them as one thing produces the two usual failures: context overflow, where the working buffer grows until it pushes out the prompt, and stale poisoning, where the persistent store accumulates facts that were true last month and are wrong today.
 
-The Society's model separates memory into tiers, each with its own lifecycle, its own retrieval path, and its own eviction policy. You do not query a long-term fact store the same way you query the last tool output. You do not evict a project-level fact the same way you evict a working-context buffer entry.
+The Society separates memory into tiers, each with its own lifecycle, retrieval path and eviction policy. A query against the long-term fact store and a query against the last tool output take different routes, and a project-level fact is not evicted the way a working-context entry is.
 
 ---
 
@@ -20,7 +20,7 @@ Short-term memory fills up. Every tool call, every observation, every intermedia
 
 Long-term memory without governance is worse. An agent that "remembers" a deprecated API signature from three months ago will confidently call it today and fail. The failure is silent because the agent has no reason to doubt its own memory. Stale facts poison fresh queries, and because the memory store is opaque, you cannot tell which fact is the bad one without a full audit.
 
-This is why each memory tier needs an explicit lifecycle. Short-term memory is cheap and disposable. Long-term memory is expensive and must be versioned, timestamped, and refreshable. Project memory, knowledge about a specific codebase, must be invalidated when the codebase changes. Treating memory as a single bucket is the architectural mistake that turns "the agent remembers" from a feature into a defect.
+Each tier therefore needs an explicit lifecycle. Short-term memory is cheap and disposable. Long-term memory is expensive, so it has to be versioned, timestamped and refreshable. Project memory, the knowledge about a specific codebase, must be invalidated when the code changes. A single unmanaged bucket is how "the agent remembers" turns into a defect.
 
 ---
 

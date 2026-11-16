@@ -6,11 +6,11 @@
 
 ## What it is
 
-A custom skill is a tool you write that implements the Society's `ISkill` contract, so your agent can use it exactly like the built-in skills. The Society ships members covering general software-engineering domains: commits, reviews, tests, security. Your domain has knowledge the Society has not encoded: the query that checks your internal status dashboard, the script that validates your data pipeline, the API that files a ticket in your custom issue tracker. Custom skills are how that knowledge becomes a first-class agent tool.
+A custom skill is a tool you write that implements the Society's `ISkill` contract, so the agent can use it like a built-in one. The Society covers general software engineering: commits, reviews, tests, security. Your domain has knowledge it has not encoded, such as the query behind your status dashboard, the script that validates your data pipeline, or the API that files a ticket in your issue tracker. A custom skill turns that knowledge into a first-class tool.
 
-The mechanism is discovery, not registration. You do not edit a config file or call a register function. You write a `.ts` file that implements `ISkill`, drop it into the skills directory, and restart. `SkillRegistry.discover()` finds it at startup, reads its metadata, and adds it to the agent's available tools. The skill is now indistinguishable from a built-in: the agent's reasoning loop can choose to call it the same way it chooses to call `ReadFileSkill`.
+Discovery, not registration, is the mechanism. There is no config file to edit and no register function to call. You write a `.ts` file that implements `ISkill`, drop it in the skills directory and restart. `SkillRegistry.discover()` finds it at startup, reads its metadata and adds it to the agent's tools. From there the reasoning loop chooses it the same way it chooses `ReadFileSkill`.
 
-The contract is what makes this safe. `ISkill` defines a name, a description, an input schema, and an `execute` method. The name and description are what the agent's reasoning sees when deciding which tool to call. The input schema is a JSON Schema that validates arguments before `execute` runs. The `execute` method returns a `SkillResult` (success, failure, or needs-more-input) that the loop handles uniformly. A skill that does not implement the contract is not discovered; a skill that implements it incorrectly fails at the schema boundary, not inside the agent's reasoning.
+The contract is what makes it safe. `ISkill` defines a name, a description, an input schema and an `execute` method. The name and description are what the reasoning loop sees when it picks a tool. The input schema validates arguments before `execute` runs. `execute` returns a `SkillResult` (success, failure or needs-more-input) that the loop handles uniformly. A skill that skips the contract is never discovered, and one that implements it badly fails at the schema boundary instead of inside the agent's reasoning.
 
 ---
 
@@ -18,9 +18,9 @@ The contract is what makes this safe. `ISkill` defines a name, a description, an
 
 Hardcoded side effects are the anti-pattern of agent integration. When an agent's "check the deploy status" logic is a buried `fetch()` call inside a prompt template, three things break: the call cannot be tested in isolation, the result cannot be traced, and the logic cannot be reused by another agent. The skill becomes a hidden coupling between the prompt and the network.
 
-Custom skills fix all three. A skill is a unit; it has a name, a contract, and a testable `execute` method. The agent's reasoning decides *when* to call it; the skill decides *how* to execute it. The two are separate, which means the skill can be unit-tested without an LLM, and the agent's reasoning can be evaluated without the skill's network dependency. This separation is what makes custom skills production-grade instead of prototype-grade.
+A custom skill fixes all three. It is a unit with a name, a contract and a testable `execute` method. The reasoning loop decides when to call it; the skill decides how to run it. Because the two are separate, the skill can be unit-tested without an LLM, and the reasoning can be evaluated without the skill's network dependency. That separation is what makes it production-grade.
 
-The discovery model also matters for team scaling. When a new engineer joins, they do not need to learn a registration framework or edit a shared config. They write a `.ts` file in the skills directory, and on the next restart it is available to every agent. The skill is the unit of contribution, and code review on a skill file is review on a self-contained, contract-bound artifact, not on a snippet buried in a prompt.
+The discovery model scales with the team. A new engineer does not learn a registration framework or edit a shared config; they write a `.ts` file, restart, and every agent has it. Review happens on a self-contained, contract-bound artifact instead of a snippet buried in a prompt.
 
 ---
 

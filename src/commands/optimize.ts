@@ -8,14 +8,19 @@ import { loadTriggerSet } from './evalTriggers.ts'
 import { ApplicationContext } from '../runtime/ApplicationContext.ts'
 import { loadConfigOrExit } from './config.ts'
 import { rawSpecs } from '../members/member-specs.ts'
+import { SkillDiscovery } from '../skills/discovery/SkillDiscovery.ts'
+import { readSkillStats } from '../skills/activation/SkillStats.ts'
+import { DEFAULT_METADATA_BUDGET, metadataBudget, costSuggestions, skillUsage } from '../skills/observability.ts'
 import type { CommandDescriptor } from './types.ts'
 
 function printUsage(): void {
   console.error(`Usage: agenthood optimize <member> --triggers <path>
-  --triggers <path>     Trigger query-set JSON (required)
+       agenthood optimize --cost
+  --triggers <path>     Trigger query-set JSON (required for description tuning)
   --apply               Write winning description to member-specs.ts
   --iterations N        Max optimization iterations (default 3)
   --variants N          Variants per iteration (default 3)
+  --cost                Report catalog tokens against activation counts (#628)
   --json                Machine-readable JSON output
   --help                Show this help`)
 }
@@ -23,7 +28,7 @@ function printUsage(): void {
 export const command: CommandDescriptor = {
   name: 'optimize',
   description: 'Optimize a member description for trigger accuracy using LLM-driven eval loop',
-  handler: (args) => optimizeHandler(args),
+  handler: (args) => optimize(args),
 }
 
 interface ParsedOptimizeArgs {
@@ -34,6 +39,7 @@ interface ParsedOptimizeArgs {
   iterations: number
   variants: number
   helpRequested: boolean
+  cost: boolean
 }
 
 function parseOptimizeArgs(args: string[]): ParsedOptimizeArgs {
@@ -46,6 +52,7 @@ function parseOptimizeArgs(args: string[]): ParsedOptimizeArgs {
     iterations: 3,
     variants: 3,
     helpRequested: false,
+    cost: false,
   }
 
   for (let i = 0; i < args.length; i++) {
@@ -58,6 +65,9 @@ function parseOptimizeArgs(args: string[]): ParsedOptimizeArgs {
         break
       case '--json':
         flags.json = true
+        break
+      case '--cost':
+        flags.cost = true
         break
       case '--iterations':
         flags.iterations = Number.parseInt(args[++i], 10)
@@ -77,9 +87,52 @@ function parseOptimizeArgs(args: string[]): ParsedOptimizeArgs {
   return { ...flags, member: positional[0] }
 }
 
-async function optimizeHandler(args: string[]): Promise<void> {
-  const { member, triggersPath, apply, json, iterations, variants, helpRequested } = parseOptimizeArgs(args)
+/**
+ * Cost against use (#628): a skill is worth its catalog tokens when it gets
+ * activated. Quiet on a project with no activation history — "never used" is
+ * not evidence of waste before anything has run.
+ */
+async function reportCost(cwd: string, json: boolean): Promise<void> {
+  const manifests = new SkillDiscovery().discover(cwd)
+  const rows = skillUsage(manifests, readSkillStats(cwd))
+  const budget = metadataBudget(cwd) || DEFAULT_METADATA_BUDGET
+  const total = rows.reduce((sum, row) => sum + row.metadataTokens, 0)
+  const suggestions = costSuggestions(rows)
+
+  if (json) {
+    console.log(JSON.stringify({ budget, total, skills: rows, suggestions }, null, 2))
+    return
+  }
+
+  console.log(`
+  Skill Cost — ${rows.length} skill(s), ${total}/${budget} catalog tokens
+`)
+  console.log(`  ${'Skill'.padEnd(24)} ${'Catalog'.padEnd(9)} ${'Activated'.padEnd(10)} Body`)
+  console.log(`  ${''.padEnd(24, '-')} ${''.padEnd(9, '-')} ${''.padEnd(10, '-')} ${''.padEnd(8, '-')}`)
+  for (const row of rows) {
+    const name = row.name.length > 22 ? `${row.name.slice(0, 22)}…` : row.name
+    console.log(`  ${name.padEnd(24)} ${String(row.metadataTokens).padEnd(9)} ${String(row.activations).padEnd(10)} ${row.bodyTokens}`)
+  }
+
+  if (suggestions.length === 0) {
+    console.log(total === 0 ? '\n  No skills discovered.\n' : '\n  No activation history yet — run a few tasks, then re-check.\n')
+    return
+  }
+  console.log(`\n  ${suggestions.length} suggestion(s):\n`)
+  for (const suggestion of suggestions) {
+    console.log(`    ${suggestion.skill}: ${suggestion.suggestion}`)
+  }
+  console.log()
+}
+
+export async function optimize(args: string[]): Promise<void> {
+  const { member, triggersPath, apply, json, iterations, variants, helpRequested, cost } = parseOptimizeArgs(args)
   if (helpRequested) return
+
+  if (cost) {
+    await reportCost(process.cwd(), json)
+    return
+  }
 
   if (!member || !triggersPath) {
     printUsage()

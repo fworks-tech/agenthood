@@ -137,6 +137,7 @@ Inspect recent member invocation traces from the observability store.
 Options:
   --member <name>   Filter by member name
   --skill <name>    List trajectories whose steps used this skill
+  --activations     Activation history: which skill, in which run, when
   --tool <name>     List trajectories whose steps called this tool
   --limit <n>       Maximum number of traces (default 20)
   --since <time>    Only traces newer than <time> (ISO date or 1h/24h/7d)
@@ -197,12 +198,54 @@ export async function trace(args: string[] = []): Promise<void> {
 
   const skill = flagValue(args, '--skill')
   const tool = flagValue(args, '--tool')
+
   const parsed = parseStoreInspectArgs(args)
   const { member, limit, since, json } = parsed
   if (parsed.help) {
     printHelp()
     return
   }
+
+  // Activation history (#605): the skill that was active per step, across every
+  // trajectory. Names and times only — the store never holds prompt content.
+  if (args.includes('--activations')) {
+    const entries = new TrajectoryStore(cwd)
+      .list()
+      .flatMap((trajectory) =>
+        (trajectory.steps ?? []).flatMap((step) =>
+          (step.skills ?? []).map((name) => ({
+            skill: name,
+            member: trajectory.member,
+            trajectory: trajectory.id,
+            step: step.step,
+            startedAt: trajectory.startedAt,
+            durationMs: step.durationMs,
+          })),
+        ),
+      )
+      .filter((entry) => (skill ? entry.skill === skill : true))
+      .slice(0, limit)
+
+    if (json) {
+      console.log(JSON.stringify({ activations: entries }, null, 2))
+      return
+    }
+    if (entries.length === 0) {
+      console.log('No skill activations recorded yet. Run `agenthood run <member> "/<skill> <task>"` first.')
+      return
+    }
+    console.log(`\n  ${'Skill'.padEnd(22)} ${'Member'.padEnd(18)} ${'Step'.padEnd(6)} ${'Duration'.padEnd(10)} Started`)
+    console.log(`  ${''.padEnd(22, '-')} ${''.padEnd(18, '-')} ${''.padEnd(6, '-')} ${''.padEnd(10, '-')} ${''.padEnd(24, '-')}`)
+    for (const entry of entries) {
+      const name = entry.skill.length > 20 ? `${entry.skill.slice(0, 20)}…` : entry.skill
+      console.log(
+        `  ${name.padEnd(22)} ${entry.member.padEnd(18)} ${String(entry.step).padEnd(6)} ${`${entry.durationMs}ms`.padEnd(10)} ${entry.startedAt}`,
+      )
+    }
+    console.log()
+    return
+  }
+
 
   // Skill and tool only exist on step-level trajectories, so those flags switch
   // the listing from trace envelopes to trajectories (#605).

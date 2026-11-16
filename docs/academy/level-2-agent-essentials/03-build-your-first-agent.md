@@ -1,14 +1,14 @@
 # Build Your First Agent
 
-> *Reading about agents is not building agents. This is the article where you build one.*
+> *The gap between reading about agents and building one is a single working implementation.*
 
 ---
 
 ## What it is
 
-This article walks through building a `DeveloperAgent`: a working agent that extends `BaseAgent`, registers skills, and runs the ReAct loop to complete a real coding task. By the end, you will have an agent you can run, not just describe.
+You will build a `DeveloperAgent` that extends `BaseAgent`, registers skills and runs the ReAct loop on a real coding task. The result is a running agent you can inspect and modify.
 
-Building an agent comes down to four decisions: what role it plays, what skills it can use, how it reasons, and when it stops. `BaseAgent` handles the loop. You handle the role and the skills. The reasoning is ReAct. The termination is built in.
+Four decisions shape the agent: its role, the skills it can use, how it reasons and when it stops. `BaseAgent` owns the loop, ReAct supplies the reasoning and termination is built in, which leaves the role and the skills to you.
 
 ---
 

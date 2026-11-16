@@ -1,6 +1,6 @@
 # Action Planning
 
-> *An agent that acts without planning is not autonomous. It is reckless.*
+> *The plan is what a human can review before the agent touches anything.*
 
 ---
 
@@ -8,7 +8,7 @@
 
 Action planning is the step where an agent produces an explicit, reviewable plan before it takes any irreversible action. Instead of jumping straight from "fix the bug" to editing files, the agent first outputs a structured plan: which files it will touch, in what order, with what changes, and what tests it will run to verify each step.
 
-A plan is not a paragraph of prose. It is a structured artifact: a list of steps, each with a target, an action, and a verification condition. "Edit `src/auth.ts` to add a null check at line 14, then run `auth.test.ts` and confirm 42 passing" is a plan step. "Make the auth more robust" is not.
+A plan is a structured artifact: a list of steps, each with a target, an action and a verification condition. "Edit `src/auth.ts` to add a null check at line 14, then run `auth.test.ts` and confirm 42 passing" is a plan step. "Make the auth more robust" is not.
 
 The reason planning is a distinct step from reasoning is reviewability. A plan can be shown to a human before any action is taken. A reasoning trace cannot; it is already mid-execution. Planning inserts a checkpoint between thought and action where a human, or a downstream safety gate, can approve, reject, or revise before anything irreversible happens.
 
@@ -16,7 +16,7 @@ The reason planning is a distinct step from reasoning is reviewability. A plan c
 
 ## Why it matters in production
 
-Autonomous agents that skip planning are not efficient. They are unpredictable. An agent that starts editing files based on its first reasoning step has committed to a path before it has considered the alternatives. If the path is wrong, you discover it after the damage: a half-edited file, a broken test suite, a dependency removed that should not have been.
+An agent that starts editing files after its first reasoning step has committed to a path before considering the alternatives. If the path is wrong, you find out after the damage: a half-edited file, a broken test suite, a dependency removed that should have stayed.
 
 A plan is an audit trail before the fact. You can review it, reject it, or edit it before anything happens. This is the difference between "the agent did something I now have to undo" and "the agent proposed something I prevented." The first costs an hour of cleanup. The second costs five seconds of reading.
 

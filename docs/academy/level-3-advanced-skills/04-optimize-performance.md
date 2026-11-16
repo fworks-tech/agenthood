@@ -6,11 +6,11 @@
 
 ## What it is
 
-Agent performance is three axes, and optimizing only one loses on the other two. **Speed** is latency: how long until the agent's first action, and how long until it completes. **Cost** is tokens: how much each run costs in LLM provider fees. **Reliability** is uptime: what happens when a provider rate-limits you, goes down, or returns a degraded response. A production agent needs all three under control, and the three are in tension: the fastest model is not always the cheapest, the cheapest is not always the most reliable, the most reliable is not always the fastest.
+Agent performance has three axes, and optimizing one usually costs you another. **Speed** is latency, from the first action to completion. **Cost** is tokens, measured in provider fees per run. **Reliability** is uptime: what happens when a provider rate-limits you, goes down or returns a degraded response. The three pull against each other: the fastest model is not always the cheapest, and the cheapest is not always the most reliable.
 
-The levers that move these axes are routing, failover, and observability. **Routing** matches the model to the query: a simple formatting task does not need the same model as a complex debugging task. **Failover** keeps the agent running when a provider fails, if Groq is down, fall back to OpenAI; if OpenAI is down, fall back to a local model. **Observability** makes cost visible per request, so a regression in token usage is caught before the invoice arrives.
+Three levers move those axes: routing, failover and observability. **Routing** matches the model to the query, so a formatting task does not pay for the model a debugging task needs. **Failover** keeps the agent running when a provider fails: if Groq is down, fall back to OpenAI, and if OpenAI is down, fall back to a local model. **Observability** exposes cost per request, so a token regression is caught before the invoice arrives.
 
-Without these levers, every request goes to the same model at the same provider, and you accept whatever latency, cost, and uptime that choice implies. At demo scale this is fine. At production scale, it is a budget drain and an outage waiting to happen.
+Without them, every request goes to the same model at the same provider, and you accept whatever latency, cost and uptime follow from that choice. At demo scale that is fine. At production scale it is a budget drain and a scheduled outage.
 
 ---
 
@@ -26,7 +26,7 @@ Cost visibility is the silent one. A change to a prompt that adds 500 tokens per
 
 ## How Agenthood implements it
 
-Three components in `src/llm/`, `src/core/`, and `src/evals/` (LLMRouter, ProviderFailover, and CostEstimator shipped; EpisodeLearner (index-backed), EvalRunner, and the anomaly detector (wired into trace flush) shipped) handle the three axes:
+The three axes are covered by `LLMRouter` (`src/llm/`), `ProviderFailover` (`src/core/`) and `CostEstimator` (`src/evals/`). `EpisodeLearner` (index-backed), `EvalRunner` and the anomaly detector (wired into trace flush) shipped in the same release:
 
 ```typescript
 import { LLMRouter, ProviderFailover, CostEstimator } from 'agenthood';
@@ -61,7 +61,7 @@ const response = await llm.complete({ system, user });
 // response.cost = { inputTokens: 320, outputTokens: 180, totalCost: 0.00041 }
 ```
 
-The `LLMRouter` inspects each request and routes it to the model whose capability matches the task. The `ProviderFailover` wraps every call, if the primary provider returns a 5xx or times out, the call retries on the next provider in the chain. The `CostEstimator` attaches a cost record to every response, so the agent's run log shows not just what it did but what it cost.
+The `LLMRouter` inspects each request and routes it to the model whose capability matches the task. `ProviderFailover` wraps every call: when the primary provider returns a 5xx or times out, the call retries on the next provider in the chain. `CostEstimator` attaches a cost record to every response, so the run log shows what the agent did and what it cost.
 
 ---
 

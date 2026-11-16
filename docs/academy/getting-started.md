@@ -80,7 +80,7 @@ exposes it as `/skill-name`. See the [activation matrix](skills-reference.md#inv
 6. **Review**. The Reviewer checks correctness, security, performance, maintainability, and test coverage.
 7. **Release**. The Herald determines the semver bump, generates the changelog, and publishes to npm.
 
-Every step is automated. Every step has a member responsible.
+Every step is automated, and each one has a member responsible for it.
 
 ---
 

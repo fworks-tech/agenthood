@@ -25,7 +25,7 @@ export function printScoreTable(tasks: EvalReport['tasks'], labels: string[]): v
     const row = [truncate(task.input, widths[0]).padEnd(widths[0])]
     for (const metric of labels) {
       const score = task.scores[metric]
-      row.push((score === undefined ? '\u2014' : score.toFixed(2)).padEnd(widths[row.length]))
+      row.push((score === undefined ? '-' : score.toFixed(2)).padEnd(widths[row.length]))
     }
     row.push(task.status.padEnd(widths[widths.length - 1]))
     console.log(`  ${row.join(' ')}`)

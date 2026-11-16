@@ -177,8 +177,10 @@ When a new member is added, update all of these:
 
 ### Authoring a Third-Party Member
 
-An outside author does not add a row to any registry file. Point them at
-[`docs/members/contrib-members.md`](../../docs/members/contrib-members.md) and
+An outside author does not add a row to any registry file. Point them at the
+walkthrough ([`docs/guides/creating-a-member.md`](../../docs/guides/creating-a-member.md)),
+the reference contract
+([`docs/members/contrib-members.md`](../../docs/members/contrib-members.md)) and
 enforce this minimum:
 
 - Location `skills/contrib/the-<name>/SKILL.md`; the directory and the `name`

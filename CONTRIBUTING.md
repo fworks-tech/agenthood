@@ -158,6 +158,19 @@ The `agenthood` CLI auto-discovers commands from `src/commands/`: each file expo
 - `agenthood upgrade --agenthood` — self-upgrade the agenthood package (backs up `.agenthood/config.json` first, pins the registry-validated version)
 Adding a command means adding a file in `src/commands/` and documenting it here.
 
+Three guides cover skill authoring beyond the checklist: [Skill Best Practices](docs/guides/skill-best-practices.md)
+(multi-agent specifics, context spending, gotchas), [Script Design](docs/guides/script-design.md)
+(no prompts, `--help`, structured output, idempotency) and [Skill Evaluation](docs/guides/skill-evaluation.md)
+(trigger rate, suites, regressions in CI). The skill system's internals are in
+[docs/architecture/skills.md](docs/architecture/skills.md); `npm run docs:api` builds the TSDoc API
+reference into the gitignored `docs/api/`.
+
+Writing a member is documented as a walkthrough in
+[Creating a Member](docs/guides/creating-a-member.md): naming, the `skills/contrib/` layout, the six
+required sections, the frontmatter contract, and the review checklist. A complete worked example is
+included. The reference contract (trust model, versioning, namespaces) is
+[Third-Party Members](docs/members/contrib-members.md).
+
 Colocation: helpers with a single consumer live in the consuming module (`status` windows in `status.ts`, cost/token math in `modelPricing.ts`) — `src/core/` and `src/utils/` are for shared code only.
 
 Config note: a string-form `provider` in `.agenthood/config.json` keeps the sibling `model` (see `loadConfig` in `src/commands/config.ts`).

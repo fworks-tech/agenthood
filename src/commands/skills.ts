@@ -3,6 +3,7 @@ import { loadConfig } from './config.ts'
 import type { LLMConfig } from '../llm/types.ts'
 import { SkillDiscovery } from '../skills/discovery/SkillDiscovery.ts'
 import { filterReason, orderSkills } from '../skills/catalog/format.ts'
+import { gateSkills } from '../skills/discovery/gating.ts'
 
 export const command: CommandDescriptor = {
   name: 'skills',
@@ -16,7 +17,8 @@ export async function skills(args: string[]): Promise<void> {
   agenthood skills [--show-disabled] [--json]
 
 Lists discovered skills in catalog order. --show-disabled names the skills the
-catalog omits and why: config disable, hidden: true, or disable-model-invocation.
+catalog omits and why: config disable, hidden: true, disable-model-invocation, or
+a requirement this model cannot meet (model-targets, requires, dependencies).
 `)
     return
   }
@@ -28,10 +30,13 @@ catalog omits and why: config disable, hidden: true, or disable-model-invocation
 
   const discovery = new SkillDiscovery()
   const found = discovery.discover(process.cwd())
-  const listed = orderSkills(found.filter((m) => filterReason(m, disabled) === undefined))
+  const gate = gateSkills(found, { provider: config.provider, model: config.model })
+  const hiddenReason = (m: (typeof found)[number]): string | undefined =>
+    filterReason(m, disabled) ?? gate.blocked.get(m.name)
+  const listed = orderSkills(found.filter((m) => hiddenReason(m) === undefined))
   const filtered = found
-    .map((m) => ({ manifest: m, reason: filterReason(m, disabled) }))
-    .filter((entry): entry is { manifest: typeof entry.manifest; reason: string } => entry.reason !== undefined)
+    .map((m) => ({ manifest: m, reason: hiddenReason(m) }))
+    .filter((entry): entry is { manifest: (typeof found)[number]; reason: string } => entry.reason !== undefined)
 
   if (json) {
     console.log(

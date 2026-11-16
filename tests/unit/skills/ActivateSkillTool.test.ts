@@ -237,3 +237,94 @@ describe('ActivateSkillTool run scope (#536, #542, #543)', () => {
     }
   })
 })
+
+describe('ActivateSkillTool gating and variants (#549, #551, #555)', () => {
+  beforeEach(() => {
+    dir = mkdtempSync(join(tmpdir(), 'activate-gate-'))
+    mkdirSync(join(dir, '.agenthood'), { recursive: true })
+    vi.spyOn(console, 'log').mockImplementation(() => {})
+    vi.spyOn(console, 'warn').mockImplementation(() => {})
+  })
+
+  afterEach(() => {
+    vi.restoreAllMocks()
+    rmSync(dir, { recursive: true, force: true })
+  })
+
+  it('refuses a skill the model cannot run and names the requirement', async () => {
+    const tool = new ActivateSkillTool(
+      new Map([['opus-only', manifest('opus-only', { modelTargets: { provider: ['anthropic'] } })]]),
+      128000,
+      { availability: { provider: 'openai', model: 'gpt-4o' } },
+    )
+    const result = await tool.execute({ skill_name: 'opus-only' }, context())
+    expect(result.success).toBe(false)
+    expect(result.error).toContain('requires provider anthropic')
+    expect(result.error).toContain('this run keeps the model it started with')
+  })
+
+  it('leaves a blocked skill out of the tool schema enum', () => {
+    const tool = new ActivateSkillTool(
+      new Map([
+        ['blocked', manifest('blocked', { requires: { context: 400000 } })],
+        ['usable', manifest('usable')],
+      ]),
+      8000,
+      { availability: { contextWindow: 8000 } },
+    )
+    const names = tool.inputSchema.properties?.skill_name.enum ?? []
+    expect(names).toContain('usable')
+    expect(names).not.toContain('blocked')
+  })
+
+  it('follows the fallback chain when the first skill is blocked', async () => {
+    const tool = new ActivateSkillTool(
+      new Map([
+        ['opus-only', manifest('opus-only', { modelTargets: { family: ['claude'] }, fallback: ['general'] })],
+        ['general', manifest('general')],
+      ]),
+      128000,
+      { availability: { model: 'gpt-4o' } },
+    )
+    const result = await tool.execute({ skill_name: 'opus-only' }, context())
+    expect(result.success).toBe(true)
+    expect(result.output).toContain('name="general"')
+  })
+
+  it('loads the variant body for the current model and says which one', async () => {
+    const skillDir = mkdtempSync(join(tmpdir(), 'activate-variant-'))
+    mkdirSync(join(skillDir, 'references'), { recursive: true })
+    writeFileSync(join(skillDir, 'references', 'haiku.md'), 'compact instructions')
+    try {
+      const tool = new ActivateSkillTool(
+        new Map([
+          [
+            'a',
+            manifest('a', {
+              directory: skillDir,
+              variants: { haiku: 'references/haiku.md' },
+            }),
+          ],
+        ]),
+        128000,
+        { availability: { model: 'claude-haiku-4' } },
+      )
+      const result = await tool.execute({ skill_name: 'a' }, context())
+      expect(result.output).toContain('compact instructions')
+      expect(result.output).toContain('<skill_variant name="haiku"')
+    } finally {
+      rmSync(skillDir, { recursive: true, force: true })
+    }
+  })
+
+  it('warns inside the block about an unavailable optional tool', async () => {
+    const tool = new ActivateSkillTool(
+      new Map([['a', manifest('a', { requires: { optionalTools: ['jq'] } })]]),
+      128000,
+      { availability: { tools: [] } },
+    )
+    const result = await tool.execute({ skill_name: 'a' }, context())
+    expect(result.output).toContain('<skill_warning>')
+    expect(result.output).toContain('optional tool "jq"')
+  })
+})

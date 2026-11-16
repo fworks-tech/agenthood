@@ -44,6 +44,7 @@ model-targets:
   exclude: [haiku, gpt-4o-mini] # substring match — blocked even if family matches
 requires:
   tools: [bash, mcp.github]    # required; unmet = blocked
+  optional-tools: [jq]         # unmet = warning only
   context: 128000              # same meaning as model-targets.min-tokens
 dependencies:
   required: [code-review]
@@ -111,6 +112,10 @@ Configuration is project-scoped and unchanged — only skill *data* moves.
   variant files. Warnings stay warnings; a cycle is an error.
 - The activation tool reads one extra file when a variant matches.
 - Tests exercise the gate as a pure function; no filesystem and no provider calls.
+- The catalog is built before a run's tool registry exists, so tool requirements
+  are warnings at discovery time and block at activation, where the session tool
+  list is known. Model, provider, context and dependency requirements block in
+  both places.
 
 ## Alternatives considered
 

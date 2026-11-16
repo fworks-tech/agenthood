@@ -1,4 +1,4 @@
-import { existsSync, readFileSync, readdirSync, statSync } from 'node:fs'
+import { existsSync, readFileSync, readdirSync } from 'node:fs'
 import type { CommandDescriptor } from './types.ts'
 import { MEMBER_NAME_RE, MEMBER_NAMES, memberResourcePath, memberSkillPath, resolveSocietyMembersDir } from '../members.ts'
 import { join } from 'node:path'
@@ -22,11 +22,11 @@ import {
   SEMVER_RE,
 } from '../skills/discovery/SkillParser.ts'
 import { isKnownCondition } from '../skills/activation/conditions.ts'
-import { lintScript } from '../skills/execution/lint.ts'
 import { OWNER_RE } from '../skills/namespace.ts'
-import { isKnownToolName } from '../members/toolVocabulary.ts'
 import { scanForInjections } from '../skills/discovery/injectionScan.ts'
 import { userError } from '../core/cliError.ts'
+import { isKnownToolName } from '../members/toolVocabulary.ts'
+import { reportScriptLint, reportSkillRequirements } from './verifySkills.ts'
 import type { SkillTier } from '../skills/discovery/ISkillManifest.ts'
 import { SkillDiscovery } from '../skills/discovery/SkillDiscovery.ts'
 import { findConflicts } from '../skills/conflicts.ts'
@@ -316,28 +316,6 @@ function collectConflictCandidates(membersDir: string, discovered: ConflictCandi
   return [...byName.values()]
 }
 
-function reportScriptLint(membersDir: string): void {
-  const findings = []
-  for (const entry of readdirSync(membersDir, { withFileTypes: true }).filter((e) => e.isDirectory())) {
-    const scriptsDir = join(membersDir, entry.name, 'scripts')
-    if (!existsSync(scriptsDir)) continue
-    for (const name of readdirSync(scriptsDir)) {
-      const path = join(scriptsDir, name)
-      if (!statSync(path).isFile()) continue
-      findings.push(...lintScript(`${entry.name}/scripts/${name}`, readFileSync(path, 'utf8')))
-    }
-  }
-
-  if (findings.length === 0) {
-    console.log('  \u2713 Skill scripts: no interface warnings')
-    return
-  }
-  console.log(`  ! Skill scripts: ${findings.length} warning(s) — advisory, not a failure`)
-  for (const finding of findings) {
-    console.log(`      - ${finding.script}: [${finding.rule}] ${finding.message}`)
-  }
-}
-
 function reportConflicts(membersDir: string): void {
   const discovered = new SkillDiscovery().discover(process.cwd())
   const candidates = collectConflictCandidates(membersDir, discovered)
@@ -469,12 +447,16 @@ export async function verify(args: string[]): Promise<void> {
   const namespaceConflicts = findNamespaceConflicts(membersDir)
   for (const conflict of namespaceConflicts) console.log(`  \u2717 ${conflict}`)
 
-  const structuralOk = results.every((r) => r.pass) && namespaceConflicts.length === 0
+  let structuralOk = results.every((r) => r.pass) && namespaceConflicts.length === 0
   const hasDrift = results.some((r) => r.drift)
 
   if (isStrict) reportLaneOverlaps()
 
   reportRoutingRecords(cwd)
+
+  // Requirements (#549, #551, #552, #554, #571): cycles fail, the rest warns (ADR-037).
+  const requirementsOk = reportSkillRequirements(membersDir)
+  if (!requirementsOk) structuralOk = false
 
   // --scripts (#540, #547, #548): advisory interface lint over bundled scripts.
   if (flags.has('--scripts')) reportScriptLint(membersDir)

@@ -1,7 +1,13 @@
 import { readFileSync, statSync, existsSync, readdirSync } from 'node:fs'
 import { join } from 'node:path'
 import { load as loadYaml } from 'js-yaml'
-import type { ISkillManifest, SkillTier } from './ISkillManifest.ts'
+import type {
+  ISkillManifest,
+  ModelTargets,
+  SkillDependencies,
+  SkillRequires,
+  SkillTier,
+} from './ISkillManifest.ts'
 
 const VALID_TIERS: SkillTier[] = ['official', 'community', 'experimental']
 
@@ -28,6 +34,14 @@ export interface ParsedSkill {
   fallback?: string[]
   /** `disable-model-invocation: true` hides the skill from the catalog (#537). */
   disableModelInvocation?: boolean
+  /** `model-targets` — provider/family/min-tokens/exclude (ADR-037). */
+  modelTargets?: ModelTargets
+  /** `requires` — tools and context the skill needs (ADR-037). */
+  requires?: SkillRequires
+  /** `dependencies` — other skills it needs (ADR-037). */
+  dependencies?: SkillDependencies
+  /** `metadata.variants` — model-id fragment → body file (ADR-037). */
+  variants?: Record<string, string>
 }
 
 const SPDX_SHAPE_RE = /^[A-Za-z0-9.+-]+(?: (?:AND|OR|WITH) [A-Za-z0-9.+-]+)*$/
@@ -102,6 +116,70 @@ export function parseConditions(frontmatter: Record<string, unknown> | null): st
 /** `fallback` — an ordered list of skills to try when activation is refused (#613). */
 export function parseFallback(frontmatter: Record<string, unknown> | null): string[] | undefined {
   return parseStringList(frontmatter?.fallback)
+}
+
+function asRecord(value: unknown): Record<string, unknown> | undefined {
+  return value !== null && typeof value === 'object' && !Array.isArray(value)
+    ? (value as Record<string, unknown>)
+    : undefined
+}
+
+function parsePositiveInt(value: unknown): number | undefined {
+  const parsed = typeof value === 'string' ? Number(value.trim()) : value
+  return typeof parsed === 'number' && Number.isInteger(parsed) && parsed > 0 ? parsed : undefined
+}
+
+/** `model-targets` — provider, family, min-tokens, exclude (ADR-037, #549). */
+export function parseModelTargets(frontmatter: Record<string, unknown> | null): ModelTargets | undefined {
+  const raw = asRecord(frontmatter?.['model-targets'] ?? frontmatter?.model_targets)
+  if (!raw) return undefined
+  const provider = parseStringList(raw.provider)
+  const family = parseStringList(raw.family)
+  const exclude = parseStringList(raw.exclude)
+  const minTokens = parsePositiveInt(raw['min-tokens'] ?? raw.minTokens)
+  if (!provider && !family && !exclude && minTokens === undefined) return undefined
+  return {
+    ...(provider ? { provider } : {}),
+    ...(family ? { family } : {}),
+    ...(exclude ? { exclude } : {}),
+    ...(minTokens === undefined ? {} : { minTokens }),
+  }
+}
+
+/** `requires` — tools, optional tools and a context window (ADR-037, #552, #554). */
+export function parseRequires(frontmatter: Record<string, unknown> | null): SkillRequires | undefined {
+  const raw = asRecord(frontmatter?.requires)
+  if (!raw) return undefined
+  const tools = parseStringList(raw.tools)
+  const optionalTools = parseStringList(raw['optional-tools'] ?? raw.optionalTools)
+  const context = parsePositiveInt(raw.context)
+  if (!tools && !optionalTools && context === undefined) return undefined
+  return {
+    ...(tools ? { tools } : {}),
+    ...(optionalTools ? { optionalTools } : {}),
+    ...(context === undefined ? {} : { context }),
+  }
+}
+
+/** `dependencies` — required and optional skills (ADR-037, #571). */
+export function parseDependencies(frontmatter: Record<string, unknown> | null): SkillDependencies | undefined {
+  const raw = asRecord(frontmatter?.dependencies)
+  if (!raw) return undefined
+  const required = parseStringList(raw.required)
+  const optional = parseStringList(raw.optional)
+  if (!required && !optional) return undefined
+  return { ...(required ? { required } : {}), ...(optional ? { optional } : {}) }
+}
+
+/** `metadata.variants` — fragment → file inside the skill directory (ADR-037, #551). */
+export function parseVariants(frontmatter: Record<string, unknown> | null): Record<string, string> | undefined {
+  const raw = asRecord(nestedField(frontmatter, 'variants') ?? frontmatter?.variants)
+  if (!raw) return undefined
+  const entries = Object.entries(raw)
+    .filter((entry): entry is [string, string] => typeof entry[1] === 'string' && entry[1].trim() !== '')
+    .map(([fragment, path]): [string, string] => [fragment.trim(), path.trim()])
+    .filter(([fragment]) => fragment !== '')
+  return entries.length > 0 ? Object.fromEntries(entries) : undefined
 }
 
 /** `metadata.version` (agentskills convention). Pre-release and build suffixes allowed. */
@@ -188,6 +266,10 @@ export class SkillParser {
     const priority = parsePriority(raw.frontmatter)
     const conditions = parseConditions(raw.frontmatter)
     const fallback = parseFallback(raw.frontmatter)
+    const modelTargets = parseModelTargets(raw.frontmatter)
+    const requires = parseRequires(raw.frontmatter)
+    const dependencies = parseDependencies(raw.frontmatter)
+    const variants = parseVariants(raw.frontmatter)
     const declaredName = typeof raw.frontmatter.name === 'string' ? raw.frontmatter.name : filePath
     return {
       name: normalizeSkillName(declaredName),
@@ -201,6 +283,10 @@ export class SkillParser {
       ...(priority === undefined ? {} : { priority }),
       ...(conditions ? { conditions } : {}),
       ...(fallback ? { fallback } : {}),
+      ...(modelTargets ? { modelTargets } : {}),
+      ...(requires ? { requires } : {}),
+      ...(dependencies ? { dependencies } : {}),
+      ...(variants ? { variants } : {}),
       ...(raw.frontmatter['disable-model-invocation'] === true || raw.frontmatter.disable_model_invocation === true
         ? { disableModelInvocation: true }
         : {}),
@@ -258,6 +344,10 @@ export class SkillParser {
       ...(parsed.priority === undefined ? {} : { priority: parsed.priority }),
       ...(parsed.conditions ? { conditions: parsed.conditions } : {}),
       ...(parsed.fallback ? { fallback: parsed.fallback } : {}),
+      ...(parsed.modelTargets ? { modelTargets: parsed.modelTargets } : {}),
+      ...(parsed.requires ? { requires: parsed.requires } : {}),
+      ...(parsed.dependencies ? { dependencies: parsed.dependencies } : {}),
+      ...(parsed.variants ? { variants: parsed.variants } : {}),
       ...(parsed.disableModelInvocation ? { disableModelInvocation: true } : {}),
       ...(parsed.hidden ? { hidden: true } : {}),
       ...(parsed.router ? { router: true } : {}),

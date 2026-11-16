@@ -98,6 +98,8 @@ export class SkillDiscovery {
   scanRoot(root: string): ISkillManifest[] {
     if (!existsSync(root)) return []
     this.cache = new ManifestCache<CachedSkill>(this.defaultProjectDir)
+    // Per-root budget: a large user root must not silently cut the next root.
+    this.stats = { directories: 0, skills: 0, cacheHits: 0, durationMs: 0, truncated: false }
     return this.scanDir(root, 0)
   }
 
@@ -149,12 +151,8 @@ export class SkillDiscovery {
           continue
         }
         const winner = [existing.directory, manifest.directory].sort()[0]
-        if (winner === manifest.directory) {
-          this.manifests.set(key, manifest)
-          warnCollision(key, existing.directory, manifest.directory, 'alphabetically first directory wins')
-        } else {
-          warnCollision(key, existing.directory, manifest.directory, 'alphabetically first directory wins')
-        }
+        if (winner === manifest.directory) this.manifests.set(key, manifest)
+        warnCollision(key, existing.directory, manifest.directory, 'alphabetically first directory wins')
       }
     }
 

@@ -38,6 +38,14 @@ Rules:
 
 - Declared tools are intersected with the member's permission profile — a skill
   can narrow access, never widen it.
+- When several skills are active, their declarations intersect: the most
+  restrictive declaration wins, and a permissive skill cannot re-open a tool a
+  restrictive active skill closed.
+- Cross-client skills: a declared name that matches no agenthood tool is ignored
+  at run time with a one-time warning, so a skill written for another client
+  still loads. Ignoring a name never widens access; a skill whose declared names
+  all resolve to nothing denies every tool. `agenthood verify` fails on such a
+  name, so a typo is caught before merge.
 - A skill with no `allowed-tools` imposes no restriction.
 - `activate_skill` is always available, otherwise a second skill could never load.
 - The declared names are the skill vocabulary (`file.read`, `code.write`),

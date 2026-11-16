@@ -19,6 +19,16 @@ describe('configuration samples', () => {
     }
   })
 
+  it('.env.example contains no values', () => {
+    const assignments = envExample
+      .split('\n')
+      .filter((line) => line && !line.startsWith('#') && line.includes('='))
+    expect(assignments.length).toBeGreaterThan(0)
+    for (const line of assignments) {
+      expect(line, `${line} carries a value`).toMatch(/^[A-Z0-9_]+=$/)
+    }
+  })
+
   it('config.example.json activates every registered member', () => {
     const registered = new MemberRegistry().list().map((spec) => spec.name)
     expect(new Set(configExample.members)).toEqual(new Set(registered))

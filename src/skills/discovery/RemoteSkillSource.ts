@@ -1,4 +1,4 @@
-import { existsSync, readFileSync, mkdirSync, readdirSync, rmSync, writeFileSync } from 'node:fs'
+import { existsSync, readFileSync, mkdirSync, mkdtempSync, readdirSync, rmSync, writeFileSync } from 'node:fs'
 import { join, relative } from 'node:path'
 import { execFileSync } from 'node:child_process'
 import type { ISkillManifest } from '../discovery/ISkillManifest.ts'
@@ -127,7 +127,9 @@ export class RemoteSkillFetcher {
 
   private fetchFromGit(raw: string, path?: string): string | undefined {
     const url = validateRemoteUrl(raw)
-    const tmpDir = join(this.cacheDir, '.git-tmp')
+    // A fixed name races a second process (init plus run): one clone deletes
+    // the directory under the other.
+    const tmpDir = mkdtempSync(join(this.cacheDir, 'git-'))
     try {
       // GIT_TERMINAL_PROMPT=0 and empty credential.helper keep the clone from
       // hanging on auth prompts or popping credential dialogs on a hostile host.

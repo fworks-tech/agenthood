@@ -7,6 +7,20 @@ revisor, auditor de segurança, engenheiro DevOps e mais), como arquivos de
 skill Markdown portáteis, um runtime TypeScript autônomo e um Studio no
 navegador. Sem cadastro. Funciona com qualquer runtime de agente.
 
+**O Agenthood 4.0 chegou.** Membros e workflows agora são dados: registre
+agentes próprios em runtime, declare cadeias em `chains.yaml` e mantenha o
+mesmo rastro de decisões, traces e proveniência. As mudanças que exigem ação
+estão no [MIGRATION.md](MIGRATION.md).
+
+## O que há de novo na 4.0
+
+- **Compose.** Membros customizados e workflows declarados em `chains.yaml`.
+- **Contratos de skill.** `allowed-tools` limita o que o modelo pode chamar.
+- **Scripts em sandbox.** Runtimes fixos, Docker ou nada, com log de auditoria.
+- **Custo e saúde.** `status`, `health`, `trace --activations` e `optimize --cost`.
+
+O histórico completo está nas [notas de release](docs/release-notes.md).
+
 ## Instalação em 5 minutos
 
 ```bash

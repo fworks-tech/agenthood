@@ -2,11 +2,30 @@
 
 [![npm version](https://img.shields.io/npm/v/agenthood?style=flat-square&logo=npm)](https://www.npmjs.com/package/agenthood) [![npm downloads](https://img.shields.io/npm/dm/agenthood?style=flat-square&logo=npm)](https://www.npmjs.com/package/agenthood) [![License: MIT](https://img.shields.io/badge/License-MIT-blue?style=flat-square)](LICENSE) [![Node.js](https://img.shields.io/badge/node-%3E%3D22.14.0-brightgreen?style=flat-square&logo=node.js)](https://nodejs.org) [![skills.sh](https://skills.sh/b/fworks-tech/agenthood)](https://skills.sh/fworks-tech/agenthood) [![SkillsMP](https://img.shields.io/badge/registry-SkillsMP-purple?style=flat-square)](https://skillsmp.com/creators/fworks-tech) [![Security: self-audited](https://img.shields.io/badge/security-self--audited-blue?style=flat-square)](docs/security-audit-report.md)
 
+**Agenthood 4.0 is out.** Members and workflows are data now. Register your own agents at runtime,
+declare a multi-step chain in `chains.yaml`, and every step keeps the traces, decisions and
+provenance records the built-in Society already writes.
+
 > A full AI engineering team that earns every merge.
 
 Twenty specialized agents (architect, reviewer, security expert, DevOps engineer, strategist, operator, and more), each one a portable Markdown skill file any runtime can load into any project. A TypeScript runtime runs them autonomously across the software lifecycle. Nothing here is tied to a provider: the files work wherever skills are supported.
 
 They care about the parts of engineering that are easy to skip. A commit message that says `fix stuff` will not merge. A pull request without a linked issue gets sent back. Every run leaves a decision and provenance record, so the work can be audited afterwards instead of taken on faith.
+
+[What's new](#whats-new-in-40) · [Get started](#getting-started) · [Upgrade from 3.x](MIGRATION.md) · [Release notes](docs/release-notes.md)
+
+---
+
+## What's new in 4.0
+
+- **Compose.** Custom members and `chains.yaml` workflows ([ADR-033](docs/adr/ADR-033-chain-workflows.md)). Every step runs through `MemberRunner`, so traces and audit records stay uniform.
+- **Skill contracts.** A skill's `allowed-tools` narrows what the model may call ([ADR-032](docs/adr/ADR-032-skill-tool-enforcement.md)). Skills also declare the model, tools and dependencies they need and only activate where those exist ([ADR-037](docs/adr/ADR-037-skill-usability-gating-and-variants.md)).
+- **Scripts in a sandbox.** Bundled scripts run on pinned runtimes, inside Docker or not at all, with interface lint and an audit log ([ADR-036](docs/adr/ADR-036-skill-script-execution-and-sandboxing.md)).
+- **Bounded discovery.** The catalog is cached, activations are deduplicated, and compaction cannot drop an active skill ([ADR-038](docs/adr/ADR-038-skill-discovery-and-execution-caching.md)).
+- **Cost and health.** `status` reports the catalog budget, `health` checks stale references, `trace --activations` is the audit trail, and `optimize --cost` ranks spend against use.
+- **Multimodal.** Vision, image generation, speech and a video stub behind `IMultimodalProvider`.
+
+The breaking changes are in [MIGRATION.md](MIGRATION.md); the full history is in the [release notes](docs/release-notes.md).
 
 ---
 
@@ -201,7 +220,7 @@ The TypeScript runtime (`agenthood run`) supports OpenCode (default) and OpenCod
 Install once, use everywhere: no per-project config needed:
 
 ```bash
-npm i -g agenthood   # add @<version> to pin, e.g. agenthood@3.42.0
+npm i -g agenthood   # add @<version> to pin, e.g. agenthood@4.0.0
 ```
 
 ```jsonc

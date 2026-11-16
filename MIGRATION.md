@@ -70,7 +70,7 @@ Rules:
 ### 3. Output labels use a colon, not a dash
 
 Human-readable labels in reports and status lines now put a colon between the
-name and the value. The old form was `Trigger rate — scribe`; the new form is
+name and the value. The old form was `Trigger rate — scribe`; the new form is <!-- prose-lint-ignore -->
 `Trigger rate: scribe`. This covers eval reports, trigger rates, trace summaries
 and the status windows. A script that greps the old form stops matching.
 

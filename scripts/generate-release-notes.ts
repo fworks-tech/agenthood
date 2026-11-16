@@ -89,8 +89,8 @@ export function cleanLine(line: string): string {
   const cleaned = dropInventedRefs(cleanRefs(line))
     // A commit subject is free prose, so it can carry the dash the checker
     // forbids. Generated notes are exempt from the checker, so normalize here.
-    .replace(/(\d)\s*[\u2013\u2014]\s*(\d)/g, '$1-$2')
-    .replace(/\s*[\u2013\u2014]\s*/g, ': ')
+    .replace(/(\d)\s*[\u2013\u2014]\s*(\d)/g, '$1-$2') // prose-lint-ignore
+    .replace(/\s*[\u2013\u2014]\s*/g, ': ') // prose-lint-ignore
     .replace(/\s*\(\[`?[0-9a-f]{7,40}`?\]\(https:\/\/[^)]+\)\)/g, '')
     .replace(/\[#(\d+)\]\(https:\/\/[^)]+\)/g, '#$1')
     .replace(/^\*\s+\*\*([^:]+):\*\*\s+/, (_, scope: string) => `- **${scope.charAt(0).toUpperCase() + scope.slice(1)}:** `)

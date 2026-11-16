@@ -18,10 +18,11 @@ Use the punctuation that does the job, not a dash standing in for all of them.
 
 Do not use an em dash (U+2014) or an en dash (U+2013) in prose. The one
 exception is an external identifier that must match GitHub exactly, such as a
-required check name. Inside `.github/workflows/` only the `name:` lines and the
-watched-workflow list in `herald.yml` keep their dash; every other line there
-follows the rule. `.github/scripts/herald-summary.cjs` and its test fixture
-mirror those names and are exempt as whole files.
+required check name. Inside `.github/workflows/` only the workflow and job
+`name:` lines and the watched-workflow list in `herald.yml` keep their dash;
+every other line there follows the rule, including step names.
+`.github/scripts/herald-summary.cjs` and its test fixture mirror those names and
+are exempt as whole files.
 
 A line that must contain the character itself, such as a test fixture, ends with
 `prose-lint-ignore`.
@@ -87,5 +88,6 @@ and leaves the judgement to the author.
 npm run lint:prose
 ```
 
-The check fails on an em or en dash in a tracked text file and prints the stock
-phrases it found. It runs in CI on every pull request.
+The check fails on an em or en dash, or an escaped dash code point, in any
+tracked text file, including extensionless scripts, code strings and metadata.
+It prints the stock phrases it found and runs in CI on every pull request.

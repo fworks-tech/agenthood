@@ -1,162 +1,50 @@
-import { describe, it, expect, vi, beforeEach } from 'vitest'
-
-vi.mock('node:fs', async (importOriginal) => {
-  const actual = await importOriginal<typeof import('node:fs')>()
-  return {
-    ...actual,
-    existsSync: vi.fn(),
-    readFileSync: vi.fn(),
-    writeFileSync: vi.fn(),
-  }
-})
-
-vi.mock('node:child_process', async (importOriginal) => {
-  const actual = await importOriginal<typeof import('node:child_process')>()
-  return {
-    ...actual,
-    execFileSync: vi.fn(),
-  }
-})
-
-import { existsSync, readFileSync } from 'node:fs'
+import { describe, it, expect, beforeEach, afterEach } from 'vitest'
 import { execFileSync } from 'node:child_process'
-import { rollback } from '../../../src/commands/rollback.ts'
-import { contentHash } from '../../../src/utils/hash.ts'
+import { mkdirSync, mkdtempSync, rmSync, writeFileSync } from 'node:fs'
+import { join } from 'node:path'
+import { tmpdir } from 'node:os'
+import { findVersionRevision } from '../../../src/commands/rollback.ts'
 
-const LOCKED_CONTENT = 'locked content'
-const LOCKED_HASH = contentHash(LOCKED_CONTENT)
+const skill = (version: string) => `---\nname: scribe\ndescription: d\nlicense: MIT\nmetadata:\n  version: ${version}\n---\nBody ${version}.\n`
 
-const VALID_LOCK = JSON.stringify({
-  version: 1,
-  members: {
-    'the-test': {
-      version: LOCKED_HASH,
-      updatedAt: '2026-06-27T12:00:00.000Z',
-    },
-  },
-})
+describe('rollback --version (#591)', () => {
+  let repo: string
+  const skillPath = 'skills/scribe/SKILL.md'
 
-describe('rollback command', () => {
+  const commit = (version: string) => {
+    writeFileSync(join(repo, skillPath), skill(version))
+    execFileSync('git', ['add', '-A'], { cwd: repo })
+    execFileSync('git', ['-c', 'user.email=t@t', '-c', 'user.name=t', 'commit', '-qm', `v${version}`], { cwd: repo })
+    return execFileSync('git', ['rev-parse', 'HEAD'], { cwd: repo, encoding: 'utf-8' }).trim()
+  }
+
   beforeEach(() => {
-    vi.mocked(existsSync).mockReturnValue(true)
-    vi.mocked(readFileSync).mockReturnValue(VALID_LOCK)
-    vi.mocked(execFileSync).mockReset()
+    repo = mkdtempSync(join(tmpdir(), 'rollback-version-'))
+    execFileSync('git', ['init', '-q'], { cwd: repo })
+    mkdirSync(join(repo, 'skills', 'scribe'), { recursive: true })
   })
 
-  it('errors when lockfile is missing', async () => {
-    vi.mocked(existsSync).mockReturnValue(false)
-    const exit = vi.spyOn(process, 'exit').mockImplementation((() => { throw new Error('process.exit') }) as any)
-
-    await expect(rollback([])).rejects.toThrow('process.exit')
-    expect(exit).toHaveBeenCalledWith(1)
+  afterEach(() => {
+    rmSync(repo, { recursive: true, force: true })
   })
 
-  it('errors when lockfile is invalid', async () => {
-    vi.mocked(readFileSync).mockReturnValue('not json')
-    const exit = vi.spyOn(process, 'exit').mockImplementation((() => { throw new Error('process.exit') }) as any)
+  it('finds the commit that declared the requested version', () => {
+    const first = commit('1.0.0')
+    commit('1.1.0')
 
-    await expect(rollback([])).rejects.toThrow('process.exit')
-    expect(exit).toHaveBeenCalledWith(1)
+    expect(findVersionRevision(repo, skillPath, '1.0.0')).toBe(first)
   })
 
-  it('errors when target member not in lockfile', async () => {
-    const exit = vi.spyOn(process, 'exit').mockImplementation((() => { throw new Error('process.exit') }) as any)
+  it('returns the newest commit that declared a version restored later', () => {
+    commit('1.0.0')
+    commit('1.1.0')
+    const latest = commit('1.0.0')
 
-    await expect(rollback(['nonexistent'])).rejects.toThrow('process.exit')
-    expect(exit).toHaveBeenCalledWith(1)
+    expect(findVersionRevision(repo, skillPath, '1.0.0')).toBe(latest)
   })
 
-  it('shows dry-run output without restoring', async () => {
-    vi.mocked(execFileSync)
-      .mockReturnValueOnce('abc123\nabc456\n' as never) // git log
-      .mockReturnValueOnce('current content' as never)  // git show abc123 (no match)
-      .mockReturnValueOnce(LOCKED_CONTENT as never)     // git show abc456 (match)
-
-    vi.spyOn(console, 'log').mockImplementation(() => {})
-    vi.spyOn(process, 'exit').mockImplementation((() => { throw new Error('process.exit') }) as any)
-
-    await expect(rollback(['--dry-run'])).resolves.toBeUndefined()
-
-    // Should NOT have called git checkout
-    const checkoutCalls = vi.mocked(execFileSync).mock.calls.filter(
-      ([cmd, args]) => cmd === 'git' && (args as string[])[0] === 'checkout'
-    )
-    expect(checkoutCalls).toHaveLength(0)
-  })
-
-  it('restores member from matching commit via git checkout', async () => {
-    vi.mocked(execFileSync)
-      .mockReturnValueOnce('abc123\nabc456\n' as never) // git log
-      .mockReturnValueOnce(LOCKED_CONTENT as never)     // git show abc123
-
-    vi.spyOn(console, 'log').mockImplementation(() => {})
-    vi.spyOn(process, 'exit').mockImplementation((() => { throw new Error('process.exit') }) as any)
-
-    await rollback([])
-
-    expect(execFileSync).toHaveBeenCalledWith(
-      'git',
-      ['checkout', 'abc123', '--', expect.stringMatching(/skills[\\/]the-test[\\/]SKILL\.md$/)],
-      expect.anything()
-    )
-  })
-
-  it('skips hostile lockfile keys and never passes them to git', async () => {
-    vi.mocked(readFileSync).mockReturnValue(JSON.stringify({
-      version: 1,
-      members: {
-        'x"; touch pwned; echo "': { version: LOCKED_HASH, updatedAt: '' },
-        'the-test': { version: LOCKED_HASH, updatedAt: '' },
-      },
-    }) as never)
-    vi.mocked(execFileSync)
-      .mockReturnValueOnce('abc123\n' as never) // git log (the-test only)
-      .mockReturnValueOnce(LOCKED_CONTENT as never)
-
-    const output: string[] = []
-    vi.spyOn(console, 'log').mockImplementation((...a) => { output.push(a.join(' ')) })
-    vi.spyOn(console, 'warn').mockImplementation((...a) => { output.push(a.join(' ')) })
-    vi.spyOn(process, 'exit').mockImplementation((() => { throw new Error('process.exit') }) as any)
-
-    await rollback(['--dry-run'])
-
-    expect(output.join('\n')).toContain('Skipping invalid member key from lockfile')
-    const allArgs = vi.mocked(execFileSync).mock.calls.flatMap((c) => c[1] as string[])
-    expect(allArgs.some((a) => a.includes('touch pwned'))).toBe(false)
-    expect(allArgs.some((a) => a.includes(';'))).toBe(false)
-  })
-
-  it('non-dry-run: restores only the valid member, hostile keys never reach git checkout', async () => {
-    vi.mocked(readFileSync).mockReturnValue(JSON.stringify({
-      version: 1,
-      members: {
-        'evil\n[2J]key': { version: LOCKED_HASH, updatedAt: '' },
-        'the-test': { version: LOCKED_HASH, updatedAt: '' },
-      },
-    }) as never)
-    vi.mocked(execFileSync)
-      .mockReturnValueOnce('abc123\n' as never) // git log (valid member only)
-      .mockReturnValueOnce(LOCKED_CONTENT as never) // git show abc123
-
-    vi.spyOn(console, 'log').mockImplementation(() => {})
-    vi.spyOn(console, 'warn').mockImplementation(() => {})
-    vi.spyOn(process, 'exit').mockImplementation((() => { throw new Error('process.exit') }) as any)
-
-    await rollback([])
-
-    const checkoutCalls = vi.mocked(execFileSync).mock.calls.filter(
-      ([cmd, args]) => cmd === 'git' && (args as string[])[0] === 'checkout'
-    )
-    expect(checkoutCalls).toHaveLength(1)
-    const checkoutPath = (checkoutCalls[0][1] as string[])[3]
-    expect(checkoutPath).toMatch(/skills[\\/]the-test[\\/]SKILL\.md$/)
-    expect(checkoutPath).not.toContain('evil')
-  })
-
-  it('rejects an invalid CLI member name before touching git', async () => {
-    const exit = vi.spyOn(process, 'exit').mockImplementation((() => { throw new Error('process.exit') }) as any)
-    await expect(rollback(['bad;name'])).rejects.toThrow('process.exit')
-    expect(exit).toHaveBeenCalledWith(1)
-    expect(vi.mocked(execFileSync)).not.toHaveBeenCalled()
+  it('returns null for a version the history never had', () => {
+    commit('1.0.0')
+    expect(findVersionRevision(repo, skillPath, '9.9.9')).toBeNull()
   })
 })

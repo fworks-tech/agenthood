@@ -1,8 +1,8 @@
 # Level 1: GenAI & RAG Basics
 
-> *Every agent that fails in production failed because its builder skipped this level.*
+> *Most agents that fail in production skipped this level.*
 
-Nine articles. The foundation. Start here.
+Nine articles on the foundation. Start here.
 
 ---
 

@@ -1,6 +1,6 @@
 # Tool Integration
 
-> Agents that cannot plan cannot be trusted. Agents that cannot act are just chatbots. Planning and acting requires tools.
+> An agent becomes useful when it can act, and tools are how it acts.
 
 ---
 
@@ -24,9 +24,9 @@ graph TD
 
 ## Why it matters in production
 
-Without tools, an LLM is isolated in a sandbox. It cannot verify if code compiles, it cannot read a Slack message, and it cannot commit to a repository. 
+Without tools, an LLM is cut off from the world. It cannot check whether code compiles, read a Slack message or commit to a repository.
 
-In production, agents must take action. But blindly allowing an LLM to execute code is a massive security risk. Tools provide the strict, typed boundary where the LLM's requested actions are validated, scoped, and executed safely by your application logic.
+In production, agents have to act, and letting an LLM run arbitrary code is a serious security risk. A tool is a typed boundary where the application validates the model's request, limits its scope and runs it.
 
 ---
 
@@ -51,7 +51,7 @@ export class SkillDiscovery {
 }
 ```
 
-The Society demands that all actions are defined by a strict `JSONSchema` contract.
+Every action is defined by a strict `JSONSchema` contract.
 
 ---
 

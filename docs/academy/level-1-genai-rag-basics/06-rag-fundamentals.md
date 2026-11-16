@@ -1,6 +1,6 @@
 # RAG Fundamentals
 
-> An agent without a retrieval pipeline is just a confidently loud amnesiac. 
+> Without retrieval, the agent answers from memory, and memory is what it got wrong.
 
 ---
 
@@ -28,7 +28,7 @@ sequenceDiagram
 
 LLMs have a static knowledge cutoff and cannot access your private codebase, Slack messages, or documentation. If you ask an agent to "debug the billing service," it will hallucinate unless it can read the billing service code.
 
-RAG grounds the LLM in reality. In production, RAG prevents hallucinations, allows for citation of sources, and enables agents to act on proprietary data without requiring expensive model fine-tuning.
+RAG grounds the LLM in your data. In production it reduces hallucinations, lets answers cite their sources, and lets an agent use proprietary data without fine-tuning the model.
 
 ---
 
@@ -47,7 +47,7 @@ export class Retriever {
 }
 ```
 
-The Society retrieves facts before it speaks.
+The agent retrieves the facts before it answers.
 
 ---
 

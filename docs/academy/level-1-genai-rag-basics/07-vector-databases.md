@@ -1,6 +1,6 @@
 # Vector Databases
 
-> Keyword search finds the words you typed. Vector search finds the meaning you intended.
+> Keyword search matches the words you typed. Vector search matches what you meant.
 
 ---
 
@@ -14,9 +14,9 @@ Unlike relational databases (SQL) that rely on exact keyword matches, vector dat
 
 ## Why it matters in production
 
-Traditional search fails when users ask natural language questions ("How do I fix the auth bug?"). RAG pipelines require the ability to retrieve documents based on semantic relevance, not exact text matches.
+Keyword search fails on natural-language questions such as "How do I fix the auth bug?". A RAG pipeline needs to retrieve documents by semantic relevance, not by exact text match.
 
-In production, vector databases provide the blazing-fast similarity search that makes real-time agentic workflows possible. Without them, comparing a query against thousands of codebase chunks would be computationally paralyzing.
+In production, a vector database makes similarity search fast enough for real-time agent workflows. Without one, comparing a query against thousands of codebase chunks is too slow to use.
 
 ---
 
@@ -37,7 +37,7 @@ await store.add([
 const results = await store.search(queryVector, 5, { source: 'docs' });
 ```
 
-No heavy cloud infrastructure. No external dependencies. Just fast, local semantic search.
+It needs no cloud infrastructure and no external service. Semantic search runs locally.
 
 ---
 

@@ -1,6 +1,6 @@
 # Agent Evaluation
 
-> *An agent you cannot measure is an agent you cannot improve. The Society measures everything.*
+> *You cannot improve an agent you have not measured.*
 
 ---
 

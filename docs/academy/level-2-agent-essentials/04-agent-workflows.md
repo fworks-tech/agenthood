@@ -1,6 +1,6 @@
 # Agent Workflows
 
-> *A single agent is a specialist. A workflow is a team. Teams ship features; specialists write notes.*
+> *One agent does one job well. A workflow chains several of them into a feature.*
 
 ---
 

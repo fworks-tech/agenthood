@@ -1,6 +1,6 @@
 # M6: Intelligence: What Shipped
 
-> *M6 turns planned reasoning into shipped code. The Society no longer just plans; it decides, retrieves, and routes.*
+> *M6 moves planned reasoning into shipped code, so the Society now decides, retrieves and routes.*
 
 ---
 
@@ -22,7 +22,7 @@ The M6 milestone ("Intelligence") delivered four features that close the gap bet
 The three retrieval components form a pipeline that replaces passive RAG with a decision-aware retrieval system:
 
 1. **Chunk with structure**: `MarkdownHierarchicalChunkStrategy` splits documents by heading boundaries, producing parent sections and child chunks with structural metadata.
-2. **Index with provenance**: child chunks are embedded for vector search; parent sections are linked to their children. Every result knows which section it came from.
+2. **Index with provenance**: child chunks are embedded for vector search; parent sections are linked to their children. Each result records the section it came from.
 3. **Retrieve with strategy**: `RetrievalClassifier` inspects the query and context and decides the retrieval strategy (`vector`, `graph`, `skip`). `AgenticRAG` executes that decision, querying the vector store, the knowledge graph, or neither.
 
 `MemberOrchestrator` is a separate concern; it detects which Society member should handle a task based on keywords, changed files, and task stage. It does not share code with the RAG pipeline, but both feed into the agent's reasoning loop.

@@ -1,6 +1,6 @@
 # Chunking Strategies
 
-> Poor chunking quietly destroys retrieval quality. The Society does not tolerate quiet destruction.
+> Bad chunks hand the retriever bad evidence, and the model answers from it anyway.
 
 ---
 
@@ -25,7 +25,7 @@ graph TD
 
 If you blindly chop text every 500 characters, you will split sentences in half and sever code blocks from their declarations. When the retriever fetches that chunk later, the LLM will lack the necessary context to answer the user's question, leading to hallucinations.
 
-In production, bad chunking is the number one cause of RAG failure. A smart `FixedSizeChunkStrategy` ensures that the semantic meaning of the text is preserved, drastically improving the accuracy of vector search.
+In production, bad chunking is a common cause of RAG failure. A `FixedSizeChunkStrategy` that respects the unit of meaning keeps the text's sense intact, which is what makes vector search accurate.
 
 ---
 
@@ -48,7 +48,7 @@ export class FixedSizeChunkStrategy implements ChunkStrategy {
 }
 ```
 
-The Society understands that code cannot be split arbitrarily. A function must remain whole.
+Code cannot be split at an arbitrary offset, because a function has to stay whole.
 
 ---
 

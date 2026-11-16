@@ -41,6 +41,29 @@ describe('writeDebugDump', () => {
     expect(data.durationMs).toBe(123)
   })
 
+  it('redacts a secret the model quotes back and the tool-call arguments', () => {
+    const key = 'ghp_abcdefghijklmnopqrstuvwxyz0123456789'
+    writeDebugDump(
+      TEST_DIR,
+      undefined,
+      'openai',
+      'gpt-4',
+      { messages: [{ role: 'user', content: 'hi' }] },
+      {
+        content: `your token is ${key}`,
+        toolCalls: [{ id: 't1', name: 'run', args: { token: key } }],
+        usage: { promptTokens: 5, completionTokens: 2, totalTokens: 7 },
+        model: 'gpt-4',
+      },
+      10,
+    )
+
+    const debugDir = join(TEST_DIR, '.agenthood', 'debug')
+    const data = JSON.parse(readFileSync(join(debugDir, readdirSync(debugDir)[0]), 'utf-8'))
+    expect(data.response.content).toBe('your token is [REDACTED]')
+    expect(JSON.stringify(data.response.toolCalls)).not.toContain('ghp_')
+  })
+
   it('redacts API keys from request content', () => {
     writeDebugDump(
       TEST_DIR,

@@ -17,6 +17,12 @@ const PLACEHOLDER = '[REDACTED]'
 
 const EMAIL_RE = /\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}\b/g
 const API_KEY_RE = /\bsk-[A-Za-z0-9_-]{8,}\b/g
+// Token shapes the pre-commit hook already refuses to commit; keeping one list
+// in two files is how a guard becomes a half-guard.
+const CLOUD_TOKEN_RE =
+  /\b(?:ghp_[A-Za-z0-9]{20,}|github_pat_[A-Za-z0-9_]{20,}|AKIA[0-9A-Z]{16}|(?:sk|pk)_live_[0-9a-zA-Z]{16,}|glpat-[A-Za-z0-9_-]{20,})\b/g
+const PRIVATE_KEY_RE =
+  /-----BEGIN (?:RSA|OPENSSH|EC|DSA|PGP) PRIVATE KEY-----[\s\S]*?-----END (?:RSA|OPENSSH|EC|DSA|PGP) PRIVATE KEY-----/g
 const BEARER_RE = /\bBearer\s+[A-Za-z0-9._~+/=-]{8,}\b/g
 const URL_QUERY_RE = /([?&][^=&\s]+=)[^&\s]+/g
 const IPV4_RE = /\b\d{1,3}(?:\.\d{1,3}){3}\b/g
@@ -43,6 +49,8 @@ export class RedactionFilter {
     this.rules = [
       { regex: EMAIL_RE, replace: PLACEHOLDER },
       { regex: API_KEY_RE, replace: PLACEHOLDER },
+      { regex: CLOUD_TOKEN_RE, replace: PLACEHOLDER },
+      { regex: PRIVATE_KEY_RE, replace: PLACEHOLDER },
       { regex: BEARER_RE, replace: PLACEHOLDER },
       { regex: URL_QUERY_RE, replace: URL_QUERY_REPLACE },
       { regex: IPV4_RE, replace: PLACEHOLDER },

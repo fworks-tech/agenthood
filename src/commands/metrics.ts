@@ -49,7 +49,7 @@ async function metricsHandler(args: string[]): Promise<void> {
   }
 
   const port = overridePort ?? config.port ?? DEFAULT_METRICS_PORT
-  const server = await startMetricsServer({ cwd, port })
+  const server = await startMetricsServer({ cwd, port, host: config.host })
   const address = server.address()
   const boundPort = typeof address === 'object' && address ? address.port : port
   console.log(`\n  Prometheus metrics on http://${config.host}:${boundPort}/metrics`)

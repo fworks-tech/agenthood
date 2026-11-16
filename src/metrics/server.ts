@@ -7,6 +7,8 @@ export const DEFAULT_METRICS_PORT = 9464
 export interface MetricsServerOptions {
   cwd: string
   port?: number
+  /** Loopback by default: the CLI prints 127.0.0.1, so the socket must agree. */
+  host?: string
 }
 
 /** Serves `/metrics` in Prometheus text format. Renders from the local
@@ -25,6 +27,6 @@ export function startMetricsServer(options: MetricsServerOptions): Promise<Serve
 
   return new Promise((resolve, reject) => {
     server.once('error', reject)
-    server.listen(options.port ?? DEFAULT_METRICS_PORT, () => resolve(server))
+    server.listen(options.port ?? DEFAULT_METRICS_PORT, options.host ?? '127.0.0.1', () => resolve(server))
   })
 }

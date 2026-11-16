@@ -150,6 +150,12 @@ describe('metrics export (#651)', () => {
       expect(body).toContain('# TYPE agenthood_provider_cost_usd_total counter')
     }, SOCKET_TIMEOUT)
 
+    it('binds loopback by default, matching the printed URL', async () => {
+      server = await startMetricsServer({ cwd, port: 0 })
+      const address = server.address() as AddressInfo
+      expect(address.address).toBe('127.0.0.1')
+    }, SOCKET_TIMEOUT)
+
     it('404s anything but /metrics', async () => {
       server = await startMetricsServer({ cwd, port: 0 })
       port = (server.address() as AddressInfo).port

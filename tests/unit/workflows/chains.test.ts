@@ -67,7 +67,7 @@ describe("chains.yaml", () => {
       maxRounds: 1,
     };
     const definition = toWorkflowDefinition(chain, "shared task");
-    expect(definition.steps.map((s) => s.name)).toEqual(["review:reviewer", "review:auditor"]);
+    expect(definition.steps.map((s) => s.name)).toEqual(["review:0:reviewer", "review:1:auditor"]);
     expect(definition.steps[0]).toMatchObject({ type: "agent", input: { member: "reviewer", task: "shared task" } });
   });
 });
@@ -102,6 +102,13 @@ describe("runChain", () => {
     const results = await runChain(chain(), "do it", options(fake));
     expect(runMemberTask.mock.calls.map((c) => c[0])).toEqual(["tester", "builder"]);
     expect(results[0]).toEqual({ member: "tester", output: "tests pass" });
+  });
+
+  it("keeps the result of every step when one member appears twice", async () => {
+    const outputs = ["first pass", "second pass"];
+    const { runner: fake } = runner({ builder: () => outputs.shift() ?? "" });
+    const results = await runChain(chain({ steps: [{ member: "builder" }, { member: "builder" }] }), "do it", options(fake));
+    expect(results.map((r) => r.output)).toEqual(["first pass", "second pass"]);
   });
 
   it("stops the chain when a step reports a blocking finding", async () => {

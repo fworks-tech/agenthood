@@ -48,4 +48,11 @@ describe("matchTrajectories", () => {
     const newer = traj("new", [step({})], "2026-02-01T00:00:00.000Z");
     expect(matchTrajectories([older, newer], {}).map((t) => t.id)).toEqual(["new", "old"]);
   });
+
+  it("caps the listing at the limit after sorting newest first", () => {
+    const a = traj("a", [step({})], "2026-01-01T00:00:00.000Z");
+    const b = traj("b", [step({})], "2026-02-01T00:00:00.000Z");
+    const c = traj("c", [step({})], "2026-03-01T00:00:00.000Z");
+    expect(matchTrajectories([a, b, c], { limit: 2 }).map((t) => t.id)).toEqual(["c", "b"]);
+  });
 });

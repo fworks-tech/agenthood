@@ -92,7 +92,7 @@ function stepUsedTool(step: Trajectory['steps'][number], tool: string): boolean 
 /** Trajectories whose steps used a skill or called a tool, newest first (#605). */
 export function matchTrajectories(
   trajectories: Trajectory[],
-  filter: { skill?: string; tool?: string; member?: string; since?: string },
+  filter: { skill?: string; tool?: string; member?: string; since?: string; limit?: number },
 ): Trajectory[] {
   return trajectories
     .filter((t) => !filter.member || t.member === filter.member)
@@ -100,11 +100,12 @@ export function matchTrajectories(
     .filter((t) => !filter.skill || t.steps.some((s) => stepUsedSkill(s, filter.skill!)))
     .filter((t) => !filter.tool || t.steps.some((s) => stepUsedTool(s, filter.tool!)))
     .sort((a, b) => b.completedAt.localeCompare(a.completedAt))
+    .slice(0, filter.limit)
 }
 
 function printTrajectoryList(
   trajectories: Trajectory[],
-  filter: { skill?: string; tool?: string; member?: string; since?: string; json?: boolean },
+  filter: { skill?: string; tool?: string; member?: string; since?: string; limit?: number; json?: boolean },
 ): void {
   const matched = matchTrajectories(trajectories, filter)
 
@@ -206,7 +207,7 @@ export async function trace(args: string[] = []): Promise<void> {
   // Skill and tool only exist on step-level trajectories, so those flags switch
   // the listing from trace envelopes to trajectories (#605).
   if (skill || tool) {
-    printTrajectoryList(new TrajectoryStore(cwd).list(), { skill, tool, member, since, json })
+    printTrajectoryList(new TrajectoryStore(cwd).list(), { skill, tool, member, since, limit, json })
     return
   }
 

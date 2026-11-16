@@ -376,3 +376,28 @@ describe('ActivateSkillTool dedup and restore (#533, #618)', () => {
     expect(result.output).toContain('<skill_already_active')
   })
 })
+
+describe('ActivateSkillTool one-shot skills (#587)', () => {
+  beforeEach(() => {
+    dir = mkdtempSync(join(tmpdir(), 'activate-replay-'))
+    mkdirSync(join(dir, '.agenthood'), { recursive: true })
+  })
+
+  afterEach(() => {
+    vi.restoreAllMocks()
+    rmSync(dir, { recursive: true, force: true })
+  })
+
+  it('re-injects a one-shot body instead of pointing at a body compaction may drop', async () => {
+    const activeSkills = new Set<string>()
+    const oneShot = manifest('one-shot', { compactionReplay: false })
+    const tool = new ActivateSkillTool(new Map([['one-shot', oneShot]]), 128000, { activeSkills })
+
+    const first = await tool.execute({ skill_name: 'one-shot' }, context())
+    const second = await tool.execute({ skill_name: 'one-shot' }, context())
+
+    expect(first.output).toContain('[compaction-replay-off]')
+    expect(second.output).toContain('one-shot body')
+    expect(second.output).not.toContain('<skill_already_active')
+  })
+})

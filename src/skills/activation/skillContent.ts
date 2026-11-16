@@ -14,6 +14,18 @@ import { join } from 'node:path'
 
 export const SKILL_ACTIVATION_PREFIX = '[SKILL_ACTIVATION]'
 
+/**
+ * Marks a `compaction-replay: false` body (#587). Compaction may summarise the
+ * block, so the runtime re-injects it on the next activation instead of
+ * pointing at instructions that no longer exist.
+ */
+export const NO_REPLAY_MARKER = '[compaction-replay-off]'
+
+/** True for a skill activation block that compaction must keep (#532, #587). */
+export function isReplayableSkillBlock(content: string): boolean {
+  return content.includes(SKILL_ACTIVATION_PREFIX) && !content.includes(NO_REPLAY_MARKER)
+}
+
 export type SkillContentFormat = 'xml' | 'json'
 export type ActivationTrigger = 'model' | 'explicit' | 'fallback'
 
@@ -75,6 +87,10 @@ export function activatedSkillName(content: string): string | undefined {
   return xml?.[1] ?? json?.[1]
 }
 
+function replayMarker(manifest: ISkillManifest): string {
+  return manifest.compactionReplay === false ? '\n' + NO_REPLAY_MARKER : ''
+}
+
 /** Resource listing, one `<file>` per entry with metadata only (#512, #543). */
 function resourcesXml(entries: ResourceInfo[], total: number): string {
   if (entries.length === 0) return ''
@@ -110,11 +126,11 @@ export function formatSkillContent(manifest: ISkillManifest, body: string, optio
       instructions: body,
       ...(options.notice ? { notice: options.notice } : {}),
     }
-    return `${SKILL_ACTIVATION_PREFIX}\n${JSON.stringify(payload, null, 2)}`
+    return `${SKILL_ACTIVATION_PREFIX}${replayMarker(manifest)}\n${JSON.stringify(payload, null, 2)}`
   }
 
   const version = manifest.version ? ` version="${escapeXml(manifest.version)}"` : ''
-  return `${SKILL_ACTIVATION_PREFIX}
+  return `${SKILL_ACTIVATION_PREFIX}${replayMarker(manifest)}
 <skill_content name="${escapeXml(manifest.name)}"${version} trigger="${trigger}" activated_at="${activatedAt}">
 ${body}${notice}${fallback}
 Skill directory: ${manifest.directory}

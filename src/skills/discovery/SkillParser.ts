@@ -287,6 +287,9 @@ export class SkillParser {
       ...(requires ? { requires } : {}),
       ...(dependencies ? { dependencies } : {}),
       ...(variants ? { variants } : {}),
+      ...(raw.frontmatter['compaction-replay'] === false || raw.frontmatter.compaction_replay === false
+        ? { compactionReplay: false }
+        : {}),
       ...(raw.frontmatter['disable-model-invocation'] === true || raw.frontmatter.disable_model_invocation === true
         ? { disableModelInvocation: true }
         : {}),

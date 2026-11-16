@@ -60,6 +60,17 @@ Before confirming the task is done:
 | `name` | Yes | Lowercase, hyphen-separated, matches directory name, ≤64 chars |
 | `description` | Yes | One sentence. Third person ("Use when...", not "I help with..."). Front-load trigger keywords. |
 | `license` | No | SPDX identifier (default: MIT) |
+| `metadata.author` | Publishing only | Registry namespace — the `owner` in `owner/name` (ADR-035) |
+| `source_url` | Third-party only | Where the skill came from; required for `skills/contrib/` |
+| `compaction-replay` | No | `false` marks one-shot instructions: compaction may summarise the body, so a re-activation always reloads it (#587) |
+
+**Cross-skill invocation.** A skill that needs another skill calls `activate_skill`
+by name; never copy the other body in. Activation blocks are wrapped in
+`<skill_directives>` and survive compaction, so the invoking skill resumes with
+its instructions intact. Set `compaction-replay: false` only for instructions
+that must not be replayed (a one-time migration, a destructive step); the runtime
+then re-injects on the next activation rather than pointing at a body that may
+have been summarised away.
 
 **Description quality checklist:**
 - Covers both *what* the skill does AND *when* to use it

@@ -135,7 +135,9 @@ export class ActivateSkillTool implements ITool {
 
     // Dedup (#533): the block stays in the transcript and compaction protects
     // it, so re-injecting the body only spends tokens. `force` reloads it.
-    if (this.options.activeSkills?.has(name) === true && !force) {
+    // A one-shot skill opts out: compaction may have dropped its body (#587).
+    const noReplay = manifest.compactionReplay === false
+    if (this.options.activeSkills?.has(name) === true && !force && !noReplay) {
       this.recordForRun(name, context, manifest)
       recordSkillActivation(projectPath, name, true)
       console.log(`[skills] "${name}" already active — skipped re-injection`)

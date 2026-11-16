@@ -66,4 +66,9 @@ export interface ISkillManifest {
   dependencies?: SkillDependencies
   /** `metadata.variants` — model-id fragment → body file inside the skill directory (ADR-037). */
   variants?: Record<string, string>
+  /**
+   * `compaction-replay: false` — one-shot instructions. Compaction may drop the
+   * body and a re-activation always reloads it (#587).
+   */
+  compactionReplay?: boolean
 }

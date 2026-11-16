@@ -49,6 +49,12 @@ describe('ProvenanceStore', () => {
     it('rejects invalid entity ids', async () => {
       await expect(store.track(entryFor('bad id'))).rejects.toThrow('Invalid provenance entity id')
     })
+
+    it('keeps the chain valid when two stores write at once', async () => {
+      const other = new ProvenanceStore({ provenanceDir: dir })
+      await Promise.all([store.track(entryFor('exec-1')), other.track(entryFor('exec-2'))])
+      expect(await store.verifyChain()).toMatchObject({ valid: true })
+    })
   })
 
   describe('get / recent / count', () => {

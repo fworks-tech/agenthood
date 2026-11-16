@@ -56,44 +56,84 @@ const SHELL_SAFE = /^[\w@.,:=/+\-~]+$/
 /** Shims PATHEXT resolves but spawn cannot start directly on Windows. */
 const WINDOWS_SHIMS = new Set(['npx', 'uvx', 'pipx', 'cargo', 'uv'])
 
+/** Keeps at most `cap` bytes, dropping the oldest chunks first: a runaway
+ *  script cannot grow the heap without bound, and the tail is where the
+ *  failure usually is. Output above the inline cap is still spilled to disk. */
+class CappedBuffer {
+  private chunks: string[] = []
+  private bytes = 0
+  private dropped = false
+
+  constructor(private readonly cap = 4 * 1024 * 1024) {}
+
+  push(chunk: string): void {
+    this.chunks.push(chunk)
+    this.bytes += Buffer.byteLength(chunk, 'utf8')
+    while (this.bytes > this.cap && this.chunks.length > 1) {
+      this.bytes -= Buffer.byteLength(this.chunks.shift()!, 'utf8')
+      this.dropped = true
+    }
+  }
+
+  text(): string {
+    return (this.dropped ? '[earlier output truncated]\n' : '') + this.chunks.join('')
+  }
+}
+
+/** A timeout must not leave grandchildren (a `docker run` container, an npm
+ *  install tree) burning CPU after the parent is gone. */
+function killTree(child: ReturnType<typeof spawn>): void {
+  if (child.pid === undefined) return
+  if (process.platform === 'win32') {
+    try {
+      execFileSync('taskkill', ['/pid', String(child.pid), '/T', '/F'], { stdio: 'ignore' })
+    } catch {
+      child.kill()
+    }
+    return
+  }
+  try {
+    process.kill(-child.pid, 'SIGKILL')
+  } catch {
+    child.kill()
+  }
+}
+
 function runCommand(command: string, args: string[], cwd: string, timeoutMs: number): Promise<CommandResult> {
   return new Promise((resolve) => {
     // shortcut: Windows .cmd shims need the shell, so one-off tokens are
     // charset-checked first. Upgrade to a shim resolver if more are needed.
     const shell = process.platform === 'win32' && WINDOWS_SHIMS.has(command)
-    const child = spawn(command, args, { cwd, stdio: ['ignore', 'pipe', 'pipe'], shell, windowsHide: true })
-    let stdout = ''
-    let stderr = ''
+    const child = spawn(command, args, {
+      cwd,
+      stdio: ['ignore', 'pipe', 'pipe'],
+      shell,
+      windowsHide: true,
+      detached: process.platform !== 'win32',
+    })
+    const stdout = new CappedBuffer()
+    const stderr = new CappedBuffer()
     let timedOut = false
     const timer = setTimeout(() => {
       timedOut = true
-      child.kill()
+      killTree(child)
     }, timeoutMs)
 
     child.stdout.on('data', (chunk: Buffer) => {
-      stdout += chunk.toString('utf8')
+      stdout.push(chunk.toString('utf8'))
     })
     child.stderr.on('data', (chunk: Buffer) => {
-      stderr += chunk.toString('utf8')
+      stderr.push(chunk.toString('utf8'))
     })
     child.on('error', (err) => {
       clearTimeout(timer)
-      resolve({ code: null, stdout, stderr: `${stderr}${err.message}`, timedOut: false })
+      resolve({ code: null, stdout: stdout.text(), stderr: `${stderr.text()}${err.message}`, timedOut: false })
     })
     child.on('close', (code) => {
       clearTimeout(timer)
-      resolve({ code, stdout, stderr, timedOut })
+      resolve({ code, stdout: stdout.text(), stderr: stderr.text(), timedOut })
     })
   })
-}
-
-function runtimeVersion(command: string): string {
-  try {
-    const output = execFileSync(command, ['--version'], { timeout: 5000, encoding: 'utf8' })
-    return String(output).split('\n')[0].trim() || command
-  } catch {
-    return command
-  }
 }
 
 function audit(projectPath: string, row: Record<string, unknown>): void {
@@ -159,10 +199,6 @@ export async function runSkillScript(request: RunScriptRequest, deps: RunScriptD
     command = [...detected.command, relative(manifest.directory, scriptPath).split(sep).join('/')]
   }
 
-  if (oneOff?.ok && process.platform === 'win32' && command.some((token) => !SHELL_SAFE.test(token))) {
-    return fail('A one-off command contains a character Windows cannot pass safely. Simplify it or run with --sandbox.')
-  }
-
   const decision = sandboxRequired(manifest, {
     sandbox: deps.sandbox,
     trustedAuthors: deps.trustedAuthors ?? [],
@@ -174,6 +210,11 @@ export async function runSkillScript(request: RunScriptRequest, deps: RunScriptD
   }
 
   const argv = [...command, ...(request.args ?? [])]
+  // Checked after the model-supplied args are appended: a `&` in args would
+  // otherwise reach cmd.exe and start a second command (#audit).
+  if (oneOff?.ok && process.platform === 'win32' && argv.some((token) => !SHELL_SAFE.test(token))) {
+    return fail('A one-off command contains a character Windows cannot pass safely. Simplify it or run with --sandbox.')
+  }
   const final = decision.required ? ['docker', ...sandboxDockerArgs(manifest.directory, argv)] : argv
 
   // Output cache (ADR-038): opt-in, bundled scripts only, keyed by content.
@@ -210,7 +251,7 @@ ${cached}` }
 
   const combined = [result.stdout, result.stderr].filter(Boolean).join('\n')
   if (!oneOff?.ok) recordResourceAccess(deps.projectPath, skillName, script)
-  const runtime = oneOff?.ok ? `${command[0]} (pinned)` : `${detected?.command[0]} (${runtimeVersion(detected?.command[0] ?? command[0])})`
+  const runtime = oneOff?.ok ? `${command[0]} (pinned)` : (detected?.command[0] ?? command[0])
   const meta = header({
     skill: skillName,
     script: basename(scriptPath),

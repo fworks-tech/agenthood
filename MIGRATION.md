@@ -4,6 +4,22 @@
 
 4.0 makes members and workflows data. Two changes need action; the rest is additive.
 
+### Rolling back to 3.78
+
+The upgrade changes package code and adds state files; it does not migrate existing
+state in place. To go back:
+
+```bash
+npm install -g agenthood@3.78.0
+git diff --stat                      # what did 4.0 change in tracked files?
+git restore <paths>                  # config and lockfiles you do not want to keep
+rm -rf .agenthood/skill-cache        # rebuilt by either version
+agenthood verify
+```
+
+Decisions, provenance and traces are append-only, so keep them. Remove
+`.agenthood/trajectories/` only if the older runtime cannot parse the step-level files.
+
 ### 1. `Tracer.startSpan` / `endSpan` are gone
 
 The methods were empty and only kept for an interface. If you call them, delete

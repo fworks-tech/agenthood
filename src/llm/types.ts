@@ -31,6 +31,8 @@ export interface JSONSchemaProperty {
   type: string
   description?: string
   maxLength?: number
+  /** Allowed values — `activate_skill` constrains the name to discovered skills (#531). */
+  enum?: string[]
 }
 
 export interface TokenUsage {
@@ -82,6 +84,22 @@ export interface ProviderEntry {
   priority?: number
 }
 
+/** Provider format override table: provider name → catalog format. */
+export type CatalogFormatName = 'xml' | 'json' | 'text'
+
+/** Skill discovery and catalog settings from `.agenthood/config.json`. */
+export interface SkillsConfig {
+  autoDiscover?: boolean
+  /** Catalog format when no provider-specific entry matches (#528, #556). */
+  catalogFormat?: CatalogFormatName
+  /** Per-provider catalog format (#556). */
+  providerFormats?: Record<string, CatalogFormatName>
+  /** Skills disabled by the user — filtered from the catalog and refused (#537). */
+  disabled?: string[]
+  /** `false` disables fallback activation chains (#613). */
+  fallback?: boolean
+}
+
 /** One remote catalog (ADR-035). `tokenEnv` names an env var — never a literal token. */
 export interface RemoteCatalogSource {
   url: string
@@ -106,7 +124,7 @@ export interface LLMConfig {  provider?: string
   /** Per-request LLM call timeout in ms (default: 60000) */
   requestTimeoutMs?: number
   /** Skill auto-discovery toggle from .agenthood/config.json */
-  skills?: { autoDiscover?: boolean }
+  skills?: SkillsConfig
   /** Remote `.well-known` skill catalogs (ADR-035) */
   remoteCatalogs?: RemoteCatalogsConfig
   /** Optional Sentry error reporting from .agenthood/config.json */

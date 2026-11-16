@@ -1,6 +1,6 @@
 import { join } from 'node:path'
 import { readFile } from 'node:fs/promises'
-import type { LLMConfig, ProviderEntry, RemoteCatalogSource, RemoteCatalogsConfig } from '../llm/types.ts'
+import type { CatalogFormatName, LLMConfig, ProviderEntry, RemoteCatalogSource, RemoteCatalogsConfig, SkillsConfig } from '../llm/types.ts'
 
 function pickBlock(raw: Record<string, unknown>, key: string): Record<string, unknown> | undefined {
   const block = raw[key]
@@ -78,9 +78,35 @@ function parseRemoteCatalogs(raw: Record<string, unknown>): RemoteCatalogsConfig
   return config
 }
 
-function parseSkills(raw: Record<string, unknown>): { autoDiscover?: boolean } | undefined {  const skills = pickBlock(raw, 'skills')
+function parseSkills(raw: Record<string, unknown>): SkillsConfig | undefined {
+  const skills = pickBlock(raw, 'skills')
   if (!skills) return undefined
-  return { autoDiscover: skills.autoDiscover === true }
+  const config: SkillsConfig = { autoDiscover: skills.autoDiscover === true }
+
+  const format = skills.catalogFormat
+  if (format === 'xml' || format === 'json' || format === 'text') {
+    config.catalogFormat = format
+  } else if (format !== undefined) {
+    console.warn(`[run] skills.catalogFormat "${String(format)}" is not xml|json|text — using the provider default`)
+  }
+
+  const providerFormats = pickBlock(skills, 'providerFormats')
+  if (providerFormats) {
+    const table: Record<string, CatalogFormatName> = {}
+    for (const [provider, value] of Object.entries(providerFormats)) {
+      if (value === 'xml' || value === 'json' || value === 'text') table[provider] = value
+    }
+    if (Object.keys(table).length > 0) config.providerFormats = table
+  }
+
+  if (Array.isArray(skills.disabled)) {
+    const disabled = skills.disabled.filter((name): name is string => typeof name === 'string')
+    if (disabled.length > 0) config.disabled = disabled
+  }
+
+  if (skills.fallback === false) config.fallback = false
+
+  return config
 }
 
 function parseSentry(raw: Record<string, unknown>): { dsn?: string } | undefined {

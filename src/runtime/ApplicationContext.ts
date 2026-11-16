@@ -125,6 +125,7 @@ export class ApplicationContext {
       artifacts: [],
       oracle: { ask: (q: string) => oracleAgent.ask(q, this.ctx) },
       skillsCatalog: skills.catalog || undefined,
+      skillManifests: skills.manifests,
       repoInstructions: loadRepoInstructions(projectPath) || undefined,
       skillAllowedTools: (name) => toRegistryToolNames(skills.manifests.get(name)?.allowedTools),
       sentry,
@@ -150,7 +151,12 @@ export class ApplicationContext {
   ): Promise<ApplicationContext> {
     const llm = await LLMRouter.create(config)
     const societyGraph = loadSocietyGraph(projectPath)
-    const skills = await discoverSkills(projectPath)
+    const catalogFormat = config.skills?.providerFormats?.[config.provider ?? ''] ?? config.skills?.catalogFormat
+    const skills = await discoverSkills(projectPath, {
+      provider: config.provider,
+      format: catalogFormat,
+      disabled: config.skills?.disabled,
+    })
     const vectorStore = await connectVectorStore(projectPath)
     const app = new ApplicationContext(projectPath, llm, {
       societyGraph,

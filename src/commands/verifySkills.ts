@@ -238,18 +238,20 @@ export function reportContribSkills(projectPath: string): void {
   const parser = new SkillParser()
   const problems: string[] = []
   let count = 0
-  for (const entry of readdirSync(root, { withFileTypes: true })) {
-    if (!entry.isDirectory()) continue
-    const location = join(root, entry.name, 'SKILL.md')
+  for (const entry of readdirSync(root) as unknown[]) {
+    // Real fs yields names; a Dirent-shaped entry is tolerated.
+    const name = typeof entry === 'string' ? entry : (entry as { name?: string }).name
+    if (!name) continue
+    const location = join(root, name, 'SKILL.md')
     if (!existsSync(location)) continue
     count++
     const { frontmatter } = parser.parseRaw(readFileSync(location, 'utf8'))
     if (!parseOwner(frontmatter)) {
-      problems.push(`${entry.name}: missing metadata.author — the owner in owner/name`)
+      problems.push(`${name}: missing metadata.author — the owner in owner/name`)
     }
     const source = frontmatter?.source_url ?? frontmatter?.sourceUrl
     if (typeof source !== 'string' || !source.trim()) {
-      problems.push(`${entry.name}: missing source_url — where this skill came from`)
+      problems.push(`${name}: missing source_url — where this skill came from`)
     }
   }
 

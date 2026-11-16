@@ -184,7 +184,7 @@ enforce this minimum:
 - Location `skills/contrib/the-<name>/SKILL.md`; the directory and the `name`
   field agree
 - `metadata.author` (the owner in `owner/name`) and `source_url` present —
-  `agenthood verify` warns when either is missing
+  `agenthood verify --contrib` reports when either is missing
 - All six required sections, same as a first-party member
 - Bundled scripts get an Auditor review before the member is listed; the
   default `permissionProfile` stays read-only

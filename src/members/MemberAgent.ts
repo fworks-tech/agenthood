@@ -30,13 +30,21 @@ const TOOL_MAP = TOOL_VOCABULARY
 // the registry derives spec.tools from the profile, so this is defense-in-depth
 // against a hand-built spec carrying an over-broad tool list. pr_sync writes to
 // GitHub and is reserved for the 'trusted' profile alone.
-const WRITE_TOOLS = new Set(['file.write', 'code.write', 'code.refactor'])
+const WRITE_TOOLS = new Set(['file.write', 'code.write', 'code.refactor', 'text_to_speech'])
 const TRUSTED_TOOLS = new Set(['pr_sync'])
 // Read-only tools are safe for every profile. Anything not classified below is
 // denied — a future tool that touches state but is NOT added to WRITE_TOOLS /
 // TRUSTED_TOOLS fails closed (never silently granted to restricted members).
 // ask_human only asks, never mutates state, so every member gets it.
-const READ_ONLY_TOOLS = new Set(['ask_human', 'file.read', 'file.search', 'code.explain'])
+const READ_ONLY_TOOLS = new Set([
+  'ask_human',
+  'file.read',
+  'file.search',
+  'code.explain',
+  'generate_image',
+  'speech_to_text',
+  'generate_video',
+])
 
 export interface MemberAgentOptions {
   agentRegistry?: AgentRegistry

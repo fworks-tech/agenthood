@@ -1,3 +1,5 @@
+import type { ModalPart } from './IMultimodalProvider.ts'
+
 export type MessageRole = 'system' | 'user' | 'assistant' | 'tool'
 
 export interface Message {
@@ -47,6 +49,8 @@ export interface TokenUsage {
 
 export interface LLMRequest {
   messages: Message[]
+  /** Non-text content; a non-text part routes to a multimodal provider (#124). */
+  parts?: ModalPart[]
   tools?: ToolSchema[]
   temperature?: number
   maxTokens?: number

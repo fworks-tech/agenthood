@@ -66,3 +66,40 @@ describe('LLMRouter outbound redaction wiring', () => {
     }
   })
 })
+
+describe('withRequestRedaction multimodal (#124)', () => {
+  it('redacts text parts before the multimodal provider sees them', async () => {
+    const seen: unknown[] = []
+    const inner = {
+      complete: async () => ({ content: '', usage: { promptTokens: 0, completionTokens: 0, totalTokens: 0 }, model: 'm' }),
+      stream: async () => {
+        async function* g() { yield { delta: '', done: true } }
+        return g()
+      },
+      embed: async () => [],
+      getContextWindow: () => 100,
+      setModel: () => {},
+      generateImage: async () => ({ urls: [], model: 'm' }),
+      textToSpeech: async () => ({ data: Buffer.from(''), mimeType: 'audio/mpeg' }),
+      speechToText: async () => ({ text: '' }),
+      generateVideo: async () => ({ status: 'not_implemented' as const, availableIn: 'v4.1.0' }),
+      completeMultimodal: async (request: unknown) => {
+        seen.push(request)
+        return { content: 'ok', usage: { promptTokens: 0, completionTokens: 0, totalTokens: 0 }, model: 'm' }
+      },
+    }
+    const p = withRequestRedaction(inner as unknown as ILLMProvider, new RedactionFilter())
+
+    await (p as unknown as { completeMultimodal(r: unknown): Promise<unknown> }).completeMultimodal({
+      parts: [
+        { type: 'text', content: 'key sk-abcdef123456' },
+        { type: 'image_url', url: 'https://img.test/a.png' },
+      ],
+    })
+
+    const parts = (seen[0] as { parts: { type: string; content?: string; url?: string }[] }).parts
+    expect(parts[0].content).not.toContain('sk-abcdef123456')
+    expect(parts[0].content).toContain('[REDACTED]')
+    expect(parts[1]).toEqual({ type: 'image_url', url: 'https://img.test/a.png' })
+  })
+})

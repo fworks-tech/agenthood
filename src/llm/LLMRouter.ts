@@ -12,7 +12,10 @@
  */
 
 import type { ILLMProvider } from './ILLMProvider.ts'
+import type { IMultimodalProvider } from './IMultimodalProvider.ts'
+import { isMultimodalProvider } from './IMultimodalProvider.ts'
 import type { LLMConfig, LLMRequest, ComplexityTier, ProviderEntry } from './types.ts'
+import { UnsupportedOperationError } from './errors.ts'
 import type { ProviderName } from '../members/types.ts'
 import { ProviderChain } from './ProviderFailover.ts'
 import { RedactionFilter } from '../core/RedactionFilter.ts'
@@ -278,6 +281,11 @@ export class LLMRouter {
   static async route(request: LLMRequest, config: LLMConfig): Promise<ILLMProvider> {
     LLMRouter.config = config
 
+    // A non-text part needs a provider that can carry it (#124).
+    if (request.parts?.some((part) => part.type !== 'text')) {
+      return LLMRouter.multimodal(config)
+    }
+
     const strategy = config.routing?.strategy ?? 'static'
 
     if (strategy === 'static') {
@@ -289,6 +297,23 @@ export class LLMRouter {
 
     const resolve = LLMRouter.tierProviders[tier]
     return resolve(config)
+  }
+
+  /**
+   * A provider that implements the multimodal interface (#124). OpenAI is the
+   * only implementation; everything else fails with the capability, not a
+   * silent text-only answer to an image request.
+   */
+  static async multimodal(config: LLMConfig): Promise<IMultimodalProvider> {
+    if ((config.provider ?? 'openai') !== 'openai') {
+      throw new UnsupportedOperationError('multimodal generation', config.provider ?? 'unknown')
+    }
+    const { OpenAIMultimodalProvider } = await import('./providers/OpenAIMultimodalProvider.ts')
+    const provider = new OpenAIMultimodalProvider(config)
+    if (!isMultimodalProvider(provider)) {
+      throw new UnsupportedOperationError('multimodal generation', 'openai')
+    }
+    return withRequestRedaction(provider, OUTBOUND_REDACTOR)
   }
 
   private static async resolveSingle(name: string, config: LLMConfig): Promise<ILLMProvider> {

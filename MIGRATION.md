@@ -104,6 +104,23 @@ skill name must resolve through discovery; `full` partitions the subagent's
 artifacts and activated-skill scope and restores the caller's afterwards. Both
 fields are optional — existing delegation calls behave as before.
 
+### New: multimodal providers and generation tools
+
+`IMultimodalProvider` extends `ILLMProvider` with `completeMultimodal`,
+`generateImage`, `textToSpeech`, `speechToText` and a `generateVideo` that
+reports `not_implemented`. `OpenAIMultimodalProvider` implements it with GPT-4o
+vision, DALL·E 3, TTS and Whisper; `LLMRouter.route` sends a request containing a
+non-text part to `LLMRouter.multimodal`, and a provider without the interface
+fails with the capability instead of answering as text.
+
+Four tools expose it: `generate_image`, `text_to_speech` (writes under
+`.agenthood/media/speech/`), `speech_to_text` (project-relative audio path) and
+`generate_video` (stub). They are opt-in through `requires.tools`/`spec.tools`;
+`text_to_speech` counts as a write tool because it creates a file.
+
+Video and audio/music generation remain 4.1 work: no stable API exists, so the
+shape is fixed and the implementation is absent rather than faked.
+
 ### New: step-level traces
 
 Trajectories now store one step per ReAct turn, with the tools called, tokens,

@@ -42,8 +42,8 @@
       "skillVersion": "1.0.0"
     },
     "librarian": {
-      "version": "ae17712332fc86aa857159875942571d81d289165eb9bffa44c550f3fe90bd6d",
-      "updatedAt": "2026-11-16T01:27:41.012Z",
+      "version": "e9634cb359df9cfd3dd8d5aea9859f3df97eb040240a53b360cf6db357d211b9",
+      "updatedAt": "2026-11-16T04:54:54.890Z",
       "skillVersion": "1.0.0"
     },
     "mailman": {
@@ -62,13 +62,13 @@
       "skillVersion": "1.0.0"
     },
     "oracle": {
-      "version": "b69a8af7a69cffc9f50293b5cf6515d124c3195d7ae0feaedcd8e32f7ab51c06",
-      "updatedAt": "2026-11-16T04:19:50.396Z",
+      "version": "18309cd11b9d253f6914089b9dcd3810d37f0a6b9ca2362bc1a6b5311deed1a3",
+      "updatedAt": "2026-11-16T04:54:54.890Z",
       "skillVersion": "1.0.0"
     },
     "reviewer": {
-      "version": "28edacdf76b6663275622f6d34e8f4afa0a8e78c30efbe20f2b98202d0f5f843",
-      "updatedAt": "2026-11-16T01:27:41.012Z",
+      "version": "8af6291b40930dbc5d17f51db6e155cd65a21c5f89f7f621649dde30288536f9",
+      "updatedAt": "2026-11-16T04:54:54.890Z",
       "skillVersion": "1.0.0"
     },
     "scribe": {

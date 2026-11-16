@@ -1,4 +1,4 @@
-# Agenthood — VS Code Extension
+# Agenthood: VS Code Extension
 
 > *The Society, inside your editor.*
 
@@ -129,7 +129,7 @@ in the Command Palette.
 
 ## The Society
 
-This extension is part of [Agenthood](https://github.com/fworks-tech/agenthood) —
+This extension is part of [Agenthood](https://github.com/fworks-tech/agenthood),
 a society of AI agents with impeccable standards and zero tolerance for `fix stuff` commits.
 
 Read the [charter](../README.md) to understand what we stand for.

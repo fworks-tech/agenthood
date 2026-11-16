@@ -14,10 +14,10 @@
 
 | Time (UTC) | Event |
 |------------|-------|
-| HH:MM | [Detection — who or what first noticed] |
-| HH:MM | [Response — who was paged, what action was taken] |
-| HH:MM | [Mitigation — how impact was reduced or stopped] |
-| HH:MM | [Resolution — when normal operation was restored] |
+| HH:MM | [Detection, who or what first noticed] |
+| HH:MM | [Response, who was paged, what action was taken] |
+| HH:MM | [Mitigation: how impact was reduced or stopped] |
+| HH:MM | [Resolution, when normal operation was restored] |
 
 ## Root Cause
 
@@ -43,7 +43,7 @@
 
 <!-- What was done to fix the immediate issue. Include PR/commit references. -->
 
-- [ ] [PR # or commit] — [short description]
+- [ ] [PR # or commit]: [short description]
 
 ## Prevention
 

@@ -6,8 +6,8 @@
  *
  *   { "plugin": ["agenthood"] }
  *
- * The plugin wires what the repo's `opencode.json` wires locally — the skills
- * directory and AGENTS.md instructions — by mutating the merged config in the
+ * The plugin wires what the repo's `opencode.json` wires locally: the skills
+ * directory and AGENTS.md instructions: by mutating the merged config in the
  * `config` hook, plus a primary `agenthood-live` orchestrator agent. It also registers
  * `agenthood_run_member`, a tool that executes a Society member as a real
  * runtime agent (enforced behavior + audit trail) instead of free-styling from
@@ -62,7 +62,7 @@ export interface MemberDiscoveryFileSystem {
 
 // Derived from the shipped skills dir so the enum cannot drift from the members
 // actually published in the package. Defensive: a partial install must not
-// crash plugin load — the server() guard below skips tool registration.
+// crash plugin load: the server() guard below skips tool registration.
 export function discoverMemberNames(
   skillsDir: string,
   fs: MemberDiscoveryFileSystem = {
@@ -224,9 +224,9 @@ export interface RunMemberOptions {
 
 /** Runs `agenthood run <member> "<task>"` in the caller's project and streams the result. */
 export async function runMember(member: string, task: string, options: RunMemberOptions): Promise<string> {
-  if (!options.dependencies.existsCli(CLI)) return `agenthood CLI not found at ${CLI} — run \`npm run build\` in the agenthood package.`
+  if (!options.dependencies.existsCli(CLI)) return `agenthood CLI not found at ${CLI}: run \`npm run build\` in the agenthood package.`
 
-  // `--` keeps a task beginning with `-` as data — the CLI would otherwise
+  // `--` keeps a task beginning with `-` as data: the CLI would otherwise
   // parse `--detect` / `--provider` out of it
   const child = options.dependencies.spawnProcess(process.execPath, [CLI, 'run', member, '--', task], { cwd: options.directory })
   return formatRunResult(await collectOutput(child, options.abort, options.timeoutMs ?? DEFAULT_RUN_TIMEOUT_MS))

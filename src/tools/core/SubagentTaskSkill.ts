@@ -81,7 +81,7 @@ export class SubagentTaskSkill implements ITool {
     try {
       const agent = this.agentRegistry.get(role)
       // the delegated task is caller-controlled input to another agent's
-      // prompt — delimit it so injected instructions cannot blend with the
+      // prompt: delimit it so injected instructions cannot blend with the
       // subagent's system prompt
       const skillBlock = manifest
         ? `\n\n${formatSkillContent(manifest, manifest.body, { trigger: 'explicit' })}`
@@ -103,7 +103,7 @@ export class SubagentTaskSkill implements ITool {
     } catch (err) {
       if (err instanceof AgentNotFoundError) {
         // fail closed: do not disclose the registered-role surface to the
-        // calling agent — role names are for the orchestration layer to know
+        // calling agent: role names are for the orchestration layer to know
         return {
           success: false,
           output: '',

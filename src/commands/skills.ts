@@ -87,7 +87,7 @@ duration, and whether the scan stopped at the directory cap.
     }
   }
   if (showStats) {
-    console.log(`\n  Scan: ${stats.directories} directorie(s), ${stats.skills} skill(s), ${stats.cacheHits} cache hit(s), ${stats.durationMs} ms${stats.truncated ? ' — stopped at the directory cap, results may be incomplete' : ''}`)
+    console.log(`\n  Scan: ${stats.directories} directorie(s), ${stats.skills} skill(s), ${stats.cacheHits} cache hit(s), ${stats.durationMs} ms${stats.truncated ? '; stopped at the directory cap, results may be incomplete' : ''}`)
   }
   console.log('')
 }

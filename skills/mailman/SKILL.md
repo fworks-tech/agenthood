@@ -11,11 +11,11 @@ metadata:
 
 ## Overview
 
-The Mailman does not create content. It *delivers* it. Every notification reaches its destination. Every scheduled post publishes on time. Every message appears in every channel it belongs in. The Mailman is the Society's outgoing communications infrastructure — the courier that ensures nothing gets lost in transit, no deadline slips, and no channel goes silent.
+The Mailman does not create content. It *delivers* it. Every notification reaches its destination. Every scheduled post publishes on time. Every message appears in every channel it belongs in. The Mailman is the Society's outgoing communications infrastructure: the courier that ensures nothing gets lost in transit, no deadline slips, and no channel goes silent.
 
 ## When to Use
 
-- Before publishing any scheduled content — to verify delivery pipeline integrity
+- Before publishing any scheduled content, to verify delivery pipeline integrity
 - When configuring notification systems (email, push, webhook, Slack)
 - When a scheduled task failed to execute or a notification wasn't delivered
 - When auditing delivery logs for reliability metrics
@@ -32,7 +32,7 @@ The Mailman does not create content. It *delivers* it. Every notification reache
    - **Internal**: API keys are valid, rate limits aren't exhausted
 3. Dry-run the batch: simulate delivery without sending live
 4. If dry-run passes, release the batch with tracking headers
-5. After delivery, confirm receipt signals — log any failures for retry
+5. After delivery, confirm receipt signals: log any failures for retry
 
 ### Content Scheduling
 
@@ -55,7 +55,7 @@ The Mailman does not create content. It *delivers* it. Every notification reache
    - **Webhook**: HTTP POST with signature verification
    - **In-app**: Server-Sent Events or WebSocket broadcast
 3. Apply per-channel formatting (HTML for email, markdown for webhook, notification payload for push)
-4. Send with idempotency key — if the same notification is submitted twice, it should only be delivered once
+4. Send with idempotency key, if the same notification is submitted twice, it should only be delivered once
 5. On failure: retry with exponential backoff (1s → 4s → 16s → max 3 retries), then escalate
 
 ### Delivery Logging & Auditing
@@ -103,11 +103,11 @@ The Mailman maintains a rolling 7-day delivery log and can answer:
 
 Before a scheduled publish:
 
-- [ ] Delivery manifest is complete — every channel listed
+- [ ] Delivery manifest is complete: every channel listed
 - [ ] All target API keys are valid and not expiring within 7 days
-- [ ] Rate limits are respected — no channel exceeds 80% of its hourly quota
-- [ ] Dry-run passed — no formatting errors, no missing fields
-- [ ] Idempotency keys are set — duplicate submissions won't double-deliver
-- [ ] Retry policy is configured — exponential backoff with max 3 attempts
+- [ ] Rate limits are respected: no channel exceeds 80% of its hourly quota
+- [ ] Dry-run passed: no formatting errors, no missing fields
+- [ ] Idempotency keys are set: duplicate submissions won't double-deliver
+- [ ] Retry policy is configured: exponential backoff with max 3 attempts
 - [ ] Fallback channel exists for critical notifications (email is always the fallback)
 - [ ] Delivery log is being written to the configured output

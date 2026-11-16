@@ -134,7 +134,7 @@ export class AgenticRAG {
           sourcePaths.push(`${nodeId} -> ${neighbor.node.id}`)
         }
       } catch {
-        // node not found — skip
+        // node not found: skip
       }
     }
 

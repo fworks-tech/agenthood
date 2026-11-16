@@ -20,31 +20,31 @@ export interface ParsedSkill {
   license?: string
   /** Hidden from the available-skills catalog; still activatable by name (#588). */
   hidden?: boolean
-  /** A routing entry point — the only skills whose metadata loads at startup (#588). */
+  /** A routing entry point: the only skills whose metadata loads at startup (#588). */
   router?: boolean
   /** Free-form environment requirement, max 500 chars (#581). */
   compatibility?: string
   /** Registry namespace, from `metadata.author` (#593). */
   owner?: string
-  /** `source_url` — where a third-party skill came from (#154). */
+  /** `source_url`, where a third-party skill came from (#154). */
   sourceUrl?: string
-  /** `compaction-replay: false` — one-shot instructions (#587). */
+  /** `compaction-replay: false`: one-shot instructions (#587). */
   compactionReplay?: boolean
-  /** `metadata.priority` 0-100 — higher sorts earlier in the catalog (#611). */
+  /** `metadata.priority` 0-100: higher sorts earlier in the catalog (#611). */
   priority?: number
-  /** `metadata.conditions` — predicates that must hold before activation (#610). */
+  /** `metadata.conditions`: predicates that must hold before activation (#610). */
   conditions?: string[]
-  /** `fallback` — skills to try when this one cannot activate (#613). */
+  /** `fallback`: skills to try when this one cannot activate (#613). */
   fallback?: string[]
   /** `disable-model-invocation: true` hides the skill from the catalog (#537). */
   disableModelInvocation?: boolean
-  /** `model-targets` — provider/family/min-tokens/exclude (ADR-037). */
+  /** `model-targets`: provider/family/min-tokens/exclude (ADR-037). */
   modelTargets?: ModelTargets
-  /** `requires` — tools and context the skill needs (ADR-037). */
+  /** `requires`: tools and context the skill needs (ADR-037). */
   requires?: SkillRequires
-  /** `dependencies` — other skills it needs (ADR-037). */
+  /** `dependencies`: other skills it needs (ADR-037). */
   dependencies?: SkillDependencies
-  /** `metadata.variants` — model-id fragment → body file (ADR-037). */
+  /** `metadata.variants`: model-id fragment → body file (ADR-037). */
   variants?: Record<string, string>
 }
 
@@ -53,7 +53,7 @@ const SPDX_SHAPE_RE = /^[A-Za-z0-9.+-]+(?: (?:AND|OR|WITH) [A-Za-z0-9.+-]+)*$/
 /**
  * `license` must look like an SPDX identifier or expression. This is a shape
  * check, not a registry lookup: every valid SPDX id passes, while prose such as
- * "MIT License" or "see LICENSE" — which no client can resolve — does not.
+ * "MIT License" or "see LICENSE", which no client can resolve, does not.
  */
 export function isSpdxLicense(value: string): boolean {
   return value === 'UNLICENSED' || SPDX_SHAPE_RE.test(value)
@@ -118,12 +118,12 @@ function nestedField(frontmatter: Record<string, unknown> | null, key: string): 
     : undefined
 }
 
-/** `metadata.conditions` — one predicate per entry (#610). */
+/** `metadata.conditions`: one predicate per entry (#610). */
 export function parseConditions(frontmatter: Record<string, unknown> | null): string[] | undefined {
   return parseStringList(nestedField(frontmatter, 'conditions') ?? frontmatter?.conditions)
 }
 
-/** `fallback` — an ordered list of skills to try when activation is refused (#613). */
+/** `fallback`: an ordered list of skills to try when activation is refused (#613). */
 export function parseFallback(frontmatter: Record<string, unknown> | null): string[] | undefined {
   return parseStringList(frontmatter?.fallback)
 }
@@ -139,7 +139,7 @@ function parsePositiveInt(value: unknown): number | undefined {
   return typeof parsed === 'number' && Number.isInteger(parsed) && parsed > 0 ? parsed : undefined
 }
 
-/** `model-targets` — provider, family, min-tokens, exclude (ADR-037, #549). */
+/** `model-targets`: provider, family, min-tokens, exclude (ADR-037, #549). */
 export function parseModelTargets(frontmatter: Record<string, unknown> | null): ModelTargets | undefined {
   const raw = asRecord(frontmatter?.['model-targets'] ?? frontmatter?.model_targets)
   if (!raw) return undefined
@@ -156,7 +156,7 @@ export function parseModelTargets(frontmatter: Record<string, unknown> | null): 
   }
 }
 
-/** `requires` — tools, optional tools and a context window (ADR-037, #552, #554). */
+/** `requires`: tools, optional tools and a context window (ADR-037, #552, #554). */
 export function parseRequires(frontmatter: Record<string, unknown> | null): SkillRequires | undefined {
   const raw = asRecord(frontmatter?.requires)
   if (!raw) return undefined
@@ -171,7 +171,7 @@ export function parseRequires(frontmatter: Record<string, unknown> | null): Skil
   }
 }
 
-/** `dependencies` — required and optional skills (ADR-037, #571). */
+/** `dependencies`: required and optional skills (ADR-037, #571). */
 export function parseDependencies(frontmatter: Record<string, unknown> | null): SkillDependencies | undefined {
   const raw = asRecord(frontmatter?.dependencies)
   if (!raw) return undefined
@@ -181,7 +181,7 @@ export function parseDependencies(frontmatter: Record<string, unknown> | null): 
   return { ...(required ? { required } : {}), ...(optional ? { optional } : {}) }
 }
 
-/** `metadata.variants` — fragment → file inside the skill directory (ADR-037, #551). */
+/** `metadata.variants`: fragment → file inside the skill directory (ADR-037, #551). */
 export function parseVariants(frontmatter: Record<string, unknown> | null): Record<string, string> | undefined {
   const raw = asRecord(nestedField(frontmatter, 'variants') ?? frontmatter?.variants)
   if (!raw) return undefined
@@ -197,7 +197,7 @@ export const SEMVER_RE = /^(0|[1-9]\d*)\.(0|[1-9]\d*)\.(0|[1-9]\d*)(?:-[0-9A-Za-
 
 /**
  * Read `metadata.version`, tolerating a flat `version` key some authors use.
- * Returns undefined when absent or not a string — an unquoted `1.0` parses as a
+ * Returns undefined when absent or not a string: an unquoted `1.0` parses as a
  * number and is not a version this accepts.
  */
 export function parseSkillVersion(frontmatter: Record<string, unknown> | null): string | undefined {
@@ -226,7 +226,7 @@ export interface ParsedRaw {
   frontmatter: Record<string, unknown> | null
   body: string
   // True when strict YAML failed and the lenient fallback produced the
-  // frontmatter — callers warn that the skill needs reformatting.
+  // frontmatter: callers warn that the skill needs reformatting.
   heuristic?: boolean
 }
 
@@ -316,14 +316,14 @@ export class SkillParser {
    */
   parseRaw(content: string): ParsedRaw {
     // Windows editors may prepend a UTF-8 BOM, which would stop the frontmatter
-    // regex (anchored at ^) from matching — strip it here, the single parse chokepoint.
+    // regex (anchored at ^) from matching: strip it here, the single parse chokepoint.
     if (content.charCodeAt(0) === 0xfeff) content = content.slice(1)
     const match = content.match(/^---\n([\s\S]*?)\n---\n?([\s\S]*)$/)
     if (!match) return { frontmatter: null, body: content }
     try {
       return { frontmatter: this.parseYamlStrict(match[1]), body: match[2].trim() }
     } catch {
-      // Malformed frontmatter from another client (e.g. unquoted colons) —
+      // Malformed frontmatter from another client (e.g. unquoted colons),
       // still load via the lenient fallback and let callers warn.
       return { frontmatter: this.parseYaml(match[1]), body: match[2].trim(), heuristic: true }
     }
@@ -410,7 +410,7 @@ export class SkillParser {
       errors.push({
         rule: 'name-format',
         message: `name "${name}" is not lowercase alphanumeric with single hyphens`,
-        fix: 'Use letters and digits in lowercase, single hyphens between words — e.g. "pdf-processing"; no leading/trailing/consecutive hyphens or uppercase',
+        fix: 'Use letters and digits in lowercase, single hyphens between words; e.g. "pdf-processing"; no leading/trailing/consecutive hyphens or uppercase',
       })
     }
     if (name.length < 1 || name.length > MAX_NAME_LENGTH) {
@@ -464,9 +464,9 @@ export class SkillParser {
   }
 
   /**
-   * Minimal frontmatter parser — flat key:value pairs only.
+   * Minimal frontmatter parser: flat key:value pairs only.
    *
-   * **Limitations** (by design — SKILL.md frontmatter is intentionally simple):
+   * **Limitations** (by design: SKILL.md frontmatter is intentionally simple):
    * - No YAML lists, nested objects, or multiline values
    * - No quoted-string handling (colons inside quoted values work; unquoted
    *   colons are treated as the key/value separator)

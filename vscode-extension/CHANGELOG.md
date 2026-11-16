@@ -1,11 +1,11 @@
-# Changelog — Agenthood VS Code Extension
+# Changelog: Agenthood VS Code Extension
 
 All notable changes to the Agenthood VS Code Extension will be documented in this file.
 
 ## [1.0.0] - 2026-10-07
 
 ### Features
-- 🏛️ First stable release — full Society integration for VS Code
+- 🏛️ First stable release: full Society integration for VS Code
 - 🎛️ Command palette: init, check, oath, activate, deactivate, list, ask reviewer
 - 📊 Status bar showing active member count (e.g., "3/16")
 - 📋 Member Watch view in Activity Bar with member status icons

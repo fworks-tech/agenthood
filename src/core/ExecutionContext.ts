@@ -40,7 +40,7 @@ export interface ExecutionContext {
   skillsCatalog?: string
   /** Discovered skills, so a per-run tool registry can expose `activate_skill` (#531). */
   skillManifests?: Map<string, ISkillManifest>
-  /** Skill directories activated in this run — read access without a prompt (#536). */
+  /** Skill directories activated in this run: read access without a prompt (#536). */
   skillAllowlist?: Set<string>
   /** Per-repo agent guidance read from AGENTS.md / CLAUDE.md (#567) */
   repoInstructions?: string

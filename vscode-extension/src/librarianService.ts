@@ -17,7 +17,7 @@ export class LibrarianService {
       this.maybeNudge();
     });
 
-    // Track md opens — resets the nudge trigger
+    // Track md opens: resets the nudge trigger
     this.observer.onDidSave(/\.md$/, () => {
       this.mdOpenedThisSession = true;
     });

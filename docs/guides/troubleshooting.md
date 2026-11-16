@@ -5,7 +5,7 @@
 
 ## Overview
 
-Almost every skill failure falls into five buckets. Diagnose in order — each
+Almost every skill failure falls into five buckets. Diagnose in order: each
 step rules out one bucket before you touch anything.
 
 ## Symptoms and fixes
@@ -28,7 +28,7 @@ Cause: body reads like a reference, not instructions for a careful new hire.
 
 Fix: replace background prose with numbered steps, state what to ask before
 guessing (owners, dates, scope), and declare the minimum `allowed-tools`.
-Re-run with a narrower prompt to confirm the body — not the model — was at fault.
+Re-run with a narrower prompt to confirm the body, not the model, was at fault.
 
 ### 3. Context overflow
 
@@ -51,7 +51,7 @@ npx agenthood doctor   # environment, providers, skill files, lockfile integrity
 ```
 
 Fix: scripts must run non-interactively with structured output and `--help`;
-pin versions for one-off execution (`uvx`/`npx`/`pipx`). Surface stderr — a
+pin versions for one-off execution (`uvx`/`npx`/`pipx`). Surface stderr: a
 silent script is undebuggable.
 
 ### 5. Provider errors
@@ -70,13 +70,13 @@ Fix: set the key for your provider (`GROQ_API_KEY`, `OPENCODE_API_KEY`,
 
 ## Still stuck
 
-1. `npx agenthood verify` — contract gate (name, description, tools, lockfile drift)
-2. `npx agenthood doctor` — environment and integrity
-3. `npx agenthood log --level error --limit 50` — redacted error trail
+1. `npx agenthood verify`: contract gate (name, description, tools, lockfile drift)
+2. `npx agenthood doctor`: environment and integrity
+3. `npx agenthood log --level error --limit 50`: redacted error trail
 4. Open an issue with the `verify` output, the failing command, and the trace id.
 
 ## Further reading
 
 - [5-minute skill creation quickstart](../academy/quickstart.md)
 - [Authoring a Skill](../academy/level-3-advanced-skills/06-author-a-skill.md)
-- [`src/core/RedactionFilter.ts`](../../src/core/RedactionFilter.ts) — what logs redact
+- [`src/core/RedactionFilter.ts`](../../src/core/RedactionFilter.ts): what logs redact

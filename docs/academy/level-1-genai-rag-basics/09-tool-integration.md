@@ -6,7 +6,7 @@
 
 ## What it is
 
-Tool Integration (also known as Function Calling) is the mechanism that allows an LLM to interact with the outside world. Instead of just returning text, the model can return a structured request to execute a specific function—such as reading a file, querying a database, or triggering a CI pipeline.
+Tool Integration (also known as Function Calling) is the mechanism that allows an LLM to interact with the outside world. Instead of just returning text, the model can return a structured request to execute a specific function, such as reading a file, querying a database, or triggering a CI pipeline.
 
 This is powered by the ReAct (Reasoning and Acting) loop: the agent observes its environment, reasons about what to do next, executes a tool, observes the result, and loops until the goal is achieved.
 
@@ -34,7 +34,7 @@ In production, agents must take action. But blindly allowing an LLM to execute c
 
 Agenthood implements this via the `ISkillManifest` interface, managed by the `SkillDiscovery`, and executed within a `ReActLoop`.
 
-This allows members of the Society to seamlessly utilize tools. The interface is in `src/skills/discovery/ISkillManifest.ts` (shipped in v2.0.0):
+This allows members of the Society to use tools directly. The interface is in `src/skills/discovery/ISkillManifest.ts` (shipped in v2.0.0):
 
 ```typescript
 export interface ISkillManifest {
@@ -78,8 +78,8 @@ await loop.run("Read the package.json and summarize dependencies.");
 
 ## Further reading
 
-- [`src/skills/discovery/ISkillManifest.ts`](../../../src/skills/discovery/ISkillManifest.ts) — the skill contract (shipped in v2.0.0)
-- [`src/skills/discovery/SkillDiscovery.ts`](../../../src/skills/discovery/SkillDiscovery.ts) — dynamic skill discovery
-- [ReAct: Synergizing Reasoning and Acting in Language Models](https://arxiv.org/abs/2210.03629) — the foundational paper on tool use
+- [`src/skills/discovery/ISkillManifest.ts`](../../../src/skills/discovery/ISkillManifest.ts): the skill contract (shipped in v2.0.0)
+- [`src/skills/discovery/SkillDiscovery.ts`](../../../src/skills/discovery/SkillDiscovery.ts): dynamic skill discovery
+- [ReAct: Synergizing Reasoning and Acting in Language Models](https://arxiv.org/abs/2210.03629): the foundational paper on tool use
 
 

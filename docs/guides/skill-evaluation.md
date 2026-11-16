@@ -39,7 +39,7 @@ agenthood eval scribe --triggers evals/triggers/scribe.json
 agenthood eval scribe --triggers evals/triggers/scribe.json --semantic   # needs a provider key
 ```
 
-Two surfaces are scored. **Keyword** is the deterministic router — free, CI-safe, and the baseline.
+Two surfaces are scored. **Keyword** is the deterministic router: free, CI-safe, and the baseline.
 **Semantic** embeds the description and picks the nearest, approximating how an external loader
 chooses a skill. A high keyword score with a low semantic score means the description is being matched
 by words a user would type, not by meaning.
@@ -84,10 +84,10 @@ both a good and a bad answer and measures nothing.
 
 An assertion cannot check whether a review is *good*. Two options, in order:
 
-1. **Make the output checkable.** A review that must list `file:line — severity — issue` can be
+1. **Make the output checkable.** A review that must list `file:line | severity | issue` can be
    asserted on. Prefer this: it improves the skill and makes the eval trivial.
 2. **Use the LLM judge.** `agenthood eval` scores prose against a rubric with a second model. It is
-   slower, costs tokens and varies run to run — use it for a threshold (`score >= 0.7`), not for
+   slower, costs tokens and varies run to run: use it for a threshold (`score >= 0.7`), not for
    exact comparison.
 
 Grading is the part people skip. A suite with no failing case in its history is a suite that asserts
@@ -127,7 +127,7 @@ flowchart LR
 `agenthood optimize <member> --triggers <path>` runs the generate/score loop for you: it scores the
 current description, generates variants, scores each on a held-out split, and keeps the best. `--apply`
 writes the winner to the member spec. Use it when the description is the problem; use your own edit
-when the *scope* is the problem — no description rewrite fixes a skill doing two jobs.
+when the *scope* is the problem: no description rewrite fixes a skill doing two jobs.
 
 Every loop needs a held-out split. Scoring a description against the queries it was tuned on reports
 success by construction.
@@ -142,7 +142,7 @@ success by construction.
 | `eval --suite` with LLM judge | provider key, slower | before release |
 | `eval --replay` | provider key | nightly, or before release |
 
-The free checks are the ones that must never be skipped — they catch the failure that makes every
+The free checks are the ones that must never be skipped; they catch the failure that makes every
 other measurement meaningless: a skill nobody activates. The paid checks belong on the PR that changed
 the skill, not on every PR.
 
@@ -160,7 +160,7 @@ PR that skipped its own test.
 
 ## References
 
-- [Skill Best Practices](skill-best-practices.md) — what a good body looks like before measuring it
-- `CONTRIBUTING.md` — the eval, trigger-rate and convergence commands in full
-- `evals/triggers/scribe.json` — a complete query set
-- [The Tester](../../skills/tester/SKILL.md) — how the Society writes the assertions
+- [Skill Best Practices](skill-best-practices.md): what a good body looks like before measuring it
+- `CONTRIBUTING.md`: the eval, trigger-rate and convergence commands in full
+- `evals/triggers/scribe.json`: a complete query set
+- [The Tester](../../skills/tester/SKILL.md): how the Society writes the assertions

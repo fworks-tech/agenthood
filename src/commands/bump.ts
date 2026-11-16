@@ -89,7 +89,7 @@ export async function bump(args: string[]): Promise<void> {
 
   const next = bumpVersion(current, levels[0])
   writeFileSync(skillPath, setSkillVersion(content, next), 'utf8')
-  // The lock hashes this file, so a bumped version is a changed skill — re-lock
+  // The lock hashes this file, so a bumped version is a changed skill: re-lock
   // here instead of leaving the author to hit drift on the next verify.
   updateLockfile(cwd, membersDir, [member])
   console.log(`\n  ${member}: ${current} → ${next}\n`)

@@ -52,7 +52,7 @@ export interface CustomMemberDefinition {
   /** Slug, `[a-z0-9][a-z0-9-]{1,63}`; must not collide with an existing member. */
   name: string
   description: string
-  /** Body only — frontmatter is optional and not required. */
+  /** Body only: frontmatter is optional and not required. */
   systemPrompt: string
   category?: MemberCategory
   tagline?: string

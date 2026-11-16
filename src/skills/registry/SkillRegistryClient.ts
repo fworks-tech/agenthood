@@ -27,7 +27,7 @@ export class SkillRegistryClient {
     this.baseUrl = baseUrl
   }
 
-  /** `owner/name`, `@owner/name` or a legacy bare name — see ADR-035 §2. */
+  /** `owner/name`, `@owner/name` or a legacy bare name: see ADR-035 §2. */
   private skillUrl(name: string, suffix = ''): string {
     return `${this.baseUrl}/api/skills/${toRegistryPath(name)}${suffix}`
   }

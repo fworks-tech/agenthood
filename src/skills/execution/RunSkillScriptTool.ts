@@ -1,5 +1,5 @@
 /**
- * `run_skill_script` — the model-facing wrapper around the only spawn path
+ * `run_skill_script`: the model-facing wrapper around the only spawn path
  * (ADR-036). The tool itself adds no policy: activation, path guarding,
  * pinning, sandboxing and auditing all live in `runSkillScript`.
  */

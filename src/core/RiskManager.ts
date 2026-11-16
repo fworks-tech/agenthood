@@ -15,7 +15,7 @@ export interface RiskPolicy {
   maxFileSizeBytes: number
 }
 
-/** A structured record of a policy violation — returned instead of thrown so callers can audit decisions. */
+/** A structured record of a policy violation: returned instead of thrown so callers can audit decisions. */
 export interface RiskViolation {
   type: 'path' | 'host' | 'timeout' | 'filesize'
   tool: string
@@ -42,12 +42,12 @@ function matchesGlob(pattern: string, value: string): boolean {
  * Mediator that enforces per-tool safety constraints before execution.
  *
  * Two responsibilities:
- * 1. validate — Check tool input against the policy (paths, hosts, file size)
+ * 1. validate: Check tool input against the policy (paths, hosts, file size)
  *    and return a structured violation instead of throwing, so callers can log
  *    or escalate decisions.
- * 2. wrap — Enforce execution timeout by racing the executor against a timer.
+ * 2. wrap: Enforce execution timeout by racing the executor against a timer.
  *
- * Designed to complement SafetyGuard (agent-loop caps) — RiskManager is the
+ * Designed to complement SafetyGuard (agent-loop caps): RiskManager is the
  * per-invocation gate, SafetyGuard is the per-session monitor.
  */
 export class RiskManager {

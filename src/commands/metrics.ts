@@ -42,7 +42,7 @@ async function metricsHandler(args: string[]): Promise<void> {
   }
 
   if (config.type === 'statsd') {
-    console.log(`\n  StatsD export is push-based — it fires after every member run.`)
+    console.log(`\n  StatsD export is push-based, it fires after every member run.`)
     console.log(`  Target: ${config.host}:${config.port}`)
     console.log('  Use --print to inspect what would be sent.\n')
     return

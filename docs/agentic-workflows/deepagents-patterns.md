@@ -1,6 +1,6 @@
 # Deep Agents Patterns in Agenthood
 
-Five patterns from LangChain's [deepagents examples](https://github.com/langchain-ai/deepagents/tree/main/examples), translated onto Agenthood's primitives. The goal is not a port — it is a mapping, so a team that knows one system can read the other and a pattern can be copied without importing a framework.
+Five patterns from LangChain's [deepagents examples](https://github.com/langchain-ai/deepagents/tree/main/examples), translated onto Agenthood's primitives. The goal is not a port; it is a mapping, so a team that knows one system can read the other and a pattern can be copied without importing a framework.
 
 | Issue | Pattern | Agenthood primitive |
 |-------|---------|---------------------|
@@ -17,7 +17,7 @@ content type.
 
 **Agenthood equivalent.** A project is the memory scope: `.agenthood/memory/`
 holds project conventions and decisions, and the Scholar/`mailman` path owns
-delivery. Content types are ordinary skills — one `SKILL.md` per format, all
+delivery. Content types are ordinary skills: one `SKILL.md` per format, all
 discovered from `skills/` and activated by name.
 
 ```
@@ -31,7 +31,7 @@ a `parallel` step (see pattern 4). Per-user isolation is a deployment concern
 
 **Deliberately different:** Agenthood has no built-in auth provider. If a
 deployment needs per-user scoping, give each tenant its own project path and let
-the host enforce identity — the runtime never assumes a user is authenticated.
+the host enforce identity: the runtime never assumes a user is authenticated.
 
 ## 2. Sandboxed coding agent (#342)
 
@@ -63,7 +63,7 @@ through `MemberRunner`, so decisions, provenance and traces match a direct
 ## 3. Deep research (#343)
 
 The original saves the request, plans with TODOs, delegates to sub-agents,
-synthesises, and responds — with a `think_tool` between searches.
+synthesises, and responds: with a `think_tool` between searches.
 
 **Agenthood equivalent.** The five steps are a chain; the delegation step is
 `parallel`, and each branch is a member whose job is research:
@@ -119,7 +119,7 @@ chains:
         agent: builder
 ```
 
-The skill names above are illustrative — create them under `skills/` in your
+The skill names above are illustrative: create them under `skills/` in your
 project. An unknown name is stripped from the task with a warning rather than
 run as a bare member.
 

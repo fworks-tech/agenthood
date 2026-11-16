@@ -38,7 +38,7 @@ export class WorkflowEngine {
 
     for (const step of definition.steps) {
       if (step.when && !conditionMet(step.when, wfContext)) {
-        console.log(`[WorkflowEngine] Step "${step.name}" skipped — ${describeCondition(step.when)} is false`)
+        console.log(`[WorkflowEngine] Step "${step.name}" skipped, ${describeCondition(step.when)} is false`)
         wfContext.stepResults.set(step.name, { skipped: true })
         continue
       }
@@ -55,7 +55,7 @@ export class WorkflowEngine {
         if (step.type === 'human-in-loop') {
           const latest = this.checkpoint.getLatest()
           if (latest) {
-            console.log(`[WorkflowEngine] Human rejected step "${step.name}" — restoring checkpoint "${latest.id}"`)
+            console.log(`[WorkflowEngine] Human rejected step "${step.name}", restoring checkpoint "${latest.id}"`)
             this.checkpoint.restore(latest.id, wfContext)
             this.checkpoint.clear(latest.id)
           }
@@ -65,7 +65,7 @@ export class WorkflowEngine {
 
       if (step.type === 'human-in-loop') {
         this.checkpoint.clearAll()
-        console.log(`[WorkflowEngine] Human approved step "${step.name}" — checkpoints cleared`)
+        console.log(`[WorkflowEngine] Human approved step "${step.name}", checkpoints cleared`)
       }
     }
 
@@ -83,7 +83,7 @@ export class WorkflowEngine {
     const protocol = step.protocol ?? this.resolveProtocol(step)
 
     if (!protocol) {
-      console.log(`[WorkflowEngine] Step "${step.name}" has no protocol — skipping`)
+      console.log(`[WorkflowEngine] Step "${step.name}" has no protocol, skipping`)
       return null
     }
 

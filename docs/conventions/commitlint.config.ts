@@ -12,7 +12,7 @@ const config: UserConfig = {
           const s = (subject || "").trim().toLowerCase();
           return [
             !VAGUE_SUBJECTS.includes(s),
-            `subject '${s}' is vague — use a descriptive imperative phrase`,
+            `subject '${s}' is vague: use a descriptive imperative phrase`,
           ];
         },
       },

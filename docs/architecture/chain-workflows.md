@@ -21,13 +21,13 @@ chains:
     max_rounds: 3
 ```
 
-- `name` — chain name, unique per file.
-- `sequence` — one or more `{ member, task? }` entries. Order is execution order.
-- `guards.stop_on_blocking` — stop the chain when a member output contains
+- `name`: chain name, unique per file.
+- `sequence`: one or more `{ member, task? }` entries. Order is execution order.
+- `guards.stop_on_blocking`: stop the chain when a member output contains
   `[blocking]`.
-- `max_rounds` — re-run the sequence while a round ends blocked, up to this
+- `max_rounds`: re-run the sequence while a round ends blocked, up to this
   count. Defaults to 1.
-- `doorman_before_merge`, `scribe_before_commit` — parsed as policy; the CLI
+- `doorman_before_merge`, `scribe_before_commit`: parsed as policy; the CLI
   runner does not intercept commits or merges.
 
 Malformed entries fail closed and name the file and index.

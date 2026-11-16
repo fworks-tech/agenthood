@@ -8,7 +8,7 @@ import { RunSkillScriptTool } from '../execution/RunSkillScriptTool.ts'
 import { DEFAULT_OUTPUT_TTL_MS } from '../execution/resultCache.ts'
 
 /**
- * Member runs had the catalog in the prompt but no tool to act on it —
+ * Member runs had the catalog in the prompt but no tool to act on it,
  * `activate_skill` was only registered on the developer agent registry
  * (#529, #531). Activation also authorizes `run_skill_script`, so both tools
  * share the active set (ADR-036), and the same availability gates both

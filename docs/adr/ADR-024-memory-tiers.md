@@ -17,7 +17,7 @@ Memory is split into tiers, each with an explicit bound appropriate to its acces
 | Tier | Class | Bound |
 |------|-------|-------|
 | Working window | `ShortTermMemoryImpl` | fixed `capacity` (ring, default 20) + optional `ttlMs` window on reads |
-| Episodes | `EpisodicMemoryImpl` | none in-process — every record goes to the vector store; recall is `topK`-capped |
+| Episodes | `EpisodicMemoryImpl` | none in-process: every record goes to the vector store; recall is `topK`-capped |
 | Residual signals | `ResidualMemory` | exponential decay by age; `pruneBelow(0.1)` now runs on every `record()`, not only at read |
 | Decisions / provenance | `DecisionLog`, `ProvenanceStore` | append-only JSON files under `.agenthood/`, hash-chained (ADR-015) |
 

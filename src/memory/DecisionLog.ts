@@ -199,7 +199,7 @@ export class DecisionLog {
     return this.edgesCache
   }
 
-  /** This instance's edges unioned with what is on disk — another instance may
+  /** This instance's edges unioned with what is on disk: another instance may
    *  have appended since the cache was filled, and neither may be dropped. */
   private liveEdges(): CausalEdge[] {
     const byId = new Map<string, CausalEdge>()
@@ -229,7 +229,7 @@ export class DecisionLog {
   private sanitizeId(id: string): string {
     const safe = id.replace(/[^a-zA-Z0-9_-]/g, '')
     if (safe !== id) {
-      throw new Error(`Invalid decision id: "${id}" — must match [a-zA-Z0-9_-]+`)
+      throw new Error(`Invalid decision id: "${id}", must match [a-zA-Z0-9_-]+`)
     }
     return safe
   }

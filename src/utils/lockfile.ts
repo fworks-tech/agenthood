@@ -11,12 +11,12 @@ export interface Lockfile {
 }
 
 // resources maps member-relative paths (scripts/run.mjs) to SHA-256 hex.
-// Absent on pre-#604 locks — readers treat missing as "not yet locked".
+// Absent on pre-#604 locks: readers treat missing as "not yet locked".
 export interface LockfileMember {
   version: string
   updatedAt: string
   resources?: Record<string, string>
-  /** `metadata.version` from the locked SKILL.md — the skill's own semver, not the hash above. */
+  /** `metadata.version` from the locked SKILL.md: the skill's own semver, not the hash above. */
   skillVersion?: string
 }
 

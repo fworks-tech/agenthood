@@ -106,7 +106,7 @@ function toStep(raw: unknown, where: string, allowWhen = true): ChainStep {
   if (task !== undefined && typeof task !== 'string') throw new Error(`${where}.task must be a string`)
   const when = step.when === undefined ? undefined : parseCondition(step.when, where)
   if (when && !allowWhen) {
-    throw new Error(`${where}.when is not allowed inside a parallel group — branches run concurrently`)
+    throw new Error(`${where}.when is not allowed inside a parallel group, branches run concurrently`)
   }
 
   if (step.parallel !== undefined) {
@@ -151,7 +151,7 @@ function validateConditions(steps: ChainStep[], where: string): void {
   steps.forEach((step, i) => {
     if (step.when && !seen.has(step.when.step)) {
       throw new Error(
-        `${where}[${i}].when.step "${step.when.step}" is not an earlier step — available: ${[...seen].join(', ') || '(none)'}`,
+        `${where}[${i}].when.step "${step.when.step}" is not an earlier step: available: ${[...seen].join(', ') || '(none)'}`,
       )
     }
     seen.add(chainStepLabel(step))
@@ -318,7 +318,7 @@ export async function runChain(chain: ChainDefinition, task: string, options: Ch
       return definition.steps.flatMap((step) => collectResults(step, context.stepResults.get(step.name)))
     } catch (err) {
       if (err instanceof ChainBlockedError && round < chain.maxRounds) {
-        log(`[chain] ${err.message} — starting round ${round + 1}`)
+        log(`[chain] ${err.message}, starting round ${round + 1}`)
         continue
       }
       throw err

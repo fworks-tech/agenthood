@@ -41,10 +41,10 @@ Exit codes:
 }
 
 function printReport(report: HealthReport): void {
-  console.log(`\n  Agenthood Health — v${report.version}\n`)
+  console.log(`\n  Agenthood Health, v${report.version}\n`)
   for (const check of report.checks) {
     const icon = check.status === 'ok' ? 'ok' : check.status === 'degraded' ? 'degraded' : 'unhealthy'
-    const detail = check.detail ? ` — ${check.detail}` : ''
+    const detail = check.detail ? `: ${check.detail}` : ''
     console.log(`  ${icon.padEnd(9)} ${check.name}${detail}`)
   }
   console.log(`\n  Overall: ${report.status.toUpperCase()}\n`)
@@ -136,7 +136,7 @@ async function collectSkillChecks(cwd: string): Promise<HealthComponent[]> {
           ? `${manifests.length} skill(s) healthy`
           : `${errors.length} error(s), ${warnings.length} warning(s): ${problems
               .slice(0, 3)
-              .map((problem) => `${problem.skill} — ${problem.message}`)
+              .map((problem) => `${problem.skill}: ${problem.message}`)
               .join('; ')}`,
     },
     {
@@ -199,7 +199,7 @@ export async function health(args: string[] = []): Promise<void> {
     const count = Object.keys(stamped).length
     console.log(
       count === 0
-        ? 'No timed skill steps yet — run a member first, then stamp the baseline.'
+        ? 'No timed skill steps yet: run a member first, then stamp the baseline.'
         : `Skill baseline stamped for ${count} skill(s) → .agenthood/skill-baseline.json`,
     )
     return

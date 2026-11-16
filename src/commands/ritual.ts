@@ -1,7 +1,7 @@
 /**
  * agenthood ritual
  *
- * Rituals are declared in docs/rituals/*.md — frontmatter binds a cron
+ * Rituals are declared in docs/rituals/*.md: frontmatter binds a cron
  * schedule to a member. Scheduled runs live in .github/workflows/rituals.yml
  * (parity enforced by tests/unit/scripts/rituals-workflow.test.ts); this
  * command lists them and runs one manually.
@@ -69,7 +69,7 @@ function printUsage(): void {
 function listRituals(): void {
   const manifests = loadRituals(ritualsDir())
   if (manifests.length === 0) {
-    console.log('\nNo rituals found — docs/rituals/ is empty or missing.')
+    console.log('\nNo rituals found, docs/rituals/ is empty or missing.')
     console.log('Create docs/rituals/<name>.md with frontmatter:')
     console.log('  ---')
     console.log('  name: <ritual>')
@@ -80,7 +80,7 @@ function listRituals(): void {
     console.log('  ---')
     return
   }
-  console.log('\n⏰ Rituals — docs/rituals/\n')
+  console.log('\n⏰ Rituals, docs/rituals/\n')
   const namePad = Math.max(...manifests.map((m) => m.name.length))
   for (const m of manifests) {
     console.log(`  ${m.name.padEnd(namePad)}  ${m.schedule.padEnd(12)}  ${m.priority.padEnd(11)}  ${m.member}`)

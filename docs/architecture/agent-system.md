@@ -23,7 +23,7 @@ The Orchestrator is the Society's dispatch system. It:
 - Routes work to the appropriate member(s)
 - Manages the publish/subscribe event bus between members
 - Tracks the state of multi-step tasks across member handoffs
-- Never does the work itself — it only coordinates
+- Never does the work itself; it only coordinates
 
 **Key principle:** Every member communicates *through* the Orchestrator,
 never directly to each other. This decouples the system and makes behavior
@@ -82,11 +82,11 @@ implemented in [`src/members/MemberRegistry.ts`](../src/members/MemberRegistry.t
 ### Core Agents (Runtime)
 
 The standalone core-agent classes carry narrower tool sets than the member
-profile grants below — a deliberate fail-closed choice from the agent lifecycle
+profile grants below: a deliberate fail-closed choice from the agent lifecycle
 hardening wave. They only receive what their executor path needs: Developer,
 Architect, QA, and Reviewer are wired in `ApplicationContext.setupAgents`,
 Oracle in `setupOracle`, and Strategist/Operator are not wired into the
-ApplicationContext at all — they are instantiated by tests or callers directly.
+ApplicationContext at all; they are instantiated by tests or callers directly.
 
 | Agent | Tools |
 |-------|-------|
@@ -95,16 +95,16 @@ ApplicationContext at all — they are instantiated by tests or callers directly
 | QAAgent | ReadFileSkill, WriteFileSkill, WriteCodeSkill |
 | ReviewerAgent | ReadFileSkill (read-only) |
 | OracleAgent | ReadFileSkill, SearchCodebaseSkill (read-only) |
-| StrategistAgent / OperatorAgent | none — pure reasoning, output rendered against a fixed format |
+| StrategistAgent / OperatorAgent | none: pure reasoning, output rendered against a fixed format |
 
 Member execution (via `MemberAgent`) remains governed by `MemberRegistry` profile
 grants. `delegate_task` for members is opt-in per spec via `canDelegate`;
 DeveloperAgent's `SubagentTaskSkill` is a separate core-agent delegation path,
-not governed by member profile grants — it is also opt-in via
+not governed by member profile grants; it is also opt-in via
 `DeveloperAgentOptions.canDelegate` (enabled in `ApplicationContext.setupAgents`).
 
 Delegation is bounded at two levels. First, the role allowlist (`DELEGATION_ALLOWED_ROLES`)
-admits only read-only analysis roles — never write-capable agents. Second, tool
+admits only read-only analysis roles: never write-capable agents. Second, tool
 isolation: each agent's tool schemas are its own load-out, never the caller's
 write tools. The delegated task itself travels inside an untrusted
 `<delegated_task>` boundary.
@@ -155,7 +155,7 @@ The loop continues until:
 
 When a member encounters an error during execution:
 
-1. Read the full error output — not just the first line
+1. Read the full error output, not just the first line
 2. Classify: is this recoverable or not?
 3. If recoverable: apply correction and retry
 4. If not recoverable: escalate with a clear description of what failed and why
@@ -186,11 +186,11 @@ Each member signals done → Orchestrator routes to next → human approves fina
 
 The Society remembers across sessions:
 
-- **Project scope** — conventions, rules, recurring patterns in this codebase
-- **User scope** — preferences, feedback, workflow patterns
-- **Session scope** — current task state, in-progress work
+- **Project scope**: conventions, rules, recurring patterns in this codebase
+- **User scope**: preferences, feedback, workflow patterns
+- **Session scope**: current task state, in-progress work
 
-Memory is backed by a tiered store: LanceDB for vector storage (`.agenthood/memory/`), ResidualMemory (`.agenthood/residual.json`), KnowledgeGraphStore (`.agenthood/society-graph.json`), and ShortTermMemory (in-memory ring buffer). Multiple namespaces — `shortTerm`, `longTerm`, `episodic`, `project` — keep concerns separated.
+Memory is backed by a tiered store: LanceDB for vector storage (`.agenthood/memory/`), ResidualMemory (`.agenthood/residual.json`), KnowledgeGraphStore (`.agenthood/society-graph.json`), and ShortTermMemory (in-memory ring buffer). Multiple namespaces (`shortTerm`, `longTerm`, `episodic`, `project`) keep concerns separated.
 
 On top of the tiers sit the decision and provenance records. Every member run
 writes one entry to the decision log (`.agenthood/decisions/`) and one to the
@@ -224,9 +224,9 @@ this repo (`src/`), per [ADR-008](../adr/ADR-008-typescript-runtime-over-python.
 | Decision intelligence (DecisionLog + causal chains, ProvenanceStore, DecisionSearch, GraphSnapshot) | `src/memory/` | ✅ ADR-015 |
 | RAG pipeline (ChunkStrategy (FixedSize + MarkdownHierarchical), Indexer, Retriever, AgenticRAG, TreeSitterParser, ProjectIngestion) | `src/rag/` | ✅ Shipped |
 | Society index (members, ADRs, conventions → KGS + VectorStore) | `src/project/SocietyIndexer.ts` | ✅ Shipped |
-| MemberOrchestrator Phase 1 — detection | `src/reasoning/MemberOrchestrator.ts` | ✅ v2.6.0 |
-| Orchestrator (event bus, multi-step handoff) | `src/orchestrator/` | 📋 Planned — Phase 3 |
+| MemberOrchestrator Phase 1: detection | `src/reasoning/MemberOrchestrator.ts` | ✅ v2.6.0 |
+| Orchestrator (event bus, multi-step handoff) | `src/orchestrator/` | 📋 Planned: Phase 3 |
 | Member → Member direct handoff (today) | `SubagentTaskSkill` | ✅ Shipped (no bus) |
 
-The Markdown skill files in `skills/` are never modified — each is parsed at runtime
+The Markdown skill files in `skills/` are never modified: each is parsed at runtime
 by `MemberRegistry` and used as the system prompt for the corresponding `BaseAgent`.

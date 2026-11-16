@@ -53,23 +53,23 @@ The Society retrieves facts before it speaks.
 
 ## Hands-on example
 
-The structural retrieval layer (`KnowledgeGraphStore`) is available now, alongside the indexing and embedding pipeline (`Indexer`, `ProjectIngestion`, `ChunkStrategy`). There is no dedicated CLI subcommand — use the API directly:
+The structural retrieval layer (`KnowledgeGraphStore`) is available now, alongside the indexing and embedding pipeline (`Indexer`, `ProjectIngestion`, `ChunkStrategy`). There is no dedicated CLI subcommand: use the API directly:
 
 ```bash
 # Index the current repository
-# No dedicated CLI subcommand — use the API directly (see src/rag/Indexer.ts)
+# No dedicated CLI subcommand: use the API directly (see src/rag/Indexer.ts)
 
 # Query the codebase
-# No dedicated CLI subcommand — use the API directly (see src/rag/Retriever.ts)
+# No dedicated CLI subcommand: use the API directly (see src/rag/Retriever.ts)
 ```
 
 ---
 
 ## Further reading
 
-- [ADR-010 — LanceDB for Vector Storage](../../adr/ADR-010-lancedb-for-vector-storage.md)
-- [`src/rag/KnowledgeGraphStore.ts`](../../../src/rag/KnowledgeGraphStore.ts) — bidirectional graph store (shipped)
-- [`src/memory/VectorStore.ts`](../../../src/memory/VectorStore.ts) — LanceDB vector store (shipped)
-- [IBM: What is RAG?](https://research.ibm.com/blog/retrieval-augmented-generation-RAG) — foundational overview of the RAG pattern
+- [ADR-010: LanceDB for Vector Storage](../../adr/ADR-010-lancedb-for-vector-storage.md)
+- [`src/rag/KnowledgeGraphStore.ts`](../../../src/rag/KnowledgeGraphStore.ts): bidirectional graph store (shipped)
+- [`src/memory/VectorStore.ts`](../../../src/memory/VectorStore.ts): LanceDB vector store (shipped)
+- [IBM: What is RAG?](https://research.ibm.com/blog/retrieval-augmented-generation-RAG): foundational overview of the RAG pattern
 
 

@@ -227,7 +227,7 @@ export class ProvenanceStore {
   private sanitizeId(id: string): string {
     const safe = id.replace(/[^a-zA-Z0-9_-]/g, '')
     if (safe !== id) {
-      throw new Error(`Invalid provenance entity id: "${id}" — must match [a-zA-Z0-9_-]+`)
+      throw new Error(`Invalid provenance entity id: "${id}", must match [a-zA-Z0-9_-]+`)
     }
     return safe
   }

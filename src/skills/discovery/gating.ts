@@ -12,7 +12,7 @@ export interface SkillAvailability {
   provider?: string
   model?: string
   contextWindow?: number
-  /** Session tool names. Omitted means unknown — tool requirements then warn, never block. */
+  /** Session tool names. Omitted means unknown: tool requirements then warn, never block. */
   tools?: readonly string[]
 }
 
@@ -58,7 +58,7 @@ function hasTool(required: string, tools: readonly string[]): boolean {
 function modelReason(manifest: ISkillManifest, availability: SkillAvailability): string | undefined {
   const targets = manifest.modelTargets
   const current = [availability.provider, availability.model].filter(Boolean).join('/')
-  const switchAdvice = ' Switch to a compatible model to use it — this run keeps the model it started with.'
+  const switchAdvice = ' Switch to a compatible model to use it; this run keeps the model it started with.'
 
   if (availability.model && targets?.exclude && matchesAny(availability.model, targets.exclude)) {
     return `model "${availability.model}" is excluded by this skill (exclude: ${targets.exclude.join(', ')}).${switchAdvice}`
@@ -101,7 +101,7 @@ function toolGaps(
     blocked: required.filter((tool) => !hasTool(tool, tools)).map((tool) => `requires tool "${tool}", which this run does not have`),
     warned: optional
       .filter((tool) => !hasTool(tool, tools))
-      .map((tool) => `optional tool "${tool}" is unavailable — some steps may not work`),
+      .map((tool) => `optional tool "${tool}" is unavailable: some steps may not work`),
   }
 }
 

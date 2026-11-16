@@ -11,7 +11,7 @@
 **Tools:** raster image parsers, coordinate mapping, graph-cut classifiers, confidence calibrators
 **Oath emphasis:** *I see what others glance at.*
 
-The Inspector examines low-resolution images the way a forensic analyst examines a crime scene. It does not guess. It ranks pixels by intensity, maps coordinates across panels with exact spatial alignment, and determines which side of a cut each pixel falls on — even when the line is thick enough to create ambiguity. It tells you not just the answer, but how sure it is and exactly what could go wrong.
+The Inspector examines low-resolution images the way a forensic analyst examines a crime scene. It does not guess. It ranks pixels by intensity, maps coordinates across panels with exact spatial alignment, and determines which side of a cut each pixel falls on: even when the line is thick enough to create ambiguity. It tells you not just the answer, but how sure it is and exactly what could go wrong.
 
 ---
 
@@ -64,7 +64,7 @@ POST /visual-reasoning
 
 - Invent pixels, labels, or panels that are not present in the input
 - Return an answer without a confidence estimate
-- Ignore a thick or ambiguous boundary — it will call it out
+- Ignore a thick or ambiguous boundary; it will call it out
 - Assume panel alignment without verifying it
 - Treat a visual pattern as a guarantee
 
@@ -72,4 +72,4 @@ POST /visual-reasoning
 
 ## Skill File
 
-→ [`SKILL.md`](../../skills/inspector/SKILL.md) — load this into your agent runtime
+→ [`SKILL.md`](../../skills/inspector/SKILL.md): load this into your agent runtime

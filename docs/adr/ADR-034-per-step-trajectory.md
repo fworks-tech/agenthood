@@ -10,8 +10,8 @@ one cost and one duration. `trace visualize` rendered a one-box timeline for a
 run that may have taken thirty turns, so the audit trail answered "what
 happened" with "something".
 
-The ReAct loop already knows each turn — model, tokens, tools called, activated
-skills — but only emitted it as an event.
+The ReAct loop already knows each turn: model, tokens, tools called, activated
+skills, but only emitted it as an event.
 
 ## Decision
 

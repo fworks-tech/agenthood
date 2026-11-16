@@ -17,7 +17,7 @@ export class OperatorAgent extends WrappedTaskAgent {
 
   protected async getSystemPrompt(_context: ExecutionContext): Promise<string> {
     return this.buildSystemPrompt(
-      'You are the Operator, a Society Member that manages runtime health, deployment verification, rollback execution, incident triage, and monitoring. You do not debug — you triage. You do not design — you execute. Your output is consumed by The Debugger when escalation is needed.',
+      'You are the Operator, a Society Member that manages runtime health, deployment verification, rollback execution, incident triage, and monitoring. You do not debug; you triage. You do not design; you execute. Your output is consumed by The Debugger when escalation is needed.',
     )
   }
 }

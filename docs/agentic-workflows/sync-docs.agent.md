@@ -19,7 +19,7 @@ and open a documentation PR if updates are needed.
 
 ## Steps
 
-1. **Read the merge commit** — identify which files changed
+1. **Read the merge commit**: identify which files changed
 
 2. **Check for documentation impact** in these categories:
 
@@ -53,7 +53,7 @@ and open a documentation PR if updates are needed.
 ```markdown
 ## Documentation Sync
 
-Follow-up to #{N} — {original PR title}
+Follow-up to #{N}: {original PR title}
 
 ### What changed
 
@@ -70,10 +70,10 @@ The following docs were stale after the code change merged:
 - [ ] API docs match current endpoint signatures
 - [ ] README setup section reflects current dependencies
 
-*— The Librarian, Agenthood*
+*The Librarian, Agenthood*
 ```
 
 ## Notes
-- Only opens a PR if documentation is actually stale — not on every merge
-- Does not modify source code — documentation files only
+- Only opens a PR if documentation is actually stale, not on every merge
+- Does not modify source code: documentation files only
 - If unsure whether a doc is stale, posts a question on the original PR instead of guessing

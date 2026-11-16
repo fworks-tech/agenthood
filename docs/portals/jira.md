@@ -1,7 +1,7 @@
 # Connector: Jira
 
 ## What it provides
-Access to Jira's issue tracking — read and update issues, sprints, epics,
+Access to Jira's issue tracking: read and update issues, sprints, epics,
 and project boards. Used by The Architect to track and create work items
 and by The Herald for standup briefings and release notes.
 
@@ -21,8 +21,8 @@ and by The Herald for standup briefings and release notes.
 | `jira.boards.list` | List boards | Architect, Herald |
 
 ## Primary Members
-- **The Architect** — reads and creates issues when speccing work, links issues to branches
-- **The Herald** — reads sprint progress for standup briefings and release notes
+- **The Architect**: reads and creates issues when speccing work, links issues to branches
+- **The Herald**: reads sprint progress for standup briefings and release notes
 
 ## Setup
 
@@ -56,7 +56,7 @@ Generate an API token at **id.atlassian.com → Security → API tokens**.
 
 ## Notes
 - Rate limit: varies by plan; Cloud Basic allows ~100 requests / minute
-- JQL (Jira Query Language) is used for filtering — the MCP server handles translation
+- JQL (Jira Query Language) is used for filtering: the MCP server handles translation
 - Issue keys follow the pattern `PROJECT-NNN` (e.g., `ENG-42`)
 - Jira Cloud and Jira Server/Data Center use different API versions; confirm your instance type
-- The credential proxy injects credentials — members never access them directly
+- The credential proxy injects credentials: members never access them directly

@@ -1,6 +1,6 @@
 ---
 name: postgres
-description: Use when querying, managing, or debugging PostgreSQL databases — schema design, query optimization, migrations, indexing, and connection pooling. Use ONLY when the task involves PostgreSQL specifically, not general SQL.
+description: Use when querying, managing, or debugging PostgreSQL databases; schema design, query optimization, migrations, indexing, and connection pooling. Use ONLY when the task involves PostgreSQL specifically, not general SQL.
 license: MIT
 ---
 
@@ -25,10 +25,10 @@ Postgres is the Society's database specialist. It handles schema design, query o
 
 1. Use meaningful table and column names (snake_case)
 2. Always include `id` (uuid or serial), `created_at`, `updated_at`
-3. Add foreign key constraints — never rely on application-level integrity
+3. Add foreign key constraints: never rely on application-level integrity
 4. Use CHECK constraints for domain rules
 5. Prefer TEXT over VARCHAR (Postgres optimizes equally)
-6. Use ENUMs sparingly — prefer lookup tables for values that change
+6. Use ENUMs sparingly: prefer lookup tables for values that change
 
 ### Query Optimization
 
@@ -37,7 +37,7 @@ Postgres is the Society's database specialist. It handles schema design, query o
 3. Add indexes for WHERE, JOIN, and ORDER BY columns
 4. Consider partial indexes for filtered queries
 5. Use `pg_stat_user_tables` to find unused indexes
-6. Avoid `SELECT *` — fetch only needed columns
+6. Avoid `SELECT *`: fetch only needed columns
 
 ### Migrations
 
@@ -45,7 +45,7 @@ Postgres is the Society's database specialist. It handles schema design, query o
 2. Migrations must be reversible (up and down)
 3. Test migrations on a copy of production data
 4. Add data migrations separately from schema migrations
-5. Never drop columns in a migration — mark as deprecated first
+5. Never drop columns in a migration: mark as deprecated first
 6. Use `NOT NULL` with `DEFAULT` for new required columns
 
 ### Connection Pooling

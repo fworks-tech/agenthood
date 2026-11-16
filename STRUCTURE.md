@@ -91,15 +91,15 @@ agenthood/
 │   ├── actions/setup-env/             ← Shared composite action: Node + npm ci
 │   ├── scripts/                       ← Locally-run CI check scripts (PR body, docs, members)
 │   └── workflows/                     ← CI enforcement
-│       ├── distribution.yml           ← The Envoy — Skills.sh, SkillsMP, traction badges
-│       ├── herald.yml                 ← The Herald — CI summary comment on PRs
+│       ├── distribution.yml           ← The Envoy: Skills.sh, SkillsMP, traction badges
+│       ├── herald.yml                 ← The Herald: CI summary comment on PRs
 │       ├── opencode-catalog-sync.yml  ← Weekly refresh of the OpenCode model catalog
 │       ├── pr.yml                     ← Doorman, Auditor, Scribe, Warden, Librarian, Sentinel, Tester
-│       ├── publish-vsce.yml           ← The Envoy — publish VSIX to Marketplace
-│       ├── reviewer.yml               ← The Reviewer — LLM commit review on every push
+│       ├── publish-vsce.yml           ← The Envoy: publish VSIX to Marketplace
+│       ├── reviewer.yml               ← The Reviewer: LLM commit review on every push
 │       ├── rituals.yml                ← Scheduled ritual runs from docs/rituals manifests
-│       ├── semantic-release.yml       ← The Herald — automated release + npm publish
-│       └── vscode-extension.yml       ← The Envoy — build and test VS Code extension
+│       ├── semantic-release.yml       ← The Herald: automated release + npm publish
+│       └── vscode-extension.yml       ← The Envoy: build and test VS Code extension
 │
 ├── .githooks/                       ← Local git hook enforcement
 │   ├── commit-msg                   ← Validates commit message format

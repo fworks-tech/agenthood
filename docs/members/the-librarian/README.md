@@ -54,7 +54,7 @@ From code, generates:
 - Example requests and responses
 
 ### 4. Commit Convention Reference
-Maintains `.github/COMMIT_CONVENTION.md` — the human-readable guide
+Maintains `.github/COMMIT_CONVENTION.md`: the human-readable guide
 to the project's commit standards, linked from PR templates and onboarding.
 
 ### 5. Knowledge Sync
@@ -83,14 +83,14 @@ When code changes, identifies documentation that has become stale:
 
 The Librarian follows these rules when writing:
 
-- **Write for strangers** — assume the reader has never seen this codebase
-- **Write for the future** — today's context is tomorrow's mystery
-- **Be specific** — "run `npm test`" beats "run the tests"
-- **Link, don't repeat** — reference the source of truth, don't copy it
-- **Date decisions** — an ADR without a date is folklore, not record
+- **Write for strangers**: assume the reader has never seen this codebase
+- **Write for the future**: today's context is tomorrow's mystery
+- **Be specific**: "run `npm test`" beats "run the tests"
+- **Link, don't repeat**: reference the source of truth, don't copy it
+- **Date decisions**: an ADR without a date is folklore, not record
 
 ---
 
 ## Skill File
 
-→ [`SKILL.md`](../../skills/librarian/SKILL.md) — load this into your agent runtime
+→ [`SKILL.md`](../../skills/librarian/SKILL.md): load this into your agent runtime

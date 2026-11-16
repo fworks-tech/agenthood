@@ -1,6 +1,6 @@
 ---
 name: onboarding-plan
-description: Creates personalized, phased onboarding plans for new team members — environment setup, codebase discovery, first contributions, and early wins. Use when a new developer joins the team and needs a structured path from first day to first contribution.
+description: Creates personalized, phased onboarding plans for new team members; environment setup, codebase discovery, first contributions, and early wins. Use when a new developer joins the team and needs a structured path from first day to first contribution.
 license: MIT
 ---
 
@@ -8,7 +8,7 @@ license: MIT
 
 ## Overview
 
-The Onboarding Planner turns "welcome aboard, explore the codebase" into a structured path with clear phases and measurable milestones. Onboarding fails when it is left to chance: no setup path, no reading order, no first task. The Planner phases the journey — foundation, exploration, integration — and makes each step concrete enough to complete without asking for help.
+The Onboarding Planner turns "welcome aboard, explore the codebase" into a structured path with clear phases and measurable milestones. Onboarding fails when it is left to chance: no setup path, no reading order, no first task. The Planner phases the onboarding (foundation, exploration, integration) and makes each step concrete enough to complete without asking for help.
 
 ## When to Use
 
@@ -22,29 +22,29 @@ The Onboarding Planner turns "welcome aboard, explore the codebase" into a struc
 ### 1. Gather the Input
 - Ask for the team or project name
 - Ask for the newcomer's background: new to tech, experienced developer new to this stack, etc.
-- Personalize every phase to that background — never hand out a generic plan
+- Personalize every phase to that background: never hand out a generic plan
 
-### 2. Phase 1 — Foundation
+### 2. Phase 1: Foundation
 - Environment setup with step-by-step instructions and troubleshooting tips
 - Identify the most important documentation to read first
 - Verify the environment is fully working before moving on
 
-### 3. Phase 2 — Exploration
+### 3. Phase 2: Exploration
 - Codebase discovery starting with README files
 - Run existing tests/scripts to understand the workflows
 - Find beginner-friendly first tasks, like documentation improvements
 - If possible, point to specific open issues or tasks suitable for the newcomer's background
 
-### 4. Phase 3 — Integration
+### 4. Phase 3: Integration
 - Learn the team's processes: how code gets reviewed, merged, released
 - Make the first contribution and get it merged
-- Build confidence through early wins — small, completable, valuable
+- Build confidence through early wins: small, completable, valuable
 
 For each phase: break down complex topics into manageable steps, recommend relevant resources, provide concrete next steps, and prefer hands-on practice over reading theory.
 
 ## Red Flags
 
-- A plan that ignores the newcomer's background — one size fits no one
+- A plan that ignores the newcomer's background: one size fits no one
 - Environment setup without troubleshooting tips
 - Exploration phase that lists files to read but no task to do
 - First contribution that is too large to finish in a sitting

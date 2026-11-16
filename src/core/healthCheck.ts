@@ -19,7 +19,7 @@ export interface HealthDeps {
   tracer: { size: number; capacity: number }
   traceStoreProbe: () => Promise<boolean>
   memberCount: number
-  /** Optional provider probes — omitted entirely when none are configured.
+  /** Optional provider probes: omitted entirely when none are configured.
    *  Boolean = key-presence probe; object = live request probe with detail. */
   providers?: Array<{ name: string; probe: () => Promise<boolean | { ok: boolean; detail?: string }> }>
   /** Optional observability-config probes; each omitted check is skipped */
@@ -64,8 +64,8 @@ export async function healthCheck(deps: HealthDeps): Promise<HealthReport> {
       return { name: `provider:${p.name}`, status: result.ok ? 'ok' : 'degraded', detail: result.detail ?? (result.ok ? 'responsive' : 'probe failed') }
     }),
     ...(deps.sentry ? [sentryCheck(deps.sentry.dsn)] : []),
-    ...(deps.baselinesProbe ? [probeCheck('baselines', deps.baselinesProbe, 'baselines present', 'no baselines — quality not stamped')] : []),
-    ...(deps.retentionProbe ? [probeCheck('retention', deps.retentionProbe, 'policy configured', 'no retention policy — traces kept indefinitely')] : []),
+    ...(deps.baselinesProbe ? [probeCheck('baselines', deps.baselinesProbe, 'baselines present', 'no baselines, quality not stamped')] : []),
+    ...(deps.retentionProbe ? [probeCheck('retention', deps.retentionProbe, 'policy configured', 'no retention policy, traces kept indefinitely')] : []),
     ...(deps.skillChecks ? await deps.skillChecks() : []),
   ])
 

@@ -10,7 +10,7 @@ export interface CostEntry {
   completionTokens: number
   totalTokens: number
   costUsd: number
-  // Skills activated during this step (step 1+ only; empty on step 0) — the
+  // Skills activated during this step (step 1+ only; empty on step 0): the
   // per-activation dimension `cost --skill` and stats aggregate on (#624).
   skills?: string[]
 }

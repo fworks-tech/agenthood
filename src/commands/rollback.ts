@@ -28,7 +28,7 @@ export function findRevision(cwd: string, skillPath: string, lockedHash: string)
 /**
  * Byte-exact revision lookup for a member resource file (#604). Resources are
  * locked with raw-byte SHA-256, so they cannot go through `findRevision`'s
- * utf8 string hash — that would corrupt binary scripts and reject valid text
+ * utf8 string hash, that would corrupt binary scripts and reject valid text
  * files whose line endings differ between the blob and the working tree.
  */
 export function findResourceRevision(cwd: string, relPath: string, lockedHash: string): string | null {
@@ -52,16 +52,16 @@ export function findResourceRevision(cwd: string, relPath: string, lockedHash: s
 
 export function restoreMember(cwd: string, skillPath: string, member: string, commit: string, isDryRun: boolean): boolean {
   if (isDryRun) {
-    console.log(`  ~ ${member} — would restore from ${commit.slice(0, 12)}`)
+    console.log(`  ~ ${member}, would restore from ${commit.slice(0, 12)}`)
     return true
   }
 
   try {
     execFileSync('git', ['checkout', commit, '--', skillPath], { cwd, encoding: 'utf-8', stdio: 'pipe' })
-    console.log(`  \u2713 ${member} — restored from ${commit.slice(0, 12)}`)
+    console.log(`  \u2713 ${member}, restored from ${commit.slice(0, 12)}`)
     return true
   } catch {
-    console.error(`  \u2717 ${member} — failed to restore from ${commit.slice(0, 12)}`)
+    console.error(`  \u2717 ${member}, failed to restore from ${commit.slice(0, 12)}`)
     return false
   }
 }
@@ -126,7 +126,7 @@ export async function rollback(args: string[]): Promise<void> {
   let hasRestoredAny = false
 
   for (const member of membersToRollback) {
-    // Same canonical member location as `verify` (#740) — forward-slash
+    // Same canonical member location as `verify` (#740): forward-slash
     // relative path so `git show <rev>:<path>` accepts the blob syntax.
     const skillPath = memberSkillPath(cwd, member)
     const entry = lock.members[member]
@@ -139,8 +139,8 @@ export async function rollback(args: string[]): Promise<void> {
     if (!commit) {
       console.log(
         version
-          ? `  ? ${member} — no revision of ${skillPath} declares version ${version}`
-          : `  ? ${member} — no matching revision found in git history`,
+          ? `  ? ${member}: no revision of ${skillPath} declares version ${version}`
+          : `  ? ${member}; no matching revision found in git history`,
       )
       continue
     }

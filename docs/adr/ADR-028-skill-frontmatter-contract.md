@@ -9,18 +9,18 @@
 boundaries. Agentskills.io defines an `allowed-tools` declaration to pre-approve a
 skill's tool surface, but the runtime ignored it: declarations were decorative, and a
 skill saying `allowed-tools: Read` could still get Bash-class tools. Description text
-also doubles as the router's selection signal — vague descriptions misroute members.
+also doubles as the router's selection signal: vague descriptions misroute members.
 
 ## Decision
 
 Frontmatter is a contract with two enforced parts:
 
-1. **`allowed-tools`** — parsed by `MemberRegistry` from each member's SKILL.md.
+1. **`allowed-tools`**: parsed by `MemberRegistry` from each member's SKILL.md.
    Effective tools = declared ∩ permission-profile, so a declaration can only **narrow**,
    never expand. Absent declaration keeps the profile default. `MemberAgent` fails closed:
    any tool not classified read-only/write/trusted is denied for every profile, so a new
    state-touching tool cannot leak before it is categorized.
-2. **Trigger phrases** — `description` must open with what the member does and state when
+2. **Trigger phrases**: `description` must open with what the member does and state when
    to use it ("Use when/before …"). This is convention-enforced (`verify` validates the
    agentskills.io shape; The Sentinel audits description quality) rather than runtime-error.
 

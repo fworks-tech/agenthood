@@ -7,7 +7,7 @@
  *   medium → configured provider or Groq
  *   high → configured provider or Anthropic (capable)
  *
- * Provider modules are loaded lazily — the underlying SDK import happens
+ * Provider modules are loaded lazily: the underlying SDK import happens
  * on first use, not when LLMRouter is imported.
  */
 
@@ -34,7 +34,7 @@ function sortProvidersByPriority(a: ProviderEntry, b: ProviderEntry) {
 type ProviderFactory = (config: LLMConfig) => Promise<ILLMProvider>
 
 /** Heuristic set of chain-of-thought triggers in system prompts.
- *  Extend as needed per deployment — non-English or alternative
+ *  Extend as needed per deployment: non-English or alternative
  *  reasoning phrasing will not match without adding to this list. */
 const COT_MARKERS = [
   'think step by step',
@@ -87,9 +87,9 @@ export class ComplexityScorer {
  * Static router that creates and caches LLM providers.
  *
  * Supports three modes:
- * - **create** — single provider or default provider chain
- * - **createForMember** — per‑member provider chain with preferred + fallback
- * - **route** — complexity‑based dynamic provider selection
+ * - **create**: single provider or default provider chain
+ * - **createForMember**: per‑member provider chain with preferred + fallback
+ * - **route**: complexity‑based dynamic provider selection
  *
  * Provider modules are lazy‑loaded (dynamic import on first use),
  * so importing LLMRouter does not pull in provider SDKs.
@@ -179,7 +179,7 @@ export class LLMRouter {
   /**
    * Instantiate providers for pre-ordered entries, skipping unknown names
    * and failed inits. Shared by fromConfig (priority order) and
-   * createForMember (member-preference order) — the only difference between
+   * createForMember (member-preference order): the only difference between
    * the two paths is the entry ordering, decided by the caller.
    */
   private static async buildChainFromEntries(
@@ -193,7 +193,7 @@ export class LLMRouter {
     for (const entry of entries) {
       const factory = LLMRouter.providerFactories[entry.name]
       if (!factory) {
-        console.debug(`[LLMRouter] no factory for provider "${entry.name}" — skipping`)
+        console.debug(`[LLMRouter] no factory for provider "${entry.name}", skipping`)
         continue
       }
       try {
@@ -204,7 +204,7 @@ export class LLMRouter {
           modelMap.set(entry.name, entry.models)
         }
       } catch (err) {
-        // Provider init failed, skip to fallback — surfaced at debug so a
+        // Provider init failed, skip to fallback: surfaced at debug so a
         // misconfigured provider is visible without breaking offline runs
         console.debug(`[LLMRouter] provider "${entry.name}" init failed: ${err instanceof Error ? err.message : String(err)}`)
       }
@@ -225,7 +225,7 @@ export class LLMRouter {
   ): Promise<ILLMProvider> {
     LLMRouter.config = config
     if (config.providers?.length) {
-      // preference beats priority — member ask overrides operator order
+      // preference beats priority: member ask overrides operator order
       const sorted = [...config.providers].sort(sortProvidersByPriority)
       const prefEntry = sorted.find((e) => e.name === preferredProvider)
       const base: ProviderEntry = prefEntry ?? { name: preferredProvider }
@@ -360,7 +360,7 @@ export class LLMRouter {
     return `${name}::${config.model ?? ''}`
   }
 
-  /** Drops every cached model variant of a provider — a rotated key invalidates all of them. */
+  /** Drops every cached model variant of a provider: a rotated key invalidates all of them. */
   private static evict(name: string): void {
     const prefix = `${name}::`
     for (const key of [...LLMRouter.instances.keys(), ...LLMRouter.initPromises.keys()]) {
@@ -411,7 +411,7 @@ export class LLMRouter {
     config: LLMConfig = {},
   ): Promise<ILLMProvider> {
     // Each factory cold-imports its SDK, so a serial loop makes chain-build
-    // latency the SUM of every SDK load — enough to time out unit tests under
+    // latency the SUM of every SDK load: enough to time out unit tests under
     // parallel CPU load (#465). Init concurrently; the assembly loop below
     // re-applies `order`, so failover behaviour is unchanged.
     const providers = new Map<string, ILLMProvider>()

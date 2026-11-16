@@ -2,7 +2,7 @@ name: The Herald — CI Summary
 
 on:
   workflow_run:
-    # Keep in sync with TRIGGER_WORKFLOWS in .github/scripts/herald-summary.cjs —
+    # Keep in sync with TRIGGER_WORKFLOWS in .github/scripts/herald-summary.cjs,
     # parity is enforced by tests/unit/scripts/herald-summary.test.ts
     workflows:
       - Society — PR Standards
@@ -32,7 +32,7 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 10
     steps:
-      # workflow_run events run on a fresh workspace — checkout the default
+      # workflow_run events run on a fresh workspace: checkout the default
       # branch so the summary script exists before requiring it
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
 

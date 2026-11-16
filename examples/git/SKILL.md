@@ -1,6 +1,6 @@
 ---
 name: git
-description: Use when performing git operations — branching, rebasing, stashing, bisecting, resolving merge conflicts, or recovering lost commits. Covers advanced git workflows beyond basic add/commit/push.
+description: Use when performing git operations; branching, rebasing, stashing, bisecting, resolving merge conflicts, or recovering lost commits. Covers advanced git workflows beyond basic add/commit/push.
 license: MIT
 ---
 

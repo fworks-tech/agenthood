@@ -1,8 +1,8 @@
 # Third-Party Members
 
 The Society ships its members in `skills/`, all first-party. This page is the
-authoring contract for a member that lives outside this repository — a
-`contrib` member — so it can be reviewed, installed, versioned and updated
+authoring contract for a member that lives outside this repository: a
+`contrib` member, so it can be reviewed, installed, versioned and updated
 without forking.
 
 The design decisions are in [ADR-035](../adr/ADR-035-skill-namespaces-and-remote-catalogs.md)
@@ -47,7 +47,7 @@ name: the-example
 description: One sentence, front-loaded with the trigger keywords.
 license: MIT
 metadata:
-  author: your-handle        # required for contrib — becomes the owner
+  author: your-handle        # required for contrib: becomes the owner
   version: 0.1.0             # semver; drives the lockfile and `agenthood bump`
 source_url: https://github.com/you/the-example
 ---
@@ -62,12 +62,12 @@ updated, or attributed.
 
 Contrib members are **not** trusted by default. The three gates:
 
-1. **Structure** — The Sentinel (and `agenthood verify`) checks the required
+1. **Structure**. The Sentinel (and `agenthood verify`) checks the required
    sections, naming and frontmatter.
-2. **Security** — The Auditor reviews anything that can execute code. Bundled
+2. **Security**. The Auditor reviews anything that can execute code. Bundled
    scripts run in Docker by default; a host run needs the author on the trusted
    list (ADR-036).
-3. **Runtime permissions** — a member's `permissionProfile` decides its tools.
+3. **Runtime permissions**: a member's `permissionProfile` decides its tools.
    The default profile is read-only, and `delegate_task` is opt-in and limited
    to read-only analysis roles.
 

@@ -6,7 +6,7 @@
 
 ## Identity
 
-**Rank:** Senior Member — First and Last Line of Defense
+**Rank:** Senior Member: First and Last Line of Defense
 **Specialty:** Validation, enforcement, health checks, and gatekeeping
 **Tools:** commitlint, Husky, PR title linter, CI health checks, branch protection
 **Oath emphasis:** *I never push to main.*
@@ -22,7 +22,7 @@ The Doorman is polite, but unmovable.
 
 ## Responsibilities
 
-### 1. Commit Message Validation (Local — Husky)
+### 1. Commit Message Validation (Local: Husky)
 Runs `commitlint` on every `commit-msg` hook:
 - Validates type is one of the allowed values
 - Validates subject is lowercase and imperative
@@ -30,13 +30,13 @@ Runs `commitlint` on every `commit-msg` hook:
 - Blocks the commit if any rule fails
 - Suggests a corrected message when possible
 
-### 2. PR Title Validation (CI — GitHub Actions)
+### 2. PR Title Validation (CI: GitHub Actions)
 On every PR open/edit/push:
 - Validates PR title follows Conventional Commits format
 - Blocks merge if title is non-conforming
 - Works via `amannn/action-semantic-pull-request`
 
-### 3. Branch Commit Validation (CI — commitlint.yml)
+### 3. Branch Commit Validation (CI: commitlint.yml)
 On every push to a feature branch:
 - Validates all commits in the PR range against `commitlint.config.ts`
 - Catches commits that slipped past the local hook
@@ -75,7 +75,7 @@ Validates repository settings include:
 
 ## Configuration
 
-The Doorman reads from `commitlint.config.ts` — the single source of truth
+The Doorman reads from `commitlint.config.ts`: the single source of truth
 for allowed types and scopes, shared with The Scribe and CI workflows.
 
 ```js
@@ -110,4 +110,4 @@ When health check finds idle uncommitted changes:
 
 ## Skill File
 
-→ [`SKILL.md`](../../skills/doorman/SKILL.md) — load this into your agent runtime
+→ [`SKILL.md`](../../skills/doorman/SKILL.md): load this into your agent runtime

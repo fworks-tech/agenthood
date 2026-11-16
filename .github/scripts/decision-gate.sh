@@ -4,13 +4,13 @@
 #
 # Injection model: the analysis prompt embeds untrusted material (git diffs),
 # so the verdict is only trusted when it is the LAST decision block in the
-# output — the agent writes its verdict at the very end, after any injected
+# output: the agent writes its verdict at the very end, after any injected
 # content. Only that final block can trip the gate. If the output contains
 # MULTIPLE blocks with different verdicts, an injected block fought the real
-# one — fail closed on ambiguity. A missing final block is a warning, never a
-# failure, but a present-but-malformed final block fails — a truncated verdict
+# one: fail closed on ambiguity. A missing final block is a warning, never a
+# failure, but a present-but-malformed final block fails: a truncated verdict
 # must not silently pass. (Residual risk: a successfully prompt-injected agent
-# that parrots a single verdict as its own final line — the prompt hardening
+# that parrots a single verdict as its own final line: the prompt hardening
 # in agent-analysis.sh is the defense in depth for that case.)
 
 # Usage: check_decision_gate <output-file> [agent-name]
@@ -32,12 +32,12 @@ verdict_has_trailing_content() {
   [ -n "$trailing" ]
 }
 
-# Extract valid verdict lines. Markers must start a line — a quoted
+# Extract valid verdict lines. Markers must start a line: a quoted
 # `AGENTHOOD_DECISION:` inside review prose is data, not a verdict.
 # Optional whitespace before `-->` is tolerated: the model is instructed to emit
 # `warnings=N-->` but often writes `warnings=N -->`, and a benign space must not
 # be mistaken for a truncated/injected marker (fail-closed is for real malforma-
-# tion — no `-->`, or a bad boolean — which still falls out of this regex).
+# tion (no `-->`, or a bad boolean) which still falls out of this regex).
 verdicts_for() {
   grep -oE '^<!--AGENTHOOD_DECISION: blocking=(true|false) warnings=[0-9]+[[:space:]]*-->' "$1" 2>/dev/null | sed '/^$/d'
 }
@@ -66,7 +66,7 @@ last_verdict() {
 # A section starts at a heading-ish line whose text (after stripping markdown
 # and status emoji) begins with "blocking"; it ends at the next heading-ish
 # line. Any non-empty, non-separator, non-heading line inside it counts as a
-# finding — bullets, bold titles and plain prose alike. A report with no
+# finding: bullets, bold titles and plain prose alike. A report with no
 # blocking section at all yields 0, matching the empty-blocking case.
 blocking_section_findings() {
   awk '
@@ -119,7 +119,7 @@ check_decision_gate() {
     *'blocking=true '*)
       # Cross-check: a blocking verdict must be backed by at least one listed
       # finding. The models periodically stamp blocking=true above an empty
-      # BLOCKING section (observed repeatedly in CI) — that combination is a
+      # BLOCKING section (observed repeatedly in CI), that combination is a
       # self-contradiction, downgraded here to a warning instead of a red run.
       # Fail-closed on doubt: findings written as inline `[blocking]` bullets
       # or as prose inside the blocking section keep the verdict standing.

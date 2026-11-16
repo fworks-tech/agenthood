@@ -78,7 +78,7 @@ function validateMember(membersDir: string, member: string, lockfile?: Lockfile,
   const { frontmatter, body, heuristic } = parser.parseRaw(content)
   const tier = parser.parseTier(frontmatter)
 
-  if (heuristic) result.issues.push('Frontmatter needed heuristic parsing — quote values containing colons')
+  if (heuristic) result.issues.push('Frontmatter needed heuristic parsing, quote values containing colons')
 
   if (!frontmatter) {
     result.issues.push('Missing YAML frontmatter')
@@ -111,7 +111,7 @@ function validateMember(membersDir: string, member: string, lockfile?: Lockfile,
     }
     const fallback = parseFallback(frontmatter) ?? []
     if (fallback.includes(member)) {
-      result.issues.push('fallback lists the skill itself — a chain must point at other skills')
+      result.issues.push('fallback lists the skill itself, a chain must point at other skills')
     }
     for (const name of fallback) {
       if (!MEMBER_NAME_RE.test(name)) result.issues.push(`fallback entry "${name}" is not a valid skill name`)
@@ -125,7 +125,7 @@ function validateMember(membersDir: string, member: string, lockfile?: Lockfile,
     if (tier === 'official' && frontmatter.tier !== 'official') {
       result.issues.push('Official skills must declare "tier: official" in frontmatter')
     }
-    // agentskills.io spec conformance — non-conforming skills load in agenthood
+    // agentskills.io spec conformance: non-conforming skills load in agenthood
     // but fail silently in other runtimes, breaking cross-client portability.
     const name = typeof frontmatter.name === 'string' ? frontmatter.name : ''
     const description = typeof frontmatter.description === 'string' ? frontmatter.description : ''
@@ -148,7 +148,7 @@ function validateMember(membersDir: string, member: string, lockfile?: Lockfile,
     }
   }
 
-  // Strip fenced/inline code — examples of what a skill detects
+  // Strip fenced/inline code: examples of what a skill detects
   // (e.g. `// TODO: fix this`) are not unfinished skill content.
   const proseBody = body.replace(/```[\s\S]*?```/g, '').replace(/`[^`]*`/g, '')
   for (const pattern of PLACEHOLDER_PATTERNS) {
@@ -164,7 +164,7 @@ function validateMember(membersDir: string, member: string, lockfile?: Lockfile,
   }
 
   // Resource surface (scripts/, references/) hashed alongside SKILL.md (#604).
-  // Skipped until the member has a lock entry — lock creation itself
+  // Skipped until the member has a lock entry: lock creation itself
   // (updateLockfile) is what first records the resource hashes.
   const lockedResources = lockfile?.members[member]?.resources
   if (lockfile?.members[member]) {
@@ -179,7 +179,7 @@ function validateMember(membersDir: string, member: string, lockfile?: Lockfile,
     if (strict && finding.severity === 'block') {
       result.issues.push(`Injection (${finding.pattern}): "${finding.excerpt}"`)
     } else {
-      console.warn(`  ⚠ ${member} — possible injection (${finding.pattern}): "${finding.excerpt}"`)
+      console.warn(`  ⚠ ${member}, possible injection (${finding.pattern}): "${finding.excerpt}"`)
     }
   }
 
@@ -197,12 +197,12 @@ function memberDrift(membersDir: string, member: string, lockfile?: Lockfile): b
 function lockIntegrityGate(membersDir: string, members: string[], lockfile?: Lockfile): void {
   const drifted = members.filter((m) => memberDrift(membersDir, m, lockfile))
   if (drifted.length > 0) {
-    console.log(`\n  ✗ Lockfile drift — ${drifted.length} member(s) changed without a re-lock: ${drifted.join(', ')}`)
+    console.log(`\n  ✗ Lockfile drift, ${drifted.length} member(s) changed without a re-lock: ${drifted.join(', ')}`)
     console.log('    Run `agenthood verify --update-lock` and commit agenthood.lock.\n')
     userError('Lockfile drift detected', { fix: 'Run `agenthood verify --update-lock` and commit agenthood.lock.' })
     return
   }
-  console.log(`\n  ✓ Lockfile integrity OK — ${members.length} member(s) match agenthood.lock`)
+  console.log(`\n  ✓ Lockfile integrity OK, ${members.length} member(s) match agenthood.lock`)
 }
 
 function reportIntegrity(cwd: string, membersDir: string, members: string[], lockfile?: Lockfile): void {
@@ -213,10 +213,10 @@ function reportIntegrity(cwd: string, membersDir: string, members: string[], loc
       ? checkResourceIntegrity(join(membersDir, member), lockfile.members[member].resources)
       : []
     if (status === 'clean' && resourceIssues.length === 0) {
-      console.log(`  ✓ ${member} — clean`)
+      console.log(`  ✓ ${member}, clean`)
     } else {
       failed++
-      console.log(`  ✗ ${member} — ${status}`)
+      console.log(`  ✗ ${member}, ${status}`)
       for (const issue of resourceIssues) console.log(`      - ${issue}`)
     }
   }
@@ -224,7 +224,7 @@ function reportIntegrity(cwd: string, membersDir: string, members: string[], loc
     userError(`Integrity check failed for ${failed} member(s)`, { fix: 'Run `agenthood verify --fix` to restore from git, or `verify --update-lock` if the edit is intentional.' })
     return
   }
-  console.log(`\n  ✓ Integrity OK — ${members.length} member(s) match agenthood.lock`)
+  console.log(`\n  ✓ Integrity OK, ${members.length} member(s) match agenthood.lock`)
 }
 
 function fixDrift(cwd: string, membersDir: string, members: string[], lockfile?: Lockfile): void {
@@ -240,7 +240,7 @@ function fixDrift(cwd: string, membersDir: string, members: string[], lockfile?:
       const skillPath = memberSkillPath(cwd, member)
       const commit = findRevision(cwd, skillPath, lockfile.members[member]?.version ?? '')
       if (!commit) {
-        console.log(`  ? ${member} — no matching revision in git history (re-lock if intentional)`)
+        console.log(`  ? ${member}, no matching revision in git history (re-lock if intentional)`)
         unrestorable++
       } else if (restoreMember(cwd, skillPath, member, commit, false)) restored++
       else unrestorable++
@@ -253,14 +253,14 @@ function fixDrift(cwd: string, membersDir: string, members: string[], lockfile?:
     for (const issue of checkResourceIntegrity(join(membersDir, member), lockedResources)) {
       const rel = issue.replace(/^(untracked resource|resource drift|resource missing): /, '')
       if (issue.startsWith('untracked resource')) {
-        // not in the lock — nothing to restore to; it needs a re-lock or removal
-        console.log(`  ? ${member} — untracked resource ${rel} (re-lock to adopt, or delete it)`)
+        // not in the lock: nothing to restore to; it needs a re-lock or removal
+        console.log(`  ? ${member}, untracked resource ${rel} (re-lock to adopt, or delete it)`)
         continue
       }
       const relPath = memberResourcePath(cwd, member, rel)
       const resourceCommit = findResourceRevision(cwd, relPath, lockedResources[rel])
       if (!resourceCommit) {
-        console.log(`  ? ${member}/${rel} — no matching revision in git history (re-lock if intentional)`)
+        console.log(`  ? ${member}/${rel}, no matching revision in git history (re-lock if intentional)`)
         unrestorable++
       } else if (restoreMember(cwd, relPath, `${member}/${rel}`, resourceCommit, false)) restored++
       else unrestorable++
@@ -284,7 +284,7 @@ function reportLaneOverlaps(): void {
   console.log('\n  Strict mode: lane overlap check passed.')
 }
 
-// The Mediator and The Steward are prompt-driven — no runtime class writes a
+// The Mediator and The Steward are prompt-driven: no runtime class writes a
 // routing record, so members hand-write them and this is the only place the
 // documented schema is enforced. Absent directory is a pass, not a skip: a
 // Society that has not routed anything is in the correct state, and CI has no
@@ -308,7 +308,7 @@ function reportRoutingRecords(cwd: string): void {
 function collectConflictCandidates(membersDir: string, discovered: ConflictCandidate[]): ConflictCandidate[] {
   const parser = new SkillParser()
   const byName = new Map<string, ConflictCandidate>()
-  // Members first — they are the canonical skill surface, and a discovered
+  // Members first: they are the canonical skill surface, and a discovered
   // copy under the same name is the same slot, not a second skill.
   for (const member of MEMBER_NAMES) {
     const skillPath = join(membersDir, member, 'SKILL.md')
@@ -344,7 +344,7 @@ function reportConflicts(membersDir: string): void {
 /**
  * Two skills declaring the same `owner/name` cannot both be published, and the
  * local copy-paste that produces them is the conflict #593 exists to prevent.
- * Scans every skill directory, not only members — the collision usually involves
+ * Scans every skill directory, not only members: the collision usually involves
  * a non-member pack from another author.
  */
 function findNamespaceConflicts(membersDir: string): string[] {
@@ -384,7 +384,7 @@ function printResults(results: VerifyResult[]): void {
         console.log(`      - ${issue}`)
       }
       if (r.drift) {
-        console.log(`      - Drift detected — SKILL.md hash does not match lockfile. Run \`verify --update-lock\` to re-lock.`)
+        console.log(`      - Drift detected, SKILL.md hash does not match lockfile. Run \`verify --update-lock\` to re-lock.`)
       }
     }
   }
@@ -415,10 +415,10 @@ export async function verify(args: string[]): Promise<void> {
 
   const lockfile = loadLockfile(cwd)
   if (!lockfile) {
-    console.log('\n  No lockfile found — drift detection unavailable. Run `verify --update-lock` to create one.\n')
+    console.log('\n  No lockfile found, drift detection unavailable. Run `verify --update-lock` to create one.\n')
   }
 
-  // Only validate the members the Society actually ships — the lockfile's set
+  // Only validate the members the Society actually ships: the lockfile's set
   // (or the registry when bootstrapping), never every subdir of skills/, which
   // also holds ~40 non-member skill packs (#740). Lock keys are attacker-
   // influenced, so re-validate each before it becomes a filesystem path.
@@ -436,7 +436,7 @@ export async function verify(args: string[]): Promise<void> {
   }
 
   // --integrity (#604): per-member tamper report over SKILL.md + resources.
-  // No structural checks — fails only when a hash does not match the lock.
+  // No structural checks: fails only when a hash does not match the lock.
   if (flags.has('--integrity')) {
     reportIntegrity(cwd, membersDir, membersToCheck, lockfile)
     return
@@ -478,12 +478,12 @@ export async function verify(args: string[]): Promise<void> {
   if (flags.has('--dedup')) reportDuplicates(skillSearchRoots(cwd))
 
   // Advisory (#595): overlapping descriptions mean two skills can both trigger
-  // for the same task. Warns only — the resolution (dedup vs specialize) is a
+  // for the same task. Warns only: the resolution (dedup vs specialize) is a
   // judgment call, so unlike --strict lane overlap it never fails the run.
   if (conflicts) reportConflicts(membersDir)
 
   // --update-lock is the accept path for intentional edits, so it must work
-  // *despite* drift (re-locking changed members is its whole purpose) — only a
+  // *despite* drift (re-locking changed members is its whole purpose): only a
   // structural failure blocks the write. Plain `verify` never writes and fails
   // on drift, preserving the integrity gate that CI (--strict) and ADR-020 rely on.
   if (updateLock && structuralOk) {

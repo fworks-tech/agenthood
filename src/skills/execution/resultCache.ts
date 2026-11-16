@@ -59,7 +59,7 @@ export function recordCacheResult(projectPath: string, hit: boolean): void {
   try {
     stats = JSON.parse(readFileSync(path, 'utf8')) as typeof stats
   } catch {
-    // first run, or a corrupt file — start over
+    // first run, or a corrupt file: start over
   }
   if (hit) stats.hits++
   else stats.misses++

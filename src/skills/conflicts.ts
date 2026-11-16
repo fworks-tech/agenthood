@@ -22,7 +22,7 @@ const STOP_WORDS = new Set([
 ])
 
 const MIN_TOKENS = 4
-// ponytail: lexical token-overlap, not sentence embeddings — deterministic,
+// ponytail: lexical token-overlap, not sentence embeddings: deterministic,
 // offline, zero deps. If the FP rate climbs past the #595 budget (<10%),
 // swap tokenize() for an embedding-based similarity behind the same signature.
 export const OVERLAP_THRESHOLD = 0.8
@@ -39,8 +39,8 @@ export function tokenize(description: string): Set<string> {
 function resolutionFor(a: Set<string>, b: Set<string>): string {
   const [smaller, larger] = a.size <= b.size ? [a, b] : [b, a]
   const subset = [...smaller].every((t) => larger.has(t))
-  if (subset) return 'one description is contained in the other — remove the narrower skill, or specialize it (narrow its "Use when" triggers to a distinct case)'
-  return 'near-duplicate descriptions — remove one, or specialize both (split their "Use when" triggers so only one fires per task)'
+  if (subset) return 'one description is contained in the other: remove the narrower skill, or specialize it (narrow its "Use when" triggers to a distinct case)'
+  return 'near-duplicate descriptions: remove one, or specialize both (split their "Use when" triggers so only one fires per task)'
 }
 
 export function findConflicts(skills: ConflictCandidate[], threshold = OVERLAP_THRESHOLD): SkillConflict[] {

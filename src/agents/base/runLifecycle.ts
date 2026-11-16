@@ -99,7 +99,7 @@ export class RunLifecycle {
   }
 
   recordResidual(input: string, context: ExecutionContext): void {
-    // residual is a best-effort learning signal — a redaction failure must
+    // residual is a best-effort learning signal: a redaction failure must
     // not abort the run (trace recording already fails closed on it)
     const residualInput = redactSafely(context, input, { event: 'residual redaction failed', ...this.report, mode: 'skip' })
     if (residualInput === undefined) return

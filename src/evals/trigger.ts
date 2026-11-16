@@ -133,10 +133,10 @@ const PRECISION_TARGET = 0.8
 export function triggerRecommendations(metrics: TriggerMetrics, label = 'description'): string[] {
   const recs: string[] = []
   if (metrics.truePositive + metrics.falseNegative > 0 && metrics.recall < RECALL_TARGET) {
-    recs.push(`under-triggering: ${metrics.falseNegative} should-trigger query(ies) missed — broaden ${label} with the missing phrasings`)
+    recs.push(`under-triggering: ${metrics.falseNegative} should-trigger query(ies) missed; broaden ${label} with the missing phrasings`)
   }
   if (metrics.truePositive + metrics.falsePositive > 0 && metrics.precision < PRECISION_TARGET) {
-    recs.push(`over-triggering: ${metrics.falsePositive} should-not-trigger query(ies) captured — narrow ${label} to specialise it`)
+    recs.push(`over-triggering: ${metrics.falsePositive} should-not-trigger query(ies) captured; narrow ${label} to specialise it`)
   }
   return recs
 }

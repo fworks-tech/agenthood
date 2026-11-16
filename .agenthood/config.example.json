@@ -98,7 +98,7 @@
   "observability": {
     "redaction": {
       "enabled": true,
-      "_comment": "Redaction is enabled by default and must stay that way — it scrubs emails, API keys, bearer tokens, URL query values, and IPs from persisted traces, decisions, and provenance. Set enabled false only when you knowingly accept raw payloads on disk. rules/paths add custom regex sources and path roots.",
+      "_comment": "Redaction is enabled by default and must stay that way; it scrubs emails, API keys, bearer tokens, URL query values, and IPs from persisted traces, decisions, and provenance. Set enabled false only when you knowingly accept raw payloads on disk. rules/paths add custom regex sources and path roots.",
       "rules": [],
       "paths": []
     },
@@ -131,12 +131,12 @@
     "cacheTtlMs": 3600000
   },
 
-  "_comment_analytics": "Optional: local-only per-skill usage analytics shown by `agenthood stats`. Records skill names and counters only — never prompts or results. Set enabled false to opt out entirely.",
+  "_comment_analytics": "Optional: local-only per-skill usage analytics shown by `agenthood stats`. Records skill names and counters only; never prompts or results. Set enabled false to opt out entirely.",
   "analytics": {
     "enabled": true
   },
 
-  "_comment_metricsExport": "Optional: external monitoring export (#651). 'prometheus' serves /metrics while `agenthood metrics` runs (default port 9464). 'statsd' pushes a snapshot over UDP after every member run. 'none' (default) disables both. Only metric names, member names, and provider names leave the machine — never prompts or results.",
+  "_comment_metricsExport": "Optional: external monitoring export (#651). 'prometheus' serves /metrics while `agenthood metrics` runs (default port 9464). 'statsd' pushes a snapshot over UDP after every member run. 'none' (default) disables both. Only metric names, member names, and provider names leave the machine; never prompts or results.",
   "metricsExport": {
     "type": "none",
     "port": 9464,

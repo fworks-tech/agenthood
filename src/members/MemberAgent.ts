@@ -33,7 +33,7 @@ const TOOL_MAP = TOOL_VOCABULARY
 const WRITE_TOOLS = new Set(['file.write', 'code.write', 'code.refactor', 'text_to_speech'])
 const TRUSTED_TOOLS = new Set(['pr_sync'])
 // Read-only tools are safe for every profile. Anything not classified below is
-// denied — a future tool that touches state but is NOT added to WRITE_TOOLS /
+// denied: a future tool that touches state but is NOT added to WRITE_TOOLS /
 // TRUSTED_TOOLS fails closed (never silently granted to restricted members).
 // ask_human only asks, never mutates state, so every member gets it.
 const READ_ONLY_TOOLS = new Set([
@@ -237,7 +237,7 @@ export class MemberAgent extends BaseAgent {
   /**
    * ADR-020 drift check: surfaces SKILL.md drift from agenthood.lock at
    * injection time. Records detection durably before warning or blocking.
-   * Absent lockfile entries and missing skill files are surfaced too — the
+   * Absent lockfile entries and missing skill files are surfaced too: the
    * integrity gate being OFF is itself a warning an operator must see
    * (A09: a silently inert persistence-vector control is worse than none).
    */
@@ -260,6 +260,6 @@ export class MemberAgent extends BaseAgent {
       'no-lockfile': 'the integrity gate is OFF. Run `agenthood verify` to lock SKILL.md hashes.',
       missing: 'cannot verify integrity.',
     }
-    console.warn(`[skill-integrity] ${describeIntegrityFailure(this.spec.name, status)} — ${guidance[status]}`)
+    console.warn(`[skill-integrity] ${describeIntegrityFailure(this.spec.name, status)}: ${guidance[status]}`)
   }
 }

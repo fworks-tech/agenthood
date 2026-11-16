@@ -7,10 +7,10 @@
  * directly (yes/no `noul`, multiple-choice `choice`, rubric `score`).
  *
  * That contract is fundamentally different from `ILLMProvider` (text in, text
- * out), so Jev is deliberately NOT a drop-in provider — you cannot point a chat
+ * out), so Jev is deliberately NOT a drop-in provider; you cannot point a chat
  * turn at it. Its correct home in the Society is calibrated *decision*
  * confidence: the Mediator's intent routing, The Steward's complexity tiering,
- * The Doorman's entry-format checks — anywhere the current code is guessing and
+ * The Doorman's entry-format checks: anywhere the current code is guessing and
  * would rather have a real probability. Every failure path returns `null` so a
  * caller always keeps its deterministic fallback and a Jev outage can never hang
  * a run.

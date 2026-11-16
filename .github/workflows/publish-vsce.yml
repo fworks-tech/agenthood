@@ -26,7 +26,7 @@ jobs:
 
       - name: Publish to Marketplace
         # --no-install: use the lockfile-pinned @vscode/vsce ^3.0.0 installed by
-        # npm ci — never a fresh, unpinned 2.x fetch from the registry
+        # npm ci - never a fresh, unpinned 2.x fetch from the registry
         run: cd vscode-extension && npx --no-install @vscode/vsce publish
         env:
           VSCE_TOKEN: ${{ secrets.VSCE_TOKEN }}

@@ -21,7 +21,7 @@ function loadLock(projectPath: string): { lock?: { skills?: Record<string, { sou
   const lockPath = join(resolveSkillsDir(projectPath), SKILLS_LOCKFILE)
   try {
     if (!existsSync(lockPath)) {
-      return { problems: [`${SKILLS_LOCKFILE} not found — run \`agenthood install\` without --frozen to create it`] }
+      return { problems: [`${SKILLS_LOCKFILE} not found; run \`agenthood install\` without --frozen to create it`] }
     }
     return { lock: JSON.parse(readFileSync(lockPath, 'utf-8')) as { skills?: Record<string, { source: string; version?: string; contentHash?: string }> }, problems: [] }
   } catch (err) {
@@ -45,7 +45,7 @@ export function assertFrozenInstall(projectPath: string, source: string, name: s
   const locked = lock.skills ?? {}
   const entry = locked[name]
   if (!entry) {
-    return { ok: false, problems: [`"${name}" is not in ${SKILLS_LOCKFILE} — --frozen will not add an unlocked skill`] }
+    return { ok: false, problems: [`"${name}" is not in ${SKILLS_LOCKFILE}; --frozen will not add an unlocked skill`] }
   }
   if (entry.source !== source) {
     // A different URL for the same skill name is a different artifact.
@@ -55,7 +55,7 @@ export function assertFrozenInstall(projectPath: string, source: string, name: s
     problems.push(`"${name}" fetched hash does not match the locked hash in ${SKILLS_LOCKFILE}`)
   }
   if (!entry.contentHash) {
-    problems.push(`"${name}" has no locked checksum in ${SKILLS_LOCKFILE} — run \`agenthood install\` once without --frozen to pin it`)
+    problems.push(`"${name}" has no locked checksum in ${SKILLS_LOCKFILE}, run \`agenthood install\` once without --frozen to pin it`)
   }
 
   for (const [otherName, other] of Object.entries(locked)) {
@@ -74,8 +74,8 @@ export function assertFrozenInstall(projectPath: string, source: string, name: s
  * Compare installed skills against skills-lock.json.
  *
  * `requestedNames` is the set of skills the caller is about to install or
- * verify. A name in it that the lockfile has never seen is a problem — installing
- * it would change the lock — while a name absent from it is not this gate's
+ * verify. A name in it that the lockfile has never seen is a problem: installing
+ * it would change the lock, while a name absent from it is not this gate's
  * business, so members and pre-existing skills do not block a run.
  */
 export function checkFrozen(projectPath: string, requestedNames: string[]): FrozenReport {
@@ -86,7 +86,7 @@ export function checkFrozen(projectPath: string, requestedNames: string[]): Froz
   let lock: { skills?: Record<string, { source: string; version?: string; contentHash?: string }> }
   try {
     if (!existsSync(lockPath)) {
-      return { ok: false, problems: [`${SKILLS_LOCKFILE} not found — run \`agenthood install\` without --frozen to create it`] }
+      return { ok: false, problems: [`${SKILLS_LOCKFILE} not found; run \`agenthood install\` without --frozen to create it`] }
     }
     lock = JSON.parse(readFileSync(lockPath, 'utf-8')) as typeof lock
   } catch (err) {
@@ -97,7 +97,7 @@ export function checkFrozen(projectPath: string, requestedNames: string[]): Froz
 
   for (const name of requestedNames) {
     if (!(name in locked)) {
-      problems.push(`"${name}" is not in ${SKILLS_LOCKFILE} — --frozen refuses to install an unlocked skill`)
+      problems.push(`"${name}" is not in ${SKILLS_LOCKFILE}, --frozen refuses to install an unlocked skill`)
     }
   }
 
@@ -108,7 +108,7 @@ export function checkFrozen(projectPath: string, requestedNames: string[]): Froz
       continue
     }
     // A pre-#604 lock carries no version. Absence of a hash is not evidence of
-    // drift, so presence is all we can check — refusing would break every
+    // drift, so presence is all we can check: refusing would break every
     // install made before checksums existed.
     if (!entry.contentHash) continue
     if (contentHash(readFileSync(skillMd, 'utf-8')) !== entry.contentHash) {

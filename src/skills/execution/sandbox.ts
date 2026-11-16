@@ -20,7 +20,7 @@ export function setDockerAvailable(value: boolean | undefined): void {
   dockerAvailable = value
 }
 
-/** Cached `docker info` probe — one 5s attempt per process. */
+/** Cached `docker info` probe: one 5s attempt per process. */
 export function detectDocker(): boolean {
   if (dockerAvailable !== undefined) return dockerAvailable
   try {
@@ -47,7 +47,7 @@ export function sandboxRequired(
   }
   return {
     required: true,
-    reason: `tier "${manifest.tier}" runs untrusted code — pass --sandbox to isolate it`,
+    reason: `tier "${manifest.tier}" runs untrusted code; pass --sandbox to isolate it`,
   }
 }
 

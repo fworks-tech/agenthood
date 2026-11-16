@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-// The Herald — release automation without pushing directly to main.
+// The Herald: release automation without pushing directly to main.
 //
 // Branch rulesets on main forbid direct pushes ("changes must be made through
 // a pull request"), which broke the old semantic-release flow (its @semantic-release/git
@@ -54,7 +54,7 @@ export function latestTag(tags = listVersionTags()) {
 }
 
 // A release is pending when package.json (bumped by the merged release PR)
-// is strictly ahead of the newest git tag — i.e. tagged nothing yet.
+// is strictly ahead of the newest git tag: i.e. tagged nothing yet.
 export function isPending(pkgVersion = readVersion(), tag = latestTag()) {
   if (!tag) return pkgVersion !== '0.0.0'
   return semver.gt(pkgVersion, tag.slice(1))
@@ -151,7 +151,7 @@ async function main([mode = 'compute', ...rest]) {
       const [outArg] = rest
       const pending = isPending()
       if (pending) {
-        console.error('herald: a merged release is awaiting tag+publish — not opening a new release PR')
+        console.error('herald: a merged release is awaiting tag+publish, not opening a new release PR')
         if (outArg) writeFileSync(outArg, '', 'utf8')
         process.exit(0)
       }
@@ -199,7 +199,7 @@ async function main([mode = 'compute', ...rest]) {
 
 if (process.argv[1]?.endsWith('herald-release.mjs')) {
   main(process.argv.slice(2)).catch((err) => {
-    console.error('herald: release automation failed —', err?.message ?? err)
+    console.error('herald: release automation failed:', err?.message ?? err)
     process.exit(1)
   })
 }

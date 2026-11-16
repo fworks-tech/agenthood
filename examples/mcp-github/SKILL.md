@@ -23,7 +23,7 @@ MCP GitHub demonstrates the Skills + MCP pattern. The skill defines the procedur
 
 1. Use GitHub MCP to list open PRs in the repository
 2. Read the PR diff and description
-3. Check CI status — all checks must pass
+3. Check CI status: all checks must pass
 4. Review for:
    - Correctness: does the code do what it claims?
    - Tests: are new behaviors tested?

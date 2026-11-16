@@ -2,7 +2,7 @@
  * Per-repo agent instruction file (#567).
  *
  * AGENTS.md is the cross-client convention; CLAUDE.md is the older alias. The
- * runtime reads either as read-only project guidance and never writes them —
+ * runtime reads either as read-only project guidance and never writes them,
  * these files belong to the repository, not to agenthood.
  */
 

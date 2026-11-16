@@ -1,17 +1,17 @@
 # Spec: Automated Skill Description Optimization
 
 ## Problem
-Writing skill descriptions that trigger reliably is the hardest part of skill authoring. The difference between 20% and 80% trigger rate is description quality — but there is no automated way to measure or improve it. Authors guess, deploy, and discover failures in production.
+Writing skill descriptions that trigger reliably is the hardest part of skill authoring. The difference between 20% and 80% trigger rate is description quality, but there is no automated way to measure or improve it. Authors guess, deploy, and discover failures in production.
 
 ## Proposed Solution
 Add `agenthood optimize <member>` command that closes the loop:
 
-1. **Measure** — score the current description against a trigger query set (should-trigger / should-not-trigger) using the semantic predictor (embedding cosine similarity).
-2. **Generate** — ask an LLM to produce N description variants tuned to the trigger set, constrained by the member's actual purpose.
-3. **Score** — run each variant through the same predictor; rank by F1.
-4. **Validate** — hold out a validation split to guard against over-fitting.
-5. **Converge** — iterate generate/score until F1 plateaus or a threshold is met.
-6. **Report** — print before/after metrics, the winning description, and write it back to `member-specs.ts` on `--apply`.
+1. **Measure**: score the current description against a trigger query set (should-trigger / should-not-trigger) using the semantic predictor (embedding cosine similarity).
+2. **Generate**: ask an LLM to produce N description variants tuned to the trigger set, constrained by the member's actual purpose.
+3. **Score**: run each variant through the same predictor; rank by F1.
+4. **Validate**: hold out a validation split to guard against over-fitting.
+5. **Converge**: iterate generate/score until F1 plateaus or a threshold is met.
+6. **Report**: print before/after metrics, the winning description, and write it back to `member-specs.ts` on `--apply`.
 
 ## Out of Scope
 - Modifying the SKILL.md body (only the short `description` field is optimized).

@@ -46,7 +46,7 @@ export async function update(args: string[]): Promise<void> {
   }
 
   for (const info of actionable) {
-    console.log(`\n  ${info.name} — ${STATUS_LABEL[info.status]} (local ${info.localVersion ?? '?'} → packaged ${info.packagedVersion ?? '?'})`)
+    console.log(`\n  ${info.name}, ${STATUS_LABEL[info.status]} (local ${info.localVersion ?? '?'} → packaged ${info.packagedVersion ?? '?'})`)
     if (dryRun && info.localPath && info.status !== 'not-installed') {
       const local = readFileSync(info.localPath, 'utf8')
       const upstream = readFileSync(info.packagedPath, 'utf8')

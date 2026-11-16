@@ -13,12 +13,12 @@ Start at Level 1. Do not skip ahead.
 | Level | Title | Articles | What You'll Know |
 |-------|-------|----------|-----------------|
 | [Level 1](level-1-genai-rag-basics/README.md) | GenAI & RAG Basics | 9 | How LLMs work, how RAG works, how to write prompts that don't embarrass you |
-| [Level 2](level-2-agent-essentials/README.md) | AI Agent Essentials | 11 | How agents reason, remember, plan, and fail — and how to prevent the failure |
+| [Level 2](level-2-agent-essentials/README.md) | AI Agent Essentials | 11 | How agents reason, remember, plan, and fail, and how to prevent the failure |
 | [Level 3](level-3-advanced-skills/README.md) | Advanced Agent Skills | 6 | How to ship agents into production and keep them there |
 
 ---
 
-## Level 1 — GenAI & RAG Basics
+## Level 1: GenAI & RAG Basics
 
 *The foundation. If you do not understand these, your agents will fail in ways you cannot explain.*
 
@@ -34,7 +34,7 @@ Start at Level 1. Do not skip ahead.
 
 ---
 
-## Level 2 — AI Agent Essentials
+## Level 2: AI Agent Essentials
 
 *The concepts where most developers stop learning. This is where The Society separates the builders from the browsers.*
 
@@ -52,7 +52,7 @@ Start at Level 1. Do not skip ahead.
 
 ---
 
-## Level 3 — Advanced Agent Skills
+## Level 3: Advanced Agent Skills
 
 *For engineers who have shipped agents and are ready to ship them better.*
 
@@ -67,8 +67,8 @@ Start at Level 1. Do not skip ahead.
 
 ## Reference
 
-- [Skills Reference](skills-reference.md) — the 20 Society members, their tools, and invocation
-- [Utility Skills](utility-skills.md) — specialist skills beyond the members (Copilot library and deepagents ports)
+- [Skills Reference](skills-reference.md): the 20 Society members, their tools, and invocation
+- [Utility Skills](utility-skills.md): specialist skills beyond the members (Copilot library and deepagents ports)
 
 ---
 
@@ -76,11 +76,11 @@ Start at Level 1. Do not skip ahead.
 
 Every article in the Academy follows the same structure:
 
-1. **What it is** — no jargon without definition
-2. **Why it matters in production** — the specific failure mode this prevents
-3. **How Agenthood implements it** — a link to the actual source, a working code snippet
-4. **Hands-on example** — something you can run right now
-5. **Further reading** — the ADR, the source file, one external reference
+1. **What it is**: no jargon without definition
+2. **Why it matters in production**: the specific failure mode this prevents
+3. **How Agenthood implements it**: a link to the actual source, a working code snippet
+4. **Hands-on example**: something you can run right now
+5. **Further reading**: the ADR, the source file, one external reference
 
 Each article also includes a LinkedIn repurposing section at the bottom. The Society shares knowledge. It does not hoard it.
 
@@ -96,7 +96,7 @@ npx agenthood init
 
 The Society installs into your project in five minutes. The standards it enforces will outlast the sprint.
 
-Start with the [5-minute skill creation quickstart](quickstart.md) — one `SKILL.md` file, verified with `npx agenthood verify`.
+Start with the [5-minute skill creation quickstart](quickstart.md): one `SKILL.md` file, verified with `npx agenthood verify`.
 
 ---
 

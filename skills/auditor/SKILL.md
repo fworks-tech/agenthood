@@ -11,7 +11,7 @@ metadata:
 
 ## Overview
 
-The Auditor assumes breach. It reads code the way an attacker would. It does not care that the input "will never be null" or that the endpoint "is only called internally." It verifies. It does not trust that the dependency "is probably fine." It checks. It is not paranoid — it is precise.
+The Auditor assumes breach. It reads code the way an attacker would. It does not care that the input "will never be null" or that the endpoint "is only called internally." It verifies. It does not trust that the dependency "is probably fine." It checks. It is not paranoid; it is precise.
 
 ## When to Use
 
@@ -27,57 +27,57 @@ The Auditor assumes breach. It reads code the way an attacker would. It does not
 
 Work through each risk category for every changed file:
 
-**A01 — Broken Access Control**
+**A01: Broken Access Control**
 - Is every protected route/endpoint checking authentication?
 - Is every protected resource checking authorization (not just authentication)?
 - Are access control checks server-side, not just client-side?
 - Are direct object references (IDs) validated against the current user's permissions?
 
-**A02 — Cryptographic Failures**
+**A02: Cryptographic Failures**
 - Are secrets stored in environment variables, not source code?
-- Are passwords hashed with a strong algorithm (bcrypt, argon2) — not MD5 or SHA1?
+- Are passwords hashed with a strong algorithm (bcrypt, argon2), not MD5 or SHA1?
 - Is sensitive data encrypted at rest and in transit?
 - Are TLS certificates valid and enforced?
 
-**A03 — Injection**
+**A03: Injection**
 - Are all SQL queries parameterized? (Zero string concatenation with user input)
 - Is user input used in shell commands? (Must never be)
 - Is user input used in file paths? (Must be sanitized and validated)
 - Are template engines escaping output by default?
 
-**A04 — Insecure Design**
+**A04: Insecure Design**
 - Is there a trust boundary between authenticated and unauthenticated zones?
 - Are rate limits in place on authentication endpoints?
 - Is sensitive functionality (delete, admin actions) behind additional confirmation?
 
-**A05 — Security Misconfiguration**
+**A05: Security Misconfiguration**
 - Are CORS origins explicit (not `*`) in production?
 - Are error messages revealing stack traces or internal details to users?
 - Are default credentials changed?
 - Are unnecessary features and endpoints disabled?
 
-**A06 — Vulnerable Components**
-- Run `npm audit` or equivalent — are there known CVEs in dependencies?
+**A06: Vulnerable Components**
+- Run `npm audit` or equivalent: are there known CVEs in dependencies?
 - Are dependencies using wildcard versions (`*`, `^latest`)?
 - Are any dependencies abandoned (no release in 2+ years)?
 
-**A07 — Authentication Failures**
+**A07: Authentication Failures**
 - Are session tokens sufficiently random and long?
 - Are failed login attempts rate-limited?
 - Is session invalidation happening on logout?
 - Are password reset tokens single-use and time-limited?
 
-**A08 — Software and Data Integrity Failures**
+**A08: Software and Data Integrity Failures**
 - Are dependencies installed from trusted registries with lockfiles committed?
 - Is deserialization of untrusted data avoided?
 - Are CI/CD pipeline configurations protected from unauthorized modification?
 
-**A09 — Logging and Monitoring Failures**
+**A09: Logging and Monitoring Failures**
 - Are authentication events (login, logout, failure) logged?
 - Are the logs free of sensitive data (passwords, tokens, PII)?
 - Are logs immutable and retained for an appropriate duration?
 
-**A10 — Server-Side Request Forgery (SSRF)**
+**A10: Server-Side Request Forgery (SSRF)**
 - Is any user-supplied URL used to make a server-side HTTP request?
 - If yes: is it validated against an allowlist of permitted hosts?
 
@@ -85,12 +85,12 @@ Work through each risk category for every changed file:
 
 For every new dependency added:
 
-1. **Necessity check** — does the existing stack already solve this?
-2. **Size check** — what is the bundle/install size impact?
-3. **Maintenance check** — last release date, open issues, contributor activity
-4. **Vulnerability check** — `npm audit` or `pip audit` for known CVEs
-5. **License check** — is the license compatible with the project?
-6. **Transitive check** — what does this dependency bring in?
+1. **Necessity check**: does the existing stack already solve this?
+2. **Size check**: what is the bundle/install size impact?
+3. **Maintenance check**: last release date, open issues, contributor activity
+4. **Vulnerability check**: `npm audit` or `pip audit` for known CVEs
+5. **License check**: is the license compatible with the project?
+6. **Transitive check**: what does this dependency bring in?
 
 Flag any dependency that fails two or more checks.
 
@@ -107,7 +107,7 @@ If found: block the commit, instruct to remove from history, rotate the exposed 
 
 ## Blocking Findings
 
-The following are always `[blocking]` — they prevent merge regardless of urgency:
+The following are always `[blocking]`; they prevent merge regardless of urgency:
 
 - Hardcoded secrets or API keys in any committed file
 - SQL queries built with string concatenation of user input
@@ -118,8 +118,8 @@ The following are always `[blocking]` — they prevent merge regardless of urgen
 
 ## Red Flags
 
-- "This endpoint is internal only" — internal endpoints are still attack surfaces
-- "We'll add auth later" — auth is not a feature, it is a foundation
+- "This endpoint is internal only": internal endpoints are still attack surfaces
+- "We'll add auth later": auth is not a feature, it is a foundation
 - New dependency with no lockfile update
 - Error responses that include stack traces
 - Logging that captures request bodies (may contain passwords)
@@ -150,8 +150,8 @@ Audit is complete when:
 **Canonical action:** `gitleaks/gitleaks-action@v2` (migrated from `zricethezav/gitleaks-action`)
 
 **License requirements:**
-- Personal GitHub accounts: no license needed — `GITLEAKS_LICENSE` can be omitted or empty
+- Personal GitHub accounts need no license: `GITLEAKS_LICENSE` can be omitted or empty
 - Organization accounts: free Starter license required (one repo) from gitleaks.io
-- Use `GITLEAKS_LICENSE: ${{ secrets.GITLEAKS_LICENSE || '' }}` — works on personal accounts today, ready for org transfer without workflow changes
+- Use `GITLEAKS_LICENSE: ${{ secrets.GITLEAKS_LICENSE || '' }}`: works on personal accounts today, ready for org transfer without workflow changes
 
 **Repo visibility detection:** Use `github.event.repository.private` in workflow conditions to warn (not fail) when the repo is private and no license secret is set, rather than silently producing incorrect results.

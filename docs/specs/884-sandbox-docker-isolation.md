@@ -1,4 +1,4 @@
-# Spec: Sandbox Phase 2 — Docker Container Isolation
+# Spec: Sandbox Phase 2: Docker Container Isolation
 
 ## Problem
 Phase 1 (#665) ships a local `--sandbox` profile: strict skill-integrity gate plus human confirmation before every tool call. Phase 2 adds a defense-in-depth container layer: run member tools inside a Docker container with a read-only filesystem, a temp-dir workspace, and context passed by mount.
@@ -19,7 +19,7 @@ Extend `applySandboxProfile` to detect Docker availability and, when present, co
 
 ### Fallback
 - If Docker is unavailable, log a notice and apply the phase-1 profile.
-- No silent downgrade without notice — the user must know they are not getting container isolation.
+- No silent downgrade without notice: the user must know they are not getting container isolation.
 
 ## Out of Scope
 - Windows Docker Desktop specifics (the runner targets Linux/macOS containers).

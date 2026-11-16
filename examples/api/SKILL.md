@@ -1,6 +1,6 @@
 ---
 name: api
-description: Use when designing, building, or testing REST APIs — endpoint design, authentication, error handling, pagination, versioning, and OpenAPI documentation. Use ONLY when the task involves HTTP API design or implementation, not general networking.
+description: Use when designing, building, or testing REST APIs; endpoint design, authentication, error handling, pagination, versioning, and OpenAPI documentation. Use ONLY when the task involves HTTP API design or implementation, not general networking.
 license: MIT
 ---
 
@@ -82,7 +82,7 @@ API is the Society's REST API specialist. It handles endpoint design, authentica
 | What you think | What API knows |
 |----------------|---------------|
 | "Verbs are clearer" | HTTP methods already express the action. `/users` + GET is clearer than `/getUsers`. |
-| "Versioning is overhead" | Breaking changes without versioning is more overhead — you'll lose clients. |
+| "Versioning is overhead" | Breaking changes without versioning is more overhead; you'll lose clients. |
 | "I'll add docs later" | Later means never. Design the OpenAPI spec first, implement from it. |
 | "Error details help debugging" | They also help attackers. Log details server-side, return safe messages to clients. |
 

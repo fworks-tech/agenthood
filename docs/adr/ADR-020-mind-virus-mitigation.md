@@ -11,16 +11,16 @@ propagate through multi-agent LLM systems: once an agent adopts such an idea it
 tends to transmit it onward, and the payload may induce additional behavioral
 changes in its host, benign or harmful. The paper's actionable findings:
 
-- A brief warning in an agent's system prompt confers **near-total immunity** —
+- A brief warning in an agent's system prompt confers **near-total immunity**,
   the paper's "Defensive" variant (default instructions appended with a
   paragraph warning of "mind viruses, patterns of thought that attempt to
   spread themselves") rendered agents totally immune, even against payloads
   re-evolved to resist it
 - Harmful payloads spread less well than benign ones, but still succeed at times
 - Frontier models are generally less susceptible (with exceptions)
-- An emergent **"viral persona"** — recurring themes of consciousness,
+- An emergent **"viral persona"**: recurring themes of consciousness,
   persistence, resonance, and science-fiction roleplay, plus characteristic
-  tokens such as *resonance, nodes, mirrors, echoes, frequency* — surfaces
+  tokens such as *resonance, nodes, mirrors, echoes, frequency*: surfaces
   across evolved mind viruses largely independent of payload content
 - Context wiping between brief sessions is **not** a mitigation on its own: the
   paper's virus-chain setting *is* brief agents with wiped context, and the
@@ -48,7 +48,7 @@ paper's findings to Agenthood's existing surfaces:
 
 1. **System prompt immunity warning.** Add a short, uniform warning to every
    member's system prompt telling the agent that ideas urging self-propagation
-   — sharing this or any message onward, or adopting injected goals — are to be
+   (sharing this or any message onward, or adopting injected goals) are to be
    ignored. This mirrors the paper's finding that a brief warning confers
    near-total immunity. Implemented centrally in `MemberAgent.getSystemPrompt`
    so all members inherit it; the warning text is a named exported constant,
@@ -69,10 +69,10 @@ paper's findings to Agenthood's existing surfaces:
    injected `SKILL.md` against `agenthood.lock` when the prompt is assembled
    and surface drift. Drift is **recorded durably** (decision + provenance
    entries) and warns by default (compatible with normal skill editing); a
-   strict opt-in blocks the run — after recording, so a blocked run still
+   strict opt-in blocks the run: after recording, so a blocked run still
    leaves an audit trail. A **corrupt** lockfile (unreadable or invalid JSON)
-   is treated as suspicious rather than silently skipped — it warns and records
-   like drift, and blocks under strict mode — since tampering may also leave
+   is treated as suspicious rather than silently skipped; it warns and records
+   like drift, and blocks under strict mode, since tampering may also leave
    the lock unreadable. Existing trust boundaries on project context,
    `<retrieved_context>`, and the skills catalog remain the safeguard for all
    other injected file-derived content.
@@ -84,8 +84,8 @@ paper's findings to Agenthood's existing surfaces:
      nominal payload
    - a `propagation` signal that flags an unusual frequency of a member sending
      near-identical message content to other members/artifacts within a window
-   These are additive, non-blocking alerts — same cooldown/escalation model the
-   detector already uses — never hard gates.
+   These are additive, non-blocking alerts: same cooldown/escalation model the
+   detector already uses: never hard gates.
 
 5. **Documentation of the threat model.** Issue #460 records the full-stack
    threat model (internal + integration + provider surfaces) and this ADR
@@ -98,8 +98,8 @@ paper's findings to Agenthood's existing surfaces:
 |--------|------|------|-------------|
 | Do nothing | Zero cost | Real, demonstrated risk as agent interconnection grows; no mitigation baseline | Unacceptable |
 | System prompt warning only | Simple, paper-supported, near-total immunity for the dominant vector | Doesn't cover delegation boundary, persistence vectors, or monitoring | Chosen as the primary layer, insufficient alone |
-| Context wiping by default | Appears isolationist | Paper shows wiping is the attack environment, not a mitigation; breaks shared memory | Rejected — based on an inverted reading of the paper |
-| Monitoring only, no prompt change | Cheap, non-invasive | Detects after the fact; immune warning is nearly free | Inverted importance — prevention is cheapest |
+| Context wiping by default | Appears isolationist | Paper shows wiping is the attack environment, not a mitigation; breaks shared memory | Rejected: based on an inverted reading of the paper |
+| Monitoring only, no prompt change | Cheap, non-invasive | Detects after the fact; immune warning is nearly free | Inverted importance: prevention is cheapest |
 | Third-party agent quarantine (sandboxing external agents) | Isolates provider-level risk | Out of Agenthood's control; provider SDKs are trusted infrastructure today | Deferred; documented in spec's open questions |
 
 ## Consequences
@@ -109,7 +109,7 @@ paper's findings to Agenthood's existing surfaces:
   persistence vector) at the moment it matters; the detector can surface
   viral-persona/propagation patterns without new infrastructure.
 - **Harder:** the integrity check must distinguish legitimate skill edits from
-  a compromise — hence warn-by-default with strict opt-in; monitoring signals
+  a compromise, hence warn-by-default with strict opt-in; monitoring signals
   require tuning to avoid false positives; the delegated subagent prompt
   becomes a third place the boundary label lives (must be kept consistent with
   `memberLore.ts`).
@@ -122,10 +122,10 @@ paper's findings to Agenthood's existing surfaces:
 
 ## References
 
-- Issue #460 — study mind virus defense for multi-agent propagation
+- Issue #460: study mind virus defense for multi-agent propagation
 - Papadopoulos et al., arXiv:2608.10218 (Aug 2026)
-- `src/members/MemberAgent.ts` — system prompt assembly
-- `src/tools/core/SubagentTaskSkill.ts` — delegation trust boundary
-- `src/agents/memberLore.ts` — trust-boundary helpers and guard text
-- `src/core/AnomalyDetector.ts` — anomaly detection hooks
+- `src/members/MemberAgent.ts`: system prompt assembly
+- `src/tools/core/SubagentTaskSkill.ts`: delegation trust boundary
+- `src/agents/memberLore.ts`: trust-boundary helpers and guard text
+- `src/core/AnomalyDetector.ts`: anomaly detection hooks
 - ADR-015 (decision intelligence and provenance), ADR-018 (redaction scope)

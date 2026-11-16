@@ -8,7 +8,7 @@ export interface AskHumanPayload {
   context?: string
 }
 
-// Model output is untrusted input to the human room — cap it so a runaway
+// Model output is untrusted input to the human room: cap it so a runaway
 // or injected prompt cannot flood the interface. Enforced by the schema on
 // the ReActLoop path and re-checked in execute() for direct invocations.
 export const ASK_HUMAN_MAX_QUESTION_LENGTH = 4000

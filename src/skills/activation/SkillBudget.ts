@@ -5,7 +5,7 @@ import { DEFAULT_CONTEXT_WINDOW } from '../../llm/providers/constants.ts'
 export const SKILL_BUDGET_RATIO = 0.8
 
 const PROCESS_HEADING = /^##\s+process\s*$/i
-/** Level-2 heading — the section boundary. `###` is a subsection, not a boundary. */
+/** Level-2 heading: the section boundary. `###` is a subsection, not a boundary. */
 const SECTION_HEADING = /^##\s+[^#]/
 const ANY_HEADING = /^#{1,6}\s/
 /** A step, as opposed to the prose elaborating it. */
@@ -16,7 +16,7 @@ const COMPRESSED_NOTICE =
   '<!-- skill-budget: ## Process reduced to headings and first lines. Re-read SKILL.md for the full steps. -->'
 
 const STRIPPED_NOTICE =
-  '<!-- skill-budget: ## Process dropped — the context budget is exhausted. Re-read SKILL.md before acting. -->'
+  '<!-- skill-budget: ## Process dropped; the context budget is exhausted. Re-read SKILL.md before acting. -->'
 
 const CLAMP_NOTICE =
   '<!-- skill-budget: body clamped to the remaining budget. Re-read SKILL.md before acting. -->'
@@ -33,8 +33,8 @@ function tidy(lines: string[]): string {
  * the member applies and when to stop. `## Process` holds 60-84% of these
  * members' lines and is the part the model can re-read from disk.
  *
- * Inside Process the step skeleton survives — subsection headings, numbered and
- * bulleted steps, bold labels — and the prose wrapped around them does not.
+ * Inside Process the step skeleton survives: subsection headings, numbered and
+ * bulleted steps, bold labels, and the prose wrapped around them does not.
  */
 export function compressSkillBody(body: string): string {
   const out: string[] = []

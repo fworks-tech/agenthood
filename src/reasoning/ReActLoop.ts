@@ -270,7 +270,7 @@ export class ReActLoop {
       completionTokens,
       totalTokens: promptTokens + completionTokens,
       costUsd: stepCost,
-      // Charge this step to the skills its tool results activated (#624) —
+      // Charge this step to the skills its tool results activated (#624),
       // the tokens spent on the next prompt are what the skill cost.
       skills: this.stepActivatedSkills(),
     }, context.project.localPath)
@@ -470,7 +470,7 @@ export class ReActLoop {
   private async confirmToolCall(toolCall: ToolCall, step: number, context: ExecutionContext): Promise<boolean> {
     const argsSummary = JSON.stringify(toolCall.args ?? {})
     const truncated = argsSummary.length > 200 ? argsSummary.slice(0, 200) + '...' : argsSummary
-    console.log(`\n  ┌─ Step ${step} — Tool call ─────────────────────────────`)
+    console.log(`\n  ┌─ Step ${step}, Tool call ─────────────────────────────`)
     console.log(`  │ Tool: ${toolCall.name}`)
     console.log(`  │ Args: ${truncated}`)
     console.log(`  └──────────────────────────────────────────────────────`)

@@ -3,7 +3,7 @@
  *
  * `/name` force-activates a skill before the model sees the task; `/name off`
  * disables it for this run. Only a leading run of slash tokens is treated as
- * activation syntax — a `/` inside a sentence stays prose, and an unknown name is
+ * activation syntax: a `/` inside a sentence stays prose, and an unknown name is
  * left in place with a warning rather than silently swallowed.
  */
 
@@ -13,7 +13,7 @@ export interface SlashActivation {
   activate: string[]
   /** Skills the user turned off for this run. */
   deactivate: string[]
-  /** Slash tokens that named nothing — stripped from the task and reported. */
+  /** Slash tokens that named nothing: stripped from the task and reported. */
   unknown: string[]
 }
 
@@ -70,7 +70,7 @@ export async function applySlashActivations(
   const explicitSkills: string[] = []
 
   for (const name of parsed.unknown) {
-    console.warn(`[skills] /${name} matches no discovered skill — ignored`)
+    console.warn(`[skills] /${name} matches no discovered skill, ignored`)
   }
   for (const name of parsed.activate) {
     const result = await activate(name)
@@ -78,7 +78,7 @@ export async function applySlashActivations(
     else if (result) console.warn(`[skills] /${name}: ${result.error}`)
   }
   for (const name of parsed.deactivate) {
-    console.warn(`[skills] /${name} off — the skill will not activate in this run`)
+    console.warn(`[skills] /${name} off, the skill will not activate in this run`)
   }
 
   const changed = parsed.activate.length + parsed.deactivate.length + parsed.unknown.length > 0

@@ -51,7 +51,7 @@ import type { CheckpointStore } from '../checkpoint/RunCheckpoint.ts'
 import { connectVectorStore, discoverSkills, loadSocietyGraph } from './contextSetup.ts'
 import { loadRepoInstructions } from './repoInstructions.ts'
 
-/** Composition root for `agenthood run` — commands consume one of these. */
+/** Composition root for `agenthood run`: commands consume one of these. */
 export interface ApplicationContextOptions {
   societyGraph: KnowledgeGraphStore
   vectorStore: LanceDBStore

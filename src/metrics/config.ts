@@ -13,7 +13,7 @@ export interface MetricsExportConfig {
 export const DISABLED_METRICS_EXPORT: MetricsExportConfig = { type: 'none', port: 9464, host: '127.0.0.1' }
 
 /** Resolves `metricsExport` from `.agenthood/config.json`. An unknown type is
- *  a user error, not a silent no-op — a metrics export you think is on but
+ *  a user error, not a silent no-op: a metrics export you think is on but
  *  is not is worse than a refusal. */
 export function loadMetricsExportConfig(cwd: string): MetricsExportConfig {
   const configPath = join(cwd, '.agenthood', 'config.json')
@@ -39,7 +39,7 @@ export function loadMetricsExportConfig(cwd: string): MetricsExportConfig {
 }
 
 /** Pushes a snapshot when StatsD export is enabled. No-op otherwise, and
- *  never throws — export must not be able to fail a member run. */
+ *  never throws: export must not be able to fail a member run. */
 export function exportIfConfigured(cwd: string): void {
   try {
     const config = loadMetricsExportConfig(cwd)

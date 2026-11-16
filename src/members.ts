@@ -2,7 +2,7 @@
  * src/members.ts
  *
  * Single source of truth for all Society members and runtime detection.
- * Every command imports from here — never define these lists again.
+ * Every command imports from here: never define these lists again.
  *
  * Member specs (tools, permissions, providers) are maintained in MemberRegistry
  * at `src/members/MemberRegistry.ts`, derived from the docs/architecture docs.
@@ -51,7 +51,7 @@ export function resolveSocietyMembersDir(): string {
   return MEMBERS_DIR
 }
 
-/** Member SKILL.md as a cwd-relative POSIX path — `git show <rev>:<path>`
+/** Member SKILL.md as a cwd-relative POSIX path: `git show <rev>:<path>`
  *  needs forward slashes, and rollback/diff run git with { cwd }. */
 export function memberSkillPath(cwd: string, member: string): string {
   return relative(cwd, join(MEMBERS_DIR, member, 'SKILL.md')).split(sep).join('/')
@@ -63,11 +63,11 @@ export function memberResourcePath(cwd: string, member: string, resource: string
   return relative(cwd, join(MEMBERS_DIR, member, ...resource.split('/'))).split(sep).join('/')
 }
 
-/** Member names are refs into git pathspecs and filesystem paths — hostile
+/** Member names are refs into git pathspecs and filesystem paths: hostile
  * values could otherwise inject shell commands (see rollback/verify) */
 export const MEMBER_NAME_RE = /^[a-z0-9][a-z0-9_-]*$/
 
-/** Single source of truth for where each runtime's member skills live —
+/** Single source of truth for where each runtime's member skills live,
  * consumed by init (installSkills/planPaths) and eject (cleanup). */
 export const RUNTIME_SKILL_DIRS: Record<Runtime, string> = {
   'claude-code': '.claude/skills',
@@ -78,7 +78,7 @@ export const RUNTIME_SKILL_DIRS: Record<Runtime, string> = {
 
 export type Runtime = 'claude-code' | 'copilot' | 'gemini-cli' | 'other'
 
-/** Additional cross-client targets — each maps to a directory or file
+/** Additional cross-client targets: each maps to a directory or file
  *  that init creates alongside the primary runtime skills dir. */
 export const TARGET_DIRS: Record<string, string> = {
   cursor: '.cursor/rules',

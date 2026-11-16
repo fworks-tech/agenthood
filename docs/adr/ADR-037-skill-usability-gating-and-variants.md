@@ -22,10 +22,10 @@ rendered.
 `gateSkills(manifests, availability)` is a pure function in
 `src/skills/discovery/gating.ts`. It returns:
 
-- `active` — usable here, catalogued and activatable;
-- `blocked` — `Map<name, reason>`; out of the catalog and refused by `activate_skill`
+- `active`: usable here, catalogued and activatable;
+- `blocked`: `Map<name, reason>`; out of the catalog and refused by `activate_skill`
   with that reason;
-- `warnings` — `Map<name, string[]>`; optional gaps that do not block activation.
+- `warnings`: `Map<name, string[]>`; optional gaps that do not block activation.
 
 Availability is injected: `{ provider, model, contextWindow, tools, skills }`. No filter
 reads the environment. Tests pass a literal.
@@ -41,7 +41,7 @@ model-targets:
   provider: anthropic          # string or list; case-insensitive exact match
   family: claude               # substring of the model id
   min-tokens: 200000
-  exclude: [haiku, gpt-4o-mini] # substring match — blocked even if family matches
+  exclude: [haiku, gpt-4o-mini] # substring match: blocked even if family matches
 requires:
   tools: [bash, mcp.github]    # required; unmet = blocked
   optional-tools: [jq]         # unmet = warning only
@@ -55,8 +55,8 @@ metadata:
     haiku: references/compact.md
 ```
 
-- `compatibility` stays prose. One pattern is read from it — `<n>K+ context` or
-  `<n> token context` — and only as a fallback when no structured context requirement
+- `compatibility` stays prose. One pattern is read from it: `<n>K+ context` or
+  `<n> token context`, and only as a fallback when no structured context requirement
   exists. Parsing English for the rest would be a guess dressed as a rule.
 - A tool requirement matches the session tool list by exact name. An `mcp.` prefix
   matches any registered tool under it (`mcp.github` matches `mcp.github.create_issue`).
@@ -77,7 +77,7 @@ prose. A skill with no requirements is always active. Contradictory declarations
 
 `metadata.variants` maps a model-id fragment to a markdown file. Selection takes the
 longest matching fragment (`claude-opus-4` beats `opus`). The chosen file is resolved
-under the skill directory — the same boundary as every other reference (#542) — and
+under the skill directory, the same boundary as every other reference (#542), and
 missing or escaping targets fall back to the default body with a warning. Variants
 replace the instructions only; frontmatter-driven behaviour is unchanged.
 
@@ -101,7 +101,7 @@ User scope resolves, in order:
 
 The first directory wins; later ones remain readable so an existing install keeps
 working. On Windows, where XDG does not apply, `~/.agents/skills` stays the user scope.
-Configuration is project-scoped and unchanged — only skill *data* moves.
+Configuration is project-scoped and unchanged: only skill *data* moves.
 
 ## Consequences
 

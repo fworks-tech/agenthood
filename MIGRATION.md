@@ -31,7 +31,7 @@ the calls:
 - context.tracer.endSpan(this.role, { output });
 ```
 
-There is no replacement — the trace envelope written by `record()` is the record.
+There is no replacement: the trace envelope written by `record()` is the record.
 
 ### 2. A skill's `allowed-tools` is enforced
 
@@ -52,7 +52,7 @@ allowed-tools: file.read file.search ask_human
 
 Rules:
 
-- Declared tools are intersected with the member's permission profile — a skill
+- Declared tools are intersected with the member's permission profile: a skill
   can narrow access, never widen it.
 - When several skills are active, their declarations intersect: the most
   restrictive declaration wins, and a permissive skill cannot re-open a tool a
@@ -106,7 +106,7 @@ enforced by the CLI runner.
 A skill that invokes another skill calls `activate_skill`; the activation block
 is tagged `<skill_directives>` and survives compaction, so the invoking skill
 resumes with its instructions. Set `compaction-replay: false` for instructions
-that must not be replayed — compaction may summarise the body, and the next
+that must not be replayed: compaction may summarise the body, and the next
 activation re-injects it instead of returning an "already active" pointer.
 
 Compaction now finds the activation marker inside the live `<tool_output>`
@@ -118,7 +118,7 @@ a real run.
 `delegate_task` accepts `skill` and `isolation` (`shared` default, `full`). A
 skill name must resolve through discovery; `full` partitions the subagent's
 artifacts and activated-skill scope and restores the caller's afterwards. Both
-fields are optional — existing delegation calls behave as before.
+fields are optional: existing delegation calls behave as before.
 
 ### New: multimodal providers and generation tools
 
@@ -140,7 +140,7 @@ shape is fixed and the implementation is absent rather than faked.
 ### New: skill observability
 
 Skills now report what they cost and whether they still work, from data the
-project already keeps — the discovered manifests, `.agenthood/skill-stats.json`
+project already keeps: the discovered manifests, `.agenthood/skill-stats.json`
 and the trajectory store.
 
 - `agenthood status` ends with the context budget: catalog tokens (paid on every
@@ -189,7 +189,7 @@ replaces the member role or safety guards.
 `metadata.version` (semver) and `license` are required on every member;
 `verify` fails without them. `compatibility`, `hidden`, `router`,
 `disable-model-invocation`, `metadata.priority`, `metadata.conditions` and
-`fallback` are optional. `metadata` itself is free-form — nested maps, lists and
+`fallback` are optional. `metadata` itself is free-form: nested maps, lists and
 booleans all survive.
 
 ```yaml
@@ -223,7 +223,7 @@ empty.
 `disable-model-invocation: true`, `hidden: true` and `skills.disabled` in config
 keep a skill out of the catalog without deleting it; `agenthood skills
 --show-disabled` reports what is hidden and why. A config-disabled skill is also
-refused by the tool. Catalog order is `metadata.priority` (0–100) descending,
+refused by the tool. Catalog order is `metadata.priority` (0-100) descending,
 then description length, then name.
 
 ```yaml
@@ -241,7 +241,7 @@ fallback: code-review
 `activate_skill` now authorizes a second tool: `run_skill_script`. It runs a script
 shipped under an activated skill's directory (or a version-pinned one-off command
 such as `uvx ruff@0.8.0 check .`) with stdin closed, a timeout
-(`skills.scriptTimeoutMs`, default 120000), and output capped at 30 KB — the rest
+(`skills.scriptTimeoutMs`, default 120000), and output capped at 30 KB: the rest
 goes to `.agenthood/skill-output/<executionId>/` and is read back with `page`.
 
 Runtime choice is by extension, then shebang: PEP 723 block → `uv run`, `npm:`
@@ -307,7 +307,7 @@ On Linux and macOS, user-scope skills resolve in this order, first match winning
 3. `~/.agents/skills` (legacy, still read)
 
 On Windows the legacy `~/.agents/skills` stays the only user scope. Project
-scopes and configuration are unchanged — only skill data moves.
+scopes and configuration are unchanged: only skill data moves.
 
 ### New: skill discovery and script output caching
 
@@ -317,7 +317,7 @@ match, a miss re-parses, and entries for deleted skills are dropped. Rewriting a
 file and restoring its original mtime is the one case a cached entry can be
 stale; `agenthood cache clear` covers it. `agenthood skills --stats` prints the
 scan counters (directories, skills, cache hits, duration) and says when the
-2000-directory cap stopped a scan. `.gitignore` patterns are not parsed — the
+2000-directory cap stopped a scan. `.gitignore` patterns are not parsed: the
 built-in skip list covers `.git`, `node_modules`, `.venv`, `__pycache__`,
 `.tox`, `vendor`, `target` and similar build/cache directories.
 
@@ -349,7 +349,7 @@ decides which copy a run uses.
 
 Publishing now requires a namespace: `metadata.author` is the `owner` in
 `owner/name`, so a registry key no longer collides with an unrelated skill of
-the same name. Local names and directories do not change — a slash is not a
+the same name. Local names and directories do not change: a slash is not a
 portable directory name.
 
 ```bash

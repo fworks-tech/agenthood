@@ -17,8 +17,8 @@ on a different model than configured is a reproducibility problem, not a cost op
 ## Decision
 
 **Static routing is the default and the only path a user has to opt out of.** With
-`routing.strategy` absent or `static`, the configured provider — or the member's preferred provider
-when none is configured — runs every step. Nothing changes under the user's feet.
+`routing.strategy` absent or `static`, the configured provider, or the member's preferred provider
+when none is configured: runs every step. Nothing changes under the user's feet.
 
 **Dynamic routing is opt-in** (`routing.strategy: "dynamic"`), and scores each request into a tier:
 
@@ -61,6 +61,6 @@ text parts. That guard is unconditional and is not a routing decision.
 ## References
 
 - `src/llm/LLMRouter.ts` (`route`, `ComplexityScorer`, `multimodal`), `src/llm/IMultimodalProvider.ts`
-- [ADR-027](ADR-027-provider-failover.md) — chain, circuit breaker, per-request timeout
-- [ADR-035](ADR-035-skill-namespaces-and-well-known-catalogs.md) — endpoint-keyed catalog caching
+- [ADR-027](ADR-027-provider-failover.md): chain, circuit breaker, per-request timeout
+- [ADR-035](ADR-035-skill-namespaces-and-well-known-catalogs.md): endpoint-keyed catalog caching
 - `docs/architecture/provider-failover.md`, `docs/guides/adding-a-provider.md`

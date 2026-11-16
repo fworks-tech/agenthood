@@ -1,7 +1,7 @@
 /**
  * Script interface lint (#540, #547, #548). These are warnings in `verify
  * --scripts`, not runtime refusals: static analysis cannot prove a shell script
- * never prompts. The runtime enforces what it can — closed stdin, a timeout,
+ * never prompts. The runtime enforces what it can: closed stdin, a timeout,
  * and a non-zero exit surfaced as an error.
  */
 
@@ -46,15 +46,15 @@ export function lintScript(script: string, source: string, options: LintOptions 
   const add = (rule: string, message: string) => findings.push({ script, rule, message })
 
   if (STDIN_PATTERNS.some((re) => re.test(source)) && !REPL_MARKER.test(source)) {
-    add('stdin', 'reads stdin, but an agent run has stdin closed — pass a value as an argument instead')
+    add('stdin', 'reads stdin, but an agent run has stdin closed, pass a value as an argument instead')
   }
 
   if (ARG_PARSER.test(source) && !AUTO_HELP.test(source) && !/--help\b/.test(source)) {
-    add('help', 'declares arguments but has no --help output — the model cannot discover its interface')
+    add('help', 'declares arguments but has no --help output, the model cannot discover its interface')
   }
 
   if (options.outputFormat === 'json' && !JSON_WRITER.test(source)) {
-    add('output', `skill declares output_format: json but the script does not emit JSON — ${ERROR_TEMPLATES.usage}`)
+    add('output', `skill declares output_format: json but the script does not emit JSON, ${ERROR_TEMPLATES.usage}`)
   }
 
   for (const match of source.matchAll(EXIT_CODE)) {
@@ -64,7 +64,7 @@ export function lintScript(script: string, source: string, options: LintOptions 
   }
 
   if (DESTRUCTIVE.test(source) && !/--dry-run/.test(source)) {
-    add('dry-run', `has a destructive branch but no --dry-run — ${ERROR_TEMPLATES.dryRun}`)
+    add('dry-run', `has a destructive branch but no --dry-run, ${ERROR_TEMPLATES.dryRun}`)
   }
 
   const lines = source.split('\n')
@@ -72,7 +72,7 @@ export function lintScript(script: string, source: string, options: LintOptions 
     if (!/\bexit\s+1\b/.test(line) || EXIT_MESSAGE.test(line)) return
     const neighbours = lines.slice(Math.max(0, index - 2), index).join('\n')
     if (EXIT_MESSAGE.test(neighbours)) return
-    add('error-message', `exit 1 with no message — ${ERROR_TEMPLATES.invalidInput}`)
+    add('error-message', `exit 1 with no message, ${ERROR_TEMPLATES.invalidInput}`)
   })
 
   return findings

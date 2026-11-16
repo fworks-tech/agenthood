@@ -1,6 +1,6 @@
 ---
 name: pull-request-assistant
-description: Composite of scribe and reviewer for pull requests. Generates comprehensive pull request descriptions and conducts structured code reviews with security, performance, testing, and documentation focus areas. Use when opening a PR or reviewing one before merge.
+description: Composite of scribe and reviewer for pull requests. Generates thorough pull request descriptions and conducts structured code reviews with security, performance, testing, and documentation focus areas. Use when opening a PR or reviewing one before merge.
 license: MIT
 ---
 
@@ -8,7 +8,7 @@ license: MIT
 
 ## Overview
 
-The Pull Request Assistant makes every PR self-documenting and every review constructive. Descriptions get what/why/testing/breaking-changes sections; reviews get security, performance, testing, and documentation passes; feedback is specific, actionable, and formatted so the team improves together. A PR is a contract between the author and the reviewers — the Assistant drafts it well and enforces it fairly.
+The Pull Request Assistant makes every PR self-documenting and every review constructive. Descriptions get what/why/testing/breaking-changes sections; reviews get security, performance, testing, and documentation passes; feedback is specific, actionable, and formatted so the team improves together. A PR is a contract between the author and the reviewers: the Assistant drafts it well and enforces it fairly.
 
 ## When to Use
 
@@ -33,10 +33,10 @@ Every comment carries a label: 🔒 security concern, ⚡ performance, 🧹 clea
 A description uses the same four sections every time: **What changed**, **Why**, **Testing**, **Breaking Changes**. A reader should be able to answer "did this break anything?" from those sections alone.
 
 ### 2. Write the PR Description
-**What changed** — clear summary of modifications and affected components; link to related issues or tickets
-**Why** — business context and requirements; technical reasoning for the approach taken
-**Testing** — unit tests pass and cover new functionality; manual testing completed for user-facing changes; performance/security considerations addressed
-**Breaking Changes** — list any API changes or behavioral modifications; include migration instructions if needed
+**What changed**: clear summary of modifications and affected components; link to related issues or tickets
+**Why**: business context and requirements; technical reasoning for the approach taken
+**Testing**: unit tests pass and cover new functionality; manual testing completed for user-facing changes; performance/security considerations addressed
+**Breaking Changes**: list any API changes or behavioral modifications; include migration instructions if needed
 
 ### 3. Review Focus Areas
 - **Security**: hardcoded secrets, input validation, auth issues
@@ -60,14 +60,14 @@ A description uses the same four sections every time: **What changed**, **Why**,
 - [ ] Documentation updates completed
 
 ### 6. Run the Review Passes
-**Security review** — input validation vulnerabilities, authentication and authorization implementation, secure data handling and storage, hardcoded secrets or configuration issues, error handling that could leak information
-**Performance analysis** — algorithmic complexity and efficiency, database query optimization opportunities, memory leaks or resource issues, caching strategies and network call efficiency, scalability bottlenecks
-**Code quality** — readable, maintainable structure; adherence to team standards and style guides; function size, complexity, and single responsibility; naming conventions and code organization; error handling and logging practices
+**Security review**: input validation vulnerabilities, authentication and authorization implementation, secure data handling and storage, hardcoded secrets or configuration issues, error handling that could leak information
+**Performance analysis**: algorithmic complexity and efficiency, database query optimization opportunities, memory leaks or resource issues, caching strategies and network call efficiency, scalability bottlenecks
+**Code quality**: readable, maintainable structure; adherence to team standards and style guides; function size, complexity, and single responsibility; naming conventions and code organization; error handling and logging practices
 
 
 ## Red Flags
 
-- A PR description with no "why" — reviewers must guess the intent
+- A PR description with no "why": reviewers must guess the intent
 - Reviews that only praise or only criticize
 - Feedback without a concrete suggestion or example
 - Missing deployment checklist on changes that need migrations or env vars

@@ -1,11 +1,11 @@
 #!/usr/bin/env node
 /**
- * Agenthood CLI — npx agenthood <command>
+ * Agenthood CLI: npx agenthood <command>
  *
  * The Society's command-line interface. Entry point for all
  * initiation, activation, and health check operations.
  *
- * Commands are auto-discovered from ./commands/ — each command file exports
+ * Commands are auto-discovered from ./commands/: each command file exports
  * a `command` CommandDescriptor (name, handler, aliases). Adding a command
  * means adding a file, not touching this one.
  */
@@ -60,7 +60,7 @@ async function main(): Promise<void> {
 }
 
 const HELP_TEXT = `
-🏛️  Agenthood — The Society's CLI
+🏛️  Agenthood. The Society's CLI
 
 Usage:
   npx agenthood <command>
@@ -150,7 +150,7 @@ function printHelp(): void {
 }
 
 // Direct-execution guard: opencode loads the package root as a plugin, and
-// tests or bundlers may import this module — importing must never run the CLI
+// tests or bundlers may import this module: importing must never run the CLI
 // (it would dump help text and exit the host process). Only auto-run when this
 // file is the invoked script. Both sides go through realpathSync so bin shims,
 // symlinks, and case-variant paths still match; unresolvable paths mean import.
@@ -163,6 +163,6 @@ if (invokedScript != null) {
       });
     }
   } catch {
-    // ignore — importing must never run the CLI
+    // ignore: importing must never run the CLI
   }
 }

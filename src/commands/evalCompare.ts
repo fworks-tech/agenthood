@@ -94,7 +94,7 @@ function truncate(text: string, max: number): string {
 
 function printComparison(result: ABComparisonResult): void {
   const { memberA, memberB, suiteName, taskCount, metrics, aggregateA, aggregateB, taskScores, winner, significance } = result
-  console.log(`\n  A/B Comparison — ${memberA} (A) vs ${memberB} (B)`)
+  console.log(`\n  A/B Comparison, ${memberA} (A) vs ${memberB} (B)`)
   console.log(`  Suite: ${suiteName} | Tasks: ${taskCount} | Metrics: ${metrics.join(', ')}\n`)
 
   const shortLabels: Record<string, string> = { clarity: 'cl', completeness: 'co', accuracy: 'ac' }

@@ -31,7 +31,7 @@ export function reportScriptLint(membersDir: string): void {
     console.log('  \u2713 Skill scripts: no interface warnings')
     return
   }
-  console.log(`  ! Skill scripts: ${findings.length} warning(s) — advisory, not a failure`)
+  console.log(`  ! Skill scripts: ${findings.length} warning(s); advisory, not a failure`)
   for (const finding of findings) {
     console.log(`      - ${finding.script}: [${finding.rule}] ${finding.message}`)
   }
@@ -96,7 +96,7 @@ function dependencyCycles(skills: Declared[], byName: Map<string, Declared>): st
 
 /**
  * Checks requirement declarations against the skill set and the filesystem.
- * Returns false when a cycle exists — everything else is a warning, because a
+ * Returns false when a cycle exists: everything else is a warning, because a
  * missing tool may be supplied by an MCP server the operator has not started.
  */
 export function reportSkillRequirements(membersDir: string): boolean {
@@ -129,7 +129,7 @@ export function reportSkillRequirements(membersDir: string): boolean {
   if (warnings.length === 0) {
     console.log('  \u2713 Skill requirements: no unresolved declarations')
   } else {
-    console.log(`  ! Skill requirements: ${warnings.length} warning(s) — advisory, not a failure`)
+    console.log(`  ! Skill requirements: ${warnings.length} warning(s); advisory, not a failure`)
     for (const warning of warnings) console.log(`      - ${warning}`)
   }
   return cycles.length === 0
@@ -148,7 +148,7 @@ function parseTokenBudget(frontmatter: Record<string, unknown> | null): number |
  * Per-body token counts against the 5000-token guidance (#615) plus the
  * always-loaded catalog against its budget (#586). Advisory: an over-budget
  * body still works, it just spends context the task needed. The suggestion is
- * the one that actually helps — move Process steps into references/ and
+ * the one that actually helps: move Process steps into references/ and
  * summarise them.
  */
 export function reportTokenBudgets(
@@ -185,7 +185,7 @@ export function reportTokenBudgets(
   console.log(
     metadata <= catalogBudget
       ? `  ✓ Skill catalog: ${metadata}/${catalogBudget} metadata tokens`
-      : `  ! Skill catalog: ${metadata} tokens > ${catalogBudget} — the catalog is in every prompt. Compress descriptions, or hide a skill with \`disable-model-invocation: true\``,
+      : `  ! Skill catalog: ${metadata} tokens > ${catalogBudget}; the catalog is in every prompt. Compress descriptions, or hide a skill with \`disable-model-invocation: true\``,
   )
 
   const total = rows.reduce((sum, row) => sum + row.tokens, 0)
@@ -194,9 +194,9 @@ export function reportTokenBudgets(
     console.log(`  ✓ Skill token budgets: ${rows.length} bod(ies) within budget (total ${total} tokens)`)
     return
   }
-  console.log(`  ! Skill token budgets: ${over.length} of ${rows.length} bod(ies) over budget — advisory, not a failure`)
+  console.log(`  ! Skill token budgets: ${over.length} of ${rows.length} bod(ies) over budget; advisory, not a failure`)
   for (const row of over.sort((a, b) => b.tokens - a.tokens)) {
-    console.log(`      - ${row.name}: ${row.tokens} tokens > ${row.budget} — move Process steps into references/ and summarise them`)
+    console.log(`      - ${row.name}: ${row.tokens} tokens > ${row.budget}, move Process steps into references/ and summarise them`)
   }
   console.log(`      Total across all skills: ${total} tokens`)
 }
@@ -239,7 +239,7 @@ export function reportDuplicates(roots: SkillRoot[]): void {
     console.log('  ✓ Skill locations: no duplicate names across roots')
     return
   }
-  console.log(`  ! Skill locations: ${duplicates.length} name(s) installed more than once — advisory, not a failure`)
+  console.log(`  ! Skill locations: ${duplicates.length} name(s) installed more than once; advisory, not a failure`)
   for (const [name, entries] of duplicates.sort(([a], [b]) => a.localeCompare(b))) {
     console.log(`      - ${name} (${entries.length} copies)`)
     for (const entry of entries) console.log(`          ${entry.directory} (${entry.scope})`)
@@ -267,11 +267,11 @@ export function reportContribSkills(projectPath: string): void {
     count++
     const { frontmatter } = parser.parseRaw(readFileSync(location, 'utf8'))
     if (!parseOwner(frontmatter)) {
-      problems.push(`${name}: missing metadata.author — the owner in owner/name`)
+      problems.push(`${name}: missing metadata.author, the owner in owner/name`)
     }
     const source = frontmatter?.source_url ?? frontmatter?.sourceUrl
     if (typeof source !== 'string' || !source.trim()) {
-      problems.push(`${name}: missing source_url — where this skill came from`)
+      problems.push(`${name}: missing source_url, where this skill came from`)
     }
   }
 
@@ -280,6 +280,6 @@ export function reportContribSkills(projectPath: string): void {
     console.log(`  ✓ Contrib skills: ${count} third-party skill(s) named and sourced`)
     return
   }
-  console.log(`  ⚠ Contrib skills: ${problems.length} problem(s) — advisory, not a failure`)
+  console.log(`  ⚠ Contrib skills: ${problems.length} problem(s); advisory, not a failure`)
   for (const problem of problems) console.log(`      - ${problem}`)
 }

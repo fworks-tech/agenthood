@@ -23,7 +23,7 @@ export function deniedBySkillScope(
       const key = `${skill}:${tool}`
       if (!warnedUnresolved.has(key)) {
         warnedUnresolved.add(key)
-        console.warn(`[skills] ${skill} declares "${tool}", which matches no registered tool — ignored`)
+        console.warn(`[skills] ${skill} declares "${tool}", which matches no registered tool, ignored`)
       }
       return false
     })

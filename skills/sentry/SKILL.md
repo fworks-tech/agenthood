@@ -30,7 +30,7 @@ Use the hosted Sentry MCP in OpenCode for triage; use `sentry-cli` for releases 
 
 ## MCP use (primary)
 
-Hosted endpoint `https://mcp.sentry.dev/mcp` via OAuth — see `docs/portals/sentry.md` for setup.
+Hosted endpoint `https://mcp.sentry.dev/mcp` via OAuth: see `docs/portals/sentry.md` for setup.
 
 - Find orgs/projects: `find_organizations`, `find_projects`
 - Triage: `search_issues` (filter by impact, time range; sort by impact), then `get_issue_details` for the full stack trace

@@ -99,7 +99,7 @@ export function parseReplayLimit(raw: string | undefined): number {
   const parsed = Number.parseInt(raw ?? '', 10)
   // 0 would disable the limit (slice(-0) === slice(0), unbounded replay)
   if (Number.isNaN(parsed) || parsed <= 0) {
-    failUsage('Invalid --limit value — expected a positive integer')
+    failUsage('Invalid --limit value, expected a positive integer')
   }
   return parsed
 }

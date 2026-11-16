@@ -3,7 +3,7 @@
  *
  * Self-setup for the Agenthood repo itself.
  * Activates .githooks/, sets core.hooksPath, and wires the commit template.
- * Replaces setup.sh — runs automatically via postinstall.
+ * Replaces setup.sh: runs automatically via postinstall.
  */
 
 import { chmodSync, readdirSync, existsSync } from 'node:fs'
@@ -24,7 +24,7 @@ export const command: CommandDescriptor = {
 
 export async function setup(): Promise<void> {
   console.log('\n┌─────────────────────────────────────────────────────────────┐')
-  console.log('│  Agenthood — Activating Enforcement Layer                   │')
+  console.log('│  Agenthood, Activating Enforcement Layer                   │')
   console.log('└─────────────────────────────────────────────────────────────┘\n')
 
   const steps: Array<[string, () => void]> = [
@@ -46,12 +46,12 @@ export async function setup(): Promise<void> {
   console.log('\n┌─────────────────────────────────────────────────────────────┐')
   console.log('│  Active Hooks                                               │')
   console.log('├─────────────────────────────────────────────────────────────┤')
-  console.log('│  commit-msg         The Doorman — commit message validation │')
-  console.log('│  pre-commit         The Doorman — block commits to main     │')
-  console.log('│                     The Auditor — secret scanning           │')
-  console.log('│                     The Warden  — file size warning         │')
-  console.log('│  prepare-commit-msg             — template injection        │')
-  console.log('│  pre-push           The Doorman — block push to main        │')
+  console.log('│  commit-msg         The Doorman, commit message validation │')
+  console.log('│  pre-commit         The Doorman, block commits to main     │')
+  console.log('│                     The Auditor, secret scanning           │')
+  console.log('│                     The Warden, file size warning         │')
+  console.log('│  prepare-commit-msg, template injection        │')
+  console.log('│  pre-push           The Doorman, block push to main        │')
   console.log('└─────────────────────────────────────────────────────────────┘\n')
 
   printProviderKeyStatus()
@@ -75,7 +75,7 @@ function printProviderKeyStatus(): void {
   for (const { envVar, signupUrl } of missing) {
     console.log(`     ${envVar.padEnd(20)} get a key at ${signupUrl}`)
   }
-  console.log('   Ollama needs no key — run `ollama serve` locally instead.\n')
+  console.log('   Ollama needs no key, run `ollama serve` locally instead.\n')
 }
 
 function activateHooksPath(): void {

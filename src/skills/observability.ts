@@ -2,7 +2,7 @@
  * Skill observability (#586, #597, #626, #627, #628).
  *
  * Four questions a project eventually asks about its skills, answered from the
- * data it already has — discovered manifests, the activation counters in
+ * data it already has: discovered manifests, the activation counters in
  * `.agenthood/skill-stats.json`, and the trajectory store:
  *
  *   what does it cost to keep loaded, does it still work, did it get slower,
@@ -75,7 +75,7 @@ export interface SkillHealthProblem {
 /**
  * Per-skill health (#597): a body that points at files that are gone, a name
  * that disagrees with its directory, a manifest discovery let through with no
- * description. Missing references are a warning — a script may create them.
+ * description. Missing references are a warning: a script may create them.
  */
 export function skillHealth(manifests: ISkillManifest[]): SkillHealthProblem[] {
   const problems: SkillHealthProblem[] = []
@@ -84,7 +84,7 @@ export function skillHealth(manifests: ISkillManifest[]): SkillHealthProblem[] {
       problems.push({
         skill: manifest.name,
         level: 'error',
-        message: 'no description — the catalog cannot tell the model when to use it',
+        message: 'no description; the catalog cannot tell the model when to use it',
         fix: 'Add a description that front-loads the trigger keywords.',
       })
     }
@@ -92,7 +92,7 @@ export function skillHealth(manifests: ISkillManifest[]): SkillHealthProblem[] {
       problems.push({
         skill: manifest.name,
         level: 'error',
-        message: 'empty body — activating it adds nothing to the prompt',
+        message: 'empty body; activating it adds nothing to the prompt',
         fix: 'Write the Process section, or remove the skill.',
       })
     }
@@ -251,7 +251,7 @@ export function costSuggestions(rows: SkillUsageRow[]): CostSuggestion[] {
         skill: row.name,
         metadataTokens: row.metadataTokens,
         activations: 0,
-        suggestion: 'never activated — remove it, or set `disable-model-invocation: true` to keep it out of the catalog',
+        suggestion: 'never activated; remove it, or set `disable-model-invocation: true` to keep it out of the catalog',
       })
       continue
     }
@@ -260,7 +260,7 @@ export function costSuggestions(rows: SkillUsageRow[]): CostSuggestion[] {
         skill: row.name,
         metadataTokens: row.metadataTokens,
         activations: row.activations,
-        suggestion: 'rarely activated and a large catalog entry — compress the description and move detail into the body',
+        suggestion: 'rarely activated and a large catalog entry; compress the description and move detail into the body',
       })
     }
   }

@@ -41,4 +41,4 @@ or merges, so it does not claim to enforce them.
 - A host can compose a workflow without writing TypeScript.
 - Malformed chains fail closed with the file and index named.
 - A chain that blocks costs the round, not the run; `max_rounds` caps the retry.
-- Chain runs are as expensive as the members involved — there is no dry run.
+- Chain runs are as expensive as the members involved; there is no dry run.

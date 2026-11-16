@@ -33,11 +33,19 @@ export async function resolveInsideProject(
   }
   if (home !== projectRoot) console.log(`[skills] read allowed under activated skill: ${target}`)
 
+  // Compare real paths on both sides: Windows 8.3 short names (RUNNER~1) resolve
+  // to the long form, which would otherwise look like an escape.
+  let realHome = home
+  try {
+    realHome = await realpath(home)
+  } catch {
+    // home may not exist yet; keep the lexical form
+  }
   try {
     // realpath resolves every component, so a symlinked directory (docs -> /etc)
     // is caught too, not just a symlinked file.
     const real = await realpath(target)
-    if (escapes(home, real)) {
+    if (escapes(realHome, real)) {
       return { ok: false, error: `Symlink traversal denied: "${path}" -> "${real}"` }
     }
   } catch {

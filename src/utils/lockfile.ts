@@ -1,5 +1,6 @@
-import { existsSync, readFileSync, writeFileSync } from 'node:fs'
+import { existsSync, readFileSync } from 'node:fs'
 import { join } from 'node:path'
+import { writeFileAtomic } from './atomicWrite.ts'
 import { collectResourceHashes } from './skillIntegrity.ts'
 import { contentHash } from './hash.ts'
 import { SkillParser, parseSkillVersion } from '../skills/discovery/SkillParser.ts'
@@ -39,7 +40,16 @@ export function loadLockfile(cwd: string): Lockfile | undefined {
  */
 export function updateLockfile(cwd: string, membersDir: string, members: string[]): void {
   const lockPath = join(cwd, 'agenthood.lock')
-  const existing = loadLockfile(cwd)
+  // An unreadable lock is not an absent one: rebuilding from the named subset
+  // would drop every other member and silently disable the integrity gate.
+  let existing: Lockfile | undefined
+  if (existsSync(lockPath)) {
+    try {
+      existing = JSON.parse(readFileSync(lockPath, 'utf8')) as Lockfile
+    } catch {
+      throw new Error(`agenthood.lock is not valid JSON, refusing to overwrite it: ${lockPath}`)
+    }
+  }
   const next: Record<string, LockfileMember> = { ...(existing?.members ?? {}) }
   const now = new Date().toISOString()
   let changed = 0
@@ -62,6 +72,6 @@ export function updateLockfile(cwd: string, membersDir: string, members: string[
     if (!prev || prev.version !== hash || resourcesChanged) changed++
   }
   const lock = { version: 1, members: Object.fromEntries(Object.keys(next).sort().map((k) => [k, next[k]])) }
-  writeFileSync(lockPath, JSON.stringify(lock, null, 2) + '\n', 'utf8')
+  writeFileAtomic(lockPath, JSON.stringify(lock, null, 2) + '\n')
   console.log(`\n  Lockfile updated (${changed} member(s) re-locked) → ${lockPath}`)
 }

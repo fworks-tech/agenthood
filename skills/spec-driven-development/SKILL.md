@@ -47,7 +47,7 @@ Produce a spec in this structure:
 One paragraph. What user pain or system gap does this address?
 
 ## Proposed Solution
-The approach: not the code. What will be built and how it fits the system.
+The approach, not the code. What will be built and how it fits the system.
 
 ## Out of Scope
 Explicit list of what this does NOT cover.

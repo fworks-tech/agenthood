@@ -158,8 +158,8 @@ truncated, and the user who ran it. Audit logging is not optional under `--sandb
 Activating a skill records its directory in the run's allowlist. Path-based tools
 accept paths under an active skill directory without a confirmation prompt, for the
 lifetime of the run, and each accepted path is logged. `security.autoAllowSkillDirs:
-false` disables it. It never widens the network or shell surface: only read access
-to files the skill already ships.
+false` disables it. It never widens the network or shell surface; it grants only read
+access to files the skill already ships.
 
 ## Consequences
 

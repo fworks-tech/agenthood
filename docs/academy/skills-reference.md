@@ -4,6 +4,44 @@
 
 ---
 
+## Invoking a member
+
+Three activation paths, all landing on the same skill:
+
+| Path | Example | Who decides |
+|---|---|---|
+| Agenthood runtime, named | `agenthood run reviewer "review this diff"` | you pick the member |
+| Agenthood runtime, slash | `agenthood run builder "/scribe write the message"` | you force the skill into context |
+| Model-driven | catalog in the system prompt, then `activate_skill` | the model picks from name + description |
+
+A leading `/skill-name` in a task loads that skill before the model sees it;
+`/skill-name off` suppresses it for the run. Names are the skill's frontmatter
+`name` — flat, lowercase, hyphenated (`scribe`, `code-review`, not `the-scribe`).
+
+The harness never keyword-matches a task against skill descriptions. Activation
+is either your explicit `/skill-name` or the model's own `activate_skill` call
+after reading the catalog.
+
+### Compatibility matrix
+
+`agenthood init` writes each member into the runtime you select. How you invoke
+it there is the client's own syntax:
+
+| Runtime | Skill location | Invocation | Explicit-off |
+|---|---|---|---|
+| Agenthood CLI (`agenthood run`) | `.agents/skills/` (discovered) | `/skill-name` at the start of the task | `/skill-name off` |
+| Claude Code | `.claude/skills/` | `/skill-name` | not supported by the client |
+| GitHub Copilot | `.github/skills/` | `/skill-name` | not supported by the client |
+| Gemini CLI | `.gemini/skills/` | `/skill-name` | not supported by the client |
+| Any agentskills-compatible client | `.agents/skills/` | `/skill-name` or mention, per that client | per that client |
+
+The catalog format adapts to the provider (`xml` for Anthropic, `json` for
+OpenAI-family, `text` for Google); override it with `skills.catalogFormat` or
+`skills.providerFormats` in `.agenthood/config.json`. `agenthood skills
+--show-disabled` shows what the catalog leaves out and why.
+
+---
+
 ## Engineering
 
 ### The Scribe

@@ -87,6 +87,9 @@ npx agenthood list                          # see available agents
 npx agenthood run scribe "write a commit message for the current diff"
 npx agenthood run reviewer "review the changes in the last commit"
 npx agenthood run architect "plan the implementation for issue #42"
+
+# Force a skill into context regardless of the model's judgment
+npx agenthood run builder "/scribe write the commit message for this diff"
 npx agenthood verify                    # validate member SKILL.md integrity (add --conflicts to scan for overlapping skill descriptions)
 npx agenthood status --watch            # live project health monitoring
 npx agenthood trace                     # list recent invocation traces

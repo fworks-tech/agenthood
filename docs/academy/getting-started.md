@@ -41,6 +41,32 @@ Requirements: Node.js 22+, `git`, and `gh` CLI for PR sync. No API key required 
 | `oath` | Read the Society oath |
 | `eject` | Remove all Society files from your project |
 | `diff [member]` | Show SKILL.md changes vs the versions locked in `agenthood.lock` |
+| `skills [--show-disabled]` | List discovered skills in catalog order, and what is filtered out |
+
+---
+
+## Explicit skill activation
+
+A task can start with one or more `/skill-name` tokens. They load that skill's
+full instructions **before** the model reads the task, so the choice is yours, not
+the model's:
+
+```bash
+npx agenthood run builder "/scribe write the commit message for this diff"
+npx agenthood run reviewer "/warden /auditor review this change"
+npx agenthood run builder "/warden off implement the fix"
+```
+
+- `/name` activates; `/name off` keeps the skill out of this run.
+- Only a leading run of slash tokens counts — a `/` inside a sentence is prose.
+- An unknown name is reported and stripped, so a typo never reaches the model as
+  a stray path.
+- Activation goes through the same tool as model-driven activation, so the token
+  budget, `metadata.conditions`, and `fallback` chains all apply.
+
+The same skills are visible to a client that reads skill files: `agenthood init`
+installs each member under its runtime's skill directory, where the client
+exposes it as `/skill-name`. See the [activation matrix](skills-reference.md#invoking-a-member).
 
 ---
 

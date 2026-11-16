@@ -66,23 +66,22 @@ export class Indexer {
       overlap: 64,
     })
 
-    const records: VectorRecord[] = []
-    for (const chunk of chunks) {
-      const vector = await this.embedder.embed(chunk.content)
-      records.push({
-        id: `${filePath}::chunk-${chunk.metadata.chunkIndex}`,
-        vector,
-        metadata: {
-          source: filePath,
-          chunkIndex: chunk.metadata.chunkIndex,
-          startPos: chunk.startPos,
-          endPos: chunk.endPos,
-          estimatedTokens: chunk.metadata.estimatedTokens,
-        },
-        content: chunk.content,
-        createdAt: new Date(),
-      })
-    }
+    // Bounded pool: one network call per chunk, a few in flight, so a 500-chunk
+    // file takes seconds instead of one round trip after another.
+    const vectors = await mapPool(chunks, EMBED_CONCURRENCY, (chunk) => this.embedder.embed(chunk.content))
+    const records: VectorRecord[] = chunks.map((chunk, index) => ({
+      id: `${filePath}::chunk-${chunk.metadata.chunkIndex}`,
+      vector: vectors[index],
+      metadata: {
+        source: filePath,
+        chunkIndex: chunk.metadata.chunkIndex,
+        startPos: chunk.startPos,
+        endPos: chunk.endPos,
+        estimatedTokens: chunk.metadata.estimatedTokens,
+      },
+      content: chunk.content,
+      createdAt: new Date(),
+    }))
 
     if (records.length > 0) {
       await this.vectorStore.add(records)
@@ -100,23 +99,20 @@ export class Indexer {
 
     if (children.length === 0 && parents.length === 0) return
 
-    const childRecords: VectorRecord[] = []
-    for (const child of children) {
-      const vector = await this.embedder.embed(child.embeddingContent)
-      childRecords.push({
-        id: child.id,
-        vector,
-        metadata: {
-          source: filePath,
-          parentId: child.parentId,
-          parentStartLine: child.parentMetadata.startLine,
-          parentEndLine: child.parentMetadata.endLine,
-          isChild: true,
-        },
-        content: child.content,
-        createdAt: new Date(),
-      })
-    }
+    const childVectors = await mapPool(children, EMBED_CONCURRENCY, (child) => this.embedder.embed(child.embeddingContent))
+    const childRecords: VectorRecord[] = children.map((child, index) => ({
+      id: child.id,
+      vector: childVectors[index],
+      metadata: {
+        source: filePath,
+        parentId: child.parentId,
+        parentStartLine: child.parentMetadata.startLine,
+        parentEndLine: child.parentMetadata.endLine,
+        isChild: true,
+      },
+      content: child.content,
+      createdAt: new Date(),
+    }))
 
     if (childRecords.length > 0) {
       await this.vectorStore.add(childRecords)
@@ -202,4 +198,20 @@ export class Indexer {
       indexedExtensions: Array.from(this.indexedExtensions).sort(),
     }
   }
+}
+
+const EMBED_CONCURRENCY = 4
+
+/** Runs `fn` over `items` with at most `limit` in flight, preserving order. */
+async function mapPool<T, R>(items: T[], limit: number, fn: (item: T) => Promise<R>): Promise<R[]> {
+  const out = new Array<R>(items.length)
+  let next = 0
+  const workers = Array.from({ length: Math.min(limit, items.length) }, async () => {
+    while (next < items.length) {
+      const index = next++
+      out[index] = await fn(items[index])
+    }
+  })
+  await Promise.all(workers)
+  return out
 }

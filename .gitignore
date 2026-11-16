@@ -34,7 +34,7 @@ vscode-extension/.vscode-test/
 .agenthood/society-graph.json
 .agenthood/preferences.json
 .agenthood/skills
-.agenthood/costs.jsonl
+.agenthood/costs*.jsonl
 .agenthood/evals/
 .agenthood/traces/
 .agenthood/skill-output/

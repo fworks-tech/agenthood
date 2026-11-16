@@ -393,6 +393,22 @@ describe('ReActLoop skill tool scope', () => {
     expect(write.execute).not.toHaveBeenCalled()
   })
 
+  it('denies a tool when another active skill narrows the scope', async () => {
+    const llm = mockProvider({ toolCalls: [{ name: 'file.write', args: {} }] })
+    const reg = new ToolRegistry()
+    const write = skill('file.write')
+    reg.register(write)
+    const loop = new ReActLoop(llm, reg)
+    loop.activatedSkills.add('permissive')
+    loop.activatedSkills.add('restrictive')
+    const ctx = createTestContext()
+    ctx.skillAllowedTools = (name) => (name === 'permissive' ? ['file.read', 'file.write'] : ['file.read'])
+
+    await loop.run('system prompt', 'write', ctx)
+
+    expect(write.execute).not.toHaveBeenCalled()
+  })
+
   it('leaves tools unrestricted when no active skill declares allowed-tools', async () => {
     const llm = mockProvider({ toolCalls: [{ name: 'file.write', args: {} }] })
     const reg = new ToolRegistry()

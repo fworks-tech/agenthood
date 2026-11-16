@@ -277,15 +277,13 @@ export class ReActLoop {
   /** Reason the active skill scope forbids this tool, or undefined when allowed. */
   private deniedBySkillScope(toolName: string, context: ExecutionContext): string | undefined {
     if (toolName === 'activate_skill') return undefined
-    const allowed = new Set<string>()
-    let declared = false
+    let allowed: Set<string> | undefined
     for (const skill of this.activatedSkills) {
       const tools = context.skillAllowedTools?.(skill)
       if (!tools) continue
-      declared = true
-      for (const tool of tools) allowed.add(tool)
+      allowed = allowed ? new Set([...allowed].filter((tool) => tools.includes(tool))) : new Set(tools)
     }
-    if (!declared || allowed.has(toolName)) return undefined
+    if (!allowed || allowed.has(toolName)) return undefined
     const names = [...allowed].join(', ') || '(none)'
     return `Tool "${toolName}" is not declared by the active skill (${[...this.activatedSkills].join(', ')}). Allowed: ${names}`
   }

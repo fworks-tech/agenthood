@@ -17,7 +17,7 @@ function parseCiSelections(args: string[]): { runtime: Runtime; members: string[
     if (args[i] === '--runtime' && i + 1 < args.length) {
       const value = args[++i] as Runtime
       if (!RUNTIMES.includes(value)) {
-        console.error(`Invalid --runtime "${value}" — expected one of: ${RUNTIMES.join(', ')}`)
+        console.error(`Invalid --runtime "${value}", expected one of: ${RUNTIMES.join(', ')}`)
         process.exit(1)
       }
       runtime = value
@@ -36,7 +36,7 @@ function parseCiSelections(args: string[]): { runtime: Runtime; members: string[
     } else if (args[i] === '--target' && i + 1 < args.length) {
       const value = args[++i]
       if (!TARGETS.includes(value)) {
-        console.error(`Invalid --target "${value}" — expected one of: ${TARGETS.join(', ')}`)
+        console.error(`Invalid --target "${value}", expected one of: ${TARGETS.join(', ')}`)
         process.exit(1)
       }
       targets.push(value)
@@ -53,19 +53,19 @@ async function resolveOverwrite(cwd: string, dryRun: boolean, force: boolean, ci
     return { action: 'overwrite' }
   }
   if (ci) {
-    console.log('  --ci: an existing setup was found — keeping it (pass --force to overwrite).\n')
+    console.log('  --ci: an existing setup was found, keeping it (pass --force to overwrite).\n')
     return { action: 'abort' }
   }
   console.log('  An existing Agenthood setup was found in this project.\n')
   if (!(await confirmOverwrite())) {
-    console.log('\n  Keeping the existing setup — nothing was changed.\n')
+    console.log('\n  Keeping the existing setup, nothing was changed.\n')
     return { action: 'abort' }
   }
   return { action: 'overwrite' }
 }
 
 function displayDryRun(cwd: string, runtime: Runtime, members: string[]): void {
-  console.log('\n  Dry run — nothing will be written. Would create:')
+  console.log('\n  Dry run, nothing will be written. Would create:')
   for (const path of planPaths(cwd, runtime, members)) {
     const marker = existsSync(path) ? ' (exists)' : ''
     console.log(`    ${path}${marker}`)
@@ -87,7 +87,7 @@ async function runSteps(steps: Array<[string, () => Promise<void>]>): Promise<vo
     }
   }
   if (failures > 0) {
-    throw new Error('Initiation incomplete — some steps failed.')
+    throw new Error('Initiation incomplete, some steps failed.')
   }
 }
 
@@ -129,7 +129,7 @@ export async function init(args: string[] = []): Promise<void> {
       ['Agenthood config', () => scaffoldConfig(cwd, runtime, members, overwrite)],
     ])
   } catch (err) {
-    console.error('\n🏛️  Initiation incomplete — some steps failed.')
+    console.error('\n🏛️  Initiation incomplete, some steps failed.')
     console.error(err)
     process.exit(1)
   }

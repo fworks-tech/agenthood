@@ -6,5 +6,5 @@ license: MIT
 
 # Deprecated alias
 
-Canonical protocol lives in `skills/doorman/SKILL.md` — load that file.
+Canonical protocol lives in `skills/doorman/SKILL.md`: load that file.
 This stub exists for compatibility only and is intentionally not updated.

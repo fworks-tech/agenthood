@@ -1,6 +1,6 @@
 import { describe, it, expect, beforeEach, afterEach } from "vitest"
-import { SkillParser, MAX_SKILL_FILE_BYTES } from "../../../src/skills/discovery/SkillParser.ts"
-import { mkdtempSync, writeFileSync, rmSync } from "node:fs"
+import { SkillParser, MAX_SKILL_FILE_BYTES, isSpdxLicense } from "../../../src/skills/discovery/SkillParser.ts"
+import { mkdtempSync, writeFileSync, readFileSync, rmSync } from "node:fs"
 import { join } from "node:path"
 import { tmpdir } from "node:os"
 
@@ -191,5 +191,143 @@ describe("SkillParser", () => {
       const errs = parser.validateSpec("Bad_Name", "", "other")
       for (const e of errs) expect(e.fix.length).toBeGreaterThan(0)
     })
+  })
+
+  describe("allowed-tools", () => {
+    it("parses a space-separated allowed-tools string", () => {
+      const file = writeSkill(dir, "---\nname: s\ndescription: d\nallowed-tools: file.read file.write ask_human\n---\nBody.")
+      expect(parser.parse(file)?.allowedTools).toEqual(["file.read", "file.write", "ask_human"])
+    })
+
+    it("accepts list and comma-separated forms", () => {
+      const list = writeSkill(dir, "---\nname: s\ndescription: d\nallowed-tools:\n  - file.read\n  - file.write\n---\nBody.")
+      expect(parser.parse(list)?.allowedTools).toEqual(["file.read", "file.write"])
+      const csv = writeSkill(dir, "---\nname: s\ndescription: d\nallowed-tools: file.read, file.write\n---\nBody.")
+      expect(parser.parse(csv)?.allowedTools).toEqual(["file.read", "file.write"])
+    })
+
+    it("leaves the field undefined when the skill declares none", () => {
+      const file = writeSkill(dir, "---\nname: s\ndescription: d\n---\nBody.")
+      expect(parser.parse(file)?.allowedTools).toBeUndefined()
+    })
+
+    it("carries allowed-tools onto the manifest", () => {
+      const base = { name: "s", description: "d", body: "body" }
+      expect(parser.parseManifest("/x/SKILL.md", "/x", { ...base, allowedTools: ["file.read"] })).toMatchObject({ allowedTools: ["file.read"] })
+      expect(parser.parseManifest("/x/SKILL.md", "/x", base)).not.toHaveProperty("allowedTools")
+    })
+    it("reads metadata.version and tolerates a flat version key (#579)", () => {
+      const nested = writeSkill(dir, "---\nname: s\ndescription: d\nmetadata:\n  version: 1.4.2\n---\nBody.")
+      expect(parser.parse(nested)?.version).toBe("1.4.2")
+      const flat = writeSkill(dir, "---\nname: s\ndescription: d\nversion: 2.0.0\n---\nBody.")
+      expect(parser.parse(flat)?.version).toBe("2.0.0")
+    })
+
+    it("treats a non-string or absent version as undeclared", () => {
+      const numeric = writeSkill(dir, "---\nname: s\ndescription: d\nmetadata:\n  version: 1.0\n---\nBody.")
+      expect(parser.parse(numeric)?.version).toBeUndefined()
+      const none = writeSkill(dir, "---\nname: s\ndescription: d\nmetadata:\n  category: cloud\n---\nBody.")
+      expect(parser.parse(none)?.version).toBeUndefined()
+    })
+
+    it("carries version onto the manifest", () => {
+      const base = { name: "s", description: "d", body: "body" }
+      expect(parser.parseManifest("/x/SKILL.md", "/x", { ...base, version: "1.2.3" })).toMatchObject({ version: "1.2.3" })
+      expect(parser.parseManifest("/x/SKILL.md", "/x", base)).not.toHaveProperty("version")
+    })
+
+    it("reads license, hidden and router into the manifest (#580, #588)", () => {
+      const file = writeSkill(
+        dir,
+        "---\nname: s\ndescription: d\nlicense: Apache-2.0\nhidden: true\nrouter: true\n---\nBody.",
+      )
+      const parsed = parser.parse(file)!
+      expect(parsed.license).toBe("Apache-2.0")
+      expect(parser.parseManifest("/x/SKILL.md", "/x", parsed)).toMatchObject({
+        license: "Apache-2.0",
+        hidden: true,
+        router: true,
+      })
+    })
+
+    it("accepts SPDX ids and expressions, and rejects prose (#580)", () => {
+      expect(isSpdxLicense("MIT")).toBe(true)
+      expect(isSpdxLicense("Apache-2.0")).toBe(true)
+      expect(isSpdxLicense("MIT OR Apache-2.0")).toBe(true)
+      expect(isSpdxLicense("GPL-2.0-or-later WITH Classpath-exception-2.0")).toBe(true)
+      expect(isSpdxLicense("UNLICENSED")).toBe(true)
+      expect(isSpdxLicense("MIT License")).toBe(false)
+      expect(isSpdxLicense("see LICENSE")).toBe(false)
+    })
+
+    it("reads the registry owner from metadata.author (#593)", () => {
+      const nested = writeSkill(dir, "---\nname: s\ndescription: d\nmetadata:\n  author: acme\n---\nBody.")
+      expect(parser.parse(nested)?.owner).toBe("acme")
+      const flat = writeSkill(dir, "---\nname: s\ndescription: d\nauthor: acme\n---\nBody.")
+      expect(parser.parse(flat)?.owner).toBe("acme")
+      const none = writeSkill(dir, "---\nname: s\ndescription: d\n---\nBody.")
+      expect(parser.parse(none)?.owner).toBeUndefined()
+    })
+
+    it("reads priority, conditions, fallback and the disable flag (#537, #610, #611, #613)", () => {
+      const path = writeSkill(
+        dir,
+        "---\nname: s\ndescription: d\nmetadata:\n  priority: 80\n  conditions:\n    - env:CI\n    - file.exists:package.json\nfallback: backup\ndisable-model-invocation: true\n---\nBody.",
+      )
+      const manifest = parser.parse(path)
+      expect(manifest?.priority).toBe(80)
+      expect(manifest?.conditions).toEqual(["env:CI", "file.exists:package.json"])
+      expect(manifest?.fallback).toEqual(["backup"])
+      expect(manifest?.disableModelInvocation).toBe(true)
+    })
+
+    it("accepts unicode lowercase names and rejects uppercase (#517)", () => {
+      const spec = (name: string) => parser.validateSpec(name, "d", name).map((e) => e.rule)
+      expect(spec("café")).toEqual([])
+      expect(spec("日本語")).toEqual([])
+      expect(spec("Café")).toContain("name-format")
+      expect(spec("café-")) .toContain("name-format")
+    })
+
+    it("treats a decomposed directory name as matching its composed name (#517)", () => {
+      expect(parser.validateSpec("café", "d", "cafe\u0301").map((e) => e.rule)).toEqual([])
+    })
+    it("accepts nested metadata shapes (#516)", () => {
+      const file = writeSkill(
+        dir,
+        "---\nname: s\ndescription: d\nmetadata:\n  version: 1.0.0\n  tags:\n    - a\n    - b\n  provider:\n    family: claude\n  experimental: true\n---\nBody.",
+      )
+      const { frontmatter, heuristic } = parser.parseRaw(readFileSync(file, "utf-8"))
+      expect(heuristic).toBeUndefined()
+      expect(frontmatter?.metadata).toEqual({
+        version: "1.0.0",
+        tags: ["a", "b"],
+        provider: { family: "claude" },
+        experimental: true,
+      })
+    })
+  })
+})
+
+describe('compaction-replay (#587)', () => {
+  const parser = new SkillParser()
+  let dir: string
+
+  beforeEach(() => {
+    dir = mkdtempSync(join(tmpdir(), 'skill-replay-'))
+  })
+
+  afterEach(() => {
+    rmSync(dir, { recursive: true, force: true })
+  })
+
+  it('reads compaction-replay: false as a one-shot marker', () => {
+    const file = writeSkill(dir, '---\nname: one-shot\ndescription: d\ncompaction-replay: false\n---\nBody')
+    expect(parser.parse(file)?.compactionReplay).toBe(false)
+  })
+
+  it('leaves replayable skills unmarked', () => {
+    const file = writeSkill(dir, '---\nname: replayable\ndescription: d\n---\nBody')
+    expect(parser.parse(file)?.compactionReplay).toBeUndefined()
   })
 })

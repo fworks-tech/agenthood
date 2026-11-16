@@ -60,7 +60,7 @@ export function validateApiKeys(config: LLMConfig): void {
         throw new MissingApiKeyError(provider, keyInfo.envVar, keyInfo.signupUrl)
       }
       console.warn(
-        `[validateApiKeys] ${keyInfo.envVar} not set for fallback provider "${provider}" — skipping. Get a key at ${keyInfo.signupUrl}`,
+        `[validateApiKeys] ${keyInfo.envVar} not set for fallback provider "${provider}": skipping. Get a key at ${keyInfo.signupUrl}`,
       )
     }
   }

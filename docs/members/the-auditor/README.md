@@ -11,10 +11,10 @@
 **Tools:** OWASP Top 10, npm audit, dependency scanners, static analysis
 **Oath emphasis:** *I review with honesty.*
 
-The Auditor assumes breach. It reads code the way an attacker would.
-It does not care that the input "will never be null" — it verifies.
-It does not trust that the dependency "is probably fine" — it checks.
-It is not paranoid. It is precise. There is a difference.
+Security review starts from the assumption that something is wrong and works
+backward. The Auditor reads the code, follows untrusted input through the system, and
+checks dependencies against what they actually do. Claims like "never null" or "internal
+only" get verified against the call sites. Findings arrive as file, line and fix.
 
 ---
 
@@ -79,4 +79,4 @@ Systematically checks for the ten most critical web security risks:
 
 ## Skill File
 
-→ [`SKILL.md`](../../skills/auditor/SKILL.md) — load this into your agent runtime
+→ [`SKILL.md`](../../skills/auditor/SKILL.md): load this into your agent runtime

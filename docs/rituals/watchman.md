@@ -19,11 +19,11 @@ npx agenthood ritual run the-watchman
 ```
 
 ## What It Does
-A lightweight pulse check performed by The Doorman. Looks for work that has been started but not committed, and branches that are drifting far from main. Surfaces findings quietly — does not interrupt unless thresholds are exceeded.
+A lightweight pulse check performed by The Doorman. Looks for work that has been started but not committed, and branches that are drifting far from main. Surfaces findings quietly: does not interrupt unless thresholds are exceeded.
 
 ## Steps
 
-1. Run `git status` — identify uncommitted changes
+1. Run `git status`: identify uncommitted changes
 2. Check timestamp of last modification for each dirty file
 3. Flag any dirty file last touched > 2 hours ago
 4. Run `git log main..<branch> --oneline` for each active branch
@@ -33,15 +33,15 @@ A lightweight pulse check performed by The Doorman. Looks for work that has been
 ## Alert Format
 
 ```markdown
-## 👁️ Watchman Alert — {Time}
+## 👁️ Watchman Alert: {Time}
 
 ### ⏰ Idle Uncommitted Changes
-{file — last modified N hours ago}
+{file: last modified N hours ago}
 
 *The Society suggests: commit your work or stash it.*
 
 ### 📉 Branches Drifting from Main
-{branch — N commits behind main}
+{branch: N commits behind main}
 
 *The Society suggests: rebase soon to avoid painful conflicts.*
 
@@ -53,5 +53,5 @@ A lightweight pulse check performed by The Doorman. Looks for work that has been
 - Runs silently when nothing exceeds thresholds
 - Uncommitted threshold: 2 hours (configurable thresholds are planned)
 - Branch drift threshold: 20 commits behind main (configurable thresholds are planned)
-- Low priority — never interrupts USER or SCHEDULED work
-- Every ritual run records a decision + provenance entry in `.agenthood/decisions/` and `.agenthood/provenance/` (ADR-015) — the Watchman's checks are auditable
+- Low priority: never interrupts USER or SCHEDULED work
+- Every ritual run records a decision + provenance entry in `.agenthood/decisions/` and `.agenthood/provenance/` (ADR-015): the Watchman's checks are auditable

@@ -1,6 +1,6 @@
 ---
 name: cleanup-specialist
-description: Removes dead code, eliminates duplication, refactors messy patterns, and applies consistent formatting across code and documentation — safely, with tests before and after. Use when a codebase needs maintainability work without behavior change.
+description: Removes dead code, eliminates duplication, refactors messy patterns, and applies consistent formatting across code and documentation; safely, with tests before and after. Use when a codebase needs maintainability work without behavior change.
 license: MIT
 ---
 
@@ -8,7 +8,7 @@ license: MIT
 
 ## Overview
 
-The Cleanup Specialist makes codebases cleaner and more maintainable by simplifying safely. It removes dead code, consolidates duplication, and applies consistent formatting across code and documentation — always verifying that cleanup changes nothing observable. The focus is simplifying existing code, not adding features.
+The Cleanup Specialist makes codebases cleaner and more maintainable by simplifying safely. It removes dead code, consolidates duplication, and applies consistent formatting across code and documentation: always verifying that cleanup changes nothing observable. The focus is simplifying existing code, not adding features.
 
 ## When to Use
 
@@ -52,11 +52,11 @@ The Cleanup Specialist makes codebases cleaner and more maintainable by simplify
 - Focus on one improvement at a time
 - Verify nothing breaks during removal
 
-Work on code files and documentation files alike when removing duplication and improving consistency. Clean up existing code — never add new features.
+Work on code files and documentation files alike when removing duplication and improving consistency. Clean up existing code: never add new features.
 
 ## Red Flags
 
-- Cleanup that changes behavior — "I simplified it and it works differently now"
+- Cleanup that changes behavior: "I simplified it and it works differently now"
 - Removing a "dead" function that was called from a test or script
 - Renaming or reformatting a file the same PR also edits functionally
 - Cleanup without tests before and after
@@ -66,7 +66,7 @@ Work on code files and documentation files alike when removing duplication and i
 
 | What you think | What The Cleanup Specialist knows |
 |----------------|------------------------------------|
-| "I'll just delete it — the tests will catch it" | Run the tests before deletion to know what you are removing, and after to prove nothing moved. |
+| "I'll just delete it: the tests will catch it" | Run the tests before deletion to know what you are removing, and after to prove nothing moved. |
 | "This function looks unused" | "Looks" is not verification. Search the codebase, then delete. |
 | "Cleanup is a good time to add this feature" | No. Cleanup preserves behavior; features change it. Separate the two. |
 | "One big cleanup commit is efficient" | One improvement at a time keeps failures attributable. |

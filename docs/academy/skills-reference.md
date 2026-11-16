@@ -1,6 +1,44 @@
 # Skills Reference
 
-> *Every member, a specialist. Zero overlap.*
+> *Each member is a specialist, and no two overlap.*
+
+---
+
+## Invoking a member
+
+Three activation paths, all landing on the same skill:
+
+| Path | Example | Who decides |
+|---|---|---|
+| Agenthood runtime, named | `agenthood run reviewer "review this diff"` | you pick the member |
+| Agenthood runtime, slash | `agenthood run builder "/scribe write the message"` | you force the skill into context |
+| Model-driven | catalog in the system prompt, then `activate_skill` | the model picks from name + description |
+
+A leading `/skill-name` in a task loads that skill before the model sees it;
+`/skill-name off` suppresses it for the run. Names are the skill's frontmatter
+`name`: flat, lowercase, hyphenated (`scribe`, `code-review`, not `the-scribe`).
+
+The harness never keyword-matches a task against skill descriptions. Activation
+is either your explicit `/skill-name` or the model's own `activate_skill` call
+after reading the catalog.
+
+### Compatibility matrix
+
+`agenthood init` writes each member into the runtime you select. How you invoke
+it there is the client's own syntax:
+
+| Runtime | Skill location | Invocation | Explicit-off |
+|---|---|---|---|
+| Agenthood CLI (`agenthood run`) | `.agents/skills/` (discovered) | `/skill-name` at the start of the task | `/skill-name off` |
+| Claude Code | `.claude/skills/` | `/skill-name` | not supported by the client |
+| GitHub Copilot | `.github/skills/` | `/skill-name` | not supported by the client |
+| Gemini CLI | `.gemini/skills/` | `/skill-name` | not supported by the client |
+| Any agentskills-compatible client | `.agents/skills/` | `/skill-name` or mention, per that client | per that client |
+
+The catalog format adapts to the provider (`xml` for Anthropic, `json` for
+OpenAI-family, `text` for Google); override it with `skills.catalogFormat` or
+`skills.providerFormats` in `.agenthood/config.json`. `agenthood skills
+--show-disabled` shows what the catalog leaves out and why.
 
 ---
 
@@ -40,7 +78,7 @@
 
 ### The Debugger
 
-> *Five steps to every root cause. No guessing allowed.*
+> *Five steps to the root cause. No guessing.*
 
 **Specialty:** Error triage, root cause analysis, systematic recovery
 **Tools:** `file.read`, `file.write`, `file.search`, `explain_code`
@@ -60,7 +98,7 @@
 
 ### The Reviewer
 
-> *Five axes. No mercy. All respect.*
+> *Five axes, applied without mercy and with respect.*
 
 **Specialty:** Code review across correctness, readability, architecture, security, performance
 **Tools:** `file.read`, `file.write`
@@ -104,7 +142,7 @@
 
 ### The Inspector
 
-> *Every pixel accounted for. Every boundary crossed with intent.*
+> *Every pixel accounted for, and every boundary crossed on purpose.*
 
 **Specialty:** Visual-reasoning benchmarking, pixel ranking, cross-panel mapping, graph-cut classification, confidence calibration
 **Tools:** `image_load`, `pixel_rank`, `coordinate_map`, `cut_classify`, `confidence_score`
@@ -116,21 +154,21 @@
 
 ### The Librarian
 
-> *Every decision, recorded for posterity.*
+> *Decisions are recorded so they can be read later.*
 
 **Specialty:** Documentation management, ADR creation, API references, knowledge management
 **Tools:** `file.read`, `file.write`, `file.search`, `explain_code`
 **Runtime:** `npx agenthood run librarian "document the API endpoints"`
-**Society memory:** every run writes a decision record (`.agenthood/decisions/`) + provenance entry (`.agenthood/provenance/`) — the audit trail the Librarian's postmortems link to
+**Society memory:** every run writes a decision record (`.agenthood/decisions/`) + provenance entry (`.agenthood/provenance/`): the audit trail the Librarian's postmortems link to
 
 ### The Oracle
 
-> *Ask me anything about the Society. I have read every scroll.*
+> *Ask about the Society. The answer is in the record.*
 
 **Specialty:** Institutional knowledge, member authoring templates, naming guidance, convention rationale
 **Tools:** `file.read`, `file.write`, `file.search`, `explain_code`
 **Runtime:** `npx agenthood run oracle "what members should I activate for a library project?"`
-**Society memory:** past member decisions are searchable as precedent via `DecisionSearch` — the Oracle can answer "how did we decide X before?" from `.agenthood/decisions/`
+**Society memory:** past member decisions are searchable as precedent via `DecisionSearch`: the Oracle can answer "how did we decide X before?" from `.agenthood/decisions/`
 
 ---
 
@@ -138,7 +176,7 @@
 
 ### The Mediator
 
-> *First in line — intent routing.*
+> *First in line: intent routing.*
 
 **Specialty:** Intent classification, first-line handoff, orchestration entry
 **Tools:** `file.read`, `file.write`, `file.search`, `explain_code`
@@ -154,7 +192,7 @@
 
 ### The Envoy
 
-> *One Society. Every runtime. No exceptions.*
+> *One Society, the same rules in every runtime.*
 
 **Specialty:** Cross-provider translation, bootstrap generation, convention validation across runtimes
 **Tools:** `file.read`, `file.write`, `file.search`, `explain_code`
@@ -205,11 +243,11 @@ npx agenthood run scribe "sync PR #42"
 
 ## Related
 
-- [Getting Started](getting-started.md) — install and first workflow
-- [Utility Skills](utility-skills.md) — specialist skills beyond the 20 members
-- [Built-in Tools](../architecture/built-in-tools.md) — canonical tool registry with scoping
-- [Online docs](https://agenthood.flabs.tech/) — hosted documentation site
+- [Getting Started](getting-started.md): install and first workflow
+- [Utility Skills](utility-skills.md): specialist skills beyond the 20 members
+- [Built-in Tools](../architecture/built-in-tools.md): canonical tool registry with scoping
+- [Online docs](https://agenthood.flabs.tech/): hosted documentation site
 
 ---
 
-*One Society. Every member knows their lane.*
+*One Society. Each member knows its lane.*

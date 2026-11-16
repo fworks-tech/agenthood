@@ -12,7 +12,7 @@ export interface StubScriptStep {
  * Scripted test-only provider for hermetic HITL spikes: replays queued
  * responses so a real MemberRunner + ReActLoop can park on ask_human
  * without network or API keys. Refuses to construct unless the env gate
- * is set, and stays out of ProviderName so no member can prefer it —
+ * is set, and stays out of ProviderName so no member can prefer it,
  * without the gate the router skips it and real fallbacks apply.
  */
 export class StubProvider implements ILLMProvider {
@@ -57,6 +57,10 @@ export class StubProvider implements ILLMProvider {
 
   getContextWindow(): number {
     return 8192
+  }
+
+  getModel(): string {
+    return this.model
   }
 
   setModel(model: string): void {

@@ -46,7 +46,7 @@ check_no_orphan_skills() {
   for dir in skills/*/; do
     name=$(basename "$dir")
     if [ ! -d "docs/members/$name" ] && [ ! -d "docs/members/the-$name" ]; then
-      echo "WARN [skills/$name]: clear-named skill (no matching member — expected for mirror skills)"
+      echo "WARN [skills/$name]: clear-named skill (no matching member, expected for mirror skills)"
     fi
   done
   echo "Skills/ directory scan complete."

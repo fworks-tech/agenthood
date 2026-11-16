@@ -4,10 +4,10 @@
 > [ADR-020](../adr/ADR-020-mind-virus-mitigation.md)
 
 One commit per task, ordered by dependency. Each task fits a single commit and
-has a clear acceptance criterion. Layer 1–2 are defense, layers 3–4 are
+has a clear acceptance criterion. Layer 1-2 are defense, layers 3-4 are
 containment/visibility.
 
-## Phase 0 — Documentation
+## Phase 0: Documentation
 
 - [ ] docs(adr): record mind virus mitigation strategy (ADR-020)
   - Acceptance: `docs/adr/ADR-020-mind-virus-mitigation.md` exists, references
@@ -16,7 +16,7 @@ containment/visibility.
   - Acceptance: `docs/specs/mind-virus-defense.md` and
     `docs/specs/mind-virus-defense-tasks.md` exist with acceptance criteria
 
-## Phase 1 — System Prompt Immunity Warning
+## Phase 1: System Prompt Immunity Warning
 
 - [ ] feat(members): add mind virus immunity warning constant to memberLore
   - Acceptance: `MIND_VIRUS_IMMUNITY_WARNING` exported from `memberLore.ts`,
@@ -29,7 +29,7 @@ containment/visibility.
     `MemberAgent.getSystemPrompt` output and in delegated subagent prompts;
     asserts against the literal constant, not pasted text
 
-## Phase 2 — Delegation Boundary Hardening
+## Phase 2: Delegation Boundary Hardening
 
 - [ ] feat(tools): harden delegated-task boundary against message propagation
   - Acceptance: `<delegated_task>` label in `SubagentTaskSkill.ts` names
@@ -40,7 +40,7 @@ containment/visibility.
   - Acceptance: unit tests assert the boundary label and the warning on the
     subagent prompt; reuses `expectUntrustedBoundary` helper where applicable
 
-## Phase 3 — Persistence-Vector Hardening
+## Phase 3: Persistence-Vector Hardening
 
 - [ ] feat(core): add skill integrity checker with durable drift record
   - Acceptance: `src/utils/skillIntegrity.ts` provides `checkSkillIntegrity`
@@ -55,7 +55,7 @@ containment/visibility.
     + warn (and record + block under strict), no-lockfile → skip; no guarded
     assertions
 
-## Phase 4 — Propagation and Viral-Persona Monitoring
+## Phase 4: Propagation and Viral-Persona Monitoring
 
 - [ ] feat(core): add viralPersona signal to anomaly detector
   - Acceptance: `viralPersona` signal in `AnomalyDetector.ts` flags traces with
@@ -72,7 +72,7 @@ containment/visibility.
     alerts; word-boundary matching avoids unrelated-word false positives;
     existing anomaly tests unchanged and passing
 
-## Phase 5 — Validation Gate
+## Phase 5: Validation Gate
 
 - [ ] test: full suite green with lint/typecheck/build clean
   - Acceptance: `npm test`, lint, and typecheck pass; no guarded or vacuous
@@ -94,5 +94,5 @@ containment/visibility.
 15 → 16  (gate)
 ```
 
-Nothing depends on a later item. Layers 1–2 are the primary defense and ship
-first; layers 3–4 can land in any order after them.
+Nothing depends on a later item. Layers 1-2 are the primary defense and ship
+first; layers 3-4 can land in any order after them.

@@ -1,6 +1,6 @@
 ---
 name: docker
-description: Use when building, running, or debugging Docker containers — Dockerfile creation, compose configurations, image optimization, volume management, and container networking. Use ONLY when the task involves Docker specifically, not general deployment.
+description: Use when building, running, or debugging Docker containers; Dockerfile creation, compose configurations, image optimization, volume management, and container networking. Use ONLY when the task involves Docker specifically, not general deployment.
 license: MIT
 ---
 

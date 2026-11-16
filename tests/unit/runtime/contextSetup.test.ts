@@ -24,6 +24,7 @@ describe('discoverSkills packaged merge', () => {
   })
 
   afterEach(() => {
+    vi.restoreAllMocks()
     rmSync(testDir, { recursive: true, force: true })
   })
 
@@ -54,5 +55,52 @@ describe('discoverSkills packaged merge', () => {
     const { manifests } = await discoverSkills(testDir)
     expect(manifests.get(packagedName)?.directory).toBe(overrideDir)
     expect(manifests.get(packagedName)?.description).toBe('Project override')
+  })
+
+  it('keeps a hidden skill activatable but out of the catalog (#588)', async () => {
+    const hiddenDir = join(testDir, '.agents', 'skills', 'hidden-skill')
+    mkdirSync(hiddenDir, { recursive: true })
+    writeFileSync(
+      join(hiddenDir, 'SKILL.md'),
+      '---\nname: hidden-skill\ndescription: Loaded on demand only\nhidden: true\n---\n# Overview\nHidden',
+    )
+
+    const { catalog, manifests } = await discoverSkills(testDir)
+
+    expect(manifests.has('hidden-skill')).toBe(true)
+    expect(catalog).not.toContain('hidden-skill')
+    expect(catalog).toContain('test-skill')
+  })
+
+  it('renders JSON for an OpenAI-family provider (#528, #556)', async () => {
+    const { catalog } = await discoverSkills(testDir, { provider: 'openai' })
+    expect(catalog).toContain('"name": "test-skill"')
+    expect(catalog).not.toContain('<available_skills>')
+  })
+
+  it('renders plaintext for a Google provider (#556)', async () => {
+    const { catalog } = await discoverSkills(testDir, { provider: 'google' })
+    expect(catalog).toContain('- test-skill: A test skill')
+  })
+
+  it('lets an explicit format override the provider default (#528)', async () => {
+    const { catalog } = await discoverSkills(testDir, { provider: 'openai', format: 'xml' })
+    expect(catalog).toContain('<available_skills>')
+  })
+
+  it('filters a skill disabled in config from the catalog but keeps it activatable (#537)', async () => {
+    const { catalog, manifests } = await discoverSkills(testDir, { disabled: ['test-skill'] })
+    expect(catalog).not.toContain('name="test-skill"')
+    expect(manifests.has('test-skill')).toBe(true)
+  })
+
+  it('omits the catalog entirely when nothing is discovered (#538)', async () => {
+    vi.spyOn(SkillDiscovery.prototype, 'discover').mockReturnValue([])
+    vi.spyOn(SkillDiscovery.prototype, 'discoverPackaged').mockReturnValue([])
+
+    const { catalog, manifests } = await discoverSkills(testDir)
+
+    expect(catalog).toBe('')
+    expect(manifests.size).toBe(0)
   })
 })

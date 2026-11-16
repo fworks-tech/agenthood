@@ -19,14 +19,14 @@ const SECTION_EMOJI: Record<string, string> = {
   'Chores': '🔩',
 }
 
-function formatDate(isoDate: string): string {
+export function formatDate(isoDate: string): string {
   const d = new Date(isoDate)
-  return d.toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })
+  return d.toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric', timeZone: 'UTC' })
 }
 
 /**
  * conventional-changelog appends the parsed issue references as
- * 'closes [#1](url) [#2](url) ...' — one keyword, then every #N it found
+ * 'closes [#1](url) [#2](url)...': one keyword, then every #N it found
  * anywhere in the commit body. The parser gives a bare '#900' mentioned in
  * prose the same 'close' action as a real 'Closes #900', so this list mixes
  * genuine closures with mentions and repeats whatever was cited twice.
@@ -63,7 +63,7 @@ function cleanRefs(line: string): string {
 
 /**
  * conventional-changelog linkifies every '#N' mentioned anywhere in a commit
- * body, so the refs list is followed by a trail of links for prose mentions —
+ * body, so the refs list is followed by a trail of links for prose mentions,
  * mostly duplicates of ids already listed. Fold the whole tail into one
  * deduped list so the dedup reaches the end of the line.
  */
@@ -87,6 +87,10 @@ function dropInventedRefs(line: string): string {
 
 export function cleanLine(line: string): string {
   const cleaned = dropInventedRefs(cleanRefs(line))
+    // A commit subject is free prose, so it can carry the dash the checker
+    // forbids. Generated notes are exempt from the checker, so normalize here.
+    .replace(/(\d)\s*[\u2013\u2014]\s*(\d)/g, '$1-$2') // prose-lint-ignore
+    .replace(/\s*[\u2013\u2014]\s*/g, ': ') // prose-lint-ignore
     .replace(/\s*\(\[`?[0-9a-f]{7,40}`?\]\(https:\/\/[^)]+\)\)/g, '')
     .replace(/\[#(\d+)\]\(https:\/\/[^)]+\)/g, '#$1')
     .replace(/^\*\s+\*\*([^:]+):\*\*\s+/, (_, scope: string) => `- **${scope.charAt(0).toUpperCase() + scope.slice(1)}:** `)
@@ -118,7 +122,7 @@ function transformBlock(versionLine: string, bodyLines: string[]): string | null
     }
   }
 
-  const lines: string[] = [`## v${version} — ${date}`, '']
+  const lines: string[] = [`## v${version}: ${date}`, '']
 
   for (const [section, items] of Object.entries(sections)) {
     if (items.length === 0) continue
@@ -137,7 +141,7 @@ function generate(): void {
   // conventional-changelog is the source of the 'closes' list, and it marks
   // every bare '#N' in a commit body as a closure. Normalise it here, on the
   // way out, so the committed changelog cannot claim an issue was closed when
-  // the commit only mentioned it — that is how 'closes #900' shipped for a
+  // the commit only mentioned it, that is how 'closes #900' shipped for a
   // migration that is still open. Only the refs are touched: the changelog
   // keeps conventional-changelog's own bullet and commit-link format, which
   // cleanLine rewrites for the rendered notes.
@@ -173,7 +177,7 @@ function generate(): void {
     '# 📦 Release Notes',
     '',
     '> Full version history for [Agenthood](https://github.com/fworks-tech/agenthood).',
-    '> Generated automatically — do not edit manually.',
+    '> Generated automatically: do not edit manually.',
     '',
     '---',
     '',

@@ -230,7 +230,7 @@ describe('status command', () => {
     await status(['--member', 'scribe'])
 
     const output = log.mock.calls.flat().join(' ')
-    expect(output).toContain('Trace Summary — scribe')
+    expect(output).toContain('Trace Summary, scribe')
     expect(output).toContain('1h')
     expect(output).toContain('24h')
     expect(output).toContain('7d')

@@ -39,5 +39,5 @@ Use `redis-cli` to interact with Redis instances.
 - Info: `INFO`
 
 ## Notes
-- `KEYS *` is blocking on production — use `SCAN` for large datasets
+- `KEYS *` is blocking on production: use `SCAN` for large datasets
 - Default port is 6379

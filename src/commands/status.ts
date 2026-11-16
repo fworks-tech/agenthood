@@ -12,10 +12,42 @@ import type { TraceEnvelope } from '../core/types.ts'
 import type { Anomaly } from '../core/AnomalyDetector.ts'
 import { EpisodeLearner } from '../evals/EpisodeLearner.ts'
 import { LanceDBStore } from '../memory/VectorStore.ts'
+import { SkillDiscovery } from '../skills/discovery/SkillDiscovery.ts'
+import { readSkillStats } from '../skills/activation/SkillStats.ts'
+import { metadataBudget, skillUsage, type SkillUsageRow } from '../skills/observability.ts'
 
 function formatPct(rate: number | null): string {
-  if (rate === null) return '—'
+  if (rate === null) return '-'
   return `${(rate * 100).toFixed(0)}%`
+}
+
+/**
+ * Catalog cost per skill (#586). Context budget pain is silent otherwise: the
+ * skill is there, the model just stops seeing it. Metadata is the always-paid
+ * part; the body is listed next to it because it is what activation costs.
+ */
+function printSkillContext(rows: SkillUsageRow[], budget: number): void {
+  if (rows.length === 0) return
+  const total = rows.reduce((sum, row) => sum + row.metadataTokens, 0)
+  console.log('\n  Skill Context\n')
+  console.log(`  ${'Skill'.padEnd(24)} ${'Catalog'.padEnd(9)} ${'Activated'.padEnd(10)} Body`)
+  console.log(`  ${''.padEnd(24, '-')} ${''.padEnd(9, '-')} ${''.padEnd(10, '-')} ${''.padEnd(8, '-')}`)
+  for (const row of rows) {
+    const name = row.name.length > 22 ? `${row.name.slice(0, 22)}…` : row.name
+    console.log(`  ${name.padEnd(24)} ${String(row.metadataTokens).padEnd(9)} ${String(row.activations).padEnd(10)} ${row.bodyTokens}`)
+  }
+  const overBudget = total > budget ? ': over budget' : ''
+  console.log(`
+  Catalog total: ${total}/${budget} tokens${overBudget}`)
+  if (total > budget) {
+    console.log('  ! Compress descriptions, or hide a skill with `disable-model-invocation: true`.')
+  }
+  console.log()
+}
+
+function collectSkillUsage(cwd: string): { rows: SkillUsageRow[]; budget: number } {
+  const manifests = new SkillDiscovery().discover(cwd)
+  return { rows: skillUsage(manifests, readSkillStats(cwd)), budget: metadataBudget(cwd) }
 }
 
 function printPlain(memberCount: number, decisionCount: number, lockStatus: string, memoryInit: boolean, allStats: MetricsEntry[]): void {
@@ -31,7 +63,7 @@ function printPlain(memberCount: number, decisionCount: number, lockStatus: stri
     console.log(`  ${''.padEnd(20, '-')} ${''.padEnd(6, '-')} ${''.padEnd(8, '-')} ${''.padEnd(14, '-')} ${''.padEnd(24, '-')}`)
     for (const entry of allStats) {
       const avgDur = formatDuration(entry.metrics.invocations > 0 ? Math.round(entry.metrics.totalDurationMs / entry.metrics.invocations) : 0)
-      const lastRun = entry.metrics.lastRun ? new Date(entry.metrics.lastRun).toLocaleDateString() : '—'
+      const lastRun = entry.metrics.lastRun ? new Date(entry.metrics.lastRun).toLocaleDateString(): '; '
       const successRate = formatPct(entry.metrics.invocations > 0 ? entry.metrics.successes / entry.metrics.invocations : null)
       const name = entry.member.length > 18 ? entry.member.slice(0, 18) + '\u2026' : entry.member
       console.log(`  ${name.padEnd(20)} ${String(entry.metrics.invocations).padEnd(6)} ${successRate.padEnd(8)} ${avgDur.padEnd(14)} ${lastRun}`)
@@ -40,13 +72,21 @@ function printPlain(memberCount: number, decisionCount: number, lockStatus: stri
   }
 }
 
-function printJson(memberCount: number, decisionCount: number, lockStatus: string, memoryInit: boolean, allStats: MetricsEntry[]): void {
+function printJson(
+  memberCount: number,
+  decisionCount: number,
+  lockStatus: string,
+  memoryInit: boolean,
+  allStats: MetricsEntry[],
+  skills: { budget: number; rows: SkillUsageRow[] },
+): void {
   const output = {
     members: memberCount,
     decisions: decisionCount,
     lockfile: lockStatus,
     memory: memoryInit,
     metrics: allStats,
+    skills,
   }
   console.log(JSON.stringify(output, null, 2))
 }
@@ -71,7 +111,7 @@ function reportDrift(cwd: string): void {
     }
   }
   if (driftFound.length === 0) {
-    console.log('\n  No drift detected \u2014 all members match lockfile.\n')
+    console.log('\n  No drift detected: all members match lockfile.\n')
   } else {
     console.log(`\n  Drift detected in ${driftFound.length} member(s):\n`)
     for (const m of driftFound) {
@@ -272,16 +312,16 @@ function printMemberWindows(member: string, windows: TraceWindow[], json: boolea
     return
   }
 
-  console.log(`\n  Trace Summary — ${member}\n`)
+  console.log(`\n  Trace Summary, ${member}\n`)
   console.log(`  ${'Window'.padEnd(8)} ${'Calls'.padEnd(7)} ${'Success'.padEnd(9)} ${'Errors'.padEnd(7)} ${'Avg Dur'.padEnd(10)} ${'Cost'.padEnd(10)} Tokens`)
   console.log(`  ${''.padEnd(8, '-')} ${''.padEnd(7, '-')} ${''.padEnd(9, '-')} ${''.padEnd(7, '-')} ${''.padEnd(10, '-')} ${''.padEnd(10, '-')} ${''.padEnd(10, '-')}`)
   for (const w of windows) {
     if (!w.summary) {
-      console.log(`  ${w.label.padEnd(8)} ${String(0).padEnd(7)} ${String(0).padEnd(9)} ${String(0).padEnd(7)} ${'—'.padEnd(10)} ${'$0.0000'.padEnd(10)} 0`)
+      console.log(`  ${w.label.padEnd(8)} ${String(0).padEnd(7)} ${String(0).padEnd(9)} ${String(0).padEnd(7)} ${'-'.padEnd(10)} ${'$0.0000'.padEnd(10)} 0`)
       continue
     }
     const s = w.summary
-    const quality = s.avgQuality === null ? '—' : s.avgQuality.toFixed(2)
+    const quality = s.avgQuality === null ? '-' : s.avgQuality.toFixed(2)
     console.log(
       `  ${w.label.padEnd(8)} ${String(s.callCount).padEnd(7)} ${String(s.successCount).padEnd(9)} ${String(s.errorCount).padEnd(7)} ${formatDuration(s.avgDurationMs).padEnd(10)} $${s.totalCost.toFixed(4).padEnd(9)} ${s.totalTokens.total.toLocaleString()} (${quality})`,
     )
@@ -375,12 +415,19 @@ export async function status(args: string[] = []): Promise<void> {
 
   const stats = collectProjectStats(cwd)
   const allStats = collectMemberMetrics(join(cwd, '.agenthood', 'metrics'))
+  const skills = collectSkillUsage(cwd)
 
-  const display = isJson ? printJson : printPlain
+  if (isJson) {
+    printJson(stats.memberCount, stats.decisionCount, stats.lockStatus, stats.memoryInit, allStats, skills)
+    return
+  }
+
+  const display = printPlain
 
   if (isWatch) {
     runWatchLoop(cwd, stats, display)
   }
 
   display(stats.memberCount, stats.decisionCount, stats.lockStatus, stats.memoryInit, allStats)
+  printSkillContext(skills.rows, skills.budget)
 }

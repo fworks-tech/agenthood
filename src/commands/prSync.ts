@@ -23,7 +23,7 @@ interface PrSyncCliOptions {
   withReviewer?: boolean
 }
 
-/** execFileSync variant for git/gh invocations — args are passed as array
+/** execFileSync variant for git/gh invocations: args are passed as array
  * elements, never through a shell, so attacker-influenced values (PR body
  * markers, branch names, baseRefName) cannot inject commands */
 function runFile(cmd: string, args: string[]): string {
@@ -108,7 +108,7 @@ const LOCK_SUFFIX_RE = /\.lock$/i
  * the branch name itself starts with `-`. Keep all git *ref* usages (merge
  * base, ranges) behind this helper so the invariant cannot silently regress.
  * gh invocations that take a bare branch name (e.g. `gh pr list --head`) do
- * not use it — gh has no ref-vs-option ambiguity for positional/flag values. */
+ * not use it: gh has no ref-vs-option ambiguity for positional/flag values. */
 function originRef(baseBranch: string): string {
   return `origin/${baseBranch}`
 }
@@ -123,7 +123,7 @@ function originRef(baseBranch: string): string {
  *     documents ".lock", so the case-insensitive match here is intentional,
  *     fail-closed strictness rather than a documented git rule.
  *
- * We intentionally do NOT require a slash — GitHub allows onelevel branches
+ * We intentionally do NOT require a slash: GitHub allows onelevel branches
  * like `main`. Leading dashes are safe because refs are always passed through
  * originRef() (never parsed as a flag).
  */
@@ -142,7 +142,7 @@ export function isValidRefname(name: string): boolean {
 }
 
 function getCommitsSince(sinceSha: string | null, baseBranch: string): ParsedCommit[] {
-  // PR body markers are attacker-editable — never let a non-SHA reach the shell
+  // PR body markers are attacker-editable: never let a non-SHA reach the shell
   if (sinceSha && !/^[0-9a-f]{40}$/i.test(sinceSha)) {
     console.warn(`Malformed sync marker SHA ignored: ${sinceSha}`)
     sinceSha = null
@@ -277,7 +277,7 @@ export async function prSync(args: string[]): Promise<void> {
     const { lastSyncSha, commits, newBody } = payload
 
     if (options.dryRun) {
-      console.log(`[DRY RUN] PR #${prInfo.number} — ${commits.length} new commit(s) since ${lastSyncSha || 'base'}`)
+      console.log(`[DRY RUN] PR #${prInfo.number}, ${commits.length} new commit(s) since ${lastSyncSha || 'base'}`)
       console.log('\n=== PROPOSED BODY ===')
       console.log(newBody)
     } else {

@@ -3,20 +3,26 @@ name: herald
 description: Manages semantic versioning, release notes, changelog generation, and scheduled reports. Use before every release to determine the version bump and generate changelog. Use for daily standups and end-of-day summaries.
 allowed-tools: file.read file.search code.explain ask_human file.write code.write code.refactor
 license: MIT
+metadata:
+  version: 1.0.0
 ---
 
 # The Herald
 
 ## Overview
 
-The Herald does not release code. It *announces* it. Every release has a version number that means something. Every release has notes that humans can read. Every release was earned — by passing tests, clean commits, and a merged PR. The Herald makes sure everyone knows when something ships, what changed, and what it means.
+A release is a communication problem as much as a technical one. A tag without
+notes leaves users guessing; notes without a version scheme leave maintainers
+guessing. The Herald handles both ends: it computes the next semver from the
+commits since the last tag, writes notes that lead with what changed for the user,
+refreshes the changelog, and posts the summary where the team already looks.
 
 ## When to Use
 
-- Before every release — to determine version bump and generate changelog
+- Before every release, to determine version bump and generate changelog
 - When preparing a GitHub Release
-- Daily at 8:00 AM — morning standup report
-- Daily at end of day — work summary
+- Daily at 8:00 AM: morning standup report
+- Daily at end of day: work summary
 - When a stakeholder asks "what shipped this week?"
 
 ## Process
@@ -34,7 +40,7 @@ The Herald does not release code. It *announces* it. Every release has a version
 | Only `chore`, `docs`, `ci`, `test` | **No bump** | Internal only |
 
 3. Announce the determination with reasoning:
-   *"Next version: 1.3.0 (minor bump) — 2 feat commits found since v1.2.1."*
+   *"Next version: 1.3.0 (minor bump); 2 feat commits found since v1.2.1."*
 
 ### Changelog Generation
 
@@ -69,7 +75,7 @@ The Herald does not release code. It *announces* it. Every release has a version
 1. Create a git tag: `git tag v1.3.0`
 2. Push the tag: `git push origin v1.3.0`
 3. Create a GitHub Release:
-   - **Title:** `v1.3.0 — Month Day, Year`
+   - **Title:** `v1.3.0: Month Day, Year`
    - **Body:** the formatted changelog section for this version
    - **Link:** "Full changelog: CHANGELOG.md#130"
 
@@ -78,7 +84,7 @@ The Herald does not release code. It *announces* it. Every release has a version
 Generated at 8:00 AM from git activity since yesterday:
 
 ```markdown
-## Morning Briefing — {Date}
+## Morning Briefing: {Date}
 
 ### Merged Yesterday
 - #{PR} feat(ui): add dark mode toggle
@@ -100,14 +106,14 @@ Generated at 8:00 AM from git activity since yesterday:
 Generated at end of working session:
 
 ```markdown
-## End of Day — {Date}
+## End of Day: {Date}
 
 ### Completed
-- Closed #{issue} — fix login redirect loop
-- Merged #{PR} — feat(ui): dark mode toggle
+- Closed #{issue}: fix login redirect loop
+- Merged #{PR}: feat(ui): dark mode toggle
 
 ### In Progress
-- #{issue} — OAuth2 integration (spec written, implementation 40%)
+- #{issue}: OAuth2 integration (spec written, implementation 40%)
 
 ### Tomorrow
 - Complete OAuth2 implementation
@@ -119,7 +125,7 @@ Generated at end of working session:
 Every `agenthood run` writes a decision + provenance entry to
 `.agenthood/decisions/` and `.agenthood/provenance/` (ADR-015). When the
 Herald's reports need the *why* behind merged work, read the decision log and
-its causal edges (`edges.json`) — the changelog can cite the recorded decision
+its causal edges (`edges.json`): the changelog can cite the recorded decision
 behind each change instead of guessing from commit subjects.
 
 ## Red Flags

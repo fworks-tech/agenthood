@@ -16,7 +16,7 @@ export interface MetricsSnapshot {
 }
 
 /** Reads the local metrics and cost ledgers into one snapshot. Local-only
- *  source of truth — the exporters only re-shape it, never collect remotely. */
+ *  source of truth: the exporters only re-shape it, never collect remotely. */
 export function collectSnapshot(cwd: string): MetricsSnapshot {
   const members = new MetricsCollector(`${cwd}/.agenthood/metrics`).getAllStats()
   const byProvider = new Map<string, CostRollup>()

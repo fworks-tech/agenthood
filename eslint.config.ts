@@ -17,7 +17,7 @@ export default tseslint.config(
   },
   {
     // `any` is frequently the honest type in a test mock or fixture. src/ and
-    // scripts/ keep the rule — it stays enforced where the bugs live.
+    // scripts/ keep the rule; it stays enforced where the bugs live.
     files: ["tests/**"],
     rules: {
       "@typescript-eslint/no-explicit-any": "off",

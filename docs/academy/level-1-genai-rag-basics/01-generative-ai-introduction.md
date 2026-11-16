@@ -1,6 +1,6 @@
 # Generative AI Introduction
 
-> Generative AI without standards is just automated chaos. The Society enforces the standards.
+> Generative AI is useful only inside explicit contracts.
 
 ---
 
@@ -8,7 +8,7 @@
 
 Generative AI refers to algorithms (such as LLMs, image generators, and audio synthesis models) that can create new content based on training data. In the context of the Agenthood, it specifically means Large Language Models (LLMs) that process text to perform reasoning, code generation, and task execution.
 
-Unlike deterministic software, Generative AI is probabilistic. You do not write a sequence of `if/else` statements to get a result; you provide a prompt, and the model predicts the most likely next tokens. It is an engine of probability, and it requires a new mental model for development.
+Unlike deterministic software, Generative AI is probabilistic. You do not write a sequence of `if/else` statements to get a result; you provide a prompt, and the model predicts the most likely next tokens. That calls for a different mental model when you develop with it.
 
 ---
 
@@ -36,7 +36,7 @@ export interface ILLMProvider {
 }
 ```
 
-The Society restricts the chaos of Generative AI behind these firm boundaries.
+Everything the model produces passes through this boundary, so the rest of the system can check it.
 
 ---
 
@@ -55,8 +55,8 @@ The agent will strictly follow the Conventional Commits standard, proving that G
 
 ## Further reading
 
-- [ADR-001 — Markdown skills over code agents](../../adr/ADR-001-markdown-skills-over-code-agents.md)
-- [`AGENTS.md`](https://github.com/fworks-tech/agenthood/blob/main/AGENTS.md) — Society overview
-- [Attention Is All You Need](https://arxiv.org/abs/1706.03762) — the transformer paper that started this
+- [ADR-001: Markdown skills over code agents](../../adr/ADR-001-markdown-skills-over-code-agents.md)
+- [`AGENTS.md`](https://github.com/fworks-tech/agenthood/blob/main/AGENTS.md): Society overview
+- [Attention Is All You Need](https://arxiv.org/abs/1706.03762): the transformer paper that started this
 
 

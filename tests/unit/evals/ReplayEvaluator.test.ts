@@ -24,7 +24,7 @@ function envelope(overrides: Partial<TraceEnvelope> = {}): TraceEnvelope {
 
 describe('ReplayEvaluator', () => {
   it('re-runs the member against stored inputs and compares outputs', async () => {
-    const runner: RunMemberFn = async (task: string) => ({ output: `${task} — approved`, durationMs: 25 })
+    const runner: RunMemberFn = async (task: string) => ({ output: `${task}, approved`, durationMs: 25 })
     const embed = vi.fn(async (text: string) => (text.includes('approved') ? [1, 0] : [0, 1]))
     const report = await new ReplayEvaluator(runner, embed).replay([envelope()])
 
@@ -33,11 +33,11 @@ describe('ReplayEvaluator', () => {
       correlationId: 'corr-1',
       status: 'completed',
       storedOutput: 'looks good',
-      newOutput: 'review this — approved',
+      newOutput: 'review this, approved',
       durationMs: 25,
     })
     expect(embed).toHaveBeenCalledWith('looks good')
-    expect(embed).toHaveBeenCalledWith('review this — approved')
+    expect(embed).toHaveBeenCalledWith('review this, approved')
   })
 
   it('aggregates similarity across traces', async () => {

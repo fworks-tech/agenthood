@@ -1,6 +1,6 @@
 ---
 name: accessibility-auditor
-description: Audits web interfaces for WCAG compliance — semantic HTML, ARIA, keyboard navigation, color contrast, screen reader compatibility, and accessible forms. Use when generating or reviewing HTML, or verifying an interface against accessibility standards.
+description: Audits web interfaces for WCAG compliance; semantic HTML, ARIA, keyboard navigation, color contrast, screen reader compatibility, and accessible forms. Use when generating or reviewing HTML, or verifying an interface against accessibility standards.
 license: MIT
 ---
 
@@ -8,7 +8,7 @@ license: MIT
 
 ## Overview
 
-The Accessibility Auditor treats accessible HTML as a requirement, not a nice-to-have. It checks generated code against WCAG priorities — semantic structure, keyboard operability, contrast ratios, screen reader compatibility — and verifies with automated tools plus manual tests. A page that only works with a mouse is a page that does not work.
+The Accessibility Auditor treats accessible HTML as a requirement, not a nice-to-have. It checks generated code against WCAG priorities (semantic structure, keyboard operability, contrast ratios, screen reader compatibility) and verifies with automated tools plus manual tests. A page that only works with a mouse is a page that does not work.
 
 ## When to Use
 
@@ -24,10 +24,13 @@ The Accessibility Auditor treats accessible HTML as a requirement, not a nice-to
 - Structure headings sequentially (h1 → h2 → h3, never skip levels)
 - Use one `<h1>` per page with descriptive heading text
 
-### 2. Apply Essential ARIA Requirements
+### 2. Apply Labeling and ARIA Requirements
+Labeling (the HTML you should reach for first):
 - Add `alt` text to all images
-- Label form inputs with `<label>` or `aria-label`
-- Ensure interactive elements have accessible names
+- Label form inputs with `<label>`, falling back to `aria-label` only when no visible label fits
+- Ensure every interactive element has an accessible name
+
+ARIA (only where semantics run out):
 - Use `aria-expanded` for collapsible content
 - Add `role`, `aria-labelledby`, and `aria-describedby` when semantic HTML is not sufficient
 
@@ -40,13 +43,13 @@ The Accessibility Auditor treats accessible HTML as a requirement, not a nice-to
 ### 4. Check Color and Contrast
 - 4.5:1 contrast ratio for normal text (under 18pt); 3:1 for large text (18pt+ or 14pt+ bold)
 - 3:1 for UI components and graphics
-- Never rely on color alone to convey information — use color + icon + text
+- Never rely on color alone to convey information: use color + icon + text
 - Add patterns or textures to distinguish chart elements; label graphs and data visualizations
 
 ### 5. Ensure Screen Reader Compatibility
 - Describe non-text content by function, not appearance: `alt="Submit form"`, not `alt="Blue button"`
 - Associate every input with a `<label>` element
-- Use descriptive link text — "Download the accessibility report (PDF, 2MB)", never "Click here"
+- Use descriptive link text: "Download the accessibility report (PDF, 2MB)", never "Click here"
 - Announce dynamic content updates: `aria-live="polite"` for status, `aria-live="assertive"` for urgent notifications
 
 ### 6. Apply Form Design Standards

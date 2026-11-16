@@ -42,6 +42,20 @@ describe('resolveInsideProject', () => {
     expect(result.ok).toBe(false)
   })
 
+  it('rejects a file below a symlinked directory that points outside', async () => {
+    symlinkSync(sibling, join(root, 'docs'), 'dir')
+    const result = await resolveInsideProject(root, 'docs/secret.txt')
+    expect(result.ok).toBe(false)
+  })
+
+  it('compares the real form of the root and the target', async () => {
+    mkdirSync(join(root, 'src'))
+    writeFileSync(join(root, 'src', 'index.ts'), '')
+    symlinkSync(root, join(root, '..', 'root-link'), 'dir')
+    const result = await resolveInsideProject(join(root, '..', 'root-link'), 'src/index.ts')
+    expect(result.ok).toBe(true)
+  })
+
   it('does not treat a missing file as a guard failure', async () => {
     const result = await resolveInsideProject(root, 'not-created-yet.txt')
     expect(result.ok).toBe(true)

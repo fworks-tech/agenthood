@@ -2,84 +2,104 @@
   "version": 1,
   "members": {
     "architect": {
-      "version": "909f05a0281bdae394382fd6b9a403754ce815d46b4b8c510a0079f15fcc3e8a",
-      "updatedAt": "2026-11-15T22:11:45.532Z"
+      "version": "18a7f3a7313a6034d1a478921d5922d1c64988153c840c65e81683d5d480579f",
+      "updatedAt": "2026-11-16T16:17:01.550Z",
+      "skillVersion": "1.0.0"
     },
     "auditor": {
-      "version": "512755c8c13ddb98c964aac86942a8b125d334a6cd21d6f044418b2d987e5183",
-      "updatedAt": "2026-11-15T22:11:45.532Z"
+      "version": "ed88619da3a57882a5ee1bee4b481965d6592445dd87d68022afc0ccc4157a73",
+      "updatedAt": "2026-11-16T16:17:01.550Z",
+      "skillVersion": "1.0.0"
     },
     "builder": {
-      "version": "3d3cd47dadd763d8b084061dafcdc9e2591f99182781dd62e897957ba98ed89d",
-      "updatedAt": "2026-11-15T22:11:45.532Z"
+      "version": "2b15fa86adf970c6965067e5447fd2e6eca42c25d1298353b7e5ec021fa4aa8a",
+      "updatedAt": "2026-11-16T16:17:01.550Z",
+      "skillVersion": "1.0.0"
     },
     "debugger": {
-      "version": "f21119828a53050be251c728dc3674732525f064190af20bacd9f4f11ccde0e0",
-      "updatedAt": "2026-11-15T22:11:45.532Z"
+      "version": "4355519ff2549face577f12c878ab799d5025cd4c3196ce12a611b28c6085951",
+      "updatedAt": "2026-11-16T16:17:01.550Z",
+      "skillVersion": "1.0.0"
     },
     "doorman": {
-      "version": "3d13094c65af370bcea313edea29c0ef1a8f1a8f4301a587d0a054383171d800",
-      "updatedAt": "2026-11-15T22:11:45.532Z"
+      "version": "e2bbbc73f96c3e8264e3e2e896cba68558ace867ac807647143a8053cda9e829",
+      "updatedAt": "2026-11-16T16:17:01.550Z",
+      "skillVersion": "1.0.0"
     },
     "envoy": {
-      "version": "b0feb76c56b9dc3ae12c20f32891826e3f98c7b6df52ba914795e52c223aebfc",
-      "updatedAt": "2026-11-15T22:11:45.532Z"
+      "version": "701a21d0bc83fe4c8680b64b8fcd4d024ed69b4e8cf355013dabf4424eb93742",
+      "updatedAt": "2026-11-16T16:17:01.550Z",
+      "skillVersion": "1.0.0"
     },
     "herald": {
-      "version": "413b2f69f7e6e3313ca5d208fcbf1e55cef3bda50eeefafa408c375b3a7e3aa2",
-      "updatedAt": "2026-11-15T22:11:45.532Z"
+      "version": "608524447ca08428c3963b621b89c66eaca5ad649262c234e7589a4b77aacf4c",
+      "updatedAt": "2026-11-16T16:17:01.550Z",
+      "skillVersion": "1.0.0"
     },
     "inspector": {
-      "version": "9c137127d1b349ebdea26abba3fa79152add638c304dc1dce9430b9ed863d1f4",
-      "updatedAt": "2026-11-15T22:11:45.532Z"
+      "version": "5086e09e4ea28d1d5a2b30d05dba82aa42fffcfb1647486bc534e8d3c9d2ba26",
+      "updatedAt": "2026-11-16T16:17:01.550Z",
+      "skillVersion": "1.0.0"
     },
     "librarian": {
-      "version": "5b05a7beb857f20e18e709aa2b86e7b793e612ae17c47d10ce2bc5aeeae7074e",
-      "updatedAt": "2026-11-15T22:11:45.532Z"
+      "version": "914c49470bf687401d989156581bd9bf38162cb0b4962ca3436cdc908097fcd5",
+      "updatedAt": "2026-11-16T16:17:01.550Z",
+      "skillVersion": "1.0.0"
     },
     "mailman": {
-      "version": "d3ec1b0408910b453a538131247801d966c86107a08d1e63b9c667c474099eb4",
-      "updatedAt": "2026-11-15T22:11:45.532Z"
+      "version": "2399fbda5e9b592852b5d8ec973385e066ec0cbe86aad9c662bb7a229203b901",
+      "updatedAt": "2026-11-16T16:17:01.550Z",
+      "skillVersion": "1.0.0"
     },
     "mediator": {
-      "version": "698b1ee10575dce943b74d0dc09bdfca8a6b325f5c8721d8f1e0ee77470e1d8e",
-      "updatedAt": "2026-11-15T22:11:45.532Z"
+      "version": "b97c6f1df308e472fada613d220bf9f03e0c12aaf2659913b2c8307a31872dc9",
+      "updatedAt": "2026-11-16T16:17:01.550Z",
+      "skillVersion": "1.0.0"
     },
     "operator": {
-      "version": "83f35c01b811b5199bd0f94189f9aaedfd232de8693fd51e20a6789a81af9df5",
-      "updatedAt": "2026-11-15T22:11:45.532Z"
+      "version": "7da6906b3e9e718902467e56e46a5c381fda19beb5429fa649e10692a11069ca",
+      "updatedAt": "2026-11-16T16:17:01.550Z",
+      "skillVersion": "1.0.0"
     },
     "oracle": {
-      "version": "0da9bbd3cd54c7d575a0bc7002a9de65afc21e3af1a373c8f5d807b08afb87ce",
-      "updatedAt": "2026-11-15T22:11:45.532Z"
+      "version": "d9857a3f751903fc212a61de39c6dbb88dbb2c69d99c834843ea1654d8d62bd4",
+      "updatedAt": "2026-11-16T16:17:01.550Z",
+      "skillVersion": "1.0.0"
     },
     "reviewer": {
-      "version": "2188b765aa06a13c5e6ecfc51b9449d7d91a3d4b4d1053920d15f3e1d78f3f03",
-      "updatedAt": "2026-11-15T22:11:45.532Z"
+      "version": "3cf51484353474bce04eb0dfa5eccc0123a0da492b5af8c9d9014559e49a8fde",
+      "updatedAt": "2026-11-16T16:17:01.550Z",
+      "skillVersion": "1.0.0"
     },
     "scribe": {
-      "version": "1425b7786791755ee47c04708bef2ecba3f79d019c2e1b56744c234dfc511821",
-      "updatedAt": "2026-11-15T22:11:45.532Z"
+      "version": "c74f7ff5a76ddbdf137bfed6a60fdbc828fba14b268ab691096fabcfbc63143e",
+      "updatedAt": "2026-11-16T16:17:01.550Z",
+      "skillVersion": "1.0.0"
     },
     "sentinel": {
-      "version": "075dafc75f58036ad6c1cd2608c16b7e21cf4564d5c985fad510d46add7d0272",
-      "updatedAt": "2026-11-15T22:11:45.532Z"
+      "version": "cf3fc68932cb4f1d4e1286da5cc9357ac9425f7ccac74df6226d8edb172910f8",
+      "updatedAt": "2026-11-16T16:17:01.550Z",
+      "skillVersion": "1.0.0"
     },
     "steward": {
-      "version": "2a4d2bba5666e62753c778d1a649928d3f31472841c9d081f3c2abc81ecae5b6",
-      "updatedAt": "2026-11-15T22:11:45.532Z"
+      "version": "6b8f6a8c8964f4ca841813952e4f2f1840da8a3c55686a74a22178d8d04511fc",
+      "updatedAt": "2026-11-16T16:17:01.550Z",
+      "skillVersion": "1.0.0"
     },
     "strategist": {
-      "version": "993a6a34cd22da13aa4ad48b557dd0765a1f6c989fb50d8fdb3eec0deab1fe4e",
-      "updatedAt": "2026-11-15T22:11:45.532Z"
+      "version": "40fb3132aa44c987a44a04699304967f149f25f557e1f2b922373240cf289fec",
+      "updatedAt": "2026-11-16T16:17:01.550Z",
+      "skillVersion": "1.0.0"
     },
     "tester": {
-      "version": "6b6e369537a416f5d368402f302e528cb64e11d351bf887b958cfd9acd3cf82b",
-      "updatedAt": "2026-11-15T22:11:45.532Z"
+      "version": "87f0719db4bf63f5d921433d27536bd426cc7258e6d0fd4250252806ef740525",
+      "updatedAt": "2026-11-16T16:17:01.550Z",
+      "skillVersion": "1.0.0"
     },
     "warden": {
-      "version": "8acce90261513aabcfe1fc8004eda3f649ed9720e5282ec6da61dba9deac864c",
-      "updatedAt": "2026-11-15T22:11:45.532Z"
+      "version": "491d13b7d702d53835d50026b1749fa5c55c440287d6aad309ee25c9d59d1af9",
+      "updatedAt": "2026-11-16T16:17:01.550Z",
+      "skillVersion": "1.0.0"
     }
   }
 }

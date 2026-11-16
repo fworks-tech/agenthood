@@ -11,7 +11,7 @@ import { MetricsCollector } from '../../../src/memory/MetricsCollector.ts'
 import type { Server } from 'node:http'
 
 /** Real sockets on a real port. Vitest's 5s default is not enough headroom
- *  when the parallel worker pool is saturating the CPU — the same class of
+ *  when the parallel worker pool is saturating the CPU: the same class of
  *  flake the command-registry test hit on CI (#465). */
 const SOCKET_TIMEOUT = 15000
 
@@ -148,6 +148,12 @@ describe('metrics export (#651)', () => {
       const body = await res.text()
       expect(body).toContain('agenthood_member_invocations_total{member="scribe"} 2')
       expect(body).toContain('# TYPE agenthood_provider_cost_usd_total counter')
+    }, SOCKET_TIMEOUT)
+
+    it('binds loopback by default, matching the printed URL', async () => {
+      server = await startMetricsServer({ cwd, port: 0 })
+      const address = server.address() as AddressInfo
+      expect(address.address).toBe('127.0.0.1')
     }, SOCKET_TIMEOUT)
 
     it('404s anything but /metrics', async () => {

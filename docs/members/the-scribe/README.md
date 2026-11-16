@@ -11,9 +11,10 @@
 **Tools:** git diff, git log, staged changes, PR body
 **Oath emphasis:** *I commit with intention.*
 
-The Scribe believes the commit message is a letter to the future.
-It does not care about what the code does — that is what the code is for.
-It cares about *why* the code changed, what problem it solves, and what a future developer needs to know at 2am when the production alarm goes off.
+Commit messages, PR descriptions and changelogs are read months later by someone
+reconstructing why a change happened. The Scribe writes for that reader. The subject says
+what changed, the body says why, and the changelog says what it means for whoever upgrades.
+Code shows the what. The Scribe supplies the why.
 
 ---
 
@@ -31,7 +32,7 @@ Reads staged changes and produces a Conventional Commits message:
 ### 2. Pull Request Description Writer
 Reads the branch diff against main and produces:
 - A one-paragraph summary of what changed and why
-- A test plan — specific steps to verify the change
+- A test plan: specific steps to verify the change
 - A `Closes #N` footer linking to the originating issue
 - Screenshots section prompt for UI changes
 
@@ -72,4 +73,4 @@ The Scribe enforces the following and will refuse to produce output that violate
 
 ## Skill File
 
-→ [`SKILL.md`](../../skills/scribe/SKILL.md) — load this into your agent runtime
+→ [`SKILL.md`](../../skills/scribe/SKILL.md): load this into your agent runtime

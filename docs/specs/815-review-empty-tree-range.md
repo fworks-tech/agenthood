@@ -10,7 +10,7 @@ Resolve the diff base against the PR's actual base branch instead of the push ev
 2. Fetch the base branch ref (`origin/<baseRefName>`).
 3. Compute `git merge-base origin/<baseRefName> HEAD` as the true base SHA.
 4. Use `<merge-base>...HEAD` as the RANGE.
-5. If the resolved file list is empty AND the PR reports changes (via `gh pr view --json changedFiles`), fail the job loudly with `::error::` — never post a passing verdict on an empty diff.
+5. If the resolved file list is empty AND the PR reports changes (via `gh pr view --json changedFiles`), fail the job loudly with `::error::`: never post a passing verdict on an empty diff.
 
 ## Out of Scope
 - Other workflows that use the same pattern (only `reviewer.yml` has this push-event shape).

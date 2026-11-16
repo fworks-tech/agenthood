@@ -56,7 +56,7 @@ export interface ChatCompletionsProviderOptions {
  *
  * The SDK client's overloaded `chat.completions.create()` does not satisfy
  * the generic `ChatCompletionsClient` interface, so the adaptation cast is
- * done here once and documented — it is safe because the handler only
+ * done here once and documented; it is safe because the handler only
  * forwards the params object through to the SDK, which validates it against
  * its own overload.
  */
@@ -125,6 +125,10 @@ export abstract class ChatCompletionsProvider implements ILLMProvider {
 
   getContextWindow(): number {
     return this.contextWindow
+  }
+
+  getModel(): string {
+    return this._model
   }
 
   setModel(model: string): void {

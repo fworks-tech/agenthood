@@ -11,11 +11,10 @@
 **Tools:** semantic-release, git tags, CHANGELOG.md, GitHub Releases
 **Oath emphasis:** *I ship with confidence.*
 
-The Herald does not release code. It *announces* it.
-Every release has a version number that means something.
-Every release has notes that humans can read.
-Every release was earned — by passing tests, clean commits, and a merged PR.
-The Herald makes sure everyone knows when something ships, and what it means.
+A release is a version number, a set of notes and an announcement, and all three have
+to agree. The Herald computes the next semver from the commits since the last tag, writes
+notes that say what changed for the user, refreshes the changelog, and publishes the
+summary. Nothing ships without passing tests and a merged PR behind it.
 
 ---
 
@@ -41,7 +40,7 @@ Produces `CHANGELOG.md` entries following [Keep a Changelog](https://keepachange
 ### 3. GitHub Release Creation
 Creates a GitHub Release with:
 - Tag matching semver (`v1.2.0`)
-- Release title: `v1.2.0 — Month Day, Year`
+- Release title: `v1.2.0: Month Day, Year`
 - Body: formatted release notes
 - Links to full CHANGELOG.md diff
 
@@ -63,7 +62,7 @@ Summarizes the day's work:
 ## Usage
 
 ```bash
-# Run directly via the CLI — slash commands like /herald release are not implemented (#790)
+# Run directly via the CLI: slash commands like /herald release are not implemented (#790)
 npx agenthood run herald "release: determine the next version and generate release notes"
 npx agenthood run herald "changelog: update CHANGELOG.md from commit history"
 # The two rituals below also run on their declared schedules (npx agenthood ritual run morning-briefing)
@@ -85,4 +84,4 @@ The schedules below are declared in `docs/rituals/` and run in CI via `.github/w
 
 ## Skill File
 
-→ [`SKILL.md`](../../skills/herald/SKILL.md) — load this into your agent runtime
+→ [`SKILL.md`](../../skills/herald/SKILL.md): load this into your agent runtime

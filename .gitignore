@@ -5,9 +5,11 @@ dist/node_modules/
 
 # Local environment
 .env
+.env.*
+!.env.example
 *.local
 
-# Stray nested vercel-labs/fx clone — was committed as a gitlink with no .gitmodules and broke CI checkout
+# Stray nested vercel-labs/fx clone: was committed as a gitlink with no .gitmodules and broke CI checkout
 /Githubfx/
 
 # Build output
@@ -34,9 +36,18 @@ vscode-extension/.vscode-test/
 .agenthood/society-graph.json
 .agenthood/preferences.json
 .agenthood/skills
-.agenthood/costs.jsonl
+.agenthood/costs*.jsonl
 .agenthood/evals/
 .agenthood/traces/
+.agenthood/skill-output/
+.agenthood/skill-baseline.json
+
+# Generated API reference (npm run docs:api)
+docs/api/
+.agenthood/skill-cache/
+.agenthood/media/
+.agenthood/skill-exec-audit.ndjson
+.agenthood/skill-resources.json
 !.agenthood/config.json
 !.agenthood/config.example.json
 .claude/scheduled_tasks.lock

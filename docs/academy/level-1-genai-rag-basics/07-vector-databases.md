@@ -1,6 +1,6 @@
 # Vector Databases
 
-> Keyword search finds the words you typed. Vector search finds the meaning you intended.
+> Keyword search matches the words you typed. Vector search matches what you meant.
 
 ---
 
@@ -14,9 +14,9 @@ Unlike relational databases (SQL) that rely on exact keyword matches, vector dat
 
 ## Why it matters in production
 
-Traditional search fails when users ask natural language questions ("How do I fix the auth bug?"). RAG pipelines require the ability to retrieve documents based on semantic relevance, not exact text matches.
+Keyword search fails on natural-language questions such as "How do I fix the auth bug?". A RAG pipeline needs to retrieve documents by semantic relevance, not by exact text match.
 
-In production, vector databases provide the blazing-fast similarity search that makes real-time agentic workflows possible. Without them, comparing a query against thousands of codebase chunks would be computationally paralyzing.
+In production, a vector database makes similarity search fast enough for real-time agent workflows. Without one, comparing a query against thousands of codebase chunks is too slow to use.
 
 ---
 
@@ -37,7 +37,7 @@ await store.add([
 const results = await store.search(queryVector, 5, { source: 'docs' });
 ```
 
-No heavy cloud infrastructure. No external dependencies. Just fast, local semantic search.
+It needs no cloud infrastructure and no external service. Semantic search runs locally.
 
 ---
 
@@ -47,7 +47,7 @@ You interact with the local vector store transparently through the runtime:
 
 ```bash
 # Initialize local vector storage
-# No dedicated CLI subcommand — LanceDB initializes on first use
+# No dedicated CLI subcommand: LanceDB initializes on first use
 
 # The database lives in .agenthood/memory/
 ls -la .agenthood/memory/
@@ -56,7 +56,7 @@ ls -la .agenthood/memory/
 Or conceptually in TypeScript:
 
 ```typescript
-// The local embedded nature of LanceDB makes this seamless
+// The local embedded nature of LanceDB means there is no server to run
 const db = new LanceDBStore(1536);
 await db.connect('.agenthood/memory');
 await db.add(chunks);
@@ -66,8 +66,8 @@ await db.add(chunks);
 
 ## Further reading
 
-- [ADR-010 — LanceDB for Vector Storage](../../adr/ADR-010-lancedb-for-vector-storage.md)
-- [`src/memory/VectorStore.ts`](../../../src/memory/VectorStore.ts) — IVectorStore interface + LanceDBStore (shipped)
-- [LanceDB Documentation](https://lancedb.github.io/lancedb/) — why embedded vector DBs are the future
+- [ADR-010: LanceDB for Vector Storage](../../adr/ADR-010-lancedb-for-vector-storage.md)
+- [`src/memory/VectorStore.ts`](../../../src/memory/VectorStore.ts): IVectorStore interface + LanceDBStore (shipped)
+- [LanceDB Documentation](https://lancedb.github.io/lancedb/): why embedded vector DBs are the future
 
 

@@ -1,6 +1,6 @@
 # Prompt Engineering
 
-> A poor prompt is a failure of leadership. The Society demands clarity.
+> A vague prompt gets a vague result. Say what you want, with the limits.
 
 ---
 
@@ -68,8 +68,8 @@ const p = new PromptBuilder().setInstruction('Do not hallucinate.').build();
 
 ## Further reading
 
-- [ADR-001 — Markdown skills over code agents](../../adr/ADR-001-markdown-skills-over-code-agents.md)
-- [`src/prompts/PromptBuilder.ts`](../../../src/prompts/PromptBuilder.ts) — source implementation (shipped in v2.0.0)
-- [OpenAI: Prompt Engineering Guide](https://platform.openai.com/docs/guides/prompt-engineering) — best practices for structuring prompts
+- [ADR-001: Markdown skills over code agents](../../adr/ADR-001-markdown-skills-over-code-agents.md)
+- [`src/prompts/PromptBuilder.ts`](../../../src/prompts/PromptBuilder.ts): source implementation (shipped in v2.0.0)
+- [OpenAI: Prompt Engineering Guide](https://platform.openai.com/docs/guides/prompt-engineering): best practices for structuring prompts
 
 

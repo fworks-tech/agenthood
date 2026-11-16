@@ -1,5 +1,4 @@
 import { join } from 'node:path'
-import { execFileSync } from 'node:child_process'
 import type { ExecutionContext } from '../core/ExecutionContext.ts'
 import type { AnomalyDetector } from '../core/AnomalyDetector.ts'
 import { appendAnomalies } from '../core/AnomalyDetector.ts'
@@ -19,11 +18,17 @@ import { AskHumanSignal, AskHumanTool } from '../tools/human/AskHumanTool.ts'
 import { validateOutputFormat, reportFormatDeviation } from './outputFormat.ts'
 import { redactEventText } from '../core/RunEventBus.ts'
 import { TrajectoryStore } from '../core/TrajectoryStore.ts'
+import type { TrajectoryStep } from '../core/TrajectoryStore.ts'
 import { estimateCostFromTokens } from '../core/modelPricing.ts'
 import { ConcurrencyQueue, type Priority } from '../core/ConcurrencyQueue.ts'
 import type { TraceSource } from '../core/types.ts'
 import { exportIfConfigured as exportIfMetricsConfigured } from '../metrics/config.ts'
 import { RunCheckpoint, type CheckpointData, type CheckpointStore } from '../checkpoint/RunCheckpoint.ts'
+import { applySlashActivations } from '../skills/activation/slash.ts'
+import type { ActivateSkillTool } from '../skills/activation/ActivateSkillTool.ts'
+import { registerActivateTool } from '../skills/activation/toolRegistration.ts'
+import { toRegistryToolNames } from '../members/toolVocabulary.ts'
+import { detectDocker } from '../skills/execution/sandbox.ts'
 
 export interface MemberRunnerDeps {
   agents: AgentRegistry
@@ -54,30 +59,17 @@ function priorityForSource(source: TraceSource | undefined): Priority {
  * phase-1 local profile with a visible notice.
  */
 
-let dockerAvailable: boolean | null = null
-
-function detectDocker(): boolean {
-  if (dockerAvailable !== null) return dockerAvailable
-  try {
-    execFileSync('docker', ['info'], { stdio: 'ignore', timeout: 5000 })
-    dockerAvailable = true
-  } catch {
-    dockerAvailable = false
-  }
-  return dockerAvailable
-}
-
 export function applySandboxProfile(config: LLMConfig): void {
   if (config.security?.sandbox !== true) return
 
   if (detectDocker()) {
     config.security = { ...config.security, dockerIsolation: true, strictSkillIntegrity: true }
     config.interactive = true
-    console.log('  Docker isolation enabled — member tools will run inside a container.')
+    console.log('  Docker isolation enabled, member tools will run inside a container.')
     return
   }
 
-  console.warn('  Docker not available — falling back to local sandbox profile (strict integrity + confirmation).')
+  console.warn('  Docker not available, falling back to local sandbox profile (strict integrity + confirmation).')
   config.security = { ...config.security, strictSkillIntegrity: true }
   config.interactive = true
 }
@@ -125,8 +117,15 @@ export class MemberRunner {
   }
 
   private async executeMemberTask(memberName: string, task: string, config: LLMConfig, resumeFrom?: string | { checkpointId: string; reply?: string }): Promise<MemberRunResult> {
-    const { spec, llm, sReg, checkpointStore, checkpointData, seedMessages } =
+    const { spec, llm, sReg, checkpointStore, checkpointData, seedMessages, activateTool } =
       await this.prepareMemberContext(memberName, task, config, resumeFrom)
+
+    const slash = await applySlashActivations(
+      task,
+      new Set(this.ctx.skillManifests?.keys() ?? []),
+      (name) => activateTool?.execute({ skill_name: name }, this.ctx) ?? Promise.resolve(undefined),
+    )
+    const { task: effectiveTask, explicitSkills } = slash
 
     const loop = new ReActLoop(llm, sReg, {
       interactive: config.interactive,
@@ -146,15 +145,18 @@ export class MemberRunner {
       },
     })
 
-    if (config.skills?.autoDiscover === true) {
-      try {
-        await sReg.discover(join(process.cwd(), 'src', 'skills'))
-      } catch (e) {
-        console.warn(`[run] skill auto-discovery failed: ${(e as Error)?.message ?? e}`)
-      }
+    // A resumed run keeps its activated skills: tool scope and script authorization (#618).
+    if (resumeFrom && checkpointData.activatedSkills.length > 0) {
+      loop.activatedSkills = new Set(checkpointData.activatedSkills)
+      activateTool?.restoreActive(checkpointData.activatedSkills)
+      console.log(`[skills] restored ${checkpointData.activatedSkills.length} active skill(s) from the checkpoint`)
     }
-
-    const agent = new MemberAgent(spec, llm, loop, sReg, { agentRegistry: this.deps.agents, episodeLearner: this.deps.episodeLearner, strictSkillIntegrity: config.security?.strictSkillIntegrity })
+    const agent = new MemberAgent(spec, llm, loop, sReg, {
+      agentRegistry: this.deps.agents,
+      episodeLearner: this.deps.episodeLearner,
+      strictSkillIntegrity: config.security?.strictSkillIntegrity,
+      explicitSkills,
+    })
     const metricsCollector = new MetricsCollector(join(process.cwd(), '.agenthood', 'metrics'))
     const startTime = performance.now()
     const timestamp = new Date().toISOString()
@@ -170,11 +172,11 @@ export class MemberRunner {
         task: redactEventText(this.ctx, task),
       })
 
-      const result = await agent.run(task, this.ctx)
+      const result = await agent.run(effectiveTask, this.ctx)
       const duration = Math.round(performance.now() - startTime)
       return this.completeRunSuccess({
         spec, result, duration, usage: loop.usage, metricsCollector, checkpointStore, checkpointData,
-        task, model: checkpointData.model ?? config.model ?? 'unknown', provider: loop.provider,
+        task, model: checkpointData.model ?? config.model ?? 'unknown', provider: loop.provider, steps: loop.steps,
       })
     } catch (err) {
       const duration = Math.round(performance.now() - startTime)
@@ -187,7 +189,7 @@ export class MemberRunner {
       }
       this.recordRunFailure({
         spec, err, duration, metricsCollector, checkpointStore, checkpointData,
-        task, model: checkpointData.model ?? config.model ?? 'unknown', provider: loop.provider,
+        task, model: checkpointData.model ?? config.model ?? 'unknown', provider: loop.provider, steps: loop.steps,
       })
       throw err
     } finally {
@@ -211,6 +213,7 @@ export class MemberRunner {
     checkpointStore: CheckpointStore
     checkpointData: CheckpointData
     seedMessages: Message[] | undefined
+    activateTool?: ActivateSkillTool
   }> {
     applySandboxProfile(config)
     if (!this.deps.members.has(memberName)) throw new Error(`unknown member "${memberName}"`)
@@ -231,8 +234,16 @@ export class MemberRunner {
       resumeFrom,
       spec.model ?? config.model,
     )
+    const activateTool = registerActivateTool(sReg, this.ctx.skillManifests, llm, config, {
+      provider: memberProvider,
+      model: spec.model ?? llm.getModel?.() ?? config.model,
+      // Declared grants are what this member may call; the gate refuses a skill
+      // whose required tool is not among them (#552, #554).
+      tools: [...(toRegistryToolNames(spec.tools) ?? []), 'ask_human', 'activate_skill', 'run_skill_script'],
+    })
+
     const seedMessages = this.resumeSeed(checkpointData, resumeFrom)
-    return { spec, llm, sReg, checkpointStore, checkpointData, seedMessages }
+    return { spec, llm, sReg, checkpointStore, checkpointData, seedMessages, activateTool }
   }
 
   private persistTrajectory(args: {
@@ -240,36 +251,43 @@ export class MemberRunner {
     task: string
     model: string
     provider?: string
+    /** Per-step audit from the ReAct loop; empty falls back to one summary step. */
+    steps?: TrajectoryStep[]
     status: 'success' | 'error'
     outputSummary: string
     usage: TokenUsage
     duration: number
   }): void {
-    // Trajectory persistence must never fail a run — trace visualize/diff
+    // Trajectory persistence must never fail a run: trace visualize/diff
     // read what this writes, but a write failure is not a run failure.
     try {
       const prompt = args.usage.promptTokens ?? 0
       const completion = args.usage.completionTokens ?? 0
       const cost = estimateCostFromTokens(args.model, prompt, completion, args.provider)
       const completedAt = new Date()
-      // id = correlation id so `trace visualize` accepts the ids users
-      // already see in `trace`/`log` output
-      const id = this.ctx.correlationId ?? this.ctx.executionId
-      new TrajectoryStore(process.cwd()).save({
+      // A chain runs several members under one correlation id. The first run
+      // keeps that id so `trace visualize` accepts what users already see; later
+      // runs get a suffix instead of overwriting the earlier trajectory.
+      const correlationId = this.ctx.correlationId ?? this.ctx.executionId
+      const store = new TrajectoryStore(process.cwd())
+      const id = store.load(correlationId) ? `${correlationId}-${crypto.randomUUID().slice(0, 8)}` : correlationId
+      store.save({
         id,
-        correlationId: id,
+        correlationId,
         member: args.spec.name,
         task: redactEventText(this.ctx, args.task),
-        steps: [{
-          step: 0,
-          model: args.model,
-          inputSummary: redactEventText(this.ctx, args.task).slice(0, 500),
-          outputSummary: args.outputSummary.slice(0, 2000),
-          tokens: { prompt, completion },
-          cost,
-          durationMs: args.duration,
-          status: args.status,
-        }],
+        steps: args.steps?.length
+          ? args.steps
+          : [{
+              step: 0,
+              model: args.model,
+              inputSummary: redactEventText(this.ctx, args.task).slice(0, 500),
+              outputSummary: args.outputSummary.slice(0, 2000),
+              tokens: { prompt, completion },
+              cost,
+              durationMs: args.duration,
+              status: args.status,
+            }],
         totalTokens: prompt + completion,
         totalCost: cost,
         totalDurationMs: args.duration,
@@ -277,7 +295,7 @@ export class MemberRunner {
         completedAt: completedAt.toISOString(),
       })
     } catch {
-      // ignore — see above
+      // ignore: see above
     }
   }
 
@@ -292,6 +310,7 @@ export class MemberRunner {
     task: string
     model: string
     provider?: string
+    steps?: TrajectoryStep[]
   }): MemberRunResult {
     if (args.spec.output_format) {
       const { valid, message } = validateOutputFormat(args.result.output, args.spec.output_format)
@@ -304,6 +323,7 @@ export class MemberRunner {
       task: args.task,
       model: args.model,
       provider: args.provider,
+      steps: args.steps,
       status: 'success',
       outputSummary: redactEventText(this.ctx, args.result.output),
       usage: args.usage,
@@ -331,6 +351,7 @@ export class MemberRunner {
     task: string
     model: string
     provider?: string
+    steps?: TrajectoryStep[]
   }): void {
     args.metricsCollector.record(args.spec.name, false, args.duration)
     args.checkpointStore.updateStatus(args.checkpointData.id, 'failed')
@@ -339,6 +360,7 @@ export class MemberRunner {
       task: args.task,
       model: args.model,
       provider: args.provider,
+      steps: args.steps,
       status: 'error',
       outputSummary: redactEventText(this.ctx, args.err instanceof Error ? args.err.message : String(args.err)),
       usage: { promptTokens: 0, completionTokens: 0, totalTokens: 0 },

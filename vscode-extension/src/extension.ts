@@ -21,7 +21,7 @@ export function activate(context: vscode.ExtensionContext) {
   outputChannel = vscode.window.createOutputChannel('Agenthood');
   observerService = new ObserverService(context);
 
-  // v1.4.0 — The Living Editor services
+  // v1.4.0: The Living Editor services
   doormanService = new DoormanService();
   doormanService.activate();
 
@@ -37,7 +37,7 @@ export function activate(context: vscode.ExtensionContext) {
   memberWatchProvider = new MemberWatchProvider(observerService);
   vscode.window.registerTreeDataProvider('agenthood.membersWatch', memberWatchProvider);
 
-  // Status bar — shows active member count
+  // Status bar: shows active member count
   statusBarItem = vscode.window.createStatusBarItem(vscode.StatusBarAlignment.Left, 100);
   statusBarItem.command = 'agenthood.list';
   context.subscriptions.push(statusBarItem);
@@ -53,7 +53,7 @@ export function activate(context: vscode.ExtensionContext) {
     vscode.commands.registerCommand('agenthood.list', showMemberList),
     vscode.commands.registerCommand('agenthood.refreshMembers', () => memberWatchProvider.refresh()),
     vscode.commands.registerCommand('agenthood.invokeMember', () => {
-      vscode.window.showInformationMessage('Member invocation via autonomous runtime — coming in v2.0.0.');
+      vscode.window.showInformationMessage('Member invocation via autonomous runtime, coming in v2.0.0.');
     }),
   );
 

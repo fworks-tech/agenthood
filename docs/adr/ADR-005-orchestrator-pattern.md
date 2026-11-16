@@ -24,12 +24,12 @@ as needed. Members do not invoke each other directly.
 | Option | Pros | Cons | Why Rejected |
 |--------|------|------|-------------|
 | Peer-to-peer | Members can autonomously compose workflows | Creates hidden invocation chains; context leaks between members; hard to debug | Unpredictable and difficult to audit |
-| Orchestrator (chosen) | Explicit invocation; clear context boundaries; each member receives only what it needs | Requires the orchestrator (developer or Steward) to know the routing | — |
+| Orchestrator (chosen) | Explicit invocation; clear context boundaries; each member receives only what it needs | Requires the orchestrator (developer or Steward) to know the routing | - |
 | Event-driven (pub/sub) | Decoupled; members react to events | Requires a runtime event bus not available in most AI coding assistants today | No infrastructure support in current runtimes |
 
 ## Consequences
 
-**Easier:** Each member's context is controlled — The Tester receives test
+**Easier:** Each member's context is controlled. The Tester receives test
 context, not release context. Invocations are auditable in conversation history.
 
 **Harder:** Multi-step workflows (e.g., Architect → Tester → Reviewer → Scribe)
@@ -42,8 +42,8 @@ the `docs/agentic-workflows/` templates mitigate this.
 
 ## References
 
-- [skills/steward/SKILL.md](https://github.com/fworks-tech/agenthood/blob/main/skills/steward/SKILL.md) — routing guidance
-- [agentic-workflows/](https://github.com/fworks-tech/agenthood/tree/main/docs/agentic-workflows/) — multi-step workflow templates
-- [architecture/agent-system.md](https://github.com/fworks-tech/agenthood/blob/main/docs/architecture/agent-system.md) — system design
-- [architecture/concurrency-and-queues.md](https://github.com/fworks-tech/agenthood/blob/main/docs/architecture/concurrency-and-queues.md) — queue design
-- [ADR-008](ADR-008-typescript-runtime-over-python.md) — TypeScript runtime over Python
+- [skills/steward/SKILL.md](https://github.com/fworks-tech/agenthood/blob/main/skills/steward/SKILL.md): routing guidance
+- [agentic-workflows/](https://github.com/fworks-tech/agenthood/tree/main/docs/agentic-workflows/): multi-step workflow templates
+- [architecture/agent-system.md](https://github.com/fworks-tech/agenthood/blob/main/docs/architecture/agent-system.md): system design
+- [architecture/concurrency-and-queues.md](https://github.com/fworks-tech/agenthood/blob/main/docs/architecture/concurrency-and-queues.md): queue design
+- [ADR-008](ADR-008-typescript-runtime-over-python.md): TypeScript runtime over Python

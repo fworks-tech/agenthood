@@ -22,12 +22,12 @@ function showMemberDiff(cwd: string, member: string, lockedHash: string): boolea
   const skillPath = memberSkillPath(cwd, member)
   const commit = findRevision(cwd, skillPath, lockedHash)
   if (!commit) {
-    console.log(`\n  ? ${member} — locked version not found in git history`)
+    console.log(`\n  ? ${member}, locked version not found in git history`)
     return true
   }
-  console.log(`\n  ${member} — working tree vs locked ${commit.slice(0, 12)}`)
+  console.log(`\n  ${member}, working tree vs locked ${commit.slice(0, 12)}`)
   const out = execFileSync('git', ['diff', commit, '--', skillPath], { cwd, encoding: 'utf-8', stdio: 'pipe' }).trim()
-  console.log(out || '    (no textual diff — content differs from the locked hash)')
+  console.log(out || '    (no textual diff, content differs from the locked hash)')
   return true
 }
 

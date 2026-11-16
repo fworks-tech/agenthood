@@ -1,6 +1,6 @@
 # RAG Fundamentals
 
-> An agent without a retrieval pipeline is just a confidently loud amnesiac. 
+> Without retrieval, the agent answers from memory, and memory is what it got wrong.
 
 ---
 
@@ -28,7 +28,7 @@ sequenceDiagram
 
 LLMs have a static knowledge cutoff and cannot access your private codebase, Slack messages, or documentation. If you ask an agent to "debug the billing service," it will hallucinate unless it can read the billing service code.
 
-RAG grounds the LLM in reality. In production, RAG prevents hallucinations, allows for citation of sources, and enables agents to act on proprietary data without requiring expensive model fine-tuning.
+RAG grounds the LLM in your data. In production it reduces hallucinations, lets answers cite their sources, and lets an agent use proprietary data without fine-tuning the model.
 
 ---
 
@@ -47,29 +47,29 @@ export class Retriever {
 }
 ```
 
-The Society retrieves facts before it speaks.
+The agent retrieves the facts before it answers.
 
 ---
 
 ## Hands-on example
 
-The structural retrieval layer (`KnowledgeGraphStore`) is available now, alongside the indexing and embedding pipeline (`Indexer`, `ProjectIngestion`, `ChunkStrategy`). There is no dedicated CLI subcommand — use the API directly:
+The structural retrieval layer (`KnowledgeGraphStore`) is available now, alongside the indexing and embedding pipeline (`Indexer`, `ProjectIngestion`, `ChunkStrategy`). There is no dedicated CLI subcommand: use the API directly:
 
 ```bash
 # Index the current repository
-# No dedicated CLI subcommand — use the API directly (see src/rag/Indexer.ts)
+# No dedicated CLI subcommand: use the API directly (see src/rag/Indexer.ts)
 
 # Query the codebase
-# No dedicated CLI subcommand — use the API directly (see src/rag/Retriever.ts)
+# No dedicated CLI subcommand: use the API directly (see src/rag/Retriever.ts)
 ```
 
 ---
 
 ## Further reading
 
-- [ADR-010 — LanceDB for Vector Storage](../../adr/ADR-010-lancedb-for-vector-storage.md)
-- [`src/rag/KnowledgeGraphStore.ts`](../../../src/rag/KnowledgeGraphStore.ts) — bidirectional graph store (shipped)
-- [`src/memory/VectorStore.ts`](../../../src/memory/VectorStore.ts) — LanceDB vector store (shipped)
-- [IBM: What is RAG?](https://research.ibm.com/blog/retrieval-augmented-generation-RAG) — foundational overview of the RAG pattern
+- [ADR-010: LanceDB for Vector Storage](../../adr/ADR-010-lancedb-for-vector-storage.md)
+- [`src/rag/KnowledgeGraphStore.ts`](../../../src/rag/KnowledgeGraphStore.ts): bidirectional graph store (shipped)
+- [`src/memory/VectorStore.ts`](../../../src/memory/VectorStore.ts): LanceDB vector store (shipped)
+- [IBM: What is RAG?](https://research.ibm.com/blog/retrieval-augmented-generation-RAG): foundational overview of the RAG pattern
 
 

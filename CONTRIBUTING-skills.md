@@ -60,6 +60,17 @@ Before confirming the task is done:
 | `name` | Yes | Lowercase, hyphen-separated, matches directory name, ≤64 chars |
 | `description` | Yes | One sentence. Third person ("Use when...", not "I help with..."). Front-load trigger keywords. |
 | `license` | No | SPDX identifier (default: MIT) |
+| `metadata.author` | Publishing only | Registry namespace: the `owner` in `owner/name` (ADR-035) |
+| `source_url` | Third-party only | Where the skill came from; required for `skills/contrib/` |
+| `compaction-replay` | No | `false` marks one-shot instructions: compaction may summarise the body, so a re-activation always reloads it (#587) |
+
+**Cross-skill invocation.** A skill that needs another skill calls `activate_skill`
+by name; never copy the other body in. Activation blocks are wrapped in
+`<skill_directives>` and survive compaction, so the invoking skill resumes with
+its instructions intact. Set `compaction-replay: false` only for instructions
+that must not be replayed (a one-time migration, a destructive step); the runtime
+then re-injects on the next activation rather than pointing at a body that may
+have been summarised away.
 
 **Description quality checklist:**
 - Covers both *what* the skill does AND *when* to use it
@@ -81,22 +92,27 @@ Before confirming the task is done:
 
 Every SKILL.md must include these six sections (enforced by The Sentinel):
 
-1. **Overview** — philosophy and approach (2-4 sentences)
-2. **When to Use** — trigger scenarios as bullet list
-3. **Process** — step-by-step instructions with named sub-processes
-4. **Red Flags** — anti-patterns and things to avoid
-5. **Rationalizations** — table of common objections and rebuttals
-6. **Verification** — checklist of checkpoints before confirming done
+1. **Overview**: philosophy and approach (2-4 sentences)
+2. **When to Use**: trigger scenarios as bullet list
+3. **Process**: step-by-step instructions with named sub-processes
+4. **Red Flags**: anti-patterns and things to avoid
+5. **Rationalizations**: table of common objections and rebuttals
+6. **Verification**: checklist of checkpoints before confirming done
 
 ## Quality Standards
 
-- **No comments in code examples** — explain why, not what
-- **Single quotes, no semicolons** — matches repo convention
-- **Examples must be runnable** — copy-paste should work
-- **File discipline** — keep SKILL.md under 300 lines
-- **No dead references** — every linked file must exist
+- **No comments in code examples**: explain why, not what
+- **Single quotes, no semicolons**: matches repo convention
+- **Examples must be runnable**: copy-paste should work
+- **File discipline**: keep SKILL.md under 300 lines
+- **No dead references**: every linked file must exist
 
 ## Testing Your Skill
+
+Two guides go deeper than this checklist: [Skill Best Practices](../docs/guides/skill-best-practices.md)
+(what survives contact with a multi-agent chain), [Script Design](../docs/guides/script-design.md) (the
+interface a model can actually call), and [Skill Evaluation](../docs/guides/skill-evaluation.md)
+(trigger rate, suites, regressions in CI).
 
 1. Load the skill into an agent runtime:
    ```bash

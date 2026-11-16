@@ -1,5 +1,5 @@
 {
-  "_comment": "Copy this file to .agenthood/config.json and remove all _comment fields.",
+  "_comment": "Copy this file to .agenthood/config.json and remove all _comment fields. API keys are read from the environment or .env; see .env.example.",
 
   "version": "1",
 
@@ -98,7 +98,7 @@
   "observability": {
     "redaction": {
       "enabled": true,
-      "_comment": "Redaction is enabled by default and must stay that way — it scrubs emails, API keys, bearer tokens, URL query values, and IPs from persisted traces, decisions, and provenance. Set enabled false only when you knowingly accept raw payloads on disk. rules/paths add custom regex sources and path roots.",
+      "_comment": "Redaction is enabled by default and must stay that way; it scrubs emails, API keys, bearer tokens, URL query values, and IPs from persisted traces, decisions, and provenance. Set enabled false only when you knowingly accept raw payloads on disk. rules/paths add custom regex sources and path roots.",
       "rules": [],
       "paths": []
     },
@@ -118,17 +118,25 @@
     },
     "tracePath": ".agenthood/traces/traces.ndjson"
   },
-  "_comment_security": "Optional: mind-virus persistence-vector hardening (ADR-020). strictSkillIntegrity blocks member runs when the injected SKILL.md drifted from agenthood.lock; when false (default), drift only warns and records.",
+  "_comment_security": "Optional: mind-virus persistence-vector hardening (ADR-020). strictSkillIntegrity blocks member runs when the injected SKILL.md drifted from agenthood.lock; when false (default), drift only warns and records. sandbox runs skill scripts in Docker (ADR-036) and fails closed without it. autoAllowSkillDirs (default true) makes activated skill directories readable without a prompt; trustedAuthors may run scripts on the host.",
   "security": {
-    "strictSkillIntegrity": false
+    "strictSkillIntegrity": false,
+    "autoAllowSkillDirs": true
   },
 
-  "_comment_analytics": "Optional: local-only per-skill usage analytics shown by `agenthood stats`. Records skill names and counters only — never prompts or results. Set enabled false to opt out entirely.",
+  "_comment_skills": "Optional: skill discovery and execution. catalogFormat is xml|json|text (otherwise the provider decides); disabled keeps skills out of the catalog; scriptTimeoutMs caps a bundled script run (default 120000). cacheOutputs caches successful bundled-script output keyed by script content and arguments (default false, because a script may mutate the workspace); cacheTtlMs sets that cache's lifetime (default 3600000).",
+  "skills": {
+    "scriptTimeoutMs": 120000,
+    "cacheOutputs": false,
+    "cacheTtlMs": 3600000
+  },
+
+  "_comment_analytics": "Optional: local-only per-skill usage analytics shown by `agenthood stats`. Records skill names and counters only; never prompts or results. Set enabled false to opt out entirely.",
   "analytics": {
     "enabled": true
   },
 
-  "_comment_metricsExport": "Optional: external monitoring export (#651). 'prometheus' serves /metrics while `agenthood metrics` runs (default port 9464). 'statsd' pushes a snapshot over UDP after every member run. 'none' (default) disables both. Only metric names, member names, and provider names leave the machine — never prompts or results.",
+  "_comment_metricsExport": "Optional: external monitoring export (#651). 'prometheus' serves /metrics while `agenthood metrics` runs (default port 9464). 'statsd' pushes a snapshot over UDP after every member run. 'none' (default) disables both. Only metric names, member names, and provider names leave the machine; never prompts or results.",
   "metricsExport": {
     "type": "none",
     "port": 9464,

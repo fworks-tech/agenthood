@@ -1,4 +1,7 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest'
+import { mkdtempSync, rmSync, writeFileSync } from 'node:fs'
+import { join } from 'node:path'
+import { tmpdir } from 'node:os'
 
 vi.mock('../../../src/workflows/definitions/review-pr.ts', () => ({
   executeReviewPrWorkflow: vi.fn(),
@@ -32,6 +35,21 @@ describe('workflow command', () => {
 
     await workflow(['unknown'])
     expect(exit).toHaveBeenCalledWith(1)
+  })
+
+  it('names chains.yaml instead of dumping a parser error when the file is malformed', async () => {
+    const dir = mkdtempSync(join(tmpdir(), 'chains-'))
+    writeFileSync(join(dir, 'chains.yaml'), 'chains: [unclosed\n')
+    vi.spyOn(process, 'cwd').mockReturnValue(dir)
+    const exit = vi.spyOn(process, 'exit').mockImplementation((() => { throw new Error('exit') }) as any)
+    const error = vi.spyOn(console, 'error').mockImplementation(() => {})
+    try {
+      await expect(workflow(['list'])).rejects.toThrow('exit')
+      expect(exit).toHaveBeenCalledWith(1)
+      expect(error.mock.calls.flat().join(' ')).toContain('Could not read chains.yaml')
+    } finally {
+      rmSync(dir, { recursive: true, force: true })
+    }
   })
 
   it('executes review-pr workflow', async () => {

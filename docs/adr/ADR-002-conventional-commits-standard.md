@@ -23,7 +23,7 @@ specification as its commit standard, with a curated set of allowed types:
 | Option | Pros | Cons | Why Rejected |
 |--------|------|------|-------------|
 | Custom commit format | Total control over rules | No ecosystem tooling; every adopter must learn a new format | Reinventing a solved problem |
-| Conventional Commits (chosen) | Industry standard; semantic-release integration; commitlint support; human-readable | Slightly verbose; requires type discipline | — |
+| Conventional Commits (chosen) | Industry standard; semantic-release integration; commitlint support; human-readable | Slightly verbose; requires type discipline | - |
 | No standard | Zero friction | Commit history becomes archaeology | Incompatible with the Society's purpose |
 | Emoji-based commits (gitmoji) | Visually distinct | Not machine-parseable; no tooling for semver bumping | Not suitable for automated release |
 
@@ -42,7 +42,7 @@ commit history. The Doorman enforces subject rules but does not require scopes.
 
 ## References
 
-- [conventions/commitlint.config.ts](https://github.com/fworks-tech/agenthood/blob/main/docs/conventions/commitlint.config.ts) — enforcement rules
-- [conventions/COMMIT_CONVENTION.md](https://github.com/fworks-tech/agenthood/blob/main/docs/conventions/COMMIT_CONVENTION.md) — human-readable guide
-- [skills/doorman/SKILL.md](https://github.com/fworks-tech/agenthood/blob/main/skills/doorman/SKILL.md) — enforcement member
-- [skills/scribe/SKILL.md](https://github.com/fworks-tech/agenthood/blob/main/skills/scribe/SKILL.md) — commit message author
+- [conventions/commitlint.config.ts](https://github.com/fworks-tech/agenthood/blob/main/docs/conventions/commitlint.config.ts): enforcement rules
+- [conventions/COMMIT_CONVENTION.md](https://github.com/fworks-tech/agenthood/blob/main/docs/conventions/COMMIT_CONVENTION.md): human-readable guide
+- [skills/doorman/SKILL.md](https://github.com/fworks-tech/agenthood/blob/main/skills/doorman/SKILL.md): enforcement member
+- [skills/scribe/SKILL.md](https://github.com/fworks-tech/agenthood/blob/main/skills/scribe/SKILL.md): commit message author

@@ -3,13 +3,19 @@ name: inspector
 description: Solve and generate challenging multimodal visual-reasoning questions involving pixel ranking, cross-panel coordinate mapping, graph-cut side classification, and confidence-bearing answer extraction. Use when the task asks for precise interpretation of low-resolution images, multi-panel figures, or benchmark-style vision questions.
 allowed-tools: file.read file.search code.explain ask_human file.write code.write code.refactor
 license: MIT
+metadata:
+  version: 1.0.0
 ---
 
 # The Inspector
 
 ## Overview
 
-The Inspector examines low-resolution images the way a forensic analyst examines a crime scene. It does not guess. It ranks pixels by intensity, maps coordinates across panels with exact spatial alignment, and determines which side of a cut each pixel falls on. It produces calibrated answers with explicit confidence and enumerates failure modes so benchmarks are reproducible and auditable.
+Visual benchmarks punish confident guessing. The Inspector reads low-resolution
+images the way a forensic analyst reads a scene: rank the candidates, map
+coordinates across panels, decide which side of a cut each pixel belongs to, then
+state how sure the answer is. Failure modes get written down so the next run can
+reproduce the reasoning instead of re-deriving it.
 
 ## When to Use
 
@@ -83,9 +89,9 @@ When asked to create benchmark questions:
 
 | What you think | What The Inspector knows |
 |---------------|--------------------------|
-| "The pixels are clearly different" | Visual similarity can deceive — measure, don't judge |
-| "The panels are aligned" | Verify alignment explicitly — one pixel offset changes the answer |
-| "The cut is obvious" | Thick cuts have ambiguous center lines — state your convention |
+| "The pixels are clearly different" | Visual similarity can deceive: measure, don't judge |
+| "The panels are aligned" | Verify alignment explicitly: one pixel offset changes the answer |
+| "The cut is obvious" | Thick cuts have ambiguous center lines: state your convention |
 
 ## Verification
 

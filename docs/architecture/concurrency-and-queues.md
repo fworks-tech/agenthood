@@ -18,8 +18,8 @@ The queue operates with configurable concurrency:
 
 | Setting | Default | Range |
 |---------|---------|-------|
-| Concurrent slots | 3 | 1–10 |
-| Max queue depth | 30 (10× slots) | — |
+| Concurrent slots | 3 | 1-10 |
+| Max queue depth | 30 (10× slots) | - |
 
 When all slots are occupied, new requests enter the queue.
 When a slot opens, the highest-priority queued request takes it.
@@ -32,7 +32,7 @@ Every request enters the queue with a priority level:
 
 | Level | Value | Who uses it |
 |-------|-------|-------------|
-| `USER` | 2 (highest) | Direct user requests — always first |
+| `USER` | 2 (highest) | Direct user requests: always first |
 | `SCHEDULED` | 1 | Ritual automations (standup, health check) |
 | `BACKGROUND` | 0 (lowest) | Indexing, cache warming, passive monitoring |
 
@@ -59,9 +59,9 @@ This guarantees eventual execution for every queued task.
 
 When the queue is full (depth = 10× concurrency limit):
 
-- New `BACKGROUND` requests are **rejected** — background work can be retried
-- New `SCHEDULED` requests are **held** — they wait for a slot to open in the queue
-- New `USER` requests are **always accepted** — they displace the lowest-priority queued item if necessary
+- New `BACKGROUND` requests are **rejected**: background work can be retried
+- New `SCHEDULED` requests are **held**; they wait for a slot to open in the queue
+- New `USER` requests are **always accepted**; they displace the lowest-priority queued item if necessary
 
 The user is never blocked by background work.
 
@@ -84,9 +84,9 @@ This lets the developer see what the Society is doing at a glance.
 ```
 Request arrives
     ↓
-InputValidator          — sanitize, classify, assign priority
+InputValidator - sanitize, classify, assign priority
     ↓
-Queue.enqueue(priority) — wait for available slot
+Queue.enqueue(priority): wait for available slot
     ↓
 Slot available?
   ├── Yes → Execute immediately
@@ -103,7 +103,7 @@ Slot released → next queued task promoted
 
 ## Implications for Members
 
-- **The Doorman** runs at `USER` priority — validation never waits
+- **The Doorman** runs at `USER` priority: validation never waits
 - **The Herald's** standup automation runs at `SCHEDULED` priority
 - **The Librarian's** background doc sync runs at `BACKGROUND` priority
 - Any member task triggered by the user runs at `USER` priority regardless of member type

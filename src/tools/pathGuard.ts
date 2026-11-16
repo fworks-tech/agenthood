@@ -1,5 +1,5 @@
 import { isAbsolute, relative, resolve } from 'node:path'
-import { lstat, realpath } from 'node:fs/promises'
+import { realpath } from 'node:fs/promises'
 
 export type GuardedPath =
   | { ok: true; path: string }
@@ -7,7 +7,7 @@ export type GuardedPath =
 
 /** A path escapes `root` when the relative form starts with `..` or is absolute
  *  (different drive on Windows). A plain `startsWith(root)` check lets a sibling
- *  folder that shares the prefix through — `proj-evil` for root `proj`. */
+ *  folder that shares the prefix through: `proj-evil` for root `proj`. */
 function escapes(root: string, target: string): boolean {
   const rel = relative(root, target)
   return rel === '..' || rel.startsWith('../') || rel.startsWith('..\\') || isAbsolute(rel)
@@ -15,23 +15,38 @@ function escapes(root: string, target: string): boolean {
 
 /**
  * Resolves a tool-supplied path inside the project root, rejecting traversal
- * via `..` and via a symlink that points outside. The caller owns the error
- * message decision; a missing file is not a guard failure — the real read or
- * write surfaces it.
+ * via `..` and via a symlink that points outside. `allowedRoots` adds the
+ * directories of skills activated in this run (#536): read access only, and
+ * every use is logged. The caller owns the error message decision; a missing
+ * file is not a guard failure: the real read or write surfaces it.
  */
-export async function resolveInsideProject(root: string, path: string): Promise<GuardedPath> {
+export async function resolveInsideProject(
+  root: string,
+  path: string,
+  allowedRoots: Iterable<string> = [],
+): Promise<GuardedPath> {
   const target = resolve(root, path)
-  if (escapes(root, target)) {
+  const projectRoot = resolve(root)
+  const home = [projectRoot, ...Array.from(allowedRoots, (dir) => resolve(dir))].find((dir) => !escapes(dir, target))
+  if (!home) {
     return { ok: false, error: `Path traversal denied: "${path}"` }
   }
+  if (home !== projectRoot) console.log(`[skills] read allowed under activated skill: ${target}`)
 
+  // Compare real paths on both sides: Windows 8.3 short names (RUNNER~1) resolve
+  // to the long form, which would otherwise look like an escape.
+  let realHome = home
   try {
-    const stats = await lstat(target)
-    if (stats.isSymbolicLink()) {
-      const real = await realpath(target)
-      if (escapes(root, real)) {
-        return { ok: false, error: `Symlink traversal denied: "${path}" -> "${real}"` }
-      }
+    realHome = await realpath(home)
+  } catch {
+    // home may not exist yet; keep the lexical form
+  }
+  try {
+    // realpath resolves every component, so a symlinked directory (docs -> /etc)
+    // is caught too, not just a symlinked file.
+    const real = await realpath(target)
+    if (escapes(realHome, real)) {
+      return { ok: false, error: `Symlink traversal denied: "${path}" -> "${real}"` }
     }
   } catch {
     // non-existent path: the caller's read/write reports the real error

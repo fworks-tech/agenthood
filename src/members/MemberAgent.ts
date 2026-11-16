@@ -15,49 +15,44 @@ import type { ToolRegistry } from '../tools/ToolRegistry.ts'
 import type { ILLMProvider } from '../llm/ILLMProvider.ts'
 import { DELEGATION_ALLOWED_ROLES } from '../agents/delegationRoles.ts'
 import type { AgentRegistry } from '../core/AgentRegistry.ts'
-import { ReadFileSkill } from '../tools/project/ReadFileSkill.ts'
-import { WriteFileSkill } from '../tools/project/WriteFileSkill.ts'
-import { WriteCodeSkill } from '../tools/code/WriteCodeSkill.ts'
-import { SearchCodebaseSkill } from '../tools/code/SearchCodebaseSkill.ts'
-import { ExplainCodeSkill } from '../tools/code/ExplainCodeSkill.ts'
-import { RefactorSkill } from '../tools/code/RefactorSkill.ts'
-import { PrSyncSkill } from '../tools/pr/PrSyncSkill.ts'
 import { AskHumanTool } from '../tools/human/AskHumanTool.ts'
+import { TOOL_VOCABULARY } from './toolVocabulary.ts'
 import { SubagentTaskSkill } from '../tools/core/SubagentTaskSkill.ts'
-import { escapeXml, wrapProjectContext, loadProjectContext, wrapSkillsCatalog, SKILLS_CATALOG_GUARD, wrapSkillContent, SKILL_CONTENT_GUARD } from '../agents/memberLore.ts'
+import { escapeXml, wrapProjectContext, loadProjectContext, wrapSkillsCatalog, SKILLS_CATALOG_GUARD, wrapSkillContent, SKILL_CONTENT_GUARD, wrapRepoInstructions, REPO_INSTRUCTIONS_GUARD, sanitizeBoundaryTags } from '../agents/memberLore.ts'
 import { checkSkillIntegrity, describeIntegrityFailure, recordSkillIntegrityDrift, SkillIntegrityError } from '../utils/skillIntegrity.ts'
 import type { SkillIntegrityFailure } from '../utils/skillIntegrity.ts'
 import { sharedConversationalStyle, CUSTOM_SOURCE_PREFIX } from './MemberRegistry.ts'
 import type { EpisodeLearner } from '../evals/EpisodeLearner.ts'
 
-const TOOL_MAP: Record<string, new (...args: never[]) => ITool> = {
-  'ask_human': AskHumanTool,
-  'file.read': ReadFileSkill,
-  'file.write': WriteFileSkill,
-  'file.search': SearchCodebaseSkill,
-  'code.write': WriteCodeSkill,
-  'code.refactor': RefactorSkill,
-  'code.explain': ExplainCodeSkill,
-  'pr_sync': PrSyncSkill,
-}
+const TOOL_MAP = TOOL_VOCABULARY
 
 // Tools that can mutate project state require at least a 'standard' profile;
 // the registry derives spec.tools from the profile, so this is defense-in-depth
 // against a hand-built spec carrying an over-broad tool list. pr_sync writes to
 // GitHub and is reserved for the 'trusted' profile alone.
-const WRITE_TOOLS = new Set(['file.write', 'code.write', 'code.refactor'])
+const WRITE_TOOLS = new Set(['file.write', 'code.write', 'code.refactor', 'text_to_speech'])
 const TRUSTED_TOOLS = new Set(['pr_sync'])
 // Read-only tools are safe for every profile. Anything not classified below is
-// denied — a future tool that touches state but is NOT added to WRITE_TOOLS /
+// denied: a future tool that touches state but is NOT added to WRITE_TOOLS /
 // TRUSTED_TOOLS fails closed (never silently granted to restricted members).
 // ask_human only asks, never mutates state, so every member gets it.
-const READ_ONLY_TOOLS = new Set(['ask_human', 'file.read', 'file.search', 'code.explain'])
+const READ_ONLY_TOOLS = new Set([
+  'ask_human',
+  'file.read',
+  'file.search',
+  'code.explain',
+  'generate_image',
+  'speech_to_text',
+  'generate_video',
+])
 
 export interface MemberAgentOptions {
   agentRegistry?: AgentRegistry
   episodeLearner?: EpisodeLearner
   /** Strict mode blocks the run when the injected SKILL.md drifts from agenthood.lock (ADR-020). */
   strictSkillIntegrity?: boolean
+  /** Skill blocks loaded by an explicit `/skill-name` before the model saw the task (#530). */
+  explicitSkills?: string[]
 }
 
 export class MemberAgent extends BaseAgent {
@@ -65,6 +60,7 @@ export class MemberAgent extends BaseAgent {
   protected tools: ITool[]
   private agentRegistry?: AgentRegistry
   private readonly strictSkillIntegrity: boolean
+  private readonly explicitSkills: string[]
   private readonly warnedTools = new Set<string>()
 
   constructor(
@@ -77,6 +73,7 @@ export class MemberAgent extends BaseAgent {
     super(llm, reasoningLoop, toolRegistry, { episodeLearner: options.episodeLearner })
     this.agentRegistry = options.agentRegistry
     this.strictSkillIntegrity = options.strictSkillIntegrity === true
+    this.explicitSkills = options.explicitSkills ?? []
     this.role = spec.name
     this.tools = this.buildTools()
   }
@@ -101,7 +98,7 @@ export class MemberAgent extends BaseAgent {
 
     // fail closed: members without instantiable tools get read-only access
     if (tools.length === 0) {
-      tools.push(new ReadFileSkill())
+      tools.push(new TOOL_VOCABULARY['file.read']())
     }
 
     // every member can park for human input regardless of spec.tools/profile
@@ -146,7 +143,7 @@ export class MemberAgent extends BaseAgent {
     }
 
     try {
-      const tool = new SubagentTaskSkill(this.agentRegistry, { allowedRoles })
+      const tool = new SubagentTaskSkill(this.agentRegistry, { allowedRoles, loop: this.reasoningLoop })
       tools.push(tool)
       seen.add(tool.name)
     } catch (err) {
@@ -211,13 +208,36 @@ export class MemberAgent extends BaseAgent {
       )
     }
 
+    // Explicit `/skill-name` activation is a user order, not model judgment, so
+    // it lands after the catalog and is always present in this run (#530).
+    if (this.explicitSkills.length > 0) {
+      parts.push('', '## Activated Skills', SKILL_CONTENT_GUARD)
+      for (const block of this.explicitSkills) {
+        // Inserted raw so the <skill_content> structure survives; boundary tags
+        // are stripped first so a SKILL.md body cannot break out of it.
+        parts.push(sanitizeBoundaryTags(block, 'skill_directives', 'skill_content'))
+      }
+    }
+
+    // Repo guidance lands after the catalog so a skill description can never
+    // outrank the project's own rules in recency (ADR-029: untrusted content is
+    // data; this file is repo-controlled but still not agenthood-authored).
+    if (context.repoInstructions) {
+      parts.push(
+        '',
+        '## Repository Instructions',
+        REPO_INSTRUCTIONS_GUARD,
+        wrapRepoInstructions(context.repoInstructions),
+      )
+    }
+
     return parts.join('\n')
   }
 
   /**
    * ADR-020 drift check: surfaces SKILL.md drift from agenthood.lock at
    * injection time. Records detection durably before warning or blocking.
-   * Absent lockfile entries and missing skill files are surfaced too — the
+   * Absent lockfile entries and missing skill files are surfaced too: the
    * integrity gate being OFF is itself a warning an operator must see
    * (A09: a silently inert persistence-vector control is worse than none).
    */
@@ -240,6 +260,6 @@ export class MemberAgent extends BaseAgent {
       'no-lockfile': 'the integrity gate is OFF. Run `agenthood verify` to lock SKILL.md hashes.',
       missing: 'cannot verify integrity.',
     }
-    console.warn(`[skill-integrity] ${describeIntegrityFailure(this.spec.name, status)} — ${guidance[status]}`)
+    console.warn(`[skill-integrity] ${describeIntegrityFailure(this.spec.name, status)}: ${guidance[status]}`)
   }
 }

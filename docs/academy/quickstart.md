@@ -41,7 +41,7 @@ That is 10 lines. Three rules: `name` matches the directory (lowercase-hyphen), 
 npx agenthood verify
 ```
 
-Expected: the skill parses cleanly. If you typo `name: code-formatters` (directory mismatch), `verify` fails before anything loads — that is the gate doing its job.
+Expected: the skill parses cleanly. If you typo `name: code-formatters` (directory mismatch), `verify` fails before anything loads. That is the gate doing its job.
 
 ---
 
@@ -55,7 +55,7 @@ cp -r skills/code-formatter .agents/skills/code-formatter
 cp -r skills/code-formatter .claude/skills/code-formatter
 ```
 
-`agenthood run` executes registered members, not arbitrary skill files — so the
+`agenthood run` executes registered members, not arbitrary skill files, so the
 command below hands the new skill's *format* to a member that is registered. To
 use it as a standalone prompt, invoke it in your provider's skill path instead:
 
@@ -67,6 +67,6 @@ npx agenthood run scribe "format app.ts using the code-formatter rules"
 
 ## Next steps
 
-- [Authoring a Skill](level-3-advanced-skills/06-author-a-skill.md) — frontmatter contract, `allowed-tools` narrow-only rule, ship checklist
-- [Getting Started](getting-started.md) — install, first commit, CI
-- [Skills Reference](skills-reference.md) — all 20 members, tools, invocation
+- [Authoring a Skill](level-3-advanced-skills/06-author-a-skill.md): frontmatter contract, `allowed-tools` narrow-only rule, ship checklist
+- [Getting Started](getting-started.md): install, first commit, CI
+- [Skills Reference](skills-reference.md): all 20 members, tools, invocation

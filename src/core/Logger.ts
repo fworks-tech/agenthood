@@ -6,7 +6,7 @@
  * same NDJSON store (`.agenthood/traces/traces.ndjson`) that the Tracer and
  * RetentionManager already own. Zero new runtime dependencies.
  *
- * Existing `console.*` calls are untouched — `log()` is the recommended
+ * Existing `console.*` calls are untouched: `log()` is the recommended
  * replacement, not a hard migration.
  */
 
@@ -24,7 +24,7 @@ export interface LoggerOptions {
   source?: TraceSource
   /** Correlation id attached to every entry; a new one is generated per Logger. */
   correlationId?: string
-  /** Optional live bus — emits `log.created` when provided. */
+  /** Optional live bus: emits `log.created` when provided. */
   events?: RunEventBus
   /** Overrides the redactor derived from config (test seam, explicit policy). */
   redactor?: RedactionFilter

@@ -10,7 +10,7 @@
 // Inline findings: agents emit an `<!--AGENTHOOD_INLINE` block (JSON array of
 // {path, line, body}) before their decision marker. The block is stripped from
 // the summary and each entry is posted as a line-pinned pull-request review
-// comment — the same rendering as a human "+" comment (diff hunk, Reply,
+// comment: the same rendering as a human "+" comment (diff hunk, Reply,
 // Resolve). Accuracy is enforced, not trusted: a finding is posted only when
 // (path, line) falls inside a new-side hunk span (added or context line) of
 // the PR's base...head diff; anything else is dropped with a warning, never
@@ -41,11 +41,11 @@ export function formatSummary(raw) {
 }
 
 export function extractInlineFindings(raw) {
-  // agents sometimes echo the prompt's empty sample block — take the first
+  // agents sometimes echo the prompt's empty sample block: take the first
   // block that parses as a non-empty array
   for (const [start, end] of inlineBlockSpans(raw)) {
     try {
-      const inner = raw.slice(start, end).replace(/^<!--AGENTHOOD_INLINE\s*/, '').replace(/\s*-->$/, '')
+      const inner = raw.slice(start, end).replace(/^<!--AGENTHOOD_INLINE\s*/, '').replace(/\s*--!?>$/, '')
       const parsed = JSON.parse(inner)
       if (Array.isArray(parsed) && parsed.length > 0) return parsed
     } catch { /* try the next block */ }
@@ -74,7 +74,8 @@ function inlineBlockSpans(raw) {
     let pos = start + INLINE_MARKER.length
     while (pos < raw.length && /\s/.test(raw[pos])) pos++
     let end = -1
-    if (raw.startsWith('-->', pos)) end = pos + 3
+    const close = raw.startsWith('--!>', pos) ? 4 : raw.startsWith('-->', pos) ? 3 : 0
+    if (close) end = pos + close
     else if (raw[pos] === '[') end = scanJsonBlockEnd(raw, pos)
     if (end < 0) {
       idx = pos
@@ -101,7 +102,7 @@ function scanJsonBlockEnd(raw, pos) {
     else if (c === ']') {
       depth--
       if (depth === 0) {
-        const tail = /^\s*-->/.exec(raw.slice(j + 1))
+        const tail = /^\s*--!?>/.exec(raw.slice(j + 1))
         return tail ? j + 1 + tail[0].length : -1
       }
     }
@@ -113,12 +114,12 @@ async function postReviewComments(findings) {
   const { GH_TOKEN, PR_NUMBER, GITHUB_REPOSITORY, INLINE_FINDINGS } = process.env
   if (INLINE_FINDINGS !== 'true') return 0
   if (!GH_TOKEN || !PR_NUMBER || !GITHUB_REPOSITORY) {
-    console.warn('[inline] missing env (GH_TOKEN/PR_NUMBER/GITHUB_REPOSITORY) — skipping inline comments')
+    console.warn('[inline] missing env (GH_TOKEN/PR_NUMBER/GITHUB_REPOSITORY): skipping inline comments')
     return 0
   }
   const range = await resolveDiffRange()
   if (!range) {
-    console.warn('[inline] cannot resolve PR diff range — skipping inline comments')
+    console.warn('[inline] cannot resolve PR diff range, skipping inline comments')
     return 0
   }
   const base = `https://api.github.com/repos/${GITHUB_REPOSITORY}/pulls/${PR_NUMBER}/comments`
@@ -131,14 +132,14 @@ async function postReviewComments(findings) {
   let posted = 0
   for (const f of findings) {
     if (!f.path || !f.body || typeof f.path !== 'string' || f.path.startsWith('/') || f.path.includes('..') || /[*?[\]()!]/.test(f.path)) continue
-    // LLM JSON can carry NaN/float/0/strings — only positive integers pin
+    // LLM JSON can carry NaN/float/0/strings: only positive integers pin
     if (!Number.isInteger(f.line) || f.line <= 0) {
-      console.warn(`[inline] dropping ${f.path} — no valid line number`)
+      console.warn(`[inline] dropping ${f.path}, no valid line number`)
       continue
     }
     const spans = hunkSpans(f.path, range, cache)
     if (spans === null || !spans.some(([a, b]) => f.line >= a && f.line <= b)) {
-      console.warn(`[inline] dropping ${f.path}:${f.line} — not in this diff`)
+      console.warn(`[inline] dropping ${f.path}:${f.line}, not in this diff`)
       continue
     }
     const payload = { commit_id: range.head, path: f.path, line: f.line, side: 'RIGHT', body: f.body }

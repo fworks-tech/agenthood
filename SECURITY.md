@@ -8,14 +8,14 @@ packages it publishes seriously.
 | Version | Supported |
 |---------|-----------|
 | latest (semantic-release from `main`) | ✅ |
-| older releases | ❌ — upgrade to the latest |
+| older releases | ❌: upgrade to the latest |
 
 ## Reporting a Vulnerability
 
 Do **not** open a public issue for a vulnerability. Report privately:
 
 - **GitHub:** use the repository's [private vulnerability reporting](https://github.com/fworks-tech/agenthood/security/advisories/new) flow
-- **Email:** `inbox@flabs.tech` — include the affected version, a minimal
+- **Email:** `inbox@flabs.tech`: include the affected version, a minimal
   reproduction, and your suggested fix if you have one
 
 You will receive an acknowledgement within 48 hours and a status update within
@@ -37,14 +37,14 @@ and a security advisory is published.
 
 The Society audits itself with the same gates it enforces on adopters:
 
-- **Contract:** `npx agenthood verify` — frontmatter shape, name↔directory match
+- **Contract:** `npx agenthood verify`: frontmatter shape, name↔directory match
 - **Integrity:** `agenthood.lock` SHA-256 hash gate + `npx agenthood diff` for drift
-- **Permissions:** narrow-only `allowed-tools` — edits can never escalate privileges
+- **Permissions:** narrow-only `allowed-tools`: edits can never escalate privileges
 - **Cadence:** gates run on every PR via CI; results are published per minor
   release in [docs/security-audit-report.md](docs/security-audit-report.md)
 
 ## Security-relevant files
 
-- `.githooks/pre-commit` — secret scanning + main-branch protection
-- `.github/workflows/pr.yml` — Auditor (Gitleaks + `npm audit`) gates
-- `.github/scripts/` — shared analysis and decision-gate scripts
+- `.githooks/pre-commit`: secret scanning + main-branch protection
+- `.github/workflows/pr.yml`: Auditor (Gitleaks + `npm audit`) gates
+- `.github/scripts/`: shared analysis and decision-gate scripts

@@ -1,5 +1,6 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest'
-import { rmSync } from 'node:fs'
+import { mkdirSync, mkdtempSync, rmSync } from 'node:fs'
+import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 import { TrajectoryStore } from '../../../src/core/TrajectoryStore.ts'
 import { ConcurrencyQueue } from '../../../src/core/ConcurrencyQueue.ts'
@@ -300,6 +301,46 @@ describe('applySandboxProfile', () => {
   })
 })
 
+describe('MemberRunner explicit skill activation (#530, #585)', () => {
+  it('loads /skill into the system prompt, strips it from the task, and registers activate_skill', async () => {
+    const provider = fakeCompletingProvider()
+    vi.mocked(LLMRouter.createForMember).mockResolvedValue(provider as never)
+    const runner = makeRunner()
+    runner.ctx.skillManifests = new Map([
+      [
+        'scribe',
+        {
+          name: 'scribe',
+          description: 'Writes commit messages.',
+          tier: 'official',
+          location: join(process.cwd(), 'skills', 'scribe', 'SKILL.md'),
+          directory: join(process.cwd(), 'skills', 'scribe'),
+          body: 'SCRIBE BODY',
+          resources: [],
+        },
+      ],
+    ])
+
+    // Activating a skill records a local stat, so keep it out of the repo root.
+    const projectDir = mkdtempSync(join(tmpdir(), 'runner-skill-'))
+    runner.ctx.project.localPath = projectDir
+    try {
+      await runner.runMemberTask('builder', '/scribe write the message', {} as never)
+    } finally {
+      rmSync(projectDir, { recursive: true, force: true })
+    }
+
+    const request = provider.complete.mock.calls[0][0]
+    expect(request.messages[0].content).toContain('SCRIBE BODY')
+    // The loop keeps appending to the same array, so find the task message
+    // rather than trusting the last element of the captured request.
+    const taskMessage = request.messages.find((m: { role: string }) => m.role === 'user')?.content ?? ''
+    expect(taskMessage).toContain('write the message')
+    expect(taskMessage).not.toContain('/scribe')
+    expect((request.tools ?? []).map((tool: { name: string }) => tool.name)).toContain('activate_skill')
+  })
+})
+
 describe('MemberRunner trajectory persistence', () => {
   beforeEach(() => {
     vi.mocked(LLMRouter.createForMember).mockResolvedValue(fakeCompletingProvider() as never)
@@ -329,6 +370,23 @@ describe('MemberRunner trajectory persistence', () => {
       expect(stored?.totalTokens).toBe(5)
     } finally {
       cleanupTrajectory(runner)
+    }
+  })
+
+  it('keeps every run of one correlation id as its own trajectory', async () => {
+    const runner = makeRunner()
+    const store = new TrajectoryStore(process.cwd())
+    try {
+      await runner.runMemberTask('builder', 'first', {} as never)
+      await runner.runMemberTask('reviewer', 'second', {} as never)
+      const runs = store.list().filter((t) => t.correlationId === trajectoryId(runner))
+      expect(runs.map((t) => t.member).sort()).toEqual(['builder', 'reviewer'])
+      expect(new Set(runs.map((t) => t.id)).size).toBe(2)
+      expect(store.load(trajectoryId(runner))?.member).toBe('builder')
+    } finally {
+      for (const t of store.list().filter((t) => t.correlationId === trajectoryId(runner))) {
+        rmSync(join(process.cwd(), '.agenthood', 'trajectories', `${t.id}.json`))
+      }
     }
   })
 
@@ -383,6 +441,55 @@ describe('MemberRunner queue arbitration', () => {
       expect(submitSpy).toHaveBeenCalledWith(expect.any(String), 'SCHEDULED', expect.any(Function))
     } finally {
       cleanup(runner)
+    }
+  })
+})
+
+describe('MemberRunner resume restores activated skills (#618)', () => {
+  it('re-seeds the run so script authorization and dedup survive an interruption', async () => {
+    const provider = fakeCompletingProvider()
+    vi.mocked(LLMRouter.createForMember).mockResolvedValue(provider as never)
+    const cp = {
+      id: 'cp-skills',
+      member: 'builder',
+      task: 'ship it',
+      step: 2,
+      messages: [{ role: 'user' as const, content: 'ship it' }],
+      usage: { promptTokens: 0, completionTokens: 0, totalTokens: 0 },
+      model: 'mock-model',
+      activatedSkills: ['demo'],
+      status: 'running' as const,
+      createdAt: '2026-01-01T00:00:00.000Z',
+      updatedAt: '2026-01-01T00:00:00.000Z',
+    }
+    const store: CheckpointStore = { load: vi.fn().mockReturnValue(cp), save: vi.fn(), updateStatus: vi.fn() }
+    const projectDir = mkdtempSync(join(tmpdir(), 'runner-resume-'))
+    mkdirSync(join(projectDir, '.agenthood'), { recursive: true })
+    const log = vi.spyOn(console, 'log').mockImplementation(() => {})
+    try {
+      const runner = makeRunner(store)
+      runner.ctx.project.localPath = projectDir
+      runner.ctx.skillManifests = new Map([
+        [
+          'demo',
+          {
+            name: 'demo',
+            description: 'demo skill',
+            tier: 'community' as const,
+            location: join(projectDir, 'demo', 'SKILL.md'),
+            directory: join(projectDir, 'demo'),
+            body: 'demo body',
+            resources: [],
+          },
+        ],
+      ])
+
+      await runner.runMemberTask('builder', 'ship it', {} as never, 'cp-skills')
+
+      expect(log).toHaveBeenCalledWith(expect.stringContaining('restored 1 active skill(s)'))
+    } finally {
+      log.mockRestore()
+      rmSync(projectDir, { recursive: true, force: true })
     }
   })
 })

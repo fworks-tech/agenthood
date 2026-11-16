@@ -269,7 +269,7 @@ describe('SubagentTaskSkill', () => {
       expect(callerReg.getSchemas().map((s) => s.name)).toEqual(
         expect.arrayContaining(['write_file', 'write_code']),
       )
-      // the delegated reviewer's surface is its own — caller tools never leak in
+      // the delegated reviewer's surface is its own: caller tools never leak in
       expect(reviewerReg.getSchemas().map((s) => s.name)).toEqual(['read_file'])
     })
   })
@@ -319,5 +319,96 @@ describe('SubagentTaskSkill', () => {
 
       expect(result.success).toBe(true)
     })
+  })
+})
+describe('SubagentTaskSkill skill delegation and isolation (#534, #612)', () => {
+  const manifest = {
+    name: 'review',
+    description: 'review skill',
+    tier: 'official' as const,
+    location: '/skills/review/SKILL.md',
+    directory: '/skills/review',
+    body: 'REVIEW BODY',
+    resources: [],
+  }
+
+  it('rejects a skill that was never discovered', async () => {
+    const registry = new AgentRegistry()
+    const agent = createMockAgent('reviewer', 'should not run')
+    registry.register(agent)
+    const tool = new SubagentTaskSkill(registry)
+
+    const result = await tool.execute({ role: 'reviewer', task: 'go', skill: 'missing' }, createTestContext())
+
+    expect(result.success).toBe(false)
+    expect(result.error).toContain('not discovered')
+    expect(agent.run).not.toHaveBeenCalled()
+  })
+
+  it('injects the named skill into the delegated task', async () => {
+    const registry = new AgentRegistry()
+    const agent = createMockAgent('reviewer', 'done')
+    registry.register(agent)
+    const tool = new SubagentTaskSkill(registry)
+    const context = createTestContext()
+    context.skillManifests = new Map([['review', manifest]])
+
+    const result = await tool.execute({ role: 'reviewer', task: 'audit it', skill: 'review' }, context)
+
+    const delegated = vi.mocked(agent.run).mock.calls[0][0] as string
+    expect(result.success).toBe(true)
+    expect(delegated).toContain('[SKILL_ACTIVATION]')
+    expect(delegated).toContain('REVIEW BODY')
+    expect(delegated).toContain('audit it')
+  })
+
+  it('partitions artifacts and the activated-skill scope under full isolation', async () => {
+    const registry = new AgentRegistry()
+    const seen: { artifacts: unknown[]; skills: string[] } = { artifacts: [], skills: [] }
+    const loop = { activatedSkills: new Set(['caller-skill']) }
+    const agent = {
+      role: 'reviewer',
+      run: vi.fn(async (_task: string, ctx: ExecutionContext) => {
+        seen.artifacts = ctx.artifacts
+        seen.skills = [...loop.activatedSkills]
+        loop.activatedSkills.add('subagent-skill')
+        return { role: 'reviewer', output: 'done', artifacts: [] }
+      }),
+    } as unknown as BaseAgent
+    registry.register(agent)
+    const tool = new SubagentTaskSkill(registry, { loop })
+    const context = createTestContext()
+    context.artifacts = [{ type: 'file', path: 'parent.txt', createdBy: 'parent' }] as never
+
+    const result = await tool.execute({ role: 'reviewer', task: 'audit', isolation: 'full' }, context)
+
+    expect(result.success).toBe(true)
+    expect(seen.skills).toEqual([])
+    expect(seen.artifacts).not.toBe(context.artifacts)
+    expect(seen.artifacts).toEqual([])
+    expect([...loop.activatedSkills]).toEqual(['caller-skill'])
+  })
+
+  it('leaves the calling context and skill scope intact by default', async () => {
+    const registry = new AgentRegistry()
+    const loop = { activatedSkills: new Set(['caller-skill']) }
+    let seenContext: ExecutionContext | undefined
+    let seenSkills: string[] = []
+    const agent = {
+      role: 'reviewer',
+      run: vi.fn(async (_task: string, ctx: ExecutionContext) => {
+        seenContext = ctx
+        seenSkills = [...loop.activatedSkills]
+        return { role: 'reviewer', output: 'done', artifacts: [] }
+      }),
+    } as unknown as BaseAgent
+    registry.register(agent)
+    const tool = new SubagentTaskSkill(registry, { loop })
+    const context = createTestContext()
+
+    await tool.execute({ role: 'reviewer', task: 'audit' }, context)
+
+    expect(seenContext).toBe(context)
+    expect(seenSkills).toEqual(['caller-skill'])
   })
 })

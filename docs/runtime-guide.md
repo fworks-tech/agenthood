@@ -1,5 +1,20 @@
 # Runtime Guide
 
+## Per-Repo Agent Instructions
+
+At session start, `agenthood run` reads agent guidance from the project root:
+`AGENTS.md` if present, otherwise `CLAUDE.md`. `AGENTS.md` wins when both exist,
+it is the cross-client convention, `CLAUDE.md` the older alias. The runtime reads
+these files and never writes them; they belong to the repository.
+
+The content is appended to each member's system prompt in a `<repo_instructions>`
+boundary, after the skills catalog, with a guard stating that it is project guidance
+and never overrides safety boundaries or tool permissions. Injected boundary tags are
+stripped, so a cloned repository cannot close the tag and speak as the harness.
+
+Content is truncated at 64 KB with a visible marker: the file is guidance, not a data
+channel. Only the project root is scanned; nested `AGENTS.md` files are ignored.
+
 ## Provider Failover Configuration
 
 The runtime supports automatic provider failover when a provider fails (rate limit, outage, auth error). Configure an ordered list of providers in `.agenthood/config.json`:
@@ -50,29 +65,29 @@ The runtime supports automatic provider failover when a provider fails (rate lim
 }
 ```
 
-- **`providers[]`** — Ordered list of LLM providers. First entry is primary, subsequent entries are fallbacks tried in order. Each entry supports `models[]` for model downgrade on failure.
-- **Provider choice** — Prefer `opencode-go` (Go) over `opencode` (Zen).
-- **`failover`** (optional) — Circuit breaker tuning: `failureThreshold` (consecutive failures before skipping), `cooldownMs` (override cooldown), `probeEnabled` (enable/disable probe recovery), `requestTimeoutMs` (per-request LLM call timeout, default 60000 — a hung provider can no longer stall a run).
+- **`providers[]`**: Ordered list of LLM providers. First entry is primary, subsequent entries are fallbacks tried in order. Each entry supports `models[]` for model downgrade on failure.
+- **Provider choice**: Prefer `opencode-go` (Go) over `opencode` (Zen).
+- **`failover`** (optional): Circuit breaker tuning: `failureThreshold` (consecutive failures before skipping), `cooldownMs` (override cooldown), `probeEnabled` (enable/disable probe recovery), `requestTimeoutMs` (per-request LLM call timeout, default 60000, a hung provider can no longer stall a run).
 
 See `.agenthood/config.example.json` for the complete reference.
 
 ## API Key Validation
 
-The runtime validates LLM API keys at startup before making any provider calls. Only the configured provider's key is checked — if you set `provider` to `"ollama"`, no key validation is performed.
+The runtime validates LLM API keys at startup before making any provider calls. Only the configured provider's key is checked, if you set `provider` to `"ollama"`, no key validation is performed.
 
 The runtime automatically loads environment variables from a `.env` file in the project root (via `dotenv`).
 
 Key resolution order (per provider):
-1. `providers[].apiKey` — key in config array entry
-2. `apiKey` — top-level key in config
-3. `process.env.<VAR>` — environment variables (including those loaded from `.env`)
+1. `providers[].apiKey`: key in config array entry
+2. `apiKey`: top-level key in config
+3. `process.env.<VAR>`: environment variables (including those loaded from `.env`)
 
 Supported environment variables:
-- `OPENCODE_API_KEY` — OpenCode / OpenCodeGo
-- `OPENAI_API_KEY` — OpenAI
-- `ANTHROPIC_API_KEY` — Anthropic
-- `GROQ_API_KEY` — Groq
-- `OPENROUTER_API_KEY` — OpenRouter
+- `OPENCODE_API_KEY`: OpenCode / OpenCodeGo
+- `OPENAI_API_KEY`: OpenAI
+- `ANTHROPIC_API_KEY`: Anthropic
+- `GROQ_API_KEY`: Groq
+- `OPENROUTER_API_KEY`: OpenRouter
 
 If no key is found and the provider requires one, startup fails with:
 ```
@@ -83,7 +98,7 @@ Run `npx agenthood check` to verify API key configuration as part of a full heal
 
 ### Ollama / Local Providers
 
-Providers not in the known key list (ollama, custom-local) skip key validation entirely — no key required.
+Providers not in the known key list (ollama, custom-local) skip key validation entirely: no key required.
 
 ## Memory & Vector Store
 
@@ -120,7 +135,7 @@ await decisions.addCausalRelationship('dec-001', 'dec-002', 'CAUSED')
 const chain = await decisions.traceDecisionChain('dec-002')   // ancestry
 const impact = await decisions.analyzeDecisionImpact('dec-001') // descendants
 
-// Provenance integrity — reads from disk, never the cache
+// Provenance integrity: reads from disk, never the cache
 const result = await provenance.verifyChain()             // { valid: true } or broken entry
 await provenance.invalidate('exec-1', 'sentinel', 'source retracted') // tombstone
 
@@ -129,7 +144,7 @@ const search = new DecisionSearch(vectorStore)
 await search.indexAll(decisions, llm)
 const hits = await search.search(decisions, 'storage choice', llm, 5)
 
-// Time travel — "what did the society know on this date?"
+// Time travel: "what did the society know on this date?"
 const snapshotter = new GraphSnapshot()
 snapshotter.take(societyGraph)                            // after each member run
 const past = snapshotter.stateAt('2026-03-01T00:00:00.000Z')
@@ -242,7 +257,7 @@ This bypasses the configured provider chain and uses the specified provider dire
 
 ### Memory Tiers
 
-The memory model has five tiers (see [Academy: Agent Memory](academy/level-2-agent-essentials/05-agent-memory.md)): short-term, long-term, episodic, project, and residual. Of these, four implementations are wired into `ExecutionContext.memory` — residual traces exist in-process via `ResidualMemory` but are not wired into `ApplicationContext` — plus the decision and provenance stores:
+The memory model has five tiers (see [Academy: Agent Memory](academy/level-2-agent-essentials/05-agent-memory.md)): short-term, long-term, episodic, project, and residual. Of these, four implementations are wired into `ExecutionContext.memory`, residual traces exist in-process via `ResidualMemory` but are not wired into `ApplicationContext`, plus the decision and provenance stores:
 
 | Tier | Implementation | Backing | Purpose |
 |------|---------------|---------|---------|
@@ -300,7 +315,7 @@ npx agenthood status --alerts           # recent anomaly alerts (cost spikes, qu
 | agenthood version | `package.json` is readable and reports a version |
 | Config file | `.agenthood/config.json` exists and is valid JSON |
 | API keys | Every configured provider has a key (env var or config `apiKey`) |
-| Provider readiness | At least one configured provider is ready (local key check — no live network probe) |
+| Provider readiness | At least one configured provider is ready (local key check: no live network probe) |
 | Skill files | All `MEMBER_NAMES` have a `SKILL.md` under the Society members dir |
 | Lockfile integrity | `agenthood.lock` is present and no member `SKILL.md` has drifted from its locked hash (warns, not fails, when the lockfile is absent) |
 | Git hooks | `core.hooksPath` points at `.githooks` and `pre-commit` exists (run `agenthood setup`) |
@@ -328,7 +343,7 @@ Exit code is `1` if any check fails, otherwise `0` (warnings alone do not fail).
 |-------|-------------|
 | `version` | Schema version (currently `1`) |
 | `skills.<name>.source` | Original install source (URL or git repo) |
-| `skills.<name>.version` | SHA-256 of the skill's `SKILL.md` at install time — enables drift detection |
+| `skills.<name>.version` | SHA-256 of the skill's `SKILL.md` at install time: enables drift detection |
 | `skills.<name>.installedAt` | ISO timestamp of installation |
 
 **`agenthood install --frozen <source>`** verifies:

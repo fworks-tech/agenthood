@@ -14,7 +14,7 @@ On 2026-06-15 at 09:42 UTC, all `agenthood run` commands in CI began failing wit
 
 | Time (UTC) | Event |
 |------------|-------|
-| 09:42 | CI pipeline failed on PR #271 — `LanceDBStore.connect()` threw `ConnectionError` |
+| 09:42 | CI pipeline failed on PR #271: `LanceDBStore.connect()` threw `ConnectionError` |
 | 09:45 | The Sentinel's health check detected the failure pattern across 3 consecutive runs |
 | 09:48 | On-call engineer paged via automated alert |
 | 09:52 | Root cause identified: `.agenthood/memory/` directory permissions changed by prior deploy script |
@@ -26,23 +26,23 @@ On 2026-06-15 at 09:42 UTC, all `agenthood run` commands in CI began failing wit
 The deploy script in `scripts/deploy.sh` ran `chmod -R 750 .agenthood/` which removed group-read permissions from the LanceDB store directory. The `LanceDBStore.connect()` method runs under the CI service account which depends on group-level access.
 
 **Why existing checks did not catch it:**
-- The deploy script had been recently modified (PR #268) to add stricter permissions — a well-intentioned change that was not tested against CI.
+- The deploy script had been recently modified (PR #268) to add stricter permissions: a well-intentioned change that was not tested against CI.
 - The `agenthood check` command validates that the vector store directory exists but does not verify read permissions.
 
 **Specific defect:**
-`scripts/deploy.sh:45` — `chmod -R 750` should be `chmod -R 755` to preserve group-read access.
+`scripts/deploy.sh:45`: `chmod -R 750` should be `chmod -R 755` to preserve group-read access.
 
 ## Impact
 
-- **Duration:** 47 minutes (09:42–10:29 UTC)
+- **Duration:** 47 minutes (09:42-10:29 UTC)
 - **PRs blocked:** 12 (all with CI required checks)
 - **Engineers blocked:** 4 (unable to merge until CI passed)
-- **Data loss:** None — LanceDB store was intact, only access was broken
+- **Data loss:** None: LanceDB store was intact, only access was broken
 
 ## Remediation
 
-- [PR #272](https://github.com/fworks-tech/agenthood/pull/272) — Reverted `deploy.sh` to `chmod -R 755`
-- [PR #273](https://github.com/fworks-tech/agenthood/pull/273) — Added `ReadFile` permission check to `agenthood check` command
+- [PR #272](https://github.com/fworks-tech/agenthood/pull/272): Reverted `deploy.sh` to `chmod -R 755`
+- [PR #273](https://github.com/fworks-tech/agenthood/pull/273): Added `ReadFile` permission check to `agenthood check` command
 
 ## Prevention
 
@@ -51,7 +51,7 @@ The deploy script in `scripts/deploy.sh` ran `chmod -R 750 .agenthood/` which re
 - [The Sentinel] Add directory permission check to the health monitoring probe
 - [The Librarian] Document required directory permissions in `docs/operations/deployment.md`
 
-> *Illustrative example — the paths above (`docs/operations/deployment.md`, `scripts/deploy.sh`) reference a fictional deployment setup; replace with your project's real operations docs.*
+> *Illustrative example: the paths above (`docs/operations/deployment.md`, `scripts/deploy.sh`) reference a fictional deployment setup; replace with your project's real operations docs.*
 
 ## Decision Record
 
@@ -62,9 +62,9 @@ modified after the fact.
 
 ## Related
 
-- Issue [#270](https://github.com/fworks-tech/agenthood/issues/270) — Deploy script permission regression
-- Issue [#267](https://github.com/fworks-tech/agenthood/issues/267) — Add permission validation to health check
-- [ADR-010](https://github.com/fworks-tech/agenthood/docs/adr/ADR-010-lancedb-for-vector-storage.md) — LanceDB as vector store
+- Issue [#270](https://github.com/fworks-tech/agenthood/issues/270): Deploy script permission regression
+- Issue [#267](https://github.com/fworks-tech/agenthood/issues/267): Add permission validation to health check
+- [ADR-010](https://github.com/fworks-tech/agenthood/docs/adr/ADR-010-lancedb-for-vector-storage.md): LanceDB as vector store
 
 ---
 

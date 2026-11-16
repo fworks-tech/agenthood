@@ -52,7 +52,7 @@ describe('SearchCodebaseSkill', () => {
     })
   })
 
-  describe('execute() — happy path', () => {
+  describe('execute(): happy path', () => {
     it('returns matching files for filename query', async () => {
       const result = await skill.execute({ query: 'SearchCodebaseSkill' }, context)
 
@@ -89,7 +89,7 @@ describe('SearchCodebaseSkill', () => {
     }, 10000)
   })
 
-  describe('execute() — edge cases', () => {
+  describe('execute(): edge cases', () => {
     it('returns "No matches found" for non-existent query', async () => {
       const result = await skill.execute({ query: 'ZZZZNONEXISTENT12345_' }, context)
 

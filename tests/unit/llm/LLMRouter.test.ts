@@ -8,7 +8,7 @@ import type { ILLMProvider } from '../../../src/llm/ILLMProvider.ts'
 import type { LLMRequest } from '../../../src/llm/types.ts'
 import type { ProviderName } from '../../../src/members/types.ts'
 
-// GroqProvider now fails fast without a key — provide one for routing tests
+// GroqProvider now fails fast without a key: provide one for routing tests
 beforeEach(() => {
   process.env.GROQ_API_KEY = 'test-key'
 })
@@ -116,7 +116,7 @@ describe('LLMRouter', () => {
     expect(provider).toBeInstanceOf(ProviderChain)
   })
 
-  describe('entry chains — shared buildChainFromEntries', () => {
+  describe('entry chains, shared buildChainFromEntries', () => {
     function chainProviders(chain: unknown): ILLMProvider[] {
       return (chain as unknown as { providers: ILLMProvider[] }).providers
     }
@@ -151,7 +151,7 @@ describe('LLMRouter', () => {
     })
   })
 
-  describe('route — dynamic strategy', () => {
+  describe('route, dynamic strategy', () => {
     it('returns a provider (not ProviderChain) for low complexity', async () => {
       const provider = await LLMRouter.route(
         makeRequest(),
@@ -244,5 +244,29 @@ describe('createForMember model override (#1040)', () => {
 
     expect(first).not.toBe(second)
     expect(first).toBe(same)
+  })
+})
+
+describe('multimodal routing (#124)', () => {
+  it('routes a non-text part to a provider that can carry it', async () => {
+    const provider = await LLMRouter.route(
+      makeRequest({ parts: [{ type: 'image_url', url: 'https://img.test/a.png' }] }),
+      { provider: 'openai', apiKey: 'test-key' } as never,
+    )
+    expect(typeof (provider as unknown as { generateImage: unknown }).generateImage).toBe('function')
+  })
+
+  it('refuses multimodal generation on a provider without it', async () => {
+    await expect(
+      LLMRouter.route(
+        makeRequest({ parts: [{ type: 'image_url', url: 'https://img.test/a.png' }] }),
+        { provider: 'groq', apiKey: 'test-key' } as never,
+      ),
+    ).rejects.toThrow(/does not support/)
+  })
+
+  it('keeps text-only routing on the normal path', async () => {
+    const provider = await LLMRouter.route(makeRequest(), { provider: 'stub' } as never)
+    expect(provider).toBeDefined()
   })
 })

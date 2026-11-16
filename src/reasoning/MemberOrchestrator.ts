@@ -134,7 +134,7 @@ export class MemberOrchestrator {
     if (suffix) {
       const fileName = file.split('/').pop() ?? ''
       const suffixRegex = new RegExp(
-        suffix.replace(/\./g, '\\.').replace(/\*/g, '.*'),
+        suffix.replace(/[.+?^${}()|[\]\\]/g, '\\$&').replace(/\*/g, '.*'),
       )
       if (!suffixRegex.test(fileName)) return false
     }

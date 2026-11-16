@@ -5,8 +5,8 @@
 
 ## O que é o Agenthood
 
-Um time de 20 agentes de IA para o ciclo de vida do software — commits, PRs,
-revisão, segurança, releases — como skills Markdown portáteis mais um runtime
+Um time de 20 agentes de IA para o ciclo de vida do software: commits, PRs,
+revisão, segurança, releases: como skills Markdown portáteis mais um runtime
 TypeScript que os executa de forma autônoma.
 
 ## Por que Groq?
@@ -44,12 +44,12 @@ npx agenthood run scribe "escreva uma mensagem de commit para o diff atual"
 
 ## Seu primeiro commit com The Scribe
 
-1. `git add -p` — selecione as mudanças.
-2. `git commit` — o Doorman valida a mensagem (conventional commits, minúsculas, imperativo).
-3. Abra o PR — o corpo vem pré-preenchido; o Scribe o mantém sincronizado.
+1. `git add -p`: selecione as mudanças.
+2. `git commit`: o Doorman valida a mensagem (conventional commits, minúsculas, imperativo).
+3. Abra o PR: o corpo vem pré-preenchido; o Scribe o mantém sincronizado.
 
 ## Próximos passos
 
 - [Criação de skill em 5 minutos](../academy/quickstart.md)
-- [Versão em português](../../README.pt-BR.md) — instalação e comandos
-- [Academy](../academy/README.md) — do básico ao deploy em produção
+- [Versão em português](../../README.pt-BR.md): instalação e comandos
+- [Academy](../academy/README.md): do básico ao deploy em produção

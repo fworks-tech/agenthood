@@ -13,8 +13,8 @@ release announcements and standup briefings, and The Doorman for health alerts.
 | `slack.channels.list` | List available channels | Herald |
 
 ## Primary Members
-- **The Herald** — morning briefings, release announcements, evening reports
-- **The Doorman** — health check alerts, idle work warnings
+- **The Herald**: morning briefings, release announcements, evening reports
+- **The Doorman**: health check alerts, idle work warnings
 
 ## Setup
 
@@ -47,4 +47,4 @@ release announcements and standup briefings, and The Doorman for health alerts.
 ## Notes
 - Requires a Slack Bot Token with `chat:write` and `channels:read` scopes
 - Post rate limit: 1 message per second per channel
-- Messages are one-way — the Society posts but does not read Slack messages
+- Messages are one-way: the Society posts but does not read Slack messages

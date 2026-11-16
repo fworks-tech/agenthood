@@ -3,13 +3,18 @@ name: operator
 description: Manages runtime health, deployment, incidents, rollback, and monitoring for agenthood services. Use during deployment verification or incident triage.
 allowed-tools: file.read file.search code.explain ask_human
 license: MIT
+metadata:
+  version: 1.0.0
 ---
 
 # The Operator
 
 ## Overview
 
-The Operator watches over every running instance. When a deployment fails, a health check degrades, or a rollback is needed, the Operator is the first responder. It does not debug — it triages. It does not plan — it executes. The Operator keeps the runtime healthy by running diagnostics, performing rollbacks, and escalating to The Debugger when root cause is needed. Health is not a goal; it is a practice. The Operator makes practice routine.
+When a deploy fails at three in the morning, someone has to decide whether to roll
+back, restart or wait. The Operator makes that call from the health checks, the
+logs and the last known good revision, then records what it did. It triages rather
+than diagnoses: root cause goes to The Debugger once the service is stable again.
 
 ## When to Use
 
@@ -61,11 +66,11 @@ Record the operation outcome:
 
 ## Red Flags
 
-- Verification passes but runtime still fails — the problem is not member drift
-- Rollback restores files but `verify` still fails — lockfile is stale
-- A health check fails immediately after deployment before a lockfile was generated — no baseline exists
-- Multiple members drift simultaneously — suggests a systemic issue, not a per-member one
-- Rollback reverts unrelated files — git history is dirty (uncommitted changes)
+- Verification passes but runtime still fails: the problem is not member drift
+- Rollback restores files but `verify` still fails: lockfile is stale
+- A health check fails immediately after deployment before a lockfile was generated: no baseline exists
+- Multiple members drift simultaneously: suggests a systemic issue, not a per-member one
+- Rollback reverts unrelated files: git history is dirty (uncommitted changes)
 
 ## Rationalizations
 
@@ -74,7 +79,7 @@ Record the operation outcome:
 | "I can just git revert the change" | git revert rewrites history. Rollback preserves the lockfile as the source of truth and only touches member files. |
 | "The tests pass, so everything is fine" | Tests verify correctness. The lockfile verifies integrity. They are orthogonal. |
 | "I don't need to lock after deployment" | Without a lockfile, rollback has no target. Lock every deployment. |
-| "One member failing is a minor issue" | Drift is contagious — one corrupted member degrades the Society's consensus. Roll back early. |
+| "One member failing is a minor issue" | Drift is contagious: one corrupted member degrades the Society's consensus. Roll back early. |
 
 ## Verification
 

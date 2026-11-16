@@ -12,7 +12,7 @@ function mockSkill(name: string): ITool {
 }
 
 describe('RiskManager', () => {
-  describe('validate — path blocking', () => {
+  describe('validate, path blocking', () => {
     const strict = new RiskManager({
       allowedPaths: ['src/**', 'tests/**'],
       blockedPaths: ['.env', '**/.git/**'],
@@ -53,7 +53,7 @@ describe('RiskManager', () => {
     })
   })
 
-  describe('validate — file size cap', () => {
+  describe('validate, file size cap', () => {
     const capped = new RiskManager({
       allowedPaths: ['**'],
       blockedPaths: [],
@@ -75,7 +75,7 @@ describe('RiskManager', () => {
     })
   })
 
-  describe('validate — host blocking', () => {
+  describe('validate, host blocking', () => {
     const restricted = new RiskManager({
       allowedPaths: ['**'],
       blockedPaths: [],
@@ -97,7 +97,7 @@ describe('RiskManager', () => {
     })
   })
 
-  describe('wrap — timeout enforcement', () => {
+  describe('wrap, timeout enforcement', () => {
     it('rejects if executor exceeds maxExecutionMs', async () => {
       const rm = new RiskManager({
         allowedPaths: ['**'],

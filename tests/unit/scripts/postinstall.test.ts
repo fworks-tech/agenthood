@@ -9,7 +9,7 @@ import { execFileSync } from 'node:child_process';
 // AGENTHOOD_AUTO_SETUP is set AND dist/cli.js exists, then spawns `setup` and
 // propagates its exit code. A regression in either guard makes every `npm
 // install` run network/setup or hang (#661), so we exercise the real script
-// against a fake dist in a throwaway tree — never the live `setup`.
+// against a fake dist in a throwaway tree: never the live `setup`.
 const repoRoot = join(dirname(fileURLToPath(import.meta.url)), '..', '..', '..');
 const scriptSrc = readFileSync(join(repoRoot, 'scripts', 'postinstall.mjs'), 'utf8');
 

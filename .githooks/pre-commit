@@ -1,5 +1,5 @@
 #!/bin/bash
-# The Doorman + The Auditor + The Warden — pre-commit checks
+# The Doorman + The Auditor + The Warden: pre-commit checks
 # Blocks: direct commit to main, secrets in staged files
 # Warns:  files exceeding 500 lines
 
@@ -10,7 +10,7 @@ BRANCH=$(git symbolic-ref --short HEAD 2>/dev/null)
 if [ "$BRANCH" = "main" ]; then
   echo ""
   echo "┌─────────────────────────────────────────────────────────────┐"
-  echo "│  THE DOORMAN — Commit Blocked                               │"
+  echo "│  THE DOORMAN: Commit Blocked                               │"
   echo "├─────────────────────────────────────────────────────────────┤"
   echo "│  Direct commits to main are forbidden by the Oath.          │"
   echo "│                                                             │"
@@ -37,7 +37,7 @@ while IFS= read -r -d '' FILE; do
     elif echo "$FILE" | grep -qE '(^|\/)\.env$'; then
       echo ""
       echo "┌─────────────────────────────────────────────────────────────┐"
-      echo "│  THE AUDITOR — Commit Blocked                               │"
+      echo "│  THE AUDITOR: Commit Blocked                               │"
       echo "├─────────────────────────────────────────────────────────────┤"
       echo "│  Staged .env file detected: $FILE"
       echo "│                                                             │"
@@ -48,17 +48,23 @@ while IFS= read -r -d '' FILE; do
     else
       CONTENT=$(git show ":$FILE" 2>/dev/null)
       if [ -n "$CONTENT" ]; then
-        MATCH=$(echo "$CONTENT" | grep -inE \
-          'password[[:space:]]*=[[:space:]]*["'"'"'][^"'"'"']{4,}|api_key[[:space:]]*=|api_secret[[:space:]]*=|secret[[:space:]]*=[[:space:]]*["'"'"'][^"'"'"']{4,}|token[[:space:]]*=[[:space:]]*["'"'"'][^"'"'"']{8,}|private_key[[:space:]]*=|BEGIN RSA PRIVATE KEY|BEGIN OPENSSH PRIVATE KEY|GITHUB_TOKEN[[:space:]]*=|AWS_SECRET_ACCESS_KEY|AKIA[0-9A-Z]{16}|sk_live_[0-9a-zA-Z]+|pk_live_[0-9a-zA-Z]+' \
+        # A real token blocks the commit even when the same line also holds a
+        # placeholder: the line-wide filter below would otherwise hide it.
+        CRITICAL=$(echo "$CONTENT" | grep -inE \
+          'ghp_[A-Za-z0-9]{20,}|AKIA[0-9A-Z]{16}|sk_live_[0-9a-zA-Z]{16,}|pk_live_[0-9a-zA-Z]{16,}|BEGIN (RSA|OPENSSH|EC|DSA) PRIVATE KEY' \
           2>/dev/null | head -3)
 
-        if [ -n "$MATCH" ]; then
+        MATCH=$(echo "$CONTENT" | grep -inE \
+          'password[[:space:]]*=[[:space:]]*["'"'"'][^"'"'"']{4,}|api_key[[:space:]]*=|api_secret[[:space:]]*=|secret[[:space:]]*=[[:space:]]*["'"'"'][^"'"'"']{4,}|token[[:space:]]*=[[:space:]]*["'"'"'][^"'"'"']{8,}|private_key[[:space:]]*=|BEGIN RSA PRIVATE KEY|BEGIN OPENSSH PRIVATE KEY|GITHUB_TOKEN[[:space:]]*=|AWS_SECRET_ACCESS_KEY|AKIA[0-9A-Z]{16}|sk_live_[0-9a-zA-Z]+|pk_live_[0-9a-zA-Z]+' \
+          2>/dev/null | grep -viE '= *$|= *(xxx|your[-_]|example|placeholder|changeme|dummy|ghp_xxx)' | head -3)
+
+        if [ -n "$CRITICAL" ] || [ -n "$MATCH" ]; then
           echo ""
           echo "┌─────────────────────────────────────────────────────────────┐"
-          echo "│  THE AUDITOR — Commit Blocked                               │"
+          echo "│  THE AUDITOR: Commit Blocked                               │"
           echo "├─────────────────────────────────────────────────────────────┤"
           echo "│  Potential secret detected in: $FILE"
-          echo "│  Match: $(echo "$MATCH" | head -1 | cut -c1-55)"
+          echo "│  Match: $(echo "${CRITICAL:-$MATCH}" | head -1 | cut -c1-55)"
           echo "│                                                             │"
           echo "│  1. Remove the secret from the file                        │"
           echo "│  2. Rotate the exposed credential immediately              │"
@@ -79,7 +85,7 @@ while IFS= read -r -d '' FILE; do
     if [ -n "$LINES" ] && [ "$LINES" -gt 500 ]; then
       echo ""
       echo "┌─────────────────────────────────────────────────────────────┐"
-      echo "│  THE WARDEN — Warning (non-blocking)                        │"
+      echo "│  THE WARDEN: Warning (non-blocking)                        │"
       echo "├─────────────────────────────────────────────────────────────┤"
       echo "│  $FILE: $LINES lines (limit: 500)"
       echo "│  Consider splitting this file before it grows further.      │"

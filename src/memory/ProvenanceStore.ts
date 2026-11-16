@@ -1,6 +1,7 @@
 import { createHash } from 'node:crypto'
-import { existsSync, mkdirSync, readFileSync, readdirSync, writeFileSync } from 'node:fs'
+import { closeSync, existsSync, mkdirSync, openSync, readFileSync, readdirSync, rmSync, statSync } from 'node:fs'
 import { join } from 'node:path'
+import { writeFileAtomic } from '../utils/atomicWrite.ts'
 
 export type ProvenanceAgentType = 'person' | 'software_agent' | 'organization'
 
@@ -46,6 +47,10 @@ export class ProvenanceStore {
   }
 
   async track(entry: Omit<ProvenanceEntry, 'checksum' | 'sequenceId' | 'previousChecksum'>): Promise<ProvenanceEntry> {
+    return this.withLock(() => this.trackLocked(entry))
+  }
+
+  private trackLocked(entry: Omit<ProvenanceEntry, 'checksum' | 'sequenceId' | 'previousChecksum'>): ProvenanceEntry {
     this.loadCache()
     const sequenceId = this.nextSequenceId()
     const previous = this.lastEntryBySequence()
@@ -61,9 +66,43 @@ export class ProvenanceStore {
     const stored: ProvenanceEntry = { ...pending, checksum }
 
     const safeId = this.sanitizeId(stored.entityId)
-    writeFileSync(join(this.provenanceDir, `${safeId}.json`), JSON.stringify(stored, null, 2), 'utf8')
+    writeFileAtomic(join(this.provenanceDir, `${safeId}.json`), JSON.stringify(stored, null, 2))
     this.cache.set(stored.entityId, stored)
     return stored
+  }
+
+  /** Serializes sequence assignment across processes. Two concurrent `run`s
+   *  would otherwise both write N+1 and look like a tampered chain. A lock
+   *  older than the stale window is removed: a crashed run must not wedge it. */
+  private async withLock<T>(work: () => T): Promise<T> {
+    const lockPath = join(this.provenanceDir, '.lock')
+    const deadline = Date.now() + 5000
+    let fd: number | undefined
+    while (fd === undefined) {
+      try {
+        fd = openSync(lockPath, 'wx')
+      } catch (err) {
+        if ((err as NodeJS.ErrnoException).code !== 'EEXIST') throw err
+        try {
+          if (Date.now() - statSync(lockPath).mtimeMs > 30_000) {
+            rmSync(lockPath, { force: true })
+            continue
+          }
+        } catch {
+          continue
+        }
+        if (Date.now() > deadline) {
+          throw new Error(`ProvenanceStore: timed out waiting for ${lockPath}`, { cause: err })
+        }
+        await new Promise((resolve) => setTimeout(resolve, 25))
+      }
+    }
+    try {
+      return work()
+    } finally {
+      closeSync(fd)
+      rmSync(lockPath, { force: true })
+    }
   }
 
   async get(entityId: string): Promise<ProvenanceEntry | undefined> {
@@ -97,7 +136,7 @@ export class ProvenanceStore {
     entry.invalidatedAt = new Date().toISOString()
     entry.invalidatedBy = by
     entry.invalidatedReason = reason
-    writeFileSync(join(this.provenanceDir, `${this.sanitizeId(entityId)}.json`), JSON.stringify(entry, null, 2), 'utf8')
+    writeFileAtomic(join(this.provenanceDir, `${this.sanitizeId(entityId)}.json`), JSON.stringify(entry, null, 2))
     this.cache.set(entityId, entry)
   }
 
@@ -188,7 +227,7 @@ export class ProvenanceStore {
   private sanitizeId(id: string): string {
     const safe = id.replace(/[^a-zA-Z0-9_-]/g, '')
     if (safe !== id) {
-      throw new Error(`Invalid provenance entity id: "${id}" — must match [a-zA-Z0-9_-]+`)
+      throw new Error(`Invalid provenance entity id: "${id}", must match [a-zA-Z0-9_-]+`)
     }
     return safe
   }

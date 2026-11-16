@@ -1,11 +1,11 @@
 #!/usr/bin/env node
-// The Auditor — shared npm-audit advisory filter.
+// The Auditor: shared npm-audit advisory filter.
 // Reads the audit JSON from argv[2], the min severity and npm-exemption flag
 // from argv[3]/argv[4] (argv[0]=node, argv[1]=script path), prints matching
 // advisories to stdout, and exits:
-//   0 — clean (no qualifying advisories)
-//   1 — npm audit reported an upstream error (a.error set)
-//   2 — one or more vulnerabilities meet the severity/exemption filter
+//   0: clean (no qualifying advisories)
+//   1: npm audit reported an upstream error (a.error set)
+//   2: one or more vulnerabilities meet the severity/exemption filter
 //
 // Severity floors: info=0, low=1, moderate=2, high=3, critical=4. A min of 3
 // (high) fails on high+; a min of 0 fails on ANY severity.
@@ -52,7 +52,7 @@ const order = { info: 0, low: 1, moderate: 2, high: 3, critical: 4 }
 const srTree = (() => {
   try {
     // npm ls exits non-zero on peer/extraneous problems yet still prints the
-    // JSON tree to stdout — keep it from the error object instead of losing it
+    // JSON tree to stdout: keep it from the error object instead of losing it
     let ls = ''
     let stderr = ''
     try {

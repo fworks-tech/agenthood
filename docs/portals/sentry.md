@@ -6,7 +6,7 @@ The Debugger uses this to correlate production errors with commits and PRs.
 The Auditor uses this to identify recurring security-relevant errors.
 The Herald checks error rate after a release before announcing it as stable.
 
-Primary path is the hosted Sentry MCP over OpenCode remote MCP with OAuth —
+Primary path is the hosted Sentry MCP over OpenCode remote MCP with OAuth,
 no tokens in config, no local server process.
 
 ## Available Tools (hosted MCP)
@@ -20,11 +20,11 @@ no tokens in config, no local server process.
 | `begin_seer_issue_fix` | Escalate a systemic issue to Seer for root-cause fix planning | Debugger |
 
 ## Primary Members
-- **The Debugger** — reads error events to diagnose production issues
-- **The Auditor** — looks for security-relevant errors (auth failures, injection attempts)
-- **The Herald** — checks error rate after a release before announcing it as stable
+- **The Debugger**: reads error events to diagnose production issues
+- **The Auditor**: looks for security-relevant errors (auth failures, injection attempts)
+- **The Herald**: checks error rate after a release before announcing it as stable
 
-## Setup (OpenCode, hosted — primary)
+## Setup (OpenCode, hosted: primary)
 
 ```json
 {
@@ -87,15 +87,15 @@ Get the full details and stack trace for Sentry issue <issue-id>.
 - Escalate via `begin_seer_issue_fix` only when the issue is systemic:
   recurring across releases, or root cause still unclear after Step 4 of the
   Debugger five-step protocol
-- Targeted single-issue fixes stay in-protocol — no Seer
+- Targeted single-issue fixes stay in-protocol: no Seer
 - Record the Seer plan link in the PR description
 
 ## Auth and timeout remedies
 
-- `401 / expired token` — re-run `opencode mcp auth sentry`, then retry the verify prompt
-- `OAuth consent denied` — approve the Sentry OAuth consent screen for the correct organization
-- `Request timed out` — retry once, then narrow `search_issues` (shorter range, one project)
-- `No organizations found` — confirm the OAuth identity belongs to the Sentry org (wrong account is the common cause)
+- `401 / expired token`: re-run `opencode mcp auth sentry`, then retry the verify prompt
+- `OAuth consent denied`: approve the Sentry OAuth consent screen for the correct organization
+- `Request timed out`: retry once, then narrow `search_issues` (shorter range, one project)
+- `No organizations found`: confirm the OAuth identity belongs to the Sentry org (wrong account is the common cause)
 
 ## Fallback (legacy npx stdio)
 

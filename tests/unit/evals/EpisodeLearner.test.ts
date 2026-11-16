@@ -169,7 +169,7 @@ describe('EpisodeLearner', () => {
     expect(mockResidual.record).not.toHaveBeenCalled()
   })
 
-  it('is idempotent — calling learn() twice with same args does not error', async () => {
+  it('is idempotent, calling learn() twice with same args does not error', async () => {
     const learner = new EpisodeLearner(mockResidual)
 
     const evalResult: EvalResult = {

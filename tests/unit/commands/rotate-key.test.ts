@@ -8,8 +8,8 @@ vi.mock('node:readline', () => ({
   createInterface: () => mockCreateInterface(),
 }))
 
-vi.mock('node:fs/promises', () => ({
-  writeFile: (...args: unknown[]) => mockWriteFile(...args),
+vi.mock('../../../src/utils/atomicWrite.ts', () => ({
+  writeFileAtomic: (...args: unknown[]) => mockWriteFile(...args),
 }))
 
 vi.mock('../../../src/llm/LLMRouter.ts', () => ({
@@ -60,7 +60,7 @@ describe('rotate-key command', () => {
 
   it('validates key, updates config, and reinitializes provider', async () => {
     const stdoutSpy = vi.spyOn(process.stdout, 'write').mockImplementation(() => true)
-    await command.handler(['groq'])
+    await command.handler(['groq', '--write-config'])
     expect(mockReinitialize).toHaveBeenCalledWith('groq', expect.objectContaining({ provider: 'groq', apiKey: 'new-api-key' }))
     expect(mockWriteFile).toHaveBeenCalled()
     stdoutSpy.mockRestore()

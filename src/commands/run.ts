@@ -6,7 +6,7 @@ import { requestShutdown, resetShutdown } from '../core/shutdown.ts'
 import { userError } from '../core/cliError.ts'
 import { ShutdownRequestedError } from '../reasoning/ReActLoop.ts'
 
-export function parseFlags(args: string[]): { positional: string[]; providerOverride?: string; shouldDetect: boolean; resumeFrom?: string; debug: boolean; interactive: boolean; sandbox: boolean } {
+export function parseFlags(args: string[]): { positional: string[]; providerOverride?: string; shouldDetect: boolean; resumeFrom?: string; debug: boolean; interactive: boolean; sandbox: boolean; noFallback: boolean } {
   const positional: string[] = []
   let providerOverride: string | undefined
   let shouldDetect = false
@@ -14,6 +14,7 @@ export function parseFlags(args: string[]): { positional: string[]; providerOver
   let debug = false
   let interactive = false
   let sandbox = false
+  let noFallback = false
 
   for (let i = 0; i < args.length; i++) {
     // `--` ends flag parsing so a task beginning with `-` (e.g. from the
@@ -34,12 +35,14 @@ export function parseFlags(args: string[]): { positional: string[]; providerOver
       interactive = true
     } else if (args[i] === '--sandbox') {
       sandbox = true
+    } else if (args[i] === '--no-fallback') {
+      noFallback = true
     } else {
       positional.push(args[i])
     }
   }
 
-  return { positional, providerOverride, shouldDetect, resumeFrom, debug, interactive, sandbox }
+  return { positional, providerOverride, shouldDetect, resumeFrom, debug, interactive, sandbox, noFallback }
 }
 
 function printUsage(): never {
@@ -64,7 +67,7 @@ export const command: CommandDescriptor = {
 }
 
 export async function run(args: string[], options?: { source?: TraceSource }): Promise<void> {
-  const { positional, providerOverride, shouldDetect, resumeFrom, debug, interactive, sandbox } = parseFlags(args)
+  const { positional, providerOverride, shouldDetect, resumeFrom, debug, interactive, sandbox, noFallback } = parseFlags(args)
   const [agentName, ...taskParts] = positional
 
   if (!agentName || taskParts.length === 0) {
@@ -82,8 +85,10 @@ export async function run(args: string[], options?: { source?: TraceSource }): P
   if (interactive) config.interactive = true
   if (sandbox) {
     config.security = { ...config.security, sandbox: true }
-    console.log('\n🔒 Sandbox mode — strict skill-integrity gate plus confirmation on every tool call.\n')
+    console.log('\n🔒 Sandbox mode, strict skill-integrity gate plus confirmation on every tool call.\n')
   }
+  // An explicit `--no-fallback` disables skill fallback chains for this run (#613).
+  if (noFallback) config.skills = { ...config.skills, fallback: false }
   const task = taskParts.join(" ")
 
   ApplicationContext.validateConfig(config)
@@ -106,7 +111,7 @@ export async function run(args: string[], options?: { source?: TraceSource }): P
     }
     forced = true
     requestShutdown()
-    console.error('\n⏹ Interrupted — finishing current step, then saving partial trace… (Ctrl+C again to force)')
+    console.error('\n⏹ Interrupted, finishing current step, then saving partial trace… (Ctrl+C again to force)')
     setTimeout(() => process.exit(130), 5000).unref()
   }
   process.on('SIGINT', onSignal)

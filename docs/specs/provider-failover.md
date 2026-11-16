@@ -1,6 +1,6 @@
 # Spec: Provider Failover with Circuit Breaker
 
-> **⚠️ Superseded** — [architecture/provider-failover.md](../architecture/provider-failover.md)
+> **⚠️ Superseded**: [architecture/provider-failover.md](../architecture/provider-failover.md)
 > is the canonical, current description of the shipped implementation
 > (thresholds, provider roster, models, and config schema). This spec is kept
 > as the historical design record from the original issue.
@@ -13,7 +13,7 @@
 
 ## Problem
 
-The Agenthood runtime currently depends on a single LLM provider per execution. When that provider fails—due to rate limits, temporary outages, or authentication issues—the entire member execution fails and the task is interrupted.
+The Agenthood runtime currently depends on a single LLM provider per execution. When that provider fails (due to rate limits, temporary outages, or authentication issues) the entire member execution fails and the task is interrupted.
 
 This creates poor production reliability:
 - **Groq rate limits** (30 req/min free tier) kill sessions during burst activity
@@ -21,7 +21,7 @@ This creates poor production reliability:
 - **Intermittent failures** force manual retry from humans instead of automated recovery
 - **No retry logic** means transient network blips cause permanent task failure
 
-The user expects the Society to handle provider fragility transparently. If Claude is down, use OpenAI. If Groq hits rate limits, switch to Ollama. The member should continue working—the human should never notice the plumbing.
+The user expects the Society to handle provider fragility transparently. If Claude is down, use OpenAI. If Groq hits rate limits, switch to Ollama. The member should continue working: the human should never notice the plumbing.
 
 ---
 
@@ -38,7 +38,7 @@ Try each configured provider in sequence until one succeeds or all fail.
 - On failure, immediately try the next provider
 - If all providers fail, throw `AllProvidersFailedError` with structured failure details
 
-**No circuit breaker yet**—this is a simple try/catch loop with failover.
+**No circuit breaker yet**: this is a simple try/catch loop with failover.
 
 **Acceptance Criteria:**
 - Provider chain loaded from config
@@ -54,9 +54,9 @@ Track provider health and skip known-bad providers.
 
 **Behavior:**
 - Each provider has a circuit state: `CLOSED` | `OPEN` | `HALF_OPEN`
-- **CLOSED:** Normal operation—requests flow through
-- **OPEN:** Provider bypassed (failures exceeded threshold)—skip to next provider
-- **HALF_OPEN:** Cooldown expired—one probe request allowed to test recovery
+- **CLOSED:** Normal operation: requests flow through
+- **OPEN:** Provider bypassed (failures exceeded threshold): skip to next provider
+- **HALF_OPEN:** Cooldown expired: one probe request allowed to test recovery
 
 **State Transitions:**
 ```
@@ -100,7 +100,7 @@ Not all failures are equal. Classify errors and apply appropriate cooldown:
 |-------------|---------------|----------|----------|
 | `401` | Auth failure | Permanent | Skip provider, log warning once |
 | `402` | Payment required | Permanent | Skip provider, log warning once |
-| `429` | Rate limited | 60–300s | Backoff based on `Retry-After` header |
+| `429` | Rate limited | 60-300s | Backoff based on `Retry-After` header |
 | `408` | Request timeout | 30s | Retry once, then failover |
 | `503` | Service unavailable | 60s | Immediate failover |
 | `404` | Model not found | Permanent | Skip provider, log error |
@@ -144,10 +144,10 @@ For network errors and timeouts:
 
 The following are explicitly **NOT included** in this spec:
 
-- **Credential proxy** — API key injection via localhost proxy (separate feature)
-- **Thread checkpoint** — Persisting conversation state for cross-provider continuity (separate feature, may not be needed)
-- **Provider cost tracking** — Monitoring token usage and costs per provider (separate feature)
-- **Human escalation UI** — Interactive prompt to choose fallback provider when all fail (future enhancement)
+- **Credential proxy**: API key injection via localhost proxy (separate feature)
+- **Thread checkpoint**: Persisting conversation state for cross-provider continuity (separate feature, may not be needed)
+- **Provider cost tracking**: Monitoring token usage and costs per provider (separate feature)
+- **Human escalation UI**: Interactive prompt to choose fallback provider when all fail (future enhancement)
 
 These may be addressed in future specs but are not part of this implementation.
 
@@ -248,7 +248,7 @@ Test scenarios:
 - **B:** Persist to `.agenthood/cache/circuit-state.json`
 - **C:** Use SQLite for circuit state storage
 
-**Deferred because:** This is an optimization for long-running production deployments. The MVP can ship without persistence—failures will be re-learned after restart.
+**Deferred because:** This is an optimization for long-running production deployments. The MVP can ship without persistence: failures will be re-learned after restart.
 
 **Decision by:** End of Phase 2 implementation
 
@@ -260,7 +260,7 @@ Test scenarios:
 **Options:**
 - **A:** Emit events to EventEmitter for runtime subscribers
 - **B:** Write structured logs to `.agenthood/logs/failover.json`
-- **C:** Do nothing—debug logs are sufficient
+- **C:** Do nothing: debug logs are sufficient
 
 **Deferred because:** This depends on the broader observability strategy (metrics, telemetry, UI). Can be added later without changing failover logic.
 
@@ -345,12 +345,12 @@ class AllProvidersFailedError extends Error {
 ```
 
 ### Thread Continuity
-**Assumption:** Threads are stateless—each `executeMember()` call is independent. No checkpoint/restore needed for MVP.
+**Assumption:** Threads are stateless: each `executeMember()` call is independent. No checkpoint/restore needed for MVP.
 
 **If thread continuity is required later:**
 - Persist conversation history to `.agenthood/cache/threads/{threadId}.json`
 - Reload history on provider switch
-- This is a separate feature—not blocking this spec
+- This is a separate feature, not blocking this spec
 
 ---
 
@@ -371,7 +371,7 @@ These metrics can be logged to `.agenthood/logs/failover-metrics.json` or emitte
 ## References
 
 - **Architecture Doc:** [architecture/provider-failover.md](../architecture/provider-failover.md)
-- **Issue:** #161 — Implement ProviderFailover for resilience
+- **Issue:** #161: Implement ProviderFailover for resilience
 - **Pattern:** [Circuit Breaker Pattern (Martin Fowler)](https://martinfowler.com/bliki/CircuitBreaker.html)
 - **Related ADRs:** 
   - ADR-008: TypeScript Runtime over Python

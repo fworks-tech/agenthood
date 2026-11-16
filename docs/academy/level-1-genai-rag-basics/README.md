@@ -1,8 +1,8 @@
-# Level 1 — GenAI & RAG Basics
+# Level 1: GenAI & RAG Basics
 
-> *Every agent that fails in production failed because its builder skipped this level.*
+> *Most agents that fail in production skipped this level.*
 
-Nine articles. The foundation. Start here.
+Nine articles on the foundation. Start here.
 
 ---
 
@@ -24,6 +24,6 @@ Nine articles. The foundation. Start here.
 
 ## What Level 1 covers
 
-The nine concepts every developer must understand before building agents. These are not theory — each one maps to a component in Agenthood that implements it, enforces it, or fails loudly when it's missing.
+The nine concepts every developer must understand before building agents. These are not theory: each one maps to a component in Agenthood that implements it, enforces it, or fails loudly when it's missing.
 
-Finish Level 1, then go to [Level 2 — AI Agent Essentials](../level-2-agent-essentials/README.md).
+Finish Level 1, then go to [Level 2: AI Agent Essentials](../level-2-agent-essentials/README.md).

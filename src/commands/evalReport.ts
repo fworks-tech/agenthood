@@ -25,7 +25,7 @@ export function printScoreTable(tasks: EvalReport['tasks'], labels: string[]): v
     const row = [truncate(task.input, widths[0]).padEnd(widths[0])]
     for (const metric of labels) {
       const score = task.scores[metric]
-      row.push((score === undefined ? '\u2014' : score.toFixed(2)).padEnd(widths[row.length]))
+      row.push((score === undefined ? '-' : score.toFixed(2)).padEnd(widths[row.length]))
     }
     row.push(task.status.padEnd(widths[widths.length - 1]))
     console.log(`  ${row.join(' ')}`)
@@ -33,7 +33,7 @@ export function printScoreTable(tasks: EvalReport['tasks'], labels: string[]): v
 }
 
 export function printReport(report: EvalReport, comparison: RegressionReport | null, baselinePath: string | null): void {
-  console.log(`\n  Eval Report — ${report.member} (${report.suiteName})`)
+  console.log(`\n  Eval Report, ${report.member} (${report.suiteName})`)
   console.log(`  Suite: ${report.suiteName} | Tasks: ${report.tasks.length} | Timestamp: ${report.timestamp}\n`)
 
   printScoreTable(report.tasks, Object.keys(report.aggregate))
@@ -54,12 +54,12 @@ export function printReport(report: EvalReport, comparison: RegressionReport | n
       console.log(`  Missing metrics: ${comparison.missingMetrics.join(', ')}`)
     }
     if (comparison.overall === 'flag') {
-      console.log(`\n  Result: FLAG — ${comparison.regressions.length} regression(s)\n`)
+      console.log(`\n  Result: FLAG, ${comparison.regressions.length} regression(s)\n`)
     } else {
       console.log('\n  Result: PASS\n')
     }
   } else if (baselinePath) {
-    console.log(`  No baseline at ${baselinePath} — run with --update-baseline to create one.`)
+    console.log(`  No baseline at ${baselinePath}, run with --update-baseline to create one.`)
   }
 }
 
@@ -84,7 +84,7 @@ export function printHistory(member: string): void {
     console.log(`\n  No eval history for "${member}".\n`)
     return
   }
-  console.log(`\n  Eval History — ${member} (${history.length} runs)\n`)
+  console.log(`\n  Eval History, ${member} (${history.length} runs)\n`)
   const header = ['Timestamp', 'Suite', 'Pass Rate', 'Tasks', 'Duration']
   const widths = [24, 30, 11, 6, 10]
   console.log(`  ${header.map((h, i) => h.padEnd(widths[i])).join(' ')}`)

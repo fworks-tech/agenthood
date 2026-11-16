@@ -67,15 +67,15 @@ export class ConcurrencyQueue {
   enqueue(task: QueuedTask): boolean {
     const depth = this.queue.length
 
-    // Always accept USER — displace lowest-priority queued item if full
+    // Always accept USER: displace lowest-priority queued item if full
     if (depth >= this.maxDepth) {
       if (task.priority === 'USER') {
         this.displaceLowestPriority()
       } else if (task.priority === 'SCHEDULED') {
-        // Hold — wait for a slot; effectively the queue is just very deep
+        // Hold: wait for a slot; effectively the queue is just very deep
         // for scheduled tasks, they aren't rejected
       } else {
-        // BACKGROUND — reject
+        // BACKGROUND: reject
         return false
       }
     }

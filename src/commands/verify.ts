@@ -1,15 +1,40 @@
-import { existsSync, readFileSync, writeFileSync } from 'node:fs'
+import { existsSync, readFileSync, readdirSync } from 'node:fs'
 import type { CommandDescriptor } from './types.ts'
 import { MEMBER_NAME_RE, MEMBER_NAMES, memberResourcePath, memberSkillPath, resolveSocietyMembersDir } from '../members.ts'
 import { join } from 'node:path'
 import { contentHash } from '../utils/hash.ts'
-import { loadLockfile } from '../utils/lockfile.ts'
+import { loadLockfile, updateLockfile } from '../utils/lockfile.ts'
 import type { Lockfile } from '../utils/lockfile.ts'
-import { checkResourceIntegrity, checkSkillIntegrity, collectResourceHashes } from '../utils/skillIntegrity.ts'
+import { checkResourceIntegrity, checkSkillIntegrity } from '../utils/skillIntegrity.ts'
 import { findResourceRevision, findRevision, restoreMember } from './rollback.ts'
-import { SkillParser } from '../skills/discovery/SkillParser.ts'
+import {
+  SkillParser,
+  parseAllowedTools,
+  parseCompatibility,
+  parseConditions,
+  parseFallback,
+  parseOwner,
+  parsePriority,
+  parseSkillVersion,
+  isSpdxLicense,
+  MAX_COMPATIBILITY_LENGTH,
+  MAX_SKILL_PRIORITY,
+  SEMVER_RE,
+} from '../skills/discovery/SkillParser.ts'
+import { isKnownCondition } from '../skills/activation/conditions.ts'
+import { OWNER_RE } from '../skills/namespace.ts'
 import { scanForInjections } from '../skills/discovery/injectionScan.ts'
 import { userError } from '../core/cliError.ts'
+import { isKnownToolName } from '../members/toolVocabulary.ts'
+import {
+  reportContribSkills,
+  reportDuplicates,
+  reportScriptLint,
+  reportSkillRequirements,
+  reportTokenBudgets,
+  skillSearchRoots,
+} from './verifySkills.ts'
+import { metadataBudget } from '../skills/observability.ts'
 import type { SkillTier } from '../skills/discovery/ISkillManifest.ts'
 import { SkillDiscovery } from '../skills/discovery/SkillDiscovery.ts'
 import { findConflicts } from '../skills/conflicts.ts'
@@ -53,23 +78,65 @@ function validateMember(membersDir: string, member: string, lockfile?: Lockfile,
   const { frontmatter, body, heuristic } = parser.parseRaw(content)
   const tier = parser.parseTier(frontmatter)
 
-  if (heuristic) result.issues.push('Frontmatter needed heuristic parsing — quote values containing colons')
+  if (heuristic) result.issues.push('Frontmatter needed heuristic parsing, quote values containing colons')
 
   if (!frontmatter) {
     result.issues.push('Missing YAML frontmatter')
   } else {
     if (!frontmatter.name) result.issues.push('Frontmatter missing "name"')
     if (!frontmatter.description) result.issues.push('Frontmatter missing "description"')
-    if (!frontmatter.license) result.issues.push('Frontmatter missing "license"')
+    if (!frontmatter.license) {
+      result.issues.push('Frontmatter missing "license". Fix: add license: MIT (or UNLICENSED)')
+    } else if (!isSpdxLicense(String(frontmatter.license))) {
+      result.issues.push(`license "${String(frontmatter.license)}" is not an SPDX identifier. Fix: use the SPDX id, e.g. MIT, Apache-2.0, or UNLICENSED`)
+    }
+    const compatibility = parseCompatibility(frontmatter)
+    if (compatibility && compatibility.length > MAX_COMPATIBILITY_LENGTH) {
+      result.issues.push(`compatibility is ${compatibility.length} chars, over the ${MAX_COMPATIBILITY_LENGTH}-char spec limit. Fix: state the environment requirement in one short sentence`)
+    }
+    // Namespace (#593): optional locally, but a malformed owner would make the
+    // skill unpublishable later, so reject it at author time.
+    const owner = parseOwner(frontmatter)
+    if (owner && !OWNER_RE.test(owner)) {
+      result.issues.push(`metadata.author "${owner}" is not a valid namespace. Fix: lowercase letters, digits and single hyphens, e.g. fworks-tech`)
+    }
+    const priority = parsePriority(frontmatter)
+    if (priority !== undefined && (!Number.isInteger(priority) || priority < 0 || priority > MAX_SKILL_PRIORITY)) {
+      result.issues.push(`metadata.priority must be a whole number 0-${MAX_SKILL_PRIORITY}, got ${priority}`)
+    }
+    for (const condition of parseConditions(frontmatter) ?? []) {
+      if (!isKnownCondition(condition)) {
+        result.issues.push(`metadata.conditions entry "${condition}" uses no known predicate. Fix: env:NAME=value, env:NAME, file.exists:path, or git.status:dirty|clean`)
+      }
+    }
+    const fallback = parseFallback(frontmatter) ?? []
+    if (fallback.includes(member)) {
+      result.issues.push('fallback lists the skill itself, a chain must point at other skills')
+    }
+    for (const name of fallback) {
+      if (!MEMBER_NAME_RE.test(name)) result.issues.push(`fallback entry "${name}" is not a valid skill name`)
+    }
+    const version = parseSkillVersion(frontmatter)
+    if (!version) {
+      result.issues.push('Frontmatter missing "metadata.version". Fix: add metadata:\\n  version: 1.0.0')
+    } else if (!SEMVER_RE.test(version)) {
+      result.issues.push(`metadata.version "${version}" is not semver. Fix: use major.minor.patch, e.g. 1.4.0`)
+    }
     if (tier === 'official' && frontmatter.tier !== 'official') {
       result.issues.push('Official skills must declare "tier: official" in frontmatter')
     }
-    // agentskills.io spec conformance — non-conforming skills load in agenthood
+    // agentskills.io spec conformance: non-conforming skills load in agenthood
     // but fail silently in other runtimes, breaking cross-client portability.
     const name = typeof frontmatter.name === 'string' ? frontmatter.name : ''
     const description = typeof frontmatter.description === 'string' ? frontmatter.description : ''
     for (const e of parser.validateSpec(name, description, member)) {
       result.issues.push(`Spec (${e.rule}): ${e.message}. Fix: ${e.fix}`)
+    }
+    // Runtime ignores unknown names so skills from other clients still load; an
+    // author-time typo should not pass silently (#561).
+    const declared = parseAllowedTools(frontmatter['allowed-tools'] ?? frontmatter.allowed_tools) ?? []
+    for (const tool of declared.filter((t) => !isKnownToolName(t))) {
+      result.issues.push(`allowed-tools names "${tool}", which matches no tool. Fix: use a skill vocabulary name such as file.read or code.write`)
     }
   }
 
@@ -81,7 +148,7 @@ function validateMember(membersDir: string, member: string, lockfile?: Lockfile,
     }
   }
 
-  // Strip fenced/inline code — examples of what a skill detects
+  // Strip fenced/inline code: examples of what a skill detects
   // (e.g. `// TODO: fix this`) are not unfinished skill content.
   const proseBody = body.replace(/```[\s\S]*?```/g, '').replace(/`[^`]*`/g, '')
   for (const pattern of PLACEHOLDER_PATTERNS) {
@@ -97,7 +164,7 @@ function validateMember(membersDir: string, member: string, lockfile?: Lockfile,
   }
 
   // Resource surface (scripts/, references/) hashed alongside SKILL.md (#604).
-  // Skipped until the member has a lock entry — lock creation itself
+  // Skipped until the member has a lock entry: lock creation itself
   // (updateLockfile) is what first records the resource hashes.
   const lockedResources = lockfile?.members[member]?.resources
   if (lockfile?.members[member]) {
@@ -112,7 +179,7 @@ function validateMember(membersDir: string, member: string, lockfile?: Lockfile,
     if (strict && finding.severity === 'block') {
       result.issues.push(`Injection (${finding.pattern}): "${finding.excerpt}"`)
     } else {
-      console.warn(`  ⚠ ${member} — possible injection (${finding.pattern}): "${finding.excerpt}"`)
+      console.warn(`  ⚠ ${member}, possible injection (${finding.pattern}): "${finding.excerpt}"`)
     }
   }
 
@@ -130,12 +197,12 @@ function memberDrift(membersDir: string, member: string, lockfile?: Lockfile): b
 function lockIntegrityGate(membersDir: string, members: string[], lockfile?: Lockfile): void {
   const drifted = members.filter((m) => memberDrift(membersDir, m, lockfile))
   if (drifted.length > 0) {
-    console.log(`\n  ✗ Lockfile drift — ${drifted.length} member(s) changed without a re-lock: ${drifted.join(', ')}`)
+    console.log(`\n  ✗ Lockfile drift, ${drifted.length} member(s) changed without a re-lock: ${drifted.join(', ')}`)
     console.log('    Run `agenthood verify --update-lock` and commit agenthood.lock.\n')
     userError('Lockfile drift detected', { fix: 'Run `agenthood verify --update-lock` and commit agenthood.lock.' })
     return
   }
-  console.log(`\n  ✓ Lockfile integrity OK — ${members.length} member(s) match agenthood.lock`)
+  console.log(`\n  ✓ Lockfile integrity OK, ${members.length} member(s) match agenthood.lock`)
 }
 
 function reportIntegrity(cwd: string, membersDir: string, members: string[], lockfile?: Lockfile): void {
@@ -146,10 +213,10 @@ function reportIntegrity(cwd: string, membersDir: string, members: string[], loc
       ? checkResourceIntegrity(join(membersDir, member), lockfile.members[member].resources)
       : []
     if (status === 'clean' && resourceIssues.length === 0) {
-      console.log(`  ✓ ${member} — clean`)
+      console.log(`  ✓ ${member}, clean`)
     } else {
       failed++
-      console.log(`  ✗ ${member} — ${status}`)
+      console.log(`  ✗ ${member}, ${status}`)
       for (const issue of resourceIssues) console.log(`      - ${issue}`)
     }
   }
@@ -157,7 +224,7 @@ function reportIntegrity(cwd: string, membersDir: string, members: string[], loc
     userError(`Integrity check failed for ${failed} member(s)`, { fix: 'Run `agenthood verify --fix` to restore from git, or `verify --update-lock` if the edit is intentional.' })
     return
   }
-  console.log(`\n  ✓ Integrity OK — ${members.length} member(s) match agenthood.lock`)
+  console.log(`\n  ✓ Integrity OK, ${members.length} member(s) match agenthood.lock`)
 }
 
 function fixDrift(cwd: string, membersDir: string, members: string[], lockfile?: Lockfile): void {
@@ -173,7 +240,7 @@ function fixDrift(cwd: string, membersDir: string, members: string[], lockfile?:
       const skillPath = memberSkillPath(cwd, member)
       const commit = findRevision(cwd, skillPath, lockfile.members[member]?.version ?? '')
       if (!commit) {
-        console.log(`  ? ${member} — no matching revision in git history (re-lock if intentional)`)
+        console.log(`  ? ${member}, no matching revision in git history (re-lock if intentional)`)
         unrestorable++
       } else if (restoreMember(cwd, skillPath, member, commit, false)) restored++
       else unrestorable++
@@ -186,14 +253,14 @@ function fixDrift(cwd: string, membersDir: string, members: string[], lockfile?:
     for (const issue of checkResourceIntegrity(join(membersDir, member), lockedResources)) {
       const rel = issue.replace(/^(untracked resource|resource drift|resource missing): /, '')
       if (issue.startsWith('untracked resource')) {
-        // not in the lock — nothing to restore to; it needs a re-lock or removal
-        console.log(`  ? ${member} — untracked resource ${rel} (re-lock to adopt, or delete it)`)
+        // not in the lock: nothing to restore to; it needs a re-lock or removal
+        console.log(`  ? ${member}, untracked resource ${rel} (re-lock to adopt, or delete it)`)
         continue
       }
       const relPath = memberResourcePath(cwd, member, rel)
       const resourceCommit = findResourceRevision(cwd, relPath, lockedResources[rel])
       if (!resourceCommit) {
-        console.log(`  ? ${member}/${rel} — no matching revision in git history (re-lock if intentional)`)
+        console.log(`  ? ${member}/${rel}, no matching revision in git history (re-lock if intentional)`)
         unrestorable++
       } else if (restoreMember(cwd, relPath, `${member}/${rel}`, resourceCommit, false)) restored++
       else unrestorable++
@@ -217,7 +284,7 @@ function reportLaneOverlaps(): void {
   console.log('\n  Strict mode: lane overlap check passed.')
 }
 
-// The Mediator and The Steward are prompt-driven — no runtime class writes a
+// The Mediator and The Steward are prompt-driven: no runtime class writes a
 // routing record, so members hand-write them and this is the only place the
 // documented schema is enforced. Absent directory is a pass, not a skip: a
 // Society that has not routed anything is in the correct state, and CI has no
@@ -241,7 +308,7 @@ function reportRoutingRecords(cwd: string): void {
 function collectConflictCandidates(membersDir: string, discovered: ConflictCandidate[]): ConflictCandidate[] {
   const parser = new SkillParser()
   const byName = new Map<string, ConflictCandidate>()
-  // Members first — they are the canonical skill surface, and a discovered
+  // Members first: they are the canonical skill surface, and a discovered
   // copy under the same name is the same slot, not a second skill.
   for (const member of MEMBER_NAMES) {
     const skillPath = join(membersDir, member, 'SKILL.md')
@@ -274,6 +341,39 @@ function reportConflicts(membersDir: string): void {
   console.log('    Resolve manually: edit the descriptions, remove one skill, or narrow its "Use when" triggers.')
 }
 
+/**
+ * Two skills declaring the same `owner/name` cannot both be published, and the
+ * local copy-paste that produces them is the conflict #593 exists to prevent.
+ * Scans every skill directory, not only members: the collision usually involves
+ * a non-member pack from another author.
+ */
+function findNamespaceConflicts(membersDir: string): string[] {
+  const parser = new SkillParser()
+  const byRef = new Map<string, string>()
+  let entries: string[]
+  try {
+    entries = readdirSync(membersDir, { withFileTypes: true })
+      .filter((entry) => entry.isDirectory())
+      .map((entry) => entry.name)
+  } catch {
+    return []
+  }
+
+  for (const dir of entries) {
+    const skillPath = join(membersDir, dir, 'SKILL.md')
+    if (!existsSync(skillPath)) continue
+    const { frontmatter } = parser.parseRaw(readFileSync(skillPath, 'utf8'))
+    const owner = parseOwner(frontmatter)
+    if (!owner) continue
+    const name = typeof frontmatter?.name === 'string' ? frontmatter.name : dir
+    const ref = `${owner}/${name}`
+    const previous = byRef.get(ref)
+    if (previous) return [`Duplicate namespace "${ref}" in "${previous}" and "${dir}". Fix: give each skill a distinct metadata.author or name`]
+    byRef.set(ref, dir)
+  }
+  return []
+}
+
 function printResults(results: VerifyResult[]): void {
   for (const r of results) {
     if (r.pass && !r.drift) {
@@ -284,44 +384,10 @@ function printResults(results: VerifyResult[]): void {
         console.log(`      - ${issue}`)
       }
       if (r.drift) {
-        console.log(`      - Drift detected — SKILL.md hash does not match lockfile. Run \`verify --update-lock\` to re-lock.`)
+        console.log(`      - Drift detected, SKILL.md hash does not match lockfile. Run \`verify --update-lock\` to re-lock.`)
       }
     }
   }
-}
-
-function updateLockfile(cwd: string, membersDir: string, members: string[]): void {
-  const lockPath = join(cwd, 'agenthood.lock')
-  const existing = loadLockfile(cwd)
-  // Merge into the existing lock rather than rebuilding from the scanned
-  // subset, so `verify <member> --update-lock` cannot drop every other member.
-  const next: Record<string, { version: string; updatedAt: string; resources?: Record<string, string> }> = { ...(existing?.members ?? {}) }
-  const now = new Date().toISOString()
-  let changed = 0
-  for (const member of members) {
-    const skillPath = join(membersDir, member, 'SKILL.md')
-    if (existsSync(skillPath)) {
-      const content = readFileSync(skillPath, 'utf8')
-      const hash = contentHash(content)
-      const resources = collectResourceHashes(join(membersDir, member))
-      const prev = next[member]
-      const resourcesChanged = JSON.stringify(prev?.resources ?? {}) !== JSON.stringify(resources)
-      // Preserve updatedAt when the hash is unchanged — otherwise regenerating
-      // the lock for one edited skill rewrites all 20 timestamps and produces
-      // a merge conflict on every concurrent branch.
-      next[member] = {
-        version: hash,
-        updatedAt: prev && prev.version === hash && !resourcesChanged ? prev.updatedAt : now,
-        ...(Object.keys(resources).length > 0 ? { resources } : {}),
-      }
-      if (!prev || prev.version !== hash || resourcesChanged) changed++
-    }
-  }
-  // Deterministic key order so a regen on any platform (or any FS iteration
-  // order) yields byte-identical output and a minimal diff.
-  const lock = { version: 1, members: Object.fromEntries(Object.keys(next).sort().map((k) => [k, next[k]])) }
-  writeFileSync(lockPath, JSON.stringify(lock, null, 2) + '\n', 'utf8')
-  console.log(`\n  Lockfile updated (${changed} member(s) re-locked) → ${lockPath}`)
 }
 
 export const command: CommandDescriptor = {
@@ -349,10 +415,10 @@ export async function verify(args: string[]): Promise<void> {
 
   const lockfile = loadLockfile(cwd)
   if (!lockfile) {
-    console.log('\n  No lockfile found — drift detection unavailable. Run `verify --update-lock` to create one.\n')
+    console.log('\n  No lockfile found, drift detection unavailable. Run `verify --update-lock` to create one.\n')
   }
 
-  // Only validate the members the Society actually ships — the lockfile's set
+  // Only validate the members the Society actually ships: the lockfile's set
   // (or the registry when bootstrapping), never every subdir of skills/, which
   // also holds ~40 non-member skill packs (#740). Lock keys are attacker-
   // influenced, so re-validate each before it becomes a filesystem path.
@@ -370,7 +436,7 @@ export async function verify(args: string[]): Promise<void> {
   }
 
   // --integrity (#604): per-member tamper report over SKILL.md + resources.
-  // No structural checks — fails only when a hash does not match the lock.
+  // No structural checks: fails only when a hash does not match the lock.
   if (flags.has('--integrity')) {
     reportIntegrity(cwd, membersDir, membersToCheck, lockfile)
     return
@@ -386,20 +452,38 @@ export async function verify(args: string[]): Promise<void> {
   const results = membersToCheck.map((m) => validateMember(membersDir, m, lockfile, isStrict))
   printResults(results)
 
-  const structuralOk = results.every((r) => r.pass)
+  const namespaceConflicts = findNamespaceConflicts(membersDir)
+  for (const conflict of namespaceConflicts) console.log(`  \u2717 ${conflict}`)
+
+  let structuralOk = results.every((r) => r.pass) && namespaceConflicts.length === 0
   const hasDrift = results.some((r) => r.drift)
 
   if (isStrict) reportLaneOverlaps()
 
   reportRoutingRecords(cwd)
 
+  // Requirements (#549, #551, #552, #554, #571): cycles fail, the rest warns (ADR-037).
+  const requirementsOk = reportSkillRequirements(membersDir)
+  if (!requirementsOk) structuralOk = false
+
+  // --scripts (#540, #547, #548): advisory interface lint over bundled scripts.
+  if (flags.has('--scripts')) reportScriptLint(membersDir)
+
+  // --tokens (#615), --budget (#586) and --dedup (#616): advisory reports over
+  // the installed set. --budget is the catalog-side view of --tokens.
+  if (flags.has('--tokens') || flags.has('--budget')) reportTokenBudgets(membersDir, undefined, metadataBudget(cwd))
+  // --contrib (#154): the third-party contract is only actionable for a project
+  // that hosts contrib skills, so the scan stays opt-in like --tokens.
+  if (flags.has('--contrib')) reportContribSkills(cwd)
+  if (flags.has('--dedup')) reportDuplicates(skillSearchRoots(cwd))
+
   // Advisory (#595): overlapping descriptions mean two skills can both trigger
-  // for the same task. Warns only — the resolution (dedup vs specialize) is a
+  // for the same task. Warns only: the resolution (dedup vs specialize) is a
   // judgment call, so unlike --strict lane overlap it never fails the run.
   if (conflicts) reportConflicts(membersDir)
 
   // --update-lock is the accept path for intentional edits, so it must work
-  // *despite* drift (re-locking changed members is its whole purpose) — only a
+  // *despite* drift (re-locking changed members is its whole purpose): only a
   // structural failure blocks the write. Plain `verify` never writes and fails
   // on drift, preserving the integrity gate that CI (--strict) and ADR-020 rely on.
   if (updateLock && structuralOk) {

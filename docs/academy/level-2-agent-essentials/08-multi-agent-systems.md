@@ -6,13 +6,13 @@
 
 ## What it is
 
-A multi-agent system is a setup where more than one agent works on the same problem. The question is not whether to use multiple agents — real tasks need specialists — but how they coordinate. There are two patterns, and they produce wildly different systems.
+A multi-agent system is a setup where more than one agent works on the same problem. The question is not whether to use several agents; real tasks need specialists. It is how they coordinate, and the two patterns below produce very different systems.
 
-**Peer-to-peer**: agents invoke each other directly. The Architect calls the Tester, the Tester calls the Developer, the Developer calls the Reviewer. Each agent decides, on its own, when to hand off. This looks elegant on a whiteboard because there is no central coordinator — the agents self-organize.
+**Peer-to-peer**: agents invoke each other directly. The Architect calls the Tester, the Tester calls the Developer, the Developer calls the Reviewer. Each agent decides on its own when to hand off. There is no central coordinator; the agents self-organize.
 
-**Orchestrator-driven**: a central controller routes tasks to agents. The orchestrator decides which agent runs, in what order, and what context it receives. Agents do not call each other. They receive a task, execute it, return a result, and stop.
+**Orchestrator-driven**: a central controller decides which agent runs, in what order and with what context. Agents do not call each other; each receives a task, executes it and returns a result.
 
-The difference shows up the moment something fails. In a peer-to-peer system, a failure in one agent propagates to every agent that called it, and the propagation path is invisible — you cannot tell which agent triggered which. In an orchestrator system, the failure is localized to one step, and the orchestrator's log shows exactly which step failed and why.
+The difference shows up the moment something fails. In a peer-to-peer system, a failure in one agent propagates to every agent that called it, and the propagation path is invisible; you cannot tell which agent triggered which. In an orchestrator system, the failure is localized to one step, and the orchestrator's log shows exactly which step failed and why.
 
 ---
 
@@ -20,20 +20,20 @@ The difference shows up the moment something fails. In a peer-to-peer system, a 
 
 Peer-to-peer multi-agent systems have a hidden property: every agent is also a point of failure for every other agent. When the Developer agent calls the Reviewer agent and the Reviewer hangs, the Developer hangs. When the Tester calls the Developer with malformed input and the Developer hallucinates, the Tester proceeds on bad output. The failure propagation graph is the full connection graph, and the full connection graph is unmanageable past three agents.
 
-The second problem is context leakage. In a peer-to-peer system, agents pass their full context to whoever they call. The Reviewer receives the Architect's planning context, the Tester's test context, and the Developer's implementation context — all merged into one opaque blob. The Reviewer cannot tell which context is relevant, so it reasons over all of it, and the irrelevant parts actively confuse it.
+The second problem is context leakage. In a peer-to-peer system, agents pass their full context to whoever they call. The Reviewer receives the Architect's planning context, the Tester's test context, and the Developer's implementation context: all merged into one opaque blob. The Reviewer cannot tell which context is relevant, so it reasons over all of it, and the irrelevant parts actively confuse it.
 
-The orchestrator pattern solves both. Each agent receives only the context the orchestrator explicitly assigns. The Reviewer gets the diff and the test results — not the Architect's planning notes. Failures are localized: if the Developer fails, the orchestrator retries or escalates; no other agent is affected. And the invocation graph is a linear log, not a tangled web. This is why ADR-005 chose orchestrator over peer-to-peer for the Society's members.
+The orchestrator pattern solves both. Each agent receives only the context the orchestrator explicitly assigns. The Reviewer gets the diff and the test results, not the Architect's planning notes. Failures are localized: if the Developer fails, the orchestrator retries or escalates; no other agent is affected. And the invocation graph is a linear log, not a tangled web. This is why ADR-005 chose orchestrator over peer-to-peer for the Society's members.
 
 ---
 
 ## How Agenthood implements it
 
-The orchestrator (planned — `src/orchestrator/` does not exist yet) will live in `WorkflowEngine` and is documented in ADR-005. MemberOrchestrator Phase 1 (member detection) is shipped at `src/reasoning/MemberOrchestrator.ts`. Agents never invoke each other directly. The orchestrator routes, agents execute, results return:
+The orchestrator (planned: `src/orchestrator/` does not exist yet) will live in `WorkflowEngine` and is documented in ADR-005. MemberOrchestrator Phase 1 (member detection) is shipped at `src/reasoning/MemberOrchestrator.ts`. Agents never invoke each other directly. The orchestrator routes, agents execute, results return:
 
 ```typescript
 import { WorkflowEngine, AgentStep, ParallelStep } from 'agenthood';
 
-// The orchestrator — not the agents — decides the execution graph
+// The orchestrator, not the agents, decides the execution graph
 const pipeline = new WorkflowEngine()
   .step(new AgentStep('architect', { task: 'plan the feature' }))
   .step(new AgentStep('tester',    { task: 'write tests from the plan' }))
@@ -47,7 +47,7 @@ const pipeline = new WorkflowEngine()
 const result = await pipeline.run();
 ```
 
-Each `AgentStep` receives exactly the inputs the orchestrator provides — no agent sees another agent's internal context. `ParallelStep` runs independent agents concurrently and merges their outputs. The orchestrator design (ADR-005) specifies a state graph with `interrupt_on` approval gates, but `src/orchestrator/` is not yet implemented.
+Each `AgentStep` receives exactly the inputs the orchestrator provides: no agent sees another agent's internal context. `ParallelStep` runs independent agents concurrently and merges their outputs. The orchestrator design (ADR-005) specifies a state graph with `interrupt_on` approval gates, but `src/orchestrator/` is not yet implemented.
 
 ---
 
@@ -58,13 +58,13 @@ Each `AgentStep` receives exactly the inputs the orchestrator provides — no ag
 npx agenthood run steward "ship: add OAuth2 login to the API"
 ```
 
-The orchestrator log shows the linear invocation graph — no peer-to-peer tangle:
+The orchestrator log shows the linear invocation graph: no peer-to-peer tangle:
 
 ```
 route  → architect (plan)
 exec   → architect: "3 endpoints to add, 1 middleware to extend"
 route  → tester (tests)
-exec   → tester: "6 tests written — 3 happy path, 3 error cases"
+exec   → tester: "6 tests written - 3 happy path, 3 error cases"
 route  → builder (implement)
 exec   → builder: "OAuth2 middleware + 3 handlers implemented"
 route  → parallel [reviewer, auditor]
@@ -79,8 +79,8 @@ done   → 5 members, 0 failures, 1 human approval gate
 
 ## Further reading
 
-- [ADR-005 — Orchestrator pattern over peer-to-peer](../../adr/ADR-005-orchestrator-pattern.md) — the decision and its alternatives
-- [`src/workflows/WorkflowEngine.ts`](../../../src/workflows/WorkflowEngine.ts) — the workflow engine (shipped; the full orchestrator routing from ADR-005, Phases 2–3, remains roadmap)
-- [AutoGen: Enabling Next-Gen LLM Applications via Multi-Agent Conversation](https://arxiv.org/abs/2308.08155) — the multi-agent paper whose peer-to-peer model ADR-005 rejected
+- [ADR-005: Orchestrator pattern over peer-to-peer](../../adr/ADR-005-orchestrator-pattern.md): the decision and its alternatives
+- [`src/workflows/WorkflowEngine.ts`](../../../src/workflows/WorkflowEngine.ts): the workflow engine (shipped; the full orchestrator routing from ADR-005, Phases 2-3, remains roadmap)
+- [AutoGen: Enabling Next-Gen LLM Applications via Multi-Agent Conversation](https://arxiv.org/abs/2308.08155): the multi-agent paper whose peer-to-peer model ADR-005 rejected
 
 

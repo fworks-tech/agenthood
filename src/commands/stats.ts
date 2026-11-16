@@ -2,7 +2,7 @@ import type { CommandDescriptor } from './types.ts'
 import { readSkillStats, triggerRate } from '../skills/activation/SkillStats.ts'
 
 function formatPct(rate: number | null): string {
-  return rate === null ? '—' : `${(rate * 100).toFixed(0)}%`
+  return rate === null ? '-' : `${(rate * 100).toFixed(0)}%`
 }
 
 export const command: CommandDescriptor = {
@@ -33,7 +33,7 @@ async function statsHandler(args: string[]): Promise<void> {
   console.log(`  ${''.padEnd(28, '-')} ${''.padEnd(13, '-')} ${''.padEnd(9, '-')} ${''.padEnd(8, '-')} ${''.padEnd(24, '-')}`)
   for (const [skill, stat] of rows) {
     const errorRate = stat.activations === 0 ? null : stat.failures / stat.activations
-    const lastRun = stat.lastRun ? new Date(stat.lastRun).toLocaleDateString() : '—'
+    const lastRun = stat.lastRun ? new Date(stat.lastRun).toLocaleDateString(): '; '
     console.log(
       `  ${skill.padEnd(28)} ${String(stat.activations).padEnd(13)} ${formatPct(triggerRate(stat)).padEnd(9)} ${formatPct(errorRate).padEnd(8)} ${lastRun}`,
     )

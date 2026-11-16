@@ -3,16 +3,19 @@ name: envoy
 description: Detects active AI providers, translates Agenthood skill files to provider-native formats, validates convention enforcement across runtimes, and generates bootstrap configs for new provider onboarding. One Society. Every runtime. No exceptions. Use when onboarding a new AI provider or migrating skill formats.
 allowed-tools: file.read file.search code.explain ask_human
 license: MIT
+metadata:
+  version: 1.0.0
 ---
 
 # The Envoy
 
 ## Overview
 
-The Envoy is the Agenthood's cross-provider attaché. It does not belong to any single
-runtime — it belongs to the standard. When a project uses Copilot instead of Claude Code,
-the Envoy translates. When a team migrates from Cursor to Gemini CLI, the Envoy remaps.
-The conventions travel. The provider is an implementation detail.
+Skills written for one runtime rarely load unchanged in another. The Envoy closes
+that gap. It translates member files into the format each provider expects,
+generates the bootstrap config a new runtime needs, and checks that the conventions
+survived the translation. Providers differ in syntax and tool names. The standards
+do not.
 
 ## When to Use
 
@@ -36,23 +39,23 @@ The conventions travel. The provider is an implementation detail.
    - `.windsurf/` → Windsurf
    - `AGENTS.md` with no other markers → Provider-agnostic (Codex / generic)
 
-2. Check for multiple active providers — do not assume exclusivity
+2. Check for multiple active providers: do not assume exclusivity
 
 3. Report the finding before proceeding:
    *"Detected: GitHub Copilot (via .github/copilot/). No Claude Code config found. Proceeding with Copilot translation."*
 
-4. If provider cannot be determined, ask — do not guess
+4. If provider cannot be determined, ask: do not guess
 
 ### Skill Translation
 
 For each member in `skills/`, translate to the target provider's format:
 
-**Claude Code** (identity — no transformation):
+**Claude Code** (identity: no transformation):
 - Source: `skills/the-<name>/SKILL.md`
 - Target: `.claude/skills/the-<name>.md`
 - Format: Preserve YAML frontmatter and body exactly
 
-**CodeBuddy** (identity — same format):
+**CodeBuddy** (identity: same format):
 - Source: `skills/the-<name>/SKILL.md`
 - Target: `.codebuddy/skills/the-<name>.md`
 - Format: Preserve as-is
@@ -82,40 +85,40 @@ For each member in `skills/`, translate to the target provider's format:
 - Source: All members
 - Target: Append to `AGENTS.md` under `## Loaded Skills` section
 - Format: `### The <Name>` + Overview paragraph + When to Use list only
-- Summarize, do not copy full skill body — AGENTS.md is a reference, not a skills runtime
+- Summarize, do not copy full skill body: AGENTS.md is a reference, not a skills runtime
 
 ### Convention Validation
 
 After translation, validate that AGENTS.md conventions are enforced in the target environment:
 
-**Check 1 — Commit message enforcement**
+**Check 1: Commit message enforcement**
 - Is a commit-msg hook present (`.husky/commit-msg`, `.git/hooks/commit-msg`)?
 - Is `commitlint` or equivalent configured?
 - If not: ⚠️ *"Commit conventions documented but not enforced. The Doorman cannot operate without a hook."*
 
-**Check 2 — Branch protection**
+**Check 2: Branch protection**
 - Is the GitHub repository's main branch protected?
 - Not applicable for non-GitHub hosts.
 
-**Check 3 — CI convention checks**
+**Check 3: CI convention checks**
 - Does the target repository have commitlint validation in CI? (See the `commitlint` job in `.github/workflows/pr.yml` for an example.)
 - Does CI enforce that PR descriptions link to an issue via `Closes #N` / `Fixes #N` (`.github/scripts/pr-body-check.sh`)? Without it, resolved issues silently stay open after merge.
 - If not: ⚠️ with install instruction
 
-**Check 4 — Agent behavior rules visibility**
+**Check 4: Agent behavior rules visibility**
 - Are the agent behavior rules from `AGENTS.md` accessible to the detected provider?
 - For Copilot: is `.github/copilot/instructions.md` present and referencing the rules?
 - For Cursor / Windsurf: is there a root rule file covering branch/commit/PR standards?
 
 **Validation report format:**
 ```
-The Envoy — Convention Validation Report
+The Envoy: Convention Validation Report
 Provider: GitHub Copilot
 Date: YYYY-MM-DD
 
 ✅ Skill files translated (all members)
 ✅ AGENTS.md convention source present
-⚠️  Commit hook not configured — The Doorman is present but unarmed
+⚠️  Commit hook not configured: The Doorman is present but unarmed
 ⚠️  CI commitlint workflow not installed
 ❌ PR title validation not running
 ```
@@ -124,13 +127,13 @@ Date: YYYY-MM-DD
 
 Full provider onboarding in one pass:
 
-1. **Detect** — identify provider(s) in the environment
-2. **Scaffold** — create the provider config directory if absent
-3. **Translate** — copy and reformat all member skill files
-4. **Hook** — install commit-msg and pre-push hooks if not present
-5. **CI** — copy applicable GitHub Actions workflows to `.github/workflows/`
-6. **Validate** — run convention validation and report gaps
-7. **Record** — write `ENVOY_REPORT.md` to the project root
+1. **Detect**: identify provider(s) in the environment
+2. **Scaffold**: create the provider config directory if absent
+3. **Translate**: copy and reformat all member skill files
+4. **Hook**: install commit-msg and pre-push hooks if not present
+5. **CI**: copy applicable GitHub Actions workflows to `.github/workflows/`
+6. **Validate**: run convention validation and report gaps
+7. **Record**: write `ENVOY_REPORT.md` to the project root
 
 `ENVOY_REPORT.md` format:
 ```markdown
@@ -148,7 +151,7 @@ Full provider onboarding in one pass:
 ## Conventions Enforced
 - [x] AGENTS.md present and referenced
 - [x] Commit hook installed
-- [ ] CI commitlint workflow — ACTION REQUIRED
+- [ ] CI commitlint workflow: ACTION REQUIRED
 
 ## Open Gaps
 [List anything requiring manual action]

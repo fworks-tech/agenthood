@@ -1,6 +1,6 @@
 # Basics of LLMs
 
-> An LLM is not a brain; it is an incredibly powerful token calculator. Treat it accordingly.
+> An LLM predicts tokens with great skill. Build around that fact, not around the idea of a mind.
 
 ---
 
@@ -8,7 +8,7 @@
 
 A Large Language Model (LLM) is a neural network trained on vast amounts of text data to predict the next word (or "token") in a sequence. When you give it a prompt, it calculates the highest-probability continuation based on the patterns it learned during training.
 
-It does not "think" or "know" facts in a human sense. It maps statistical relationships between concepts. Understanding this probabilistic nature is essential for building robust agents, as it explains why models can hallucinate, get confused by poor formatting, or require specific phrasing to perform well.
+It does not "think" or "know" facts in a human sense. It maps statistical relationships between concepts. Understanding this probabilistic nature is essential for building reliable agents, as it explains why models can hallucinate, get confused by poor formatting, or require specific phrasing to perform well.
 
 ```mermaid
 graph LR
@@ -70,8 +70,8 @@ const response = await provider.complete({ prompt: 'Explain the Society.' });
 
 ## Further reading
 
-- [ADR-005 — Orchestrator pattern](../../adr/ADR-005-orchestrator-pattern.md)
-- [`src/llm/ILLMProvider.ts`](../../../src/llm/ILLMProvider.ts) — source implementation (shipped in v2.0.0)
-- [Anthropic: Introduction to Prompting](https://docs.anthropic.com/en/docs/intro-to-prompting) — excellent foundational knowledge
+- [ADR-005: Orchestrator pattern](../../adr/ADR-005-orchestrator-pattern.md)
+- [`src/llm/ILLMProvider.ts`](../../../src/llm/ILLMProvider.ts): source implementation (shipped in v2.0.0)
+- [Anthropic: Introduction to Prompting](https://docs.anthropic.com/en/docs/intro-to-prompting): excellent foundational knowledge
 
 

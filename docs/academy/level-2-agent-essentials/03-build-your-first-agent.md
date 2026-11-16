@@ -1,14 +1,14 @@
 # Build Your First Agent
 
-> *Reading about agents is not building agents. This is the article where you build one.*
+> *The gap between reading about agents and building one is a single working implementation.*
 
 ---
 
 ## What it is
 
-This article walks through building a `DeveloperAgent` — a working agent that extends `BaseAgent`, registers skills, and runs the ReAct loop to complete a real coding task. By the end, you will have an agent you can run, not just describe.
+You will build a `DeveloperAgent` that extends `BaseAgent`, registers skills and runs the ReAct loop on a real coding task. The result is a running agent you can inspect and modify.
 
-Building an agent comes down to four decisions: what role it plays, what skills it can use, how it reasons, and when it stops. `BaseAgent` handles the loop. You handle the role and the skills. The reasoning is ReAct. The termination is built in.
+Four decisions shape the agent: its role, the skills it can use, how it reasons and when it stops. `BaseAgent` owns the loop, ReAct supplies the reasoning and termination is built in, which leaves the role and the skills to you.
 
 ---
 
@@ -16,7 +16,7 @@ Building an agent comes down to four decisions: what role it plays, what skills 
 
 The gap between understanding agents and building them is exactly one working implementation. Engineers who skip this step can explain ReAct in a whiteboard session but cannot diagnose why their agent loops forever, why it calls the wrong tool, or why it returns a result that ignores the user's actual request.
 
-A working first agent teaches you every integration point at once: how the LLM provider is called, how skills are dispatched, how memory is read and written, how the loop decides to stop. Once you have built one, the Society's members stop being abstractions — they are just `BaseAgent` subclasses with different roles and skill sets, which is exactly what ADR-004 prescribes.
+A working first agent teaches you every integration point at once: how the LLM provider is called, how skills are dispatched, how memory is read and written, how the loop decides to stop. Once you have built one, the Society's members stop being abstractions; they are just `BaseAgent` subclasses with different roles and skill sets, which is exactly what ADR-004 prescribes.
 
 ---
 
@@ -95,8 +95,8 @@ Expected output: a step-by-step plan, the specific files to change, and the reas
 
 ## Further reading
 
-- [ADR-005 — Orchestrator pattern](../../adr/ADR-005-orchestrator-pattern.md) — how multiple agents compose without peer-to-peer coupling
-- [`src/agents/base/BaseAgent.ts`](../../../src/agents/base/BaseAgent.ts) — the class to extend (v2.0.0)
-- [Building agents with LLMs](https://lilianweng.github.io/posts/2023-06-23-agent/) — Lilian Weng's comprehensive breakdown
+- [ADR-005: Orchestrator pattern](../../adr/ADR-005-orchestrator-pattern.md): how multiple agents compose without peer-to-peer coupling
+- [`src/agents/base/BaseAgent.ts`](../../../src/agents/base/BaseAgent.ts): the class to extend (v2.0.0)
+- [Building agents with LLMs](https://lilianweng.github.io/posts/2023-06-23-agent/): Lilian Weng's detailed breakdown
 
 

@@ -1,5 +1,5 @@
 /**
- * RunCheckpoint — persists member run state after each reasoning step.
+ * RunCheckpoint: persists member run state after each reasoning step.
  *
  * Enables resuming interrupted runs via `agenthood run --resume <id>`.
  * Checkpoints are stored as JSON files in `.agenthood/checkpoints/`.
@@ -38,7 +38,7 @@ export interface CheckpointData {
 const CHECKPOINT_DIR = '.agenthood/checkpoints'
 const DEFAULT_TTL_DAYS = 7
 
-/** The subset of RunCheckpoint the runner depends on — hosts may substitute their own store. */
+/** The subset of RunCheckpoint the runner depends on: hosts may substitute their own store. */
 export interface CheckpointStore {
   load(id: string): CheckpointData | undefined
   save(data: CheckpointData): void
@@ -49,10 +49,10 @@ function getCheckpointDir(cwd: string): string {
   return join(cwd, CHECKPOINT_DIR)
 }
 
-/** Ids become file names — anything outside this charset could escape the folder. */
+/** Ids become file names: anything outside this charset could escape the folder. */
 function checkpointPath(dir: string, id: string): string {
   if (!/^[A-Za-z0-9_-]+$/.test(id)) {
-    throw new Error(`Invalid checkpoint id: "${id}" — must match [a-zA-Z0-9_-]+`)
+    throw new Error(`Invalid checkpoint id: "${id}", must match [a-zA-Z0-9_-]+`)
   }
   return join(dir, `${id}.json`)
 }

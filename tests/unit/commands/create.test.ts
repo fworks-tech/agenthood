@@ -82,6 +82,6 @@ describe('create command', () => {
   it('falls back to a TODO description', async () => {
     await create(['my-cool-skill'])
     const content = String(vi.mocked(writeFileSync).mock.calls[0]![1])
-    expect(content).toContain('TODO — describe what my-cool-skill does')
+    expect(content).toContain('TODO: describe what my-cool-skill does')
   })
 })

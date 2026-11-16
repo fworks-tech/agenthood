@@ -1,6 +1,6 @@
 import { readFileSync } from 'node:fs'
 import { describe, expect, it } from 'vitest'
-import { cleanLine } from '../scripts/generate-release-notes.ts'
+import { cleanLine, formatDate } from '../scripts/generate-release-notes.ts'
 
 const WORKFLOW = readFileSync('.github/workflows/semantic-release.yml', 'utf8')
 const HELPER = readFileSync('scripts/herald-release.mjs', 'utf8')
@@ -45,7 +45,7 @@ describe('release configuration (Herald release-PR flow)', () => {
   it('gates the generated artifacts, because the release head never gets CI', () => {
     // GitHub starts no workflow for a GITHUB_TOKEN push, and repository_dispatch
     // is suppressed by the same guard. The PR body is generated text built from
-    // commit subjects, and a closing keyword in a merged body closes issues —
+    // commit subjects, and a closing keyword in a merged body closes issues,
     // so the release job has to check its own output before the PR exists.
     expect(WORKFLOW).toMatch(/token: \$\{\{ secrets\.GITHUB_TOKEN \}\}/)
     const gate = WORKFLOW.indexOf('gate the generated artifacts')
@@ -56,10 +56,24 @@ describe('release configuration (Herald release-PR flow)', () => {
     expect(WORKFLOW).toContain("herald-notes.md carries a linkified reference cleanLine did not rewrite")
   })
 
+  it('cleans the notes in the publish job before the release is tagged (#973)', () => {
+    // The publish job regenerates herald-notes.md for the GitHub release, so it
+    // needs the same cleaning the release-pr job applies, on its own copy.
+    const publish = WORKFLOW.slice(WORKFLOW.search(/\n {2}publish:\n/))
+    expect(publish).not.toBe('')
+    const clean = publish.indexOf('--clean herald-notes.md herald-notes.md')
+    const gate = publish.indexOf('gate the generated artifacts')
+    const create = publish.indexOf('gh release create')
+    expect(clean).toBeGreaterThan(-1)
+    expect(create).toBeGreaterThan(-1)
+    expect(gate).toBeGreaterThan(clean)
+    expect(create).toBeGreaterThan(gate)
+  })
+
   it('flags a linkified closing keyword, the form the notes generator actually emits', () => {
     // The real v3.69.0 line, merged with a `closes [#663](url)` in the body.
-    // herald-notes.md is the raw generateNotes output — cleanLine only ever
-    // runs over the published files — so GitHub's `Closes #663` trailer on the
+    // herald-notes.md is the raw generateNotes output: cleanLine only ever
+    // runs over the published files, so GitHub's `Closes #663` trailer on the
     // squash commit arrives linkified, and a gate that requires a bare `#N`
     // lets it through. Issue #967.
     const gate = closingKeywordPattern()
@@ -100,6 +114,11 @@ describe('release configuration (Herald release-PR flow)', () => {
     expect(HELPER).toContain('CHANGELOG.md')
     expect(HELPER).toContain('generate-release-notes.ts')
     expect(WORKFLOW).toContain('npm run build')
+  })
+
+  it('keeps the Claude plugin manifest version in step with the release', () => {
+    expect(HELPER).toContain('syncMarketplaceVersion')
+    expect(HELPER).toContain('.claude-plugin')
   })
 
   it('gitignores the herald notes scratch file so create-pull-request cannot commit it', () => {
@@ -164,6 +183,29 @@ describe('release notes issue references', () => {
       .toBe('- **Test:** no issues here (#12)')
   })
 
+  it('turns a dash in an inherited subject into a colon', () => {
+    // A commit subject is free prose and can carry a dash. The generated notes
+    // are exempt from the prose check, so cleanLine has to normalize it.
+    const dashed = '* **feat:** add X — Y' // prose-lint-ignore
+    expect(cleanLine(dashed)).toBe('- **Feat:** add X: Y')
+  })
+
+  it('keeps a numeric range as a hyphen', () => {
+    const dashed = '* **feat:** support 2023–2026' // prose-lint-ignore
+    expect(cleanLine(dashed)).toBe('- **Feat:** support 2023-2026')
+  })
+
+  it('formats the release date in UTC, so a late release keeps its day', () => {
+    // A machine west of UTC would otherwise date the release one day earlier.
+    const original = process.env.TZ
+    process.env.TZ = 'America/Sao_Paulo'
+    try {
+      expect(formatDate('2026-11-16')).toBe('November 16, 2026')
+    } finally {
+      process.env.TZ = original
+    }
+  })
+
   it('does not write files when imported, so the module is testable', () => {
     // generate() rewrites CHANGELOG.md and docs/release-notes.md. Importing
     // must not run it, or collecting this suite would rewrite the repo.
@@ -182,7 +224,7 @@ describe('release notes linkify artifacts', () => {
   // The real v3.68.3 line for #951, which quotes closing keywords and a
   // link-shaped regex. conventional-changelog linkifies the quoted syntax
   // into '[#N](https://.../issues/N)' and '[#1](.../issues/1)', then trails
-  // the line with a link per prose mention — seventeen refs, nearly all
+  // the line with a link per prose mention: seventeen refs, nearly all
   // duplicates.
   const LINKIFY =
     '* **herald:** release notes stop leaking issue refs, changelog stops claiming false closures ' +

@@ -28,7 +28,7 @@ Together, they enable agents that follow procedures AND interact with the world.
 
 ## Configuration
 
-> **Status: Planned** — MCP integration is not yet implemented in the runtime.
+> **Status: Planned**: MCP integration is not yet implemented in the runtime.
 > The configuration schema below is the intended design. See issue #790 for tracking.
 
 MCP servers are configured in `.agenthood/config.json` or `opencode.json`:
@@ -181,7 +181,7 @@ To disable a server without removing it:
 ## Security Considerations
 
 - MCP servers run with the permissions you grant them
-- Use `{env:VAR}` for tokens — never hardcode secrets
+- Use `{env:VAR}` for tokens: never hardcode secrets
 - Remote servers should use HTTPS
 - Consider running untrusted servers in `--sandbox` mode
 - The `enabled: false` flag lets you temporarily disable without deleting config

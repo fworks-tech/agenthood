@@ -6,21 +6,21 @@
 
 ## What it is
 
-Multi-step reasoning is the practice of breaking a complex problem into intermediate thinking steps before producing a final answer. Instead of asking the model "fix this bug" and accepting whatever comes back, you ask it to reason about the bug, form a hypothesis, test the hypothesis, and only then propose a fix.
+Multi-step reasoning breaks a complex problem into intermediate steps before committing to an answer. Rather than asking the model to "fix this bug" and accepting the first reply, you have it reason about the bug, form a hypothesis, test it, and only then propose a fix.
 
-The three patterns that matter are Chain-of-Thought (CoT), ReAct, and Tree-of-Thought (ToT). **Chain-of-Thought** asks the model to write out its reasoning explicitly before the answer — "let me think step by step." **ReAct** interleaves reasoning with actions: think, call a tool, observe the result, think again. **Tree-of-Thought** explores multiple reasoning branches in parallel, evaluates them, and pursues the most promising one.
+Three patterns cover most of it. **Chain-of-Thought** (CoT) has the model write its reasoning before the answer, in the "think step by step" style. **ReAct** interleaves reasoning with actions: think, call a tool, observe, think again. **Tree-of-Thought** (ToT) explores several branches in parallel, scores them and follows the most promising one.
 
-The difference between them is cost and coverage. CoT is cheap — one extra reasoning pass. ReAct is moderate — each action is a tool call that costs tokens and time. ToT is expensive — multiple branches mean multiple reasoning passes, only one of which produces the final answer. You choose based on the task: CoT for problems that need a clear line of thinking, ReAct for problems that need real-world information, ToT for problems with multiple valid approaches where you want the best one.
+Cost and coverage separate them. CoT adds one reasoning pass. ReAct costs a tool call per action. ToT multiplies the passes by the number of branches, and only one branch produces the answer. Pick by task: CoT when the reasoning needs to be explicit, ReAct when the answer depends on information from outside the model, ToT when several approaches are viable and you want the best.
 
 ---
 
 ## Why it matters in production
 
-Single-shot prompts collapse on multi-step problems. Ask an LLM to "debug the failing test" in one shot and it will guess at the cause based on the test name, because it has not seen the test output, the source code, or the stack trace. The guess is plausible and wrong — the most dangerous kind of output.
+Single-shot prompts fall apart on multi-step problems. Ask a model to "debug the failing test" and it will guess at the cause from the test name, having seen neither the output, the source nor the stack trace. The guess is plausible, which makes it worse than an obvious failure.
 
-The deeper problem is that single-shot reasoning is invisible. When the answer is wrong, you cannot tell *where* the reasoning went wrong because there was no reasoning — just a jump from question to answer. Multi-step reasoning makes the path inspectable. Each intermediate step is a checkpoint you can audit, and a wrong step is a localized problem you can fix instead of re-rolling the entire prompt.
+Single-shot reasoning is also invisible. When the answer is wrong there is no path to inspect, only a jump from question to answer. Multi-step reasoning leaves checkpoints: you can audit each step, and a wrong step becomes a local fix instead of another roll of the whole prompt.
 
-The cost tradeoff is real but manageable. Chain-of-thought roughly doubles token cost per call. Tree-of-thought multiplies it by the number of branches. The Society's position is that this cost is the cost of correctness — and it is far cheaper than the cost of shipping a wrong answer to production.
+The cost is real. Chain-of-thought roughly doubles the tokens per call, and tree-of-thought multiplies them by the branch count. The Society treats that as part of the price of a correct answer, which is still cheaper than shipping a wrong one.
 
 ---
 
@@ -31,12 +31,12 @@ Agenthood implements ReAct as the default loop and CoT as a composable reasoning
 ```typescript
 import { ReActLoop, ChainOfThought } from 'agenthood';
 
-// ReAct — the default agent loop
+// ReAct: the default agent loop
 const reactLoop = new ReActLoop(agent);
 const result = await reactLoop.execute(task);
 // each iteration: reason -> act -> observe -> reason again
 
-// Chain-of-Thought — explicit reasoning before action
+// Chain-of-Thought: explicit reasoning before action
 const cot = new ChainOfThought({ steps: 3 });
 const reasoning = await cot.reason({
   problem: 'Why does the test fail on line 42?',
@@ -45,7 +45,7 @@ const reasoning = await cot.reason({
 // reasoning = ['Hypothesis: null check missing', 'Verify: line 38 passes null', 'Conclusion: add guard at line 38']
 ```
 
-`ReActLoop` is what `BaseAgent.run()` uses by default. `ChainOfThought` is available as a skill — you compose it into an agent's reasoning pipeline when a task benefits from explicit upfront thinking before actions begin. ToT-style branching (`TreeOfThought`) remains a planned enhancement for a future milestone.
+`ReActLoop` is what `BaseAgent.run()` uses by default. `ChainOfThought` is available as a skill; you compose it into an agent's reasoning pipeline when a task benefits from explicit upfront thinking before actions begin. ToT-style branching (`TreeOfThought`) remains a planned enhancement for a future milestone.
 
 ---
 
@@ -63,11 +63,11 @@ Watch the loop produce visible reasoning steps:
 [act]  read_file src/auth.ts
 [see]  auth() returns true for any string, including empty.
 [think] The guard is missing. I'll add a check for empty/falsy tokens.
-[act]  edit_file src/auth.ts — add `if (!token) return false;`
+[act]  edit_file src/auth.ts: add `if (!token) return false;`
 [see]  File updated.
 [think] Re-run the test to confirm the fix.
 [act]  run_test test/auth.test.ts
-[see]  PASS — 42 tests, 0 failures.
+[see]  PASS: 42 tests, 0 failures.
 [done] Fixed: added empty-token guard in src/auth.ts:14
 ```
 
@@ -77,8 +77,8 @@ Each `[think]` line is a reasoning checkpoint. If the fix were wrong, you would 
 
 ## Further reading
 
-- [ReAct: Synergizing Reasoning and Acting in Language Models](https://arxiv.org/abs/2210.03629) — the ReAct pattern paper
-- [Chain-of-Thought Prompting Elicits Reasoning in Large Language Models](https://arxiv.org/abs/2201.11903) — the CoT paper
-- [`src/reasoning/ReActLoop.ts`](../../../src/reasoning/ReActLoop.ts) — the reasoning loop (v2.0.0)
+- [ReAct: Synergizing Reasoning and Acting in Language Models](https://arxiv.org/abs/2210.03629): the ReAct pattern paper
+- [Chain-of-Thought Prompting Elicits Reasoning in Large Language Models](https://arxiv.org/abs/2201.11903): the CoT paper
+- [`src/reasoning/ReActLoop.ts`](../../../src/reasoning/ReActLoop.ts): the reasoning loop (v2.0.0)
 
 

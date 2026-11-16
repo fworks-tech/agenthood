@@ -11,7 +11,7 @@ import { Logger } from "../../core/Logger.ts"
  * The OpenAI / Groq / OpenRouter SDKs expose overloaded create() signatures
  * that don't satisfy a generic Record<string, unknown> interface. The
  * adaptation cast lives once in ChatCompletionsProvider's constructor
- * (chat-completions-provider.ts) — it is safe because the handler only
+ * (chat-completions-provider.ts); it is safe because the handler only
  * forwards the params object through to the SDK, which already validates
  * them against its own overload.
  */
@@ -73,7 +73,7 @@ export function createChatCompletionsHandler(
   async function stream(params: Record<string, unknown>): Promise<AsyncGenerator<LLMChunk>> {
     const start = performance.now()
     try {
-      // Verify the SDK returned an async iterable before narrowing the type —
+      // Verify the SDK returned an async iterable before narrowing the type,
       // the same verify-then-cast pattern validation.ts uses for messages.
       const raw: unknown = await client.create({ ...params, stream: true })
       if (typeof (raw as AsyncIterable<unknown>)?.[Symbol.asyncIterator] !== "function") {

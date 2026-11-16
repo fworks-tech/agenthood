@@ -1,0 +1,21 @@
+# Deep-research chain (#343). Copy to your project root.
+#   agenthood workflow run research "evaluate event-sourced billing"
+#
+# The five steps of a research loop: save the request, plan, delegate, synthesise,
+# respond. The delegation step is `parallel`, and each branch runs a research
+# member. `think` is the members' own Process section - reflection lives in
+# instructions, not in a tool round-trip.
+chains:
+  - name: research
+    sequence:
+      - member: strategist
+        task: Save the request, then plan the research as ordered questions.
+      - parallel:
+          - member: librarian
+            task: Find what the repository and docs already answer.
+          - member: auditor
+            task: Check the sources behind each claim and name what is unverified.
+      - member: herald
+        task: Synthesise the findings into one answer, citing where each claim came from.
+    guards: { stop_on_blocking: true }
+    max_rounds: 1

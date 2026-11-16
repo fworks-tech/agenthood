@@ -116,8 +116,6 @@ describe('BaseAgent trace emission', () => {
   it('does not block the response when trace recording fails', async () => {
     const { llm, toolRegistry, loop } = createAgentHarness()
     const brokenTracer = {
-      startSpan: vi.fn(),
-      endSpan: vi.fn(),
       record: vi.fn().mockImplementation(() => {
         throw new Error('tracer exploded')
       }),

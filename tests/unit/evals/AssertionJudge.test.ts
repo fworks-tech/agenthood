@@ -16,7 +16,7 @@ const VECTORS: Record<string, number[]> = {
 }
 const keyed: EmbedFn = async (text) => VECTORS[text] ?? [1, 0, 0]
 
-describe('AssertionJudge — deterministic types', () => {
+describe('AssertionJudge, deterministic types', () => {
   it('exact: passes only on trimmed string equality', async () => {
     const a: Assertion = { type: 'exact', target: 'hello' }
     expect((await gradeAssertion(a, 'hello')).passed).toBe(true)
@@ -51,7 +51,7 @@ describe('AssertionJudge — deterministic types', () => {
   })
 })
 
-describe('AssertionJudge — semantic type', () => {
+describe('AssertionJudge, semantic type', () => {
   it('scores by cosine similarity and passes at/above threshold', async () => {
     const g = await gradeAssertion({ type: 'semantic', target: 'exp-same' }, 'out-same', keyed)
     expect(g.score).toBeCloseTo(1, 5)
@@ -81,7 +81,7 @@ describe('AssertionJudge — semantic type', () => {
   })
 })
 
-describe('AssertionJudge — aggregation with partial credit', () => {
+describe('AssertionJudge, aggregation with partial credit', () => {
   it('weighted mean of per-assertion scores', async () => {
     const assertions: Assertion[] = [
       { type: 'contains', target: 'alpha' },

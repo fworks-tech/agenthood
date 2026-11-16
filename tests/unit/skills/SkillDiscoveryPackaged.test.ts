@@ -3,7 +3,7 @@ import { mkdirSync, writeFileSync, symlinkSync, rmSync } from 'node:fs'
 import { join } from 'node:path'
 import { tmpdir } from 'node:os'
 
-// MEMBERS_DIR is a const resolved from the module's own location — mock the
+// MEMBERS_DIR is a const resolved from the module's own location: mock the
 // module to point it at a temp fixture so the drop guards are testable without
 // touching the real packaged tree.
 const state = vi.hoisted(() => ({

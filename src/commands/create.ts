@@ -1,7 +1,7 @@
 /**
  * agenthood create <name> [description]
  *
- * Scaffolds a new skill directory with a spec-shaped SKILL.md — the starting
+ * Scaffolds a new skill directory with a spec-shaped SKILL.md: the starting
  * point the publish/registry flow expects. Member names are reserved.
  */
 
@@ -56,15 +56,15 @@ export async function create(args: string[]): Promise<void> {
     return
   }
 
-  // same spec-shaped gate as install/remove — a hostile arg must not escape the skills dir
+  // same spec-shaped gate as install/remove: a hostile arg must not escape the skills dir
   if (!SPEC_NAME_RE.test(name)) {
-    console.error(`  ✗ Invalid skill name "${name}" — must match ${SPEC_NAME_RE}`)
+    console.error(`  ✗ Invalid skill name "${name}", must match ${SPEC_NAME_RE}`)
     process.exit(1)
     return
   }
 
   if (isKnownMember(name)) {
-    console.error(`  ✗ "${name}" is a Society member name — reserved, choose another`)
+    console.error(`  ✗ "${name}" is a Society member name, reserved, choose another`)
     process.exit(1)
     return
   }
@@ -78,10 +78,10 @@ export async function create(args: string[]): Promise<void> {
     return
   }
 
-  const desc = description || `TODO — describe what ${name} does and when to use it`
+  const desc = description || `TODO: describe what ${name} does and when to use it`
 
   if (dryRun) {
-    console.log(`\n  Dry run — would create ${skillFile}\n`)
+    console.log(`\n  Dry run, would create ${skillFile}\n`)
     return
   }
 

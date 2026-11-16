@@ -38,7 +38,7 @@ describe('ExplainCodeSkill', () => {
     })
   })
 
-  describe('execute() — happy path', () => {
+  describe('execute(): happy path', () => {
     it('returns LLM explanation for code', async () => {
       const result = await skill.execute({ code: 'function add(a, b) { return a + b }' }, context)
 
@@ -77,7 +77,7 @@ describe('ExplainCodeSkill', () => {
     })
   })
 
-  describe('execute() — error path', () => {
+  describe('execute(): error path', () => {
     it('returns error result when LLM fails', async () => {
       context = createTestContext({
         llm: {

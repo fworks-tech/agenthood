@@ -102,7 +102,7 @@ describe('eval suite schema', () => {
   })
 })
 
-describe('eval suite schema — assertions', () => {
+describe('eval suite schema, assertions', () => {
   it('accepts tasks carrying assertions', () => {
     const suite = {
       name: 'a',

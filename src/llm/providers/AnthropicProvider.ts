@@ -172,6 +172,10 @@ export class AnthropicProvider implements ILLMProvider {
     return 200000
   }
 
+  getModel(): string {
+    return this.model
+  }
+
   setModel(model: string): void {
     this.model = model
   }

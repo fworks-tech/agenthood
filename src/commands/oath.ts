@@ -37,7 +37,7 @@ What this means:
 
   I review with honesty.
     Code review is not a formality. It is a conversation.
-    Approval means the reviewer read it — not just clicked the button.
+    Approval means the reviewer read it, not just clicked the button.
 
   I ship with confidence.
     Nothing merges without passing tests.

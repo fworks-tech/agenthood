@@ -54,7 +54,7 @@ describe('ToolRegistry', () => {
     expect(reg.has('missing')).toBe(false)
   })
 
-  it('register is idempotent — re-registering overwrites silently', () => {
+  it('register is idempotent, re-registering overwrites silently', () => {
     const reg = new ToolRegistry()
     reg.register(createMockSkill('dup'))
     reg.register(createMockSkill('dup'))
@@ -186,7 +186,7 @@ describe('ToolRegistry', () => {
       expect(reg.has('watched_skill')).toBe(true)
     })
 
-    it('is idempotent — calling watch twice on same dir does not duplicate', async () => {
+    it('is idempotent, calling watch twice on same dir does not duplicate', async () => {
       const skillCode = `
         export const idempotentSkill = {
           name: 'idempotent_skill',
@@ -213,7 +213,7 @@ describe('ToolRegistry', () => {
       writeFileSync(join(tmpDir, 'close.js'), skillCode)
       await reg.watch(tmpDir)
       reg.close()
-      // Closing should not throw — verified by cleanup in afterEach
+      // Closing should not throw: verified by cleanup in afterEach
       expect(reg.has('close_skill')).toBe(true)
     })
   })

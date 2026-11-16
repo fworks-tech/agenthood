@@ -7,7 +7,7 @@
 ## Overview
 
 The Agenthood is LLM-agnostic. Any member can run on any supported AI provider.
-When a provider fails — rate limit, outage, auth error — the system automatically
+When a provider fails (rate limit, outage, auth error) the system automatically
 switches to the next available provider without interrupting the task.
 
 The human sees the work continue. The Society handles the plumbing.
@@ -42,9 +42,9 @@ response types. Member skills are written once and run on any provider via `LLMR
 | Anthropic | ✅ Shipped | `src/llm/providers/AnthropicProvider.ts` |
 | Groq | ✅ Shipped | `src/llm/providers/GroqProvider.ts` |
 | Ollama | ✅ Shipped | `src/llm/providers/OllamaProvider.ts` (local, no API key) |
-| OpenCode Zen | ✅ Shipped | `src/llm/providers/OpenCodeProvider.ts` — pay-as-you-go at `api.opencode.ai/zen/v1` |
-| OpenCode Go | ✅ Shipped (preferred) | `src/llm/providers/OpenCodeGoProvider.ts` — subscription at `api.opencode.ai/zen/go/v1` |
-| OpenRouter | ✅ Shipped | `src/llm/providers/OpenRouterProvider.ts` — OpenAI-compatible at `api.openrouter.ai/api/v1` |
+| OpenCode Zen | ✅ Shipped | `src/llm/providers/OpenCodeProvider.ts`: pay-as-you-go at `api.opencode.ai/zen/v1` |
+| OpenCode Go | ✅ Shipped (preferred) | `src/llm/providers/OpenCodeGoProvider.ts`: subscription at `api.opencode.ai/zen/go/v1` |
+| OpenRouter | ✅ Shipped | `src/llm/providers/OpenRouterProvider.ts`: OpenAI-compatible at `api.openrouter.ai/api/v1` |
 
 Additional providers (DeepSeek, Qwen) may be added in future releases.
 When added, they will be slotted into the failover chain behind the
@@ -78,7 +78,7 @@ Not all failures are equal. The system classifies them and applies the right res
 |-------------|---------------|----------|--------|
 | `401` | Auth failure | Permanent | Skip provider, alert user |
 | `402` | Payment required | Permanent | Skip provider, alert user |
-| `429` | Rate limited | 60–300s | Cool down, try next provider |
+| `429` | Rate limited | 60-300s | Cool down, try next provider |
 | `408` | Timeout | 30s | Retry once, then failover |
 | `503` | Service unavailable | 60s | Failover immediately |
 | `404` | Model not found | Permanent | Skip provider |
@@ -123,11 +123,11 @@ The circuit breaker is configurable per chain:
 | `probeEnabled` | `true` | When `false`, disables preemptive probe recovery. Providers still recover naturally when cooldown expires. |
 
 Five recovery strategies are available for sustained failures:
-1. **Immediate retry** — for transient network blips
-2. **Exponential backoff** — up to 3 attempts with increasing delay (`1000ms`, `2000ms`)
-3. **Provider rotation** — move to next in chain
-4. **Model downgrade** — switch to cheaper/faster model on same provider; applies to `complete()`, `stream()`, and `embed()`
-5. **Human escalation** — all providers exhausted, alert the human
+1. **Immediate retry**, for transient network blips
+2. **Exponential backoff**: up to 3 attempts with increasing delay (`1000ms`, `2000ms`)
+3. **Provider rotation**: move to next in chain
+4. **Model downgrade**: switch to cheaper/faster model on same provider; applies to `complete()`, `stream()`, and `embed()`
+5. **Human escalation**: all providers exhausted, alert the human
 
 ---
 
@@ -158,7 +158,7 @@ by `LLMRouter` when building the failover chain.
 | The Debugger | Anthropic | Broad training on error patterns |
 | The Herald | Anthropic | Templated output, low complexity |
 | The Librarian | Anthropic | Documentation quality |
-| The Doorman | Ollama → Groq | Fast, simple validation — no need for top-tier model |
+| The Doorman | Ollama → Groq | Fast, simple validation: no need for top-tier model |
 | The Oracle | Anthropic | Long-context retrieval |
 | The Envoy | Anthropic | Cross-runtime translation |
 | The Sentinel | Anthropic | Standards enforcement |

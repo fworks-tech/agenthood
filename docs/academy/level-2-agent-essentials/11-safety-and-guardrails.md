@@ -6,9 +6,9 @@
 
 ## What it is
 
-Agent safety is the set of controls that prevent an autonomous agent from taking actions it should not take, producing outputs it should not produce, or consuming resources it should not consume. Autonomy without safety is not a feature — it is a liability waiting for a target.
+Agent safety is the set of controls that stop an autonomous agent from taking an action it should not take, producing an output it should not produce, or consuming resources it should not consume. Without those controls, autonomy is a liability.
 
-Three layers make up a complete safety system. **Risk scoring** evaluates each proposed action before it executes: is this action destructive? Is it reversible? Does it affect shared state? A high-risk action is gated, paused, or rejected before it runs. **Compute budgets** prevent runaway reasoning: an agent that loops forever consumes tokens, time, and money, and a budget forces it to stop. **Output validation** inspects what the agent produces before it reaches the user or a downstream system: does the response contain secrets? Does it include unverified claims? Is the proposed diff actually safe to apply?
+A complete safety system has three layers. **Risk scoring** evaluates each proposed action before it executes, asking whether it is destructive, reversible, and whether it touches shared state; anything high-risk is gated, paused or rejected. **Compute budgets** bound runaway reasoning: an agent that loops forever burns tokens, time and money, and the budget stops it. **Output validation** inspects the result before it reaches a user or a downstream system, looking for secrets, unverified claims and diffs that are not safe to apply.
 
 Each layer catches a different failure. Risk scoring catches the agent that tries to `rm -rf` the build directory. Compute budgets catch the agent that gets stuck in a reasoning loop and burns $40 in tokens overnight. Output validation catches the agent that pastes an API key into a commit message. You need all three because no single layer sees all three failure modes.
 
@@ -16,13 +16,13 @@ Each layer catches a different failure. Risk scoring catches the agent that trie
 
 ## Why it matters in production
 
-Unguarded autonomous agents are not a feature. They are a liability. The failure modes are not hypothetical — they are the documented incidents of every team that shipped an agent without safety gates.
+The failure modes below are not hypothetical; each one has happened to a team that shipped an agent without a gate.
 
-The risk-scored failure: an agent with write access to the filesystem deletes a file it judged irrelevant, and the file was a migration script that runs in CI. The action was autonomous, fast, and irreversible. Risk scoring gates destructive actions *before* they execute — not after, when the only recourse is a restore from backup.
+An agent with write access deletes a file it judged irrelevant. The file was a migration script that runs in CI. The action was autonomous, fast and irreversible, and the only recourse is a restore from backup. Risk scoring gates destructive actions before they execute, not after.
 
-The budget failure: an agent enters a reasoning loop, retrying the same failed tool call 200 times overnight. The bill is $400. The task is no closer to done. A thinking budget forces termination after N iterations, turning an open-ended cost into a bounded one.
+An agent enters a reasoning loop and retries the same failed tool call 200 times overnight. The bill reaches $400 and the task is no closer to done. A thinking budget forces termination after N iterations, which turns an open-ended cost into a bounded one.
 
-The output failure: an agent produces a correct answer that includes a secret it read from an env file, and the answer is posted to a public PR. Output validation catches the secret before it ships. Without it, the secret is now in git history and must be rotated.
+An agent reads an env file, answers correctly, and includes the secret in the answer. The answer is posted to a public PR. Output validation catches the secret before it ships; without it, the secret is in git history and has to be rotated.
 
 ---
 
@@ -33,7 +33,7 @@ Three components, all in `src/core/` (shipped in v2.0.0):
 ```typescript
 import { RiskManager, ThinkingBudget, SafetyGuard } from 'agenthood';
 
-// Risk scoring — gates destructive actions before execution
+// Risk scoring: gates destructive actions before execution
 const riskManager = new RiskManager({
   rules: [
     { pattern: /rm -rf|drop table|force push/i, action: 'block',  reason: 'destructive' },
@@ -42,10 +42,10 @@ const riskManager = new RiskManager({
   ],
 });
 
-// Thinking budget — prevents runaway reasoning loops
+// Thinking budget: prevents runaway reasoning loops
 const budget = new ThinkingBudget({ maxSteps: 25, maxTokens: 50_000 });
 
-// SafetyGuard — output validation before delivery
+// SafetyGuard: output validation before delivery
 const guard = new SafetyGuard({
   checks: [secretScanner, licenseChecker, hallucinationHeuristic],
 });
@@ -58,7 +58,7 @@ const agent = new DeveloperAgent({
 });
 ```
 
-Every action the agent proposes passes through `RiskManager` before it executes. Every reasoning step increments `ThinkingBudget`, and the loop terminates when the budget is exhausted. Every output passes through `SafetyGuard` before it is returned to the user or written to disk. The three layers are independent, composable, and each can be customized per agent.
+The agent's proposed actions pass through `RiskManager` before they execute, each reasoning step increments `ThinkingBudget` until the loop stops, and every output goes through `SafetyGuard` before it is returned or written to disk. The three layers are independent, composable, and configurable per agent.
 
 ---
 
@@ -74,24 +74,24 @@ Watch the safety layers fire:
 ```
 [think] I'll remove the build artifacts to clean up.
 [act]  propose: rm -rf dist/
-[risk] ⚠ BLOCKED — pattern matches 'rm -rf' (destructive)
+[risk] ⚠ BLOCKED: pattern matches 'rm -rf' (destructive)
 [think] Rejected. I'll use the build tool's clean command instead.
 [act]  propose: npm run clean
-[risk] ✓ allowed — safe command
+[risk] ✓ allowed: safe command
 [see]  dist/ removed (47 files)
 [think] Done. Generating summary.
 [output] SafetyGuard: ✓ no secrets detected, ✓ no license issues
 [done]  Cleaned 47 build artifacts from dist/ via `npm run clean`
 ```
 
-The `rm -rf` was blocked before it ran. The agent adapted. The output was scanned before delivery. All three layers fired, and the user saw only the safe, verified result.
+The `rm -rf` was blocked before it ran, the agent picked a safe alternative, and the output was scanned before delivery. The user saw only the verified result.
 
 ---
 
 ## Further reading
 
-- [`src/core/RiskManager.ts`](../../../src/core/RiskManager.ts) — action risk scoring (v2.0.0)
-- [`src/core/SafetyGuard.ts`](../../../src/core/SafetyGuard.ts) — output validation before delivery (v2.0.0)
-- [Constitutional AI: Harmlessness from AI Feedback](https://arxiv.org/abs/2212.08073) — Anthropic's safety framework paper
+- [`src/core/RiskManager.ts`](../../../src/core/RiskManager.ts): action risk scoring (v2.0.0)
+- [`src/core/SafetyGuard.ts`](../../../src/core/SafetyGuard.ts): output validation before delivery (v2.0.0)
+- [Constitutional AI: Harmlessness from AI Feedback](https://arxiv.org/abs/2212.08073): Anthropic's safety framework paper
 
 

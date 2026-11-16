@@ -69,17 +69,17 @@ function escapeHtml(text: string): string {
     .replace(/'/g, '&#39;')
 }
 
-/** Wrap HTML body content in a full document with dark‑theme styling and a titled <head>. */
+/** Wrap HTML body content in a full document with dark-theme styling and a titled <head>. */
 export function htmlTemplate(title: string, body: string): string {
   // title is derived from the first H1 of a markdown file, so it is rendered
-  // into <head> raw when the file content is trusted — but escape anyway so a
+  // into <head> raw when the file content is trusted, but escape anyway so a
   // doc containing `</title><script>` cannot break out of the element
   return `<!DOCTYPE html>
 <html lang="en">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>${escapeHtml(title)} — Agenthood Academy</title>
+<title>${escapeHtml(title)}: Agenthood Academy</title>
 <style>${CSS}</style>
 </head>
 <body>
@@ -97,9 +97,9 @@ function ensureDir(filePath: string): void {
 /**
  * Rewrite a markdown link href to its HTML equivalent.
  *
- * - Absolute URLs (http/https) and anchor‑only hrefs (#) → pass through
- * - Internal `.md` links within docs/ → converted to directory‑style HTML paths
- *   (e.g. `../foo.md` → `foo/` for index sources, `../foo/` for non‑index)
+ * - Absolute URLs (http/https) and anchor-only hrefs (#) → pass through
+ * - Internal `.md` links within docs/ → converted to directory-style HTML paths
+ *   (e.g. `../foo.md` → `foo/` for index sources, `../foo/` for non-index)
  * - Links outside docs/ → rewritten as GitHub blob URLs
  *
  * @param href - The original link target from markdown
@@ -138,7 +138,7 @@ export function rewriteLink(href: string, fileDir: string, sourceIsIndex: boolea
 
 /**
  * Render a markdown link to its HTML anchor. href and title are interpolated
- * into attribute values, so they are HTML-escaped — a doc value containing
+ * into attribute values, so they are HTML-escaped: a doc value containing
  * `" onmouseover="...` must not break out of the attribute.
  */
 export function renderLink(
@@ -170,7 +170,7 @@ function convertMarkdown(filePath: string): void {
   // is this repo's own trusted docs, rendered once to static HTML at build
   // time (never runtime, never untrusted input). Do not reuse for HTML that
   // embeds user or LLM-supplied content without sanitizing.
-  // mangle/headerIds were removed upstream and are already no-ops on v15 — omit for v15/v18 compat
+  // mangle/headerIds were removed upstream and are already no-ops on v15: omit for v15/v18 compat
   const html = marked.parse(content, { renderer }) as string
 
   const title = content.split('\n')[0]?.replace(/^#\s*/, '') || 'Agenthood Academy'
@@ -202,7 +202,7 @@ function build(): void {
     convertMarkdown(file)
   }
 
-  LOG(`\nDone — ${files.length} pages built to site/`)
+  LOG(`\nDone, ${files.length} pages built to site/`)
 }
 
 if (isMain()) {

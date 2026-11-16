@@ -81,7 +81,7 @@ function versionCheck(): Check {
 async function configCheck(cwd: string): Promise<{ check: Check; config: LLMConfig }> {
   const configPath = join(cwd, '.agenthood', 'config.json')
   if (!existsSync(configPath)) {
-    return { check: { name: 'Config file', status: 'fail', detail: `${configPath} missing — run \`agenthood init\`` }, config: {} }
+    return { check: { name: 'Config file', status: 'fail', detail: `${configPath} missing; run \`agenthood init\`` }, config: {} }
   }
   try {
     const config = await loadConfig()
@@ -114,7 +114,7 @@ function apiKeysCheck(config: LLMConfig): Check {
   return { name: 'API keys', status: 'fail', detail: `missing: ${vars.join(', ')}` }
 }
 
-// Local readiness only — no live network probe, which would be slow and break
+// Local readiness only: no live network probe, which would be slow and break
 // offline/Ollama setups. ponytail: add a real connectivity ping if needed.
 function providerReadinessCheck(config: LLMConfig): Check {
   const providers = configuredProviders(config)
@@ -137,7 +137,7 @@ function skillFilesCheck(): Check {
 function lockfileCheck(cwd: string): Check {
   const lock = loadLockfile(cwd)
   if (!lock) {
-    return { name: 'Lockfile integrity', status: 'warn', detail: 'agenthood.lock absent — run `agenthood verify --update-lock`' }
+    return { name: 'Lockfile integrity', status: 'warn', detail: 'agenthood.lock absent; run `agenthood verify --update-lock`' }
   }
   const base = resolveSocietyMembersDir()
   const drifted = MEMBER_NAMES.filter((m) => {
@@ -167,9 +167,9 @@ function gitHooksCheck(cwd: string): Check {
     return { name: 'Git hooks', status: 'pass', detail: 'core.hooksPath → .githooks (pre-commit active)' }
   }
   if (active) {
-    return { name: 'Git hooks', status: 'warn', detail: `pre-commit present but core.hooksPath is "${hooksPath || 'default'}" — run \`agenthood setup\`` }
+    return { name: 'Git hooks', status: 'warn', detail: `pre-commit present but core.hooksPath is "${hooksPath || 'default'}"; run \`agenthood setup\`` }
   }
-  return { name: 'Git hooks', status: 'fail', detail: 'no pre-commit hook — run `agenthood setup`' }
+  return { name: 'Git hooks', status: 'fail', detail: 'no pre-commit hook; run `agenthood setup`' }
 }
 
 function render(checks: Check[]): void {
@@ -188,7 +188,7 @@ function render(checks: Check[]): void {
 
 export const command: CommandDescriptor = {
   name: 'doctor',
-  description: 'Comprehensive diagnostics: runtime, config, providers, skills, lockfile, hooks',
+  description: 'Full diagnostics: runtime, config, providers, skills, lockfile, hooks',
   handler: (args) => doctor(args),
 }
 

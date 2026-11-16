@@ -15,12 +15,12 @@ npm install
 
 The postinstall script is a no-op unless `AGENTHOOD_AUTO_SETUP=1` is set. CI always runs `npm ci --ignore-scripts`.
 
-### Questions and member ideas — use Discussions
+### Questions and member ideas: use Discussions
 
 GitHub Discussions is the channel for everything that is not a bug or a
 feature implementation: usage questions ("How do I use The Scribe with
 Cursor?"), new-member pitches before code exists, and show-and-tell for
-projects built with Agenthood. Issues are reserved for actionable work —
+projects built with Agenthood. Issues are reserved for actionable work,
 bug reports and approved features. If your issue is really a question,
 it will be redirected to Discussions. See the pinned welcome post and
 the Member Proposals category for pitching conventions.
@@ -48,12 +48,20 @@ Run the full non-vscode test suite:
 npm test
 ```
 
-(vscode-extension tests are excluded via `vitest.config.ts` — they run inside a real VS Code instance with `cd vscode-extension && npm test`.)
+(vscode-extension tests are excluded via `vitest.config.ts`; they run inside a real VS Code instance with `cd vscode-extension && npm test`.)
 
 Run a specific test file:
 
 ```bash
 npx vitest run tests/unit/llm/ProviderFailover.test.ts
+```
+
+### Prose
+
+Markdown, code comments and user-facing strings follow [Writing Style](docs/conventions/WRITING_STYLE.md): no em dash, no stock phrasing. The same check runs in CI:
+
+```bash
+npm run lint:prose
 ```
 
 Run with coverage (the same thresholds CI enforces):
@@ -63,10 +71,10 @@ npm run test:coverage
 ```
 
 A full run must stay above the coverage floor set in `vitest.config.ts`
-(`test.coverage.thresholds`) — the `The Tester — Coverage Thresholds` job fails
+(`test.coverage.thresholds`): the coverage-threshold job fails
 below it. When you add tests and coverage rises, ratchet the floor **up** toward
 the new number so it only ever tightens; never lower it to make a run pass.
-Codecov receives the report (`coverage/lcov.info`) but is non-blocking — the
+Codecov receives the report (`coverage/lcov.info`) but is non-blocking: the
 thresholds step is the gate.
 
 ### TypeScript
@@ -79,7 +87,7 @@ npx tsc --noEmit
 
 ### Shared utilities
 
-- `SkillParser.parseRaw(content)` — shared frontmatter parser used by `SkillParser.parse()` and `verify.ts`.
+- `SkillParser.parseRaw(content)`: shared frontmatter parser used by `SkillParser.parse()` and `verify.ts`.
 
 ### Commit Process
 
@@ -94,63 +102,94 @@ type(scope)!: subject
 - subject: imperative, lowercase, <=150 chars, no trailing period
 ```
 
-Hooks are installed by `npx agenthood init` and enforce the format automatically:
-- `.githooks/commit-msg` — local validation (types, breaking-change `!`, subject rules); stock `git revert` messages pass through
-- `.githooks/pre-commit` — blocks commits to main, audits secrets, checks file sizes
-- `.githooks/pre-push` — blocks pushes to `main` and requires `type/issue-NUMBER-...` branch names; the issue-existence check is advisory only
-- `.githooks/prepare-commit-msg` — installs the commit message template
-- CI re-validates the same rules in the PR workflow (`docs/conventions/commitlint.config.ts`)
+Hooks are opt-in for this repository. Activate them once per clone:
+
+```bash
+npm run build
+node dist/cli.js setup
+```
+
+`setup` points `core.hooksPath` at `.githooks`, marks the hook scripts executable, and wires the commit template. `node dist/cli.js doctor` verifies the result and reports `core.hooksPath → .githooks (pre-commit active)`.
+
+- `.githooks/commit-msg`: local validation (types, breaking-change `!`, subject rules); stock `git revert` messages pass through
+- `.githooks/pre-commit`: blocks commits to main, audits secrets, checks file sizes
+- `.githooks/pre-push`: blocks pushes to `main` and requires `type/issue-NUMBER-...` branch names; the issue-existence check is advisory only
+- `.githooks/prepare-commit-msg`: installs the commit message template
+- CI re-validates the same rules in the PR workflow (`docs/conventions/commitlint.config.ts`), so a clone without active hooks still cannot merge a non-conforming commit
+
+The hooks are POSIX shell scripts. They run under `/bin/sh` on Linux and macOS and under Git Bash on Windows. Treat them like any other reviewed code: a change to `.githooks/` appears in the PR diff and passes the same review gate.
 
 ### Pull Requests
 
 - Target the `main` branch for feature branches
 - PR title follows the same Conventional Commits format
-- Include `Closes #N` / `Fixes #N` in the description — mandatory. GitHub auto-closes the issue only when the footer is present; the PR workflow enforces it (`.github/scripts/pr-body-check.sh`)
+- Include `Closes #N` / `Fixes #N` in the description: mandatory. GitHub auto-closes the issue only when the footer is present; the PR workflow enforces it (`.github/scripts/pr-body-check.sh`)
 - All CI checks must pass before merge
 
 ### CLI Commands
 
-The `agenthood` CLI auto-discovers commands from `src/commands/`: each file exports a `command: CommandDescriptor` (`name`, optional `aliases`, `description`, `handler(args)`) — `src/cli.ts` never changes. Helper modules in that directory simply export no descriptor (see `src/commands/types.ts`). Key commands:
+The `agenthood` CLI auto-discovers commands from `src/commands/`: each file exports a `command: CommandDescriptor` (`name`, optional `aliases`, `description`, `handler(args)`). `src/cli.ts` never changes. Helper modules in that directory simply export no descriptor (see `src/commands/types.ts`). Key commands:
 
-- `agenthood run <member> "<task>"` — invoke a member or core agent. Runs exit with code 1 on failure (via `process.exitCode`, so piped stderr is not truncated); the error is logged by the command, not the library — library callers calling `ApplicationContext.runMember`/`runAgent` receive the thrown error instead of a process exit.
+- `agenthood run <member> "<task>"`: invoke a member or core agent. Runs exit with code 1 on failure (via `process.exitCode`, so piped stderr is not truncated); the error is logged by the command, not the library; library callers calling `ApplicationContext.runMember`/`runAgent` receive the thrown error instead of a process exit.
   - Members use their unprefixed names (`agenthood run scribe`); the legacy `the-scribe` form still resolves as an alias.
   - Concurrent runs in one process arbitrate through a shared ConcurrencyQueue by origin (`cli`/`playground`/`api` = USER priority, `automated` = SCHEDULED); rituals pass `automated` so an interactive run always jumps ahead.
   - A `--` separator ends flag parsing, so a task beginning with `-` is always treated as data (the opencode plugin passes it).
   - `--resume <id>` resumes from a checkpoint saved during a previous interrupted run.
   - `--debug` dumps raw LLM request/response payloads to `.agenthood/debug/` (keys redacted).
   - `--interactive` enables human-in-the-loop confirmation prompts before tool execution. Only an explicit `y`/`yes` approves; any other answer, including a bare Enter, declines the call.
-- `agenthood checkpoints` — list past run checkpoints (`--json`, `--prune` to remove old ones)
-- `agenthood trace` — list recent invocation traces (`--member`, `--limit`, `--since`, `--json`); subcommands: `visualize <id>` (ASCII timeline), `diff <id1> <id2>` (side-by-side comparison)
-- `agenthood goal` — track multi-step goals across runs, persisted to `.agenthood/goals.json`; subcommands: `create <description> [--issue <ref>]`, `list [--json]`, `show <id> [--json]`, `subgoal <id> <description>`, `status <id> <sub-id> <pending|in_progress|blocked|completed>`, `next <id>` (advance the next pending sub-goal)
-- `agenthood log` — list recent structured log entries (`--level`, `--member`, `--limit`, `--since`, `--json`, `--tail N`, `--follow`)
-- `agenthood status` — project health and member metrics (`--watch`, `--json`, `--drift`, `--member`, `--learner`)
-- `agenthood eval <member> --suite <path>` — run an eval suite against a member (`--baseline`, `--update-baseline`, `--benchmark <path>`, `--triggers <path>`, `--convergence`, `--history`, `--ab <member>`, `--json`). Repeatable `--provider <name>` overrides the config provider; two or more run the suite once per provider and print a comparison table (pass rate, avg time, avg tokens)
-- `agenthood eval --triggers <path>` — score a member's activation trigger rate from a should-/should-not-trigger query set (`--semantic` to also score the embedding surface)
-- `agenthood optimize <member> --triggers <path>` — optimize a member description for trigger accuracy (`--apply`, `--iterations`, `--variants`, `--json`)
-- `agenthood rotate-key <provider>` — rotate an API key with validation and hot-reload (prompts for new key, validates, updates config, reinitializes provider)
-- `agenthood cost` — show cumulative cost breakdown (`--since YYYY-MM-DD`, `--provider <name>`, `--member <name>`), with a per-skill breakdown attributing each step's tokens to the skills that step activated
-- `agenthood stats` — per-skill usage analytics: activation count, trigger rate (successful activations over attempts), and error rate. Local-only counters — skill names and numbers, never prompts or results. Opt out with `{ "analytics": { "enabled": false } }`
-- `agenthood metrics` — export member and cost metrics for external monitoring (`--port <n>`, `--print`). Requires `{ "metricsExport": { "type": "prometheus" | "statsd" | "none" } }`, default `none`; an unrecognized `type` is a hard error rather than a silent no-op. `prometheus` serves `/metrics` in text exposition format, rendered from the local ledgers on each scrape; `statsd` pushes one fire-and-forget UDP datagram per metric after every member run. Only metric names, member names, and provider names leave the machine (ADR-030)
-- `agenthood health` — runtime health checks (`--json`; exit 0 healthy / 1 degraded / 2 unhealthy)
-- `agenthood check` / `verify` — health and member-integrity validation. The placeholder scan flags TODO/FIXME/TBD only in marker form (followed by a structural character); mentions in prose and examples inside code spans are ignored. `--integrity` reports only tamper status, `--fix` restores drifted files from the locked Git revision, `--strict` additionally fails on lane overlaps and block-severity prompt injections (ADR-029). Every run also validates the routing records in `.agenthood/routing/` (see below)
-- Routing records: The Mediator and The Steward are prompt-driven members, so the record they hand-write in `.agenthood/routing/<id>.json` has no writer and no reader in the runtime to keep it honest — `agenthood verify` is its only gate. The schema is `src/reasoning/routing.ts`: `intent` is one of `ambiguous`, `capacity-sensitive`, `entry-violation`, `clear-specialist`; `confidence` is an integer 0-100; `target` is a registered member; `reasoning` is the only free-text field. A score below `PARALLEL_EVALUATION_THRESHOLD` (70) additionally requires `cascade_applied: true` and a `parallel_evaluation`, so a low-confidence guess that did not trigger the cascade cannot be recorded as a decision. A missing directory passes — a Society that has not routed anything is in the correct state. Routing records are deliberately *not* in `.agenthood/decisions/`: `DecisionLog.loadCache()` casts every `.json` there to `DecisionLogEntry` and `matchEntry()` dereferences `entry.tags` unguarded, so a second record shape there crashes `search()`
-- `agenthood install <url>` — install a skill from a URL or git repository (`--dry-run` to preview; `--frozen` to verify against `skills-lock.json` without updating it — exits non-zero if the lockfile is missing, the skill is unlocked, the fetched hash mismatches, or any locked skill on disk has drifted). Security-fenced like remote discovery: https-only URL fetch through the shared `fetchRemoteText` (redirect re-validation, 30s timeout, 1MiB cap), fenced `git clone`, and frontmatter names must match the spec pattern — `../../`-style traversal names are rejected
-- `agenthood eject` — remove the Society from your project (`.agenthood/`, `AGENTS.md`, `agenthood.lock`, per-runtime member subdirs and `skills-lock.json`; foreign skills are never touched)
-- `agenthood remove <skill>` — remove an installed skill and prune its skills-lock.json entry (`--dry-run` to preview; Society members are refused)
-- `agenthood list` — list members with status, tier, permission, provider, per-skill token estimates and a context-budget summary against the default context window
-- `agenthood publish` — publish skills to GitHub for skills.sh indexing (`--dry-run` to preview)
-- `agenthood mcp` — start an MCP server on stdio, exposing skills as MCP tools for external agents (Claude Code, Cursor, etc.)
-- `agenthood completion` — generate shell tab-completion scripts for bash, zsh, or fish
-- `agenthood search <query>` — search for skills in the agenthood registry (`--json`)
-- `agenthood upgrade [skill]` — upgrade installed skills to latest version from registry
-- `agenthood init --ci [--runtime <name>] [--members all|a,b,c]` — non-interactive setup for CI: never prompts, keeps an existing setup unless `--force`
-- `agenthood diff [member]` — show member SKILL.md changes vs the versions locked in agenthood.lock (exit 1 on drift; lockfile keys validated, hostile keys warned)
-- `agenthood create <name>` — scaffold a new skill directory with a SKILL.md template (name must match the spec pattern)
-- `agenthood run <member> <task> --sandbox` — run under the strict local profile: ADR-020 strict skill-integrity gate plus confirmation before every tool call (or `security.sandbox: true` in config; container isolation is phase 2, #884). A tool call runs only on an explicit `y`/`yes`.
-- `agenthood upgrade --agenthood` — self-upgrade the agenthood package (backs up `.agenthood/config.json` first, pins the registry-validated version)
+- `agenthood checkpoints`: list past run checkpoints (`--json`, `--prune` to remove old ones)
+- `agenthood trace`: list recent invocation traces (`--member`, `--limit`, `--since`, `--json`); `--skill <name>` or `--tool <name>` list step-level trajectories instead, capped by `--limit`; `--activations` lists the activation history, which skill was active in which run, on which step, for how long; subcommands: `visualize <id>` (ASCII timeline), `diff <id1> <id2>` (side-by-side comparison)
+- `agenthood workflow`: `list` shows the chains in `chains.yaml`; `run <chain> "<task>"` executes one through `WorkflowEngine`, with each step run by `MemberRunner`. A step is `member:`, `skill:` (a `/name` activation run by `agent:`, default `builder`), or `parallel:` (branches run concurrently, one failure fails the group). `when: { step, contains | notContains }` runs a step only when an earlier step's output matches; it fails closed on a step that did not run. A malformed `chains.yaml` fails with a message that names the file. A bare `workflow` is a usage error
+- `agenthood goal`: track multi-step goals across runs, persisted to `.agenthood/goals.json`; subcommands: `create <description> [--issue <ref>]`, `list [--json]`, `show <id> [--json]`, `subgoal <id> <description>`, `status <id> <sub-id> <pending|in_progress|blocked|completed>`, `next <id>` (advance the next pending sub-goal)
+- `agenthood log`: list recent structured log entries (`--level`, `--member`, `--limit`, `--since`, `--json`, `--tail N`, `--follow`)
+- `agenthood status`: project health and member metrics (`--watch`, `--json`, `--drift`, `--member`, `--learner`). The default view ends with the skill context budget: each skill's catalog tokens and body tokens against `skills.metadataBudget` (default 4000), with the over-budget suggestion
+- `agenthood eval <member> --suite <path>`: run an eval suite against a member (`--baseline`, `--update-baseline`, `--benchmark <path>`, `--triggers <path>`, `--convergence`, `--history`, `--ab <member>`, `--json`). Repeatable `--provider <name>` overrides the config provider; two or more run the suite once per provider and print a comparison table (pass rate, avg time, avg tokens)
+- `agenthood eval --triggers <path>`: score a member's activation trigger rate from a should-/should-not-trigger query set (`--semantic` to also score the embedding surface)
+- `agenthood optimize <member> --triggers <path>`: optimize a member description for trigger accuracy (`--apply`, `--iterations`, `--variants`, `--json`). `--cost` switches to a catalog-cost report instead: catalog tokens, body tokens and activation count per skill, plus suggestions for skills that never trigger or carry a large entry for rare use
+- `agenthood rotate-key <provider>`: rotate an API key with validation and hot-reload (prompts for new key, validates, updates config, reinitializes provider)
+- `agenthood cost`: show cumulative cost breakdown (`--since YYYY-MM-DD`, `--provider <name>`, `--member <name>`), with a per-skill breakdown attributing each step's tokens to the skills that step activated
+- `agenthood stats`: per-skill usage analytics. Reports activation count, trigger rate (successful activations over attempts), and error rate. Local-only counters: skill names and numbers, never prompts or results. Opt out with `{ "analytics": { "enabled": false } }`
+- `agenthood metrics`: export member and cost metrics for external monitoring (`--port <n>`, `--print`). Requires `{ "metricsExport": { "type": "prometheus" | "statsd" | "none" } }`, default `none`; an unrecognized `type` is a hard error rather than a silent no-op. `prometheus` serves `/metrics` in text exposition format, rendered from the local ledgers on each scrape; `statsd` pushes one fire-and-forget UDP datagram per metric after every member run. Only metric names, member names, and provider names leave the machine (ADR-030)
+- `agenthood health`: runtime health checks (`--json`; exit 0 healthy / 1 degraded / 2 unhealthy). Skill checks run alongside the runtime probes: `skills` (missing description/body, name-directory mismatch, references to files that no longer exist), `skillActivations` (success rate under 90% with at least 5 attempts) and `skillRegressions` (mean step time more than 25% above the stamped baseline). `--baseline` stamps the current per-skill step times into `.agenthood/skill-baseline.json`. A degraded skill check posts to `alerts.webhook` in `.agenthood/config.json` when that URL is set
+- `agenthood bump <member> --patch|--minor|--major`: increment a member's `metadata.version` in place and re-lock it, so a version bump never leaves the author facing drift. `verify` requires `metadata.version` on every member and rejects a value that is not semver; the lockfile records it as `skillVersion` next to the content hash
+- `agenthood license [member]`: print the SPDX license each member declares, or one member's. `verify` requires `license` and checks its shape: an id or expression (`MIT`, `Apache-2.0`, `MIT OR Apache-2.0`, `GPL-2.0-or-later WITH Classpath-exception-2.0`) or `UNLICENSED` passes; prose such as `MIT License` does not. The check is shape-only; there is no SPDX registry dependency, so a well-formed but nonexistent id is not caught
+- `agenthood check` / `verify`: health and member-integrity validation. The placeholder scan flags TODO/FIXME/TBD only in marker form (followed by a structural character); mentions in prose and examples inside code spans are ignored. `--integrity` reports only tamper status, `--fix` restores drifted files from the locked Git revision, `--strict` additionally fails on lane overlaps and block-severity prompt injections (ADR-029). Every run also validates the routing records in `.agenthood/routing/` (see below)
+- Routing records: The Mediator and The Steward are prompt-driven members, so the record they hand-write in `.agenthood/routing/<id>.json` has no writer and no reader in the runtime to keep it honest: `agenthood verify` is its only gate. The schema is `src/reasoning/routing.ts`: `intent` is one of `ambiguous`, `capacity-sensitive`, `entry-violation`, `clear-specialist`; `confidence` is an integer 0-100; `target` is a registered member; `reasoning` is the only free-text field. A score below `PARALLEL_EVALUATION_THRESHOLD` (70) additionally requires `cascade_applied: true` and a `parallel_evaluation`, so a low-confidence guess that did not trigger the cascade cannot be recorded as a decision. A missing directory passes: a Society that has not routed anything is in the correct state. Routing records are deliberately *not* in `.agenthood/decisions/`: `DecisionLog.loadCache()` casts every `.json` there to `DecisionLogEntry` and `matchEntry()` dereferences `entry.tags` unguarded, so a second record shape there crashes `search()`
+- `agenthood update [skill]`: compare each project skill copy (`.agents/skills`, `.agenthood/skills`, `.claude/skills`, `skills`) against the packaged version and report `outdated`, `ahead`, `modified locally` or up to date. `--dry-run` prints a line diff, `--overwrite` writes the packaged file over the local one, `--skip` lists and writes nothing. `--merge` is refused: a three-way merge needs the base revision the lockfile does not store, so a merge here would silently discard the local side
+- `agenthood install <url-or-ref>`: install a skill from a URL, a git repository, or a registry reference (`acme/lint` or the `@acme/lint` shortcut). Only an argument shaped exactly like `owner/name` resolves through the registry: URLs, git addresses and paths keep their previous meaning (`--dry-run` to preview; `--frozen` to verify against `skills-lock.json` without updating it, exits non-zero if the lockfile is missing, the skill is unlocked, the fetched hash mismatches, or any locked skill on disk has drifted). Security-fenced like remote discovery: https-only URL fetch through the shared `fetchRemoteText` (redirect re-validation, 30s timeout, 1MiB cap), fenced `git clone`, and frontmatter names must match the spec pattern: `../../`-style traversal names are rejected
+- `agenthood eject`: remove the Society from your project (`.agenthood/`, `AGENTS.md`, `agenthood.lock`, per-runtime member subdirs and `skills-lock.json`; foreign skills are never touched)
+- `agenthood remove <skill>`: remove an installed skill and prune its skills-lock.json entry (`--dry-run` to preview; Society members are refused)
+- `agenthood list`: list members with status, tier, permission, provider, per-skill token estimates and a context-budget summary against the default context window
+- `agenthood publish`: publish skills to GitHub for skills.sh indexing (`--dry-run` to preview). Requires a namespace: `metadata.author` is the `owner` in the published `owner/name` key, and two skills in one project may not share one. A monorepo can pass `--author <owner>` instead of editing every SKILL.md; a per-skill author still wins (ADR-035)
+- `agenthood mcp`: start an MCP server on stdio, exposing skills as MCP tools for external agents (Claude Code, Cursor, etc.)
+- `agenthood completion`: generate shell tab-completion scripts for bash, zsh, or fish
+- `agenthood search <query>`: search for skills in the agenthood registry (`--json`)
+- `agenthood skills [--show-disabled] [--json] [--stats]`: list discovered skills in catalog order (priority, then description specificity), and with `--show-disabled` name every skill the catalog omits and why: `skills.disabled` in config, `hidden: true`, `disable-model-invocation`, or a requirement this model cannot meet (`model-targets`, `requires`, `dependencies`). `--stats` prints scan counters: directories visited, skills found, metadata-cache hits, duration, and whether the 2000-directory cap stopped the scan
+- `agenthood verify [--scripts]`: validate member SKILL.md files, spec conformance and the lockfile. `--scripts` adds an advisory lint over each skill's `scripts/` directory: stdin reads without an interactive marker, missing `--help`, prose output when the skill declares `output_format: json`, exit codes outside 0/1/2, destructive branches without `--dry-run`, and a bare `exit 1` with no message. Requirement declarations are checked too (`model-targets`, `requires`, `dependencies`, `metadata.variants`): unknown tools, missing dependencies and bad variant paths are warnings, a dependency cycle fails. `--tokens` reports each SKILL.md body against the 5000-token guidance (`token-budget` in frontmatter overrides) plus the total; `--budget` adds the always-loaded catalog against `skills.metadataBudget` (default 4000 metadata tokens); `--dedup` reports the same skill name in several roots with the consolidation suggestion. Both are advisory. A contrib member under `skills/contrib/` must declare `metadata.author` and `source_url`; `verify --contrib` reports either when missing. Warnings never fail the run
+- `agenthood cache stats|clear`: report the metadata cache (parsed SKILL.md entries, hits, misses) and the opt-in script output cache (entries, hits, misses, hit rate), or remove both plus spilled script output. A metadata hit is served only while the file's mtime and size are unchanged
+- `agenthood catalog [url]`: list skills from `.well-known/agentskills` catalogs. Reads every source in `remoteCatalogs.sources`, or one ad-hoc URL. `--refresh` bypasses the cache, `--json` prints the raw listing. Catalogs are advisory: an unreachable source falls back to stale cache, then to local skills, and never blocks a run (ADR-035)
+- `agenthood upgrade [skill]`: upgrade installed skills to latest version from registry
+- `agenthood init --ci [--runtime <name>] [--members all|a,b,c]`: non-interactive setup for CI: never prompts, keeps an existing setup unless `--force`
+- `agenthood diff [member]`: show member SKILL.md changes vs the versions locked in agenthood.lock (exit 1 on drift; lockfile keys validated, hostile keys warned)
+- `agenthood create <name>`: scaffold a new skill directory with a SKILL.md template (name must match the spec pattern)
+- `agenthood run <member> <task> --sandbox`: run under the strict local profile: ADR-020 strict skill-integrity gate plus confirmation before every tool call (or `security.sandbox: true` in config; container isolation is phase 2, #884). A tool call runs only on an explicit `y`/`yes`.
+- `agenthood upgrade --agenthood`: self-upgrade the agenthood package (backs up `.agenthood/config.json` first, pins the registry-validated version)
 Adding a command means adding a file in `src/commands/` and documenting it here.
 
-Colocation: helpers with a single consumer live in the consuming module (`status` windows in `status.ts`, cost/token math in `modelPricing.ts`) — `src/core/` and `src/utils/` are for shared code only.
+Skill authoring starts with the [skill checklist](CONTRIBUTING-skills.md). Three guides go deeper: [Skill Best Practices](docs/guides/skill-best-practices.md)
+(multi-agent specifics, context spending, gotchas), [Script Design](docs/guides/script-design.md)
+(no prompts, `--help`, structured output, idempotency) and [Skill Evaluation](docs/guides/skill-evaluation.md)
+(trigger rate, suites, regressions in CI). The skill system's internals are in
+[docs/architecture/skills.md](docs/architecture/skills.md); `npm run docs:api` builds the TSDoc API
+reference into the gitignored `docs/api/`.
+
+Writing a member is documented as a walkthrough in
+[Creating a Member](docs/guides/creating-a-member.md): naming, the `skills/contrib/` layout, the six
+required sections, the frontmatter contract, and the review checklist. A complete worked example is
+included. The reference contract (trust model, versioning, namespaces) is
+[Third-Party Members](docs/members/contrib-members.md).
+
+Colocation: helpers with a single consumer live in the consuming module (`status` windows in `status.ts`, cost/token math in `modelPricing.ts`): `src/core/` and `src/utils/` are for shared code only.
 
 Config note: a string-form `provider` in `.agenthood/config.json` keeps the sibling `model` (see `loadConfig` in `src/commands/config.ts`).
 
@@ -158,37 +197,37 @@ When a command wraps a caught error in a friendlier message, the original is att
 
 ### Observability
 
-Every member invocation emits a trace envelope (member, duration, tokens, cost, quality, status, correlation id). Traces are flushed to `.agenthood/traces/traces.ndjson`; `agenthood status --member <name>` aggregates them into per-member cost/quality summaries over 1h/24h/7d/all windows, and `agenthood trace` lists recent envelopes. Structured log entries written through the `Logger` API (`src/core/Logger.ts`) share the same NDJSON store and retention policy — they are `TraceEnvelope`s with `entryType: "log"` plus a `level` (debug/info/warn/error) and `message`; `agenthood log` lists them and `--level` filters by severity. `message`/`metadata` are redacted at write time through the same `observability.redaction` rules as trace payloads, and `trace`, `status`, `health`, and eval replay ignore log entries. Costs come from the static pricing table in `src/core/modelPricing.ts` (unknown models fall back with a warning).
+Every member invocation emits a trace envelope (member, duration, tokens, cost, quality, status, correlation id). Traces are flushed to `.agenthood/traces/traces.ndjson`; `agenthood status --member <name>` aggregates them into per-member cost/quality summaries over 1h/24h/7d/all windows, and `agenthood trace` lists recent envelopes. Structured log entries written through the `Logger` API (`src/core/Logger.ts`) share the same NDJSON store and retention policy; they are `TraceEnvelope`s with `entryType: "log"` plus a `level` (debug/info/warn/error) and `message`; `agenthood log` lists them and `--level` filters by severity. `message`/`metadata` are redacted at write time through the same `observability.redaction` rules as trace payloads, and `trace`, `status`, `health`, and eval replay ignore log entries. Costs come from the static pricing table in `src/core/modelPricing.ts` (unknown models fall back with a warning).
 
-Evaluation: `agenthood eval <member> --suite <path>` runs the member against every task in an eval suite (`evals/benchmarks/` ships ready-made fixtures), scores each run on faithfulness, relevance, context_recall, and answer_correctness via an LLM judge, and compares the aggregates against a stored baseline in `.agenthood/baselines/<member>.json` — the command exits non-zero when a metric regresses. Use `--update-baseline` after a deliberately good run to refresh the comparison target.
+Evaluation: `agenthood eval <member> --suite <path>` runs the member against every task in an eval suite (`evals/benchmarks/` ships ready-made fixtures), scores each run on faithfulness, relevance, context_recall, and answer_correctness via an LLM judge, and compares the aggregates against a stored baseline in `.agenthood/baselines/<member>.json`: the command exits non-zero when a metric regresses. Use `--update-baseline` after a deliberately good run to refresh the comparison target.
 
-A task can also declare deterministic `assertions` in the suite JSON — `{ type: "exact" | "contains" | "regex" | "semantic", target, weight?, flags?, threshold? }` (schema in `src/evals/evalSuiteSchema.ts`, graded by `src/evals/AssertionJudge.ts`). `exact`/`contains`/`regex` need no LLM and run key-free in CI; `semantic` compares output to target by embedding cosine similarity (passing at `threshold`, default 0.8). Per task the assertions collapse into an `assertions` score (a weight-normalised partial-credit mean in `[0,1]`) shown as the `Assert` column and folded into the aggregate. Prefer assertions for anything with a checkable shape and reserve LLM-judged metrics for open-ended quality.
+A task can also declare deterministic `assertions` in the suite JSON: `{ type: "exact" | "contains" | "regex" | "semantic", target, weight?, flags?, threshold? }` (schema in `src/evals/evalSuiteSchema.ts`, graded by `src/evals/AssertionJudge.ts`). `exact`/`contains`/`regex` need no LLM and run key-free in CI; `semantic` compares output to target by embedding cosine similarity (passing at `threshold`, default 0.8). Per task the assertions collapse into an `assertions` score (a weight-normalised partial-credit mean in `[0,1]`) shown as the `Assert` column and folded into the aggregate. Prefer assertions for anything with a checkable shape and reserve LLM-judged metrics for open-ended quality.
 
-`--benchmark <path>` writes a standardized `benchmark.json` (built by `src/evals/benchmark.ts`) alongside the run: `pass_rate`, `avg_time_ms`, and `avg_tokens` plus the per-metric `aggregate` and a per-task outcome list. A task is *passed* when its assertions are all green, else when the mean of its judge scores is at or above `0.7`; errored tasks are counted in `errorCount` and excluded from the pass-rate denominator. Token totals come from the member run's `usage`, so the same figures feed cost and provider comparisons (`--provider`-style selection is a run-time config concern — record `provider`/`model` in the benchmark to compare configurations across runs).
+`--benchmark <path>` writes a standardized `benchmark.json` (built by `src/evals/benchmark.ts`) alongside the run: `pass_rate`, `avg_time_ms`, and `avg_tokens` plus the per-metric `aggregate` and a per-task outcome list. A task is *passed* when its assertions are all green, else when the mean of its judge scores is at or above `0.7`; errored tasks are counted in `errorCount` and excluded from the pass-rate denominator. Token totals come from the member run's `usage`, so the same figures feed cost and provider comparisons (`--provider`-style selection is a run-time config concern: record `provider`/`model` in the benchmark to compare configurations across runs).
 
 Every suite-based eval auto-records to an append-only JSONL history at `.agenthood/evals/history/<member>.jsonl` (one line per run: version, timestamp, pass rate, aggregates). `--convergence` reports whether the last 5 runs have stabilized (variance below 0.02 over at least 3 runs) and flags any drop against the best-seen pass rate. `--history` prints the full recorded run table for the member. Trigger-rate and replay evaluations do not record history.
 
 Blind A/B comparison (issue #558) runs two members against the same suite and scores each task's outputs independently on clarity, completeness, and accuracy. A paired t-test across per-task deltas determines whether the observed difference is statistically significant (p < 0.05) and reports Cohen's d for effect size. `agenthood eval <memberA> --ab <memberB> --suite <path>` prints a per-task comparison table, aggregate scores, winner, and significance. Exits 1 when B wins (CI-gateable regression check).
 
-Trigger-rate testing (issue #557) measures how reliably a member is *activated*, separate from how well it performs once running. `agenthood eval --triggers <path>` loads a query set (`evals/triggers/<member>.json`: `{ member, shouldTrigger[], shouldNotTrigger[] }`, schema in `src/evals/trigger.ts`) and reports precision/recall/accuracy/F1 per surface. The **keyword** surface runs the runtime's `MemberOrchestrator` router — deterministic, key-free, safe in CI. The **semantic** surface (`--semantic`, needs a provider) embeds every member description and picks the closest match, approximating how an external loader selects a skill by its SKILL.md description. Results are ranked best-F1 first, a train/validation split guards against over-fitting a description to its own tuning queries, and low precision/recall produce concrete "narrow/broaden the description" recommendations. This harness is the measurement foundation `agenthood optimize` (#584) iterates against.
+Trigger-rate testing (issue #557) measures how reliably a member is *activated*, separate from how well it performs once running. `agenthood eval --triggers <path>` loads a query set (`evals/triggers/<member>.json`: `{ member, shouldTrigger[], shouldNotTrigger[] }`, schema in `src/evals/trigger.ts`) and reports precision/recall/accuracy/F1 per surface. The **keyword** surface runs the runtime's `MemberOrchestrator` router: deterministic, key-free, safe in CI. The **semantic** surface (`--semantic`, needs a provider) embeds every member description and picks the closest match, approximating how an external loader selects a skill by its SKILL.md description. Results are ranked best-F1 first, a train/validation split guards against over-fitting a description to its own tuning queries, and low precision/recall produce concrete "narrow/broaden the description" recommendations. This harness is the measurement foundation `agenthood optimize` (#584) iterates against.
 
 Description optimization (issue #584) closes the loop: it uses the trigger-rate harness as a scoring function and iterates an LLM-driven generate/score loop to find a description that maximizes F1. `agenthood optimize <member> --triggers <path>` loads the query set, scores the current description, generates variants via LLM, scores each against a held-out validation split, and keeps the best. It stops when F1 plateaus (improvement < 0.02) or after `--iterations` (default 3). Without `--apply` it prints the winning description; with `--apply` it writes it to `src/members/member-specs.ts`. `--json` outputs machine-readable results.
 
 Redaction: trace payload text is scrubbed before persistence by default. Emails, `sk-` keys, bearer tokens, URL query values, and IP addresses are replaced with a deterministic `[REDACTED]` placeholder (preserving replay reproducibility). Custom regex rules and absolute-path roots are opt-in via `{ "observability": { "redaction": { "rules": ["<regex sources>"], "paths": ["<file roots>"] } } }` in `.agenthood/config.json`; set `"enabled": false` to disable redaction entirely.
 
-Retention: `{ "observability": { "retention": { "ttlDays": 30, "maxEntries": 100000, "exportEnabled": true, "exportPath": "./traces/export" } } }` bounds the trace store — traces older than `ttlDays` and beyond `maxEntries` (oldest first) are pruned hourly, and pruned data is exported to NDJSON before deletion when `exportEnabled` is set. `ttlDays: 0` disables pruning.
+Retention: `{ "observability": { "retention": { "ttlDays": 30, "maxEntries": 100000, "exportEnabled": true, "exportPath": "./traces/export" } } }` bounds the trace store: traces older than `ttlDays` and beyond `maxEntries` (oldest first) are pruned hourly, and pruned data is exported to NDJSON before deletion when `exportEnabled` is set. `ttlDays: 0` disables pruning.
 
-Alerts: `{ "observability": { "alerts": { "costThreshold": 3, "qualityDrop": 0.2, "burstThreshold": 10, "cooldownMinutes": 60, "viralPersonaMarkers": 2, "propagationCopies": 3 } } }` tunes anomaly detection. On every trace flush the detector scores the batch against per-member leave-one-out baselines and appends cost spikes, quality drops, bursts, and — for mind-virus defense (see ADR-020) — `viral_persona` (recurring consciousness/persistence/resonance theme markers) and `propagation` (a viral core token replicated across many distinct sessions) to `.agenthood/alerts/anomalies.ndjson`, surfaced by `agenthood status --alerts`. All thresholds default to the values above when the block is absent.
+Alerts: `{ "observability": { "alerts": { "costThreshold": 3, "qualityDrop": 0.2, "burstThreshold": 10, "cooldownMinutes": 60, "viralPersonaMarkers": 2, "propagationCopies": 3 } } }` tunes anomaly detection. On every trace flush the detector scores the batch against per-member leave-one-out baselines and appends cost spikes, quality drops, bursts, and, for mind-virus defense (see ADR-020), `viral_persona` (recurring consciousness/persistence/resonance theme markers) and `propagation` (a viral core token replicated across many distinct sessions) to `.agenthood/alerts/anomalies.ndjson`, surfaced by `agenthood status --alerts`. All thresholds default to the values above when the block is absent.
 
 Trace path: `{ "observability": { "tracePath": ".agenthood/traces/traces.ndjson" } }` relocates the trace store (relative paths resolve against the project root); the runtime, `trace`, `log`, `status`, and `health` commands all honor it.
 
-Mind-virus hardening: `{ "security": { "strictSkillIntegrity": false } }` controls the injection-time integrity check that hashes each member's injected `SKILL.md` against `agenthood.lock` when its system prompt is assembled (see ADR-020). Drift is recorded durably into decision/provenance stores and warns by default; set `strictSkillIntegrity` to `true` to block the run instead (after the audit entry is recorded). A **corrupt** lockfile (unreadable/invalid JSON) is treated like drift — it warns and records, and blocks under strict mode. A **missing lockfile entry** — or a wholly absent `agenthood.lock`, or a missing skill file — is no longer silent: it warns, records a durable audit entry, and also blocks under strict mode, so an operator always sees when the integrity gate is off.
+Mind-virus hardening: `{ "security": { "strictSkillIntegrity": false } }` controls the injection-time integrity check that hashes each member's injected `SKILL.md` against `agenthood.lock` when its system prompt is assembled (see ADR-020). Drift is recorded durably into decision/provenance stores and warns by default; set `strictSkillIntegrity` to `true` to block the run instead (after the audit entry is recorded). A **corrupt** lockfile (unreadable/invalid JSON) is treated like drift; it warns and records, and blocks under strict mode. A **missing lockfile entry** (or a wholly absent `agenthood.lock`, or a missing skill file) is no longer silent: it warns, records a durable audit entry, and also blocks under strict mode, so an operator always sees when the integrity gate is off.
 
-Skill lockfile lifecycle: `agenthood.lock` records the content hash of each member's `SKILL.md` so tampering and drift are detectable (see ADR-020). Plain `agenthood verify` **detects** drift and fails — it is the integrity gate, and CI runs `agenthood verify --strict` so a `SKILL.md` edit committed without a matching lock re-entry goes red. After an intentional edit, `agenthood verify --update-lock` **re-locks** the changed members. The update merges into the existing lock (a `verify <member> --update-lock` run never drops the other members), keeps each unchanged member's `updatedAt` so a one-skill edit produces a one-line diff, and writes keys in sorted order for byte-stable output — this is what stops the file generating merge conflicts on every concurrent branch. Commit the regenerated lock alongside the skill change.
+Skill lockfile lifecycle: `agenthood.lock` records the content hash of each member's `SKILL.md` so tampering and drift are detectable (see ADR-020). Plain `agenthood verify` **detects** drift and fails; it is the integrity gate, and CI runs `agenthood verify --strict` so a `SKILL.md` edit committed without a matching lock re-entry goes red. After an intentional edit, `agenthood verify --update-lock` **re-locks** the changed members. The update merges into the existing lock (a `verify <member> --update-lock` run never drops the other members), keeps each unchanged member's `updatedAt` so a one-skill edit produces a one-line diff, and writes keys in sorted order for byte-stable output; this is what stops the file generating merge conflicts on every concurrent branch. Commit the regenerated lock alongside the skill change.
 
-Skill resource integrity: the lock entry also carries a `resources` map of raw-byte SHA-256 hashes for each member's `scripts/` and `references/` files, not just `SKILL.md` — those are the files that actually execute, so the injection-time check covers them and `agenthood verify --fix` restores them from the locked Git revision via a byte-exact revision lookup. Entries without a `resources` map (locks written before this) are still checked on `SKILL.md` alone. An untracked resource is reported and left alone: it has nothing to restore to, so it needs a re-lock or deletion.
+Skill resource integrity: the lock entry also carries a `resources` map of raw-byte SHA-256 hashes for each member's `scripts/` and `references/` files, not just `SKILL.md`; those are the files that actually execute, so the injection-time check covers them and `agenthood verify --fix` restores them from the locked Git revision via a byte-exact revision lookup. Entries without a `resources` map (locks written before this) are still checked on `SKILL.md` alone. An untracked resource is reported and left alone: it has nothing to restore to, so it needs a re-lock or deletion.
 
-Prompt-injection screening: skill discovery scans every `SKILL.md` (code fences stripped, so a skill documenting an attack does not trip on its own example). A `block` finding — instruction override, system-prompt extraction, credential exfiltration to a remote URL, context erasure — refuses to load the skill at all; a `warn` finding loads it and prints the matched pattern. `agenthood verify --strict` exits non-zero on any `block` finding. See [ADR-029](docs/adr/ADR-029-fail-closed-skill-trust.md).
+Prompt-injection screening: skill discovery scans every `SKILL.md` (code fences stripped, so a skill documenting an attack does not trip on its own example). A `block` finding (instruction override, system-prompt extraction, credential exfiltration to a remote URL, context erasure) refuses to load the skill at all; a `warn` finding loads it and prints the matched pattern. `agenthood verify --strict` exits non-zero on any `block` finding. See [ADR-029](docs/adr/ADR-029-fail-closed-skill-trust.md).
 
 Metrics export schema: `agenthood metrics` exposes `agenthood_member_invocations_total`, `agenthood_member_failures_total`, `agenthood_member_success_rate`, `agenthood_member_duration_ms_avg`, `agenthood_provider_cost_usd_total`, `agenthood_provider_tokens_total`, `agenthood_cost_usd_total`, and `agenthood_tokens_total`. Ratios are gauges; per-provider series are omitted rather than emitted as zero when no data exists. See [ADR-030](docs/adr/ADR-030-metrics-export-schema.md).
 
@@ -199,14 +238,14 @@ Error reporting: setting `{ "sentry": { "dsn": "https://..." } }` in `.agenthood
 ### Secrets and Credentials
 
 - Do NOT commit API keys, secrets, or credentials to the repository.
-- Set `ANTHROPIC_API_KEY`, `GROQ_API_KEY`, or `OPENAI_API_KEY` in your shell profile or CI secrets — never in code.
+- Set `ANTHROPIC_API_KEY`, `GROQ_API_KEY`, or `OPENAI_API_KEY` in your shell profile or CI secrets: never in code.
 - Add runtime secrets to your CI provider (GitHub Actions secrets, GitLab CI variables, etc.).
 - See AGENTS.md for provider setup instructions.
 - If a secret is accidentally committed, rotate/revoke it immediately and coordinate a history purge if needed.
 
 ### Release PRs run without CI on their head
 
-The Herald opens `chore/release-bump` with `secrets.GITHUB_TOKEN`. GitHub starts no workflow for a `GITHUB_TOKEN` push — that is the recursion guard — so `pr.yml` never runs on the regenerated commit. `repository_dispatch` is suppressed by the same guard, so there is no token-free way to get CI onto that head. Only a token that is not `GITHUB_TOKEN` (a PAT) would change that, and the four `pr.yml` jobs that need the `pull_request` payload — Doorman, Librarian, Scribe, Warden — are skipped even under a manual dispatch.
+The Herald opens `chore/release-bump` with `secrets.GITHUB_TOKEN`. GitHub starts no workflow for a `GITHUB_TOKEN` push, that is the recursion guard, so `pr.yml` never runs on the regenerated commit. `repository_dispatch` is suppressed by the same guard, so there is no token-free way to get CI onto that head. Only a token that is not `GITHUB_TOKEN` (a PAT) would change that, and the four `pr.yml` jobs that need the `pull_request` payload (Doorman, Librarian, Scribe, Warden) are skipped even under a manual dispatch.
 
 Consequences worth knowing before you merge a `chore(release)` PR:
 

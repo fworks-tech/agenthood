@@ -80,7 +80,7 @@ export class JSONFileTraceStore implements TraceStore {
         try {
           this.cached.push(JSON.parse(line) as TraceEnvelope)
         } catch {
-          // skip corrupt lines — retention/export can repair later
+          // skip corrupt lines: retention/export can repair later
         }
       }
     } catch {
@@ -119,7 +119,8 @@ export class JSONFileTraceStore implements TraceStore {
     if (cap !== undefined && kept.length > cap) {
       kept = kept.slice(-cap)
     }
-    const pruned = this.cached.filter((e) => !kept.includes(e))
+    const keptSet = new Set(kept)
+    const pruned = this.cached.filter((e) => !keptSet.has(e))
     const result: PruneResult = { pruned: pruned.length, exported: 0, remaining: kept.length }
 
     if (pruned.length > 0) {

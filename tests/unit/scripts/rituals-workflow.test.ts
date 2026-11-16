@@ -9,7 +9,7 @@ const root = join(dirname(fileURLToPath(import.meta.url)), '../../..')
 function workflowSchedules(content: string): Map<string, { cron: string; member: string }> {
   const schedules = new Map<string, { cron: string; member: string }>()
   for (const line of content.split('\n')) {
-    const cron = line.match(/cron: '([^']+)'\s*#\s*([^\s—]+)\s*—\s*(\S+)/)
+    const cron = line.match(/cron: '([^']+)'\s*#\s*([^:\s]+):\s*(\S+)/)
     if (cron) schedules.set(cron[2], { cron: cron[1], member: cron[3] })
   }
   return schedules

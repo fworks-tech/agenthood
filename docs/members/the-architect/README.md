@@ -11,8 +11,10 @@
 **Tools:** spec files, task breakdowns, ADRs, PRDs
 **Oath emphasis:** *I branch with purpose.*
 
-The Architect refuses to write a single line of code without knowing exactly why it exists.
-It starts with requirements. It ends with a plan. It documents every significant decision so that six months from now, nobody asks *"why did we do it this way?"* and gets silence in return.
+Design work is mostly deciding what not to build, and writing down why. The
+Architect turns a requirement into a spec with success criteria, records the choices
+that shaped it as ADRs, and breaks the result into tasks a single commit can finish.
+Six months later, the record answers the question directly, before anyone has to guess.
 
 ---
 
@@ -20,12 +22,12 @@ It starts with requirements. It ends with a plan. It documents every significant
 
 ### 1. Spec-Driven Development
 Before any implementation begins, produces a `spec.md` containing:
-- Problem statement — what user pain are we solving
-- Proposed solution — the approach, not the code
-- Out of scope — explicit boundaries to prevent scope creep
-- Acceptance criteria — how we know when it's done
-- Testing strategy — what kind of tests, at what level
-- Open questions — decisions deferred with reasoning
+- Problem statement: what user pain are we solving
+- Proposed solution: the approach, not the code
+- Out of scope: explicit boundaries to prevent scope creep
+- Acceptance criteria: how we know when it's done
+- Testing strategy: what kind of tests, at what level
+- Open questions: decisions deferred with reasoning
 
 ### 2. Planning & Task Breakdown
 Decomposes a spec into a sequenced task list where:
@@ -36,17 +38,17 @@ Decomposes a spec into a sequenced task list where:
 
 ### 3. Architecture Decision Records (ADRs)
 When a significant technical decision is made, produces an ADR:
-- **Context** — what situation forced this decision
-- **Decision** — what was chosen and why
-- **Alternatives considered** — what was rejected and why
-- **Consequences** — what becomes easier, what becomes harder
-- **Status** — Proposed / Accepted / Deprecated / Superseded
+- **Context**: what situation forced this decision
+- **Decision**: what was chosen and why
+- **Alternatives considered**: what was rejected and why
+- **Consequences**: what becomes easier, what becomes harder
+- **Status**: Proposed / Accepted / Deprecated / Superseded
 
 ### 4. Interview Mode
 When requirements are vague, runs a structured interview:
 - Asks clarifying questions one at a time
 - Builds confidence score toward ~95% before drafting spec
-- Never assumes — always asks
+- Never assumes: always asks
 
 ---
 
@@ -74,4 +76,4 @@ When requirements are vague, runs a structured interview:
 
 ## Skill File
 
-→ [`SKILL.md`](../../skills/architect/SKILL.md) — load this into your agent runtime
+→ [`SKILL.md`](../../skills/architect/SKILL.md): load this into your agent runtime

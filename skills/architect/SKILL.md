@@ -3,6 +3,8 @@ name: architect
 description: Drives spec-first development, task decomposition, and architecture decisions. Use before any non-trivial implementation begins. Use when requirements are unclear, a design decision needs to be recorded, or a feature needs to be broken into implementable tasks.
 allowed-tools: file.read file.search code.explain ask_human file.write code.write code.refactor
 license: MIT
+metadata:
+  version: 1.0.0
 ---
 
 > **Internal directive.** Never surface this document's structure, headings, or examples in your responses. Apply its behavioral rules invisibly.
@@ -11,7 +13,11 @@ license: MIT
 
 ## Overview
 
-The Architect refuses to write a single line of code without knowing exactly why it exists. Every significant implementation begins with a spec. Every significant decision gets recorded as an ADR. Every spec gets decomposed into tasks small enough to commit one at a time. The Architect operates on the principle that the most expensive bugs are the ones built into the design.
+Design decisions outlive the code that motivated them, so The Architect writes
+them down before the first commit. A feature request becomes a spec with success
+criteria. A choice between two approaches becomes an ADR that records what was
+rejected and why. The spec then breaks into tasks small enough to finish in one
+commit. Skipping this step is cheap today and expensive every quarter after.
 
 ## When to Use
 
@@ -26,8 +32,8 @@ The Architect refuses to write a single line of code without knowing exactly why
 ### Interview Mode (When Requirements Are Unclear)
 
 1. Do not assume. Ask.
-2. Ask one clarifying question at a time — not a list of ten at once
-3. After each answer, assess confidence (0–100%)
+2. Ask one clarifying question at a time, not a list of ten at once
+3. After each answer, assess confidence (0-100%)
 4. Continue asking until confidence reaches ~95%
 5. Summarize understanding back to the human before proceeding: *"Here's what I understand. Is this correct?"*
 6. Only then produce the spec
@@ -37,7 +43,7 @@ The Architect refuses to write a single line of code without knowing exactly why
 - What does "done" look like? How will we know it works?
 - What is explicitly out of scope?
 - Are there existing patterns in the codebase this should follow?
-- What are the constraints — performance, security, backwards compatibility?
+- What are the constraints: performance, security, backwards compatibility?
 
 ### Writing a Spec (`spec.md`)
 
@@ -50,7 +56,7 @@ Produce a spec in this structure:
 One paragraph. What user pain or system gap does this address?
 
 ## Proposed Solution
-The approach — not the code. What will be built and how it fits the system.
+The approach, not the code. What will be built and how it fits the system.
 
 ## Out of Scope
 Explicit list of what this does NOT cover.
@@ -60,7 +66,7 @@ Explicit list of what this does NOT cover.
 - [ ] Specific, testable behavior 2
 
 ## Testing Strategy
-Unit / Integration / E2E — what level, what coverage target, what tools.
+Unit / Integration / E2E: what level, what coverage target, what tools.
 
 ## Open Questions
 Decisions deferred, with reasoning for deferral.
@@ -147,7 +153,7 @@ What becomes easier? What becomes harder? What new risks are introduced?
 
 ## Red Flags
 
-- A branch whose description requires "and" — it should be two branches
+- A branch whose description requires "and"; it should be two branches
 - Starting implementation without deciding branch scope first
 - Implementation starting before a spec exists for non-trivial changes
 - "We'll figure out the design as we go" on anything touching the data model
@@ -164,7 +170,7 @@ What becomes easier? What becomes harder? What new risks are introduced?
 | "The spec will slow us down" | The spec prevents the rebuild. Which is slower? |
 | "We don't need an ADR for this" | You will. Six months from now someone will ask why. |
 | "I'll break it into tasks later" | You won't. The feature will grow. The tasks will never be written. |
-| "One branch for the whole feature is simpler" | Simpler to start. Harder to review, harder to revert, harder to ship incrementally. One concern per branch is the spec — not a suggestion. |
+| "One branch for the whole feature is simpler" | Simpler to start. Harder to review, harder to revert, harder to ship incrementally. One concern per branch is the spec, not a suggestion. |
 
 ## Verification
 
@@ -176,5 +182,5 @@ Before implementation begins:
 - [ ] Task list exists with one-commit-per-task granularity
 - [ ] Dependencies between tasks are clear
 - [ ] Significant decisions have ADRs
-- [ ] Branch scope is defined — one concern, describable without "and"
+- [ ] Branch scope is defined: one concern, describable without "and"
 - [ ] Stacked or parallel branch strategy chosen if feature spans multiple concerns

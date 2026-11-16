@@ -1,7 +1,7 @@
 /** CLOSED = normal, OPEN = cooldown, HALF_OPEN = probe in flight */
 export type CircuitState = 'CLOSED' | 'OPEN' | 'HALF_OPEN'
 
-/** Per‑provider circuit breaker state, stored in‑memory. */
+/** Per-provider circuit breaker state, stored in-memory. */
 export interface CircuitBreakerState {
   state: CircuitState
   failureCount: number

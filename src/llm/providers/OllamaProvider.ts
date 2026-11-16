@@ -147,6 +147,10 @@ export class OllamaProvider implements ILLMProvider {
     return 8192
   }
 
+  getModel(): string {
+    return this.model
+  }
+
   setModel(model: string): void {
     this.model = model
   }

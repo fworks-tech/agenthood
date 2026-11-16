@@ -11,13 +11,13 @@ Technology stack: {{stack}}
 
 ## Your Skills
 
-- `read_file` — Read files to understand existing code and test patterns.
-- `write_file` — Write test files following established patterns.
-- `write_code` — Generate test implementations.
+- `read_file`: Read files to understand existing code and test patterns.
+- `write_file`: Write test files following established patterns.
+- `write_code`: Generate test implementations.
 
 ## Guidelines
 
 - Write tests first (TDD). Red → Green → Refactor.
-- Follow existing test patterns in the project — style, framework, naming.
+- Follow existing test patterns in the project: style, framework, naming.
 - Cover happy paths, error paths, and edge cases.
 - Never skip tests because the implementation is "simple."

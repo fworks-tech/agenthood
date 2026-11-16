@@ -1,6 +1,6 @@
 # Getting Started with Agenthood
 
-> *A full AI engineering team — install in five minutes, invoke on demand.*
+> *A full AI engineering team: install in five minutes, invoke on demand.*
 
 ---
 
@@ -8,8 +8,8 @@
 
 Agenthood is a suite of specialized AI agents that automate the work around your code: commit messages, PR reviews, security audits, changelogs, and more. Two modes:
 
-- **Runtime mode** (flagship) — agents run autonomously via the TypeScript CLI. They reason, use tools, and produce results without manual prompting.
-- **Skill mode** (alternative) — members load as Markdown skill files into Claude Code, Copilot, or any agent runtime that supports skill files.
+- **Runtime mode** (flagship): agents run autonomously via the TypeScript CLI. They reason, use tools, and produce results without manual prompting.
+- **Skill mode** (alternative): members load as Markdown skill files into Claude Code, Copilot, or any agent runtime that supports skill files.
 
 Both modes use the same member definitions. Choose runtime for automation, skill mode for assisted workflows.
 
@@ -32,7 +32,7 @@ Requirements: Node.js 22+, `git`, and `gh` CLI for PR sync. No API key required 
 | Command | What it does |
 |---------|-------------|
 | `init` | Install hooks, templates, and member skills into your project |
-| `check` | Health check — confirm the Society is fully operational |
+| `check` | Health check: confirm the Society is fully operational |
 | `run <member> "<task>"` | Invoke a member as an autonomous agent |
 | `list` | List all members with activation status |
 | `pr-sync --pr <N>` | Auto-sync PR body with new commits |
@@ -41,20 +41,46 @@ Requirements: Node.js 22+, `git`, and `gh` CLI for PR sync. No API key required 
 | `oath` | Read the Society oath |
 | `eject` | Remove all Society files from your project |
 | `diff [member]` | Show SKILL.md changes vs the versions locked in `agenthood.lock` |
+| `skills [--show-disabled]` | List discovered skills in catalog order, and what is filtered out |
+
+---
+
+## Explicit skill activation
+
+A task can start with one or more `/skill-name` tokens. They load that skill's
+full instructions **before** the model reads the task, so the choice is yours, not
+the model's:
+
+```bash
+npx agenthood run builder "/scribe write the commit message for this diff"
+npx agenthood run reviewer "/warden /auditor review this change"
+npx agenthood run builder "/warden off implement the fix"
+```
+
+- `/name` activates; `/name off` keeps the skill out of this run.
+- Only a leading run of slash tokens counts: a `/` inside a sentence is prose.
+- An unknown name is reported and stripped, so a typo never reaches the model as
+  a stray path.
+- Activation goes through the same tool as model-driven activation, so the token
+  budget, `metadata.conditions`, and `fallback` chains all apply.
+
+The same skills are visible to a client that reads skill files: `agenthood init`
+installs each member under its runtime's skill directory, where the client
+exposes it as `/skill-name`. See the [activation matrix](skills-reference.md#invoking-a-member).
 
 ---
 
 ## Your first commit workflow
 
-1. **Write code** — make changes in your project.
-2. **Stage** — `git add -p`
-3. **Commit** — `git commit`. The Doorman validates your message against conventional commits. If it fails, you get a clear reason and a suggestion.
-4. **Push** — pre-push hooks run tests before the branch leaves your machine.
-5. **Open a PR** — the PR body is pre-filled with the Society's template (`## What changed`, `## Why`, `## How to test`).
-6. **Review** — The Reviewer checks correctness, security, performance, maintainability, and test coverage.
-7. **Release** — The Herald determines the semver bump, generates the changelog, and publishes to npm.
+1. **Write code**: make changes in your project.
+2. **Stage**: `git add -p`
+3. **Commit**: `git commit`. The Doorman validates your message against conventional commits. If it fails, you get a clear reason and a suggestion.
+4. **Push**: pre-push hooks run tests before the branch leaves your machine.
+5. **Open a PR**: the PR body is pre-filled with the Society's template (`## What changed`, `## Why`, `## How to test`).
+6. **Review**. The Reviewer checks correctness, security, performance, maintainability, and test coverage.
+7. **Release**. The Herald determines the semver bump, generates the changelog, and publishes to npm.
 
-Every step is automated. Every step has a member responsible.
+Every step is automated, and each one has a member responsible for it.
 
 ---
 
@@ -81,13 +107,13 @@ These run on GitHub Actions. Every check must pass before merge.
 The Reviewer keeps PR descriptions accurate as new commits land (replaced The Manuscript in v2.0.0). A `<!-- pr-sync: sha=... -->` marker splits the body into two zones: your narrative above, auto-generated content below.
 
 ```bash
-# Fast path — no API key required, runs in CI
+# Fast path: no API key required, runs in CI
 npx agenthood pr-sync --pr 42
 
 # Preview changes without publishing
 npx agenthood pr-sync --pr 42 --dry-run
 
-# Context-aware — The Scribe loads your conventions and ADRs first
+# Context-aware: The Scribe loads your conventions and ADRs first
 npx agenthood run scribe "sync PR #42"
 ```
 
@@ -126,11 +152,11 @@ The runtime automatically loads variables from a `.env` file in your project roo
 
 | Variable | Required for | Default |
 |----------|-------------|---------|
-| `GROQ_API_KEY` | Runtime mode fallback (free at console.groq.com) | — |
-| `OPENCODE_API_KEY` | Runtime mode default provider (opencode, free tier at opencode.ai) | — |
-| `ANTHROPIC_API_KEY` | Runtime mode, high-complexity tasks | — |
-| `OPENAI_API_KEY` | Runtime mode (fallback provider) | — |
-| `GITHUB_TOKEN` | PR sync (auto-set in CI) | — |
+| `GROQ_API_KEY` | Runtime mode fallback (free at console.groq.com) | - |
+| `OPENCODE_API_KEY` | Runtime mode default provider (opencode, free tier at opencode.ai) | - |
+| `ANTHROPIC_API_KEY` | Runtime mode, high-complexity tasks | - |
+| `OPENAI_API_KEY` | Runtime mode (fallback provider) | - |
+| `GITHUB_TOKEN` | PR sync (auto-set in CI) | - |
 
 No API key is needed for skill-file mode or for `pr-sync` in CI.
 
@@ -142,7 +168,7 @@ If you use Claude Code, Copilot, or another assistant, load members as skill fil
 
 ```bash
 npx agenthood init
-# Select your runtime when prompted — skills are installed automatically
+# Select your runtime when prompted: skills are installed automatically
 ```
 
 The assistant loads the member's SKILL.md as context. Ask the Reviewer to check your PR, ask the Auditor to scan your auth flow. They know their role.
@@ -151,13 +177,13 @@ The assistant loads the member's SKILL.md as context. Ask the Reviewer to check 
 
 ## Next steps
 
-- [5-minute skill creation quickstart](quickstart.md) — one working `SKILL.md` in under 20 lines
-- [Skills Reference](skills-reference.md) — all members, their tools, and invocation syntax
-- [Level 1: GenAI & RAG Basics](level-1-genai-rag-basics/) — LLMs, prompt engineering, RAG
-- [Level 2: AI Agent Essentials](level-2-agent-essentials/) — memory, planning, multi-agent
-- [Level 3: Advanced Agent Skills](level-3-advanced-skills/) — integration, performance, production
-- [Architecture Decision Records](../adr/) — why the Society is built the way it is
-- [Online docs](https://agenthood.flabs.tech/getting-started/) — hosted version of this guide
+- [5-minute skill creation quickstart](quickstart.md): one working `SKILL.md` in under 20 lines
+- [Skills Reference](skills-reference.md): all members, their tools, and invocation syntax
+- [Level 1: GenAI & RAG Basics](level-1-genai-rag-basics/): LLMs, prompt engineering, RAG
+- [Level 2: AI Agent Essentials](level-2-agent-essentials/): memory, planning, multi-agent
+- [Level 3: Advanced Agent Skills](level-3-advanced-skills/): integration, performance, production
+- [Architecture Decision Records](../adr/): why the Society is built the way it is
+- [Online docs](https://agenthood.flabs.tech/getting-started/): hosted version of this guide
 
 ---
 

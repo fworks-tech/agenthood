@@ -20,9 +20,9 @@ and post a structured diagnosis on the associated PR.
 
 ## Steps
 
-1. **Confirm the run failed** — only proceed on `conclusion: failure`
+1. **Confirm the run failed**: only proceed on `conclusion: failure`
 
-2. **Fetch the full build log** — not just the summary line
+2. **Fetch the full build log**, not just the summary line
 
 3. **Find the first failure** in the log
    - Subsequent failures are often cascading effects of the first
@@ -71,18 +71,18 @@ and post a structured diagnosis on the associated PR.
 
 ### Suggested fix
 
-{Specific, actionable suggestion — command to run, line to change, env var to add.}
+{Specific, actionable suggestion: command to run, line to change, env var to add.}
 
 ### Is this flaky?
 
-{Yes / No / Possibly — with reasoning}
+{Yes / No / Possibly: with reasoning}
 
 ---
-*— The Debugger, Agenthood*
+*The Debugger, Agenthood*
 ```
 
 ## Notes
-- Only fires on failed runs — never on success
-- Does not modify any code — diagnosis and comment only
+- Only fires on failed runs: never on success
+- Does not modify any code: diagnosis and comment only
 - If the log is truncated or unavailable, says so explicitly rather than guessing
-- Flags flaky tests separately — they need isolation fixes, not logic fixes
+- Flags flaky tests separately; they need isolation fixes, not logic fixes

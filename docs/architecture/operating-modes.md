@@ -7,7 +7,7 @@
 ## Overview
 
 The Agenthood operates in two distinct modes. The mode determines what a member
-is allowed to do — not what it knows. In both modes, members have full context.
+is allowed to do, not what it knows. In both modes, members have full context.
 Only their *actions* are constrained.
 
 ---
@@ -20,7 +20,7 @@ In Agent Mode, members can:
 - Create, edit, and delete files
 - Execute terminal commands
 - Run tests, linters, and build tools
-- Interact with Git (branch, commit, push — with approval gates)
+- Interact with Git (branch, commit, push: with approval gates)
 - Call external APIs and MCP-connected services
 - Spawn other members for multi-step tasks
 
@@ -74,7 +74,7 @@ In Ask Mode, members **cannot**:
 
 ## Mode Switching
 
-Modes are explicit — the human chooses the mode per session or per request.
+Modes are explicit: the human chooses the mode per session or per request.
 A member never escalates from Ask to Agent autonomously.
 
 If a member in Ask Mode determines that a task *requires* Agent Mode, it says so:
@@ -89,7 +89,7 @@ Within Agent Mode, three permission profiles further constrain behavior:
 
 | Profile | What it allows |
 |---------|---------------|
-| `Restricted` | Read-only tools only — effectively Ask Mode with structured output |
+| `Restricted` | Read-only tools only: effectively Ask Mode with structured output |
 | `Standard` | All tools; dangerous terminal commands require approval; default |
 | `Trusted` | All tools; file edits auto-approved; catastrophic commands still blocked |
 
@@ -97,7 +97,7 @@ Within Agent Mode, three permission profiles further constrain behavior:
 recursive-force `rm` against `/`, `~`, or `$HOME`, `find / -delete`,
 `chmod`/`chown -R` on `/`, `mkfs*`, `dd` to a raw/flood device, `DROP DATABASE`,
 `TRUNCATE TABLE`, `git push --force` to `main`/`master`, and fork bombs.
-The guard checks the command string, not its filesystem effect — it is a speed
+The guard checks the command string, not its filesystem effect; it is a speed
 bump, not a sandbox. Full list and limitations: [built-in-tools.md](built-in-tools.md).
 
 ---
@@ -111,13 +111,13 @@ In both modes, context is assembled from the same 11 sources before a member act
 3. Hybrid search results (vector + keyword)
 4. Web search results (if tool available)
 5. Codebase architectural understanding
-6. Persistent memory (`.agenthood/memory/` — LanceDB vector store, `.agenthood/society-graph.json` — knowledge graph)
+6. Persistent memory (`.agenthood/memory/`, LanceDB vector store, `.agenthood/society-graph.json`, knowledge graph)
 7. Residual memory traces (`.agenthood/residual.json`)
-8. Decision and provenance records (`.agenthood/decisions/`, `.agenthood/provenance/` — per-run audit trail, see [decision-intelligence.md](decision-intelligence.md))
+8. Decision and provenance records (`.agenthood/decisions/`, `.agenthood/provenance/`: per-run audit trail, see [decision-intelligence.md](decision-intelligence.md))
 9. Active member skills
 10. Conversation history
 11. Question classification result
 
-The difference between modes is not *what* is known — it is *what* is done with that knowledge.
+The difference between modes is not *what* is known; it is *what* is done with that knowledge.
 
 See the [Runtime Guide](../runtime-guide.md) for detailed path references and storage layout.

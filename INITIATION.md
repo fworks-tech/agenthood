@@ -9,7 +9,7 @@ The Initiation takes about five minutes. The standards last forever.
 
 ---
 
-## Step 1 — Install the Society
+## Step 1: Install the Society
 
 ```bash
 # npm (recommended)
@@ -21,7 +21,7 @@ git clone https://github.com/fworks-tech/agenthood.git
 
 ---
 
-## Step 2 — Run the Initiation
+## Step 2: Run the Initiation
 
 ```bash
 npx agenthood init
@@ -29,10 +29,10 @@ npx agenthood init
 
 This single command will prompt you for two choices:
 
-1. **Which AI runtime are you using?** — Claude Code, Copilot, or other.
+1. **Which AI runtime are you using?**: Claude Code, Copilot, or other.
    Skills are installed into the matching directory (`.claude/skills/`, `.github/skills/`, or `.agenthood/skills/`).
 
-2. **Which members do you want to activate?** — enter numbers separated by commas, or `all`.
+2. **Which members do you want to activate?**: enter numbers separated by commas, or `all`.
 
 Then it will:
 
@@ -40,11 +40,11 @@ Then it will:
 - Copy `AGENTS.md` into your project root
 - Scaffold `.agenthood/config.json` with your selections
 
-Running `init` a second time is safe — existing files are never overwritten.
+Running `init` a second time is safe: existing files are never overwritten.
 
 ---
 
-## Step 3 — Read the Oath
+## Step 3: Read the Oath
 
 ```bash
 cat node_modules/agenthood/oath.md
@@ -56,7 +56,7 @@ Read it. Mean it.
 
 ---
 
-## Step 4 — Verifying the Initiation
+## Step 4: Verifying the Initiation
 
 Run the Doorman's health check to confirm everything is in order:
 
@@ -79,12 +79,12 @@ Expected output:
 
 ---
 
-## Step 5 — Autonomous Runtime (Optional)
+## Step 5: Autonomous Runtime (Optional)
 
-For teams who want members to execute autonomously — reasoning, acting, and remembering
-across sessions without a human in the loop — use the TypeScript runtime.
+For teams who want members to execute autonomously: reasoning, acting, and remembering
+across sessions without a human in the loop: use the TypeScript runtime.
 
-**Requirements:** Node.js 22.14+, `OPENCODE_API_KEY` (or a key for another provider — the default follows the `providers` list in `.agenthood/config.json`), or Ollama for offline execution
+**Requirements:** Node.js 22.14+, `OPENCODE_API_KEY` (or a key for another provider: the default follows the `providers` list in `.agenthood/config.json`), or Ollama for offline execution
 
 ```bash
 # Build the runtime (once, after install)
@@ -99,15 +99,15 @@ npx agenthood run architect "plan the implementation for issue #42"
 npx agenthood run reviewer "review the open PR"
 ```
 
-The runtime reads the same `.agenthood/config.json` the CLI created — no
+The runtime reads the same `.agenthood/config.json` the CLI created: no
 additional configuration required.
 
 Every run records a decision and provenance entry in `.agenthood/decisions/`
-and `.agenthood/provenance/` — a tamper-evident audit trail of what each member
+and `.agenthood/provenance/`: a tamper-evident audit trail of what each member
 did and why, so the runtime is not a black box
 ([ADR-015](docs/adr/ADR-015-decision-intelligence-and-provenance.md)).
 
-This step is entirely optional. The prompt-driven workflow from Steps 1–4 continues
+This step is entirely optional. The prompt-driven workflow from Steps 1-4 continues
 to work unchanged whether or not the runtime is built.
 
 ---

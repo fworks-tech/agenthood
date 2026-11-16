@@ -3,15 +3,17 @@ import type { ExecutionContext } from "../core/ExecutionContext.ts"
 import type { Message, TokenUsage, ToolCall, LLMResponse } from "../llm/types.ts"
 import { ContextCompressor } from "../core/ContextCompressor.ts"
 import { estimateCost } from "../core/modelPricing.ts"
+import type { TrajectoryStep, TrajectoryToolCall } from "../core/TrajectoryStore.ts"
 import { logCost } from "../core/CostLogger.ts"
 import { ToolRegistry, ToolNotFoundError } from "../tools/ToolRegistry.ts"
 import type { ITool } from "../tools/ITool.ts"
 import { ThinkingBudget } from "./ThinkingBudget.ts"
+import { deniedBySkillScope } from "./skillScope.ts"
 import { validateSchema, SchemaValidationError } from "../core/SchemaValidator.ts"
 import { redactEventText } from "../core/RunEventBus.ts"
 import { isShutdownRequested } from "../core/shutdown.ts"
 import { SafetyGuard } from "../core/SafetyGuard.ts"
-import { SKILL_ACTIVATION_PREFIX } from "../skills/activation/ActivateSkillTool.ts"
+import { activatedSkillName } from "../skills/activation/skillContent.ts"
 import { AskHumanSignal } from "../tools/human/AskHumanTool.ts"
 import { USER_QUERY_GUARD, TOOL_OUTPUT_GUARD, wrapUserQuery, wrapToolOutput } from "../agents/memberLore.ts"
 import * as readline from 'node:readline'
@@ -74,6 +76,12 @@ export class ReActLoop {
   usage: TokenUsage = { promptTokens: 0, completionTokens: 0, totalTokens: 0 }
   private _model = ""
   private _provider: string | undefined
+  private _steps: TrajectoryStep[] = []
+
+  /** Per-step audit of the current run, newest last (#605). */
+  get steps(): TrajectoryStep[] {
+    return this._steps
+  }
 
   /** Responding model of the most recent step; the loop owns the write. */
   get model(): string {
@@ -149,6 +157,7 @@ export class ReActLoop {
 
     this.usage = { promptTokens: 0, completionTokens: 0, totalTokens: 0 };
     this._model = "";
+    this._steps = [];
 
     const recentCalls: string[] = [];
 
@@ -162,14 +171,17 @@ export class ReActLoop {
         const partialResult = `Max steps (${this.maxSteps}) exceeded. Partial result:\n${lastContent}`
         throw new MaxStepsExceededError(partialResult, this.maxSteps)
       }
+      const started = performance.now();
       const response = await this.runStep(step, messages, context);
 
       if (!response.toolCalls || response.toolCalls.length === 0) {
+        this.recordStep(step, response, [], context, started, userInput);
         return response.content;
       }
 
       try {
-        await this.runToolCalls(response.toolCalls, messages, recentCalls, step, context);
+        const tools = await this.runToolCalls(response.toolCalls, messages, recentCalls, step, context);
+        this.recordStep(step, response, tools, context, started, userInput);
       } catch (err) {
         // a park must land in the checkpoint with its dangling ask_human call
         if (err instanceof AskHumanSignal) {
@@ -253,12 +265,12 @@ export class ReActLoop {
       timestamp: new Date().toISOString(),
       member: this._member,
       model: response.model,
-      provider: response.model.includes('gpt') ? 'openai' : response.model.includes('claude') ? 'anthropic' : response.model.includes('llama') ? 'groq' : 'other',
+      provider: response.provider ?? this._provider ?? 'unknown',
       promptTokens,
       completionTokens,
       totalTokens: promptTokens + completionTokens,
       costUsd: stepCost,
-      // Charge this step to the skills its tool results activated (#624) —
+      // Charge this step to the skills its tool results activated (#624),
       // the tokens spent on the next prompt are what the skill cost.
       skills: this.stepActivatedSkills(),
     }, context.project.localPath)
@@ -278,7 +290,8 @@ export class ReActLoop {
     recentCalls: string[],
     step: number,
     context: ExecutionContext,
-  ): Promise<void> {
+  ): Promise<TrajectoryToolCall[]> {
+    const outcomes: TrajectoryToolCall[] = []
     for (const toolCall of toolCalls) {
       const signature = `${toolCall.name}:${JSON.stringify(toolCall.args)}`
       const occurrences = recentCalls.filter((s) => s === signature).length
@@ -288,6 +301,31 @@ export class ReActLoop {
       this.guard.countToolInvocation()
       recentCalls.push(signature)
       if (recentCalls.length > this.loopWindow) recentCalls.shift()
+
+      // A skill that declares allowed-tools narrows the tools the model may use
+      // while it is active. Activation itself stays available, otherwise the
+      // next skill could never be loaded.
+      const denied = deniedBySkillScope(toolCall.name, this.activatedSkills, context, (name) => this.skillRegistry.has(name))
+      if (denied) {
+        context.events.emit({
+          type: "tool.denied",
+          executionId: context.executionId,
+          member: this._member,
+          correlationId: context.correlationId,
+          timestamp: new Date().toISOString(),
+          step,
+          name: toolCall.name,
+          reason: denied,
+        })
+        messages.push({
+          role: "tool",
+          content: `Error: ${denied}`,
+          tool_call_id: toolCall.id,
+          name: toolCall.name,
+        })
+        outcomes.push({ name: toolCall.name, input: this.toolInput(toolCall, context), output: denied, status: 'error' })
+        continue
+      }
 
       context.events.emit({
         type: "tool.called",
@@ -309,6 +347,7 @@ export class ReActLoop {
             tool_call_id: toolCall.id,
             name: toolCall.name,
           })
+          outcomes.push({ name: toolCall.name, input: this.toolInput(toolCall, context), output: 'User declined this action.', status: 'error' })
           continue
         }
       }
@@ -317,12 +356,10 @@ export class ReActLoop {
       const result = await this.executeTool(toolCall, context);
       const durationMs = Math.round(performance.now() - toolStart)
       const content = typeof result === 'string' ? result : JSON.stringify(result)
-      if (content.startsWith(SKILL_ACTIVATION_PREFIX)) {
-        const nameMatch = content.match(/<skill_content name="([^"]+)">/)
-        if (nameMatch) {
-          this.activatedSkills.add(nameMatch[1])
-          this.pendingSkillActivations.add(nameMatch[1])
-        }
+      const activated = activatedSkillName(content)
+      if (activated) {
+        this.activatedSkills.add(activated)
+        this.pendingSkillActivations.add(activated)
       }
       messages.push({
         role: "tool",
@@ -342,7 +379,44 @@ export class ReActLoop {
         output: redactEventText(context, content),
         durationMs,
       });
+
+      outcomes.push({
+        name: toolCall.name,
+        input: this.toolInput(toolCall, context),
+        output: redactEventText(context, content).slice(0, 2000),
+        status: /^\s*error:/i.test(content) ? 'error' : 'success',
+      })
     }
+    return outcomes
+  }
+
+  private toolInput(toolCall: ToolCall, context: ExecutionContext): string {
+    return redactEventText(context, JSON.stringify(toolCall.args ?? {})).slice(0, 500)
+  }
+
+  private recordStep(
+    step: number,
+    response: LLMResponse,
+    tools: TrajectoryToolCall[],
+    context: ExecutionContext,
+    started: number,
+    input: string,
+  ): void {
+    const promptTokens = response.usage?.promptTokens ?? 0
+    const completionTokens = response.usage?.completionTokens ?? 0
+    const model = response.model || this._model
+    this._steps.push({
+      step,
+      model,
+      inputSummary: step === 0 ? redactEventText(context, input).slice(0, 500) : '',
+      outputSummary: redactEventText(context, response.content).slice(0, 2000),
+      tokens: { prompt: promptTokens, completion: completionTokens },
+      cost: estimateCost(model, promptTokens, completionTokens, response.provider ?? this._provider).estimatedCost,
+      durationMs: Math.round(performance.now() - started),
+      status: 'success',
+      skills: [...this.activatedSkills],
+      tools,
+    })
   }
 
   private async executeTool(
@@ -396,7 +470,7 @@ export class ReActLoop {
   private async confirmToolCall(toolCall: ToolCall, step: number, context: ExecutionContext): Promise<boolean> {
     const argsSummary = JSON.stringify(toolCall.args ?? {})
     const truncated = argsSummary.length > 200 ? argsSummary.slice(0, 200) + '...' : argsSummary
-    console.log(`\n  ┌─ Step ${step} — Tool call ─────────────────────────────`)
+    console.log(`\n  ┌─ Step ${step}, Tool call ─────────────────────────────`)
     console.log(`  │ Tool: ${toolCall.name}`)
     console.log(`  │ Args: ${truncated}`)
     console.log(`  └──────────────────────────────────────────────────────`)

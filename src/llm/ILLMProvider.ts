@@ -5,5 +5,7 @@ export interface ILLMProvider {
   stream(request: LLMRequest): Promise<AsyncGenerator<LLMChunk>>
   embed(text: string): Promise<number[]>
   getContextWindow(): number
+  /** The model this provider currently sends requests to (#551, #555). Optional for test doubles. */
+  getModel?(): string
   setModel(model: string): void
 }

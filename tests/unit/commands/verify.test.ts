@@ -7,6 +7,7 @@ vi.mock('node:fs', async (importOriginal) => {
     existsSync: vi.fn(),
     readFileSync: vi.fn(),
     writeFileSync: vi.fn(),
+    renameSync: vi.fn(),
     readdirSync: vi.fn(),
     statSync: vi.fn(),
   }
@@ -21,6 +22,8 @@ const VALID_SKILL = `---
 name: the-test
 description: A test member
 license: MIT
+metadata:
+  version: 1.0.0
 ---
 
 # The Test
@@ -80,6 +83,29 @@ describe('verify command', () => {
   it('passes valid SKILL.md files', async () => {
     const exit = vi.spyOn(process, 'exit').mockImplementation((() => {}) as any)
     await verify([])
+    expect(exit).not.toHaveBeenCalledWith(1)
+  })
+
+  it('lints bundled scripts with --scripts and never fails the run (#540)', async () => {
+    const dirEntry = (name: string) => ({ name, isDirectory: () => true, isFile: () => false }) as any
+    vi.mocked(readdirSync).mockImplementation(((path: string) => {
+      const target = String(path)
+      if (target.includes('routing')) return []
+      return target.endsWith('scripts') ? ['run.sh'] : [dirEntry('the-test')]
+    }) as any)
+    vi.mocked(statSync).mockImplementation((() => ({ isDirectory: () => true, isFile: () => true, size: 100 })) as any)
+    vi.mocked(readFileSync).mockImplementation(((path: string) => {
+      const target = String(path)
+      if (target.endsWith('agenthood.lock')) return lockContent
+      if (target.endsWith('run.sh')) return 'read -p "name? " name\n'
+      return skillContent
+    }) as any)
+    const log = vi.spyOn(console, 'log').mockImplementation(() => {})
+    const exit = vi.spyOn(process, 'exit').mockImplementation((() => {}) as any)
+
+    await verify(['--scripts'])
+
+    expect(log.mock.calls.flat().join(' ')).toContain('[stdin]')
     expect(exit).not.toHaveBeenCalledWith(1)
   })
 
@@ -186,6 +212,121 @@ describe('verify command', () => {
     expect(Object.keys(written.members)).toEqual(['the-other', 'the-test'])
   })
 
+  it('fails when the license is not an SPDX identifier (#580)', async () => {
+    skillContent = VALID_SKILL.replace('license: MIT', 'license: MIT License')
+    const log = vi.spyOn(console, 'log').mockImplementation(() => {})
+    const exit = vi.spyOn(process, 'exit').mockImplementation((() => {}) as any)
+
+    await verify([])
+
+    expect(exit).toHaveBeenCalledWith(1)
+    expect(log.mock.calls.flat().join(' ')).toContain('is not an SPDX identifier')
+  })
+
+  it('fails when compatibility exceeds the 500-char spec limit (#581)', async () => {
+    skillContent = VALID_SKILL.replace('license: MIT', `license: MIT\ncompatibility: ${'x'.repeat(501)}`)
+    const log = vi.spyOn(console, 'log').mockImplementation(() => {})
+    const exit = vi.spyOn(process, 'exit').mockImplementation((() => {}) as any)
+
+    await verify([])
+
+    expect(exit).toHaveBeenCalledWith(1)
+    expect(log.mock.calls.flat().join(' ')).toContain('500-char spec limit')
+  })
+
+  it('accepts a compatibility string under the limit (#581)', async () => {
+    skillContent = VALID_SKILL.replace('license: MIT', 'license: MIT\ncompatibility: Requires Bash and git access')
+    lockContent = lockWith({ 'the-test': { version: contentHash(skillContent), updatedAt: OLD } })
+    const exit = vi.spyOn(process, 'exit').mockImplementation((() => {}) as any)
+
+    await verify([])
+
+    expect(exit).not.toHaveBeenCalledWith(1)
+  })
+
+  it('fails when metadata.author is not a valid namespace (#593)', async () => {
+    skillContent = VALID_SKILL.replace('license: MIT', 'license: MIT\nauthor: FWorks_Tech')
+    lockContent = lockWith({ 'the-test': { version: contentHash(skillContent), updatedAt: OLD } })
+    const log = vi.spyOn(console, 'log').mockImplementation(() => {})
+    const exit = vi.spyOn(process, 'exit').mockImplementation((() => {}) as any)
+
+    await verify([])
+
+    expect(exit).toHaveBeenCalledWith(1)
+    expect(log.mock.calls.flat().join(' ')).toContain('metadata.author')
+  })
+
+  it('accepts a valid namespace and leaves an authorless skill alone (#593)', async () => {
+    skillContent = VALID_SKILL.replace('license: MIT', 'license: MIT\nauthor: fworks-tech')
+    lockContent = lockWith({ 'the-test': { version: contentHash(skillContent), updatedAt: OLD } })
+    const exit = vi.spyOn(process, 'exit').mockImplementation((() => {}) as any)
+
+    await verify([])
+
+    expect(exit).not.toHaveBeenCalledWith(1)
+  })
+
+  it('fails when metadata.priority is out of range or not an integer (#611)', async () => {
+    skillContent = VALID_SKILL.replace('  version: 1.0.0', '  version: 1.0.0\n  priority: 120')
+    const log = vi.spyOn(console, 'log').mockImplementation(() => {})
+    const exit = vi.spyOn(process, 'exit').mockImplementation((() => {}) as any)
+
+    await verify([])
+
+    expect(exit).toHaveBeenCalledWith(1)
+    expect(log.mock.calls.flat().join(' ')).toContain('metadata.priority')
+  })
+
+  it('fails on an unknown activation condition (#610)', async () => {
+    skillContent = VALID_SKILL.replace('  version: 1.0.0', '  version: 1.0.0\n  conditions:\n    - moon.phase:full')
+    const log = vi.spyOn(console, 'log').mockImplementation(() => {})
+    const exit = vi.spyOn(process, 'exit').mockImplementation((() => {}) as any)
+
+    await verify([])
+
+    expect(exit).toHaveBeenCalledWith(1)
+    expect(log.mock.calls.flat().join(' ')).toContain('metadata.conditions')
+  })
+
+  it('fails when fallback lists the skill itself (#613)', async () => {
+    skillContent = VALID_SKILL.replace('license: MIT', 'license: MIT\nfallback: the-test')
+    const log = vi.spyOn(console, 'log').mockImplementation(() => {})
+    const exit = vi.spyOn(process, 'exit').mockImplementation((() => {}) as any)
+
+    await verify([])
+
+    expect(exit).toHaveBeenCalledWith(1)
+    expect(log.mock.calls.flat().join(' ')).toContain('fallback lists the skill itself')
+  })
+
+  it('fails when metadata.version is missing (#579)', async () => {
+    skillContent = VALID_SKILL.replace('metadata:\n  version: 1.0.0\n', '')
+    const log = vi.spyOn(console, 'log').mockImplementation(() => {})
+    const exit = vi.spyOn(process, 'exit').mockImplementation((() => {}) as any)
+
+    await verify([])
+
+    expect(exit).toHaveBeenCalledWith(1)
+    expect(log.mock.calls.flat().join(' ')).toContain('metadata.version')
+  })
+
+  it('fails when metadata.version is not semver (#579)', async () => {
+    skillContent = VALID_SKILL.replace('version: 1.0.0', 'version: "1.0"')
+    const log = vi.spyOn(console, 'log').mockImplementation(() => {})
+    const exit = vi.spyOn(process, 'exit').mockImplementation((() => {}) as any)
+
+    await verify([])
+
+    expect(exit).toHaveBeenCalledWith(1)
+    expect(log.mock.calls.flat().join(' ')).toContain('is not semver')
+  })
+
+  it('records metadata.version in the lockfile (#579)', async () => {
+    await verify(['--update-lock'])
+    const written = JSON.parse(vi.mocked(writeFileSync).mock.calls.at(-1)![1] as string)
+    expect(written.members['the-test'].skillVersion).toBe('1.0.0')
+  })
+
   it('fails when the skill violates the agentskills.io name spec', async () => {
     skillContent = VALID_SKILL.replace('name: the-test', 'name: Bad_Name')
     const log = vi.spyOn(console, 'log').mockImplementation(() => {})
@@ -193,6 +334,23 @@ describe('verify command', () => {
     await verify([])
     expect(exit).toHaveBeenCalledWith(1)
     expect(log.mock.calls.flat().join(' ')).toContain('name-format')
+  })
+
+  it('fails when allowed-tools names a tool agenthood does not know (#561)', async () => {
+    skillContent = VALID_SKILL.replace('license: MIT', 'license: MIT\nallowed-tools: file.read Read')
+    const log = vi.spyOn(console, 'log').mockImplementation(() => {})
+    const exit = vi.spyOn(process, 'exit').mockImplementation((() => {}) as any)
+    await verify([])
+    expect(exit).toHaveBeenCalledWith(1)
+    expect(log.mock.calls.flat().join(' ')).toContain('allowed-tools names "Read"')
+  })
+
+  it('accepts allowed-tools written in the skill vocabulary', async () => {
+    skillContent = VALID_SKILL.replace('license: MIT', 'license: MIT\nallowed-tools: file.read code.write ask_human')
+    lockContent = lockWith({ 'the-test': { version: contentHash(skillContent), updatedAt: OLD } })
+    const exit = vi.spyOn(process, 'exit').mockImplementation((() => {}) as any)
+    await verify([])
+    expect(exit).not.toHaveBeenCalledWith(1)
   })
 
   it('--strict fails on injection block patterns, plain verify only warns (#606)', async () => {
@@ -221,7 +379,7 @@ describe('verify command', () => {
     vi.spyOn(process, 'exit').mockImplementation((() => {}) as any)
     await verify([])
     // the members validated are exactly the lockfile's keys, resolved against
-    // the canonical society dir — not every subdirectory of skills/.
+    // the canonical society dir, not every subdirectory of skills/.
     const validated = skillPathsRead().map((p) => p.split(/[\\/]/).at(-2) as string)
     expect(validated).toEqual(['the-test'])
     expect(skillPathsRead()[0]).toContain('skills')

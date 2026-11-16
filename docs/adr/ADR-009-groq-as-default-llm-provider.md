@@ -10,7 +10,7 @@ The v2 TypeScript runtime (ADR-008) requires a default LLM provider. Adopters ru
 The provider must be fast enough for interactive use and reliable enough for CI.
 
 Four providers were evaluated: OpenAI, Anthropic, Google Gemini, and Groq. The key
-constraint is that the default must be free-tier accessible — adopters should not need
+constraint is that the default must be free-tier accessible: adopters should not need
 a billing account to experience the Society's agentic capabilities.
 
 ## Decision
@@ -31,12 +31,12 @@ Adopters can override the provider via `.agenthood/config.json`:
 | OpenAI (`gpt-5.4-mini`) | Most widely known; extensive docs | No free tier; requires billing account | Fails the zero-cost-to-start requirement |
 | Anthropic (`claude-haiku-4-5`) | Best Society alignment; multimodal | No free tier | Same as OpenAI |
 | Google Gemini (`gemini-flash`) | Free tier available; fast | API surface differs from OpenAI; more adapter code | Groq free tier is faster |
-| Groq (chosen) | Free tier; OpenAI-compatible API; fastest inference | Smaller model selection; rate limits on free tier | — |
+| Groq (chosen) | Free tier; OpenAI-compatible API; fastest inference | Smaller model selection; rate limits on free tier | - |
 
 ## Consequences
 
 **Easier:**
-- Zero-friction onboarding — `npx agenthood init` works without a credit card
+- Zero-friction onboarding: `npx agenthood init` works without a credit card
 - `GroqProvider` reuses the OpenAI-compatible SDK path, reducing adapter surface
 - Swapping providers is a one-line config change
 
@@ -50,10 +50,10 @@ Adopters can override the provider via `.agenthood/config.json`:
 
 **Note:** OpenRouter is also supported as an OpenAI-compatible provider
 (`src/llm/providers/OpenRouterProvider.ts`, `api.openrouter.ai/api/v1`), giving access
-to many models behind one key — it does not change this default-provider decision.
+to many models behind one key; it does not change this default-provider decision.
 
 ## References
 
-- [ADR-008](ADR-008-typescript-runtime-over-python.md) — TypeScript runtime this provider ships with
-- [ADR-010](ADR-010-lancedb-for-vector-storage.md) — companion storage decision
+- [ADR-008](ADR-008-typescript-runtime-over-python.md): TypeScript runtime this provider ships with
+- [ADR-010](ADR-010-lancedb-for-vector-storage.md): companion storage decision
 - GitHub issue: [#87](https://github.com/fworks-tech/agenthood/issues/87)

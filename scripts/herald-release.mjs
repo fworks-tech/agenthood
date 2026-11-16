@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-// The Herald — release automation without pushing directly to main.
+// The Herald: release automation without pushing directly to main.
 //
 // Branch rulesets on main forbid direct pushes ("changes must be made through
 // a pull request"), which broke the old semantic-release flow (its @semantic-release/git
@@ -21,12 +21,18 @@
 
 import { execFileSync } from 'node:child_process'
 import { readFileSync, writeFileSync } from 'node:fs'
+import { join } from 'node:path'
 import semver from 'semver'
 import { analyzeCommits } from '@semantic-release/commit-analyzer'
 import { generateNotes } from '@semantic-release/release-notes-generator'
 
 const REPO_URL = 'https://github.com/fworks-tech/agenthood'
 const CHANGELOG_FILE = 'CHANGELOG.md'
+
+// conventional-changelog-angular v8 no longer declares a breaking-header
+// pattern, so `feat!:` parsed as no release at all. The `!` is the marker
+// this repo documents, so declare it here and let the analyzer emit the note.
+export const PARSER_OPTS = { breakingHeaderPattern: /^(\w*)(?:\((.*)\))?!: (.*)$/ }
 
 const logger = {
   // eslint-disable-next-line no-control-regex -- deliberate: strips ANSI colour codes from the release log
@@ -54,7 +60,7 @@ export function latestTag(tags = listVersionTags()) {
 }
 
 // A release is pending when package.json (bumped by the merged release PR)
-// is strictly ahead of the newest git tag — i.e. tagged nothing yet.
+// is strictly ahead of the newest git tag: i.e. tagged nothing yet.
 export function isPending(pkgVersion = readVersion(), tag = latestTag()) {
   if (!tag) return pkgVersion !== '0.0.0'
   return semver.gt(pkgVersion, tag.slice(1))
@@ -81,7 +87,7 @@ export function commitsSince(tag = '') {
 export async function compute(pkgVersion = readVersion()) {
   const prevTag = latestTag()
   const commits = commitsSince(prevTag ?? undefined)
-  const type = await analyzeCommits({}, { commits, logger })
+  const type = await analyzeCommits({ parserOpts: PARSER_OPTS }, { commits, logger })
   if (!type) return { shouldRelease: false, pkgVersion, prevTag }
   return {
     shouldRelease: true,
@@ -97,7 +103,7 @@ export async function compute(pkgVersion = readVersion()) {
 export async function pendingNotes(version = readVersion()) {
   const prevTag = latestTag()
   const commits = commitsSince(prevTag ?? undefined)
-  return generateNotes({}, {
+  return generateNotes({ parserOpts: PARSER_OPTS }, {
     options: { repositoryUrl: `${REPO_URL}.git` },
     lastRelease: { version: prevTag ? prevTag.slice(1) : '', gitTag: prevTag ?? '' },
     nextRelease: { version, gitTag: `v${version}`, type: 'release' },
@@ -125,7 +131,7 @@ export function prependChangelog(computed) {
 export async function applyVersion(version) {
   const prevTag = latestTag()
   const commits = commitsSince(prevTag ?? undefined)
-  const notes = await generateNotes({}, {
+  const notes = await generateNotes({ parserOpts: PARSER_OPTS }, {
     options: { repositoryUrl: `${REPO_URL}.git` },
     lastRelease: { version: prevTag ? prevTag.slice(1) : '', gitTag: prevTag ?? '' },
     nextRelease: { version, gitTag: `v${version}`, type: 'release' },
@@ -136,9 +142,19 @@ export async function applyVersion(version) {
   return { version, prevTag }
 }
 
+// The Claude plugin manifest carries its own copy of the version; keep it in
+// step with package.json so published metadata and the parity test agree.
+export function syncMarketplaceVersion(version, cwd = process.cwd()) {
+  const path = join(cwd, '.claude-plugin', 'marketplace.json')
+  const manifest = JSON.parse(readFileSync(path, 'utf8'))
+  manifest.metadata.version = version
+  writeFileSync(path, `${JSON.stringify(manifest, null, 2)}\n`, 'utf8')
+}
+
 export function applyRelease({ version, notes }, cwd = process.cwd()) {
   const shell = process.platform === 'win32'
   execFileSync('npm', ['version', version, '--no-git-tag-version'], { stdio: 'ignore', shell, cwd })
+  syncMarketplaceVersion(version, cwd)
   prependChangelog({ notes })
   execFileSync('npx', ['tsx', 'scripts/generate-release-notes.ts'], { stdio: 'inherit', shell, cwd })
 }
@@ -151,7 +167,7 @@ async function main([mode = 'compute', ...rest]) {
       const [outArg] = rest
       const pending = isPending()
       if (pending) {
-        console.error('herald: a merged release is awaiting tag+publish — not opening a new release PR')
+        console.error('herald: a merged release is awaiting tag+publish, not opening a new release PR')
         if (outArg) writeFileSync(outArg, '', 'utf8')
         process.exit(0)
       }
@@ -199,7 +215,7 @@ async function main([mode = 'compute', ...rest]) {
 
 if (process.argv[1]?.endsWith('herald-release.mjs')) {
   main(process.argv.slice(2)).catch((err) => {
-    console.error('herald: release automation failed —', err?.message ?? err)
+    console.error('herald: release automation failed:', err?.message ?? err)
     process.exit(1)
   })
 }

@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-# The Auditor — fail on high/critical vulnerabilities in project dependencies
+# The Auditor: fail on high/critical vulnerabilities in project dependencies
 # (npm itself, npm's own bundled deps, and the semantic-release release toolchain
 # are exempt) and on ANY severity in production dependencies (--omit=dev: prod
 # ships with the package, so no open advisory is acceptable there). Fail loudly

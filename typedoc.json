@@ -1,0 +1,25 @@
+{
+  "$schema": "https://typedoc.org/schema.json",
+  "entryPoints": [
+    "src/core/index.ts",
+    "src/llm/index.ts",
+    "src/skills/observability.ts",
+    "src/runtime/ApplicationContext.ts"
+  ],
+  "entryPointStrategy": "expand",
+  "out": "docs/api",
+  "plugin": [],
+  "excludePrivate": true,
+  "excludeInternal": true,
+  "excludeExternals": true,
+  "categorizeByGroup": true,
+  "navigationLinks": {
+    "Architecture": "https://github.com/fworks-tech/agenthood/blob/main/docs/architecture",
+    "Contributing": "https://github.com/fworks-tech/agenthood/blob/main/CONTRIBUTING.md"
+  },
+  "validation": {
+    "notExported": false,
+    "invalidLink": true,
+    "notDocumented": false
+  }
+}

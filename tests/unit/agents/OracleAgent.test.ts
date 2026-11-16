@@ -48,8 +48,6 @@ function mockEnv(): { agent: OracleAgent; context: ExecutionContext } {
       },
     },
     tracer: {
-      startSpan: vi.fn(),
-      endSpan: vi.fn(),
       record: vi.fn(),
       getRecent: vi.fn(() => []),
       getByMember: vi.fn(() => []),

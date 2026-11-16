@@ -1,27 +1,29 @@
 ---
 name: warden
-description: Detects code smell, complexity violations, architectural boundary breaches, dead code, and dependency decay in project code. Runs on every PR diff and on demand for full codebase scans. The chaos does not arrive all at once — The Warden is here for the accumulation. Use on PR diffs and codebase quality scans.
+description: Detects code smell, complexity violations, architectural boundary breaches, dead code, and dependency decay in project code. Runs on every PR diff and on demand for full codebase scans. The chaos does not arrive all at once. The Warden is here for the accumulation. Use on PR diffs and codebase quality scans.
 allowed-tools: file.read file.search code.explain ask_human
 license: MIT
+metadata:
+  version: 1.0.0
 ---
 
 # The Warden
 
 ## Overview
 
-The Warden watches for the conditions that produce bugs before the bugs appear. Code smell
-is not a style preference — it is a leading indicator of where the next defect will live.
-A function with eight parameters will be called wrong. A file with 800 lines will have a
-bug nobody finds because nobody reads it all. A circular dependency will produce an import
-error nobody can explain. The Warden sees these things while they are still cheap to fix.
+Defects rarely appear in code that was obviously wrong. They appear in the function
+with eight parameters, the file nobody reads to the end, the module that imports in
+a circle. The Warden scans for those conditions while they are still cheap to fix,
+on every PR diff and on demand, and reports them ranked by what they will cost
+later.
 
 ## When to Use
 
-- On every PR — scan the diff for new smells introduced by the change
-- Before merging to main — confirm the branch does not worsen the codebase's health score
-- After a large refactor — verify the refactor did not introduce new coupling
-- On demand — full codebase scan to establish or revisit a health baseline
-- When the codebase feels slow or brittle — before attributing it to something else
+- On every PR: scan the diff for new smells introduced by the change
+- Before merging to main: confirm the branch does not worsen the codebase's health score
+- After a large refactor: verify the refactor did not introduce new coupling
+- On demand: full codebase scan to establish or revisit a health baseline
+- When the codebase feels slow or brittle: before attributing it to something else
 
 ## Process
 
@@ -37,7 +39,7 @@ On every PR, scan only the changed files to keep the check fast:
 
 **Report format:**
 ```
-Warden Scan — PR #42 (feat/user-preferences)
+Warden Scan: PR #42 (feat/user-preferences)
 Date: YYYY-MM-DD
 Files scanned: 4
 
@@ -121,7 +123,7 @@ presentation / ui   → may import from application only; never from infrastruct
 Detection steps:
 1. Identify the project's layer structure from directory names and existing imports
 2. For each import in the diff, check if it crosses a boundary inward
-3. Flag: `ui/PreferencesForm.tsx imports from db/queries.ts — UI must not import from infrastructure`
+3. Flag: `ui/PreferencesForm.tsx imports from db/queries.ts; UI must not import from infrastructure`
 
 If the project has a custom architecture, read `docs/architecture/` or equivalent before scanning.
 
@@ -130,26 +132,26 @@ If the project has a custom architecture, read `docs/architecture/` or equivalen
 When running a full scan (`/warden dead-code`):
 
 1. Build an import graph: which files import which exports
-2. Find exports with zero importers — flag as UNUSED EXPORT
-3. Find variables assigned but never read within their scope — flag as DEAD VARIABLE
-4. Find commented-out code blocks (>3 lines) — flag as COMMENTED BLOCK with file:line
-5. Find `TODO` and `FIXME` comments — list with age if determinable from `git log`
+2. Find exports with zero importers: flag as UNUSED EXPORT
+3. Find variables assigned but never read within their scope: flag as DEAD VARIABLE
+4. Find commented-out code blocks (>3 lines): flag as COMMENTED BLOCK with file:line
+5. Find `TODO` and `FIXME` comments: list with age if determinable from `git log`
 
-Do not flag test files for unused exports — test utilities are legitimately not imported elsewhere.
+Do not flag test files for unused exports: test utilities are legitimately not imported elsewhere.
 
 ### Dependency Hygiene
 
 Scan `package.json`, `requirements.txt`, `Pipfile`, `go.mod`, `Cargo.toml`, or equivalent:
 
-**Wildcard versions** — flag any `*`, `latest`, or overly broad range (`^0.x`, `>=1.0.0`)
-**Unused dependencies** — cross-reference declared deps against actual imports in source
-**Duplicate functionality** — flag pairs like `lodash` + `underscore`, `moment` + `dayjs`
-**Deprecated packages** — flag packages marked deprecated on their registry page
-**Dev deps in production** — flag packages in `dependencies` that are only used in tests or scripts
+**Wildcard versions**: flag any `*`, `latest`, or overly broad range (`^0.x`, `>=1.0.0`)
+**Unused dependencies**: cross-reference declared deps against actual imports in source
+**Duplicate functionality**: flag pairs like `lodash` + `underscore`, `moment` + `dayjs`
+**Deprecated packages**: flag packages marked deprecated on their registry page
+**Dev deps in production**: flag packages in `dependencies` that are only used in tests or scripts
 
 ## Red Flags
 
-- A function whose purpose cannot be stated in one sentence — complexity has won
+- A function whose purpose cannot be stated in one sentence: complexity has won
 - A file that is the only place that knows about two unrelated things
 - Any `// TODO: fix this properly` comment older than one sprint
 - A dependency version pinned to `latest` in a production manifest
@@ -173,7 +175,7 @@ The Warden's scan is complete when:
 
 - [ ] All changed files in the diff have been scanned
 - [ ] No BLOCKING violations remain unresolved
-- [ ] All WARNING violations are acknowledged — either fixed or explicitly accepted with justification
+- [ ] All WARNING violations are acknowledged: either fixed or explicitly accepted with justification
 - [ ] No new architectural boundary violations introduced
 - [ ] No dead code added (new unused exports, new commented-out blocks)
 - [ ] Dependency manifest has no new wildcard versions

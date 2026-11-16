@@ -1,5 +1,6 @@
 import type { ILLMProvider } from "../llm/ILLMProvider.ts"
 import type { Message } from "../llm/types.ts"
+import { isReplayableSkillBlock } from "../skills/activation/skillContent.ts"
 
 /**
  * Compresses conversation context when approaching token limits.
@@ -73,6 +74,10 @@ export class ContextCompressor {
     if (compressible.length === 0) {
       return this.ensureValidToolSequence([...system, ...protectedMsgs, ...tail])
     }
+    // Skill instructions survive compaction (#532); everything else was
+    // summarised. Say so once per compression, so a later behaviour change is
+    // traceable to what was kept.
+    console.log(`[context] compaction preserved ${protectedMsgs.length} skill message(s); summarised ${compressible.length} other(s)`)
     const summary = this.summarize(compressible)
     return this.ensureValidToolSequence([
       ...system,
@@ -103,8 +108,10 @@ export class ContextCompressor {
     let j = start + 1
     while (j < body.length && body[j].role === "tool") j++
     const turn = body.slice(start, j)
+    // The tool result is wrapped in <tool_output>, so the marker is searched
+    // for, not required at the start (it never was at the start in a live run).
     const isProtected = turn.some(
-      (t) => t.role === "tool" && typeof t.content === "string" && t.content.startsWith("[SKILL_ACTIVATION]"),
+      (t) => t.role === "tool" && typeof t.content === "string" && isReplayableSkillBlock(t.content),
     )
     return { turn, end: j, isProtected }
   }

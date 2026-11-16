@@ -31,10 +31,6 @@ export class Tracer implements TracerInterface {
     }
   }
 
-  startSpan(_name: string): void {}
-
-  endSpan(_name: string, _data?: Record<string, unknown>): void {}
-
   record(envelope: TraceEnvelope): void {
     const stored = this.redactor ? this.redactor.redact(envelope) : envelope
     this.buffer[this.head] = stored

@@ -11,7 +11,7 @@ export const command: CommandDescriptor = {
 }
 
 // Skills dirs init may have populated for a non-agenthood runtime. Only the
-// member subdirs are removed — foreign user skills are never touched. The
+// member subdirs are removed: foreign user skills are never touched. The
 // 'other' runtime variant (.agenthood/skills) dies with .agenthood itself.
 const RUNTIME_SKILL_DIRS_EXCLUDING_AGENTHOOD = (Object.entries(RUNTIME_SKILL_DIRS) as Array<[string, string]>)
   .filter(([runtime]) => runtime !== 'other')

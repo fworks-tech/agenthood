@@ -1,6 +1,6 @@
 # API Wrappers
 
-> Hardcoding to the OpenAI API is a technical debt time bomb. The Society abstracts the provider.
+> Code that calls one provider's API directly becomes expensive to move later.
 
 ---
 
@@ -14,7 +14,7 @@ The wrapper handles provider-specific SDK logic, authentication, error handling,
 
 ## Why it matters in production
 
-The AI landscape changes weekly. Today's state-of-the-art model is tomorrow's legacy fallback. If your agent's logic is tightly coupled to Anthropic's SDK, migrating to a cheaper, faster local model requires a massive rewrite.
+The AI landscape changes weekly. Today's best model is tomorrow's legacy fallback. If your agent's logic is tightly coupled to Anthropic's SDK, migrating to a cheaper, faster local model requires a massive rewrite.
 
 In production, API Wrappers prevent vendor lock-in. They also provide a central chokepoint to implement critical features like retry logic, telemetry logging, and fallback routing (e.g., if OpenAI goes down, automatically route to Gemini).
 
@@ -52,7 +52,7 @@ const chain = new ProviderChain(
 )
 ```
 
-The Society does not care who generates the tokens, as long as the contract is respected.
+The rest of the system does not need to know which provider generated the tokens, as long as the contract holds.
 
 ---
 
@@ -61,7 +61,7 @@ The Society does not care who generates the tokens, as long as the contract is r
 Because of this abstraction, switching the active provider for an agent is a configuration change, not a code change.
 
 ```bash
-# Switch the runtime provider seamlessly
+# Switch the runtime provider without touching the agent
 npx agenthood run scribe "Write a commit" --provider anthropic
 npx agenthood run scribe "Write a commit" --provider groq
 ```
@@ -78,10 +78,10 @@ const response = await chain.complete({ messages: [...] })
 
 ## Further reading
 
-- [ADR-005 — Orchestrator pattern](../../adr/ADR-005-orchestrator-pattern.md)
-- [`src/llm/ILLMProvider.ts`](../../../src/llm/ILLMProvider.ts) — source implementation
-- [`src/llm/ProviderFailover.ts`](../../../src/llm/ProviderFailover.ts) — failover chain
-- [architecture/provider-failover.md](../../architecture/provider-failover.md) — architecture doc
-- [Martin Fowler: Gateway Pattern](https://martinfowler.com/articles/gateway-pattern.html) — the architectural basis for API wrappers
+- [ADR-005: Orchestrator pattern](../../adr/ADR-005-orchestrator-pattern.md)
+- [`src/llm/ILLMProvider.ts`](../../../src/llm/ILLMProvider.ts): source implementation
+- [`src/llm/ProviderFailover.ts`](../../../src/llm/ProviderFailover.ts): failover chain
+- [architecture/provider-failover.md](../../architecture/provider-failover.md): architecture doc
+- [Martin Fowler: Gateway Pattern](https://martinfowler.com/articles/gateway-pattern.html): the architectural basis for API wrappers
 
 

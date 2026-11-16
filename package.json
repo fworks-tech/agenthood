@@ -1,7 +1,7 @@
 {
   "name": "agenthood",
   "version": "3.78.0",
-  "description": "A full AI engineering team that earns every merge. 20 specialized agents for the whole software lifecycle — as portable Markdown skill files, an autonomous TypeScript runtime, and a browser Studio — with a tamper-evident audit trail for every decision.",
+  "description": "A full AI engineering team that earns every merge. 20 specialized agents for the whole software lifecycle (as portable Markdown skill files, an autonomous TypeScript runtime, and a browser Studio) with a tamper-evident audit trail for every decision.",
   "keywords": [
     "ai-agents",
     "ai-agent-framework",
@@ -84,8 +84,11 @@
     "test:staged": "node scripts/test-changed.mjs --staged",
     "test:unstaged": "node scripts/test-changed.mjs",
     "lint": "eslint src/ tests/ scripts/",
+    "lint:prose": "node scripts/check-prose.mjs",
     "typecheck": "tsc -p tsconfig.typecheck.json",
-    "sync:opencode-catalog": "tsx scripts/sync-opencode-catalog.ts"
+    "docs:api": "typedoc",
+    "sync:opencode-catalog": "tsx scripts/sync-opencode-catalog.ts",
+    "bench:skills": "tsx scripts/bench-skill-discovery.ts"
   },
   "devDependencies": {
     "@commitlint/cli": "^21.2.2",
@@ -102,6 +105,7 @@
     "marked": "^18.0.12",
     "semantic-release": "^25.0.5",
     "tsx": "^4.19.0",
+    "typedoc": "^0.28.20",
     "typescript": "^5.8.0",
     "typescript-eslint": "^8.0.0",
     "vitest": "^5.0.3"

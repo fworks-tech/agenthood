@@ -1,6 +1,6 @@
 ---
 name: redis
-description: Use when interacting with Redis — caching strategies, pub/sub, rate limiting, session storage, queue management, and debugging key expiration. Use ONLY when the task involves Redis specifically, not general caching.
+description: Use when interacting with Redis; caching strategies, pub/sub, rate limiting, session storage, queue management, and debugging key expiration. Use ONLY when the task involves Redis specifically, not general caching.
 license: MIT
 ---
 
@@ -42,7 +42,7 @@ Redis is the Society's caching and real-time specialist. It handles caching stra
 
 1. Use `SUBSCRIBE channel` for consumers
 2. Use `PUBLISH channel message` for producers
-3. Messages are fire-and-forget — no persistence
+3. Messages are fire-and-forget: no persistence
 4. For persistent messaging, use Redis Streams instead
 5. Use pattern subscribe for topic routing: `PSUBSCRIBE pattern`
 

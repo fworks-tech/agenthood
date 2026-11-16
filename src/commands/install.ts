@@ -13,6 +13,8 @@ import { resolveSkillsDir, SKILLS_LOCKFILE } from '../members.ts'
 import { loadSkillsLockfile, saveSkillsLockfile } from './skillsLock.ts'
 import { SkillParser, SPEC_NAME_RE } from '../skills/discovery/SkillParser.ts'
 import { resolveSkillFile } from '../skills/discovery/skillFile.ts'
+import { isSkillReference, parseSkillRef, formatSkillRef } from '../skills/namespace.ts'
+import { SkillRegistryClient } from '../skills/registry/SkillRegistryClient.ts'
 import { validateRemoteUrl, fetchRemoteText, GIT_TIMEOUT_MS } from '../skills/discovery/RemoteSkillSource.ts'
 import { assertFrozenInstall, reportFrozenFailure } from '../skills/frozen.ts'
 import { contentHash } from '../utils/hash.ts'
@@ -33,7 +35,7 @@ function toGitUrl(url: string): string {
 
 function toHttpsProbe(url: string): string {
   // git@host:path carries the same host as an https URL, in a scheme
-  // validateRemoteUrl accepts — validate the probe, clone the original.
+  // validateRemoteUrl accepts: validate the probe, clone the original.
   if (url.startsWith('git@')) {
     return url.replace(/^git@([^:/]+)[:/]/, 'https://$1/')
   }
@@ -76,11 +78,23 @@ function findSkillMd(dir: string): string | null {
 
 export const command: CommandDescriptor = {
   name: 'install',
-  description: 'Install a skill from a URL or git repository',
+  description: 'Install a skill from a URL, git repository or registry reference',
   handler: (args) => install(args),
 }
 
 async function fetchSkillSource(source: string, tmpDir: string): Promise<string> {
+  if (isSkillReference(source)) {
+    const ref = formatSkillRef(parseSkillRef(source))
+    let content: string
+    try {
+      content = await new SkillRegistryClient().download(ref)
+    } catch (err) {
+      throw new Error(`registry download failed for ${ref}: ${(err as Error)?.message ?? err}`, { cause: err })
+    }
+    mkdirSync(tmpDir, { recursive: true })
+    writeFileSync(join(tmpDir, 'SKILL.md'), content)
+    return join(tmpDir, 'SKILL.md')
+  }
   const isGit = isGitUrl(source) || isGithubUrl(source)
   if (isGit) {
     cloneRepo(toGitUrl(source), join(tmpDir, 'repo'))
@@ -99,8 +113,8 @@ function resolveSkillName(skillMdPath: string): string {
   if (!frontmatter || !frontmatter.name) throw new Error('SKILL.md must have a "name" field in frontmatter')
   const name = String(frontmatter.name)
   // A hostile frontmatter name like ../../foo would write outside the
-  // skills dir (path traversal) — accept only spec-shaped names.
-  if (!SPEC_NAME_RE.test(name)) throw new Error(`Invalid skill name "${name}" — must match ${SPEC_NAME_RE}`)
+  // skills dir (path traversal): accept only spec-shaped names.
+  if (!SPEC_NAME_RE.test(name)) throw new Error(`Invalid skill name "${name}", must match ${SPEC_NAME_RE}`)
   return name
 }
 
@@ -130,8 +144,9 @@ export async function install(args: string[]): Promise<void> {
   const frozen = args.includes('--frozen')
   const source = args.filter((a) => !a.startsWith('--'))[0]
   if (!source) {
-    console.error('\nUsage: agenthood install <url-or-git-repo> [--dry-run] [--frozen]\n')
+    console.error('\nUsage: agenthood install <url-or-git-repo-or-owner/name> [--dry-run] [--frozen]\n')
     console.error('Examples:')
+    console.error('  agenthood install @fworks-tech/reviewer')
     console.error('  agenthood install https://github.com/user/repo')
     console.error('  agenthood install https://example.com/skill/SKILL.md')
     console.error('  agenthood install git@github.com:user/repo.git')
@@ -152,18 +167,26 @@ export async function install(args: string[]): Promise<void> {
   try {
     const skillMdPath = await fetchSkillSource(source, tmpDir)
     const name = resolveSkillName(skillMdPath)
+    if (isSkillReference(source)) {
+      const ref = parseSkillRef(source)
+      // A registry entry that returns a different skill than the one asked for
+      // would install under the wrong name: refuse rather than guess.
+      if (ref.name !== name) {
+        throw new Error(`registry returned "${name}" for ${formatSkillRef(ref)}`)
+      }
+    }
     const destDir = join(skillsDir, name)
 
     if (frozen) {
       // --frozen means the lockfile is the source of truth. It must describe the
-      // skill on disk, and the requested skill must already be in it — otherwise
+      // skill on disk, and the requested skill must already be in it: otherwise
       // this install would rewrite skills-lock.json.
       const report = assertFrozenInstall(cwd, source, name, contentHash(readFileSync(skillMdPath, 'utf-8')))
       if (!report.ok) reportFrozenFailure(report)
     }
 
     if (dryRun) {
-      console.log(`\n  Dry run — would install "${name}" from ${source}`)
+      console.log(`\n  Dry run, would install "${name}" from ${source}`)
       console.log(`  Destination: ${destDir}\n`)
       return
     }
@@ -174,7 +197,7 @@ export async function install(args: string[]): Promise<void> {
       console.log(`  ✓ ${name} installed to ${join(skillsDir, name)}`)
       console.log(`  ✓ Locked in ${SKILLS_LOCKFILE}\n`)
     } else {
-      console.log(`  ✓ Frozen verified — ${name} matches lockfile\n`)
+      console.log(`  ✓ Frozen verified, ${name} matches lockfile\n`)
     }
   } catch (err) {
     console.error(`  ✗ Install failed: ${(err as Error)?.message ?? err}`)

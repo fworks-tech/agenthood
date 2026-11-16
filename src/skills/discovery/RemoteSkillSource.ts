@@ -1,4 +1,4 @@
-import { existsSync, readFileSync, mkdirSync, readdirSync, rmSync, writeFileSync } from 'node:fs'
+import { existsSync, readFileSync, mkdirSync, mkdtempSync, readdirSync, rmSync, writeFileSync } from 'node:fs'
 import { join, relative } from 'node:path'
 import { execFileSync } from 'node:child_process'
 import type { ISkillManifest } from '../discovery/ISkillManifest.ts'
@@ -25,10 +25,10 @@ const HTTP_TIMEOUT_MS = 30_000
 const MAX_REMOTE_BODY_BYTES = 1_048_576
 
 /**
- * Only https to public hostname resolvers — blocks http, file (local read),
+ * Only https to public hostname resolvers: blocks http, file (local read),
  * credentials in URL, localhost, IPv6 literals, and IPv4 literals in
  * private/reserved ranges (SSRF).
- * ponytail: DNS rebinding between validate() and fetch is not closed — host
+ * ponytail: DNS rebinding between validate() and fetch is not closed: host
  * pinning via resolve4 + SNI check if a hosted multi-tenant service ever
  * exposes discoverRemote to user input.
  */
@@ -57,7 +57,7 @@ function throwIfPrivateIPv4(host: string, raw: string): void {
   // WHATWG URL canonicalizes every IPv4 encoding (decimal 2130706433,
   // shorthand 127.1, hex 0x7f000001, octal 0177.0.0.1) to a dotted quad
   // before we get here, so the range check below sees the final form.
-  // Not an IPv4 literal — hostnames pass through; malformed literals like
+  // Not an IPv4 literal: hostnames pass through; malformed literals like
   // 10.0.0.999 or 999.1.1.1 also pass, but they parse to nothing dangerous
   // (no resolvable private range) and fail fetch naturally.
   if (parts.length !== 4 || parts.some((p) => !/^\d+$/.test(p))) return
@@ -127,7 +127,9 @@ export class RemoteSkillFetcher {
 
   private fetchFromGit(raw: string, path?: string): string | undefined {
     const url = validateRemoteUrl(raw)
-    const tmpDir = join(this.cacheDir, '.git-tmp')
+    // A fixed name races a second process (init plus run): one clone deletes
+    // the directory under the other.
+    const tmpDir = mkdtempSync(join(this.cacheDir, 'git-'))
     try {
       // GIT_TERMINAL_PROMPT=0 and empty credential.helper keep the clone from
       // hanging on auth prompts or popping credential dialogs on a hostile host.
@@ -192,21 +194,27 @@ export class RemoteSkillFetcher {
  * Fetch a text body from a validated https URL with per-hop SSRF re-validation
  * on redirects, a hard timeout, and a size cap. Shared by remote skill
  * discovery and `agenthood install`.
+ *
+ * `headers` (e.g. a catalog bearer token) are sent only to the original origin,
+ * a redirect to another host must not receive the credential.
  */
-export async function fetchRemoteText(raw: string): Promise<string | undefined> {
-  // redirect:'manual' — every hop is re-validated, so a public host cannot
+export async function fetchRemoteText(raw: string, headers?: Record<string, string>): Promise<string | undefined> {
+  // redirect:'manual': every hop is re-validated, so a public host cannot
   // bounce the request to an internal address.
   let href = validateRemoteUrl(raw)
+  const origin = new URL(href).origin
   for (let hops = 0; hops < REDIRECT_LIMIT; hops++) {
+    const hopHeaders = headers && new URL(href).origin === origin ? headers : undefined
     const response = await fetch(href, {
       redirect: 'manual',
+      headers: hopHeaders,
       signal: AbortSignal.timeout(HTTP_TIMEOUT_MS),
     })
     if (response.ok) {
       const length = Number(response.headers.get('content-length') ?? '0')
       if (length > MAX_REMOTE_BODY_BYTES) return undefined
       const text = await response.text()
-      // A missing content-length header skips the header check above —
+      // A missing content-length header skips the header check above,
       // the decoded body is the enforceable boundary, never trust the header alone.
       if (text.length > MAX_REMOTE_BODY_BYTES) return undefined
       return text

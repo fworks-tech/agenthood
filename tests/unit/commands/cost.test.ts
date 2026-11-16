@@ -1,5 +1,5 @@
 import { describe, it, expect, beforeEach, afterEach } from 'vitest'
-import { mkdirSync, writeFileSync, rmSync } from 'node:fs'
+import { mkdirSync, readdirSync, writeFileSync, rmSync } from 'node:fs'
 import { join } from 'node:path'
 import { tmpdir } from 'node:os'
 
@@ -60,6 +60,31 @@ describe('cost command', () => {
     const costs = readCosts(testDir)
     expect(costs.length).toBe(4)
     expect(costs[3].member).toBe('doorman')
+  })
+
+  it('skips a line torn by a crash instead of throwing', () => {
+    writeFileSync(
+      join(testDir, '.agenthood', 'costs.jsonl'),
+      `${JSON.stringify(mockCosts[0])}\n{"timestamp":"2026-01-17T10:00:00Z","member":"do`,
+    )
+    expect(readCosts(testDir)).toHaveLength(1)
+  })
+
+  it('rotates the log at the size cap and still reads the older file', () => {
+    writeFileSync(join(testDir, '.agenthood', 'costs.jsonl'), 'x'.repeat(8 * 1024 * 1024))
+    const entry = {
+      timestamp: '2026-01-18T10:00:00Z',
+      member: 'scribe',
+      model: 'gpt-4o-mini',
+      provider: 'openai',
+      promptTokens: 1,
+      completionTokens: 1,
+      totalTokens: 2,
+      costUsd: 0.0001,
+    }
+    logCost(entry, testDir)
+    expect(readdirSync(join(testDir, '.agenthood')).some((f) => /^costs\.\d+\.jsonl$/.test(f))).toBe(true)
+    expect(readCosts(testDir)).toContainEqual(entry)
   })
 
   it('logCost creates directory if missing', () => {

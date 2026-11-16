@@ -8,10 +8,10 @@
 
 The Agenthood maintains a core tool registry. Every tool is:
 
-- **Named** — a clear, single-purpose identifier
-- **Scoped** — available only to members whose role requires it
-- **Capped** — subject to per-session usage limits
-- **Logged** — every invocation recorded for audit
+- **Named**: a clear, single-purpose identifier
+- **Scoped**: available only to members whose role requires it
+- **Capped**: subject to per-session usage limits
+- **Logged**: every invocation recorded for audit
 
 No member has access to every tool. A member that needs a tool outside its scope
 must escalate to the Orchestrator, which routes to the appropriate member.
@@ -25,7 +25,7 @@ must escalate to the Orchestrator, which routes to the appropriate member.
 > This table mirrors them. Members with the **standard** profile (9): Scribe, Architect,
 > Builder, Tester, Debugger, Herald, Librarian, Mailman, Inspector.
 > Members with the **restricted** profile (10): Reviewer, Auditor, Doorman, Oracle, Envoy,
-> Sentinel, Warden, Strategist, Steward, Operator. The **trusted** profile is reserved —
+> Sentinel, Warden, Strategist, Steward, Operator. The **trusted** profile is reserved;
 > no member currently holds it.
 
 ### File Operations
@@ -43,6 +43,21 @@ must escalate to the Orchestrator, which routes to the appropriate member.
 | `code.explain` | Explain a code region | All members |
 | `code.write` | Write code changes | Standard profile (9 members) |
 | `code.refactor` | Refactor code | Standard profile (9 members) |
+
+### Skill Execution
+
+| Tool | Description | Scope |
+|------|-------------|-------|
+| `run_skill_script` | Run a script bundled with an **active** skill, or a version-pinned one-off command (`uvx ruff@0.8.0 check .`) | All members, only for skills activated in the run |
+
+`run_skill_script` is the only path that spawns a skill script (ADR-036). It resolves
+the script inside the active skill's directory, picks the runtime from the extension
+then the shebang (PEP 723 → `uv run`, `npm:` imports → `deno run`, else `python`/`node`/`bash`),
+runs with stdin closed and a timeout, caps inline output at 30 KB with a per-run log
+for the rest, and appends one row to `.agenthood/skill-exec-audit.ndjson`. Community
+and experimental skills require `--sandbox` (Docker, network denied, skill directory
+mounted read-only); on a host without Docker the run fails closed rather than
+degrading to an unsandboxed one.
 
 ### PR Sync
 
@@ -67,9 +82,9 @@ Every tool invocation counts against session limits enforced by the `SafetyGuard
 | Total stream events | 2,000 | 10,000 |
 | Total tool invocations | 400 | 2,000 |
 | Session runtime | 10 minutes | 60 minutes |
-| File edits per file | 8 | — |
-| Terminal commands | 10 | — |
-| Web searches | 8 | — |
+| File edits per file | 8 | - |
+| Terminal commands | 10 | - |
+| Web searches | 8 | - |
 
 When a cap is reached:
 1. The member is notified with remaining budget
@@ -93,7 +108,7 @@ alerts the member and requires it to justify continued editing or stop.
 **Profile membership (canonical in `member-specs.ts`):**
 - **Standard (9):** Scribe, Architect, Builder, Tester, Debugger, Herald, Librarian, Mailman, Inspector
 - **Restricted (10):** Reviewer, Auditor, Doorman, Oracle, Envoy, Sentinel, Warden, Strategist, Steward, Operator
-- **Trusted (0):** reserved — no member currently holds it
+- **Trusted (0):** reserved: no member currently holds it
 
 **Catastrophic commands are blocked universally:**
 recursive-force `rm` against `/`, `~`, or `$HOME` (flag-order and
@@ -102,7 +117,7 @@ recursive-force `rm` against `/`, `~`, or `$HOME` (flag-order and
 `TRUNCATE TABLE`, `git push --force` to `main`/`master`, and fork bombs.
 
 **Scope and limitations:** the guard inspects the command *string*, not its
-filesystem effect. It cannot catch every evasion — indirection through env
+filesystem effect. It cannot catch every evasion: indirection through env
 vars or aliases, split binaries, or destructive scripts invoked by name.
 It is a speed bump, not a sandbox. For hard isolation of untrusted skills use
 the `--sandbox` container path (#665).
@@ -122,7 +137,7 @@ The audit log is stored in `.agenthood/audit.log` and rotated at 1,000 entries.
 The Auditor can query it. The human can always read it.
 
 Beyond tool invocations, the runtime records a decision and provenance entry
-per member run — the tamper-evident audit trail in `.agenthood/decisions/` and
+per member run: the tamper-evident audit trail in `.agenthood/decisions/` and
 `.agenthood/provenance/` (SHA-256 hash chain, see
 [decision-intelligence.md](decision-intelligence.md)). `verifyChain()` proves
 the trail has not been modified or truncated.

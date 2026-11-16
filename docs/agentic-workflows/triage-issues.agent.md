@@ -1,5 +1,5 @@
 ---
-description: Automatically triages new GitHub issues — applies labels, assigns to milestone, asks clarifying questions if needed, and links related issues.
+description: Automatically triages new GitHub issues; applies labels, assigns to milestone, asks clarifying questions if needed, and links related issues.
 type: manual-template
 usage: Copy the steps below into a Claude Code (or compatible) session when a new issue needs triage. Paste the issue URL or body as context before running the prompt.
 on:
@@ -42,7 +42,7 @@ When a new issue is opened, perform the following triage steps.
 5. **Apply labels** from the above classifications
 
 6. **Search for related issues** using keywords from the title
-   - If related issues found, add a comment: *"Related to #{N} — [title]"*
+   - If related issues found, add a comment: *"Related to #{N}: [title]"*
 
 7. **Ask clarifying questions** if the issue is missing:
    - Steps to reproduce (for bugs)
@@ -50,7 +50,7 @@ When a new issue is opened, perform the following triage steps.
    - Use case or motivation (for features)
    - Environment details if relevant
 
-   Post as a single comment with all questions at once — not multiple comments.
+   Post as a single comment with all questions at once, not multiple comments.
 
 8. **Assign to milestone** if the issue clearly belongs to an active milestone
 
@@ -68,10 +68,10 @@ To help us address this effectively, could you provide:
 
 The more detail you can share, the faster we can help.
 
-*— The Doorman, Agenthood*
+*The Doorman, Agenthood*
 ```
 
 ## Notes
-- Never close an issue during triage — only label and comment
+- Never close an issue during triage: only label and comment
 - If the issue is clearly a duplicate, add `duplicate` label and link to the original
 - This workflow runs with read-only permissions; labels and comments are safe outputs

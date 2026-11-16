@@ -90,7 +90,7 @@ export class Retriever {
               .join(" | ")
           }
         } catch {
-          // node not in KGS — no graph context available
+          // node not in KGS: no graph context available
         }
       }
 

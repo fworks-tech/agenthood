@@ -9,8 +9,8 @@ import { ApplicationContext } from '../runtime/ApplicationContext.ts'
 import { loadConfigOrExit } from './config.ts'
 
 function printReplaySummary(report: ReplayReport): void {
-  console.log(`\n  Replay Report — ${report.members.join(', ') || 'unknown member'}`)
-  console.log(`  Traces: ${report.replayCount} | Skipped: ${report.skippedCount} | Errors: ${report.errorCount} | Avg similarity: ${report.averageSimilarity ?? '—'}`)
+  console.log(`\n  Replay Report, ${report.members.join(', ') || 'unknown member'}`)
+  console.log(`  Traces: ${report.replayCount} | Skipped: ${report.skippedCount} | Errors: ${report.errorCount} | Avg similarity: ${report.averageSimilarity ?? '-'}`)
   console.log(`  Report saved: .agenthood/evals/replay-report.json\n`)
 }
 

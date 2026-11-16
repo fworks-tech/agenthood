@@ -70,7 +70,7 @@ describe("OpenCodeProvider stream error mapping", () => {
   });
 
   // These map the chat-completions (OpenAI SDK) path's error classification.
-  // Pin a chat-protocol model — the package default is a /v1/messages model,
+  // Pin a chat-protocol model: the package default is a /v1/messages model,
   // which would route around the mocked OpenAI client entirely.
   function chatProvider() {
     const provider = new OpenCodeProvider({ apiKey: "key" });

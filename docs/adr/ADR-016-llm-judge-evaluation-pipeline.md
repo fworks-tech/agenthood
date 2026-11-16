@@ -6,14 +6,14 @@
 ## Context
 
 The M8 Observability milestone needed an evaluation engine (issues #310, #311,
-#308, #298, #314) so the Society could measure — not just observe — member
+#308, #298, #314) so the Society could measure, not just observe, member
 output quality. Three constraints shaped the design:
 
 1. Providers expose no structured JSON mode, so judge outputs must be parsed
    from plain text.
 2. LLM judge calls cost tokens, so the fourth metric should avoid them.
 3. Trace replay (#314) needs the raw input/output persisted, which conflicts
-   with redaction (#305) — persisted payloads must stay re-runnable.
+   with redaction (#305): persisted payloads must stay re-runnable.
 
 ## Decision
 
@@ -27,7 +27,7 @@ replay support:
   (faithfulness, relevance, context_recall) are scored by an LLM-as-judge
   prompt that asks for a bare number between 0 and 1; the reply is parsed with
   a tolerant float extractor and clamped. `answer_correctness` uses embedding
-  cosine similarity — no extra LLM call.
+  cosine similarity: no extra LLM call.
 - **BaselineComparator** (`src/evals/BaselineComparator.ts`) persists per-member
   aggregate baselines at `.agenthood/baselines/<member>.json` and flags metrics
   whose aggregate drops beyond a threshold (default 0.1); the eval CLI
@@ -45,8 +45,8 @@ replay support:
 |--------|---------------|-------------|
 | JSON-mode judge output | Structured parsing, no regex | Providers have no JSON mode; would need a provider-specific shim |
 | LLM score for answer_correctness | Uniform metric implementation | Doubles judge cost per task; cosine is deterministic and free |
-| Batch baseline from the evaluated window itself | No extra state | Judging a run against the mean of its own batch is circular — a poor run drags the baseline down with it. Baselines are instead persisted from prior runs to `.agenthood/baselines/<member>.json` and compared against on the next run |
-| Redact with varying-length substitutes | Stronger privacy | Breaks replay reproducibility (#314) — replay input would change between runs |
+| Batch baseline from the evaluated window itself | No extra state | Judging a run against the mean of its own batch is circular: a poor run drags the baseline down with it. Baselines are instead persisted from prior runs to `.agenthood/baselines/<member>.json` and compared against on the next run |
+| Redact with varying-length substitutes | Stronger privacy | Breaks replay reproducibility (#314): replay input would change between runs |
 | Replay without persisted raw text | Avoids PII surface | Impossible: envelopes stored only hashes (#314 acceptance requires re-running the same inputs) |
 
 ## Consequences
@@ -55,7 +55,7 @@ replay support:
 gate); the judge is injectable so tests run without an LLM; replay surfaces
 behavior drift; redaction and replay coexist through deterministic placeholders.
 
-**Negative:** judge scores are heuristic — a model reply with no parseable
+**Negative:** judge scores are heuristic: a model reply with no parseable
 number marks the task unevaluated; embedding quality bounds
 `answer_correctness`; replay operates on redacted inputs, so drift detection
 ignores differences in redacted content.
@@ -66,5 +66,5 @@ ignores differences in redacted content.
 ## References
 
 - Issue #310 (EvalRunner), #311 (BaselineComparator), #308 (fixtures), #298 (eval CLI), #314 (ReplayEvaluator), #305 (redaction)
-- ADR-014 (EvalResult in core types) — the contract EvalRunner feeds
-- RAGAS — the four-metric framework the suite derives from
+- ADR-014 (EvalResult in core types): the contract EvalRunner feeds
+- RAGAS: the four-metric framework the suite derives from

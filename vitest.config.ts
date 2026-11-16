@@ -3,15 +3,15 @@ import { defineConfig, configDefaults } from 'vitest/config'
 export default defineConfig({
   test: {
     // vscode-extension tests run inside a real VS Code instance via
-    // @vscode/test-cli (cd vscode-extension && npm test) — they cannot run
+    // @vscode/test-cli (cd vscode-extension && npm test); they cannot run
     // under vitest because 'vscode' only resolves in the extension host.
     // Keeping the default excludes (node_modules, dist, …) is important:
     // a CLI --exclude flag would replace them entirely.
     exclude: [...configDefaults.exclude, 'vscode-extension/**'],
     // Vitest's 5s default is too tight for this suite. Several tests spawn the
     // built CLI or a real HTTP server as a subprocess, and under the default
-    // parallel worker pool — especially on a cold FS cache right after
-    // `npm ci` — they intermittently exceed 5s and fail as "Test timed out in
+    // parallel worker pool: especially on a cold FS cache right after
+    // `npm ci`: they intermittently exceed 5s and fail as "Test timed out in
     // 5000ms" with no assertion failure. Same class of flake as the
     // command-registry timeouts on CI (#465). Raising it globally fixes the
     // class; per-test overrides only ever chase the next one to surface.
@@ -20,7 +20,7 @@ export default defineConfig({
     hookTimeout: 30000,
     coverage: {
       provider: 'v8',
-      // Gate the shipped source only — tests, scripts and CI tooling are not the
+      // Gate the shipped source only: tests, scripts and CI tooling are not the
       // coverage target. `all: true` (default) keeps untouched src files (e.g.
       // cli.ts) counted at 0%, so the floor reflects real shipped coverage.
       include: ['src/**/*.ts'],

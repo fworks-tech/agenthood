@@ -1,6 +1,6 @@
 import { join } from 'node:path'
 import { readFile } from 'node:fs/promises'
-import type { LLMConfig, ProviderEntry } from '../llm/types.ts'
+import type { CatalogFormatName, LLMConfig, ProviderEntry, RemoteCatalogSource, RemoteCatalogsConfig, SkillsConfig } from '../llm/types.ts'
 
 function pickBlock(raw: Record<string, unknown>, key: string): Record<string, unknown> | undefined {
   const block = raw[key]
@@ -49,10 +49,79 @@ function parseFailover(raw: Record<string, unknown>): Pick<LLMConfig, 'failureTh
   }
 }
 
-function parseSkills(raw: Record<string, unknown>): { autoDiscover?: boolean } | undefined {
+/**
+ * Remote catalogs are advisory, so a malformed source is skipped with a warning
+ * instead of failing the run: unlike metricsExport, where a silently disabled
+ * exporter is a monitoring lie.
+ */
+function parseRemoteCatalogs(raw: Record<string, unknown>): RemoteCatalogsConfig | undefined {
+  const block = pickBlock(raw, 'remoteCatalogs')
+  if (!block) return undefined
+  const config: RemoteCatalogsConfig = {}
+  if (typeof block.ttlSeconds === 'number' && block.ttlSeconds > 0) config.ttlSeconds = block.ttlSeconds
+  if (Array.isArray(block.sources)) {
+    const sources: RemoteCatalogSource[] = []
+    for (const entry of block.sources) {
+      if (!entry || typeof entry !== 'object') continue
+      const item = entry as Record<string, unknown>
+      if (typeof item.url !== 'string' || item.url.length === 0) {
+        console.warn('[config] remoteCatalogs.sources entry without a "url", skipped')
+        continue
+      }
+      sources.push({
+        url: item.url,
+        ...(typeof item.tokenEnv === 'string' && item.tokenEnv.length > 0 ? { tokenEnv: item.tokenEnv } : {}),
+      })
+    }
+    if (sources.length > 0) config.sources = sources
+  }
+  return config
+}
+
+function parseSkills(raw: Record<string, unknown>): SkillsConfig | undefined {
   const skills = pickBlock(raw, 'skills')
   if (!skills) return undefined
-  return { autoDiscover: skills.autoDiscover === true }
+  const config: SkillsConfig = {}
+
+  const format = skills.catalogFormat
+  if (format === 'xml' || format === 'json' || format === 'text') {
+    config.catalogFormat = format
+  } else if (format !== undefined) {
+    console.warn(`[run] skills.catalogFormat "${String(format)}" is not xml|json|text: using the provider default`)
+  }
+
+  const providerFormats = pickBlock(skills, 'providerFormats')
+  if (providerFormats) {
+    const table: Record<string, CatalogFormatName> = {}
+    for (const [provider, value] of Object.entries(providerFormats)) {
+      if (value === 'xml' || value === 'json' || value === 'text') table[provider] = value
+    }
+    if (Object.keys(table).length > 0) config.providerFormats = table
+  }
+
+  if (Array.isArray(skills.disabled)) {
+    const disabled = skills.disabled.filter((name): name is string => typeof name === 'string')
+    if (disabled.length > 0) config.disabled = disabled
+  }
+
+  if (skills.fallback === false) config.fallback = false
+
+  const timeout = skills.scriptTimeoutMs
+  if (typeof timeout === 'number' && Number.isInteger(timeout) && timeout > 0) {
+    config.scriptTimeoutMs = timeout
+  } else if (timeout !== undefined) {
+    console.warn(`[run] skills.scriptTimeoutMs "${String(timeout)}" is not a positive integer: using the default`)
+  }
+
+  const cacheTtl = skills.cacheTtlMs
+  if (typeof cacheTtl === 'number' && Number.isInteger(cacheTtl) && cacheTtl > 0) {
+    config.cacheTtlMs = cacheTtl
+  } else if (cacheTtl !== undefined) {
+    console.warn(`[run] skills.cacheTtlMs "${String(cacheTtl)}" is not a positive integer: using the default`)
+  }
+  if (skills.cacheOutputs === true) config.cacheOutputs = true
+
+  return config
 }
 
 function parseSentry(raw: Record<string, unknown>): { dsn?: string } | undefined {
@@ -60,18 +129,25 @@ function parseSentry(raw: Record<string, unknown>): { dsn?: string } | undefined
   if (!sentry) return undefined
   const dsn = sentry.dsn
   if (typeof dsn !== 'string' || dsn.length === 0 || !dsn.startsWith('http')) {
-    console.warn('[run] invalid sentry.dsn in config — Sentry error reporting disabled')
+    console.warn('[run] invalid sentry.dsn in config, Sentry error reporting disabled')
     return undefined
   }
   return { dsn }
 }
 
-function parseSecurity(raw: Record<string, unknown>): { strictSkillIntegrity?: boolean; sandbox?: boolean } | undefined {
+function parseSecurity(
+  raw: Record<string, unknown>,
+): { strictSkillIntegrity?: boolean; sandbox?: boolean; autoAllowSkillDirs?: boolean; trustedAuthors?: string[] } | undefined {
   const security = pickBlock(raw, 'security')
   if (!security) return undefined
+  const trustedAuthors = Array.isArray(security.trustedAuthors)
+    ? security.trustedAuthors.filter((author): author is string => typeof author === 'string')
+    : undefined
   return {
     strictSkillIntegrity: security.strictSkillIntegrity === true,
     sandbox: security.sandbox === true,
+    ...(security.autoAllowSkillDirs === false ? { autoAllowSkillDirs: false } : {}),
+    ...(trustedAuthors && trustedAuthors.length > 0 ? { trustedAuthors } : {}),
   }
 }
 
@@ -97,6 +173,8 @@ export async function loadConfig(providerOverride?: string): Promise<LLMConfig> 
   if (providers) cfg.providers = providers
   const skills = parseSkills(raw)
   if (skills) cfg.skills = skills
+  const remoteCatalogs = parseRemoteCatalogs(raw)
+  if (remoteCatalogs) cfg.remoteCatalogs = remoteCatalogs
   const sentry = parseSentry(raw)
   if (sentry) cfg.sentry = sentry
   const security = parseSecurity(raw)

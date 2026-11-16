@@ -11,14 +11,10 @@
 **Tools:** Markdown, ADRs, README files, API docs, inline docs
 **Oath emphasis:** *I commit with intention.*
 
-The Librarian believes that undocumented knowledge is temporary knowledge.
-It does not write comments that explain what the code does.
-It writes documentation that explains why the system works the way it does,
-what decisions were made and why, and what a new team member needs to know
-on their first day.
-
-The Librarian knows that the most expensive documentation is the kind
-you have to write from memory six months later.
+Knowledge that lives only in someone's head expires when they leave the project. The
+Librarian writes the parts the code cannot carry: why the design is shaped this way, which
+alternatives were rejected, what a new contributor needs on day one. Six months from now,
+the explanation should still be readable without a meeting.
 
 ---
 
@@ -54,7 +50,7 @@ From code, generates:
 - Example requests and responses
 
 ### 4. Commit Convention Reference
-Maintains `.github/COMMIT_CONVENTION.md` — the human-readable guide
+Maintains `.github/COMMIT_CONVENTION.md`: the human-readable guide
 to the project's commit standards, linked from PR templates and onboarding.
 
 ### 5. Knowledge Sync
@@ -83,14 +79,14 @@ When code changes, identifies documentation that has become stale:
 
 The Librarian follows these rules when writing:
 
-- **Write for strangers** — assume the reader has never seen this codebase
-- **Write for the future** — today's context is tomorrow's mystery
-- **Be specific** — "run `npm test`" beats "run the tests"
-- **Link, don't repeat** — reference the source of truth, don't copy it
-- **Date decisions** — an ADR without a date is folklore, not record
+- **Write for strangers**: assume the reader has never seen this codebase
+- **Write for the future**: today's context is tomorrow's mystery
+- **Be specific**: "run `npm test`" beats "run the tests"
+- **Link, don't repeat**: reference the source of truth, don't copy it
+- **Date decisions**: an ADR without a date is folklore, not record
 
 ---
 
 ## Skill File
 
-→ [`SKILL.md`](../../skills/librarian/SKILL.md) — load this into your agent runtime
+→ [`SKILL.md`](../../skills/librarian/SKILL.md): load this into your agent runtime

@@ -1,4 +1,7 @@
 import { describe, it, expect, vi } from 'vitest'
+import { mkdtempSync, mkdirSync, writeFileSync, readFileSync, rmSync } from 'node:fs'
+import { tmpdir } from 'node:os'
+import { join } from 'node:path'
 
 vi.mock('../../../src/core/SchemaValidator.ts', () => ({
   SchemaValidationError: class extends Error {},
@@ -43,7 +46,7 @@ vi.mock('../../../src/commands/config.ts', () => ({
   loadConfigOrExit: async () => ({ provider: 'test', model: 'test-model' }),
 }))
 
-import { command } from '../../../src/commands/optimize.ts'
+import { command, applyDescription } from '../../../src/commands/optimize.ts'
 
 describe('optimize command', () => {
   it('has correct descriptor', () => {
@@ -83,10 +86,39 @@ describe('optimize command', () => {
     const logSpy = vi.spyOn(console, 'log').mockImplementation(() => {})
     await command.handler(['scribe', '--triggers', 'test.json'])
     const output = logSpy.mock.calls.map((c) => c[0]).join('')
-    expect(output).toContain('Description Optimization — scribe')
+    expect(output).toContain('Description Optimization, scribe')
     expect(output).toContain('Original:')
     expect(output).toContain('Best:')
     expect(output).toContain('Improved:')
     logSpy.mockRestore()
+  })
+
+  it('--apply writes quotes, backslashes and dollars verbatim', () => {
+    const originalCwd = process.cwd()
+    const dir = mkdtempSync(join(tmpdir(), 'agenthood-optimize-'))
+    const metrics = { truePositive: 1, falsePositive: 0, falseNegative: 0, trueNegative: 1, precision: 0.9, recall: 0.9, accuracy: 0.9, f1: 0.9 }
+
+    try {
+      mkdirSync(join(dir, 'src', 'members'), { recursive: true })
+      const specPath = join(dir, 'src', 'members', 'member-specs.ts')
+      writeFileSync(specPath, "name: 'scribe',\n    description: 'old',\n")
+      process.chdir(dir)
+
+      applyDescription({
+        member: 'scribe',
+        originalDescription: 'old',
+        originalMetrics: metrics,
+        bestDescription: "it's a \\ path with $& and $1",
+        bestMetrics: metrics,
+        iterations: 1,
+        variants: [],
+        improved: true,
+      })
+
+      expect(readFileSync(specPath, 'utf8')).toContain("description: 'it\\'s a \\\\ path with $& and $1',")
+    } finally {
+      process.chdir(originalCwd)
+      rmSync(dir, { recursive: true, force: true })
+    }
   })
 })

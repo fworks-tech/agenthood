@@ -190,7 +190,7 @@ export class ProviderChain implements ILLMProvider {
     }
   }
 
-  /** Test-only construction helper — production chains are assembled by
+  /** Test-only construction helper: production chains are assembled by
    * LLMRouter.buildChainFromEntries, which owns config and redaction wiring. */
   static buildChain(
     providers: Map<string, ILLMProvider>,
@@ -213,7 +213,7 @@ export class ProviderChain implements ILLMProvider {
     return { chain: new ProviderChain(available, names, undefined, modelMap), names }
   }
 
-  // Scope: complete() only — stream() is long-lived by design and embed() is
+  // Scope: complete() only: stream() is long-lived by design and embed() is
   // local/cheap, so neither gets the per-request cap. TODO: pass an
   // AbortController through providers to cancel the in-flight request on timeout.
   private completeWithTimeout(provider: ILLMProvider, request: LLMRequest): Promise<LLMResponse> {
@@ -235,7 +235,7 @@ export class ProviderChain implements ILLMProvider {
   ): Promise<LLMResponse> {
     let lastError: unknown
 
-    // cheap failover — 250ms base, capped, so 5-provider chain stays well under 60s Vercel budget
+    // cheap failover: 250ms base, capped, so 5-provider chain stays well under 60s Vercel budget
     for (let retry = 0; retry < 2; retry++) {
       try {
         if (retry > 0) {
@@ -362,6 +362,10 @@ export class ProviderChain implements ILLMProvider {
 
   getContextWindow(): number {
     return this.providers[0]?.getContextWindow() ?? 8192
+  }
+
+  getModel(): string {
+    return this.providers[0]?.getModel?.() ?? ''
   }
 }
 

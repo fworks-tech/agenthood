@@ -1,0 +1,27 @@
+# A project chain (#609). Copy to your project root.
+#   agenthood workflow list
+#   agenthood workflow run compose-demo "describe the small change you want"
+#
+# A step is exactly one of:
+#   member: <name>                 a Society member runs the shared task
+#   skill: <name>                  `/name` activation, run by `agent:` (default builder)
+#   parallel: [step, step]         branches run concurrently; one failure fails the group
+#
+# `when` runs a step only when an earlier step's output matches:
+#   when: { step: reviewer, contains: "[blocking]" }
+#   when: { step: reviewer, notContains: "[blocking]" }
+# It references a member or skill name seen earlier in the same sequence.
+chains:
+  - name: compose-demo
+    sequence:
+      - member: architect
+      - skill: refactor
+        agent: builder
+        task: apply the approved refactor
+      - parallel:
+          - member: reviewer
+          - member: auditor
+      - member: tester
+        when: { step: reviewer, contains: "[blocking]" }
+    guards: { stop_on_blocking: true }
+    max_rounds: 2

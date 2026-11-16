@@ -1,7 +1,7 @@
 #!/bin/sh
-# The Doorman — pre-push hook
-# Check 1: Oath — "I never push to main."
-# Check 2: Branch naming — type/issue-NUMBER-description
+# The Doorman: pre-push hook
+# Check 1: Oath; "I never push to main."
+# Check 2: Branch naming; type/issue-NUMBER-description
 
 # ── Check 1: Oath ─────────────────────────────────────────────────────────────
 # No exceptions. Not even automation branches. Main is sacred.
@@ -9,7 +9,7 @@ while read local_ref local_sha remote_ref remote_sha; do
   if echo "$remote_ref" | grep -q "refs/heads/main$"; then
     echo ""
     echo "╔══════════════════════════════════════════════════════════╗"
-    echo "║              The Doorman — Access Denied                 ║"
+    echo "║              The Doorman: Access Denied                 ║"
     echo "╠══════════════════════════════════════════════════════════╣"
     echo "║                                                          ║"
     echo "║  Direct push to 'main' is forbidden by the Oath.        ║"
@@ -51,7 +51,7 @@ if [ -z "$ISSUE_NUMBER" ]; then
   exit 1
 fi
 
-# ── Check: Issue exists (advisory — never blocks the push) ────────────────────
+# ── Check: Issue exists (advisory, never blocks the push) ────────────────────
 # Runs only when gh is available AND the remote is GitHub; missing/expired gh
 # auth or a non-GitHub remote silently skips the check.
 REMOTE_URL=$(git remote get-url origin 2>/dev/null || echo "")
@@ -61,7 +61,7 @@ if command -v gh >/dev/null 2>&1 && printf '%s' "$REMOTE_URL" | grep -q 'github.
     echo "┌────────────────────────────────────────────────────────────────┐"
     echo "│ Advisory: issue #$ISSUE_NUMBER not found on GitHub.              │"
     echo "├────────────────────────────────────────────────────────────────┤"
-    echo "│ Push proceeds — but create the issue before opening a PR:     │"
+    echo "│ Push proceeds, but create the issue before opening a PR:     │"
     echo "│   gh issue create --title \"...\"                              │"
     echo "└────────────────────────────────────────────────────────────────┘"
     echo ""

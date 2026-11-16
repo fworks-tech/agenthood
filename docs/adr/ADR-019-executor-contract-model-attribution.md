@@ -5,9 +5,9 @@
 
 ## Context
 
-The Oracle agent calls the LLM directly (`ask()`), bypassing `ReActLoop.run` — the only place that records which model responded. Every trace and Sentry report therefore carried `model: "unknown"` for Oracle runs. Three successive automated reviews (Warden ×2, Auditor, Reviewer, issue #435, PR #436) flagged the attribution gap and, repeatedly, the way it was being patched: the agent layer mutating `reasoningLoop.model` from outside ("feature envy" / cross-object coupling).
+The Oracle agent calls the LLM directly (`ask()`), bypassing `ReActLoop.run`: the only place that records which model responded. Every trace and Sentry report therefore carried `model: "unknown"` for Oracle runs. Three successive automated reviews (Warden ×2, Auditor, Reviewer, issue #435, PR #436) flagged the attribution gap and, repeatedly, the way it was being patched: the agent layer mutating `reasoningLoop.model` from outside ("feature envy" / cross-object coupling).
 
-The constraint that shaped the solution: `OracleAgent.ask()` is wired into `ExecutionContext.oracle.ask` (`ApplicationContext.ts`) with the public signature `Promise<string>` — its return type cannot change without breaking every consumer of the oracle companion.
+The constraint that shaped the solution: `OracleAgent.ask()` is wired into `ExecutionContext.oracle.ask` (`ApplicationContext.ts`) with the public signature `Promise<string>`: its return type cannot change without breaking every consumer of the oracle companion.
 
 ## Decision
 
@@ -33,7 +33,7 @@ execute: (systemPrompt, input) => Promise<{ output: string; model?: string }>
 
 - Model attribution is recorded in exactly one place, by the class that owns the loop
 - The public Oracle API is unchanged; consumers of `context.oracle.ask` are unaffected
-- Executors (Oracle and the ReActLoop wrapper) carry a slightly richer return type — a deliberate cost of the shared lifecycle
+- Executors (Oracle and the ReActLoop wrapper) carry a slightly richer return type: a deliberate cost of the shared lifecycle
 - `setModel` remains the loop's public write API for any future caller
 
 ## References

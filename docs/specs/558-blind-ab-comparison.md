@@ -1,7 +1,7 @@
 # Spec: Blind A/B Comparison for Skill Version Testing
 
 **Issue:** #558
-**Depends on:** #562 (skill regression testing — merged via #775)
+**Depends on:** #562 (skill regression testing: merged via #775)
 **Pattern reference:** docs/specs/562-skill-regression-testing.md
 
 ## Problem
@@ -141,7 +141,7 @@ Exit codes: 0 = A wins or tie, 1 = B wins (useful for CI gating on regression).
 ### Output Format
 
 ```
-  A/B Comparison — scribe (A) vs scribe-v2 (B)
+  A/B Comparison: scribe (A) vs scribe-v2 (B)
   Suite: scribe.json | Tasks: 5 | Metrics: clarity, completeness, accuracy
 
   Per-task:

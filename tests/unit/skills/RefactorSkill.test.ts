@@ -55,7 +55,7 @@ describe('RefactorSkill', () => {
     })
   })
 
-  describe('execute() — happy path', () => {
+  describe('execute(): happy path', () => {
     it('reads file, calls LLM, writes result, returns output', async () => {
       const result = await skill.execute(
         { path: 'src/foo.ts', goal: 'extract helper function' },
@@ -90,7 +90,7 @@ describe('RefactorSkill', () => {
     })
   })
 
-  describe('execute() — error paths', () => {
+  describe('execute(): error paths', () => {
     it('returns error when file cannot be read', async () => {
       vi.mocked(fsPromises.readFile).mockRejectedValue(new Error('ENOENT: no such file'))
 

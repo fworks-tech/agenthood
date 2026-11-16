@@ -193,4 +193,23 @@ describe('MemberOrchestrator', () => {
 
     expect(defaultMember).toBeNull()
   })
+
+  it('treats regex metacharacters in file patterns literally', () => {
+    const custom = new MemberOrchestrator([
+      {
+        name: 'custom',
+        keywords: ['match'],
+        filePatterns: ['src/**/*config[1].ts'],
+        contexts: [],
+        stages: [],
+      },
+    ])
+
+    const results = custom.detectMembers({
+      userMessage: 'match',
+      changedFiles: ['src/config[1].ts', 'src/config1.ts'],
+    })
+
+    expect(results[0]?.matchedFiles).toEqual(['src/config[1].ts'])
+  })
 })

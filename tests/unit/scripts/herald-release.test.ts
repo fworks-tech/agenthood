@@ -1,8 +1,10 @@
 import { describe, it, expect } from 'vitest'
+// @ts-expect-error untyped plugin
+import { analyzeCommits } from '@semantic-release/commit-analyzer'
 // @ts-expect-error untyped mjs module
-import { changelogSection, parseCommits, latestTag } from '../../../scripts/herald-release.mjs'
+import { changelogSection, parseCommits, latestTag, PARSER_OPTS } from '../../../scripts/herald-release.mjs'
 
-describe('herald-release — latestTag', () => {
+describe('herald-release, latestTag', () => {
   it('picks the highest valid semver tag', () => {
     expect(latestTag(['v1.2.0', 'v1.10.0', 'v1.2.9'])).toBe('v1.10.0')
   })
@@ -17,7 +19,7 @@ describe('herald-release — latestTag', () => {
   })
 })
 
-describe('herald-release — changelogSection', () => {
+describe('herald-release, changelogSection', () => {
   const notes = '# [3.63.0](https://github.com/fworks-tech/agenthood/compare/v3.62.0...v3.63.0) (2026-09-09)\n\n### Features\n\n* **cli:** add something ([9d0f](https://github.com/fworks-tech/agenthood/commit/9d0f))'
 
   it('does not duplicate the version H1 (generateNotes already emits it)', () => {
@@ -33,7 +35,25 @@ describe('herald-release — changelogSection', () => {
   })
 })
 
-describe('herald-release — parseCommits', () => {
+describe('herald-release, breaking headers', () => {
+  it('reads the ! marker as a major release', async () => {
+    // The Angular preset no longer declares the breaking-header pattern.
+    // Without PARSER_OPTS, `feat!:` and `refactor!:` parse as no release, and
+    // a major ships as a minor.
+    const context = {
+      commits: [
+        { hash: 'a', message: 'feat(skills)!: enforce allowed-tools at call time' },
+        { hash: 'b', message: 'refactor!: remove the no-op span API' },
+      ],
+      logger: { log() {} },
+    } as unknown as Parameters<typeof analyzeCommits>[1]
+
+    const type = await analyzeCommits({ parserOpts: PARSER_OPTS }, context)
+    expect(type).toBe('major')
+  })
+})
+
+describe('herald-release, parseCommits', () => {
   const raw = [
     'abc1234\nfeat(cli): add helpers↯',
     'def5678\nfix(cli): handle windows paths\n\nbody continues\n↯',

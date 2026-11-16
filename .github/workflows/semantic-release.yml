@@ -1,18 +1,18 @@
 name: The Herald — Semantic Release
 
 # Two-phase release: repository rulesets forbid direct commits to main, which
-# made the old single-job semantic-release flow fail on every push — its git
+# made the old single-job semantic-release flow fail on every push - its git
 # plugin attempts to push a version-bump commit straight to main in its
 # prepare step, and because prepare precedes publish, tags, npm publish, and
 # GitHub releases were all silently skipped once the ruleset landed. Instead:
 #
-#   release-pr  — computes the next version from conventional commits, applies
+#   release-pr - computes the next version from conventional commits, applies
 #                 the version bump + CHANGELOG + release-notes docs, and opens
 #                 or refreshes a `chore(release)` PR that merges through the
 #                 normal required status checks (scripts/herald-release.mjs
 #                 replaces the semantic-release CLI here, calling the same
 #                 commit-analyzer / release-notes-generator plugins)
-#   publish     — runs when package.json is ahead of the latest v* tag (i.e. a
+#   publish - runs when package.json is ahead of the latest v* tag (i.e. a
 #                 release PR has merged): tags via the GitHub releases API
 #                 (bypasses branch push rules), creates the GitHub release,
 #                 and publishes to npm with OIDC provenance
@@ -50,36 +50,36 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
-      - name: The Warden — typecheck
+      - name: The Warden - typecheck
         run: npm run typecheck
 
       - name: Audit dependencies for vulnerabilities
         run: npm audit --audit-level=high || echo "::warning::npm audit found vulnerabilities"
 
-      - name: The Herald — compute next version
+      - name: The Herald - compute next version
         id: version
         run: |
           node scripts/herald-release.mjs compute herald.json
           VERSION=$(jq -r '.version // empty' herald.json)
           if [ -z "$VERSION" ]; then
-            echo "herald: no release pending — skipping release PR"
+            echo "herald: no release pending - skipping release PR"
           else
             echo "version=$VERSION" >> "$GITHUB_OUTPUT"
           fi
 
-      - name: The Herald — prepare release artifacts
+      - name: The Herald - prepare release artifacts
         if: steps.version.outputs.version != ''
         run: node scripts/herald-release.mjs apply "${{ steps.version.outputs.version }}"
 
-      - name: The Herald — release notes for the PR body
+      - name: The Herald - release notes for the PR body
         if: steps.version.outputs.version != ''
         run: node scripts/herald-release.mjs notes "${{ steps.version.outputs.version }}" > herald-notes.md
 
-      - name: The Herald — clean generated notes (drop false closures, linkified refs)
+      - name: The Herald - clean generated notes (drop false closures, linkified refs)
         if: steps.version.outputs.version != ''
         run: npx tsx scripts/generate-release-notes.ts --clean herald-notes.md herald-notes.md
 
-      - name: The Herald — gate the generated artifacts
+      - name: The Herald - gate the generated artifacts
         if: steps.version.outputs.version != ''
         run: |
           # This PR is opened with GITHUB_TOKEN, and GitHub starts no workflow
@@ -90,7 +90,7 @@ jobs:
           # exists.
           npx vitest run tests/release-config.test.ts
 
-          # The notes have been cleaned by cleanLine — false closing keywords
+          # The notes have been cleaned by cleanLine - false closing keywords
           # and linkified references are stripped. The gate now only catches
           # genuine unprocessed closing keywords (which should not exist).
           if grep -inE '\b(clos(e|es|ed)|fix(es|ed)?|resolv(e|es|ed))\b[[:space:]]+\[?#[0-9]+' herald-notes.md; then
@@ -106,7 +106,7 @@ jobs:
             exit 1
           fi
 
-      - name: The Herald — open or refresh release PR
+      - name: The Herald - open or refresh release PR
         if: steps.version.outputs.version != ''
         uses: peter-evans/create-pull-request@3ffccacd46053766916f087ce41d627c0b8cf2d1
         with:
@@ -135,15 +135,15 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
-      - name: The Warden — typecheck
+      - name: The Warden - typecheck
         run: npm run typecheck
 
-      # No `needs:` — this job is independently gated: a normal push to main has
+      # No `needs:` - this job is independently gated: a normal push to main has
       # nothing pending (package.json == latest tag) and stays a green no-op,
       # while the push of a merged release PR has a pending bump to publish.
       # npm ci must run before this check: the helper imports semver and the
       # @semantic-release plugins at module load.
-      - name: The Herald — check for a pending release
+      - name: The Herald - check for a pending release
         id: pending
         run: |
           if node scripts/herald-release.mjs pending; then
@@ -158,19 +158,19 @@ jobs:
           echo "registry=https://registry.npmjs.org/" > ~/.npmrc
           echo "provenance=true" >> ~/.npmrc
 
-      - name: The Herald — build dist for the publishable package
+      - name: The Herald - build dist for the publishable package
         if: steps.pending.outputs.state == 'true'
         run: npm run build
 
-      - name: The Herald — generate release notes
+      - name: The Herald - generate release notes
         if: steps.pending.outputs.state == 'true'
         run: node scripts/herald-release.mjs notes > herald-notes.md
 
-      - name: The Herald — clean release notes before tagging
+      - name: The Herald - clean release notes before tagging
         if: steps.pending.outputs.state == 'true'
         run: npx tsx scripts/generate-release-notes.ts --clean herald-notes.md herald-notes.md
 
-      - name: The Herald — gate the generated artifacts
+      - name: The Herald - gate the generated artifacts
         if: steps.pending.outputs.state == 'true'
         run: |
           # The notes are cleaned by cleanLine, so false closing keywords
@@ -193,7 +193,7 @@ jobs:
             exit 1
           fi
 
-      - name: The Herald — tag and create GitHub release
+      - name: The Herald - tag and create GitHub release
         if: steps.pending.outputs.state == 'true'
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -201,14 +201,14 @@ jobs:
           VERSION=$(node -p "require('./package.json').version")
           gh release create "v$VERSION" --title "v$VERSION" --notes-file herald-notes.md --target "$GITHUB_SHA"
 
-      - name: The Herald — publish to npm
+      - name: The Herald - publish to npm
         if: steps.pending.outputs.state == 'true'
         run: npm publish
 
-      - name: The Herald — verify published version
+      - name: The Herald - verify published version
         if: steps.pending.outputs.state == 'true'
         run: |
-          # The registry/CDN can lag the publish by minutes — a fixed sleep
+          # The registry/CDN can lag the publish by minutes - a fixed sleep
           # flakes whenever propagation exceeds it (seen on v3.65.0: 20s was
           # not enough). Poll instead; ~5 min window fits the job timeout.
           VERSION=$(node -p "require('./package.json').version")
@@ -218,7 +218,7 @@ jobs:
               echo "Published agenthood@$VERSION"
               exit 0
             fi
-            echo "Attempt $i/10: npm shows ${PUBLISHED:-<none>}, expected $VERSION — retrying in 30s"
+            echo "Attempt $i/10: npm shows ${PUBLISHED:-<none>}, expected $VERSION - retrying in 30s"
             sleep 30
           done
           echo "::error::npm still shows ${PUBLISHED:-<none>} after 5 minutes, expected $VERSION"

@@ -1,7 +1,7 @@
 # Guide: Migrating Skills from Copilot, CLAUDE.md, and Cursor
 
 > Your instructions already exist somewhere else. This guide moves them into a
-> `SKILL.md` the Society can verify — without rewriting them by hand.
+> `SKILL.md` the Society can verify: without rewriting them by hand.
 
 ## Overview
 
@@ -25,7 +25,7 @@ node scripts/migrate-skill.mjs .cursor/rules/testing.mdc
 
 The script slugifies the name to the spec (`lowercase-hyphen`), derives
 `description` from the first substantive line, and appends a `Use when …`
-trigger when none is present. Review the generated `SKILL.md` — the script
+trigger when none is present. Review the generated `SKILL.md`: the script
 guesses the trigger, you confirm it.
 
 ## Manual steps
@@ -48,5 +48,5 @@ widening. Fix what it flags, then copy into your provider path (`.agents/skills/
 
 ## Further reading
 
-- [Authoring a Skill](../academy/level-3-advanced-skills/06-author-a-skill.md) — contract details and ship checklist
-- [`src/skills/discovery/SkillParser.ts`](../../src/skills/discovery/SkillParser.ts) — what `verify` enforces
+- [Authoring a Skill](../academy/level-3-advanced-skills/06-author-a-skill.md): contract details and ship checklist
+- [`src/skills/discovery/SkillParser.ts`](../../src/skills/discovery/SkillParser.ts): what `verify` enforces

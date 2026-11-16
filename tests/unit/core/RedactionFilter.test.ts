@@ -32,6 +32,13 @@ describe('RedactionFilter', () => {
       .toContain('Authorization: [REDACTED]')
   })
 
+  it('redacts the cloud token shapes the pre-commit hook knows', () => {
+    const filter = new RedactionFilter({ enabled: true })
+    expect(filter.redactText('ghp_abcdefghijklmnopqrstuvwxyz0123456789')).toBe('[REDACTED]')
+    expect(filter.redactText('AKIAABCDEFGHIJKLMNOP')).toBe('[REDACTED]')
+    expect(filter.redactText('sk_live_abcdefghijklmnop')).toBe('[REDACTED]')
+  })
+
   it('redacts URL query parameter values but keeps the key', () => {
     const filter = new RedactionFilter({ enabled: true })
     expect(filter.redact(envelope('call https://api.example.com/users?token=abc123')).input)

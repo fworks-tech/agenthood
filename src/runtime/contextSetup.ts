@@ -5,7 +5,17 @@ import { LanceDBStore } from '../memory/VectorStore.ts'
 import { KnowledgeGraphStore } from '../rag/KnowledgeGraphStore.ts'
 import { SkillDiscovery } from '../skills/discovery/SkillDiscovery.ts'
 import type { ISkillManifest } from '../skills/discovery/ISkillManifest.ts'
-import { escapeXml } from '../agents/memberLore.ts'
+import { defaultCatalogFormat, formatSkillCatalog, type CatalogFormat } from '../skills/catalog/format.ts'
+import { gateSkills, type SkillAvailability, type GateResult } from '../skills/discovery/gating.ts'
+
+export interface DiscoverSkillsOptions {
+  provider?: string
+  format?: CatalogFormat
+  /** Skills disabled in config: filtered from the catalog (#537). */
+  disabled?: string[]
+  /** What this run offers; the gate decides which skills are usable (ADR-037). */
+  availability?: SkillAvailability
+}
 
 export async function connectVectorStore(projectPath: string): Promise<LanceDBStore> {
   const vectorStore = new LanceDBStore(1536)
@@ -31,7 +41,10 @@ export function loadSocietyGraph(projectPath: string): KnowledgeGraphStore {
   return graph
 }
 
-export async function discoverSkills(projectPath: string): Promise<{ catalog: string; manifests: Map<string, ISkillManifest> }> {
+export async function discoverSkills(
+  projectPath: string,
+  options: DiscoverSkillsOptions = {},
+): Promise<{ catalog: string; manifests: Map<string, ISkillManifest> } & GateResult> {
   const discovery = new SkillDiscovery()
   const manifests = discovery.discover(projectPath)
   // Packaged tool skills merge at lowest precedence: a user/project skill
@@ -43,21 +56,27 @@ export async function discoverSkills(projectPath: string): Promise<{ catalog: st
       seen.add(m.name)
     }
   }
-  if (manifests.length === 0) return { catalog: '', manifests: new Map() }
 
-  const lines: string[] = ['', '<available_skills>']
-  const map = new Map<string, ISkillManifest>()
-  for (const m of manifests) {
-    map.set(m.name, m)
-    lines.push(`  <skill name="${escapeXml(m.name)}">`)
-    lines.push(`    <description>${escapeXml(m.description)}</description>`)
-    lines.push(`    <location>${escapeXml(m.location)}</location>`)
-    lines.push('  </skill>')
+  // Every manifest stays activatable by name; the catalog is what gets filtered.
+  const map = new Map(manifests.map((m) => [m.name, m] as const))
+  // One gate decides what this run can use (ADR-037); a blocked skill is out of
+  // the catalog here and refused by activate_skill with the same reason.
+  const gate = gateSkills(manifests, options.availability)
+  if (gate.blocked.size > 0) {
+    console.log(`[skills] ${gate.blocked.size} skill(s) cannot run on this model: ${[...gate.blocked.keys()].join(', ')}`)
   }
-  lines.push('</available_skills>')
-  lines.push('')
-  lines.push('When a task matches a skill\'s description, call the activate_skill tool with the skill\'s name to load its full instructions.')
-  lines.push('')
+  // An empty catalog would render as `<available_skills/>`, which invites the
+  // model to invent skills: omit the whole section instead (#538).
+  if (map.size === 0) return { catalog: '', manifests: new Map(), ...gate }
 
-  return { catalog: lines.join('\n'), manifests: map }
+  const format = options.format ?? defaultCatalogFormat(options.provider)
+  const body = formatSkillCatalog(
+    manifests.filter((m) => !gate.blocked.has(m.name)),
+    { format, disabled: new Set(options.disabled ?? []) },
+  )
+  if (!body) return { catalog: '', manifests: map, ...gate }
+
+  const instruction =
+    'When a task matches a skill\'s description, call the activate_skill tool with the skill\'s name to load its full instructions.'
+  return { catalog: ['', body, '', instruction, ''].join('\n'), manifests: map, ...gate }
 }

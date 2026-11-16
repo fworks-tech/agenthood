@@ -55,7 +55,7 @@ export function getInstalledMembers(workspaceRoot: string): Set<string> {
       config.members.forEach((m) => installed.add(m));
     }
   } catch {
-    // Config not found or invalid — treat as none installed
+    // Config not found or invalid: treat as none installed
   }
   return installed;
 }

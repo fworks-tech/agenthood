@@ -1,9 +1,9 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-# The Warden — enforce the 500-line file size limit on the PR diff.
+# The Warden: enforce the 500-line file size limit on the PR diff.
 # Test suites, lockfiles, and append-only generated release logs
-# (CHANGELOG.md, release-notes.md) are exempt — the limit targets source.
+# (CHANGELOG.md, release-notes.md) are exempt: the limit targets source.
 
 for var in BASE_SHA HEAD_SHA; do
   if [[ -z "${!var:-}" ]]; then
@@ -16,14 +16,14 @@ for var in BASE_SHA HEAD_SHA; do
   fi
 done
 
-# git diff exits 0 (no changes) or 1 (differences) — anything above 1 is a
+# git diff exits 0 (no changes) or 1 (differences): anything above 1 is a
 # real failure that must not be mistaken for "no files to check"
 set +e
 CHANGED=$(git diff --name-only --diff-filter=ACM "$BASE_SHA"..."$HEAD_SHA" 2>/dev/null)
 DIFF_STATUS=$?
 set -e
 if [ "$DIFF_STATUS" -gt 1 ]; then
-  echo "::error::git diff failed (exit $DIFF_STATUS) for $BASE_SHA...$HEAD_SHA — cannot enforce size limits"
+  echo "::error::git diff failed (exit $DIFF_STATUS) for $BASE_SHA...$HEAD_SHA: cannot enforce size limits"
   exit 1
 fi
 
@@ -39,10 +39,10 @@ while IFS= read -r file; do
   esac
   lines=$(wc -l < "$file" | tr -d ' ')
   if [ "$lines" -gt 500 ]; then
-    echo "FAIL: $file — $lines lines (limit: 500)"
+    echo "FAIL: $file; $lines lines (limit: 500)"
     failed=1
   elif [ "$lines" -gt 300 ]; then
-    echo "WARN: $file — $lines lines (approaching limit of 500)"
+    echo "WARN: $file; $lines lines (approaching limit of 500)"
   fi
 done <<< "$CHANGED"
 

@@ -2,7 +2,7 @@ import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest'
 import { mkdirSync, mkdtempSync, rmSync, writeFileSync } from 'node:fs'
 import { join } from 'node:path'
 import { tmpdir } from 'node:os'
-import { reportSkillRequirements } from '../../../src/commands/verifySkills.ts'
+import { reportDuplicates, reportSkillRequirements, reportTokenBudgets } from '../../../src/commands/verifySkills.ts'
 
 let dir: string
 
@@ -64,5 +64,80 @@ describe('skill requirement reports (#549, #551, #552, #554, #571)', () => {
     writeFileSync(join(dir, 'a', 'references', 'compact.md'), '# compact')
     expect(reportSkillRequirements(dir)).toBe(true)
     expect(output()).not.toContain('variant "haiku"')
+  })
+})
+
+describe('skill token budgets (#615)', () => {
+  beforeEach(() => {
+    vi.spyOn(console, 'warn').mockImplementation(() => {})
+  })
+
+  const writeBody = (name: string, body: string, frontmatter = '') => {
+    mkdirSync(join(dir, name), { recursive: true })
+    writeFileSync(join(dir, name, 'SKILL.md'), `---\nname: ${name}\ndescription: ${name} skill\n${frontmatter}---\n${body}`)
+  }
+
+  it('reports a body over the default budget and suggests references/', () => {
+    writeBody('long', 'x'.repeat(20_400))
+    reportTokenBudgets(dir)
+    expect(output()).toContain('over budget')
+    expect(output()).toContain('long:')
+    expect(output()).toContain('references/')
+  })
+
+  it('honours a per-skill token-budget, even below the default', () => {
+    writeBody('small', 'x'.repeat(100), 'token-budget: 5\n')
+    reportTokenBudgets(dir)
+    expect(output()).toContain('small:')
+    expect(output()).toContain('> 5')
+  })
+
+  it('reports the total and passes a set within budget', () => {
+    writeBody('tiny', 'tiny body')
+    reportTokenBudgets(dir)
+    expect(output()).toContain('within budget')
+    expect(output()).toContain('total')
+  })
+})
+
+describe('cross-location duplicates (#616)', () => {
+  let other: string
+
+  beforeEach(() => {
+    other = mkdtempSync(join(tmpdir(), 'verify-dedup-'))
+    vi.spyOn(console, 'warn').mockImplementation(() => {})
+  })
+
+  afterEach(() => {
+    rmSync(other, { recursive: true, force: true })
+  })
+
+  const put = (root: string, name: string) => {
+    mkdirSync(join(root, name), { recursive: true })
+    writeFileSync(join(root, name, 'SKILL.md'), `---\nname: ${name}\ndescription: ${name} skill\n---\nBody`)
+  }
+
+  it('names every copy and suggests consolidation', () => {
+    put(dir, 'shared')
+    put(other, 'shared')
+    reportDuplicates([
+      { path: dir, scope: 'project' },
+      { path: other, scope: 'user' },
+    ])
+    const text = output()
+    expect(text).toContain('shared (2 copies)')
+    expect(text).toContain('(project)')
+    expect(text).toContain('(user)')
+    expect(text).toContain('Keep the project copy')
+  })
+
+  it('passes when no name appears twice', () => {
+    put(dir, 'alpha')
+    put(other, 'beta')
+    reportDuplicates([
+      { path: dir, scope: 'project' },
+      { path: other, scope: 'user' },
+    ])
+    expect(output()).toContain('no duplicate names')
   })
 })

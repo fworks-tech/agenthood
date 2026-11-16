@@ -26,7 +26,13 @@ import { OWNER_RE } from '../skills/namespace.ts'
 import { scanForInjections } from '../skills/discovery/injectionScan.ts'
 import { userError } from '../core/cliError.ts'
 import { isKnownToolName } from '../members/toolVocabulary.ts'
-import { reportScriptLint, reportSkillRequirements } from './verifySkills.ts'
+import {
+  reportDuplicates,
+  reportScriptLint,
+  reportSkillRequirements,
+  reportTokenBudgets,
+  skillSearchRoots,
+} from './verifySkills.ts'
 import type { SkillTier } from '../skills/discovery/ISkillManifest.ts'
 import { SkillDiscovery } from '../skills/discovery/SkillDiscovery.ts'
 import { findConflicts } from '../skills/conflicts.ts'
@@ -460,6 +466,10 @@ export async function verify(args: string[]): Promise<void> {
 
   // --scripts (#540, #547, #548): advisory interface lint over bundled scripts.
   if (flags.has('--scripts')) reportScriptLint(membersDir)
+
+  // --tokens (#615) and --dedup (#616): advisory reports over the installed set.
+  if (flags.has('--tokens')) reportTokenBudgets(membersDir)
+  if (flags.has('--dedup')) reportDuplicates(skillSearchRoots(cwd))
 
   // Advisory (#595): overlapping descriptions mean two skills can both trigger
   // for the same task. Warns only — the resolution (dedup vs specialize) is a

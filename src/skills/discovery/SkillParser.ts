@@ -11,6 +11,27 @@ export interface ParsedSkill {
   body: string
   allowedTools?: string[]
   version?: string
+  license?: string
+  /** Hidden from the available-skills catalog; still activatable by name (#588). */
+  hidden?: boolean
+  /** A routing entry point — the only skills whose metadata loads at startup (#588). */
+  router?: boolean
+}
+
+const SPDX_SHAPE_RE = /^[A-Za-z0-9.+-]+(?: (?:AND|OR|WITH) [A-Za-z0-9.+-]+)*$/
+
+/**
+ * `license` must look like an SPDX identifier or expression. This is a shape
+ * check, not a registry lookup: every valid SPDX id passes, while prose such as
+ * "MIT License" or "see LICENSE" — which no client can resolve — does not.
+ */
+export function isSpdxLicense(value: string): boolean {
+  return value === 'UNLICENSED' || SPDX_SHAPE_RE.test(value)
+}
+
+export function parseLicense(frontmatter: Record<string, unknown> | null): string | undefined {
+  const raw = frontmatter?.license
+  return typeof raw === 'string' && raw.trim() !== '' ? raw.trim() : undefined
 }
 
 /** `metadata.version` (agentskills convention). Pre-release and build suffixes allowed. */
@@ -90,6 +111,9 @@ export class SkillParser {
       body: raw.body,
       allowedTools: parseAllowedTools(raw.frontmatter['allowed-tools'] ?? raw.frontmatter.allowed_tools),
       version: parseSkillVersion(raw.frontmatter),
+      license: parseLicense(raw.frontmatter),
+      ...(raw.frontmatter.hidden === true ? { hidden: true } : {}),
+      ...(raw.frontmatter.router === true ? { router: true } : {}),
     }
   }
 
@@ -112,7 +136,7 @@ export class SkillParser {
     }
   }
 
-  parseManifest(filePath: string, directory: string, body: string, name = '', description = '', tier: SkillTier = 'community', allowedTools?: string[], version?: string): ISkillManifest {
+  parseManifest(filePath: string, directory: string, parsed: ParsedSkill, tier: SkillTier = 'community'): ISkillManifest {
     const resources: string[] = []
     try {
       for (const entry of readdirSync(directory, { withFileTypes: true })) {
@@ -127,15 +151,18 @@ export class SkillParser {
     }
 
     return {
-      name,
-      description,
+      name: parsed.name,
+      description: parsed.description,
       tier,
       location: filePath,
       directory,
-      body,
+      body: parsed.body,
       resources,
-      ...(allowedTools ? { allowedTools } : {}),
-      ...(version ? { version } : {}),
+      ...(parsed.allowedTools ? { allowedTools: parsed.allowedTools } : {}),
+      ...(parsed.version ? { version: parsed.version } : {}),
+      ...(parsed.license ? { license: parsed.license } : {}),
+      ...(parsed.hidden ? { hidden: true } : {}),
+      ...(parsed.router ? { router: true } : {}),
     }
   }
 

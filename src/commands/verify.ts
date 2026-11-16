@@ -7,7 +7,7 @@ import { loadLockfile } from '../utils/lockfile.ts'
 import type { Lockfile, LockfileMember } from '../utils/lockfile.ts'
 import { checkResourceIntegrity, checkSkillIntegrity, collectResourceHashes } from '../utils/skillIntegrity.ts'
 import { findResourceRevision, findRevision, restoreMember } from './rollback.ts'
-import { SkillParser, parseAllowedTools, parseSkillVersion, SEMVER_RE } from '../skills/discovery/SkillParser.ts'
+import { SkillParser, parseAllowedTools, parseSkillVersion, isSpdxLicense, SEMVER_RE } from '../skills/discovery/SkillParser.ts'
 import { isKnownToolName } from '../members/toolVocabulary.ts'
 import { scanForInjections } from '../skills/discovery/injectionScan.ts'
 import { userError } from '../core/cliError.ts'
@@ -61,7 +61,11 @@ function validateMember(membersDir: string, member: string, lockfile?: Lockfile,
   } else {
     if (!frontmatter.name) result.issues.push('Frontmatter missing "name"')
     if (!frontmatter.description) result.issues.push('Frontmatter missing "description"')
-    if (!frontmatter.license) result.issues.push('Frontmatter missing "license"')
+    if (!frontmatter.license) {
+      result.issues.push('Frontmatter missing "license". Fix: add license: MIT (or UNLICENSED)')
+    } else if (!isSpdxLicense(String(frontmatter.license))) {
+      result.issues.push(`license "${String(frontmatter.license)}" is not an SPDX identifier. Fix: use the SPDX id, e.g. MIT, Apache-2.0, or UNLICENSED`)
+    }
     const version = parseSkillVersion(frontmatter)
     if (!version) {
       result.issues.push('Frontmatter missing "metadata.version". Fix: add metadata:\\n  version: 1.0.0')

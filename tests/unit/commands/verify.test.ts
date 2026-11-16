@@ -188,6 +188,17 @@ describe('verify command', () => {
     expect(Object.keys(written.members)).toEqual(['the-other', 'the-test'])
   })
 
+  it('fails when the license is not an SPDX identifier (#580)', async () => {
+    skillContent = VALID_SKILL.replace('license: MIT', 'license: MIT License')
+    const log = vi.spyOn(console, 'log').mockImplementation(() => {})
+    const exit = vi.spyOn(process, 'exit').mockImplementation((() => {}) as any)
+
+    await verify([])
+
+    expect(exit).toHaveBeenCalledWith(1)
+    expect(log.mock.calls.flat().join(' ')).toContain('is not an SPDX identifier')
+  })
+
   it('fails when metadata.version is missing (#579)', async () => {
     skillContent = VALID_SKILL.replace('metadata:\n  version: 1.0.0\n', '')
     const log = vi.spyOn(console, 'log').mockImplementation(() => {})

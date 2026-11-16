@@ -1,5 +1,5 @@
 import { describe, it, expect, beforeEach, afterEach } from "vitest"
-import { SkillParser, MAX_SKILL_FILE_BYTES } from "../../../src/skills/discovery/SkillParser.ts"
+import { SkillParser, MAX_SKILL_FILE_BYTES, isSpdxLicense } from "../../../src/skills/discovery/SkillParser.ts"
 import { mkdtempSync, writeFileSync, rmSync } from "node:fs"
 import { join } from "node:path"
 import { tmpdir } from "node:os"
@@ -212,8 +212,9 @@ describe("SkillParser", () => {
     })
 
     it("carries allowed-tools onto the manifest", () => {
-      expect(parser.parseManifest("/x/SKILL.md", "/x", "body", "s", "d", "community", ["file.read"])).toMatchObject({ allowedTools: ["file.read"] })
-      expect(parser.parseManifest("/x/SKILL.md", "/x", "body", "s", "d")).not.toHaveProperty("allowedTools")
+      const base = { name: "s", description: "d", body: "body" }
+      expect(parser.parseManifest("/x/SKILL.md", "/x", { ...base, allowedTools: ["file.read"] })).toMatchObject({ allowedTools: ["file.read"] })
+      expect(parser.parseManifest("/x/SKILL.md", "/x", base)).not.toHaveProperty("allowedTools")
     })
     it("reads metadata.version and tolerates a flat version key (#579)", () => {
       const nested = writeSkill(dir, "---\nname: s\ndescription: d\nmetadata:\n  version: 1.4.2\n---\nBody.")
@@ -230,10 +231,33 @@ describe("SkillParser", () => {
     })
 
     it("carries version onto the manifest", () => {
-      expect(
-        parser.parseManifest("/x/SKILL.md", "/x", "body", "s", "d", "community", undefined, "1.2.3"),
-      ).toMatchObject({ version: "1.2.3" })
-      expect(parser.parseManifest("/x/SKILL.md", "/x", "body", "s", "d")).not.toHaveProperty("version")
+      const base = { name: "s", description: "d", body: "body" }
+      expect(parser.parseManifest("/x/SKILL.md", "/x", { ...base, version: "1.2.3" })).toMatchObject({ version: "1.2.3" })
+      expect(parser.parseManifest("/x/SKILL.md", "/x", base)).not.toHaveProperty("version")
+    })
+
+    it("reads license, hidden and router into the manifest (#580, #588)", () => {
+      const file = writeSkill(
+        dir,
+        "---\nname: s\ndescription: d\nlicense: Apache-2.0\nhidden: true\nrouter: true\n---\nBody.",
+      )
+      const parsed = parser.parse(file)!
+      expect(parsed.license).toBe("Apache-2.0")
+      expect(parser.parseManifest("/x/SKILL.md", "/x", parsed)).toMatchObject({
+        license: "Apache-2.0",
+        hidden: true,
+        router: true,
+      })
+    })
+
+    it("accepts SPDX ids and expressions, and rejects prose (#580)", () => {
+      expect(isSpdxLicense("MIT")).toBe(true)
+      expect(isSpdxLicense("Apache-2.0")).toBe(true)
+      expect(isSpdxLicense("MIT OR Apache-2.0")).toBe(true)
+      expect(isSpdxLicense("GPL-2.0-or-later WITH Classpath-exception-2.0")).toBe(true)
+      expect(isSpdxLicense("UNLICENSED")).toBe(true)
+      expect(isSpdxLicense("MIT License")).toBe(false)
+      expect(isSpdxLicense("see LICENSE")).toBe(false)
     })
   })
 })

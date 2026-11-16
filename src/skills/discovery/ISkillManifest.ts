@@ -12,4 +12,10 @@ export interface ISkillManifest {
   allowedTools?: string[]
   /** `metadata.version` — semver, used by `agenthood bump` and the lockfile. */
   version?: string
+  /** SPDX identifier or expression from `license`. */
+  license?: string
+  /** Hidden from the available-skills catalog; still activatable by name (#588). */
+  hidden?: boolean
+  /** A routing entry point — the only skills whose metadata loads at startup (#588). */
+  router?: boolean
 }

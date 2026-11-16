@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest'
-import { readFileSync } from 'node:fs'
+import { existsSync, readFileSync } from 'node:fs'
 import { join } from 'node:path'
 import { MemberRegistry } from '../../../src/members/MemberRegistry.ts'
 import { rawSpecs } from '../../../src/members/member-specs.ts'
@@ -14,6 +14,7 @@ function extractAgentCount(description: string): number | null {
 describe('package manifest parity', () => {
   const packageJson = JSON.parse(readFileSync(join(repoRoot, 'package.json'), 'utf8')) as {
     description: string
+    version: string
   }
   const registryJson = JSON.parse(
     readFileSync(join(repoRoot, 'docs', 'members', 'registry.json'), 'utf8'),
@@ -21,7 +22,10 @@ describe('package manifest parity', () => {
   const marketplaceJson = JSON.parse(
     readFileSync(join(repoRoot, '.claude-plugin', 'marketplace.json'), 'utf8'),
   ) as {
-    plugins: Array<{ name: string; skills: unknown[] }>
+    name: string
+    owner: { name: string }
+    metadata: { description: string; version: string }
+    plugins: Array<{ name: string; source: string; strict: boolean; skills: string[] }>
   }
 
   const registry = new MemberRegistry()
@@ -78,5 +82,35 @@ describe('package manifest parity', () => {
     const staleCount = extractAgentCount(staleDescription)
     expect(staleCount).toBe(registeredCount - 1)
     expect(staleCount).not.toBe(registeredCount)
+  })
+
+  it('marketplace metadata.version matches package.json', () => {
+    expect(marketplaceJson.metadata.version).toBe(packageJson.version)
+  })
+
+  it('marketplace manifest has the required shape and local sources', () => {
+    expect(marketplaceJson.name).toBe('agenthood')
+    expect(marketplaceJson.owner.name).toBeTruthy()
+    expect(marketplaceJson.metadata.description).toBeTruthy()
+
+    const pluginNames = marketplaceJson.plugins.map((plugin) => plugin.name)
+    expect(new Set(pluginNames).size).toBe(pluginNames.length)
+
+    for (const plugin of marketplaceJson.plugins) {
+      expect(plugin.source).toBe('./')
+      expect(typeof plugin.strict).toBe('boolean')
+      expect(plugin.skills.length).toBeGreaterThan(0)
+      for (const skill of plugin.skills) {
+        expect(skill).toMatch(/^\.\/skills\/[a-z0-9-]+$/)
+        expect(existsSync(join(repoRoot, skill, 'SKILL.md')), `${skill} is missing SKILL.md`).toBe(true)
+      }
+    }
+  })
+
+  it('agenthood-all bundle lists every registered member', () => {
+    const all = marketplaceJson.plugins.find((plugin) => plugin.name === 'agenthood-all')
+    if (!all) throw new Error('marketplace.json is missing the agenthood-all plugin')
+    const expected = registry.list().map((spec) => `./skills/${spec.name}`)
+    expect(new Set(all.skills)).toEqual(new Set(expected))
   })
 })

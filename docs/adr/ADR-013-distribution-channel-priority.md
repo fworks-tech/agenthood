@@ -25,6 +25,18 @@ The four channels:
 
 This order reflects the **minimum effort for maximum incremental visibility** principle. Each channel is optimised only when the previous channel is fully operational.
 
+### Claude plugin manifest
+
+`.claude-plugin/marketplace.json` is the Claude Code plugin catalog. `tests/unit/members/package-manifest-parity.test.ts` enforces its contract in CI:
+
+- `name`, `owner.name`, and `metadata.description` are required strings.
+- `metadata.version` mirrors `package.json`; `scripts/herald-release.mjs` updates both in the release PR.
+- Every plugin has a unique `name`, a relative `source` (`./`), a boolean `strict`, and a non-empty `skills` list.
+- Every skill path is local (`./skills/<member>`) and must contain a `SKILL.md`.
+- The `agenthood-all` bundle lists every registered member.
+
+The manifest has no remote plugin sources, so there is nothing to sign or allowlist beyond review of the paths in this repository.
+
 ## Alternatives Considered
 
 | Option | Pros | Cons | Why Rejected |

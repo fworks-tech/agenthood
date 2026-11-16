@@ -86,6 +86,15 @@ describe('compatibility prose fallback (#553)', () => {
     expect(contextFromCompatibility('Requires tool use support')).toBeUndefined()
   })
 
+  it('does not backtrack quadratically on a long space run', () => {
+    expect(contextFromCompatibility(`Requires 128K${' '.repeat(50_000)}x`)).toBeUndefined()
+  })
+
+  it('accepts collapsed whitespace between the figure and the word', () => {
+    expect(contextFromCompatibility('Requires 128 K +  context')).toBe(128000)
+    expect(contextFromCompatibility('Needs 200,000  tokens\ncontext')).toBe(200000)
+  })
+
   it('blocks from prose only when nothing structured declares context', () => {
     const gate = gateSkills([skill('a', { compatibility: 'Requires 128K+ context' })], { contextWindow: 32000 })
     expect(gate.blocked.get('a')).toContain('128000')

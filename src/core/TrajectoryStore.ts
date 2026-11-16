@@ -1,5 +1,8 @@
-import { existsSync, mkdirSync, readdirSync, readFileSync, writeFileSync } from 'node:fs'
+import { existsSync, mkdirSync, readdirSync, readFileSync, rmSync, statSync, writeFileSync } from 'node:fs'
 import { join } from 'node:path'
+
+/** `list()` parses every file, so the directory must not grow forever. */
+const MAX_TRAJECTORIES = 1000
 
 /** One tool call inside a ReAct step; a step may call several. */
 export interface TrajectoryToolCall {
@@ -45,7 +48,10 @@ export interface Trajectory {
 export class TrajectoryStore {
   private readonly dir: string
 
-  constructor(projectDir: string) {
+  constructor(
+    projectDir: string,
+    private readonly maxTrajectories = MAX_TRAJECTORIES,
+  ) {
     this.dir = join(projectDir, '.agenthood', 'trajectories')
     if (!existsSync(this.dir)) {
       mkdirSync(this.dir, { recursive: true })
@@ -55,6 +61,18 @@ export class TrajectoryStore {
   save(trajectory: Trajectory): void {
     const path = join(this.dir, `${trajectory.id}.json`)
     writeFileSync(path, JSON.stringify(trajectory, null, 2) + '\n', 'utf-8')
+    this.pruneOverflow()
+  }
+
+  private pruneOverflow(): void {
+    const files = readdirSync(this.dir).filter((f: string) => f.endsWith('.json'))
+    if (files.length <= this.maxTrajectories) return
+    const oldest = files
+      .map((file) => ({ file, mtime: statSync(join(this.dir, file)).mtimeMs }))
+      .sort((a, b) => a.mtime - b.mtime)
+    for (const entry of oldest.slice(0, files.length - this.maxTrajectories)) {
+      rmSync(join(this.dir, entry.file), { force: true })
+    }
   }
 
   load(id: string): Trajectory | undefined {

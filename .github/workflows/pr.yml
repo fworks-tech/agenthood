@@ -295,9 +295,9 @@ jobs:
         with:
           fetch-depth: 0
       - uses: ./.github/actions/setup-env
-      - name: The Warden: lint
+      - name: The Warden - lint
         run: npm run lint
-      - name: The Warden: prose style
+      - name: The Warden - prose style
         run: npm run lint:prose
       - name: The Warden - typecheck
         run: npm run typecheck

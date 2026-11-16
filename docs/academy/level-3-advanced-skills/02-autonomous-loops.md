@@ -1,14 +1,14 @@
 # Autonomous Loops
 
-> *An agent that runs only when asked is a tool. An agent that runs when needed is an engineer.*
+> *Some work should happen without anyone asking.*
 
 ---
 
 ## What it is
 
-An autonomous loop is a mechanism that runs an agent on a schedule or a trigger: without a human prompting it each time. The morning briefing agent that runs at 8am. The watchman agent that runs when a test fails in CI. The inspection agent that runs when a dependency is published. These are not chat interactions. They are background processes that keep a system healthy while you do other things.
+An autonomous loop runs an agent on a schedule or a trigger, without a human prompting it each time: the morning briefing at 8am, the watchman that runs when a test fails in CI, the inspection that runs when a dependency is published. These are background processes, not chat interactions.
 
-There are two flavors, and conflating them produces brittle systems. **Scheduled rituals** fire on a clock: every morning, every hour, every Monday. They are cron for agents. **Goal chains** pursue a long-running objective across many sessions: an agent that is "working on migrating the auth system" resumes where it left off each time it runs, until the goal is complete. Rituals are stateless between runs (each run starts fresh). Goal chains are stateful (each run loads prior progress).
+There are two kinds, and mixing them produces brittle systems. **Scheduled rituals** fire on a clock: every morning, every hour, every Monday. They are cron for agents, and each run starts fresh. **Goal chains** pursue a long-running objective across sessions: an agent working on an auth migration resumes where it stopped, loading prior progress each time.
 
 The key architectural property is persistence. A context window does not persist. An agent that runs at 8am cannot remember what it concluded at 8am yesterday unless that conclusion was written to memory. Autonomous loops only work when the agent has the memory tiers from Level 2 article 05: episodic memory for past runs, project memory for codebase state, long-term memory for persistent goals.
 
@@ -16,11 +16,11 @@ The key architectural property is persistence. A context window does not persist
 
 ## Why it matters in production
 
-The agents that deliver value in production are not the ones you prompt. They are the ones that run at 8am without you. The difference between a demo and a deployed agent is whether someone has to type a query for it to work.
+The agents that deliver value in production are the ones that run at 8am without anyone typing a query. That is the difference between a demo and a deployed agent.
 
 The watchman ritual is the clearest example. A scheduled agent that runs the test suite, inspects the results, and posts a summary to Slack every morning catches regressions before your standup does. Without it, a broken build sits unnoticed until a human runs the tests, which might be hours or days, depending on the team's cadence. The ritual collapses the detection-to-awareness gap from "whenever someone checks" to "the next morning at 8am."
 
-Goal chains solve the other production problem: long tasks that do not fit in one session. "Migrate the auth system from session tokens to OAuth2" is not a one-prompt task. It is a multi-day objective with dozens of steps. A goal chain persists the objective, tracks completed steps, and resumes on the next run: turning a project that would require a human project manager into a self-tracking agent workflow.
+Goal chains solve the other production problem: long tasks that do not fit in one session. "Migrate the auth system from session tokens to OAuth2" is not a one-prompt task. It is a multi-day objective with dozens of steps. A goal chain persists the objective, tracks completed steps and resumes on the next run, which turns a project that would need a human project manager into a self-tracking workflow.
 
 ---
 

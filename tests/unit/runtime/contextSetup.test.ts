@@ -55,4 +55,19 @@ describe('discoverSkills packaged merge', () => {
     expect(manifests.get(packagedName)?.directory).toBe(overrideDir)
     expect(manifests.get(packagedName)?.description).toBe('Project override')
   })
+
+  it('keeps a hidden skill activatable but out of the catalog (#588)', async () => {
+    const hiddenDir = join(testDir, '.agents', 'skills', 'hidden-skill')
+    mkdirSync(hiddenDir, { recursive: true })
+    writeFileSync(
+      join(hiddenDir, 'SKILL.md'),
+      '---\nname: hidden-skill\ndescription: Loaded on demand only\nhidden: true\n---\n# Overview\nHidden',
+    )
+
+    const { catalog, manifests } = await discoverSkills(testDir)
+
+    expect(manifests.has('hidden-skill')).toBe(true)
+    expect(catalog).not.toContain('hidden-skill')
+    expect(catalog).toContain('test-skill')
+  })
 })

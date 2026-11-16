@@ -199,6 +199,27 @@ describe('verify command', () => {
     expect(log.mock.calls.flat().join(' ')).toContain('is not an SPDX identifier')
   })
 
+  it('fails when compatibility exceeds the 500-char spec limit (#581)', async () => {
+    skillContent = VALID_SKILL.replace('license: MIT', `license: MIT\ncompatibility: ${'x'.repeat(501)}`)
+    const log = vi.spyOn(console, 'log').mockImplementation(() => {})
+    const exit = vi.spyOn(process, 'exit').mockImplementation((() => {}) as any)
+
+    await verify([])
+
+    expect(exit).toHaveBeenCalledWith(1)
+    expect(log.mock.calls.flat().join(' ')).toContain('500-char spec limit')
+  })
+
+  it('accepts a compatibility string under the limit (#581)', async () => {
+    skillContent = VALID_SKILL.replace('license: MIT', 'license: MIT\ncompatibility: Requires Bash and git access')
+    lockContent = lockWith({ 'the-test': { version: contentHash(skillContent), updatedAt: OLD } })
+    const exit = vi.spyOn(process, 'exit').mockImplementation((() => {}) as any)
+
+    await verify([])
+
+    expect(exit).not.toHaveBeenCalledWith(1)
+  })
+
   it('fails when metadata.version is missing (#579)', async () => {
     skillContent = VALID_SKILL.replace('metadata:\n  version: 1.0.0\n', '')
     const log = vi.spyOn(console, 'log').mockImplementation(() => {})

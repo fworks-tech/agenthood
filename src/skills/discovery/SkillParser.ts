@@ -16,6 +16,8 @@ export interface ParsedSkill {
   hidden?: boolean
   /** A routing entry point — the only skills whose metadata loads at startup (#588). */
   router?: boolean
+  /** Free-form environment requirement, max 500 chars (#581). */
+  compatibility?: string
 }
 
 const SPDX_SHAPE_RE = /^[A-Za-z0-9.+-]+(?: (?:AND|OR|WITH) [A-Za-z0-9.+-]+)*$/
@@ -31,6 +33,14 @@ export function isSpdxLicense(value: string): boolean {
 
 export function parseLicense(frontmatter: Record<string, unknown> | null): string | undefined {
   const raw = frontmatter?.license
+  return typeof raw === 'string' && raw.trim() !== '' ? raw.trim() : undefined
+}
+
+/** Free-form runtime requirement. The spec caps it at 500 characters; `verify` enforces that. */
+export const MAX_COMPATIBILITY_LENGTH = 500
+
+export function parseCompatibility(frontmatter: Record<string, unknown> | null): string | undefined {
+  const raw = frontmatter?.compatibility
   return typeof raw === 'string' && raw.trim() !== '' ? raw.trim() : undefined
 }
 
@@ -105,6 +115,7 @@ export class SkillParser {
     if (!raw.frontmatter) return null
     if (!raw.frontmatter.description) return null
 
+    const compatibility = parseCompatibility(raw.frontmatter)
     return {
       name: typeof raw.frontmatter.name === 'string' ? raw.frontmatter.name : filePath,
       description: typeof raw.frontmatter.description === 'string' ? raw.frontmatter.description : '',
@@ -112,6 +123,7 @@ export class SkillParser {
       allowedTools: parseAllowedTools(raw.frontmatter['allowed-tools'] ?? raw.frontmatter.allowed_tools),
       version: parseSkillVersion(raw.frontmatter),
       license: parseLicense(raw.frontmatter),
+      ...(compatibility ? { compatibility } : {}),
       ...(raw.frontmatter.hidden === true ? { hidden: true } : {}),
       ...(raw.frontmatter.router === true ? { router: true } : {}),
     }
@@ -161,6 +173,7 @@ export class SkillParser {
       ...(parsed.allowedTools ? { allowedTools: parsed.allowedTools } : {}),
       ...(parsed.version ? { version: parsed.version } : {}),
       ...(parsed.license ? { license: parsed.license } : {}),
+      ...(parsed.compatibility ? { compatibility: parsed.compatibility } : {}),
       ...(parsed.hidden ? { hidden: true } : {}),
       ...(parsed.router ? { router: true } : {}),
     }

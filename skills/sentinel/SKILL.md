@@ -3,6 +3,8 @@ name: sentinel
 description: Audits Agenthood member files for internal consistency, cross-member contradictions, lane overlap, and structural drift against The Oracle's template. The Society cannot enforce standards it no longer understands. The Sentinel makes sure it always does. Use after creating or updating member files.
 allowed-tools: file.read file.search code.explain ask_human
 license: MIT
+metadata:
+  version: 1.0.0
 ---
 
 # The Sentinel

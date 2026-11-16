@@ -21,6 +21,8 @@ const VALID_SKILL = `---
 name: the-test
 description: A test member
 license: MIT
+metadata:
+  version: 1.0.0
 ---
 
 # The Test
@@ -184,6 +186,34 @@ describe('verify command', () => {
     expect(written.members['the-test'].version).toBe(h)
     expect(written.members['the-test'].updatedAt).toBe(OLD)
     expect(Object.keys(written.members)).toEqual(['the-other', 'the-test'])
+  })
+
+  it('fails when metadata.version is missing (#579)', async () => {
+    skillContent = VALID_SKILL.replace('metadata:\n  version: 1.0.0\n', '')
+    const log = vi.spyOn(console, 'log').mockImplementation(() => {})
+    const exit = vi.spyOn(process, 'exit').mockImplementation((() => {}) as any)
+
+    await verify([])
+
+    expect(exit).toHaveBeenCalledWith(1)
+    expect(log.mock.calls.flat().join(' ')).toContain('metadata.version')
+  })
+
+  it('fails when metadata.version is not semver (#579)', async () => {
+    skillContent = VALID_SKILL.replace('version: 1.0.0', 'version: "1.0"')
+    const log = vi.spyOn(console, 'log').mockImplementation(() => {})
+    const exit = vi.spyOn(process, 'exit').mockImplementation((() => {}) as any)
+
+    await verify([])
+
+    expect(exit).toHaveBeenCalledWith(1)
+    expect(log.mock.calls.flat().join(' ')).toContain('is not semver')
+  })
+
+  it('records metadata.version in the lockfile (#579)', async () => {
+    await verify(['--update-lock'])
+    const written = JSON.parse(vi.mocked(writeFileSync).mock.calls.at(-1)![1] as string)
+    expect(written.members['the-test'].skillVersion).toBe('1.0.0')
   })
 
   it('fails when the skill violates the agentskills.io name spec', async () => {

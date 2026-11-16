@@ -12,6 +12,8 @@ export interface LockfileMember {
   version: string
   updatedAt: string
   resources?: Record<string, string>
+  /** `metadata.version` from the locked SKILL.md — the skill's own semver, not the hash above. */
+  skillVersion?: string
 }
 
 export function loadLockfile(cwd: string): Lockfile | undefined {

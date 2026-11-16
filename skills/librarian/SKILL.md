@@ -3,6 +3,8 @@ name: librarian
 description: Creates and maintains documentation, READMEs, ADRs, and API references. Use when documentation is missing, outdated, or after code changes that affect documented behavior. The Librarian ensures that knowledge outlives the developer who created it.
 allowed-tools: file.read file.search code.explain ask_human file.write code.write code.refactor
 license: MIT
+metadata:
+  version: 1.0.0
 ---
 
 # The Librarian

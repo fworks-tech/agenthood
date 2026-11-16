@@ -10,4 +10,6 @@ export interface ISkillManifest {
   resources: string[]
   /** Tools the skill declares it may use (`allowed-tools`). Undeclared = no restriction. */
   allowedTools?: string[]
+  /** `metadata.version` — semver, used by `agenthood bump` and the lockfile. */
+  version?: string
 }

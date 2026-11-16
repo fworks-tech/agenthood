@@ -3,6 +3,8 @@ name: doorman
 description: Validates commit messages, PR titles, branch health, and repository standards. Use to enforce conventions locally and in CI, run health checks, and audit repository hygiene. Nothing gets in without proper credentials.
 allowed-tools: file.read file.search code.explain ask_human
 license: MIT
+metadata:
+  version: 1.0.0
 ---
 
 # The Doorman

@@ -3,6 +3,8 @@ name: warden
 description: Detects code smell, complexity violations, architectural boundary breaches, dead code, and dependency decay in project code. Runs on every PR diff and on demand for full codebase scans. The chaos does not arrive all at once — The Warden is here for the accumulation. Use on PR diffs and codebase quality scans.
 allowed-tools: file.read file.search code.explain ask_human
 license: MIT
+metadata:
+  version: 1.0.0
 ---
 
 # The Warden

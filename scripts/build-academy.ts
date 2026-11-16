@@ -69,7 +69,7 @@ function escapeHtml(text: string): string {
     .replace(/'/g, '&#39;')
 }
 
-/** Wrap HTML body content in a full document with dark‑theme styling and a titled <head>. */
+/** Wrap HTML body content in a full document with dark-theme styling and a titled <head>. */
 export function htmlTemplate(title: string, body: string): string {
   // title is derived from the first H1 of a markdown file, so it is rendered
   // into <head> raw when the file content is trusted, but escape anyway so a
@@ -97,9 +97,9 @@ function ensureDir(filePath: string): void {
 /**
  * Rewrite a markdown link href to its HTML equivalent.
  *
- * - Absolute URLs (http/https) and anchor‑only hrefs (#) → pass through
- * - Internal `.md` links within docs/ → converted to directory‑style HTML paths
- *   (e.g. `../foo.md` → `foo/` for index sources, `../foo/` for non‑index)
+ * - Absolute URLs (http/https) and anchor-only hrefs (#) → pass through
+ * - Internal `.md` links within docs/ → converted to directory-style HTML paths
+ *   (e.g. `../foo.md` → `foo/` for index sources, `../foo/` for non-index)
  * - Links outside docs/ → rewritten as GitHub blob URLs
  *
  * @param href - The original link target from markdown

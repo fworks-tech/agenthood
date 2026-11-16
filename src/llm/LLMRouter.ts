@@ -53,7 +53,7 @@ const COT_MARKERS = [
 /**
  * Heuristic complexity scorer for LLM requests.
  *
- * Evaluates message count, tool count, and chain‑of‑thought markers
+ * Evaluates message count, tool count, and chain-of-thought markers
  * to classify a request as low, medium, or high complexity.
  * Used by LLMRouter.route() when strategy is 'dynamic'.
  */
@@ -62,7 +62,7 @@ export class ComplexityScorer {
    * Score a request and return the complexity tier.
    *
    * Rules:
-   * - high: >3 tools or system prompt contains chain‑of‑thought markers
+   * - high: >3 tools or system prompt contains chain-of-thought markers
    * - medium: >5 messages or any tools present
    * - low: else
    */
@@ -88,10 +88,10 @@ export class ComplexityScorer {
  *
  * Supports three modes:
  * - **create**: single provider or default provider chain
- * - **createForMember**: per‑member provider chain with preferred + fallback
- * - **route**: complexity‑based dynamic provider selection
+ * - **createForMember**: per-member provider chain with preferred + fallback
+ * - **route**: complexity-based dynamic provider selection
  *
- * Provider modules are lazy‑loaded (dynamic import on first use),
+ * Provider modules are lazy-loaded (dynamic import on first use),
  * so importing LLMRouter does not pull in provider SDKs.
  */
 export class LLMRouter {
@@ -214,7 +214,7 @@ export class LLMRouter {
   }
 
   /**
-   * Create a per‑member provider chain with the member's preferred provider first,
+   * Create a per-member provider chain with the member's preferred provider first,
    * then fallback providers (groq, openai, ollama) in order.
    * Used when running individual Society members via `agenthood run <member>`.
    */

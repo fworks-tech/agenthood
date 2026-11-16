@@ -17,6 +17,9 @@ import { RefactorSkill } from '../tools/code/RefactorSkill.ts'
 import { PrSyncSkill } from '../tools/pr/PrSyncSkill.ts'
 import { AskHumanTool } from '../tools/human/AskHumanTool.ts'
 import { SubagentTaskSkill } from '../tools/core/SubagentTaskSkill.ts'
+import { ImageGenerationTool } from '../tools/generation/ImageGenerationTool.ts'
+import { SpeechToTextTool, TextToSpeechTool } from '../tools/generation/SpeechTools.ts'
+import { VideoGenerationTool } from '../tools/generation/VideoGenerationTool.ts'
 
 export const TOOL_VOCABULARY: Record<string, new (...args: never[]) => ITool> = {
   'ask_human': AskHumanTool,
@@ -28,6 +31,10 @@ export const TOOL_VOCABULARY: Record<string, new (...args: never[]) => ITool> = 
   'code.explain': ExplainCodeSkill,
   'pr_sync': PrSyncSkill,
   'delegate_task': SubagentTaskSkill,
+  'generate_image': ImageGenerationTool,
+  'text_to_speech': TextToSpeechTool,
+  'speech_to_text': SpeechToTextTool,
+  'generate_video': VideoGenerationTool,
 }
 
 // Derived from the tools themselves so the mapping cannot drift from TOOL_MAP.

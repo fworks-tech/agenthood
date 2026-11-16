@@ -246,3 +246,27 @@ describe('createForMember model override (#1040)', () => {
     expect(first).toBe(same)
   })
 })
+
+describe('multimodal routing (#124)', () => {
+  it('routes a non-text part to a provider that can carry it', async () => {
+    const provider = await LLMRouter.route(
+      makeRequest({ parts: [{ type: 'image_url', url: 'https://img.test/a.png' }] }),
+      { provider: 'openai', apiKey: 'test-key' } as never,
+    )
+    expect(typeof (provider as unknown as { generateImage: unknown }).generateImage).toBe('function')
+  })
+
+  it('refuses multimodal generation on a provider without it', async () => {
+    await expect(
+      LLMRouter.route(
+        makeRequest({ parts: [{ type: 'image_url', url: 'https://img.test/a.png' }] }),
+        { provider: 'groq', apiKey: 'test-key' } as never,
+      ),
+    ).rejects.toThrow(/does not support/)
+  })
+
+  it('keeps text-only routing on the normal path', async () => {
+    const provider = await LLMRouter.route(makeRequest(), { provider: 'stub' } as never)
+    expect(provider).toBeDefined()
+  })
+})

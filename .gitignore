@@ -39,6 +39,7 @@ vscode-extension/.vscode-test/
 .agenthood/traces/
 .agenthood/skill-output/
 .agenthood/skill-cache/
+.agenthood/media/
 .agenthood/skill-exec-audit.ndjson
 .agenthood/skill-resources.json
 !.agenthood/config.json

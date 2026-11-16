@@ -1,5 +1,6 @@
 import type { ILLMProvider } from './ILLMProvider.ts'
 import type { LLMRequest } from './types.ts'
+import type { IMultimodalProvider, MultimodalRequest } from './IMultimodalProvider.ts'
 import type { RedactionFilter } from '../core/RedactionFilter.ts'
 
 /**
@@ -19,10 +20,24 @@ export function withRequestRedaction<T extends ILLMProvider>(provider: T, filter
     get(target, prop) {
       if (prop === 'complete') return (request: LLMRequest) => target.complete(redact(request, filter))
       if (prop === 'stream') return (request: LLMRequest) => target.stream(redact(request, filter))
+      if (prop === 'completeMultimodal') {
+        return (request: MultimodalRequest) =>
+          (target as unknown as IMultimodalProvider).completeMultimodal(redactMultimodal(request, filter))
+      }
       const value = (target as unknown as Record<PropertyKey, unknown>)[prop]
       return typeof value === 'function' ? value.bind(target) : value
     },
   })
+}
+
+function redactMultimodal(request: MultimodalRequest, filter: RedactionFilter): MultimodalRequest {
+  if (!filter.enabled()) return request
+  return {
+    ...request,
+    parts: request.parts.map((part) =>
+      part.type === 'text' ? { ...part, content: filter.redactText(part.content) } : part,
+    ),
+  }
 }
 
 function redact(request: LLMRequest, filter: RedactionFilter): LLMRequest {

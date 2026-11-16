@@ -118,9 +118,16 @@
     },
     "tracePath": ".agenthood/traces/traces.ndjson"
   },
-  "_comment_security": "Optional: mind-virus persistence-vector hardening (ADR-020). strictSkillIntegrity blocks member runs when the injected SKILL.md drifted from agenthood.lock; when false (default), drift only warns and records.",
+  "_comment_security": "Optional: mind-virus persistence-vector hardening (ADR-020). strictSkillIntegrity blocks member runs when the injected SKILL.md drifted from agenthood.lock; when false (default), drift only warns and records. sandbox runs skill scripts in Docker (ADR-036) and fails closed without it. autoAllowSkillDirs (default true) makes activated skill directories readable without a prompt; trustedAuthors may run scripts on the host.",
   "security": {
-    "strictSkillIntegrity": false
+    "strictSkillIntegrity": false,
+    "autoAllowSkillDirs": true
+  },
+
+  "_comment_skills": "Optional: skill discovery and execution. catalogFormat is xml|json|text (otherwise the provider decides); disabled keeps skills out of the catalog; scriptTimeoutMs caps a bundled script run (default 120000).",
+  "skills": {
+    "autoDiscover": true,
+    "scriptTimeoutMs": 120000
   },
 
   "_comment_analytics": "Optional: local-only per-skill usage analytics shown by `agenthood stats`. Records skill names and counters only — never prompts or results. Set enabled false to opt out entirely.",

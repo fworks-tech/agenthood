@@ -17,7 +17,7 @@ export class ReadFileSkill implements ITool {
 
   async execute(input: unknown, context: ExecutionContext): Promise<ToolResult> {
     const { path } = input as { path: string }
-    const resolved = await resolveInsideProject(context.project.localPath, path)
+    const resolved = await resolveInsideProject(context.project.localPath, path, context.skillAllowlist)
     if (!resolved.ok) return { success: false, output: '', error: resolved.error }
 
     try {

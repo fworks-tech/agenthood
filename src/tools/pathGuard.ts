@@ -15,21 +15,29 @@ function escapes(root: string, target: string): boolean {
 
 /**
  * Resolves a tool-supplied path inside the project root, rejecting traversal
- * via `..` and via a symlink that points outside. The caller owns the error
- * message decision; a missing file is not a guard failure — the real read or
- * write surfaces it.
+ * via `..` and via a symlink that points outside. `allowedRoots` adds the
+ * directories of skills activated in this run (#536) — read access only, and
+ * every use is logged. The caller owns the error message decision; a missing
+ * file is not a guard failure — the real read or write surfaces it.
  */
-export async function resolveInsideProject(root: string, path: string): Promise<GuardedPath> {
+export async function resolveInsideProject(
+  root: string,
+  path: string,
+  allowedRoots: Iterable<string> = [],
+): Promise<GuardedPath> {
   const target = resolve(root, path)
-  if (escapes(root, target)) {
+  const projectRoot = resolve(root)
+  const home = [projectRoot, ...Array.from(allowedRoots, (dir) => resolve(dir))].find((dir) => !escapes(dir, target))
+  if (!home) {
     return { ok: false, error: `Path traversal denied: "${path}"` }
   }
+  if (home !== projectRoot) console.log(`[skills] read allowed under activated skill: ${target}`)
 
   try {
     const stats = await lstat(target)
     if (stats.isSymbolicLink()) {
       const real = await realpath(target)
-      if (escapes(root, real)) {
+      if (escapes(home, real)) {
         return { ok: false, error: `Symlink traversal denied: "${path}" -> "${real}"` }
       }
     }

@@ -6,6 +6,7 @@ import { recordSkillActivation } from './SkillStats.ts'
 import { SkillBudget } from './SkillBudget.ts'
 import { evaluateConditions } from './conditions.ts'
 import { formatSkillContent, SKILL_ACTIVATION_PREFIX, type SkillContentFormat } from './skillContent.ts'
+import { findMissingReferences } from './references.ts'
 
 export { SKILL_ACTIVATION_PREFIX }
 
@@ -21,6 +22,10 @@ export interface ActivateSkillOptions {
   format?: SkillContentFormat
   /** Injectable clock for deterministic output in tests. */
   now?: () => string
+  /** Names activated in this run, shared with `run_skill_script` (ADR-036). */
+  activeSkills?: Set<string>
+  /** `security.autoAllowSkillDirs: false` keeps skill dirs out of the read allowlist (#536). */
+  autoAllowSkillDirs?: boolean
 }
 
 export class ActivateSkillTool implements ITool {
@@ -56,17 +61,18 @@ export class ActivateSkillTool implements ITool {
           description: 'Name of the skill to activate',
           ...(names.length > 0 ? { enum: names } : {}),
         },
+        eager: { type: 'boolean', description: 'List more bundled resources (contents are never read)' },
       },
       required: ['skill_name'],
     }
   }
 
   async execute(input: unknown, context: ExecutionContext): Promise<ToolResult> {
-    const { skill_name } = input as { skill_name: string }
-    return this.activate(skill_name, context, [])
+    const { skill_name, eager } = input as { skill_name: string; eager?: boolean }
+    return this.activate(skill_name, context, [], Boolean(eager))
   }
 
-  private activate(name: string, context: ExecutionContext, attempted: string[]): ToolResult {
+  private activate(name: string, context: ExecutionContext, attempted: string[], eager = false): ToolResult {
     const projectPath = context.project.localPath
     const fail = (error: string, skill = name): ToolResult => {
       recordSkillActivation(projectPath, skill, false)
@@ -91,12 +97,14 @@ export class ActivateSkillTool implements ITool {
       const next = this.nextFallback(manifest, name, attempted)
       if (next) {
         console.warn(`[skills] "${name}" unavailable — falling back to "${next}"`)
-        return this.activate(next, context, [...attempted, name])
+        return this.activate(next, context, [...attempted, name], eager)
       }
       return fail(`Skill "${name}" cannot activate here: ${conditions.reason}`)
     }
 
-    const cachedKey = `${name}\u0000${attempted.join('>')}`
+    this.recordForRun(name, context, manifest)
+
+    const cachedKey = `${name}\u0000${attempted.join('>')}\u0000${eager}`
     const cached = this.cache.get(cachedKey)
     recordSkillActivation(projectPath, name, true)
     if (cached) return { success: true, output: cached }
@@ -104,19 +112,36 @@ export class ActivateSkillTool implements ITool {
     // A body already in the transcript cannot be shrunk later, so the budget is
     // applied here, against what is already loaded.
     const fit = this.budget.fit(manifest.body)
-    const notice = fit.compressed
-      ? `<skill_budget>Instructions compressed to fit the context window — saved ~${fit.savedTokens} tokens. Re-read SKILL.md from the skill directory for the full steps.</skill_budget>`
-      : undefined
+    const missing = findMissingReferences(manifest.body, manifest.directory)
+    const notices = [
+      fit.compressed
+        ? `<skill_budget>Instructions compressed to fit the context window — saved ~${fit.savedTokens} tokens. Re-read SKILL.md from the skill directory for the full steps.</skill_budget>`
+        : undefined,
+      missing.length > 0
+        ? `<skill_missing_references>Not found under the skill directory: ${missing.join(', ')}. They may be created at run time.</skill_missing_references>`
+        : undefined,
+    ].filter(Boolean)
 
     const output = formatSkillContent(manifest, fit.body, {
       format: this.options.format,
       trigger: attempted.length > 0 ? 'fallback' : 'model',
       now: this.options.now?.(),
-      notice,
+      notice: notices.join('\n') || undefined,
       fallbackFrom: attempted.at(-1),
+      eager,
     })
     this.cache.set(cachedKey, output)
     return { success: true, output }
+  }
+
+  /** Activation is what authorizes a script run and read access (#536, ADR-036). */
+  private recordForRun(name: string, context: ExecutionContext, manifest: ISkillManifest): void {
+    this.options.activeSkills?.add(name)
+    if (this.options.autoAllowSkillDirs === false) return
+    context.skillAllowlist ??= new Set()
+    if (context.skillAllowlist.has(manifest.directory)) return
+    context.skillAllowlist.add(manifest.directory)
+    console.log(`[skills] auto-allowlisted ${manifest.directory} for "${name}" (this run only)`)
   }
 
   /**

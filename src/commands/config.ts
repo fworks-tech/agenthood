@@ -1,6 +1,6 @@
 import { join } from 'node:path'
 import { readFile } from 'node:fs/promises'
-import type { LLMConfig, ProviderEntry } from '../llm/types.ts'
+import type { LLMConfig, ProviderEntry, RemoteCatalogSource, RemoteCatalogsConfig } from '../llm/types.ts'
 
 function pickBlock(raw: Record<string, unknown>, key: string): Record<string, unknown> | undefined {
   const block = raw[key]
@@ -49,8 +49,36 @@ function parseFailover(raw: Record<string, unknown>): Pick<LLMConfig, 'failureTh
   }
 }
 
-function parseSkills(raw: Record<string, unknown>): { autoDiscover?: boolean } | undefined {
-  const skills = pickBlock(raw, 'skills')
+/**
+ * Remote catalogs are advisory, so a malformed source is skipped with a warning
+ * instead of failing the run — unlike metricsExport, where a silently disabled
+ * exporter is a monitoring lie.
+ */
+function parseRemoteCatalogs(raw: Record<string, unknown>): RemoteCatalogsConfig | undefined {
+  const block = pickBlock(raw, 'remoteCatalogs')
+  if (!block) return undefined
+  const config: RemoteCatalogsConfig = {}
+  if (typeof block.ttlSeconds === 'number' && block.ttlSeconds > 0) config.ttlSeconds = block.ttlSeconds
+  if (Array.isArray(block.sources)) {
+    const sources: RemoteCatalogSource[] = []
+    for (const entry of block.sources) {
+      if (!entry || typeof entry !== 'object') continue
+      const item = entry as Record<string, unknown>
+      if (typeof item.url !== 'string' || item.url.length === 0) {
+        console.warn('[config] remoteCatalogs.sources entry without a "url" — skipped')
+        continue
+      }
+      sources.push({
+        url: item.url,
+        ...(typeof item.tokenEnv === 'string' && item.tokenEnv.length > 0 ? { tokenEnv: item.tokenEnv } : {}),
+      })
+    }
+    if (sources.length > 0) config.sources = sources
+  }
+  return config
+}
+
+function parseSkills(raw: Record<string, unknown>): { autoDiscover?: boolean } | undefined {  const skills = pickBlock(raw, 'skills')
   if (!skills) return undefined
   return { autoDiscover: skills.autoDiscover === true }
 }
@@ -97,6 +125,8 @@ export async function loadConfig(providerOverride?: string): Promise<LLMConfig> 
   if (providers) cfg.providers = providers
   const skills = parseSkills(raw)
   if (skills) cfg.skills = skills
+  const remoteCatalogs = parseRemoteCatalogs(raw)
+  if (remoteCatalogs) cfg.remoteCatalogs = remoteCatalogs
   const sentry = parseSentry(raw)
   if (sentry) cfg.sentry = sentry
   const security = parseSecurity(raw)

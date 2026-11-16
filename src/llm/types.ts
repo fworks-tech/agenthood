@@ -82,8 +82,18 @@ export interface ProviderEntry {
   priority?: number
 }
 
-export interface LLMConfig {
-  provider?: string
+/** One remote catalog (ADR-035). `tokenEnv` names an env var — never a literal token. */
+export interface RemoteCatalogSource {
+  url: string
+  tokenEnv?: string
+}
+
+export interface RemoteCatalogsConfig {
+  ttlSeconds?: number
+  sources?: RemoteCatalogSource[]
+}
+
+export interface LLMConfig {  provider?: string
   model?: string
   embeddingModel?: string
   baseUrl?: string
@@ -97,6 +107,8 @@ export interface LLMConfig {
   requestTimeoutMs?: number
   /** Skill auto-discovery toggle from .agenthood/config.json */
   skills?: { autoDiscover?: boolean }
+  /** Remote `.well-known` skill catalogs (ADR-035) */
+  remoteCatalogs?: RemoteCatalogsConfig
   /** Optional Sentry error reporting from .agenthood/config.json */
   sentry?: { dsn?: string }
   /** Mind-virus persistence-vector hardening from .agenthood/config.json (ADR-020) */

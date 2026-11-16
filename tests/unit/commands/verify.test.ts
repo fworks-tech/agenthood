@@ -220,6 +220,28 @@ describe('verify command', () => {
     expect(exit).not.toHaveBeenCalledWith(1)
   })
 
+  it('fails when metadata.author is not a valid namespace (#593)', async () => {
+    skillContent = VALID_SKILL.replace('license: MIT', 'license: MIT\nauthor: FWorks_Tech')
+    lockContent = lockWith({ 'the-test': { version: contentHash(skillContent), updatedAt: OLD } })
+    const log = vi.spyOn(console, 'log').mockImplementation(() => {})
+    const exit = vi.spyOn(process, 'exit').mockImplementation((() => {}) as any)
+
+    await verify([])
+
+    expect(exit).toHaveBeenCalledWith(1)
+    expect(log.mock.calls.flat().join(' ')).toContain('metadata.author')
+  })
+
+  it('accepts a valid namespace and leaves an authorless skill alone (#593)', async () => {
+    skillContent = VALID_SKILL.replace('license: MIT', 'license: MIT\nauthor: fworks-tech')
+    lockContent = lockWith({ 'the-test': { version: contentHash(skillContent), updatedAt: OLD } })
+    const exit = vi.spyOn(process, 'exit').mockImplementation((() => {}) as any)
+
+    await verify([])
+
+    expect(exit).not.toHaveBeenCalledWith(1)
+  })
+
   it('fails when metadata.version is missing (#579)', async () => {
     skillContent = VALID_SKILL.replace('metadata:\n  version: 1.0.0\n', '')
     const log = vi.spyOn(console, 'log').mockImplementation(() => {})

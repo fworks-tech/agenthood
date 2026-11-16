@@ -18,6 +18,8 @@ export interface ParsedSkill {
   router?: boolean
   /** Free-form environment requirement, max 500 chars (#581). */
   compatibility?: string
+  /** Registry namespace, from `metadata.author` (#593). */
+  owner?: string
 }
 
 const SPDX_SHAPE_RE = /^[A-Za-z0-9.+-]+(?: (?:AND|OR|WITH) [A-Za-z0-9.+-]+)*$/
@@ -41,6 +43,17 @@ export const MAX_COMPATIBILITY_LENGTH = 500
 
 export function parseCompatibility(frontmatter: Record<string, unknown> | null): string | undefined {
   const raw = frontmatter?.compatibility
+  return typeof raw === 'string' && raw.trim() !== '' ? raw.trim() : undefined
+}
+
+/** `metadata.author` names the registry namespace (#593). A flat `author` is tolerated. */
+export function parseOwner(frontmatter: Record<string, unknown> | null): string | undefined {
+  const meta = frontmatter?.metadata
+  const nested =
+    meta && typeof meta === 'object' && !Array.isArray(meta)
+      ? (meta as Record<string, unknown>).author
+      : undefined
+  const raw = nested ?? frontmatter?.author
   return typeof raw === 'string' && raw.trim() !== '' ? raw.trim() : undefined
 }
 
@@ -124,6 +137,7 @@ export class SkillParser {
     if (!raw.frontmatter.description) return null
 
     const compatibility = parseCompatibility(raw.frontmatter)
+    const owner = parseOwner(raw.frontmatter)
     const declaredName = typeof raw.frontmatter.name === 'string' ? raw.frontmatter.name : filePath
     return {
       name: normalizeSkillName(declaredName),
@@ -133,6 +147,7 @@ export class SkillParser {
       version: parseSkillVersion(raw.frontmatter),
       license: parseLicense(raw.frontmatter),
       ...(compatibility ? { compatibility } : {}),
+      ...(owner ? { owner } : {}),
       ...(raw.frontmatter.hidden === true ? { hidden: true } : {}),
       ...(raw.frontmatter.router === true ? { router: true } : {}),
     }
@@ -183,6 +198,7 @@ export class SkillParser {
       ...(parsed.version ? { version: parsed.version } : {}),
       ...(parsed.license ? { license: parsed.license } : {}),
       ...(parsed.compatibility ? { compatibility: parsed.compatibility } : {}),
+      ...(parsed.owner ? { owner: parsed.owner } : {}),
       ...(parsed.hidden ? { hidden: true } : {}),
       ...(parsed.router ? { router: true } : {}),
     }

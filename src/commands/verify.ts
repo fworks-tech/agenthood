@@ -1,4 +1,4 @@
-import { existsSync, readFileSync } from 'node:fs'
+import { existsSync, readFileSync, readdirSync } from 'node:fs'
 import type { CommandDescriptor } from './types.ts'
 import { MEMBER_NAME_RE, MEMBER_NAMES, memberResourcePath, memberSkillPath, resolveSocietyMembersDir } from '../members.ts'
 import { join } from 'node:path'
@@ -11,11 +11,13 @@ import {
   SkillParser,
   parseAllowedTools,
   parseCompatibility,
+  parseOwner,
   parseSkillVersion,
   isSpdxLicense,
   MAX_COMPATIBILITY_LENGTH,
   SEMVER_RE,
 } from '../skills/discovery/SkillParser.ts'
+import { OWNER_RE } from '../skills/namespace.ts'
 import { isKnownToolName } from '../members/toolVocabulary.ts'
 import { scanForInjections } from '../skills/discovery/injectionScan.ts'
 import { userError } from '../core/cliError.ts'
@@ -77,6 +79,12 @@ function validateMember(membersDir: string, member: string, lockfile?: Lockfile,
     const compatibility = parseCompatibility(frontmatter)
     if (compatibility && compatibility.length > MAX_COMPATIBILITY_LENGTH) {
       result.issues.push(`compatibility is ${compatibility.length} chars, over the ${MAX_COMPATIBILITY_LENGTH}-char spec limit. Fix: state the environment requirement in one short sentence`)
+    }
+    // Namespace (#593): optional locally, but a malformed owner would make the
+    // skill unpublishable later, so reject it at author time.
+    const owner = parseOwner(frontmatter)
+    if (owner && !OWNER_RE.test(owner)) {
+      result.issues.push(`metadata.author "${owner}" is not a valid namespace. Fix: lowercase letters, digits and single hyphens, e.g. fworks-tech`)
     }
     const version = parseSkillVersion(frontmatter)
     if (!version) {
@@ -303,6 +311,39 @@ function reportConflicts(membersDir: string): void {
   console.log('    Resolve manually: edit the descriptions, remove one skill, or narrow its "Use when" triggers.')
 }
 
+/**
+ * Two skills declaring the same `owner/name` cannot both be published, and the
+ * local copy-paste that produces them is the conflict #593 exists to prevent.
+ * Scans every skill directory, not only members — the collision usually involves
+ * a non-member pack from another author.
+ */
+function findNamespaceConflicts(membersDir: string): string[] {
+  const parser = new SkillParser()
+  const byRef = new Map<string, string>()
+  let entries: string[]
+  try {
+    entries = readdirSync(membersDir, { withFileTypes: true })
+      .filter((entry) => entry.isDirectory())
+      .map((entry) => entry.name)
+  } catch {
+    return []
+  }
+
+  for (const dir of entries) {
+    const skillPath = join(membersDir, dir, 'SKILL.md')
+    if (!existsSync(skillPath)) continue
+    const { frontmatter } = parser.parseRaw(readFileSync(skillPath, 'utf8'))
+    const owner = parseOwner(frontmatter)
+    if (!owner) continue
+    const name = typeof frontmatter?.name === 'string' ? frontmatter.name : dir
+    const ref = `${owner}/${name}`
+    const previous = byRef.get(ref)
+    if (previous) return [`Duplicate namespace "${ref}" in "${previous}" and "${dir}". Fix: give each skill a distinct metadata.author or name`]
+    byRef.set(ref, dir)
+  }
+  return []
+}
+
 function printResults(results: VerifyResult[]): void {
   for (const r of results) {
     if (r.pass && !r.drift) {
@@ -381,7 +422,10 @@ export async function verify(args: string[]): Promise<void> {
   const results = membersToCheck.map((m) => validateMember(membersDir, m, lockfile, isStrict))
   printResults(results)
 
-  const structuralOk = results.every((r) => r.pass)
+  const namespaceConflicts = findNamespaceConflicts(membersDir)
+  for (const conflict of namespaceConflicts) console.log(`  \u2717 ${conflict}`)
+
+  const structuralOk = results.every((r) => r.pass) && namespaceConflicts.length === 0
   const hasDrift = results.some((r) => r.drift)
 
   if (isStrict) reportLaneOverlaps()

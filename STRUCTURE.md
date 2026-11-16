@@ -95,6 +95,7 @@ agenthood/
 │   └── workflows/                     ← CI enforcement
 │   ├── distribution.yml             ← The Envoy — Skills.sh, SkillsMP, traction badges
 │   ├── herald.yml                   ← The Herald — CI summary comment on PRs
+│   ├── opencode-catalog-sync.yml    ← Weekly refresh of the OpenCode model catalog snapshot
 │   ├── pr.yml                       ← The Doorman, Auditor, Scribe, Warden, Librarian, Sentinel, Tester — PR standards (10 checks merged)
 │   ├── publish-vsce.yml             ← The Envoy — publish VSIX to Marketplace
 │   ├── reviewer.yml                 ← The Reviewer — LLM commit review on every push

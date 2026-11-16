@@ -1,0 +1,50 @@
+name: OpenCode Catalog Sync
+
+on:
+  schedule:
+    - cron: '0 6 * * 1'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  pull-requests: write
+
+concurrency:
+  group: opencode-catalog-sync
+  cancel-in-progress: false
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1
+        with:
+          node-version: 24
+          cache: npm
+
+      - run: npm ci
+
+      - run: npm run sync:opencode-catalog
+
+      - name: Open or update the sync PR when the catalog changed
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          if git diff --quiet -- src/llm/providers/opencode-catalog.json; then
+            echo "OpenCode catalog unchanged"
+            exit 0
+          fi
+          branch="chore/opencode-catalog-sync"
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git checkout -B "$branch"
+          git add src/llm/providers/opencode-catalog.json
+          git commit -m "chore(llm): sync OpenCode model catalog"
+          git push --force-with-lease origin "$branch"
+          if [ -z "$(gh pr list --head "$branch" --json number --jq '.[0].number')" ]; then
+            gh pr create --base main --head "$branch" \
+              --title "chore(llm): sync OpenCode model catalog" \
+              --body "Automated refresh of src/llm/providers/opencode-catalog.json from https://opencode.ai/zen/v1/models and https://opencode.ai/zen/go/v1/models. Prices, protocols and context windows follow the live catalog."
+          fi

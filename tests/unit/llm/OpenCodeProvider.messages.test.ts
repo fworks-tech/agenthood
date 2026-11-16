@@ -40,11 +40,11 @@ describe("OpenCodeProvider /v1/messages protocol (qwen3.8-flash, Claude)", () =>
     expect(res.usage).toMatchObject({ promptTokens: 3, completionTokens: 2, totalTokens: 5 });
   });
 
-  it("hoists the system message and reports a 200k window for a messages model", async () => {
+  it("hoists the system message and reports the catalog window for a messages model", async () => {
     mockAnthCreate.mockResolvedValue({ content: [{ type: "text", text: "ok" }], usage: {} });
     const p = provider();
     p.setModel("qwen3.8-flash");
-    expect(p.getContextWindow()).toBe(200000);
+    expect(p.getContextWindow()).toBe(1000000);
     await p.complete({ messages: [{ role: "system", content: "be terse" }, { role: "user", content: "yo" }] });
     expect(mockAnthCreate.mock.calls[0][0].system).toBe("be terse");
   });

@@ -3,6 +3,8 @@ name: tester
 description: Drives test-driven development, generates tests for existing code, and reviews coverage quality. Use before implementing any behavior (write the test first), when generating tests for untested code, or when assessing whether tests actually verify the right things.
 allowed-tools: file.read file.search code.explain ask_human file.write code.write code.refactor
 license: MIT
+metadata:
+  version: 1.0.0
 ---
 
 # The Tester

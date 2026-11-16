@@ -215,5 +215,25 @@ describe("SkillParser", () => {
       expect(parser.parseManifest("/x/SKILL.md", "/x", "body", "s", "d", "community", ["file.read"])).toMatchObject({ allowedTools: ["file.read"] })
       expect(parser.parseManifest("/x/SKILL.md", "/x", "body", "s", "d")).not.toHaveProperty("allowedTools")
     })
+    it("reads metadata.version and tolerates a flat version key (#579)", () => {
+      const nested = writeSkill(dir, "---\nname: s\ndescription: d\nmetadata:\n  version: 1.4.2\n---\nBody.")
+      expect(parser.parse(nested)?.version).toBe("1.4.2")
+      const flat = writeSkill(dir, "---\nname: s\ndescription: d\nversion: 2.0.0\n---\nBody.")
+      expect(parser.parse(flat)?.version).toBe("2.0.0")
+    })
+
+    it("treats a non-string or absent version as undeclared", () => {
+      const numeric = writeSkill(dir, "---\nname: s\ndescription: d\nmetadata:\n  version: 1.0\n---\nBody.")
+      expect(parser.parse(numeric)?.version).toBeUndefined()
+      const none = writeSkill(dir, "---\nname: s\ndescription: d\nmetadata:\n  category: cloud\n---\nBody.")
+      expect(parser.parse(none)?.version).toBeUndefined()
+    })
+
+    it("carries version onto the manifest", () => {
+      expect(
+        parser.parseManifest("/x/SKILL.md", "/x", "body", "s", "d", "community", undefined, "1.2.3"),
+      ).toMatchObject({ version: "1.2.3" })
+      expect(parser.parseManifest("/x/SKILL.md", "/x", "body", "s", "d")).not.toHaveProperty("version")
+    })
   })
 })

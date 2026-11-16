@@ -10,6 +10,25 @@ export interface ParsedSkill {
   description: string
   body: string
   allowedTools?: string[]
+  version?: string
+}
+
+/** `metadata.version` (agentskills convention). Pre-release and build suffixes allowed. */
+export const SEMVER_RE = /^(0|[1-9]\d*)\.(0|[1-9]\d*)\.(0|[1-9]\d*)(?:-[0-9A-Za-z.-]+)?(?:\+[0-9A-Za-z.-]+)?$/
+
+/**
+ * Read `metadata.version`, tolerating a flat `version` key some authors use.
+ * Returns undefined when absent or not a string — an unquoted `1.0` parses as a
+ * number and is not a version this accepts.
+ */
+export function parseSkillVersion(frontmatter: Record<string, unknown> | null): string | undefined {
+  const meta = frontmatter?.metadata
+  const value =
+    meta && typeof meta === 'object' && !Array.isArray(meta)
+      ? (meta as Record<string, unknown>).version
+      : undefined
+  const raw = value ?? frontmatter?.version
+  return typeof raw === 'string' && raw.trim() !== '' ? raw.trim() : undefined
 }
 
 /** `allowed-tools` is spec'd as a space-separated string, but lists and commas
@@ -70,6 +89,7 @@ export class SkillParser {
       description: typeof raw.frontmatter.description === 'string' ? raw.frontmatter.description : '',
       body: raw.body,
       allowedTools: parseAllowedTools(raw.frontmatter['allowed-tools'] ?? raw.frontmatter.allowed_tools),
+      version: parseSkillVersion(raw.frontmatter),
     }
   }
 
@@ -92,7 +112,7 @@ export class SkillParser {
     }
   }
 
-  parseManifest(filePath: string, directory: string, body: string, name = '', description = '', tier: SkillTier = 'community', allowedTools?: string[]): ISkillManifest {
+  parseManifest(filePath: string, directory: string, body: string, name = '', description = '', tier: SkillTier = 'community', allowedTools?: string[], version?: string): ISkillManifest {
     const resources: string[] = []
     try {
       for (const entry of readdirSync(directory, { withFileTypes: true })) {
@@ -115,6 +135,7 @@ export class SkillParser {
       body,
       resources,
       ...(allowedTools ? { allowedTools } : {}),
+      ...(version ? { version } : {}),
     }
   }
 

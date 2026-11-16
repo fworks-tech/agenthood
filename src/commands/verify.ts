@@ -4,10 +4,10 @@ import { MEMBER_NAME_RE, MEMBER_NAMES, memberResourcePath, memberSkillPath, reso
 import { join } from 'node:path'
 import { contentHash } from '../utils/hash.ts'
 import { loadLockfile } from '../utils/lockfile.ts'
-import type { Lockfile } from '../utils/lockfile.ts'
+import type { Lockfile, LockfileMember } from '../utils/lockfile.ts'
 import { checkResourceIntegrity, checkSkillIntegrity, collectResourceHashes } from '../utils/skillIntegrity.ts'
 import { findResourceRevision, findRevision, restoreMember } from './rollback.ts'
-import { SkillParser, parseAllowedTools } from '../skills/discovery/SkillParser.ts'
+import { SkillParser, parseAllowedTools, parseSkillVersion, SEMVER_RE } from '../skills/discovery/SkillParser.ts'
 import { isKnownToolName } from '../members/toolVocabulary.ts'
 import { scanForInjections } from '../skills/discovery/injectionScan.ts'
 import { userError } from '../core/cliError.ts'
@@ -62,6 +62,12 @@ function validateMember(membersDir: string, member: string, lockfile?: Lockfile,
     if (!frontmatter.name) result.issues.push('Frontmatter missing "name"')
     if (!frontmatter.description) result.issues.push('Frontmatter missing "description"')
     if (!frontmatter.license) result.issues.push('Frontmatter missing "license"')
+    const version = parseSkillVersion(frontmatter)
+    if (!version) {
+      result.issues.push('Frontmatter missing "metadata.version". Fix: add metadata:\\n  version: 1.0.0')
+    } else if (!SEMVER_RE.test(version)) {
+      result.issues.push(`metadata.version "${version}" is not semver. Fix: use major.minor.patch, e.g. 1.4.0`)
+    }
     if (tier === 'official' && frontmatter.tier !== 'official') {
       result.issues.push('Official skills must declare "tier: official" in frontmatter')
     }
@@ -297,20 +303,22 @@ function printResults(results: VerifyResult[]): void {
   }
 }
 
-function updateLockfile(cwd: string, membersDir: string, members: string[]): void {
+export function updateLockfile(cwd: string, membersDir: string, members: string[]): void {
   const lockPath = join(cwd, 'agenthood.lock')
   const existing = loadLockfile(cwd)
   // Merge into the existing lock rather than rebuilding from the scanned
   // subset, so `verify <member> --update-lock` cannot drop every other member.
-  const next: Record<string, { version: string; updatedAt: string; resources?: Record<string, string> }> = { ...(existing?.members ?? {}) }
+  const next: Record<string, LockfileMember> = { ...(existing?.members ?? {}) }
   const now = new Date().toISOString()
   let changed = 0
+  const parser = new SkillParser()
   for (const member of members) {
     const skillPath = join(membersDir, member, 'SKILL.md')
     if (existsSync(skillPath)) {
       const content = readFileSync(skillPath, 'utf8')
       const hash = contentHash(content)
       const resources = collectResourceHashes(join(membersDir, member))
+      const skillVersion = parseSkillVersion(parser.parseRaw(content).frontmatter)
       const prev = next[member]
       const resourcesChanged = JSON.stringify(prev?.resources ?? {}) !== JSON.stringify(resources)
       // Preserve updatedAt when the hash is unchanged — otherwise regenerating
@@ -320,6 +328,7 @@ function updateLockfile(cwd: string, membersDir: string, members: string[]): voi
         version: hash,
         updatedAt: prev && prev.version === hash && !resourcesChanged ? prev.updatedAt : now,
         ...(Object.keys(resources).length > 0 ? { resources } : {}),
+        ...(skillVersion ? { skillVersion } : {}),
       }
       if (!prev || prev.version !== hash || resourcesChanged) changed++
     }

@@ -1,5 +1,4 @@
 import { join } from 'node:path'
-import { execFileSync } from 'node:child_process'
 import type { ExecutionContext } from '../core/ExecutionContext.ts'
 import type { AnomalyDetector } from '../core/AnomalyDetector.ts'
 import { appendAnomalies } from '../core/AnomalyDetector.ts'
@@ -28,6 +27,7 @@ import { RunCheckpoint, type CheckpointData, type CheckpointStore } from '../che
 import { applySlashActivations } from '../skills/activation/slash.ts'
 import type { ActivateSkillTool } from '../skills/activation/ActivateSkillTool.ts'
 import { registerActivateTool } from '../skills/activation/toolRegistration.ts'
+import { detectDocker } from '../skills/execution/sandbox.ts'
 
 export interface MemberRunnerDeps {
   agents: AgentRegistry
@@ -57,19 +57,6 @@ function priorityForSource(source: TraceSource | undefined): Priority {
  * context passed by mount. When Docker is unavailable, falls back to the
  * phase-1 local profile with a visible notice.
  */
-
-let dockerAvailable: boolean | null = null
-
-function detectDocker(): boolean {
-  if (dockerAvailable !== null) return dockerAvailable
-  try {
-    execFileSync('docker', ['info'], { stdio: 'ignore', timeout: 5000 })
-    dockerAvailable = true
-  } catch {
-    dockerAvailable = false
-  }
-  return dockerAvailable
-}
 
 export function applySandboxProfile(config: LLMConfig): void {
   if (config.security?.sandbox !== true) return

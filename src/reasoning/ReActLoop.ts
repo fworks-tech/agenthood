@@ -305,7 +305,7 @@ export class ReActLoop {
       // A skill that declares allowed-tools narrows the tools the model may use
       // while it is active. Activation itself stays available, otherwise the
       // next skill could never be loaded.
-      const denied = deniedBySkillScope(toolCall.name, this.activatedSkills, context)
+      const denied = deniedBySkillScope(toolCall.name, this.activatedSkills, context, (name) => this.skillRegistry.has(name))
       if (denied) {
         context.events.emit({
           type: "tool.denied",

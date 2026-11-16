@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest'
-import { mkdtempSync, rmSync } from 'node:fs'
+import { mkdirSync, mkdtempSync, rmSync } from 'node:fs'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 import { TrajectoryStore } from '../../../src/core/TrajectoryStore.ts'
@@ -441,6 +441,55 @@ describe('MemberRunner queue arbitration', () => {
       expect(submitSpy).toHaveBeenCalledWith(expect.any(String), 'SCHEDULED', expect.any(Function))
     } finally {
       cleanup(runner)
+    }
+  })
+})
+
+describe('MemberRunner resume restores activated skills (#618)', () => {
+  it('re-seeds the run so script authorization and dedup survive an interruption', async () => {
+    const provider = fakeCompletingProvider()
+    vi.mocked(LLMRouter.createForMember).mockResolvedValue(provider as never)
+    const cp = {
+      id: 'cp-skills',
+      member: 'builder',
+      task: 'ship it',
+      step: 2,
+      messages: [{ role: 'user' as const, content: 'ship it' }],
+      usage: { promptTokens: 0, completionTokens: 0, totalTokens: 0 },
+      model: 'mock-model',
+      activatedSkills: ['demo'],
+      status: 'running' as const,
+      createdAt: '2026-01-01T00:00:00.000Z',
+      updatedAt: '2026-01-01T00:00:00.000Z',
+    }
+    const store: CheckpointStore = { load: vi.fn().mockReturnValue(cp), save: vi.fn(), updateStatus: vi.fn() }
+    const projectDir = mkdtempSync(join(tmpdir(), 'runner-resume-'))
+    mkdirSync(join(projectDir, '.agenthood'), { recursive: true })
+    const log = vi.spyOn(console, 'log').mockImplementation(() => {})
+    try {
+      const runner = makeRunner(store)
+      runner.ctx.project.localPath = projectDir
+      runner.ctx.skillManifests = new Map([
+        [
+          'demo',
+          {
+            name: 'demo',
+            description: 'demo skill',
+            tier: 'community' as const,
+            location: join(projectDir, 'demo', 'SKILL.md'),
+            directory: join(projectDir, 'demo'),
+            body: 'demo body',
+            resources: [],
+          },
+        ],
+      ])
+
+      await runner.runMemberTask('builder', 'ship it', {} as never, 'cp-skills')
+
+      expect(log).toHaveBeenCalledWith(expect.stringContaining('restored 1 active skill(s)'))
+    } finally {
+      log.mockRestore()
+      rmSync(projectDir, { recursive: true, force: true })
     }
   })
 })

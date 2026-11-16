@@ -145,6 +145,12 @@ export class MemberRunner {
       },
     })
 
+    // A resumed run keeps its activated skills: tool scope and script authorization (#618).
+    if (resumeFrom && checkpointData.activatedSkills.length > 0) {
+      loop.activatedSkills = new Set(checkpointData.activatedSkills)
+      activateTool?.restoreActive(checkpointData.activatedSkills)
+      console.log(`[skills] restored ${checkpointData.activatedSkills.length} active skill(s) from the checkpoint`)
+    }
     if (config.skills?.autoDiscover === true) {
       try {
         await sReg.discover(join(process.cwd(), 'src', 'skills'))

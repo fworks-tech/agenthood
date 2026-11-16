@@ -73,6 +73,10 @@ export class ContextCompressor {
     if (compressible.length === 0) {
       return this.ensureValidToolSequence([...system, ...protectedMsgs, ...tail])
     }
+    // Skill instructions survive compaction (#532); everything else was
+    // summarised. Say so once per compression, so a later behaviour change is
+    // traceable to what was kept.
+    console.log(`[context] compaction preserved ${protectedMsgs.length} skill message(s); summarised ${compressible.length} other(s)`)
     const summary = this.summarize(compressible)
     return this.ensureValidToolSequence([
       ...system,

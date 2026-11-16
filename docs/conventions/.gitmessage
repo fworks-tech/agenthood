@@ -10,8 +10,6 @@
 # Footer:
 # Closes #ISSUE   ← links issue and auto-closes on merge
 #
-# Co-Authored-By: Claude Sonnet 4.6 <noreply@anthropic.com>
-#
 # ---------------------------------------------------------------------------
 # Conventional Commits: https://www.conventionalcommits.org/
 # Enforced by: The Doorman

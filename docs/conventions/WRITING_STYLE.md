@@ -36,6 +36,36 @@ A line that must contain the character itself, such as a test fixture, ends with
   constructions that hide who acts.
 - Keep a sentence under about 25 words. If it needs two clauses and a list, split it.
 
+### Do not trade a dash for a metronome
+
+A colon explains or introduces. It is not the default substitute for every dash,
+and a page of "Claim: explanation. Claim: explanation." reads as machine output
+even when every sentence is correct.
+
+Take the punctuation the sentence needs, and vary it across a paragraph:
+a comma for an aside, a period for a new thought, parentheses for a digression.
+
+| Mechanical | Natural |
+|------------|---------|
+| "The Warden does not rewrite. It identifies, reports, and blocks." | "The Warden reports what it finds and blocks the merge. Fixing stays with the developer." |
+| "It is not paranoid; it is precise." | "It verifies rather than assumes." |
+| "Every release has a version. Every release has notes. Every release was earned." | "Each release carries a version and notes, and ships only after tests and a merged PR." |
+
+### Avoid the shared template
+
+Each member file describes a different job. When twenty of them open with
+"The X does not ..., it ...", the reader stops hearing the role and starts
+hearing the pattern.
+
+- Vary the opening: start with the problem, the artifact, or a concrete example.
+- Do not close on an aphorism. End on the consequence or the check that follows.
+- One triad per page is enough. Three parallel sentences in a row is a tell.
+- Italics do not make a verb stronger: "It *announces* it" is louder than
+  "It announces the release".
+
+The test is whether the paragraph would survive being read aloud by the person
+who does the job. If it sounds like a tagline, rewrite it.
+
 ## Stock phrases to avoid
 
 These are the phrases that make text read as generated. Replace them with the

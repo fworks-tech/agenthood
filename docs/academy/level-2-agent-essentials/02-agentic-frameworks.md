@@ -1,6 +1,6 @@
 # Agentic Frameworks
 
-> *LangChain wraps the LLM. Agenthood wraps the engineer. The distinction matters.*
+> *LangChain wraps the LLM. Agenthood wraps the engineer.*
 
 ---
 
@@ -16,17 +16,17 @@ The tradeoff is control versus speed-to-prototype. Wrapper frameworks get you to
 
 ## Why it matters in production
 
-Wrapper frameworks add abstraction layers you did not choose and cannot remove. When LangChain changes its `RunnableSequence` interface, your agent breaks. When CrewAI rewrites its task delegation model, your workflow semantics shift underneath you. These are not hypothetical scenarios; they are the version-lock pattern that has burned every team that adopted a wrapper framework at scale.
+Wrapper frameworks add abstraction layers you did not choose and cannot remove. When LangChain changes its `RunnableSequence` interface, your agent breaks. When CrewAI rewrites its task delegation model, your workflow semantics shift underneath you. Both have happened, and they are why teams that adopt a wrapper at scale end up pinned to a version.
 
-The deeper problem is hidden prompts. A wrapper framework assembles your prompt from templates you never wrote, concatenated in an order you never approved. When your agent hallucinates in production, you cannot inspect the exact prompt that produced the failure because the framework built it dynamically and discarded it. Debugging becomes archaeology.
+The deeper problem is hidden prompts. A wrapper framework assembles your prompt from templates you never wrote, concatenated in an order you never approved. When your agent hallucinates in production, you cannot inspect the exact prompt that produced the failure because the framework built it at runtime and discarded it. Debugging turns into reconstructing a prompt that no longer exists.
 
-A TypeScript-native runtime solves both problems. The type system catches agent contract violations at compile time: a wrong skill signature, a missing tool method, a malformed memory entry. And because you own the prompt assembly, every prompt is a string you wrote, visible in the stack trace, diffable in git.
+A TypeScript-native runtime avoids both. The type system catches contract violations at compile time, such as a wrong skill signature, a missing tool method or a malformed memory entry. And because you own the prompt assembly, every prompt is a string you wrote: visible in the stack trace and diffable in git.
 
 ---
 
 ## How Agenthood implements it
 
-Agenthood's v2 runtime is built entirely in TypeScript, living in `src/agents/`, `src/llm/`, and `src/memory/` within the existing Node.js package. There is no Python sidecar, no LangChain dependency, no external graph library. ADR-008 documents this decision and the alternatives that were rejected:
+Agenthood's v2 runtime is built entirely in TypeScript, in `src/agents/`, `src/llm/` and `src/memory/` inside the existing Node.js package, with no Python sidecar and no external graph library. ADR-008 records the decision and the alternatives that were rejected:
 
 ```typescript
 import { GroqProvider } from './llm/GroqProvider.js';

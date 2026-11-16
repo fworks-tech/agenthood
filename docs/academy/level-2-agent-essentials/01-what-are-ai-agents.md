@@ -6,7 +6,7 @@
 
 ## What it is
 
-An AI agent is a system that perceives input, reasons about it, takes action, and observes the result: then repeats until the problem is solved. The keyword is *repeats*. A single LLM call is one shot. An agent is a loop.
+An AI agent is a system that perceives input, reasons about it, takes action and observes the result, then repeats until the problem is solved. The keyword is *repeats*: a single LLM call is one shot, an agent is a loop.
 
 Every agent shares the same skeleton: observe the user's request, reason about what to do next, execute an action (call a tool, write code, query a database), observe the result of that action, and feed it back into the next reasoning step. This is the ReAct pattern, Reason + Act, and it is the architecture that separates agents from chatbots.
 
@@ -16,11 +16,11 @@ The three components that make the loop useful are tools, memory, and terminatio
 
 ## Why it matters in production
 
-A chatbot answers "how do I fix this bug?" with a plausible paragraph. An agent reads the actual code, runs the failing test, proposes a fix, and verifies it passes. The difference is not academic; it is the difference between a demo and a deployable system.
+A chatbot answers "how do I fix this bug?" with a plausible paragraph. An agent reads the code, runs the failing test, proposes a fix and verifies it passes. That is the difference between a demo and a system you can deploy.
 
 The failure mode of a chatbot is hallucination: it sounds right and is wrong. The failure mode of a badly built agent is worse: it takes real actions based on wrong reasoning. An agent that deletes a file, merges a PR, or sends a message based on a hallucinated plan causes damage a chatbot never could.
 
-This is why the loop must be observable. Each reasoning step and each action must be logged, inspectable, and interruptible. An agent you cannot watch is an agent you cannot trust. The Society treats observability as a non-negotiable property of the agent loop, not a feature to add later.
+That is why the loop has to be observable. Each reasoning step and each action is logged, inspectable and interruptible. The Society treats observability as part of the loop, not a feature added later.
 
 ---
 

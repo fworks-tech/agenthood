@@ -19,6 +19,7 @@ the *what* and *why*, not the implementation.
 | [built-in-tools.md](built-in-tools.md) | Core tool registry, tool scoping per member, safety caps |
 | [decision-intelligence.md](decision-intelligence.md) | Decision records, causal chains, provenance integrity, precedent search |
 | [chain-workflows.md](chain-workflows.md) | `chains.yaml` composition, guards, and running a chain |
+| [skills.md](skills.md) | The skill pipeline inside: discovery, parsing, gating, activation, execution, extension points |
 
 ---
 

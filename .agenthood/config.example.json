@@ -126,7 +126,6 @@
 
   "_comment_skills": "Optional: skill discovery and execution. catalogFormat is xml|json|text (otherwise the provider decides); disabled keeps skills out of the catalog; scriptTimeoutMs caps a bundled script run (default 120000). cacheOutputs caches successful bundled-script output keyed by script content and arguments (default false, because a script may mutate the workspace); cacheTtlMs sets that cache's lifetime (default 3600000).",
   "skills": {
-    "autoDiscover": true,
     "scriptTimeoutMs": 120000,
     "cacheOutputs": false,
     "cacheTtlMs": 3600000

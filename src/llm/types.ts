@@ -95,7 +95,6 @@ export type CatalogFormatName = 'xml' | 'json' | 'text'
 
 /** Skill discovery and catalog settings from `.agenthood/config.json`. */
 export interface SkillsConfig {
-  autoDiscover?: boolean
   /** Catalog format when no provider-specific entry matches (#528, #556). */
   catalogFormat?: CatalogFormatName
   /** Per-provider catalog format (#556). */

@@ -5,6 +5,18 @@
 
 ---
 
+## v3.78.0 — November 16, 2026
+
+### 🐛 Bug Fixes
+
+- **Core:** scope OpenCode catalog pricing to OpenCode providers (#1064), refs #1062
+
+### ✨ Features
+
+- **Llm:** derive OpenCode pricing and routing from the live model catalog (#1063), refs #1060
+
+---
+
 ## v3.77.1 — November 15, 2026
 
 ### 🐛 Bug Fixes

@@ -46,6 +46,8 @@ export interface ISkillManifest {
   compatibility?: string
   /** Registry namespace from `metadata.author` — the `owner` in `owner/name` (ADR-035). */
   owner?: string
+  /** `source_url` — where a third-party skill came from (#154). */
+  sourceUrl?: string
   /** `metadata.priority` 0-100 — higher sorts earlier in the catalog (#611). */
   priority?: number
   /** `metadata.conditions` — predicates that must hold before activation (#610). */

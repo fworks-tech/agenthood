@@ -26,6 +26,10 @@ export interface ParsedSkill {
   compatibility?: string
   /** Registry namespace, from `metadata.author` (#593). */
   owner?: string
+  /** `source_url` — where a third-party skill came from (#154). */
+  sourceUrl?: string
+  /** `compaction-replay: false` — one-shot instructions (#587). */
+  compactionReplay?: boolean
   /** `metadata.priority` 0-100 — higher sorts earlier in the catalog (#611). */
   priority?: number
   /** `metadata.conditions` — predicates that must hold before activation (#610). */
@@ -66,6 +70,12 @@ export const MAX_COMPATIBILITY_LENGTH = 500
 export function parseCompatibility(frontmatter: Record<string, unknown> | null): string | undefined {
   const raw = frontmatter?.compatibility
   return typeof raw === 'string' && raw.trim() !== '' ? raw.trim() : undefined
+}
+
+/** `source_url` identifies a third-party skill's origin (#154). A camelCase alias is tolerated. */
+export function parseSourceUrl(frontmatter: Record<string, unknown> | null): string | undefined {
+  const raw = frontmatter?.source_url ?? frontmatter?.sourceUrl
+  return typeof raw === 'string' && raw.trim() ? raw.trim() : undefined
 }
 
 /** `metadata.author` names the registry namespace (#593). A flat `author` is tolerated. */
@@ -270,6 +280,7 @@ export class SkillParser {
     const requires = parseRequires(raw.frontmatter)
     const dependencies = parseDependencies(raw.frontmatter)
     const variants = parseVariants(raw.frontmatter)
+    const sourceUrl = parseSourceUrl(raw.frontmatter)
     const declaredName = typeof raw.frontmatter.name === 'string' ? raw.frontmatter.name : filePath
     return {
       name: normalizeSkillName(declaredName),
@@ -280,6 +291,7 @@ export class SkillParser {
       license: parseLicense(raw.frontmatter),
       ...(compatibility ? { compatibility } : {}),
       ...(owner ? { owner } : {}),
+      ...(sourceUrl ? { sourceUrl } : {}),
       ...(priority === undefined ? {} : { priority }),
       ...(conditions ? { conditions } : {}),
       ...(fallback ? { fallback } : {}),

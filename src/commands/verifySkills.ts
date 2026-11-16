@@ -6,7 +6,7 @@
 
 import { existsSync, readFileSync, readdirSync, statSync } from 'node:fs'
 import { join, relative } from 'node:path'
-import { SkillParser, parseDependencies, parseRequires, parseVariants } from '../skills/discovery/SkillParser.ts'
+import { SkillParser, parseDependencies, parseOwner, parseRequires, parseVariants } from '../skills/discovery/SkillParser.ts'
 import type { SkillDependencies, SkillRequires } from '../skills/discovery/ISkillManifest.ts'
 import { SkillDiscovery, userSkillDirs } from '../skills/discovery/SkillDiscovery.ts'
 import { variantTarget } from '../skills/discovery/variants.ts'
@@ -225,4 +225,39 @@ export function reportDuplicates(roots: SkillRoot[]): void {
     for (const entry of entries) console.log(`          ${entry.directory} (${entry.scope})`)
     console.log('          Keep the project copy and remove the user copy; the runtime already ignores the loser.')
   }
+}
+
+/**
+ * Third-party skills declare where they came from (#154). Sentinel/CI checks
+ * this path; an unowned contrib skill cannot be published or safely updated.
+ */
+export function reportContribSkills(projectPath: string): void {
+  const root = join(projectPath, 'skills', 'contrib')
+  if (!existsSync(root)) return
+
+  const parser = new SkillParser()
+  const problems: string[] = []
+  let count = 0
+  for (const entry of readdirSync(root, { withFileTypes: true })) {
+    if (!entry.isDirectory()) continue
+    const location = join(root, entry.name, 'SKILL.md')
+    if (!existsSync(location)) continue
+    count++
+    const { frontmatter } = parser.parseRaw(readFileSync(location, 'utf8'))
+    if (!parseOwner(frontmatter)) {
+      problems.push(`${entry.name}: missing metadata.author — the owner in owner/name`)
+    }
+    const source = frontmatter?.source_url ?? frontmatter?.sourceUrl
+    if (typeof source !== 'string' || !source.trim()) {
+      problems.push(`${entry.name}: missing source_url — where this skill came from`)
+    }
+  }
+
+  if (count === 0) return
+  if (problems.length === 0) {
+    console.log(`  ✓ Contrib skills: ${count} third-party skill(s) named and sourced`)
+    return
+  }
+  console.log(`  ⚠ Contrib skills: ${problems.length} problem(s) — advisory, not a failure`)
+  for (const problem of problems) console.log(`      - ${problem}`)
 }

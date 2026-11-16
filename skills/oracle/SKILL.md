@@ -175,6 +175,25 @@ When a new member is added, update all of these:
 | `tests/unit/members/MemberRegistry.test.ts` | Update member count and category expectations |
 | `~/.claude/CLAUDE.md` (user-local, optional) | Add trigger row to Active Member Skills table if the member should be globally active |
 
+### Authoring a Third-Party Member
+
+An outside author does not add a row to any registry file. Point them at
+[`docs/members/contrib-members.md`](../../docs/members/contrib-members.md) and
+enforce this minimum:
+
+- Location `skills/contrib/the-<name>/SKILL.md`; the directory and the `name`
+  field agree
+- `metadata.author` (the owner in `owner/name`) and `source_url` present —
+  `agenthood verify` warns when either is missing
+- All six required sections, same as a first-party member
+- Bundled scripts get an Auditor review before the member is listed; the
+  default `permissionProfile` stays read-only
+- `metadata.version` declared, and the lockfile re-locked once the body is final
+
+Namespacing: the official set uses `the-<name>`; a contrib member publishes as
+`<author>/the-<name>`. The leading `@` is command-line input only and is never
+stored on disk (ADR-035).
+
 ### Naming a New Member
 
 When asked to evaluate or suggest a name:

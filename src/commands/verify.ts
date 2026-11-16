@@ -27,6 +27,7 @@ import { scanForInjections } from '../skills/discovery/injectionScan.ts'
 import { userError } from '../core/cliError.ts'
 import { isKnownToolName } from '../members/toolVocabulary.ts'
 import {
+  reportContribSkills,
   reportDuplicates,
   reportScriptLint,
   reportSkillRequirements,
@@ -469,6 +470,7 @@ export async function verify(args: string[]): Promise<void> {
 
   // --tokens (#615) and --dedup (#616): advisory reports over the installed set.
   if (flags.has('--tokens')) reportTokenBudgets(membersDir)
+  reportContribSkills(cwd)
   if (flags.has('--dedup')) reportDuplicates(skillSearchRoots(cwd))
 
   // Advisory (#595): overlapping descriptions mean two skills can both trigger

@@ -3,7 +3,7 @@
 > *Um time completo de engenharia de IA que merece cada merge.*
 
 O Agenthood é um conjunto de 20 agentes de IA especializados (arquiteto,
-revisor, auditor de segurança, engenheiro DevOps e mais): como arquivos de
+revisor, auditor de segurança, engenheiro DevOps e mais), como arquivos de
 skill Markdown portáteis, um runtime TypeScript autônomo e um Studio no
 navegador. Sem cadastro. Funciona com qualquer runtime de agente.
 

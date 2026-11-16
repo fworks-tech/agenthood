@@ -2,7 +2,7 @@
 
 ## 3.77 → 4.0
 
-4.0 makes members and workflows data. Two changes need action; the rest is additive.
+4.0 makes members and workflows data. Three changes need action; the rest is additive.
 
 ### Rolling back to 3.78
 
@@ -66,6 +66,16 @@ Rules:
 - `activate_skill` is always available, otherwise a second skill could never load.
 - The declared names are the skill vocabulary (`file.read`, `code.write`),
   not the tool implementation names (`read_file`, `write_code`).
+
+### 3. Output labels use a colon, not a dash
+
+Human-readable labels in reports and status lines now put a colon between the
+name and the value. The old form was `Trigger rate — scribe`; the new form is
+`Trigger rate: scribe`. This covers eval reports, trigger rates, trace summaries
+and the status windows. A script that greps the old form stops matching.
+
+The values and the column alignment are unchanged. Update the grep, or parse the
+JSON output (`--json` where the command offers it) instead of the label.
 
 ### New: chains
 

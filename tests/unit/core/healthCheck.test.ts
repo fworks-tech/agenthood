@@ -125,3 +125,24 @@ describe('provider live probes (#659)', () => {
     expect(legacy?.detail).toBe('key available')
   })
 })
+
+describe('healthCheck skill checks (#597, #626, #627)', () => {
+  it('includes the components a skill probe returns', async () => {
+    const report = await healthCheck(
+      deps({
+        skillChecks: async () => [
+          { name: 'skills', status: 'ok', detail: '2 skill(s) healthy' },
+          { name: 'skillActivations', status: 'degraded', detail: 'the-probe 20% of 5' },
+        ],
+      }),
+    )
+
+    expect(report.checks.map((c) => c.name)).toContain('skillActivations')
+    expect(report.status).toBe('degraded')
+  })
+
+  it('stays healthy when no skill probe is configured', async () => {
+    const report = await healthCheck(deps())
+    expect(report.checks.some((c) => c.name.startsWith('skill'))).toBe(false)
+  })
+})

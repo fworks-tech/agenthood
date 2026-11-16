@@ -9,9 +9,32 @@ import { resolveSkillFile } from './skillFile.ts'
 import { normalizeSkillName } from './SkillParser.ts'
 import { scanForInjections } from './injectionScan.ts'
 import { MEMBERS_DIR } from '../../members/MemberRegistry.ts'
+import { ManifestCache } from './manifestCache.ts'
 
-const IGNORED_DIRS = new Set(['node_modules', '.git', '.hg', '.svn', 'dist', 'build', '.next', '.cache'])
+const IGNORED_DIRS = new Set([
+  'node_modules', '.git', '.hg', '.svn', 'dist', 'build', '.next', '.cache',
+  '.venv', '__pycache__', '.tox', 'vendor', 'target',
+])
 const MAX_DEPTH = 6
+/** Bound on directories visited in one scan (#525). */
+const MAX_DIRS = 2000
+
+export interface ScanStats {
+  directories: number
+  skills: number
+  cacheHits: number
+  durationMs: number
+  /** True when MAX_DIRS stopped the scan, so the result is partial. */
+  truncated: boolean
+}
+
+/** What the metadata cache stores per SKILL.md (#617). */
+interface CachedSkill {
+  manifest: ISkillManifest
+  findings: { severity: string; pattern: string; excerpt: string }[]
+  heuristic: boolean
+  declaredName: string
+}
 
 // The packaged skills dir inside the installed package is the versioned trust
 // root — the lockfile integrity gate applies only to user/project dirs, which
@@ -54,9 +77,28 @@ export class SkillDiscovery {
   private discovered = false
   private readonly defaultProjectDir: string
   private remoteFetcher?: RemoteSkillFetcher
+  private cache: ManifestCache<CachedSkill>
+  private stats: ScanStats = { directories: 0, skills: 0, cacheHits: 0, durationMs: 0, truncated: false }
 
   constructor(projectDir: string = process.cwd()) {
     this.defaultProjectDir = projectDir
+    this.cache = new ManifestCache<CachedSkill>(projectDir)
+  }
+
+  /** Scan counters from the last discovery, for `agenthood skills --stats` (#525, #614). */
+  lastStats(): ScanStats {
+    return { ...this.stats }
+  }
+
+  /**
+   * Every manifest in one search root, with no cross-root precedence (#616).
+   * `verify --dedup` uses it to see the same name twice; discovery itself hides
+   * the loser behind a warning.
+   */
+  scanRoot(root: string): ISkillManifest[] {
+    if (!existsSync(root)) return []
+    this.cache = new ManifestCache<CachedSkill>(this.defaultProjectDir)
+    return this.scanDir(root, 0)
   }
 
   discover(projectDir: string): ISkillManifest[] {
@@ -64,6 +106,9 @@ export class SkillDiscovery {
     this.scopes.clear()
     this.precedence.clear()
     this.discovered = true
+    this.cache = new ManifestCache<CachedSkill>(projectDir)
+    const started = Date.now()
+    this.stats = { directories: 0, skills: 0, cacheHits: 0, durationMs: 0, truncated: false }
 
     const scopePaths: { path: string; scope: 'user' | 'project' }[] = [
       ...userSkillDirs().map((path) => ({ path, scope: 'user' as const })),
@@ -113,6 +158,9 @@ export class SkillDiscovery {
       }
     }
 
+    this.stats.skills = this.manifests.size
+    this.stats.durationMs = Date.now() - started
+    this.cache.persist()
     return Array.from(this.manifests.values())
   }
 
@@ -181,11 +229,22 @@ export class SkillDiscovery {
       result.push(...this.scanEntry(fullPath, entry.name, 0))
     }
 
+    // Persist after the merge pass too, so packaged skills hit the cache on the
+    // next run. When discovery ran first, its entries are already in `seen`.
+    this.cache.persist()
     return result
   }
 
   private scanDir(dir: string, depth: number): ISkillManifest[] {
     if (depth > MAX_DEPTH) return []
+    if (this.stats.directories >= MAX_DIRS) {
+      if (!this.stats.truncated) {
+        this.stats.truncated = true
+        console.warn(`[SkillDiscovery] scan stopped after ${MAX_DIRS} directories — some skills may be missing (#525)`)
+      }
+      return []
+    }
+    this.stats.directories++
     const result: ISkillManifest[] = []
 
     let entries: string[]
@@ -229,6 +288,9 @@ export class SkillDiscovery {
         console.warn(`[SkillDiscovery] "${entry}" uses skill.md — rename to SKILL.md for spec compliance`)
       }
       const skillMdPath = resolved.path
+      const cached = this.cache.lookup(skillMdPath)
+      if (cached) return this.fromCache(cached.value, entry, fullPath)
+
       const parsed = this.parser.parse(skillMdPath)
       if (!parsed) return []
       const content = readFileSync(skillMdPath, 'utf-8')
@@ -268,9 +330,39 @@ export class SkillDiscovery {
       if (!packaged && parsed.name && parsed.name !== normalizeSkillName(entry)) {
         console.warn(`[SkillDiscovery] "${entry}" declares name "${parsed.name}" — it activates as "${parsed.name}", not "${entry}"`)
       }
+      this.cache.remember(skillMdPath, { manifest, findings, heuristic: heuristic ?? false, declaredName: parsed.name })
       return [manifest]
     }
     return this.scanDir(fullPath, depth + 1)
+  }
+
+  /**
+   * Replays a cached entry: the same warnings a fresh parse would emit, then the
+   * same packaged-name gate. The cache stores the manifest and the scan result,
+   * so nothing here reads the file again (#617).
+   */
+  private fromCache(cached: CachedSkill, entry: string, fullPath: string): ISkillManifest[] {
+    if (cached.heuristic) {
+      console.warn(`[SkillDiscovery] "${entry}" has malformed frontmatter (loaded via fallback) — quote values containing colons`)
+    }
+    const findings = cached.findings as { severity: string; pattern: string; excerpt: string }[]
+    if (findings.some((finding) => finding.severity === 'block')) return []
+    for (const finding of findings) {
+      console.warn(`[SkillDiscovery] "${entry}" — possible injection (${finding.pattern}): "${finding.excerpt}"`)
+    }
+    const packaged = isPackagedDir(fullPath)
+    if (!packaged) this.verifyIntegrity(cached.declaredName || entry, cached.manifest.location)
+    if (packaged && cached.declaredName !== entry) {
+      console.warn(`[SkillDiscovery] packaged "${entry}" dropped: frontmatter name "${cached.declaredName}" mismatches directory`)
+      return []
+    }
+    if (!packaged && cached.declaredName && cached.declaredName !== normalizeSkillName(entry)) {
+      console.warn(
+        `[SkillDiscovery] "${entry}" declares name "${cached.declaredName}" — it activates as "${cached.declaredName}", not "${entry}"`,
+      )
+    }
+    this.stats.cacheHits++
+    return [cached.manifest]
   }
 
   private verifyIntegrity(member: string, skillPath: string): void {

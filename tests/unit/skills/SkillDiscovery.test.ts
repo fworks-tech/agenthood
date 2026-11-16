@@ -30,6 +30,26 @@ describe('SkillDiscovery', () => {
     rmSync(testDir, { recursive: true, force: true })
   })
 
+  describe('scan stats and metadata cache (#525, #614, #617)', () => {
+    it('reports directories, skills and duration', () => {
+      const discovery = new SkillDiscovery(testDir)
+      discovery.discover(testDir)
+      const stats = discovery.lastStats()
+      expect(stats.directories).toBeGreaterThan(0)
+      expect(stats.skills).toBeGreaterThanOrEqual(1)
+      expect(stats.durationMs).toBeGreaterThanOrEqual(0)
+      expect(stats.truncated).toBe(false)
+    })
+
+    it('serves a second discovery from the metadata cache', () => {
+      new SkillDiscovery(testDir).discover(testDir)
+      const second = new SkillDiscovery(testDir)
+      const found = second.discover(testDir)
+      expect(found.map((m) => m.name)).toContain('test-skill')
+      expect(second.lastStats().cacheHits).toBeGreaterThanOrEqual(1)
+    })
+  })
+
   it('verifies skill integrity when loading', () => {
     const discovery = new SkillDiscovery(testDir)
     discovery.discover(testDir)

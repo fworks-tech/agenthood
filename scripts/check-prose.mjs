@@ -5,7 +5,6 @@
 import { execFileSync } from 'node:child_process'
 import { readFileSync } from 'node:fs'
 
-const EXT = /\.(md|ts|js|mjs|cjs|sh|py|yml|yaml|json|txt)$/
 const ALLOWED = [
   /^\.github\/scripts\/herald-summary\.cjs$/, // mirrors the required-check names
   /^tests\/unit\/scripts\/herald-summary\.test\.ts$/, // fixtures mirror those names
@@ -19,7 +18,8 @@ const ALLOWED = [
 // is prose (step names, comments, run blocks) and follows the normal rule.
 const WORKFLOW = /^\.github\/workflows\//
 const IDENTITY = [
-  /^\s*(-\s+)?name:\s/, // workflow, job and step names
+  /^name:\s/, // workflow name
+  /^\s{4}name:\s/, // job name, which is the required-check identity
   /^\s*-\s+(Society|The [A-Z]\w*)[^\u2014]*\u2014/, // herald.yml's watched-workflow list
 ]
 
@@ -36,34 +36,42 @@ const STOCK = [
   'crucial', 'underscore', 'foster', 'embark',
 ].map((phrase) => [phrase, new RegExp(`\\b${phrase.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}\\b`)])
 
-/** Quoted words and inline code name things; they are not prose claims. */
-function proseOnly(line) {
-  return line.replace(/`[^`]*`/g, '').replace(/"[^"]*"/g, '')
+/** Inline code names things; in Markdown, so do quoted words. */
+function proseOnly(line, isMarkdown) {
+  const withoutCode = line.replace(/`[^`]*`/g, '')
+  return isMarkdown ? withoutCode.replace(/"[^"]*"/g, '') : withoutCode
 }
 
+const SELF = 'scripts/check-prose.mjs'
 const files = execFileSync('git', ['ls-files'], { encoding: 'utf8' })
   .split('\n')
-  .filter((file) => file && EXT.test(file) && !ALLOWED.some((re) => re.test(file)))
+  .filter((file) => file && !ALLOWED.some((re) => re.test(file)))
 
 const violations = []
 const warnings = []
 
 for (const file of files) {
-  let text
+  let buffer
   try {
-    text = readFileSync(file, 'utf8')
+    buffer = readFileSync(file)
   } catch {
     continue
   }
+  if (buffer.includes(0)) continue
+  const text = buffer.toString('utf8')
+  const isMarkdown = file.endsWith('.md')
   const isWorkflow = WORKFLOW.test(file)
   text.split('\n').forEach((line, index) => {
     if (line.includes(IGNORE)) return
     const identity = isWorkflow && IDENTITY.some((re) => re.test(line))
-    const prose = proseOnly(line)
+    const prose = proseOnly(line, isMarkdown)
     if (!identity && (prose.includes('\u2014') || prose.includes('\u2013'))) {
       violations.push(`${file}:${index + 1}: em/en dash in prose (use colon, comma, period or parentheses)`)
     }
-    if (file.endsWith('.md')) {
+    if (file !== SELF && (line.includes('\\u2014') || line.includes('\\u2013'))) {
+      violations.push(`${file}:${index + 1}: escaped em/en dash (use colon, comma, period or parentheses)`)
+    }
+    if (isMarkdown) {
       for (const [phrase, pattern] of STOCK) {
         if (pattern.test(prose)) {
           warnings.push(`${file}:${index + 1}: stock phrase "${phrase}"`)

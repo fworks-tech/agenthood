@@ -135,7 +135,7 @@ export class MemberAgent extends BaseAgent {
     }
 
     try {
-      const tool = new SubagentTaskSkill(this.agentRegistry, { allowedRoles })
+      const tool = new SubagentTaskSkill(this.agentRegistry, { allowedRoles, loop: this.reasoningLoop })
       tools.push(tool)
       seen.add(tool.name)
     } catch (err) {

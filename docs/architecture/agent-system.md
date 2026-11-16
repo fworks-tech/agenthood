@@ -105,11 +105,24 @@ not governed by member profile grants — it is also opt-in via
 
 Delegation is bounded at two levels. First, the role allowlist (`DELEGATION_ALLOWED_ROLES`)
 admits only read-only analysis roles — never write-capable agents. Second, tool
-isolation: every agent and each member run constructs its own `ToolRegistry` +
-`ReActLoop` (`ApplicationContext.setupAgents`, `runMemberTask`), so a delegated
-subagent's tool schemas are always its own load-out and never the caller's write
-tools. The delegated task itself travels inside an untrusted `<delegated_task>`
-boundary, and the only surface genuinely shared is the `ExecutionContext`
+isolation: each agent's tool schemas are its own load-out, never the caller's
+write tools. The delegated task itself travels inside an untrusted
+`<delegated_task>` boundary.
+
+`delegate_task` takes two optional fields for workflow isolation (#534, #612):
+
+- `skill` runs the task with that skill's instructions attached. The subagent does
+  not inherit the caller's activated skills, and a name that was never discovered
+  fails instead of running the bare member.
+- `isolation: "full"` gives the subagent a partitioned `ExecutionContext`: a fresh
+  `artifacts` array, a read allowlist of only the named skill's directory, and an
+  emptied activated-skill scope on the shared reasoning loop, restored afterwards.
+  `shared` is the default and preserves the established behaviour.
+
+The loop is shared by the four core agents, so full-isolation delegations must run
+one at a time; two concurrent ones would each restore the other's skill set.
+
+The only surface genuinely shared in `shared` mode is the `ExecutionContext`
 (memory, tracer, artifacts). A compromise of the caller therefore cannot reach
 writes through delegation that the caller could not already reach with its own
 tools.

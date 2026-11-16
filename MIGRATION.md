@@ -160,6 +160,55 @@ logged; `security.autoAllowSkillDirs: false` turns that off.
 0/1/2, destructive branches without `--dry-run`, bare `exit 1`). Findings are
 warnings, not failures.
 
+### New: skills that cannot run here are hidden and refused
+
+A skill may now declare what it needs, and the catalog only lists what this run
+can actually use. The decision is one gate, computed at discovery and applied
+again at activation, so a hidden skill cannot be activated by guessing its name.
+
+```yaml
+model-targets:
+  provider: anthropic          # string or list, case-insensitive
+  family: claude               # substring of the model id
+  min-tokens: 200000
+  exclude: [haiku]             # beats family
+requires:
+  tools: [mcp.github]          # unmet = blocked (mcp.x matches mcp.x.anything)
+  optional-tools: [jq]         # unmet = warning
+  context: 200000
+dependencies:
+  required: [code-review]      # must be installed and usable
+  optional: [test-runner]
+metadata:
+  variants:
+    haiku: references/compact.md   # longest matching fragment wins
+```
+
+Precedence is `exclude` > `family` > `provider`, and a structured field beats
+the `compatibility` prose (which is read only for a `<n>K+ context` fallback).
+A refusal names the requirement and the current model and suggests a switch; the
+run never switches models on its own. A blocked skill with a `fallback` chain
+follows it, like any other activation failure.
+
+`verify` reports unknown tool names, dependencies that are not in the set, and
+missing, escaping or shadowing variant files as warnings. A dependency cycle is
+an error, because no run can activate it. `agenthood skills --show-disabled`
+lists blocked skills with their reason.
+
+Tool requirements are warnings at catalog time and blocks at activation: the
+catalog is built before the run's tool registry exists.
+
+### New: XDG user-scope skill paths
+
+On Linux and macOS, user-scope skills resolve in this order, first match winning:
+
+1. `$XDG_DATA_HOME/agents/skills`
+2. `~/.local/share/agents/skills`
+3. `~/.agents/skills` (legacy, still read)
+
+On Windows the legacy `~/.agents/skills` stays the only user scope. Project
+scopes and configuration are unchanged — only skill data moves.
+
 ### New: skill namespaces and `.well-known` catalogs
 
 Publishing now requires a namespace: `metadata.author` is the `owner` in

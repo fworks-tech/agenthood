@@ -25,10 +25,32 @@ function warnCollision(name: string, kept: string, dropped: string, rule: string
   console.warn(`[SkillDiscovery] "${name}" is defined in both "${dropped}" and "${kept}" — keeping "${kept}" (${rule})`)
 }
 
+/**
+ * User-scope skill directories, in precedence order (#523, ADR-037). XDG data
+ * home first, then its default, then the legacy `~/.agents/skills` so an
+ * existing install keeps working. Windows has no XDG convention, so the legacy
+ * path stays the only user scope there.
+ */
+export function userSkillDirs(
+  home: string = homedir(),
+  env: NodeJS.ProcessEnv = process.env,
+  platform: NodeJS.Platform = process.platform,
+): string[] {
+  if (platform === 'win32') return [join(home, '.agents', 'skills')]
+  const dirs: string[] = []
+  const dataHome = env.XDG_DATA_HOME?.trim()
+  if (dataHome) dirs.push(join(dataHome, 'agents', 'skills'))
+  dirs.push(join(home, '.local', 'share', 'agents', 'skills'))
+  dirs.push(join(home, '.agents', 'skills'))
+  return [...new Set(dirs)]
+}
+
 export class SkillDiscovery {
   private parser = new SkillParser()
   private manifests = new Map<string, ISkillManifest>()
   private scopes = new Map<string, 'user' | 'project'>()
+  /** Search-root index that produced each skill, so earlier roots beat later ones (#523). */
+  private precedence = new Map<string, number>()
   private discovered = false
   private readonly defaultProjectDir: string
   private remoteFetcher?: RemoteSkillFetcher
@@ -40,17 +62,18 @@ export class SkillDiscovery {
   discover(projectDir: string): ISkillManifest[] {
     this.manifests.clear()
     this.scopes.clear()
+    this.precedence.clear()
     this.discovered = true
 
     const scopePaths: { path: string; scope: 'user' | 'project' }[] = [
-      { path: join(homedir(), '.agents', 'skills'), scope: 'user' },
+      ...userSkillDirs().map((path) => ({ path, scope: 'user' as const })),
       { path: join(projectDir, '.agents', 'skills'), scope: 'project' },
       { path: join(projectDir, '.agenthood', 'skills'), scope: 'project' },
       { path: join(projectDir, '.claude', 'skills'), scope: 'project' },
       { path: join(projectDir, 'skills'), scope: 'project' },
     ]
 
-    for (const { path: dir, scope } of scopePaths) {
+    for (const [index, { path: dir, scope }] of scopePaths.entries()) {
       if (!existsSync(dir)) continue
       const found = this.scanDir(dir, 0)
       for (const manifest of found) {
@@ -59,20 +82,27 @@ export class SkillDiscovery {
         if (!existing) {
           this.manifests.set(key, manifest)
           this.scopes.set(key, scope)
+          this.precedence.set(key, index)
           continue
         }
         const existingScope = this.scopes.get(key) ?? 'project'
         if (existingScope === 'user' && scope === 'project') {
           this.manifests.set(key, manifest)
           this.scopes.set(key, scope)
+          this.precedence.set(key, index)
           continue
         }
         if (existingScope === 'project' && scope === 'user') {
           warnCollision(key, existing.directory, manifest.directory, 'project overrides user')
           continue
         }
-        // Same scope: deterministic tie-break on the directory path, never a
-        // silent drop — two skill dirs with one name is always a warning (#524).
+        // Same scope, different search root: the earlier root wins (XDG before
+        // the legacy path). Same root: deterministic alphabetical tie-break,
+        // never a silent drop — two skill dirs with one name is a warning (#524).
+        if ((this.precedence.get(key) ?? index) !== index) {
+          warnCollision(key, existing.directory, manifest.directory, 'earlier search path wins')
+          continue
+        }
         const winner = [existing.directory, manifest.directory].sort()[0]
         if (winner === manifest.directory) {
           this.manifests.set(key, manifest)

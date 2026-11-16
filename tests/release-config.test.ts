@@ -56,6 +56,20 @@ describe('release configuration (Herald release-PR flow)', () => {
     expect(WORKFLOW).toContain("herald-notes.md carries a linkified reference cleanLine did not rewrite")
   })
 
+  it('cleans the notes in the publish job before the release is tagged (#973)', () => {
+    // The publish job regenerates herald-notes.md for the GitHub release, so it
+    // needs the same cleaning the release-pr job applies, on its own copy.
+    const publish = WORKFLOW.slice(WORKFLOW.search(/\n {2}publish:\n/))
+    expect(publish).not.toBe('')
+    const clean = publish.indexOf('--clean herald-notes.md herald-notes.md')
+    const gate = publish.indexOf('gate the generated artifacts')
+    const create = publish.indexOf('gh release create')
+    expect(clean).toBeGreaterThan(-1)
+    expect(create).toBeGreaterThan(-1)
+    expect(gate).toBeGreaterThan(clean)
+    expect(create).toBeGreaterThan(gate)
+  })
+
   it('flags a linkified closing keyword, the form the notes generator actually emits', () => {
     // The real v3.69.0 line, merged with a `closes [#663](url)` in the body.
     // herald-notes.md is the raw generateNotes output — cleanLine only ever

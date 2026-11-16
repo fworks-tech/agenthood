@@ -16,10 +16,15 @@ Use the punctuation that does the job, not a dash standing in for all of them.
 | A list-like aside | parentheses | "Every member (Scribe, Architect, Reviewer) loads the same way." |
 | A numeric range | hyphen | "2023-2026", "60-300s" |
 
-Do not use an em dash (U+2014) or an en dash (U+2013) in prose. The one exception is an
-external identifier that must match GitHub exactly, such as a required check
-name. Those live in `.github/workflows/`, `.github/scripts/herald-summary.cjs`
-and its test fixture, and they are allowlisted.
+Do not use an em dash (U+2014) or an en dash (U+2013) in prose. The one
+exception is an external identifier that must match GitHub exactly, such as a
+required check name. Inside `.github/workflows/` only the `name:` lines and the
+watched-workflow list in `herald.yml` keep their dash; every other line there
+follows the rule. `.github/scripts/herald-summary.cjs` and its test fixture
+mirror those names and are exempt as whole files.
+
+A line that must contain the character itself, such as a test fixture, ends with
+`prose-lint-ignore`.
 
 ## Voice
 
@@ -47,6 +52,14 @@ specific thing you mean.
 | `let's dive` / `deep dive` | start with the finding |
 | `at the end of the day` / `when it comes to` | cut both |
 | `tapestry` / `realm` / `testament to` | the literal subject |
+| `myriad` / `plethora` / `synergy` | the count or the effect |
+| `foster` / `embark` / `streamline` | start, run, shorten |
+| `crucial` / `underscore` | important, shows |
+| `game-changer` / `paradigm shift` / `best-in-class` / `ever-evolving` | the change itself |
+| `in today's` | now, or cut it |
+
+Keep this table in sync with `STOCK` in `scripts/check-prose.mjs`, which is what
+the check reads.
 
 The list is a warning, not a ban. "Robust against malformed input" is a
 technical claim; "a robust solution" is filler. The checker reports the phrase

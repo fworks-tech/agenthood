@@ -187,3 +187,74 @@ describe('WorkflowEngine', () => {
     expect(seenIds).toEqual(['parent-corr-123'])
   })
 })
+
+describe('WorkflowEngine conditions and parallel steps (#609)', () => {
+  const protocol = (output: string) => ({
+    name: 'capturing',
+    config: { retryPolicy: { maxRetries: 0, backoffMs: 0 }, timeoutMs: 100 },
+    execute: vi.fn(async () => output),
+    onFailure: () => 'abort' as const,
+  })
+
+  it('skips a step whose condition is false and records it', async () => {
+    const engine = new WorkflowEngine()
+    const definition: WorkflowDefinition = {
+      name: 'conditional',
+      description: '',
+      steps: [{ name: 'gate', type: 'agent' }, { name: 'after', type: 'agent', when: { step: 'gate', contains: 'YES' } }],
+    }
+    const result = await engine.execute(definition, mockContext)
+    expect(result.stepResults.get('after')).toEqual({ skipped: true })
+  })
+
+  it('runs a step whose condition matches', async () => {
+    const engine = new WorkflowEngine()
+    const matches = protocol('YES')
+    const definition: WorkflowDefinition = {
+      name: 'conditional',
+      description: '',
+      steps: [
+        { name: 'gate', type: 'agent', protocol: matches as never },
+        { name: 'after', type: 'agent', protocol: protocol('ran') as never, when: { step: 'gate', contains: 'YES' } },
+      ],
+    }
+    const result = await engine.execute(definition, mockContext)
+    expect(result.stepResults.get('after')).toBe('ran')
+  })
+
+  it('fails closed when the condition names a step that did not run', async () => {
+    const engine = new WorkflowEngine()
+    const definition: WorkflowDefinition = {
+      name: 'conditional',
+      description: '',
+      steps: [{ name: 'after', type: 'agent', when: { step: 'missing', notContains: 'x' } }],
+    }
+    const warn = vi.spyOn(console, 'log').mockImplementation(() => {})
+    const result = await engine.execute(definition, mockContext)
+    warn.mockRestore()
+    expect(result.stepResults.get('after')).toEqual({ skipped: true })
+  })
+
+  it('runs sub-steps concurrently and returns one result each', async () => {
+    const engine = new WorkflowEngine()
+    const definition: WorkflowDefinition = {
+      name: 'parallel',
+      description: '',
+      steps: [
+        {
+          name: 'group',
+          type: 'parallel',
+          subSteps: [
+            { name: 'group:0:a', type: 'agent', protocol: protocol('a-out') as never },
+            { name: 'group:1:b', type: 'agent', protocol: protocol('b-out') as never },
+          ],
+        },
+      ],
+    }
+    const log = vi.spyOn(console, 'log').mockImplementation(() => {})
+    const result = await engine.execute(definition, mockContext)
+    log.mockRestore()
+
+    expect(result.stepResults.get('group')).toEqual(['a-out', 'b-out'])
+  })
+})

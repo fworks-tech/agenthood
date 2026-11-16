@@ -61,10 +61,29 @@ agenthood workflow run build "implement issue #42"
 ```
 
 Each step runs through `MemberRunner`, so decisions, provenance and events match
-a direct `agenthood run`. Sequential steps only. `guards.stop_on_blocking` stops
-the chain on a `[blocking]` verdict; `max_rounds` re-runs the sequence while
-budget remains. `doorman_before_merge` and `scribe_before_commit` are parsed as
-policy but not enforced by the CLI runner.
+a direct `agenthood run`. A sequence entry is one of:
+
+```yaml
+sequence:
+  - member: architect                      # a member runs the shared task
+  - skill: refactor                        # `/refactor` activation, agent defaults to builder
+    agent: builder
+  - parallel:                              # branches run concurrently
+      - member: reviewer
+      - member: auditor
+  - member: tester
+    when: { step: reviewer, contains: "[blocking]" }
+```
+
+`skill:` steps are ordinary runs with the skill pre-activated, so budget, gating
+and fallback apply exactly as they do for a model-driven activation. `parallel`
+fails the group when one branch fails. `when` accepts `contains` or
+`notContains` over an earlier step's output (a member or skill name, or a branch
+label); a step that did not run fails closed, so a reference to a skipped step
+skips the dependent one too. `guards.stop_on_blocking` stops the chain on a
+`[blocking]` verdict; `max_rounds` re-runs the sequence while budget remains.
+`doorman_before_merge` and `scribe_before_commit` are parsed as policy but not
+enforced by the CLI runner.
 
 ### New: step-level traces
 

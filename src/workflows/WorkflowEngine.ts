@@ -1,7 +1,7 @@
 import { randomUUID } from 'node:crypto'
 import type { ExecutionContext } from '../core/ExecutionContext.ts'
 import type { IProtocol } from './protocols/IProtocol.ts'
-import type { WorkflowStep, WorkflowContext, WorkflowDefinition } from './types.ts'
+import type { WorkflowStep, WorkflowContext, WorkflowDefinition, StepCondition } from './types.ts'
 import { UserProtocol } from './protocols/UserProtocol.ts'
 import { AgentProtocol } from './protocols/AgentProtocol.ts'
 import { ToolProtocol } from './protocols/ToolProtocol.ts'
@@ -37,6 +37,12 @@ export class WorkflowEngine {
     console.log(`\n[WorkflowEngine] Starting "${definition.name}" (${definition.steps.length} steps)\n`)
 
     for (const step of definition.steps) {
+      if (step.when && !conditionMet(step.when, wfContext)) {
+        console.log(`[WorkflowEngine] Step "${step.name}" skipped — ${describeCondition(step.when)} is false`)
+        wfContext.stepResults.set(step.name, { skipped: true })
+        continue
+      }
+
       if (step.type === 'agent' || step.type === 'tool') {
         const cpId = this.checkpoint.save(step.name, wfContext)
         console.log(`[WorkflowEngine] Checkpoint saved for step "${step.name}" (${cpId})`)
@@ -66,7 +72,14 @@ export class WorkflowEngine {
     return wfContext
   }
 
-  private async executeStep(step: WorkflowStep, context: ExecutionContext, _wfContext: WorkflowContext): Promise<unknown> {
+  private async executeStep(step: WorkflowStep, context: ExecutionContext, wfContext: WorkflowContext): Promise<unknown> {
+    // `parallel` has no protocol: it runs its sub-steps concurrently and fails
+    // the group if any sub-step fails (#609). Sequential chains order steps;
+    // this is the one place two steps overlap on purpose.
+    if (step.type === 'parallel') {
+      return Promise.all((step.subSteps ?? []).map((sub) => this.executeStep(sub, context, wfContext)))
+    }
+
     const protocol = step.protocol ?? this.resolveProtocol(step)
 
     if (!protocol) {
@@ -120,4 +133,20 @@ export class WorkflowEngine {
         return undefined
     }
   }
+}
+
+/** A condition is true only when the referenced step ran and its output matches. */
+export function conditionMet(condition: StepCondition, wfContext: Pick<WorkflowContext, 'stepResults'>): boolean {
+  const result = wfContext.stepResults.get(condition.step)
+  if (result === undefined || result === null) return false
+  const text = typeof result === 'string' ? result : JSON.stringify(result)
+  if (condition.contains !== undefined && !text.includes(condition.contains)) return false
+  if (condition.notContains !== undefined && text.includes(condition.notContains)) return false
+  return true
+}
+
+export function describeCondition(condition: StepCondition): string {
+  if (condition.contains !== undefined) return `"${condition.step}" contains "${condition.contains}"`
+  if (condition.notContains !== undefined) return `"${condition.step}" does not contain "${condition.notContains}"`
+  return `"${condition.step}" ran`
 }

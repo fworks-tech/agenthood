@@ -1,5 +1,5 @@
 import { executeReviewPrWorkflow } from '../workflows/definitions/review-pr.ts'
-import { loadChains, runChain, type ChainDefinition } from '../workflows/chains.ts'
+import { chainStepLabel, loadChains, runChain, type ChainDefinition, type ChainStep } from '../workflows/chains.ts'
 import type { CommandDescriptor } from './types.ts'
 import { userError } from '../core/cliError.ts'
 import { ApplicationContext } from '../runtime/ApplicationContext.ts'
@@ -27,6 +27,12 @@ function readChains(): ChainDefinition[] {
   }
 }
 
+function describeStep(step: ChainStep): string {
+  if (step.parallel) return `parallel(${step.parallel.map(describeStep).join(' + ')})`
+  if (step.skill) return `${step.agent ?? 'builder'}:skill ${step.skill}`
+  return step.member ?? chainStepLabel(step)
+}
+
 function listChains(): void {
   const chains = readChains()
   const builtIns = Object.keys(BUILT_INS)
@@ -36,7 +42,7 @@ function listChains(): void {
   }
   for (const chain of chains) {
     console.log(`\n  ${chain.name}  (max_rounds: ${chain.maxRounds})`)
-    console.log(`    ${chain.steps.map((s) => s.member).join(' → ')}`)
+    console.log(`    ${chain.steps.map(describeStep).join(' → ')}`)
   }
   if (builtIns.length > 0) {
     console.log(`\n  Built-in: ${builtIns.join(', ')}`)

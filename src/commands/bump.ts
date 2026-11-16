@@ -3,7 +3,7 @@ import { join } from 'node:path'
 import type { CommandDescriptor } from './types.ts'
 import { MEMBER_NAMES, resolveSocietyMembersDir } from '../members.ts'
 import { SkillParser, parseSkillVersion, SEMVER_RE } from '../skills/discovery/SkillParser.ts'
-import { updateLockfile } from './verify.ts'
+import { updateLockfile } from '../utils/lockfile.ts'
 import { userError } from '../core/cliError.ts'
 
 export type BumpLevel = 'major' | 'minor' | 'patch'

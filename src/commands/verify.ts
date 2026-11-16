@@ -1,11 +1,11 @@
-import { existsSync, readFileSync, writeFileSync } from 'node:fs'
+import { existsSync, readFileSync } from 'node:fs'
 import type { CommandDescriptor } from './types.ts'
 import { MEMBER_NAME_RE, MEMBER_NAMES, memberResourcePath, memberSkillPath, resolveSocietyMembersDir } from '../members.ts'
 import { join } from 'node:path'
 import { contentHash } from '../utils/hash.ts'
-import { loadLockfile } from '../utils/lockfile.ts'
-import type { Lockfile, LockfileMember } from '../utils/lockfile.ts'
-import { checkResourceIntegrity, checkSkillIntegrity, collectResourceHashes } from '../utils/skillIntegrity.ts'
+import { loadLockfile, updateLockfile } from '../utils/lockfile.ts'
+import type { Lockfile } from '../utils/lockfile.ts'
+import { checkResourceIntegrity, checkSkillIntegrity } from '../utils/skillIntegrity.ts'
 import { findResourceRevision, findRevision, restoreMember } from './rollback.ts'
 import {
   SkillParser,
@@ -317,43 +317,6 @@ function printResults(results: VerifyResult[]): void {
       }
     }
   }
-}
-
-export function updateLockfile(cwd: string, membersDir: string, members: string[]): void {
-  const lockPath = join(cwd, 'agenthood.lock')
-  const existing = loadLockfile(cwd)
-  // Merge into the existing lock rather than rebuilding from the scanned
-  // subset, so `verify <member> --update-lock` cannot drop every other member.
-  const next: Record<string, LockfileMember> = { ...(existing?.members ?? {}) }
-  const now = new Date().toISOString()
-  let changed = 0
-  const parser = new SkillParser()
-  for (const member of members) {
-    const skillPath = join(membersDir, member, 'SKILL.md')
-    if (existsSync(skillPath)) {
-      const content = readFileSync(skillPath, 'utf8')
-      const hash = contentHash(content)
-      const resources = collectResourceHashes(join(membersDir, member))
-      const skillVersion = parseSkillVersion(parser.parseRaw(content).frontmatter)
-      const prev = next[member]
-      const resourcesChanged = JSON.stringify(prev?.resources ?? {}) !== JSON.stringify(resources)
-      // Preserve updatedAt when the hash is unchanged — otherwise regenerating
-      // the lock for one edited skill rewrites all 20 timestamps and produces
-      // a merge conflict on every concurrent branch.
-      next[member] = {
-        version: hash,
-        updatedAt: prev && prev.version === hash && !resourcesChanged ? prev.updatedAt : now,
-        ...(Object.keys(resources).length > 0 ? { resources } : {}),
-        ...(skillVersion ? { skillVersion } : {}),
-      }
-      if (!prev || prev.version !== hash || resourcesChanged) changed++
-    }
-  }
-  // Deterministic key order so a regen on any platform (or any FS iteration
-  // order) yields byte-identical output and a minimal diff.
-  const lock = { version: 1, members: Object.fromEntries(Object.keys(next).sort().map((k) => [k, next[k]])) }
-  writeFileSync(lockPath, JSON.stringify(lock, null, 2) + '\n', 'utf8')
-  console.log(`\n  Lockfile updated (${changed} member(s) re-locked) → ${lockPath}`)
 }
 
 export const command: CommandDescriptor = {

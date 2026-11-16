@@ -62,6 +62,21 @@ Every role a real software team needs — available as a skill file with impecca
 | 👁️ | [The Inspector](skills/inspector/SKILL.md) | Visual-reasoning benchmarking, pixel analysis |
 | 📬 | [The Mailman](skills/mailman/SKILL.md) | Message delivery, scheduling, cross-posting |
 
+### Community members
+
+Third-party members live in `skills/contrib/` and are listed here after review. No community member
+has been published yet — the first row is yours.
+
+| Member | Author | Specialty | Install |
+|--------|--------|-----------|---------|
+| _The Translator_ | _@example_ | _Tech-to-plain-language_ | `npx agenthood install @example/the-translator` |
+
+The _row above is the format_, not a published member. To add one, open a PR that adds your
+`skills/contrib/the-<name>/SKILL.md` and your row. The walkthrough is
+[Creating a Member](docs/guides/creating-a-member.md); the contract is
+[Third-Party Members](docs/members/contrib-members.md). CI validates the structure of every skill in
+`skills/contrib/` and that each one is listed here.
+
 ---
 
 ## Getting started

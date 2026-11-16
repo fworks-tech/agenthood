@@ -6,6 +6,7 @@ import { SkillParser } from './SkillParser.ts'
 import { RemoteSkillFetcher, type RemoteSkillSource } from './RemoteSkillSource.ts'
 import { checkSkillIntegrity } from '../../utils/skillIntegrity.ts'
 import { resolveSkillFile } from './skillFile.ts'
+import { normalizeSkillName } from './SkillParser.ts'
 import { scanForInjections } from './injectionScan.ts'
 import { MEMBERS_DIR } from '../../members/MemberRegistry.ts'
 
@@ -20,9 +21,14 @@ function isPackagedDir(fullPath: string): boolean {
   return rel !== '' && !rel.startsWith('..') && !isAbsolute(rel)
 }
 
+function warnCollision(name: string, kept: string, dropped: string, rule: string): void {
+  console.warn(`[SkillDiscovery] "${name}" is defined in both "${dropped}" and "${kept}" — keeping "${kept}" (${rule})`)
+}
+
 export class SkillDiscovery {
   private parser = new SkillParser()
   private manifests = new Map<string, ISkillManifest>()
+  private scopes = new Map<string, 'user' | 'project'>()
   private discovered = false
   private readonly defaultProjectDir: string
   private remoteFetcher?: RemoteSkillFetcher
@@ -33,9 +39,10 @@ export class SkillDiscovery {
 
   discover(projectDir: string): ISkillManifest[] {
     this.manifests.clear()
+    this.scopes.clear()
     this.discovered = true
 
-    const scopePaths = [
+    const scopePaths: { path: string; scope: 'user' | 'project' }[] = [
       { path: join(homedir(), '.agents', 'skills'), scope: 'user' },
       { path: join(projectDir, '.agents', 'skills'), scope: 'project' },
       { path: join(projectDir, '.agenthood', 'skills'), scope: 'project' },
@@ -48,10 +55,30 @@ export class SkillDiscovery {
       const found = this.scanDir(dir, 0)
       for (const manifest of found) {
         const key = manifest.name || manifest.directory
-        if (scope === 'project') {
+        const existing = this.manifests.get(key)
+        if (!existing) {
           this.manifests.set(key, manifest)
-        } else if (!this.manifests.has(key)) {
+          this.scopes.set(key, scope)
+          continue
+        }
+        const existingScope = this.scopes.get(key) ?? 'project'
+        if (existingScope === 'user' && scope === 'project') {
           this.manifests.set(key, manifest)
+          this.scopes.set(key, scope)
+          continue
+        }
+        if (existingScope === 'project' && scope === 'user') {
+          warnCollision(key, existing.directory, manifest.directory, 'project overrides user')
+          continue
+        }
+        // Same scope: deterministic tie-break on the directory path, never a
+        // silent drop — two skill dirs with one name is always a warning (#524).
+        const winner = [existing.directory, manifest.directory].sort()[0]
+        if (winner === manifest.directory) {
+          this.manifests.set(key, manifest)
+          warnCollision(key, existing.directory, manifest.directory, 'alphabetically first directory wins')
+        } else {
+          warnCollision(key, existing.directory, manifest.directory, 'alphabetically first directory wins')
         }
       }
     }
@@ -204,6 +231,12 @@ export class SkillDiscovery {
       if (packaged && parsed.name !== entry) {
         console.warn(`[SkillDiscovery] packaged "${entry}" dropped: frontmatter name "${parsed.name}" mismatches directory`)
         return []
+      }
+      // Consuming a skill stays lenient (#513): it loads under its frontmatter
+      // name, but the mismatch is worth a warning because activation by the
+      // directory name will miss it.
+      if (!packaged && parsed.name && parsed.name !== normalizeSkillName(entry)) {
+        console.warn(`[SkillDiscovery] "${entry}" declares name "${parsed.name}" — it activates as "${parsed.name}", not "${entry}"`)
       }
       return [manifest]
     }

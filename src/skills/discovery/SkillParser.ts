@@ -88,9 +88,17 @@ export const MAX_SKILL_FILE_BYTES = 1024 * 1024
 // NOT by parse(): parse() must stay permissive so third-party skills that
 // don't follow the convention still load at runtime rather than silently
 // vanishing from discovery.
-export const SPEC_NAME_RE = /^[a-z0-9]+(-[a-z0-9]+)*$/
+// Unicode-aware (#517): lowercase (`Ll`) and caseless (`Lo`, CJK) letters plus
+// digits, so a normalized name from a non-Latin client is valid. Uppercase is
+// excluded by `Ll`, and the class has no path separators or dots.
+export const SPEC_NAME_RE = /^[\p{Ll}\p{Lo}\p{N}]+(?:-[\p{Ll}\p{Lo}\p{N}]+)*$/u
 const MAX_NAME_LENGTH = 64
 const MAX_DESCRIPTION_LENGTH = 1024
+
+/** NFKC-normalize a skill name so a decomposed accent and its composed form are one skill (#517). */
+export function normalizeSkillName(name: string): string {
+  return name.normalize('NFKC')
+}
 
 export interface SkillSpecError {
   rule: string
@@ -116,8 +124,9 @@ export class SkillParser {
     if (!raw.frontmatter.description) return null
 
     const compatibility = parseCompatibility(raw.frontmatter)
+    const declaredName = typeof raw.frontmatter.name === 'string' ? raw.frontmatter.name : filePath
     return {
-      name: typeof raw.frontmatter.name === 'string' ? raw.frontmatter.name : filePath,
+      name: normalizeSkillName(declaredName),
       description: typeof raw.frontmatter.description === 'string' ? raw.frontmatter.description : '',
       body: raw.body,
       allowedTools: parseAllowedTools(raw.frontmatter['allowed-tools'] ?? raw.frontmatter.allowed_tools),
@@ -211,13 +220,16 @@ export class SkillParser {
    * empty array when the skill is spec-compliant. `dirName` is the parent
    * directory the SKILL.md lives in; `fileName` the file's basename.
    */
-  validateSpec(name: string, description: string, dirName: string, fileName = 'SKILL.md'): SkillSpecError[] {
+  validateSpec(rawName: string, description: string, rawDirName: string, fileName = 'SKILL.md'): SkillSpecError[] {
     const errors: SkillSpecError[] = []
+    // Compare composed forms: a decomposed "café" and a composed one are the same skill (#517).
+    const name = normalizeSkillName(rawName)
+    const dirName = normalizeSkillName(rawDirName)
     if (!SPEC_NAME_RE.test(name)) {
       errors.push({
         rule: 'name-format',
         message: `name "${name}" is not lowercase alphanumeric with single hyphens`,
-        fix: 'Use ^[a-z0-9]+(-[a-z0-9]+)*$ — e.g. "pdf-processing", no leading/trailing/consecutive hyphens or uppercase',
+        fix: 'Use letters and digits in lowercase, single hyphens between words — e.g. "pdf-processing"; no leading/trailing/consecutive hyphens or uppercase',
       })
     }
     if (name.length < 1 || name.length > MAX_NAME_LENGTH) {

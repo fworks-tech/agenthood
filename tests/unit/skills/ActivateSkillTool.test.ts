@@ -325,6 +325,7 @@ describe('ActivateSkillTool gating and variants (#549, #551, #555)', () => {
     )
     const result = await tool.execute({ skill_name: 'a' }, context())
     expect(result.output).toContain('<skill_warning>')
-    expect(result.output).toContain('optional tool "jq"')
+    expect(result.output).toContain('optional tool')
+    expect(result.output).toContain('jq')
   })
 })

@@ -85,6 +85,13 @@ skips the dependent one too. `guards.stop_on_blocking` stops the chain on a
 `doorman_before_merge` and `scribe_before_commit` are parsed as policy but not
 enforced by the CLI runner.
 
+### New: skill delegation and context isolation
+
+`delegate_task` accepts `skill` and `isolation` (`shared` default, `full`). A
+skill name must resolve through discovery; `full` partitions the subagent's
+artifacts and activated-skill scope and restores the caller's afterwards. Both
+fields are optional — existing delegation calls behave as before.
+
 ### New: step-level traces
 
 Trajectories now store one step per ReAct turn, with the tools called, tokens,

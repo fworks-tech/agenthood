@@ -47,7 +47,7 @@ export class DeveloperAgent extends BaseAgent {
       new ExplainCodeSkill(),
     ]
     if (options.canDelegate) {
-      this.tools.push(new SubagentTaskSkill(options.agentRegistry, { allowedRoles: [...DELEGATION_ALLOWED_ROLES] }))
+      this.tools.push(new SubagentTaskSkill(options.agentRegistry, { allowedRoles: [...DELEGATION_ALLOWED_ROLES], loop: reasoningLoop }))
     }
   }
 

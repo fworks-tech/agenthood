@@ -25,6 +25,9 @@ import { ConcurrencyQueue, type Priority } from '../core/ConcurrencyQueue.ts'
 import type { TraceSource } from '../core/types.ts'
 import { exportIfConfigured as exportIfMetricsConfigured } from '../metrics/config.ts'
 import { RunCheckpoint, type CheckpointData, type CheckpointStore } from '../checkpoint/RunCheckpoint.ts'
+import { applySlashActivations } from '../skills/activation/slash.ts'
+import type { ActivateSkillTool } from '../skills/activation/ActivateSkillTool.ts'
+import { registerActivateTool } from '../skills/activation/toolRegistration.ts'
 
 export interface MemberRunnerDeps {
   agents: AgentRegistry
@@ -126,8 +129,15 @@ export class MemberRunner {
   }
 
   private async executeMemberTask(memberName: string, task: string, config: LLMConfig, resumeFrom?: string | { checkpointId: string; reply?: string }): Promise<MemberRunResult> {
-    const { spec, llm, sReg, checkpointStore, checkpointData, seedMessages } =
+    const { spec, llm, sReg, checkpointStore, checkpointData, seedMessages, activateTool } =
       await this.prepareMemberContext(memberName, task, config, resumeFrom)
+
+    const slash = await applySlashActivations(
+      task,
+      new Set(this.ctx.skillManifests?.keys() ?? []),
+      (name) => activateTool?.execute({ skill_name: name }, this.ctx) ?? Promise.resolve(undefined),
+    )
+    const { task: effectiveTask, explicitSkills } = slash
 
     const loop = new ReActLoop(llm, sReg, {
       interactive: config.interactive,
@@ -155,7 +165,12 @@ export class MemberRunner {
       }
     }
 
-    const agent = new MemberAgent(spec, llm, loop, sReg, { agentRegistry: this.deps.agents, episodeLearner: this.deps.episodeLearner, strictSkillIntegrity: config.security?.strictSkillIntegrity })
+    const agent = new MemberAgent(spec, llm, loop, sReg, {
+      agentRegistry: this.deps.agents,
+      episodeLearner: this.deps.episodeLearner,
+      strictSkillIntegrity: config.security?.strictSkillIntegrity,
+      explicitSkills,
+    })
     const metricsCollector = new MetricsCollector(join(process.cwd(), '.agenthood', 'metrics'))
     const startTime = performance.now()
     const timestamp = new Date().toISOString()
@@ -171,7 +186,7 @@ export class MemberRunner {
         task: redactEventText(this.ctx, task),
       })
 
-      const result = await agent.run(task, this.ctx)
+      const result = await agent.run(effectiveTask, this.ctx)
       const duration = Math.round(performance.now() - startTime)
       return this.completeRunSuccess({
         spec, result, duration, usage: loop.usage, metricsCollector, checkpointStore, checkpointData,
@@ -212,6 +227,7 @@ export class MemberRunner {
     checkpointStore: CheckpointStore
     checkpointData: CheckpointData
     seedMessages: Message[] | undefined
+    activateTool?: ActivateSkillTool
   }> {
     applySandboxProfile(config)
     if (!this.deps.members.has(memberName)) throw new Error(`unknown member "${memberName}"`)
@@ -232,8 +248,10 @@ export class MemberRunner {
       resumeFrom,
       spec.model ?? config.model,
     )
+    const activateTool = registerActivateTool(sReg, this.ctx.skillManifests, llm, config)
+
     const seedMessages = this.resumeSeed(checkpointData, resumeFrom)
-    return { spec, llm, sReg, checkpointStore, checkpointData, seedMessages }
+    return { spec, llm, sReg, checkpointStore, checkpointData, seedMessages, activateTool }
   }
 
   private persistTrajectory(args: {

@@ -38,6 +38,7 @@ beforeEach(() => {
   writeFileSync(join(skillDir, 'scripts', 'ok.js'), "console.log('hello from skill')")
   writeFileSync(join(skillDir, 'scripts', 'fail.js'), "console.error('boom')\nprocess.exit(2)")
   writeFileSync(join(skillDir, 'scripts', 'big.js'), "console.log('x'.repeat(40000))")
+  writeFileSync(join(skillDir, 'scripts', 'huge.js'), "process.stdout.write('x'.repeat(5 * 1024 * 1024))")
   writeFileSync(join(skillDir, 'scripts', 'tool.rb'), 'puts 1')
 })
 
@@ -69,6 +70,15 @@ describe('runSkillScript authorization (#607, ADR-036)', () => {
     const result = await runSkillScript({ skill: 'demo', script: 'npx cowsay hi' }, deps())
     expect(result.success).toBe(false)
     expect(result.error).toContain('Pin the version')
+  })
+
+  it.runIf(process.platform === 'win32')('refuses an argument cmd.exe would treat as a second command', async () => {
+    const result = await runSkillScript(
+      { skill: 'demo', script: 'npx cowsay@1.6.0', args: ['&', 'calc'] },
+      deps(),
+    )
+    expect(result.success).toBe(false)
+    expect(result.error).toContain('Windows cannot pass safely')
   })
 })
 
@@ -105,6 +115,14 @@ describe('runSkillScript execution (#546, #544)', () => {
     const log = readFileSync(join(projectPath, '.agenthood', 'skill-exec-audit.ndjson'), 'utf8')
     const row = JSON.parse(log.trim())
     expect(row).toMatchObject({ skill: 'demo', script: 'scripts/ok.js', sandbox: 'host', exit: 0 })
+  })
+
+  it('caps captured output so a runaway script cannot grow the heap', async () => {
+    const result = await runSkillScript({ skill: 'demo', script: 'scripts/huge.js' }, deps())
+    expect(result.success).toBe(true)
+    const log = readFileSync(join(projectPath, '.agenthood', 'skill-output', 'exec-1', 'scripts_huge.js.log'), 'utf8')
+    expect(log).toContain('[earlier output truncated]')
+    expect(Buffer.byteLength(log, 'utf8')).toBeLessThan(4.2 * 1024 * 1024)
   })
 
   it('stops a script that overruns its timeout', async () => {

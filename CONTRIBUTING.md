@@ -147,6 +147,7 @@ The `agenthood` CLI auto-discovers commands from `src/commands/`: each file expo
 - `agenthood completion` — generate shell tab-completion scripts for bash, zsh, or fish
 - `agenthood search <query>` — search for skills in the agenthood registry (`--json`)
 - `agenthood skills [--show-disabled] [--json]` — list discovered skills in catalog order (priority, then description specificity), and with `--show-disabled` name every skill the catalog omits and why: `skills.disabled` in config, `hidden: true`, or `disable-model-invocation`
+- `agenthood verify [--scripts]` — validate member SKILL.md files, spec conformance and the lockfile. `--scripts` adds an advisory lint over each skill's `scripts/` directory: stdin reads without an interactive marker, missing `--help`, prose output when the skill declares `output_format: json`, exit codes outside 0/1/2, destructive branches without `--dry-run`, and a bare `exit 1` with no message. Warnings never fail the run
 - `agenthood catalog [url]` — list skills from `.well-known/agentskills` catalogs: every source in `remoteCatalogs.sources`, or one ad-hoc URL. `--refresh` bypasses the cache, `--json` prints the raw listing. Catalogs are advisory — an unreachable source falls back to stale cache, then to local skills, and never blocks a run (ADR-035)
 - `agenthood upgrade [skill]` — upgrade installed skills to latest version from registry
 - `agenthood init --ci [--runtime <name>] [--members all|a,b,c]` — non-interactive setup for CI: never prompts, keeps an existing setup unless `--force`

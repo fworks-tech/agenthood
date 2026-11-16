@@ -172,8 +172,9 @@ to files the skill already ships.
   requirement, stated in the error rather than worked around.
 - Windows: Docker Desktop is required for `--sandbox`; the host path uses the same
   spawn API and the same timeout. No POSIX-only flag is passed on Windows.
-- MIGRATION: `security.sandbox` changes meaning from "confirm every tool call" to
-  "isolate script execution"; the confirmation behavior remains under `interactive`.
+- MIGRATION: `security.sandbox` keeps its existing meaning (container isolation for
+  member tools) and additionally requires Docker for every skill script; the
+  confirmation behavior remains under `interactive`.
 
 ## Alternatives considered
 

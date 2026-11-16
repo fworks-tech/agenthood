@@ -1,5 +1,5 @@
 import { executeReviewPrWorkflow } from '../workflows/definitions/review-pr.ts'
-import { loadChains, runChain } from '../workflows/chains.ts'
+import { loadChains, runChain, type ChainDefinition } from '../workflows/chains.ts'
 import type { CommandDescriptor } from './types.ts'
 import { userError } from '../core/cliError.ts'
 import { ApplicationContext } from '../runtime/ApplicationContext.ts'
@@ -16,8 +16,19 @@ export const command: CommandDescriptor = {
   handler: (args) => workflow(args),
 }
 
+/** A malformed chains.yaml fails with a message that names the file, not a parser dump. */
+function readChains(): ChainDefinition[] {
+  try {
+    return loadChains(process.cwd())
+  } catch (err) {
+    userError(`Could not read chains.yaml: ${err instanceof Error ? err.message : String(err)}`, {
+      fix: 'Fix the chains.yaml at the project root.',
+    })
+  }
+}
+
 function listChains(): void {
-  const chains = loadChains(process.cwd())
+  const chains = readChains()
   const builtIns = Object.keys(BUILT_INS)
   if (chains.length === 0 && builtIns.length === 0) {
     console.log('No chains or workflows available. Add a chains.yaml at the project root.')
@@ -53,7 +64,7 @@ export async function workflow(args: string[]): Promise<void> {
 
   const builtIn = BUILT_INS[name]
   if (!builtIn) {
-    const chains = loadChains(process.cwd()).map((c) => c.name)
+    const chains = readChains().map((c) => c.name)
     userError(`Unknown workflow: "${name}"`, {
       fix: `Available: ${[...chains, ...Object.keys(BUILT_INS)].join(', ') || 'none'}`,
     })
@@ -73,7 +84,7 @@ async function runChainCommand(args: string[]): Promise<void> {
 
   let chain
   try {
-    chain = loadChains(process.cwd()).find((c) => c.name === chainName)
+    chain = readChains().find((c) => c.name === chainName)
   } catch (err) {
     userError(`Cannot read chains.yaml: ${err instanceof Error ? err.message : String(err)}`, {
       fix: 'Fix the YAML shape described in docs/architecture/chain-workflows.md.',
@@ -81,7 +92,7 @@ async function runChainCommand(args: string[]): Promise<void> {
     return
   }
   if (!chain) {
-    const available = loadChains(process.cwd()).map((c) => c.name)
+    const available = readChains().map((c) => c.name)
     userError(`Unknown chain: "${chainName}"`, { fix: `Available chains: ${available.join(', ') || 'none'}` })
     return
   }

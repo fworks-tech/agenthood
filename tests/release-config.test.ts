@@ -1,6 +1,6 @@
 import { readFileSync } from 'node:fs'
 import { describe, expect, it } from 'vitest'
-import { cleanLine } from '../scripts/generate-release-notes.ts'
+import { cleanLine, formatDate } from '../scripts/generate-release-notes.ts'
 
 const WORKFLOW = readFileSync('.github/workflows/semantic-release.yml', 'utf8')
 const HELPER = readFileSync('scripts/herald-release.mjs', 'utf8')
@@ -176,6 +176,29 @@ describe('release notes issue references', () => {
   it('adds no references to a line that has none', () => {
     expect(cleanLine('* **test:** no issues here ([#12](https://x/12))'))
       .toBe('- **Test:** no issues here (#12)')
+  })
+
+  it('turns a dash in an inherited subject into a colon', () => {
+    // A commit subject is free prose and can carry a dash. The generated notes
+    // are exempt from the prose check, so cleanLine has to normalize it.
+    const dashed = '* **feat:** add X — Y' // prose-lint-ignore
+    expect(cleanLine(dashed)).toBe('- **Feat:** add X: Y')
+  })
+
+  it('keeps a numeric range as a hyphen', () => {
+    const dashed = '* **feat:** support 2023–2026' // prose-lint-ignore
+    expect(cleanLine(dashed)).toBe('- **Feat:** support 2023-2026')
+  })
+
+  it('formats the release date in UTC, so a late release keeps its day', () => {
+    // A machine west of UTC would otherwise date the release one day earlier.
+    const original = process.env.TZ
+    process.env.TZ = 'America/Sao_Paulo'
+    try {
+      expect(formatDate('2026-11-16')).toBe('November 16, 2026')
+    } finally {
+      process.env.TZ = original
+    }
   })
 
   it('does not write files when imported, so the module is testable', () => {

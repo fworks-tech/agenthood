@@ -21,5 +21,6 @@ const { catalog, skipped } = buildCatalog(raw)
 if (catalog.models.length === 0) throw new Error('catalog is empty; refusing to overwrite snapshot')
 if (skipped.length > 0) console.warn(`skipped ${skipped.length} invalid entries: ${skipped.join(', ')}`)
 
-writeFileSync(OUT, `${JSON.stringify(catalog, null, 2)}\n`)
+const lines = catalog.models.map((model) => `    ${JSON.stringify(model)}`)
+writeFileSync(OUT, `{\n  "models": [\n${lines.join(',\n')}\n  ]\n}\n`)
 console.log(`synced ${catalog.models.length} OpenCode models to ${OUT}`)

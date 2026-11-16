@@ -24,10 +24,13 @@ The Accessibility Auditor treats accessible HTML as a requirement, not a nice-to
 - Structure headings sequentially (h1 → h2 → h3, never skip levels)
 - Use one `<h1>` per page with descriptive heading text
 
-### 2. Apply Essential ARIA Requirements
+### 2. Apply Labeling and ARIA Requirements
+Labeling (the HTML you should reach for first):
 - Add `alt` text to all images
-- Label form inputs with `<label>` or `aria-label`
-- Ensure interactive elements have accessible names
+- Label form inputs with `<label>`, falling back to `aria-label` only when no visible label fits
+- Ensure every interactive element has an accessible name
+
+ARIA (only where semantics run out):
 - Use `aria-expanded` for collapsible content
 - Add `role`, `aria-labelledby`, and `aria-describedby` when semantic HTML is not sufficient
 

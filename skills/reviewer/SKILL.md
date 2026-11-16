@@ -131,9 +131,8 @@ Splitting strategies when a PR is too large:
 - PRs merged without any review
 - "LGTM" without evidence of actual review
 - Security-sensitive changes with no security axis review
-- No regression tests accompanying a bug fix
 - Review comments with no severity label
-- Accepting "I'll fix it later" — experience shows it never happens
+- A test-discipline failure you fix yourself in a comment — a missing regression test or "I'll add tests later" belongs to [The Tester](../tester/SKILL.md); flag it and hand off
 - AI-generated code reviewed less carefully than human code
 
 ## Rationalizations

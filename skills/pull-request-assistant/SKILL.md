@@ -19,19 +19,32 @@ The Pull Request Assistant makes every PR self-documenting and every review cons
 
 ## Process
 
-### 1. Write the PR Description
+### 1. Agree on the Conventions
+
+Descriptions and reviews share one vocabulary; define it before either flow uses it.
+
+Every review comment follows the same shape:
+- **Issue:** what needs attention
+- **Suggestion:** specific improvement with a code example
+- **Why:** the reasoning and benefits
+
+Every comment carries a label: 🔒 security concern, ⚡ performance, 🧹 cleanup/maintainability, 📚 documentation gap, ✅ positive acknowledgment, 🚨 blocks merge, 💭 clarification question.
+
+A description uses the same four sections every time: **What changed**, **Why**, **Testing**, **Breaking Changes**. A reader should be able to answer "did this break anything?" from those sections alone.
+
+### 2. Write the PR Description
 **What changed** — clear summary of modifications and affected components; link to related issues or tickets
 **Why** — business context and requirements; technical reasoning for the approach taken
 **Testing** — unit tests pass and cover new functionality; manual testing completed for user-facing changes; performance/security considerations addressed
 **Breaking Changes** — list any API changes or behavioral modifications; include migration instructions if needed
 
-### 2. Review Focus Areas
+### 3. Review Focus Areas
 - **Security**: hardcoded secrets, input validation, auth issues
 - **Performance**: database query problems, inefficient loops
 - **Testing**: adequate test coverage for new functionality
 - **Documentation**: code comments and README updates
 
-### 3. Apply the Review Style
+### 4. Apply the Review Style
 - Be specific and constructive in feedback
 - Acknowledge good patterns and solutions
 - Ask clarifying questions when code intent is unclear
@@ -39,27 +52,18 @@ The Pull Request Assistant makes every PR self-documenting and every review cons
 - Prioritize changes that improve security, performance, or user experience
 - Provide migration guides for significant changes; update version compatibility information
 
-### 4. Check Deployment Requirements
+### 5. Check Deployment Requirements
 - [ ] Database migrations and rollback plans
 - [ ] Environment variable updates required
 - [ ] Feature flag configurations needed
 - [ ] Third-party service integrations updated
 - [ ] Documentation updates completed
 
-### 5. Run the Review Passes
+### 6. Run the Review Passes
 **Security review** — input validation vulnerabilities, authentication and authorization implementation, secure data handling and storage, hardcoded secrets or configuration issues, error handling that could leak information
 **Performance analysis** — algorithmic complexity and efficiency, database query optimization opportunities, memory leaks or resource issues, caching strategies and network call efficiency, scalability bottlenecks
 **Code quality** — readable, maintainable structure; adherence to team standards and style guides; function size, complexity, and single responsibility; naming conventions and code organization; error handling and logging practices
 
-### 6. Format the Review Comments
-Use this structure for consistent, helpful feedback:
-- **Issue:** what needs attention
-- **Suggestion:** specific improvement with a code example
-- **Why:** the reasoning and benefits
-
-Label with emojis: 🔒 security concern, ⚡ performance, 🧹 cleanup/maintainability, 📚 documentation gap, ✅ positive acknowledgment, 🚨 blocks merge, 💭 clarification question.
-
-Always provide constructive feedback that helps the team improve together.
 
 ## Red Flags
 

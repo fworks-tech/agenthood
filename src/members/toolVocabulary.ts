@@ -31,6 +31,7 @@ export const TOOL_VOCABULARY: Record<string, new (...args: never[]) => ITool> = 
 }
 
 // Derived from the tools themselves so the mapping cannot drift from TOOL_MAP.
+// Built at import time, so every tool constructor here must stay cheap and side-effect free.
 const REGISTRY_NAME_BY_DECLARED: Record<string, string> = Object.fromEntries(
   Object.entries(TOOL_VOCABULARY).map(([declared, Ctor]) => [declared, new Ctor().name]),
 )
@@ -38,4 +39,9 @@ const REGISTRY_NAME_BY_DECLARED: Record<string, string> = Object.fromEntries(
 /** Declared skill tools → the names tool calls actually carry. Unknown names pass through. */
 export function toRegistryToolNames(declared: string[] | undefined): string[] | undefined {
   return declared?.map((name) => REGISTRY_NAME_BY_DECLARED[name] ?? name)
+}
+
+/** True when a declared name resolves to a tool, by skill vocabulary or implementation name. */
+export function isKnownToolName(name: string): boolean {
+  return Object.hasOwn(REGISTRY_NAME_BY_DECLARED, name) || Object.values(REGISTRY_NAME_BY_DECLARED).includes(name)
 }

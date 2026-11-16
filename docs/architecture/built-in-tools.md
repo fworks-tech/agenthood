@@ -44,6 +44,21 @@ must escalate to the Orchestrator, which routes to the appropriate member.
 | `code.write` | Write code changes | Standard profile (9 members) |
 | `code.refactor` | Refactor code | Standard profile (9 members) |
 
+### Skill Execution
+
+| Tool | Description | Scope |
+|------|-------------|-------|
+| `run_skill_script` | Run a script bundled with an **active** skill, or a version-pinned one-off command (`uvx ruff@0.8.0 check .`) | All members, only for skills activated in the run |
+
+`run_skill_script` is the only path that spawns a skill script (ADR-036). It resolves
+the script inside the active skill's directory, picks the runtime from the extension
+then the shebang (PEP 723 → `uv run`, `npm:` imports → `deno run`, else `python`/`node`/`bash`),
+runs with stdin closed and a timeout, caps inline output at 30 KB with a per-run log
+for the rest, and appends one row to `.agenthood/skill-exec-audit.ndjson`. Community
+and experimental skills require `--sandbox` (Docker, network denied, skill directory
+mounted read-only); on a host without Docker the run fails closed rather than
+degrading to an unsandboxed one.
+
 ### PR Sync
 
 | Tool | Description | Scope |

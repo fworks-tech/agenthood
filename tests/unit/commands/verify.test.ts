@@ -85,6 +85,29 @@ describe('verify command', () => {
     expect(exit).not.toHaveBeenCalledWith(1)
   })
 
+  it('lints bundled scripts with --scripts and never fails the run (#540)', async () => {
+    const dirEntry = (name: string) => ({ name, isDirectory: () => true, isFile: () => false }) as any
+    vi.mocked(readdirSync).mockImplementation(((path: string) => {
+      const target = String(path)
+      if (target.includes('routing')) return []
+      return target.endsWith('scripts') ? ['run.sh'] : [dirEntry('the-test')]
+    }) as any)
+    vi.mocked(statSync).mockImplementation((() => ({ isDirectory: () => true, isFile: () => true, size: 100 })) as any)
+    vi.mocked(readFileSync).mockImplementation(((path: string) => {
+      const target = String(path)
+      if (target.endsWith('agenthood.lock')) return lockContent
+      if (target.endsWith('run.sh')) return 'read -p "name? " name\n'
+      return skillContent
+    }) as any)
+    const log = vi.spyOn(console, 'log').mockImplementation(() => {})
+    const exit = vi.spyOn(process, 'exit').mockImplementation((() => {}) as any)
+
+    await verify(['--scripts'])
+
+    expect(log.mock.calls.flat().join(' ')).toContain('[stdin]')
+    expect(exit).not.toHaveBeenCalledWith(1)
+  })
+
   it('fails when SKILL.md is missing', async () => {
     vi.mocked(existsSync).mockReturnValue(false)
     const exit = vi.spyOn(process, 'exit').mockImplementation((() => {}) as any)

@@ -136,6 +136,30 @@ metadata:
 fallback: code-review
 ```
 
+### New: running a skill's scripts
+
+`activate_skill` now authorizes a second tool: `run_skill_script`. It runs a script
+shipped under an activated skill's directory (or a version-pinned one-off command
+such as `uvx ruff@0.8.0 check .`) with stdin closed, a timeout
+(`skills.scriptTimeoutMs`, default 120000), and output capped at 30 KB — the rest
+goes to `.agenthood/skill-output/<executionId>/` and is read back with `page`.
+
+Runtime choice is by extension, then shebang: PEP 723 block → `uv run`, `npm:`
+imports → `deno run`, otherwise `python`/`node`/`bash`. Unsupported languages are
+refused rather than guessed. Every run appends a row to
+`.agenthood/skill-exec-audit.ndjson`.
+
+Community and experimental skills run only under `--sandbox` (Docker: no network,
+read-only skill mount). Without Docker the run fails closed. Official skills and
+`security.trustedAuthors` may run on the host. Activated skill directories are
+readable without a prompt for the rest of the run, and each accepted read is
+logged; `security.autoAllowSkillDirs: false` turns that off.
+
+`agenthood verify --scripts` lints bundled scripts for agent-hostile interfaces
+(stdin reads, no `--help`, prose when the skill declares JSON, exit codes outside
+0/1/2, destructive branches without `--dry-run`, bare `exit 1`). Findings are
+warnings, not failures.
+
 ### New: skill namespaces and `.well-known` catalogs
 
 Publishing now requires a namespace: `metadata.author` is the `owner` in

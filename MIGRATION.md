@@ -209,6 +209,42 @@ On Linux and macOS, user-scope skills resolve in this order, first match winning
 On Windows the legacy `~/.agents/skills` stays the only user scope. Project
 scopes and configuration are unchanged — only skill data moves.
 
+### New: skill discovery and script output caching
+
+Discovery now writes a metadata cache at `.agenthood/skill-cache/metadata.json`.
+It is transparent: an entry is served only while the SKILL.md mtime and size
+match, a miss re-parses, and entries for deleted skills are dropped. Rewriting a
+file and restoring its original mtime is the one case a cached entry can be
+stale; `agenthood cache clear` covers it. `agenthood skills --stats` prints the
+scan counters (directories, skills, cache hits, duration) and says when the
+2000-directory cap stopped a scan. `.gitignore` patterns are not parsed — the
+built-in skip list covers `.git`, `node_modules`, `.venv`, `__pycache__`,
+`.tox`, `vendor`, `target` and similar build/cache directories.
+
+Script output caching is opt-in and off by default, because a bundled script may
+mutate the workspace and a cached result would silently skip that mutation:
+
+```json
+{
+  "skills": {
+    "cacheOutputs": true,
+    "cacheTtlMs": 3600000
+  }
+}
+```
+
+The cache is keyed by skill, script path, arguments and a digest of the script
+file, so an edited script is never served from cache. One-off commands are never
+cached. `no_cache: true` on a `run_skill_script` call bypasses it, and a hit is
+stated in the tool output. `agenthood cache stats` reports both caches;
+`agenthood cache clear` removes them.
+
+`agenthood verify --tokens` warns when a SKILL.md body exceeds 5000 tokens
+(`token-budget` in frontmatter overrides the limit) and reports the total.
+`agenthood verify --dedup` reports one skill name installed in several roots and
+suggests keeping the project copy. Both are advisory; runtime precedence still
+decides which copy a run uses.
+
 ### New: skill namespaces and `.well-known` catalogs
 
 Publishing now requires a namespace: `metadata.author` is the `owner` in

@@ -8,8 +8,10 @@ import { existsSync, readFileSync, readdirSync, statSync } from 'node:fs'
 import { join, relative } from 'node:path'
 import { SkillParser, parseDependencies, parseRequires, parseVariants } from '../skills/discovery/SkillParser.ts'
 import type { SkillDependencies, SkillRequires } from '../skills/discovery/ISkillManifest.ts'
+import { SkillDiscovery, userSkillDirs } from '../skills/discovery/SkillDiscovery.ts'
 import { variantTarget } from '../skills/discovery/variants.ts'
 import { lintScript } from '../skills/execution/lint.ts'
+import { countTokens } from '../core/modelPricing.ts'
 import { isKnownToolName } from '../members/toolVocabulary.ts'
 
 export function reportScriptLint(membersDir: string): void {
@@ -130,4 +132,97 @@ export function reportSkillRequirements(membersDir: string): boolean {
     for (const warning of warnings) console.log(`      - ${warning}`)
   }
   return cycles.length === 0
+}
+
+/** agentskills.io recommends <5000 tokens for a SKILL.md body (#615). */
+export const DEFAULT_TOKEN_BUDGET = 5000
+
+function parseTokenBudget(frontmatter: Record<string, unknown> | null): number | undefined {
+  const raw = frontmatter?.['token-budget'] ?? frontmatter?.token_budget
+  const value = typeof raw === 'string' ? Number(raw.trim()) : raw
+  return typeof value === 'number' && Number.isInteger(value) && value > 0 ? value : undefined
+}
+
+/**
+ * Per-body token counts against the 5000-token guidance (#615). Advisory: an
+ * over-budget body still works, it just spends context the task needed. The
+ * suggestion is the one that actually helps — move the Process steps into
+ * references/ and summarise them in the body.
+ */
+export function reportTokenBudgets(membersDir: string, defaultBudget = DEFAULT_TOKEN_BUDGET): void {
+  const parser = new SkillParser()
+  const rows: { name: string; tokens: number; budget: number }[] = []
+  let dirs: string[]
+  try {
+    dirs = readdirSync(membersDir, { withFileTypes: true })
+      .filter((entry) => entry.isDirectory())
+      .map((entry) => entry.name)
+  } catch {
+    return
+  }
+  for (const dir of dirs) {
+    const location = join(membersDir, dir, 'SKILL.md')
+    if (!existsSync(location)) continue
+    const { frontmatter, body } = parser.parseRaw(readFileSync(location, 'utf8'))
+    const name = typeof frontmatter?.name === 'string' ? frontmatter.name : dir
+    rows.push({ name, tokens: countTokens(body), budget: parseTokenBudget(frontmatter) ?? defaultBudget })
+  }
+
+  const total = rows.reduce((sum, row) => sum + row.tokens, 0)
+  const over = rows.filter((row) => row.tokens > row.budget)
+  if (over.length === 0) {
+    console.log(`  ✓ Skill token budgets: ${rows.length} bod(ies) within budget (total ${total} tokens)`)
+    return
+  }
+  console.log(`  ! Skill token budgets: ${over.length} of ${rows.length} bod(ies) over budget — advisory, not a failure`)
+  for (const row of over.sort((a, b) => b.tokens - a.tokens)) {
+    console.log(`      - ${row.name}: ${row.tokens} tokens > ${row.budget} — move Process steps into references/ and summarise them`)
+  }
+  console.log(`      Total across all skills: ${total} tokens`)
+}
+
+export interface SkillRoot {
+  path: string
+  scope: 'user' | 'project'
+}
+
+/** Every search root, in the order discovery consults them (#616). */
+export function skillSearchRoots(projectDir: string): SkillRoot[] {
+  return [
+    ...userSkillDirs().map((path) => ({ path, scope: 'user' as const })),
+    { path: join(projectDir, '.agents', 'skills'), scope: 'project' },
+    { path: join(projectDir, '.agenthood', 'skills'), scope: 'project' },
+    { path: join(projectDir, '.claude', 'skills'), scope: 'project' },
+    { path: join(projectDir, 'skills'), scope: 'project' },
+  ]
+}
+
+/**
+ * One skill name in several roots (#616). Runtime precedence already picks a
+ * winner (project over user, earlier root over later), so this reports the
+ * losers and the fix; it never moves a file.
+ */
+export function reportDuplicates(roots: SkillRoot[]): void {
+  const byName = new Map<string, { directory: string; scope: 'user' | 'project' }[]>()
+  for (const root of roots) {
+    for (const manifest of new SkillDiscovery().scanRoot(root.path)) {
+      const entries = byName.get(manifest.name) ?? []
+      if (!entries.some((entry) => entry.directory === manifest.directory)) {
+        entries.push({ directory: manifest.directory, scope: root.scope })
+        byName.set(manifest.name, entries)
+      }
+    }
+  }
+
+  const duplicates = [...byName.entries()].filter(([, entries]) => entries.length > 1)
+  if (duplicates.length === 0) {
+    console.log('  ✓ Skill locations: no duplicate names across roots')
+    return
+  }
+  console.log(`  ! Skill locations: ${duplicates.length} name(s) installed more than once — advisory, not a failure`)
+  for (const [name, entries] of duplicates.sort(([a], [b]) => a.localeCompare(b))) {
+    console.log(`      - ${name} (${entries.length} copies)`)
+    for (const entry of entries) console.log(`          ${entry.directory} (${entry.scope})`)
+    console.log('          Keep the project copy and remove the user copy; the runtime already ignores the loser.')
+  }
 }

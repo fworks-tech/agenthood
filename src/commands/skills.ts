@@ -14,22 +14,26 @@ export const command: CommandDescriptor = {
 export async function skills(args: string[]): Promise<void> {
   if (args.includes('--help')) {
     console.log(`Usage:
-  agenthood skills [--show-disabled] [--json]
+  agenthood skills [--show-disabled] [--json] [--stats]
 
 Lists discovered skills in catalog order. --show-disabled names the skills the
 catalog omits and why: config disable, hidden: true, disable-model-invocation, or
 a requirement this model cannot meet (model-targets, requires, dependencies).
+--stats prints scan counters: directories visited, skills found, cache hits,
+duration, and whether the scan stopped at the directory cap.
 `)
     return
   }
 
   const showDisabled = args.includes('--show-disabled')
   const json = args.includes('--json')
+  const showStats = args.includes('--stats')
   const config = await loadConfig().catch((): LLMConfig => ({}))
   const disabled = new Set(config.skills?.disabled ?? [])
 
   const discovery = new SkillDiscovery()
   const found = discovery.discover(process.cwd())
+  const stats = discovery.lastStats()
   const gate = gateSkills(found, { provider: config.provider, model: config.model })
   const hiddenReason = (m: (typeof found)[number]): string | undefined =>
     filterReason(m, disabled) ?? gate.blocked.get(m.name)
@@ -52,6 +56,7 @@ a requirement this model cannot meet (model-targets, requires, dependencies).
           ...(showDisabled
             ? { filtered: filtered.map((f) => ({ name: f.manifest.name, reason: f.reason })) }
             : {}),
+          ...(showStats ? { stats } : {}),
         },
         null,
         2,
@@ -80,6 +85,9 @@ a requirement this model cannot meet (model-targets, requires, dependencies).
     for (const entry of filtered) {
       console.log(`    ${entry.manifest.name.padEnd(width)}  ${entry.reason}`)
     }
+  }
+  if (showStats) {
+    console.log(`\n  Scan: ${stats.directories} directorie(s), ${stats.skills} skill(s), ${stats.cacheHits} cache hit(s), ${stats.durationMs} ms${stats.truncated ? ' — stopped at the directory cap, results may be incomplete' : ''}`)
   }
   console.log('')
 }

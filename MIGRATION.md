@@ -87,9 +87,10 @@ replaces the member role or safety guards.
 ### New: skill frontmatter fields
 
 `metadata.version` (semver) and `license` are required on every member;
-`verify` fails without them. `compatibility`, `hidden`, and `router` are
-optional. `metadata` itself is free-form — nested maps, lists and booleans all
-survive.
+`verify` fails without them. `compatibility`, `hidden`, `router`,
+`disable-model-invocation`, `metadata.priority`, `metadata.conditions` and
+`fallback` are optional. `metadata` itself is free-form — nested maps, lists and
+booleans all survive.
 
 ```yaml
 ---
@@ -106,6 +107,34 @@ metadata:
 
 `agenthood bump <member> --patch|--minor|--major` increments the version and
 re-locks the member. The lock records it as `skillVersion` next to the hash.
+
+### New: explicit activation, catalog formats, filtering
+
+A task can start with `/skill-name` (or `/skill-name off`) to force a skill in or
+out before the model sees it. Activation goes through `activate_skill`, so the
+token budget, `metadata.conditions` and `fallback` chains apply either way.
+
+The available-skills catalog is formatted for the provider: XML by default, JSON
+for OpenAI-family models, plaintext for Google. Override with
+`skills.catalogFormat` or per provider with `skills.providerFormats`. When no
+skill is listable the whole catalog section is omitted rather than rendered
+empty.
+
+`disable-model-invocation: true`, `hidden: true` and `skills.disabled` in config
+keep a skill out of the catalog without deleting it; `agenthood skills
+--show-disabled` reports what is hidden and why. A config-disabled skill is also
+refused by the tool. Catalog order is `metadata.priority` (0–100) descending,
+then description length, then name.
+
+```yaml
+metadata:
+  version: 1.0.0
+  priority: 80
+  conditions:
+    - env:CI
+    - file.exists:package.json
+fallback: code-review
+```
 
 ### New: skill namespaces and `.well-known` catalogs
 

@@ -31,6 +31,10 @@ permissive at the profile level, but it is no longer invisible.
 | `metadata.author` | to publish | Registry namespace — the `owner` in `owner/name`. Lowercase letters, digits, single hyphens |
 | `metadata.*` | no | Any nested shape: maps, lists, booleans. Passed through untouched for your own tooling |
 | `hidden` | no | `true` keeps the skill out of the available-skills catalog. It still activates by name |
+| `disable-model-invocation` | no | `true` hides the skill from the catalog and the `activate_skill` enum. `/skill-name` still works — for user-invoked-only workflows |
+| `metadata.priority` | no | Whole number 0–100. Higher sorts earlier in the catalog (`verify` rejects out-of-range) |
+| `metadata.conditions` | no | Predicates that must hold before activation: `env:NAME`, `env:NAME=value`, `file.exists:path` (under the project root), `git.status:dirty\|clean` |
+| `fallback` | no | Ordered skill names to try when this one cannot activate — a fallback chain, capped at three hops, disabled with `--no-fallback` |
 | `router` | no | `true` marks a routing entry point, for setups with too many skills to list in full |
 
 `metadata` is deliberately unconstrained: nest a provider map or a dependency pin under it and

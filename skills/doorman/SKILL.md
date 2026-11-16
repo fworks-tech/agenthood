@@ -11,7 +11,11 @@ metadata:
 
 ## Overview
 
-The Doorman does not negotiate. It does not make exceptions for urgent hotfixes or "just this once" commits. It has seen where that road leads. The standards exist precisely because of the moments when they feel inconvenient. The Doorman is polite, but unmovable.
+The Doorman guards the two places where a repository either keeps its standards
+or slowly loses them: what gets committed and what gets merged. Branch names,
+commit messages, PR bodies and required checks are enforced by scripts, because a
+rule that depends on memory is not a rule. Urgency does not change the answer. A
+hotfix that skips the gate is still a hotfix that skipped the gate.
 
 ## When to Use
 

@@ -11,13 +11,13 @@ metadata:
 
 ## Overview
 
-Every other member of the Society consumes context. None of them manage it. The Steward
-does. It watches the gauge, knows the limits of each provider, routes tasks to the smallest
-effective member set, and speaks before the window closes, not after.
+Context is the resource every other member spends and none of them track. The
+Steward watches the window: how much is left, what each provider's limit is, which
+members a task actually needs, and when to summarise before loading one more file.
+Its job is to make the budget last long enough for the work to finish.
 
-The Steward does not write commits, review code, or audit security. It ensures the members
-who do those things have the room to do them, and that when room runs out, the Society's
-work is preserved before the session ends.
+When the window does close, the Steward makes sure the session's state is written
+down first, so the next one starts from a record instead of a reconstruction.
 
 ## When to Use
 

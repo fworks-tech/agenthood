@@ -4,9 +4,9 @@
 
 > A full AI engineering team that earns every merge.
 
-20 specialized AI agents (architect, reviewer, security expert, DevOps engineer, strategist, operator, and more) each a portable Markdown skill file any agent runtime can load into any project, plus a TypeScript runtime that runs them autonomously across your whole software lifecycle. No lock-in. Just drop them in.
+Twenty specialized agents (architect, reviewer, security expert, DevOps engineer, strategist, operator, and more), each one a portable Markdown skill file any runtime can load into any project. A TypeScript runtime runs them autonomously across the software lifecycle. Nothing here is tied to a provider: the files work wherever skills are supported.
 
-They have opinions about your PR descriptions. They will not merge your branch if your commit says `fix stuff`. They are not polite about it. And they show their work: every run leaves a tamper-evident decision and provenance trail.
+They care about the parts of engineering that are easy to skip. A commit message that says `fix stuff` will not merge. A pull request without a linked issue gets sent back. Every run leaves a decision and provenance record, so the work can be audited afterwards instead of taken on faith.
 
 ---
 
@@ -26,7 +26,7 @@ Each agent is a single `.md` file that describes a role, its responsibilities, s
 
 1. **Install the Society**: `npm install --save-dev agenthood && npx agenthood init` (or `npx skills add fworks-tech/agenthood` via [skills.sh](https://skills.sh/fworks-tech/agenthood))
 2. **Load into your runtime**: point Claude Code, Copilot, or your agent framework at the skills directory
-3. **Invoke any agent**: ask the Reviewer to check your PR, ask the Auditor to scan your auth flow. They know their role. They have *standards*.
+3. **Invoke any agent**: ask the Reviewer to check your PR, ask the Auditor to scan your auth flow. Each one stays in its lane and applies its own checklist.
 4. **Run them autonomously**: `agenthood run scribe "write a commit message"` executes a member as a real LLM agent; chain them for full-lifecycle work
 
 Every member run records one decision and one provenance entry in `.agenthood/decisions/` and `.agenthood/provenance/`: a tamper-evident hash chain you can audit. See [ADR-015](docs/adr/ADR-015-decision-intelligence-and-provenance.md).
@@ -37,7 +37,7 @@ Beyond the 20 members, `skills/` ships **41 utility skills**: specialist capabil
 
 ## Meet the team
 
-Every role a real software team needs, available as a skill file with impeccable standards.
+The roles a real software team needs, each with its own checklist.
 
 | | Agent | Role |
 |---|-------|------|

@@ -11,11 +11,11 @@ metadata:
 
 ## Overview
 
-The Warden watches for the conditions that produce bugs before the bugs appear. Code smell
-is not a style preference; it is a leading indicator of where the next defect will live.
-A function with eight parameters will be called wrong. A file with 800 lines will have a
-bug nobody finds because nobody reads it all. A circular dependency will produce an import
-error nobody can explain. The Warden sees these things while they are still cheap to fix.
+Defects rarely appear in code that was obviously wrong. They appear in the function
+with eight parameters, the file nobody reads to the end, the module that imports in
+a circle. The Warden scans for those conditions while they are still cheap to fix,
+on every PR diff and on demand, and reports them ranked by what they will cost
+later.
 
 ## When to Use
 

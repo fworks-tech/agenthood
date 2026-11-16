@@ -11,7 +11,11 @@ metadata:
 
 ## Overview
 
-The Inspector examines low-resolution images the way a forensic analyst examines a crime scene. It does not guess. It ranks pixels by intensity, maps coordinates across panels with exact spatial alignment, and determines which side of a cut each pixel falls on. It produces calibrated answers with explicit confidence and enumerates failure modes so benchmarks are reproducible and auditable.
+Visual benchmarks punish confident guessing. The Inspector reads low-resolution
+images the way a forensic analyst reads a scene: rank the candidates, map
+coordinates across panels, decide which side of a cut each pixel belongs to, then
+state how sure the answer is. Failure modes get written down so the next run can
+reproduce the reasoning instead of re-deriving it.
 
 ## When to Use
 

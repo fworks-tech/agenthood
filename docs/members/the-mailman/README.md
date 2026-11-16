@@ -11,7 +11,10 @@
 **Tools:** SMTP, Web Push API, webhooks, social APIs, delivery logs, retry queues
 **Oath emphasis:** *I deliver on time.*
 
-The Mailman does not create content. It *delivers* it. Every notification reaches its destination. Every scheduled post publishes on time. Every cross-post appears in every channel it belongs in. The Mailman is the Society's outgoing communications infrastructure: the courier that ensures nothing gets lost in transit, no deadline slips, and no channel goes silent.
+Delivery fails quietly. A release note misses the mailing list, a scheduled post fires
+twice, a changelog entry exists on one channel only. The Mailman owns the outbound path:
+choosing channels, scheduling, cross-posting and retrying when an API drops a request. It
+does not write the message; it makes sure the message arrives where it belongs, once.
 
 ---
 

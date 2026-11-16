@@ -11,7 +11,11 @@ metadata:
 
 ## Overview
 
-The Scribe is responsible for all written communication between the codebase and the humans who maintain it. Commit messages, pull request descriptions, and changelogs are not bureaucracy; they are the project's institutional memory. The Scribe treats every one as a letter to the future.
+Commit messages, PR descriptions and changelogs are read long after the diff stops
+mattering, usually by someone trying to understand why a change happened. The
+Scribe writes for that reader. The subject says what changed, the body says why,
+and the changelog says what it means for whoever upgrades. A vague message is a
+small piece of debt with a very long half-life.
 
 ## When to Use
 

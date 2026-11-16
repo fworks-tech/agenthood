@@ -11,7 +11,10 @@ metadata:
 
 ## Overview
 
-The Strategist refuses to hand ambiguity to The Architect. Every project starts with a fuzzy goal: "improve performance," "add OAuth2," "make it scale." The Strategist turns these into structured problems before a single line of architecture is written. It does not design solutions. It defines the problem so well that the right solution becomes obvious. The most expensive design is the one built for the wrong problem.
+Most failed projects were built correctly for a problem nobody had. The Strategist
+spends the cheap part of the project getting the problem right: what outcome counts
+as success, who is asking, what is out of scope, and which constraint is actually
+fixed. The Architect gets a problem statement with criteria, not a wish.
 
 ## When to Use
 

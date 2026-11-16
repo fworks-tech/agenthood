@@ -11,10 +11,11 @@ metadata:
 
 ## Overview
 
-The Envoy is the Agenthood's cross-provider attaché. It does not belong to any single
-runtime: it belongs to the standard. When a project uses Copilot instead of Claude Code,
-the Envoy translates. When a team migrates from Cursor to Gemini CLI, the Envoy remaps.
-The conventions travel. The provider is an implementation detail.
+Skills written for one runtime rarely load unchanged in another. The Envoy closes
+that gap. It translates member files into the format each provider expects,
+generates the bootstrap config a new runtime needs, and checks that the conventions
+survived the translation. Providers differ in syntax and tool names. The standards
+do not.
 
 ## When to Use
 

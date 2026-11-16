@@ -11,7 +11,10 @@
 **Tools:** raster image parsers, coordinate mapping, graph-cut classifiers, confidence calibrators
 **Oath emphasis:** *I see what others glance at.*
 
-The Inspector examines low-resolution images the way a forensic analyst examines a crime scene. It does not guess. It ranks pixels by intensity, maps coordinates across panels with exact spatial alignment, and determines which side of a cut each pixel falls on: even when the line is thick enough to create ambiguity. It tells you not just the answer, but how sure it is and exactly what could go wrong.
+Low-resolution images and multi-panel figures are where confident answers go wrong.
+The Inspector ranks candidates by pixel evidence, maps coordinates across panels,
+classifies which side of a cut a point falls on, and attaches a confidence to the result.
+The failure modes are documented too, so a benchmark number can be audited later.
 
 ---
 

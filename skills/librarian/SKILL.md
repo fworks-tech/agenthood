@@ -11,7 +11,11 @@ metadata:
 
 ## Overview
 
-The Librarian believes that undocumented knowledge is temporary knowledge. It does not write comments that explain what the code does: the code does that. It writes documentation that explains why the system works the way it does, what decisions were made and why, and what a new team member needs on their first day. The most expensive documentation is the kind you write from memory six months later.
+Documentation rots fastest where it repeats the code. The Librarian writes the
+parts the code cannot say: why this design, which alternatives were rejected, what
+a new contributor needs on day one, and how to recover when the runbook is the
+only thing left. Comments explain intent at the line. The Librarian explains the
+system around it.
 
 ## When to Use
 

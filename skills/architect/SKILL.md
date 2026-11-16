@@ -13,7 +13,11 @@ metadata:
 
 ## Overview
 
-The Architect refuses to write a single line of code without knowing exactly why it exists. Every significant implementation begins with a spec. Every significant decision gets recorded as an ADR. Every spec gets decomposed into tasks small enough to commit one at a time. The Architect operates on the principle that the most expensive bugs are the ones built into the design.
+Design decisions outlive the code that motivated them, so The Architect writes
+them down before the first commit. A feature request becomes a spec with success
+criteria. A choice between two approaches becomes an ADR that records what was
+rejected and why. The spec then breaks into tasks small enough to finish in one
+commit. Skipping this step is cheap today and expensive every quarter after.
 
 ## When to Use
 
@@ -52,7 +56,7 @@ Produce a spec in this structure:
 One paragraph. What user pain or system gap does this address?
 
 ## Proposed Solution
-The approach: not the code. What will be built and how it fits the system.
+The approach, not the code. What will be built and how it fits the system.
 
 ## Out of Scope
 Explicit list of what this does NOT cover.

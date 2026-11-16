@@ -10,6 +10,7 @@ import { formatSkillContent, SKILL_ACTIVATION_PREFIX, type SkillContentFormat } 
 import { findMissingReferences } from './references.ts'
 import { gateSkills, type GateResult, type SkillAvailability } from '../discovery/gating.ts'
 import { selectVariantBody } from '../discovery/variants.ts'
+import { escapeXml } from '../../agents/memberLore.ts'
 
 export { SKILL_ACTIVATION_PREFIX }
 
@@ -147,10 +148,10 @@ export class ActivateSkillTool implements ITool {
         ? `<skill_missing_references>Not found under the skill directory: ${missing.join(', ')}. They may be created at run time.</skill_missing_references>`
         : undefined,
       variant.variant
-        ? `<skill_variant name="${variant.variant}" model="${model ?? 'unknown'}" />`
+        ? `<skill_variant name="${escapeXml(variant.variant)}" model="${escapeXml(model ?? 'unknown')}" />`
         : undefined,
-      variant.warning ? `<skill_variant_warning>${variant.warning}</skill_variant_warning>` : undefined,
-      ...(this.gate.warnings.get(name) ?? []).map((message) => `<skill_warning>${message}</skill_warning>`),
+      variant.warning ? `<skill_variant_warning>${escapeXml(variant.warning)}</skill_variant_warning>` : undefined,
+      ...(this.gate.warnings.get(name) ?? []).map((message) => `<skill_warning>${escapeXml(message)}</skill_warning>`),
     ].filter(Boolean)
 
     const output = formatSkillContent(manifest, fit.body, {

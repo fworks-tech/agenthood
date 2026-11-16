@@ -180,6 +180,7 @@ describe('herald-summary', () => {
       'Evil \\](https://evil.example) \\| \\`x\\` \\@user \\<b\\>',
     )
     expect(escapeCell('multi\nline\r\nname')).toBe('multi line name')
+    expect(escapeCell('C:\\temp')).toBe('C:\\\\temp')
     expect(escapeCell('plain')).toBe('plain')
   })
 

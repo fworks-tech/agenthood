@@ -33,6 +33,7 @@ function escapeCell(value) {
   // so workflow/check names cannot inject table cells, links, mentions,
   // emphasis, or raw HTML
   return String(value || '')
+    .replace(/\\/g, '\\\\')
     .replace(/\|/g, '\\|')
     .replace(/\[/g, '\\[')
     .replace(/\]/g, '\\]')

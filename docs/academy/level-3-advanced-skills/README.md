@@ -12,7 +12,7 @@ Six articles. For engineers who have reached Level 2 and are ready to move from 
 |---|---------|---------------------|
 | 1 | [Real-World Integration](01-real-world-integration.md) | Portals layer (planned), `GitHubSkill` (planned), Slack, Linear |
 | 2 | [Autonomous Loops](02-autonomous-loops.md) | `GoalChain` (shipped), Rituals layer (planned) |
-| 3 | [Custom Toolkits](03-custom-toolkits.md) | `ISkill`, `SkillRegistry.discover()` |
+| 3 | [Custom Toolkits](03-custom-toolkits.md) | `ISkill`, `SkillRegistry.discover()`; building your own `SKILL.md` member |
 | 4 | [Optimize Performance](04-optimize-performance.md) | `CostEstimator` (shipped), `LLMRouter` dynamic routing, `ProviderFailover` |
 | 5 | [Deploy to Production](05-deploy-to-production.md) | v3.0.0 API layer, auth middleware, rate limiting |
 | 6 | [Authoring a Skill](06-author-a-skill.md) | `SKILL.md` contract: frontmatter, `allowed-tools`, `verify` |

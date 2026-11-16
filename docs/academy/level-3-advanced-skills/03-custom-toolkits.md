@@ -116,10 +116,51 @@ The skill was not registered. It was discovered. The agent chose to call it base
 
 ---
 
+## Building Your Own Society Member
+
+The margin above shows the code path: a TypeScript class implementing a contract. Since 3.0 the
+normal path is a document — a `SKILL.md` with instructions a model follows. Same idea, no build step.
+
+A member is a directory with one file:
+
+```
+skills/contrib/the-translator/SKILL.md
+```
+
+Four things make it real:
+
+1. **Frontmatter** — `name` (matching the directory), a `description` that front-loads its trigger
+   words, `license`, and for a third-party member `metadata.author` plus `source_url`.
+2. **Six sections** — Overview, When to Use, Process, Red Flags, Rationalizations, Verification. The
+   Sentinel checks for them; a reader relies on them.
+3. **Location** — `skills/contrib/` is discovered automatically. In v4 there is no registry file to
+   edit, no `register()` call, and no restart.
+4. **A lockfile hash** — `agenthood verify --update-lock` records it so drift is detectable.
+
+```bash
+mkdir -p skills/contrib/the-translator
+$EDITOR skills/contrib/the-translator/SKILL.md
+agenthood verify --contrib          # structure, owner, source
+agenthood skills                    # listed and not blocked
+agenthood run builder "/the-translator summarize docs/spec.md for support"
+```
+
+A community member is listed in the README once it is reviewed and its `SKILL.md` is valid — CI
+checks both. The full walkthrough, including a complete worked example, is
+[Creating a Member](../../guides/creating-a-member.md); the contract and trust model are
+[Third-Party Members](../../members/contrib-members.md).
+
+**When to write code instead.** A document cannot call an API. If the member's job is to *fetch* or
+*compute* rather than to *decide how*, write a bundled script under `scripts/` (it runs in Docker by
+default) or a code skill as above. Prefer instructions; reach for code only when the work needs it.
+
+---
+
 ## Further reading
 
 - [`src/skills/discovery/ISkillManifest.ts`](../../../src/skills/discovery/ISkillManifest.ts) — the skill contract every custom skill implements (v2.0.0)
 - [`src/skills/discovery/SkillDiscovery.ts`](../../../src/skills/discovery/SkillDiscovery.ts) — dynamic discovery via `SkillDiscovery.discover()` (v2.0.0)
 - [JSON Schema](https://json-schema.org/) — the input validation standard `inputSchema` uses
+- [Creating a Member](../../guides/creating-a-member.md) — the document path, step by step
 
 

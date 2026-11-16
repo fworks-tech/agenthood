@@ -329,3 +329,50 @@ describe('ActivateSkillTool gating and variants (#549, #551, #555)', () => {
     expect(result.output).toContain('jq')
   })
 })
+
+describe('ActivateSkillTool dedup and restore (#533, #618)', () => {
+  beforeEach(() => {
+    dir = mkdtempSync(join(tmpdir(), 'activate-dedup-'))
+    mkdirSync(join(dir, '.agenthood'), { recursive: true })
+  })
+
+  afterEach(() => {
+    vi.restoreAllMocks()
+    rmSync(dir, { recursive: true, force: true })
+  })
+
+  it('re-injecting an active skill returns a short pointer, not the body again', async () => {
+    const activeSkills = new Set<string>()
+    const tool = new ActivateSkillTool(new Map([['a', manifest('a')]]), 128000, { activeSkills })
+
+    const first = await tool.execute({ skill_name: 'a' }, context())
+    const second = await tool.execute({ skill_name: 'a' }, context())
+
+    expect(first.output).toContain('a body')
+    expect(second.success).toBe(true)
+    expect(second.output).toContain('<skill_already_active')
+    expect(second.output).not.toContain('a body')
+  })
+
+  it('force reloads the body on request', async () => {
+    const activeSkills = new Set<string>()
+    const tool = new ActivateSkillTool(new Map([['a', manifest('a')]]), 128000, { activeSkills })
+
+    await tool.execute({ skill_name: 'a' }, context())
+    const forced = await tool.execute({ skill_name: 'a', force: true }, context())
+
+    expect(forced.output).toContain('a body')
+    expect(forced.output).not.toContain('<skill_already_active')
+  })
+
+  it('restores a checkpointed run set so activation stays deduplicated', async () => {
+    const activeSkills = new Set<string>()
+    const tool = new ActivateSkillTool(new Map([['a', manifest('a')]]), 128000, { activeSkills })
+
+    tool.restoreActive(['a'])
+    const result = await tool.execute({ skill_name: 'a' }, context())
+
+    expect(activeSkills.has('a')).toBe(true)
+    expect(result.output).toContain('<skill_already_active')
+  })
+})

@@ -75,17 +75,24 @@ export class ActivateSkillTool implements ITool {
           ...(names.length > 0 ? { enum: names } : {}),
         },
         eager: { type: 'boolean', description: 'List more bundled resources (contents are never read)' },
+        force: { type: 'boolean', description: 'Reload a skill already active in this run' },
       },
       required: ['skill_name'],
     }
   }
 
   async execute(input: unknown, context: ExecutionContext): Promise<ToolResult> {
-    const { skill_name, eager } = input as { skill_name: string; eager?: boolean }
-    return this.activate(skill_name, context, [], Boolean(eager))
+    const { skill_name, eager, force } = input as { skill_name: string; eager?: boolean; force?: boolean }
+    return this.activate(skill_name, context, [], Boolean(eager), Boolean(force))
   }
 
-  private activate(name: string, context: ExecutionContext, attempted: string[], eager = false): ToolResult {
+  private activate(
+    name: string,
+    context: ExecutionContext,
+    attempted: string[],
+    eager = false,
+    force = false,
+  ): ToolResult {
     const projectPath = context.project.localPath
     const fail = (error: string, skill = name): ToolResult => {
       recordSkillActivation(projectPath, skill, false)
@@ -110,7 +117,7 @@ export class ActivateSkillTool implements ITool {
       const next = this.nextFallback(manifest, name, attempted)
       if (next) {
         console.warn(`[skills] "${name}" cannot run here — falling back to "${next}"`)
-        return this.activate(next, context, [...attempted, name], eager)
+        return this.activate(next, context, [...attempted, name], eager, force)
       }
       return fail(`Skill "${name}" cannot activate here: ${blockedReason}`)
     }
@@ -121,14 +128,26 @@ export class ActivateSkillTool implements ITool {
       const next = this.nextFallback(manifest, name, attempted)
       if (next) {
         console.warn(`[skills] "${name}" unavailable — falling back to "${next}"`)
-        return this.activate(next, context, [...attempted, name], eager)
+        return this.activate(next, context, [...attempted, name], eager, force)
       }
       return fail(`Skill "${name}" cannot activate here: ${conditions.reason}`)
     }
 
+    // Dedup (#533): the block stays in the transcript and compaction protects
+    // it, so re-injecting the body only spends tokens. `force` reloads it.
+    if (this.options.activeSkills?.has(name) === true && !force) {
+      this.recordForRun(name, context, manifest)
+      recordSkillActivation(projectPath, name, true)
+      console.log(`[skills] "${name}" already active — skipped re-injection`)
+      return {
+        success: true,
+        output: `${SKILL_ACTIVATION_PREFIX}\n<skill_already_active name="${escapeXml(name)}">These instructions are earlier in the conversation. Call activate_skill with { "force": true } to load them again.</skill_already_active>`,
+      }
+    }
+
     this.recordForRun(name, context, manifest)
 
-    const cachedKey = `${name}\u0000${attempted.join('>')}\u0000${eager}`
+    const cachedKey = `${name}\u0000${attempted.join('>')}\u0000${eager}\u0000${force}`
     const cached = this.cache.get(cachedKey)
     recordSkillActivation(projectPath, name, true)
     if (cached) return { success: true, output: cached }
@@ -164,6 +183,14 @@ export class ActivateSkillTool implements ITool {
     })
     this.cache.set(cachedKey, output)
     return { success: true, output }
+  }
+
+  /**
+   * Re-seeds the run's active set from a checkpoint (#618). Authorization is
+   * per run, and a resumed run is the same run continued.
+   */
+  restoreActive(names: readonly string[]): void {
+    for (const name of names) this.options.activeSkills?.add(name)
   }
 
   /** Activation is what authorizes a script run and read access (#536, ADR-036). */

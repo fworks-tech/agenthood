@@ -470,7 +470,9 @@ export async function verify(args: string[]): Promise<void> {
 
   // --tokens (#615) and --dedup (#616): advisory reports over the installed set.
   if (flags.has('--tokens')) reportTokenBudgets(membersDir)
-  reportContribSkills(cwd)
+  // --contrib (#154): the third-party contract is only actionable for a project
+  // that hosts contrib skills, so the scan stays opt-in like --tokens.
+  if (flags.has('--contrib')) reportContribSkills(cwd)
   if (flags.has('--dedup')) reportDuplicates(skillSearchRoots(cwd))
 
   // Advisory (#595): overlapping descriptions mean two skills can both trigger

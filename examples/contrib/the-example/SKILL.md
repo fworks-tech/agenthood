@@ -58,6 +58,6 @@ than its permission profile.
 
 ## Verification
 
-- `agenthood verify` reports the skill and no contrib problems
+- `agenthood verify --contrib` reports the skill and no contrib problems
 - `agenthood skills --show-disabled` lists it with no blocked reason
 - `agenthood verify --update-lock` records the SKILL.md hash once the body is final

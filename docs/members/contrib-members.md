@@ -53,7 +53,7 @@ source_url: https://github.com/you/the-example
 ---
 ```
 
-`agenthood verify` warns when a `skills/contrib/*/SKILL.md` has no
+`agenthood verify --contrib` reports a `skills/contrib/*/SKILL.md` with no
 `metadata.author` or no `source_url`. Both are advisory in the report and
 blocking in review: an unowned contrib skill cannot be published, safely
 updated, or attributed.

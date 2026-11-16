@@ -45,7 +45,7 @@ export function extractInlineFindings(raw) {
   // block that parses as a non-empty array
   for (const [start, end] of inlineBlockSpans(raw)) {
     try {
-      const inner = raw.slice(start, end).replace(/^<!--AGENTHOOD_INLINE\s*/, '').replace(/\s*-->$/, '')
+      const inner = raw.slice(start, end).replace(/^<!--AGENTHOOD_INLINE\s*/, '').replace(/\s*--!?>$/, '')
       const parsed = JSON.parse(inner)
       if (Array.isArray(parsed) && parsed.length > 0) return parsed
     } catch { /* try the next block */ }
@@ -74,7 +74,8 @@ function inlineBlockSpans(raw) {
     let pos = start + INLINE_MARKER.length
     while (pos < raw.length && /\s/.test(raw[pos])) pos++
     let end = -1
-    if (raw.startsWith('-->', pos)) end = pos + 3
+    const close = raw.startsWith('--!>', pos) ? 4 : raw.startsWith('-->', pos) ? 3 : 0
+    if (close) end = pos + close
     else if (raw[pos] === '[') end = scanJsonBlockEnd(raw, pos)
     if (end < 0) {
       idx = pos
@@ -101,7 +102,7 @@ function scanJsonBlockEnd(raw, pos) {
     else if (c === ']') {
       depth--
       if (depth === 0) {
-        const tail = /^\s*-->/.exec(raw.slice(j + 1))
+        const tail = /^\s*--!?>/.exec(raw.slice(j + 1))
         return tail ? j + 1 + tail[0].length : -1
       }
     }

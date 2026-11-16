@@ -25,6 +25,16 @@ describe('extractInlineFindings', () => {
     expect(extractInlineFindings('<!--AGENTHOOD_INLINE\nnot json\n-->')).toEqual([])
     expect(extractInlineFindings('no block here')).toEqual([])
   })
+
+  it('accepts --!> as a comment end tag', () => {
+    const raw = 'report\n<!--AGENTHOOD_INLINE\n[{"path":"a.ts","line":3,"body":"x"}]--!>\ntail'
+    expect(extractInlineFindings(raw)).toEqual([{ path: 'a.ts', line: 3, body: 'x' }])
+    expect(stripInlineBlocks(raw)).toBe('report\n\ntail')
+  })
+
+  it('strips echoed blocks closed with --!>', () => {
+    expect(stripInlineBlocks('report\n<!--AGENTHOOD_INLINE\n--!>\ntail')).toBe('report\n\ntail')
+  })
 })
 
 describe('formatSummary', () => {

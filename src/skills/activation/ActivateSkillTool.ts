@@ -2,6 +2,7 @@ import type { ITool, ToolResult } from '../../tools/ITool.ts'
 import type { ExecutionContext } from '../../core/ExecutionContext.ts'
 import type { ISkillManifest } from '../discovery/ISkillManifest.ts'
 import type { JSONSchema } from '../../llm/types.ts'
+import { realpathSync } from 'node:fs'
 import { recordSkillActivation } from './SkillStats.ts'
 import { SkillBudget } from './SkillBudget.ts'
 import { evaluateConditions } from './conditions.ts'
@@ -138,10 +139,18 @@ export class ActivateSkillTool implements ITool {
   private recordForRun(name: string, context: ExecutionContext, manifest: ISkillManifest): void {
     this.options.activeSkills?.add(name)
     if (this.options.autoAllowSkillDirs === false) return
+    // Realpath first: a symlinked skill directory must not widen the allowlist
+    // to whatever it points at.
+    let directory: string
+    try {
+      directory = realpathSync(manifest.directory)
+    } catch {
+      directory = manifest.directory
+    }
     context.skillAllowlist ??= new Set()
-    if (context.skillAllowlist.has(manifest.directory)) return
-    context.skillAllowlist.add(manifest.directory)
-    console.log(`[skills] auto-allowlisted ${manifest.directory} for "${name}" (this run only)`)
+    if (context.skillAllowlist.has(directory)) return
+    context.skillAllowlist.add(directory)
+    console.log(`[skills] auto-allowlisted ${directory} for "${name}" (this run only)`)
   }
 
   /**

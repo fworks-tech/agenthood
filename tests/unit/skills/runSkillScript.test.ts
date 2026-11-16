@@ -130,3 +130,40 @@ describe('runSkillScript execution (#546, #544)', () => {
     }
   })
 })
+
+describe('runSkillScript output cache (#598)', () => {
+  it('serves the second identical run from cache while the script is unchanged', async () => {
+    const first = await runSkillScript({ skill: 'demo', script: 'scripts/ok.js' }, deps({ cacheTtlMs: 60_000 }))
+    const second = await runSkillScript({ skill: 'demo', script: 'scripts/ok.js' }, deps({ cacheTtlMs: 60_000 }))
+
+    expect(first.success).toBe(true)
+    expect(first.output).not.toContain('cache="hit"')
+    expect(second.output).toContain('cache="hit"')
+    expect(second.output).toContain('hello from skill')
+  })
+
+  it('never serves an edited script from cache', async () => {
+    await runSkillScript({ skill: 'demo', script: 'scripts/ok.js' }, deps({ cacheTtlMs: 60_000 }))
+    writeFileSync(join(skillDir, 'scripts', 'ok.js'), "console.log('rewritten')")
+    const second = await runSkillScript({ skill: 'demo', script: 'scripts/ok.js' }, deps({ cacheTtlMs: 60_000 }))
+
+    expect(second.output).toContain('rewritten')
+    expect(second.output).not.toContain('cache="hit"')
+  })
+
+  it('honours no_cache on an otherwise warm entry', async () => {
+    await runSkillScript({ skill: 'demo', script: 'scripts/ok.js' }, deps({ cacheTtlMs: 60_000 }))
+    const bypass = await runSkillScript(
+      { skill: 'demo', script: 'scripts/ok.js', no_cache: true },
+      deps({ cacheTtlMs: 60_000 }),
+    )
+
+    expect(bypass.output).not.toContain('cache="hit"')
+  })
+
+  it('does not cache when the TTL is unset', async () => {
+    await runSkillScript({ skill: 'demo', script: 'scripts/ok.js' }, deps())
+    const second = await runSkillScript({ skill: 'demo', script: 'scripts/ok.js' }, deps())
+    expect(second.output).not.toContain('cache="hit"')
+  })
+})

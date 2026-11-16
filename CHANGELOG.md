@@ -1,3 +1,99 @@
+# [4.0.0](https://github.com/fworks-tech/agenthood/compare/v3.78.0...v4.0.0) (2026-11-16)
+
+
+### Bug Fixes
+
+* **ci:** accept --!> as an inline finding block terminator ([938f665](https://github.com/fworks-tech/agenthood/commit/938f66580c92317f23c5e22d153baabf501afd76))
+* **ci:** escape backslashes in Herald table cells ([d6d9779](https://github.com/fworks-tech/agenthood/commit/d6d9779cd61c7398b7813545b3a2fedd6247c382))
+* **ci:** hold the prose check to the lines it can police ([b6af3ba](https://github.com/fworks-tech/agenthood/commit/b6af3ba79fd1059ef47e3b4b8ab93712a08ac37f))
+* **ci:** keep the workflow YAML valid after the prose pass ([0deb3d2](https://github.com/fworks-tech/agenthood/commit/0deb3d2849ad056a189b8f8c2fd25252eb1380ee))
+* **cli:** keep a rotated key out of a tracked config ([21af869](https://github.com/fworks-tech/agenthood/commit/21af86911e40696cac653954153ff50890fdb82f))
+* **cli:** keep bare "workflow" an error instead of listing chains ([9966525](https://github.com/fworks-tech/agenthood/commit/996652582cf875d8d2642907410370603bd64b7f))
+* **cli:** keep the contrib contract report opt-in ([#154](https://github.com/fworks-tech/agenthood/issues/154)) ([9ee9477](https://github.com/fworks-tech/agenthood/commit/9ee9477b04583847bae6a60c0bd0fa895885c1db))
+* **cli:** name chains.yaml when the file is malformed instead of a parser dump ([ded48f3](https://github.com/fworks-tech/agenthood/commit/ded48f3c186a2515dd0cdbf5150aa5c82f1e2c01))
+* **cli:** remove the last escaped em dashes from output ([e45330a](https://github.com/fworks-tech/agenthood/commit/e45330aa6e218e7a723137b134d8a3746d9c3450))
+* **cli:** show a hyphen for a missing table value ([0aa38d2](https://github.com/fworks-tech/agenthood/commit/0aa38d21bece8cf1e7329064f9e6704a28c03f92))
+* **commands:** keep special characters when applying an optimized description ([2070c59](https://github.com/fworks-tech/agenthood/commit/2070c5948e28d207e2b999b46f273722c29cbafa))
+* **core:** cap the trajectory directory ([33bb251](https://github.com/fworks-tech/agenthood/commit/33bb25194a9a3d65bb19eb3d22f181bb46c78d67))
+* **core:** index retained traces once during pruning ([a4cccef](https://github.com/fworks-tech/agenthood/commit/a4cccef31a7cf0c475e2512818af1f01b35ecc65))
+* **cost:** record the provider that answered ([35f2f7d](https://github.com/fworks-tech/agenthood/commit/35f2f7d20c70cc4199154c82e4d2346782887ec9))
+* **cost:** tolerate torn lines and rotate the ledger ([8313790](https://github.com/fworks-tech/agenthood/commit/83137906d81c062ab4803704cf2e74b2c0c2af35))
+* **docs:** repair colons the dash pass broke ([0bed4ca](https://github.com/fworks-tech/agenthood/commit/0bed4caa9c3b36a697f7def93d22eb6c9289cde8))
+* **hooks:** block a real token beside a placeholder ([e51277d](https://github.com/fworks-tech/agenthood/commit/e51277dd13fcfecc1f335d7532d0f4773016a601))
+* **hooks:** ignore empty and placeholder secret values ([cc63fb2](https://github.com/fworks-tech/agenthood/commit/cc63fb2b97d8fdc3a2f76b2449232a24e2b4979c))
+* **marketplace:** validate the plugin manifest and sync its version ([4c3ccdc](https://github.com/fworks-tech/agenthood/commit/4c3ccdc9b8073332635d98dd299ea5476d9d93f8))
+* **memory:** serialize provenance writes across processes ([263d176](https://github.com/fworks-tech/agenthood/commit/263d17679ebac2c633c1ece22cd5b86d2427aef3))
+* **metrics:** bind the server to the configured host ([5c4b2c8](https://github.com/fworks-tech/agenthood/commit/5c4b2c81d4901a95feb6d34b2cc98ef19978f3cd))
+* **rag:** bound embedding concurrency ([7024ddb](https://github.com/fworks-tech/agenthood/commit/7024ddb17ddcecf6ffcf128e7f89ead26089947a))
+* **reasoning:** escape regex metacharacters in file patterns ([bfb47fd](https://github.com/fworks-tech/agenthood/commit/bfb47fdcce8128c0bf74f58ecc61c41d51ed1f83))
+* **release:** generate dash-free release notes deterministically ([7f4096f](https://github.com/fworks-tech/agenthood/commit/7f4096fd1f20536d755b293837a86b6934e82fd4))
+* **release:** honor the ! breaking marker when computing the version ([c579168](https://github.com/fworks-tech/agenthood/commit/c579168e2b255eaf3806b31b4980e65238773c4c))
+* **release:** normalize a dash inherited from a commit subject ([5235c72](https://github.com/fworks-tech/agenthood/commit/5235c726ca05ce2e86004f3f21a1cb5ddf9213cb))
+* **security:** harden the environment samples and ignore rules ([d54ee7e](https://github.com/fworks-tech/agenthood/commit/d54ee7e99cf22634fcc0b9633ee904baf4721fbc))
+* **security:** redact cloud tokens and debug payloads ([e2f9cbd](https://github.com/fworks-tech/agenthood/commit/e2f9cbda870be67a50e2f699afa14af26d02cfe9))
+* **skills:** bound one-off arguments and script output ([2ca59a2](https://github.com/fworks-tech/agenthood/commit/2ca59a2829ad3c99fc7ac5be3a5630b23d5df776))
+* **skills:** clone remote sources into a unique directory ([58c9c77](https://github.com/fworks-tech/agenthood/commit/58c9c77c5c68791d04e8b0b413601ae42fbd5445))
+* **skills:** close two authorization gaps in the script runner ([#536](https://github.com/fworks-tech/agenthood/issues/536), [#607](https://github.com/fworks-tech/agenthood/issues/607)) ([b7f9ce6](https://github.com/fworks-tech/agenthood/commit/b7f9ce6267d76dcb7eb1a80a823b2379ec1cb8f5))
+* **skills:** escape activation notices before they enter the block ([#549](https://github.com/fworks-tech/agenthood/issues/549), [#551](https://github.com/fworks-tech/agenthood/issues/551)) ([2d88b1b](https://github.com/fworks-tech/agenthood/commit/2d88b1b7475d49c4e674272eea64237dfc766420))
+* **skills:** ignore declared tools that match no registered tool ([322d669](https://github.com/fworks-tech/agenthood/commit/322d669ae14fba9538f3a6438974a5e253729f25))
+* **skills:** intersect the scopes of active skills ([c184068](https://github.com/fworks-tech/agenthood/commit/c1840685e1010c801bce4859bb28e7977ea9d94f))
+* **skills:** normalize unicode names, warn on mismatch and resolve collisions ([#517](https://github.com/fworks-tech/agenthood/issues/517), [#513](https://github.com/fworks-tech/agenthood/issues/513), [#524](https://github.com/fworks-tech/agenthood/issues/524)) ([ca78542](https://github.com/fworks-tech/agenthood/commit/ca785420df3122324e796e7b57be7b375d37fbce))
+* **skills:** refuse to overwrite an unparsable member lockfile ([8873730](https://github.com/fworks-tech/agenthood/commit/88737304a7d02e3748a9348de21883c2e86d7953))
+* **skills:** remove regex backtracking in compatibility fallback ([6bc00a8](https://github.com/fworks-tech/agenthood/commit/6bc00a88b7d5b0134392332941cd61a6e4cd2fef))
+* **tools:** compare real paths on both sides of the guard ([2f2ecd8](https://github.com/fworks-tech/agenthood/commit/2f2ecd80900281fc197e1772474d3740b9ec1dd3))
+* **tools:** resolve a symlinked directory before allowing a path ([cc70b97](https://github.com/fworks-tech/agenthood/commit/cc70b97aaee5c08dc417465ec7d1d744329227cc))
+* **trace:** apply --limit to skill and tool trajectory listings ([7f70ebb](https://github.com/fworks-tech/agenthood/commit/7f70ebb02e8a583ca29f6a87802f903e128534e5))
+* **trace:** keep one trajectory per run under a shared correlation id ([9d11702](https://github.com/fworks-tech/agenthood/commit/9d11702a03658d4abf87e9ac6c30a7d2cd1b30b3))
+* **trace:** record step duration, run input and the step's provider cost ([c04dba8](https://github.com/fworks-tech/agenthood/commit/c04dba830a20d1bf41dfc4f1ad4983414bdc9f23))
+* **workflows:** index chain steps so a repeated member keeps its own result ([5cc802f](https://github.com/fworks-tech/agenthood/commit/5cc802fbafa010680308174bc3995fd3cf08672c))
+
+
+### Code Refactoring
+
+* remove the no-op span API from Tracer ([7898474](https://github.com/fworks-tech/agenthood/commit/78984746a993c99753c4cded77c6a6b3e41751ec)), refs #1048
+
+
+### Features
+
+* **ci:** check every text file for AI-typical punctuation ([7c61fc0](https://github.com/fworks-tech/agenthood/commit/7c61fc004be687247cb57a6637b488c47d22ead8))
+* **ci:** enforce the prose style on every pull request ([5cac025](https://github.com/fworks-tech/agenthood/commit/5cac0258595593ccfcc649217b4bdc1c90880ad7))
+* **cli:** rank skill cost against use and show activation history ([#605](https://github.com/fworks-tech/agenthood/issues/605), [#628](https://github.com/fworks-tech/agenthood/issues/628)) ([7db9b4f](https://github.com/fworks-tech/agenthood/commit/7db9b4f9144d79ad162a8866476e17f9b884df22))
+* **cli:** report skill token budgets and cross-location duplicates ([#615](https://github.com/fworks-tech/agenthood/issues/615), [#616](https://github.com/fworks-tech/agenthood/issues/616)) ([9324ccf](https://github.com/fworks-tech/agenthood/commit/9324ccf40129dccfaab79e1a44b545a0f1f65914))
+* **community:** define the third-party member authoring contract ([#154](https://github.com/fworks-tech/agenthood/issues/154)) ([c24a03f](https://github.com/fworks-tech/agenthood/commit/c24a03f2ee355410be4d09d2debe495b7bbddcb4))
+* **llm:** add the multimodal provider interface and OpenAI implementation ([#124](https://github.com/fworks-tech/agenthood/issues/124)) ([b4af54e](https://github.com/fworks-tech/agenthood/commit/b4af54ee234e0476a02407c57dc3b76acab4faab))
+* **runtime:** load AGENTS.md / CLAUDE.md as per-repo agent instructions ([104160e](https://github.com/fworks-tech/agenthood/commit/104160e678ff8df2b03993d751197467d9b1f26a)), refs #567
+* **skills:** activate through one tool, slash commands and structured blocks ([#529](https://github.com/fworks-tech/agenthood/issues/529), [#530](https://github.com/fworks-tech/agenthood/issues/530), [#531](https://github.com/fworks-tech/agenthood/issues/531), [#535](https://github.com/fworks-tech/agenthood/issues/535), [#512](https://github.com/fworks-tech/agenthood/issues/512)) ([d85793b](https://github.com/fworks-tech/agenthood/commit/d85793b3564bed438b608cc9138364c5c043d39e))
+* **skills:** add compatibility, hidden and router to the frontmatter ([#581](https://github.com/fworks-tech/agenthood/issues/581), [#516](https://github.com/fworks-tech/agenthood/issues/516), [#588](https://github.com/fworks-tech/agenthood/issues/588)) ([9a9275b](https://github.com/fworks-tech/agenthood/commit/9a9275bba78b52a152c7933171fde7dd68e5195f))
+* **skills:** add metadata.version with semver validation ([#579](https://github.com/fworks-tech/agenthood/issues/579)) ([50ab8db](https://github.com/fworks-tech/agenthood/commit/50ab8dbf81d3dd6da0a28a3ce6947853c3d90404))
+* **skills:** add registry namespaces and .well-known catalogs ([#593](https://github.com/fworks-tech/agenthood/issues/593), [#522](https://github.com/fworks-tech/agenthood/issues/522)) ([4b715c9](https://github.com/fworks-tech/agenthood/commit/4b715c96cadfeecb947c71bfb7b1f444578b749b))
+* **skills:** add the web-research skill from deepagents ([#339](https://github.com/fworks-tech/agenthood/issues/339)) ([c1dea4d](https://github.com/fworks-tech/agenthood/commit/c1dea4d218e02d4ea1d96bbb893ced940d890e3d))
+* **skills:** authorize script runs by activation and isolate untrusted skills ([#536](https://github.com/fworks-tech/agenthood/issues/536), [#542](https://github.com/fworks-tech/agenthood/issues/542), [#543](https://github.com/fworks-tech/agenthood/issues/543), [#607](https://github.com/fworks-tech/agenthood/issues/607)) ([8294103](https://github.com/fworks-tech/agenthood/commit/8294103ac2a2b2b8955d0e6a796e6d08fd38eb78))
+* **skills:** cache parsed skill metadata and bound the discovery scan ([#525](https://github.com/fworks-tech/agenthood/issues/525), [#614](https://github.com/fworks-tech/agenthood/issues/614), [#617](https://github.com/fworks-tech/agenthood/issues/617)) ([7d30fc7](https://github.com/fworks-tech/agenthood/commit/7d30fc7bc8712b66a682d14013c76bb39f14f662))
+* **skills:** cache successful script output behind an opt-in switch ([#598](https://github.com/fworks-tech/agenthood/issues/598)) ([aed1e33](https://github.com/fworks-tech/agenthood/commit/aed1e3376caf969dfac82935fc2b44752c781ed8))
+* **skills:** deduplicate activations, protect skill context and restore on resume ([#532](https://github.com/fworks-tech/agenthood/issues/532), [#533](https://github.com/fworks-tech/agenthood/issues/533), [#618](https://github.com/fworks-tech/agenthood/issues/618)) ([ba7a3dc](https://github.com/fworks-tech/agenthood/commit/ba7a3dcb036a30928868a568df34568b94adf9cd))
+* **skills:** detect outdated copies and roll back to a version ([#570](https://github.com/fworks-tech/agenthood/issues/570), [#592](https://github.com/fworks-tech/agenthood/issues/592), [#591](https://github.com/fworks-tech/agenthood/issues/591)) ([a1b423a](https://github.com/fworks-tech/agenthood/commit/a1b423ae81e932c02dd0540d764a022676bde2fd))
+* **skills:** enforce allowed-tools from SKILL.md at call time ([f80a6ca](https://github.com/fworks-tech/agenthood/commit/f80a6ca242d1831ba9a32ff35d72e1c37b6e4318)), refs #582
+* **skills:** format, filter and order the skill catalog per provider ([#528](https://github.com/fworks-tech/agenthood/issues/528), [#556](https://github.com/fworks-tech/agenthood/issues/556), [#537](https://github.com/fworks-tech/agenthood/issues/537), [#538](https://github.com/fworks-tech/agenthood/issues/538), [#611](https://github.com/fworks-tech/agenthood/issues/611), [#512](https://github.com/fworks-tech/agenthood/issues/512)) ([d6ff37a](https://github.com/fworks-tech/agenthood/commit/d6ff37a19ab9c0549dccd624cac5efce57f295ad))
+* **skills:** gate skills on the model, tools and dependencies available here ([#549](https://github.com/fworks-tech/agenthood/issues/549), [#551](https://github.com/fworks-tech/agenthood/issues/551), [#552](https://github.com/fworks-tech/agenthood/issues/552), [#553](https://github.com/fworks-tech/agenthood/issues/553), [#554](https://github.com/fworks-tech/agenthood/issues/554), [#555](https://github.com/fworks-tech/agenthood/issues/555), [#571](https://github.com/fworks-tech/agenthood/issues/571)) ([61c9ef2](https://github.com/fworks-tech/agenthood/commit/61c9ef2efd05f12fe86b68ae470069f3fa34a288))
+* **skills:** honour compaction-replay and keep nested invocation safe ([#587](https://github.com/fworks-tech/agenthood/issues/587)) ([88cac2f](https://github.com/fworks-tech/agenthood/commit/88cac2f3324df6e197697dc8d5b85153b5d6e684)), refs #532
+* **skills:** lint script interfaces and document the execution contract ([#540](https://github.com/fworks-tech/agenthood/issues/540), [#547](https://github.com/fworks-tech/agenthood/issues/547), [#548](https://github.com/fworks-tech/agenthood/issues/548)) ([1136305](https://github.com/fworks-tech/agenthood/commit/11363050ade101eae0eb4e12113e1499994a7bbc))
+* **skills:** measure skill cost, health and activation health ([#586](https://github.com/fworks-tech/agenthood/issues/586), [#597](https://github.com/fworks-tech/agenthood/issues/597), [#626](https://github.com/fworks-tech/agenthood/issues/626), [#627](https://github.com/fworks-tech/agenthood/issues/627)) ([7c06608](https://github.com/fworks-tech/agenthood/commit/7c06608133da4b3298c7e3bb7af128c0b18e46f3))
+* **skills:** parse conditions, priority, fallback and model-invocation opt-out ([#537](https://github.com/fworks-tech/agenthood/issues/537), [#610](https://github.com/fworks-tech/agenthood/issues/610), [#611](https://github.com/fworks-tech/agenthood/issues/611), [#613](https://github.com/fworks-tech/agenthood/issues/613)) ([bb289bf](https://github.com/fworks-tech/agenthood/commit/bb289bf0cbc7094204f5ac47fbed4162901ed975))
+* **skills:** resolve user-scope skills through XDG data paths ([#523](https://github.com/fworks-tech/agenthood/issues/523)) ([eee93a1](https://github.com/fworks-tech/agenthood/commit/eee93a18a0fe22338dcc0f47dd56a38bdc3404c2))
+* **skills:** run bundled scripts with real runtimes, pinned one-offs and capped output ([#539](https://github.com/fworks-tech/agenthood/issues/539), [#541](https://github.com/fworks-tech/agenthood/issues/541), [#544](https://github.com/fworks-tech/agenthood/issues/544), [#545](https://github.com/fworks-tech/agenthood/issues/545), [#546](https://github.com/fworks-tech/agenthood/issues/546)) ([4a39206](https://github.com/fworks-tech/agenthood/commit/4a392069ba037857ae0b97c50d1317f31c36a7c3))
+* **skills:** validate license as SPDX and add the license command ([#580](https://github.com/fworks-tech/agenthood/issues/580)) ([a0ab913](https://github.com/fworks-tech/agenthood/commit/a0ab91337fdb05c3810eb1ab0e7301c1a055ba71)), refs #588
+* **subagent:** delegate a skill to an isolated subagent context ([#534](https://github.com/fworks-tech/agenthood/issues/534), [#612](https://github.com/fworks-tech/agenthood/issues/612)) ([60b1544](https://github.com/fworks-tech/agenthood/commit/60b15448a587685e430a061c512eec4f52e12db0))
+* **trace:** persist every ReAct step and filter trajectories by skill or tool ([73ff347](https://github.com/fworks-tech/agenthood/commit/73ff3471f3364c5d3b5c1049aad927fbc65afbd8)), refs #605
+* **verify:** fail on allowed-tools names agenthood does not know ([62fb016](https://github.com/fworks-tech/agenthood/commit/62fb01605671eaade3ceec4ce819ad225144aec8)), refs #561
+* **workflows:** compose skills, conditions and parallel branches in chains ([#609](https://github.com/fworks-tech/agenthood/issues/609)) ([ece4b7f](https://github.com/fworks-tech/agenthood/commit/ece4b7fa94e15539047eb7286721a1c521b837a2))
+* **workflows:** execute chains.yaml through WorkflowEngine ([d043399](https://github.com/fworks-tech/agenthood/commit/d043399c133582771d1c750bce8711a833753cb7)), refs #609
+
+
+### BREAKING CHANGES
+
+* **skills:** enforce allowed-tools from SKILL.md at call time
+* remove the no-op span API from Tracer
+
 # [3.78.0](https://github.com/fworks-tech/agenthood/compare/v3.77.1...v3.78.0) (2026-11-16)
 
 

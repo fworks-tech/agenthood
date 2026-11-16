@@ -18,6 +18,14 @@ export interface ISkillManifest {
   compatibility?: string
   /** Registry namespace from `metadata.author` — the `owner` in `owner/name` (ADR-035). */
   owner?: string
+  /** `metadata.priority` 0-100 — higher sorts earlier in the catalog (#611). */
+  priority?: number
+  /** `metadata.conditions` — predicates that must hold before activation (#610). */
+  conditions?: string[]
+  /** `fallback` — skills to try when this one cannot activate (#613). */
+  fallback?: string[]
+  /** `disable-model-invocation: true` hides the skill from the catalog (#537). */
+  disableModelInvocation?: boolean
   /** Hidden from the available-skills catalog; still activatable by name (#588). */
   hidden?: boolean
   /** A routing entry point — the only skills whose metadata loads at startup (#588). */

@@ -19,10 +19,11 @@ now fails that call.
 `allowed-tools` is parsed onto the manifest and enforced in `ReActLoop` at call
 time, before the tool executes.
 
-- The effective set is the union of the active skills' declarations, kept
-  separate from the member's permission profile. `ToolRegistry` still decides
-  what a member may call, so the two are intersected and a skill can only
-  narrow.
+- The effective set is the intersection of the active skills' declarations, kept
+  separate from the member's permission profile. A skill that declares tools
+  can only narrow the scope; a permissive skill cannot re-widen a restrictive
+  one that is also active. `ToolRegistry` still decides what a member may call,
+  so the two are intersected as well.
 - A skill that declares nothing imposes nothing: absence of the field means
   "member tools", not "no tools".
 - `activate_skill` is always allowed, otherwise activating a second skill would

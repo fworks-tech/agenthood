@@ -465,6 +465,25 @@ describe('ReActLoop per-step trajectory', () => {
     expect(loop.steps[1].outputSummary).toBe('final answer')
   })
 
+  it('records the run input on step 0 and a measured duration per step', async () => {
+    const tool: ITool = {
+      name: 'read_file',
+      description: 'Read',
+      inputSchema: { type: 'object', properties: {} },
+      execute: vi.fn().mockImplementation(() => new Promise((resolve) => setTimeout(() => resolve({ success: true, output: 'ok' }), 20))),
+    }
+    const llm = mockProvider({ toolCalls: [{ name: 'read_file', args: {} }] })
+    const reg = new ToolRegistry()
+    reg.register(tool)
+    const loop = new ReActLoop(llm, reg)
+
+    await loop.run('system prompt', 'read a.ts', createTestContext())
+
+    expect(loop.steps[0].inputSummary).toBe('read a.ts')
+    expect(loop.steps[1].inputSummary).toBe('')
+    expect(loop.steps[0].durationMs).toBeGreaterThanOrEqual(15)
+  })
+
   it('resets the recorded steps on each run', async () => {
     const loop = new ReActLoop(mockProvider(), new ToolRegistry())
     await loop.run('system prompt', 'one', createTestContext())

@@ -38,6 +38,7 @@ import { PromptRegistry } from '../prompts/PromptRegistry.ts'
 import { KnowledgeGraphStore } from '../rag/KnowledgeGraphStore.ts'
 import { ReActLoop } from '../reasoning/ReActLoop.ts'
 import type { ISkillManifest } from '../skills/discovery/ISkillManifest.ts'
+import type { SkillAvailability } from '../skills/discovery/gating.ts'
 import { ActivateSkillTool } from '../skills/activation/ActivateSkillTool.ts'
 import { ToolRegistry } from '../tools/ToolRegistry.ts'
 import { DeveloperAgent } from '../agents/DeveloperAgent.ts'
@@ -55,6 +56,8 @@ export interface ApplicationContextOptions {
   societyGraph: KnowledgeGraphStore
   vectorStore: LanceDBStore
   skills: { catalog: string; manifests: Map<string, ISkillManifest> }
+  /** What this run offers; the activation tool gates on it (ADR-037). */
+  availability?: SkillAvailability
   sentry?: { dsn?: string }
   checkpointStore?: CheckpointStore
   /** Host-registered members, applied after the built-in Society. */
@@ -80,7 +83,7 @@ export class ApplicationContext {
     llm: ILLMProvider,
     options: ApplicationContextOptions,
   ) {
-    const { societyGraph, vectorStore, skills, sentry, checkpointStore, customMembers } = options
+    const { societyGraph, vectorStore, skills, availability, sentry, checkpointStore, customMembers } = options
     this.llm = llm
     this.societyGraph = societyGraph
     this.agents = new AgentRegistry()
@@ -89,7 +92,7 @@ export class ApplicationContext {
     this.episodeLearner = new EpisodeLearner(undefined, new EmbeddingIndex(vectorStore))
     this.alertsPath = join(projectPath, '.agenthood', 'alerts', 'anomalies.ndjson')
 
-    this.setupAgents(llm, skills.manifests)
+    this.setupAgents(llm, skills.manifests, availability)
     const oracleAgent = this.setupOracle(llm, societyGraph)
     const memory = this.buildMemoryTiers(llm, vectorStore, societyGraph, projectPath)
 
@@ -152,16 +155,23 @@ export class ApplicationContext {
     const llm = await LLMRouter.create(config)
     const societyGraph = loadSocietyGraph(projectPath)
     const catalogFormat = config.skills?.providerFormats?.[config.provider ?? ''] ?? config.skills?.catalogFormat
+    const availability: SkillAvailability = {
+      provider: config.provider,
+      model: config.model ?? llm.getModel?.(),
+      contextWindow: llm.getContextWindow(),
+    }
     const skills = await discoverSkills(projectPath, {
       provider: config.provider,
       format: catalogFormat,
       disabled: config.skills?.disabled,
+      availability,
     })
     const vectorStore = await connectVectorStore(projectPath)
     const app = new ApplicationContext(projectPath, llm, {
       societyGraph,
       vectorStore,
       skills,
+      availability,
       sentry: config.sentry,
       checkpointStore: host?.checkpointStore,
       customMembers: host?.customMembers,
@@ -200,12 +210,16 @@ export class ApplicationContext {
     }
   }
 
-  private setupAgents(llm: ILLMProvider, skillManifests: Map<string, ISkillManifest>): void {
+  private setupAgents(
+    llm: ILLMProvider,
+    skillManifests: Map<string, ISkillManifest>,
+    availability?: SkillAvailability,
+  ): void {
     const tReg = new ToolRegistry()
     const loop = new ReActLoop(llm, tReg)
 
     if (skillManifests.size > 0) {
-      tReg.register(new ActivateSkillTool(skillManifests, llm.getContextWindow()))
+      tReg.register(new ActivateSkillTool(skillManifests, llm.getContextWindow(), { availability }))
     }
 
     this.agents.register(new DeveloperAgent(llm, loop, tReg, { agentRegistry: this.agents, episodeLearner: this.episodeLearner, canDelegate: true }))

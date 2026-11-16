@@ -1,5 +1,33 @@
 export type SkillTier = 'official' | 'community' | 'experimental'
 
+/** `model-targets` — which models a skill is calibrated for (ADR-037). */
+export interface ModelTargets {
+  /** Provider names, case-insensitive exact match. */
+  provider?: string[]
+  /** Model-id fragments; one must appear in the current model id. */
+  family?: string[]
+  /** Minimum context window in tokens. */
+  minTokens?: number
+  /** Model-id fragments that are refused even when the family matches. */
+  exclude?: string[]
+}
+
+/** `requires` — what the session must provide (ADR-037). */
+export interface SkillRequires {
+  /** Tool names, exact or `mcp.` prefix. Unmet blocks activation. */
+  tools?: string[]
+  /** Tool names whose absence only warns. */
+  optionalTools?: string[]
+  /** Minimum context window in tokens. */
+  context?: number
+}
+
+/** `dependencies` — other skills this one needs (ADR-037). */
+export interface SkillDependencies {
+  required?: string[]
+  optional?: string[]
+}
+
 export interface ISkillManifest {
   name: string
   description: string
@@ -30,4 +58,12 @@ export interface ISkillManifest {
   hidden?: boolean
   /** A routing entry point — the only skills whose metadata loads at startup (#588). */
   router?: boolean
+  /** `model-targets` — provider/family/min-tokens/exclude (ADR-037). */
+  modelTargets?: ModelTargets
+  /** `requires` — tools and context the skill needs (ADR-037). */
+  requires?: SkillRequires
+  /** `dependencies` — other skills it needs (ADR-037). */
+  dependencies?: SkillDependencies
+  /** `metadata.variants` — model-id fragment → body file inside the skill directory (ADR-037). */
+  variants?: Record<string, string>
 }

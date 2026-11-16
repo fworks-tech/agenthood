@@ -8,6 +8,8 @@ import { SkillBudget } from './SkillBudget.ts'
 import { evaluateConditions } from './conditions.ts'
 import { formatSkillContent, SKILL_ACTIVATION_PREFIX, type SkillContentFormat } from './skillContent.ts'
 import { findMissingReferences } from './references.ts'
+import { gateSkills, type GateResult, type SkillAvailability } from '../discovery/gating.ts'
+import { selectVariantBody } from '../discovery/variants.ts'
 
 export { SKILL_ACTIVATION_PREFIX }
 
@@ -27,6 +29,8 @@ export interface ActivateSkillOptions {
   activeSkills?: Set<string>
   /** `security.autoAllowSkillDirs: false` keeps skill dirs out of the read allowlist (#536). */
   autoAllowSkillDirs?: boolean
+  /** What this run offers; unusable skills are refused with the gate's reason (ADR-037). */
+  availability?: SkillAvailability
 }
 
 export class ActivateSkillTool implements ITool {
@@ -37,6 +41,8 @@ export class ActivateSkillTool implements ITool {
   private readonly budget: SkillBudget
   /** Re-activating the same skill returns the same block (#531). */
   private readonly cache = new Map<string, string>()
+  /** One gate for the whole run, so every refusal states the same reason (ADR-037). */
+  private readonly gate: GateResult
 
   constructor(
     private manifests: Map<string, ISkillManifest>,
@@ -44,7 +50,8 @@ export class ActivateSkillTool implements ITool {
     private options: ActivateSkillOptions = {},
   ) {
     this.budget = new SkillBudget(contextWindow)
-    this.inputSchema = ActivateSkillTool.buildSchema(manifests, options.disabled)
+    this.gate = gateSkills(Array.from(manifests.values()), options.availability)
+    this.inputSchema = ActivateSkillTool.buildSchema(manifests, options.disabled, this.gate)
   }
 
   /**
@@ -52,8 +59,12 @@ export class ActivateSkillTool implements ITool {
    * call cannot miss on a guessed name (#531). No enum when every skill is
    * filtered — an empty enum is not valid JSON Schema.
    */
-  private static buildSchema(manifests: Map<string, ISkillManifest>, disabled?: ReadonlySet<string>): JSONSchema {
-    const names = Array.from(manifests.keys()).filter((name) => !disabled?.has(name))
+  private static buildSchema(
+    manifests: Map<string, ISkillManifest>,
+    disabled: ReadonlySet<string> | undefined,
+    gate: GateResult,
+  ): JSONSchema {
+    const names = Array.from(manifests.keys()).filter((name) => !disabled?.has(name) && !gate.blocked.has(name))
     return {
       type: 'object',
       properties: {
@@ -92,6 +103,17 @@ export class ActivateSkillTool implements ITool {
       return fail(`Skill "${name}" not found. Available skills: ${available || '(none)'}`)
     }
 
+    const blockedReason = this.gate.blocked.get(name)
+    if (blockedReason) {
+      console.log(`[skills] blocked "${name}": ${blockedReason}`)
+      const next = this.nextFallback(manifest, name, attempted)
+      if (next) {
+        console.warn(`[skills] "${name}" cannot run here — falling back to "${next}"`)
+        return this.activate(next, context, [...attempted, name], eager)
+      }
+      return fail(`Skill "${name}" cannot activate here: ${blockedReason}`)
+    }
+
     const conditions = evaluateConditions(manifest.conditions, projectPath)
     if (!conditions.ok) {
       console.warn(`[skills] skipped "${name}": ${conditions.reason}`)
@@ -111,9 +133,12 @@ export class ActivateSkillTool implements ITool {
     if (cached) return { success: true, output: cached }
 
     // A body already in the transcript cannot be shrunk later, so the budget is
-    // applied here, against what is already loaded.
-    const fit = this.budget.fit(manifest.body)
-    const missing = findMissingReferences(manifest.body, manifest.directory)
+    // applied here, against what is already loaded. The variant, when one
+    // matches the model, is what gets loaded (ADR-037, #551).
+    const model = this.options.availability?.model
+    const variant = selectVariantBody(manifest, model)
+    const fit = this.budget.fit(variant.body)
+    const missing = findMissingReferences(variant.body, manifest.directory)
     const notices = [
       fit.compressed
         ? `<skill_budget>Instructions compressed to fit the context window — saved ~${fit.savedTokens} tokens. Re-read SKILL.md from the skill directory for the full steps.</skill_budget>`
@@ -121,6 +146,11 @@ export class ActivateSkillTool implements ITool {
       missing.length > 0
         ? `<skill_missing_references>Not found under the skill directory: ${missing.join(', ')}. They may be created at run time.</skill_missing_references>`
         : undefined,
+      variant.variant
+        ? `<skill_variant name="${variant.variant}" model="${model ?? 'unknown'}" />`
+        : undefined,
+      variant.warning ? `<skill_variant_warning>${variant.warning}</skill_variant_warning>` : undefined,
+      ...(this.gate.warnings.get(name) ?? []).map((message) => `<skill_warning>${message}</skill_warning>`),
     ].filter(Boolean)
 
     const output = formatSkillContent(manifest, fit.body, {

@@ -127,6 +127,10 @@ export abstract class ChatCompletionsProvider implements ILLMProvider {
     return this.contextWindow
   }
 
+  getModel(): string {
+    return this._model
+  }
+
   setModel(model: string): void {
     this._model = model
   }

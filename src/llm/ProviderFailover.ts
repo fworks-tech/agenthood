@@ -363,6 +363,10 @@ export class ProviderChain implements ILLMProvider {
   getContextWindow(): number {
     return this.providers[0]?.getContextWindow() ?? 8192
   }
+
+  getModel(): string {
+    return this.providers[0]?.getModel?.() ?? ''
+  }
 }
 
 function emptyGenerator(): AsyncGenerator<LLMChunk> {

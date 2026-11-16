@@ -27,6 +27,7 @@ import { RunCheckpoint, type CheckpointData, type CheckpointStore } from '../che
 import { applySlashActivations } from '../skills/activation/slash.ts'
 import type { ActivateSkillTool } from '../skills/activation/ActivateSkillTool.ts'
 import { registerActivateTool } from '../skills/activation/toolRegistration.ts'
+import { toRegistryToolNames } from '../members/toolVocabulary.ts'
 import { detectDocker } from '../skills/execution/sandbox.ts'
 
 export interface MemberRunnerDeps {
@@ -235,7 +236,13 @@ export class MemberRunner {
       resumeFrom,
       spec.model ?? config.model,
     )
-    const activateTool = registerActivateTool(sReg, this.ctx.skillManifests, llm, config)
+    const activateTool = registerActivateTool(sReg, this.ctx.skillManifests, llm, config, {
+      provider: memberProvider,
+      model: spec.model ?? llm.getModel?.() ?? config.model,
+      // Declared grants are what this member may call; the gate refuses a skill
+      // whose required tool is not among them (#552, #554).
+      tools: [...(toRegistryToolNames(spec.tools) ?? []), 'ask_human', 'activate_skill', 'run_skill_script'],
+    })
 
     const seedMessages = this.resumeSeed(checkpointData, resumeFrom)
     return { spec, llm, sReg, checkpointStore, checkpointData, seedMessages, activateTool }

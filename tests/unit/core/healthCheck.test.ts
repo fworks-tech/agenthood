@@ -59,11 +59,11 @@ describe('healthCheck', () => {
     expect(report.status).toBe('healthy')
     expect(report.checks.find((c) => c.name === 'baselines')).toMatchObject({
       status: 'ok',
-      detail: 'no baselines — quality not stamped',
+      detail: 'no baselines, quality not stamped',
     })
     expect(report.checks.find((c) => c.name === 'retention')).toMatchObject({
       status: 'ok',
-      detail: 'no retention policy — traces kept indefinitely',
+      detail: 'no retention policy, traces kept indefinitely',
     })
   })
 

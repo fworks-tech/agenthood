@@ -2,7 +2,7 @@ import { describe, it, expect } from 'vitest'
 import { createRequire } from 'node:module'
 
 /**
- * Real grammar check — no mocks. TreeSitterParser.test.ts mocks the grammar
+ * Real grammar check: no mocks. TreeSitterParser.test.ts mocks the grammar
  * modules, so it proves routing but not that the pinned core actually loads
  * them. The core is held at 0.21.x because no single version satisfies all
  * three grammars' peer ranges, so a careless bump of any one of them fails

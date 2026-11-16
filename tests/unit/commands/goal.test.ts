@@ -19,7 +19,7 @@ afterEach(() => {
 describe('goal command', () => {
   it('creates a goal and lists it exactly once', async () => {
     await goal(['create', 'ship auth', '--issue', '#42'], cwd)
-    // fresh chain forces the loadGoals path — guards the double-push fix
+    // fresh chain forces the loadGoals path: guards the double-push fix
     const listed: string[] = []
     vi.mocked(console.log).mockImplementation((line: string) => { listed.push(String(line)) })
     await goal(['list'], cwd)

@@ -35,7 +35,7 @@ describe('package manifest parity', () => {
   it('package.json description contains a specialized-agents count', () => {
     expect(
       descriptionCount,
-      `package.json description should contain "<N> specialized agents" — got: ${JSON.stringify(packageJson.description)}`,
+      `package.json description should contain "<N> specialized agents": got: ${JSON.stringify(packageJson.description)}`,
     ).not.toBeNull()
   })
 
@@ -64,7 +64,7 @@ describe('package manifest parity', () => {
   })
 
   it('description literally contains "<N> specialized agents" substring', () => {
-    // guards against regex drift — the human-readable string must stay greppable
+    // guards against regex drift: the human-readable string must stay greppable
     expect(packageJson.description).toContain(`${registeredCount} specialized agents`)
   })
 

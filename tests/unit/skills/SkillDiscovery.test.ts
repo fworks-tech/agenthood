@@ -214,7 +214,7 @@ describe('SkillDiscovery', () => {
     })
   })
 
-  it('discoverRemote seeds discovery once — later get() must not clear the maps', async () => {
+  it('discoverRemote seeds discovery once, later get() must not clear the maps', async () => {
     const discovery = new SkillDiscovery(testDir)
     const discoverSpy = vi.spyOn(discovery, 'discover')
     await discovery.discoverRemote([])

@@ -45,7 +45,7 @@ describe('release configuration (Herald release-PR flow)', () => {
   it('gates the generated artifacts, because the release head never gets CI', () => {
     // GitHub starts no workflow for a GITHUB_TOKEN push, and repository_dispatch
     // is suppressed by the same guard. The PR body is generated text built from
-    // commit subjects, and a closing keyword in a merged body closes issues —
+    // commit subjects, and a closing keyword in a merged body closes issues,
     // so the release job has to check its own output before the PR exists.
     expect(WORKFLOW).toMatch(/token: \$\{\{ secrets\.GITHUB_TOKEN \}\}/)
     const gate = WORKFLOW.indexOf('gate the generated artifacts')
@@ -72,8 +72,8 @@ describe('release configuration (Herald release-PR flow)', () => {
 
   it('flags a linkified closing keyword, the form the notes generator actually emits', () => {
     // The real v3.69.0 line, merged with a `closes [#663](url)` in the body.
-    // herald-notes.md is the raw generateNotes output — cleanLine only ever
-    // runs over the published files — so GitHub's `Closes #663` trailer on the
+    // herald-notes.md is the raw generateNotes output: cleanLine only ever
+    // runs over the published files, so GitHub's `Closes #663` trailer on the
     // squash commit arrives linkified, and a gate that requires a bare `#N`
     // lets it through. Issue #967.
     const gate = closingKeywordPattern()
@@ -196,7 +196,7 @@ describe('release notes linkify artifacts', () => {
   // The real v3.68.3 line for #951, which quotes closing keywords and a
   // link-shaped regex. conventional-changelog linkifies the quoted syntax
   // into '[#N](https://.../issues/N)' and '[#1](.../issues/1)', then trails
-  // the line with a link per prose mention — seventeen refs, nearly all
+  // the line with a link per prose mention: seventeen refs, nearly all
   // duplicates.
   const LINKIFY =
     '* **herald:** release notes stop leaking issue refs, changelog stops claiming false closures ' +

@@ -159,7 +159,7 @@ describe('htmlTemplate', () => {
   it('returns valid HTML structure with title and body', () => {
     const result = htmlTemplate('Test Title', '<p>Test body</p>')
     expect(result).toContain('<!DOCTYPE html>')
-    expect(result).toContain('<title>Test Title — Agenthood Academy</title>')
+    expect(result).toContain('<title>Test Title: Agenthood Academy</title>')
     expect(result).toContain('<main><p>Test body</p></main>')
   })
 
@@ -172,7 +172,7 @@ describe('htmlTemplate', () => {
 
   it('escapes ampersands and quotes in the title', () => {
     expect(htmlTemplate('Foo & "Bar"', '')).toContain(
-      '<title>Foo &amp; &quot;Bar&quot; — Agenthood Academy</title>',
+      '<title>Foo &amp; &quot;Bar&quot;: Agenthood Academy</title>',
     )
   })
 })

@@ -112,7 +112,7 @@ describe('EvalRunner', () => {
   })
 })
 
-describe('EvalRunner — assertion grading', () => {
+describe('EvalRunner, assertion grading', () => {
   function assertionSuite(assertions: Assertion[]): EvalSuite {
     return { name: 'assert-suite', metrics: [], tasks: [{ input: 'q', expectedOutput: 'e', assertions }] }
   }

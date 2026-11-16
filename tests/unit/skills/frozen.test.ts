@@ -14,7 +14,7 @@ function writeSkill(name: string, body: string): void {
 }
 
 /**
- * contentHash is the SHA-256 of SKILL.md at install time — the same hash
+ * contentHash is the SHA-256 of SKILL.md at install time: the same hash
  * `agenthood verify` locks for members. Callers pass the expected body so the
  * fixture and the lockfile agree by construction.
  */
@@ -197,7 +197,7 @@ describe('assertFrozenInstall', () => {
   })
 
   it('ignores missing skills on disk (fresh checkout)', () => {
-    // beta is locked but not installed yet — this is normal for a fresh clone
+    // beta is locked but not installed yet; this is normal for a fresh clone
     writeSkillsLock({
       alpha: { source: 'https://example.com/alpha', body: 'original' },
       beta: { source: 'https://example.com/beta', body: 'original' },

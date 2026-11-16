@@ -86,7 +86,7 @@ describe('optimize command', () => {
     const logSpy = vi.spyOn(console, 'log').mockImplementation(() => {})
     await command.handler(['scribe', '--triggers', 'test.json'])
     const output = logSpy.mock.calls.map((c) => c[0]).join('')
-    expect(output).toContain('Description Optimization — scribe')
+    expect(output).toContain('Description Optimization, scribe')
     expect(output).toContain('Original:')
     expect(output).toContain('Best:')
     expect(output).toContain('Improved:')

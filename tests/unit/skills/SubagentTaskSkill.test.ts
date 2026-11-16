@@ -269,7 +269,7 @@ describe('SubagentTaskSkill', () => {
       expect(callerReg.getSchemas().map((s) => s.name)).toEqual(
         expect.arrayContaining(['write_file', 'write_code']),
       )
-      // the delegated reviewer's surface is its own — caller tools never leak in
+      // the delegated reviewer's surface is its own: caller tools never leak in
       expect(reviewerReg.getSchemas().map((s) => s.name)).toEqual(['read_file'])
     })
   })

@@ -106,6 +106,13 @@ function parseSkills(raw: Record<string, unknown>): SkillsConfig | undefined {
 
   if (skills.fallback === false) config.fallback = false
 
+  const timeout = skills.scriptTimeoutMs
+  if (typeof timeout === 'number' && Number.isInteger(timeout) && timeout > 0) {
+    config.scriptTimeoutMs = timeout
+  } else if (timeout !== undefined) {
+    console.warn(`[run] skills.scriptTimeoutMs "${String(timeout)}" is not a positive integer — using the default`)
+  }
+
   return config
 }
 
@@ -120,12 +127,19 @@ function parseSentry(raw: Record<string, unknown>): { dsn?: string } | undefined
   return { dsn }
 }
 
-function parseSecurity(raw: Record<string, unknown>): { strictSkillIntegrity?: boolean; sandbox?: boolean } | undefined {
+function parseSecurity(
+  raw: Record<string, unknown>,
+): { strictSkillIntegrity?: boolean; sandbox?: boolean; autoAllowSkillDirs?: boolean; trustedAuthors?: string[] } | undefined {
   const security = pickBlock(raw, 'security')
   if (!security) return undefined
+  const trustedAuthors = Array.isArray(security.trustedAuthors)
+    ? security.trustedAuthors.filter((author): author is string => typeof author === 'string')
+    : undefined
   return {
     strictSkillIntegrity: security.strictSkillIntegrity === true,
     sandbox: security.sandbox === true,
+    ...(security.autoAllowSkillDirs === false ? { autoAllowSkillDirs: false } : {}),
+    ...(trustedAuthors && trustedAuthors.length > 0 ? { trustedAuthors } : {}),
   }
 }
 

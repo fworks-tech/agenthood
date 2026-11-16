@@ -1,5 +1,5 @@
 {
-  "_comment": "Copy this file to .agenthood/config.json and remove all _comment fields.",
+  "_comment": "Copy this file to .agenthood/config.json and remove all _comment fields. API keys are read from the environment or .env; see .env.example.",
 
   "version": "1",
 

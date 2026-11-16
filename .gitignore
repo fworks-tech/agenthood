@@ -5,6 +5,8 @@ dist/node_modules/
 
 # Local environment
 .env
+.env.*
+!.env.example
 *.local
 
 # Stray nested vercel-labs/fx clone: was committed as a gitlink with no .gitmodules and broke CI checkout

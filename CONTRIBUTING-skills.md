@@ -109,6 +109,11 @@ Every SKILL.md must include these six sections (enforced by The Sentinel):
 
 ## Testing Your Skill
 
+Two guides go deeper than this checklist: [Skill Best Practices](../docs/guides/skill-best-practices.md)
+(what survives contact with a multi-agent chain), [Script Design](../docs/guides/script-design.md) (the
+interface a model can actually call), and [Skill Evaluation](../docs/guides/skill-evaluation.md)
+(trigger rate, suites, regressions in CI).
+
 1. Load the skill into an agent runtime:
    ```bash
    agenthood run the-example "do something specific"

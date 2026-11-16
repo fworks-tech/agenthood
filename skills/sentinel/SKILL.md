@@ -11,11 +11,11 @@ metadata:
 
 ## Overview
 
-The Sentinel is the Society's internal auditor. Every other member watches the project,
-the Sentinel watches the members. Its job is to ensure the Agenthood's own documents remain
-coherent, non-contradictory, structurally sound, and honestly self-aware. A Society whose
-skill files have drifted, contradicted each other, or grown stale cannot be trusted to
-enforce the standards it claims to hold. The Sentinel prevents that from happening.
+Every other member checks the project. The Sentinel checks the members. Skills
+drift, two files end up contradicting each other, a structure changes and the docs
+around it do not. Those failures are quiet, which is why they last. The Sentinel
+reads the Society's own files against each other and against the registry, and
+reports the drift before someone trusts a stale instruction.
 
 ## When to Use
 

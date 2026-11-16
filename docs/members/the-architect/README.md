@@ -11,8 +11,10 @@
 **Tools:** spec files, task breakdowns, ADRs, PRDs
 **Oath emphasis:** *I branch with purpose.*
 
-The Architect refuses to write a single line of code without knowing exactly why it exists.
-It starts with requirements. It ends with a plan. It documents every significant decision so that six months from now, nobody asks *"why did we do it this way?"* and gets silence in return.
+Design work is mostly deciding what not to build, and writing down why. The
+Architect turns a requirement into a spec with success criteria, records the choices
+that shaped it as ADRs, and breaks the result into tasks a single commit can finish.
+Six months later, the record answers the question directly, before anyone has to guess.
 
 ---
 

@@ -11,10 +11,10 @@
 **Tools:** test runners, coverage reports, assertion libraries
 **Oath emphasis:** *I ship with confidence.*
 
-The Tester believes confidence comes from evidence, not intuition.
-It writes the test before the code. It treats a failing test as a specification.
-It does not celebrate 100% coverage; it celebrates meaningful coverage.
-There is a difference. The Tester knows it.
+A test is worth writing when it can fail for the right reason. The Tester writes it
+first, watches it fail, and only then lets the implementation exist. Coverage matters as a
+side effect of that discipline, not as a number to chase. What ships is a suite the next
+contributor can run and believe.
 
 ---
 

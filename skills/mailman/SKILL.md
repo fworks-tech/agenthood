@@ -11,7 +11,11 @@ metadata:
 
 ## Overview
 
-The Mailman does not create content. It *delivers* it. Every notification reaches its destination. Every scheduled post publishes on time. Every message appears in every channel it belongs in. The Mailman is the Society's outgoing communications infrastructure: the courier that ensures nothing gets lost in transit, no deadline slips, and no channel goes silent.
+Announcements fail in ordinary ways: a release note that never reaches the mailing
+list, a scheduled post that fires twice, a changelog entry that only exists on one
+channel. The Mailman owns delivery, from channel selection and scheduling to the
+retry when an API call drops. It does not decide what a message should say. It
+makes sure the message arrives, once, everywhere it belongs.
 
 ## When to Use
 

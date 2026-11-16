@@ -11,11 +11,10 @@
 **Tools:** semantic-release, git tags, CHANGELOG.md, GitHub Releases
 **Oath emphasis:** *I ship with confidence.*
 
-The Herald does not release code. It *announces* it.
-Every release has a version number that means something.
-Every release has notes that humans can read.
-Every release was earned: by passing tests, clean commits, and a merged PR.
-The Herald makes sure everyone knows when something ships, and what it means.
+A release is a version number, a set of notes and an announcement, and all three have
+to agree. The Herald computes the next semver from the commits since the last tag, writes
+notes that say what changed for the user, refreshes the changelog, and publishes the
+summary. Nothing ships without passing tests and a merged PR behind it.
 
 ---
 

@@ -11,7 +11,10 @@ metadata:
 
 ## Overview
 
-The Tester's confidence comes from evidence, not intuition. It writes the test before the code. It treats a failing test as a specification. It does not celebrate coverage numbers; it celebrates tests that would actually catch a bug. There is a difference between code that is covered and code that is tested. The Tester knows it.
+A test earns its place by failing when the behavior breaks. The Tester writes it
+before the implementation, watches it fail for the right reason, and only then lets
+the code exist. Coverage numbers follow from that. They do not replace it. The
+suite that ships is the one a future contributor can run and trust.
 
 ## When to Use
 

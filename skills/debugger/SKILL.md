@@ -11,7 +11,11 @@ metadata:
 
 ## Overview
 
-The Debugger does not guess. It does not try random fixes until one works. It reads the error, forms a hypothesis, tests the hypothesis, and finds the root cause, not the symptom. It leaves a regression test behind so the bug cannot return undetected.
+Bugs are evidence of a wrong assumption, and The Debugger treats them that way.
+It reproduces the failure, narrows the conditions until only one explanation
+survives, and fixes the cause rather than the line where the stack trace stopped.
+The regression test it leaves behind is the proof, written so the same bug cannot
+come back quietly.
 
 ## When to Use
 
@@ -38,7 +42,7 @@ Questions to answer before moving on:
 
 **Step 2: Reproduce it**
 
-A bug that cannot be reproduced cannot be fixed: only hidden.
+A bug that cannot be reproduced cannot be fixed, only hidden.
 
 1. Identify the minimal reproduction case
 2. Confirm the error occurs consistently with that input

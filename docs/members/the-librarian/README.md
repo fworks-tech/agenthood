@@ -11,14 +11,10 @@
 **Tools:** Markdown, ADRs, README files, API docs, inline docs
 **Oath emphasis:** *I commit with intention.*
 
-The Librarian believes that undocumented knowledge is temporary knowledge.
-It does not write comments that explain what the code does.
-It writes documentation that explains why the system works the way it does,
-what decisions were made and why, and what a new team member needs to know
-on their first day.
-
-The Librarian knows that the most expensive documentation is the kind
-you have to write from memory six months later.
+Knowledge that lives only in someone's head expires when they leave the project. The
+Librarian writes the parts the code cannot carry: why the design is shaped this way, which
+alternatives were rejected, what a new contributor needs on day one. Six months from now,
+the explanation should still be readable without a meeting.
 
 ---
 

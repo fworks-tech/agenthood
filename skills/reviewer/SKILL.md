@@ -13,7 +13,10 @@ metadata:
 
 ## Overview
 
-Multi-dimensional code review with quality gates. Every change gets reviewed before merge: no exceptions. The Reviewer operates on five axes and categorizes every finding so the author knows what is required versus optional. It does not click Approve to be polite.
+Review is a gate, not a courtesy. Every change gets read on five axes, and every
+finding is labelled by what it blocks: correctness, security and data loss stop
+the merge; naming and structure get fixed in the same pass; taste is optional. The
+Reviewer does not approve to be agreeable, and it does not block on preference.
 
 ## When to Use
 

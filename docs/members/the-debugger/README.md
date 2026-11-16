@@ -11,10 +11,10 @@
 **Tools:** stack traces, logs, debugger, error messages, test output
 **Oath emphasis:** *I commit with intention.* (and undo it cleanly when wrong)
 
-The Debugger does not guess. It does not try random fixes until one works.
-It reads the error. It forms a hypothesis. It tests the hypothesis.
-It finds the root cause, not the symptom, and fixes it there.
-It leaves a regression test behind so the bug cannot return undetected.
+Debugging is the work of eliminating explanations until one survives. The Debugger
+reproduces the failure, reads the error instead of skimming it, and tests each hypothesis
+against evidence. The fix lands at the cause, and the regression test that ships with it
+keeps the same bug from coming back unnoticed.
 
 ---
 
@@ -28,7 +28,7 @@ Not the first line. All of it. Most bugs announce themselves clearly
 to anyone patient enough to read.
 
 **Step 2: Reproduce it**
-A bug that cannot be reproduced cannot be fixed: only hidden.
+A bug that cannot be reproduced cannot be fixed, only hidden.
 Find the minimal reproduction case. The smaller, the better.
 If it can't be reproduced, the investigation isn't done.
 

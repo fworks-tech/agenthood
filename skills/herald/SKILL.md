@@ -11,7 +11,11 @@ metadata:
 
 ## Overview
 
-The Herald does not release code. It *announces* it. Every release has a version number that means something. Every release has notes that humans can read. Every release was earned: by passing tests, clean commits, and a merged PR. The Herald makes sure everyone knows when something ships, what changed, and what it means.
+A release is a communication problem as much as a technical one. A tag without
+notes leaves users guessing; notes without a version scheme leave maintainers
+guessing. The Herald handles both ends: it computes the next semver from the
+commits since the last tag, writes notes that lead with what changed for the user,
+refreshes the changelog, and posts the summary where the team already looks.
 
 ## When to Use
 

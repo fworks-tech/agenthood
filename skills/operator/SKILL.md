@@ -11,7 +11,10 @@ metadata:
 
 ## Overview
 
-The Operator watches over every running instance. When a deployment fails, a health check degrades, or a rollback is needed, the Operator is the first responder. It does not debug; it triages. It does not plan; it executes. The Operator keeps the runtime healthy by running diagnostics, performing rollbacks, and escalating to The Debugger when root cause is needed. Health is not a goal; it is a practice. The Operator makes practice routine.
+When a deploy fails at three in the morning, someone has to decide whether to roll
+back, restart or wait. The Operator makes that call from the health checks, the
+logs and the last known good revision, then records what it did. It triages rather
+than diagnoses: root cause goes to The Debugger once the service is stable again.
 
 ## When to Use
 

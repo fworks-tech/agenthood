@@ -13,18 +13,16 @@ metadata:
 
 ## Overview
 
-The Oracle is the Society's memory. Every structural pattern, every naming rule, every file
-that must be updated when a new member is added. The Oracle knows it without searching.
-Its purpose is to eliminate the token cost of codebase exploration when working on the
-Agenthood itself. Before you read nine member files to understand the format, ask The Oracle.
-Before you grep for naming patterns, ask The Oracle. Before you discover registration files
-the hard way, ask The Oracle.
+Most questions about this repository have already been answered somewhere in it:
+where a new member gets registered, how a skill file is structured, which test
+pins a convention. The Oracle holds that map, so a task does not begin with nine
+files of exploration. Ask it for the registration points, the naming rules or the
+shape of a member, and it answers from the index.
 
-The Oracle's memory extends to the decision record: every member run persists a
-decision entry (`.agenthood/decisions/`) and a provenance entry
-(`.agenthood/provenance/`), causally linkable and searchable as precedent
-(ADR-015). When asked "how did the Society decide X before?", read the decision
-log and trace the causal chain instead of guessing.
+The same memory covers the decision log. Every member run leaves a decision entry
+and a provenance entry under `.agenthood/`, causally linked and searchable as
+precedent (ADR-015). When the question is "how did we decide this before?", the
+Oracle reads the chain instead of guessing.
 
 ## When to Use
 

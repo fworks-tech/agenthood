@@ -121,6 +121,35 @@ Four tools expose it: `generate_image`, `text_to_speech` (writes under
 Video and audio/music generation remain 4.1 work: no stable API exists, so the
 shape is fixed and the implementation is absent rather than faked.
 
+### New: skill observability
+
+Skills now report what they cost and whether they still work, from data the
+project already keeps — the discovered manifests, `.agenthood/skill-stats.json`
+and the trajectory store.
+
+- `agenthood status` ends with the context budget: catalog tokens (paid on every
+  request) and body tokens (paid on activation) per skill, against
+  `skills.metadataBudget` in `.agenthood/config.json` (default 4000).
+- `agenthood verify --budget` reports the same catalog total with `--tokens`;
+  `--tokens` alone keeps the per-body view.
+- `agenthood health` adds three checks: `skills` (missing description or body,
+  name/directory mismatch, references to files that no longer exist),
+  `skillActivations` (success rate under 90% once a skill has 5 attempts) and
+  `skillRegressions` (mean step time more than 25% above the baseline). A
+  degraded skill check posts to `alerts.webhook` when configured. `health
+  --baseline` stamps `.agenthood/skill-baseline.json`; regressions are measured
+  against it, so re-stamp after an intentional change.
+- `agenthood trace --activations` lists the activation history: which skill was
+  active in which run, on which step, for how long.
+- `agenthood optimize --cost` ranks skills by catalog cost against activation
+  count and suggests removing a never-activated skill or compressing a large,
+  rarely-used description. It stays quiet until there is activation history to
+  compare against.
+
+The success-rate and regression thresholds are deliberately simple (a fixed
+proportion plus a minimum sample size) instead of a significance test, so the
+report is explainable and needs no statistics dependency.
+
 ### New: step-level traces
 
 Trajectories now store one step per ReAct turn, with the tools called, tokens,

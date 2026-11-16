@@ -12,10 +12,42 @@ import type { TraceEnvelope } from '../core/types.ts'
 import type { Anomaly } from '../core/AnomalyDetector.ts'
 import { EpisodeLearner } from '../evals/EpisodeLearner.ts'
 import { LanceDBStore } from '../memory/VectorStore.ts'
+import { SkillDiscovery } from '../skills/discovery/SkillDiscovery.ts'
+import { readSkillStats } from '../skills/activation/SkillStats.ts'
+import { metadataBudget, skillUsage, type SkillUsageRow } from '../skills/observability.ts'
 
 function formatPct(rate: number | null): string {
   if (rate === null) return '—'
   return `${(rate * 100).toFixed(0)}%`
+}
+
+/**
+ * Catalog cost per skill (#586). Context budget pain is silent otherwise: the
+ * skill is there, the model just stops seeing it. Metadata is the always-paid
+ * part; the body is listed next to it because it is what activation costs.
+ */
+function printSkillContext(rows: SkillUsageRow[], budget: number): void {
+  if (rows.length === 0) return
+  const total = rows.reduce((sum, row) => sum + row.metadataTokens, 0)
+  console.log('\n  Skill Context\n')
+  console.log(`  ${'Skill'.padEnd(24)} ${'Catalog'.padEnd(9)} ${'Activated'.padEnd(10)} Body`)
+  console.log(`  ${''.padEnd(24, '-')} ${''.padEnd(9, '-')} ${''.padEnd(10, '-')} ${''.padEnd(8, '-')}`)
+  for (const row of rows) {
+    const name = row.name.length > 22 ? `${row.name.slice(0, 22)}…` : row.name
+    console.log(`  ${name.padEnd(24)} ${String(row.metadataTokens).padEnd(9)} ${String(row.activations).padEnd(10)} ${row.bodyTokens}`)
+  }
+  const overBudget = total > budget ? ' — over budget' : ''
+  console.log(`
+  Catalog total: ${total}/${budget} tokens${overBudget}`)
+  if (total > budget) {
+    console.log('  ! Compress descriptions, or hide a skill with `disable-model-invocation: true`.')
+  }
+  console.log()
+}
+
+function collectSkillUsage(cwd: string): { rows: SkillUsageRow[]; budget: number } {
+  const manifests = new SkillDiscovery().discover(cwd)
+  return { rows: skillUsage(manifests, readSkillStats(cwd)), budget: metadataBudget(cwd) }
 }
 
 function printPlain(memberCount: number, decisionCount: number, lockStatus: string, memoryInit: boolean, allStats: MetricsEntry[]): void {
@@ -40,13 +72,21 @@ function printPlain(memberCount: number, decisionCount: number, lockStatus: stri
   }
 }
 
-function printJson(memberCount: number, decisionCount: number, lockStatus: string, memoryInit: boolean, allStats: MetricsEntry[]): void {
+function printJson(
+  memberCount: number,
+  decisionCount: number,
+  lockStatus: string,
+  memoryInit: boolean,
+  allStats: MetricsEntry[],
+  skills: { budget: number; rows: SkillUsageRow[] },
+): void {
   const output = {
     members: memberCount,
     decisions: decisionCount,
     lockfile: lockStatus,
     memory: memoryInit,
     metrics: allStats,
+    skills,
   }
   console.log(JSON.stringify(output, null, 2))
 }
@@ -375,12 +415,19 @@ export async function status(args: string[] = []): Promise<void> {
 
   const stats = collectProjectStats(cwd)
   const allStats = collectMemberMetrics(join(cwd, '.agenthood', 'metrics'))
+  const skills = collectSkillUsage(cwd)
 
-  const display = isJson ? printJson : printPlain
+  if (isJson) {
+    printJson(stats.memberCount, stats.decisionCount, stats.lockStatus, stats.memoryInit, allStats, skills)
+    return
+  }
+
+  const display = printPlain
 
   if (isWatch) {
     runWatchLoop(cwd, stats, display)
   }
 
   display(stats.memberCount, stats.decisionCount, stats.lockStatus, stats.memoryInit, allStats)
+  printSkillContext(skills.rows, skills.budget)
 }

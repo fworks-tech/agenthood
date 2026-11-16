@@ -174,3 +174,20 @@ source_url: https://example.test/skill
     expect(output()).toContain('source_url')
   })
 })
+
+describe('skill catalog budget (#586)', () => {
+  it('reports the always-loaded catalog against its budget', () => {
+    write('a', '')
+    reportTokenBudgets(dir, 5000, 1)
+    expect(output()).toContain('Skill catalog')
+    expect(output()).toContain('the catalog is in every prompt')
+    expect(output()).toContain('disable-model-invocation')
+  })
+
+  it('passes when the catalog fits', () => {
+    write('a', '')
+    reportTokenBudgets(dir, 5000, 100000)
+    expect(output()).toContain('metadata tokens')
+    expect(output()).not.toContain('disable-model-invocation')
+  })
+})

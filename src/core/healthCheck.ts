@@ -26,6 +26,8 @@ export interface HealthDeps {
   sentry?: { dsn?: string }
   baselinesProbe?: () => Promise<boolean>
   retentionProbe?: () => Promise<boolean>
+  /** Skill health, activation rate and regressions (#597, #626, #627). */
+  skillChecks?: () => Promise<HealthComponent[]>
 }
 
 /**
@@ -64,6 +66,7 @@ export async function healthCheck(deps: HealthDeps): Promise<HealthReport> {
     ...(deps.sentry ? [sentryCheck(deps.sentry.dsn)] : []),
     ...(deps.baselinesProbe ? [probeCheck('baselines', deps.baselinesProbe, 'baselines present', 'no baselines — quality not stamped')] : []),
     ...(deps.retentionProbe ? [probeCheck('retention', deps.retentionProbe, 'policy configured', 'no retention policy — traces kept indefinitely')] : []),
+    ...(deps.skillChecks ? await deps.skillChecks() : []),
   ])
 
   const checks = [tracer, traceStore, memberRegistry, ...providerChecks]

@@ -12,6 +12,7 @@ import { SkillDiscovery, userSkillDirs } from '../skills/discovery/SkillDiscover
 import { variantTarget } from '../skills/discovery/variants.ts'
 import { lintScript } from '../skills/execution/lint.ts'
 import { countTokens } from '../core/modelPricing.ts'
+import { DEFAULT_METADATA_BUDGET } from '../skills/observability.ts'
 import { isKnownToolName } from '../members/toolVocabulary.ts'
 
 export function reportScriptLint(membersDir: string): void {
@@ -144,14 +145,19 @@ function parseTokenBudget(frontmatter: Record<string, unknown> | null): number |
 }
 
 /**
- * Per-body token counts against the 5000-token guidance (#615). Advisory: an
- * over-budget body still works, it just spends context the task needed. The
- * suggestion is the one that actually helps — move the Process steps into
- * references/ and summarise them in the body.
+ * Per-body token counts against the 5000-token guidance (#615) plus the
+ * always-loaded catalog against its budget (#586). Advisory: an over-budget
+ * body still works, it just spends context the task needed. The suggestion is
+ * the one that actually helps — move Process steps into references/ and
+ * summarise them.
  */
-export function reportTokenBudgets(membersDir: string, defaultBudget = DEFAULT_TOKEN_BUDGET): void {
+export function reportTokenBudgets(
+  membersDir: string,
+  defaultBudget = DEFAULT_TOKEN_BUDGET,
+  catalogBudget = DEFAULT_METADATA_BUDGET,
+): void {
   const parser = new SkillParser()
-  const rows: { name: string; tokens: number; budget: number }[] = []
+  const rows: { name: string; tokens: number; budget: number; description: string }[] = []
   let dirs: string[]
   try {
     dirs = readdirSync(membersDir, { withFileTypes: true })
@@ -165,8 +171,22 @@ export function reportTokenBudgets(membersDir: string, defaultBudget = DEFAULT_T
     if (!existsSync(location)) continue
     const { frontmatter, body } = parser.parseRaw(readFileSync(location, 'utf8'))
     const name = typeof frontmatter?.name === 'string' ? frontmatter.name : dir
-    rows.push({ name, tokens: countTokens(body), budget: parseTokenBudget(frontmatter) ?? defaultBudget })
+    const description = typeof frontmatter?.description === 'string' ? frontmatter.description : ''
+    rows.push({
+      name,
+      tokens: countTokens(body),
+      budget: parseTokenBudget(frontmatter) ?? defaultBudget,
+      description,
+    })
   }
+
+  // Metadata is paid on every request; a body is only paid when activated (#586).
+  const metadata = Math.round(rows.reduce((sum, row) => sum + countTokens(`${row.name}: ${row.description}`), 0))
+  console.log(
+    metadata <= catalogBudget
+      ? `  ✓ Skill catalog: ${metadata}/${catalogBudget} metadata tokens`
+      : `  ! Skill catalog: ${metadata} tokens > ${catalogBudget} — the catalog is in every prompt. Compress descriptions, or hide a skill with \`disable-model-invocation: true\``,
+  )
 
   const total = rows.reduce((sum, row) => sum + row.tokens, 0)
   const over = rows.filter((row) => row.tokens > row.budget)

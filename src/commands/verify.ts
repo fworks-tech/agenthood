@@ -34,6 +34,7 @@ import {
   reportTokenBudgets,
   skillSearchRoots,
 } from './verifySkills.ts'
+import { metadataBudget } from '../skills/observability.ts'
 import type { SkillTier } from '../skills/discovery/ISkillManifest.ts'
 import { SkillDiscovery } from '../skills/discovery/SkillDiscovery.ts'
 import { findConflicts } from '../skills/conflicts.ts'
@@ -468,8 +469,9 @@ export async function verify(args: string[]): Promise<void> {
   // --scripts (#540, #547, #548): advisory interface lint over bundled scripts.
   if (flags.has('--scripts')) reportScriptLint(membersDir)
 
-  // --tokens (#615) and --dedup (#616): advisory reports over the installed set.
-  if (flags.has('--tokens')) reportTokenBudgets(membersDir)
+  // --tokens (#615), --budget (#586) and --dedup (#616): advisory reports over
+  // the installed set. --budget is the catalog-side view of --tokens.
+  if (flags.has('--tokens') || flags.has('--budget')) reportTokenBudgets(membersDir, undefined, metadataBudget(cwd))
   // --contrib (#154): the third-party contract is only actionable for a project
   // that hosts contrib skills, so the scan stays opt-in like --tokens.
   if (flags.has('--contrib')) reportContribSkills(cwd)

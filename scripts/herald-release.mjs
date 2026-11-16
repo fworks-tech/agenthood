@@ -21,6 +21,7 @@
 
 import { execFileSync } from 'node:child_process'
 import { readFileSync, writeFileSync } from 'node:fs'
+import { join } from 'node:path'
 import semver from 'semver'
 import { analyzeCommits } from '@semantic-release/commit-analyzer'
 import { generateNotes } from '@semantic-release/release-notes-generator'
@@ -136,9 +137,19 @@ export async function applyVersion(version) {
   return { version, prevTag }
 }
 
+// The Claude plugin manifest carries its own copy of the version; keep it in
+// step with package.json so published metadata and the parity test agree.
+export function syncMarketplaceVersion(version, cwd = process.cwd()) {
+  const path = join(cwd, '.claude-plugin', 'marketplace.json')
+  const manifest = JSON.parse(readFileSync(path, 'utf8'))
+  manifest.metadata.version = version
+  writeFileSync(path, `${JSON.stringify(manifest, null, 2)}\n`, 'utf8')
+}
+
 export function applyRelease({ version, notes }, cwd = process.cwd()) {
   const shell = process.platform === 'win32'
   execFileSync('npm', ['version', version, '--no-git-tag-version'], { stdio: 'ignore', shell, cwd })
+  syncMarketplaceVersion(version, cwd)
   prependChangelog({ notes })
   execFileSync('npx', ['tsx', 'scripts/generate-release-notes.ts'], { stdio: 'inherit', shell, cwd })
 }

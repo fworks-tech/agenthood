@@ -113,4 +113,9 @@ describe('package manifest parity', () => {
     const expected = registry.list().map((spec) => `./skills/${spec.name}`)
     expect(new Set(all.skills)).toEqual(new Set(expected))
   })
+
+  it('marketplace manifest has no remote sources or endpoints', () => {
+    const raw = readFileSync(join(repoRoot, '.claude-plugin', 'marketplace.json'), 'utf8')
+    expect(raw).not.toMatch(/https?:\/\//)
+  })
 })

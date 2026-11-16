@@ -393,6 +393,24 @@ describe('ReActLoop skill tool scope', () => {
     expect(write.execute).not.toHaveBeenCalled()
   })
 
+  it('ignores a declared name that matches no tool, and still enforces the rest', async () => {
+    const llm = mockProvider({ toolCalls: [{ name: 'file.read', args: {} }] })
+    const reg = new ToolRegistry()
+    const read = skill('file.read')
+    reg.register(read)
+    const loop = new ReActLoop(llm, reg)
+    loop.activatedSkills.add('portable')
+    const ctx = createTestContext()
+    ctx.skillAllowedTools = () => ['file.read', 'Read']
+    const warn = vi.spyOn(console, 'warn').mockImplementation(() => {})
+
+    await loop.run('system prompt', 'read', ctx)
+
+    expect(read.execute).toHaveBeenCalled()
+    expect(warn.mock.calls.flat().join(' ')).toContain('"Read"')
+    warn.mockRestore()
+  })
+
   it('denies a tool when another active skill narrows the scope', async () => {
     const llm = mockProvider({ toolCalls: [{ name: 'file.write', args: {} }] })
     const reg = new ToolRegistry()

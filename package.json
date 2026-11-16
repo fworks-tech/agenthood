@@ -85,6 +85,7 @@
     "test:unstaged": "node scripts/test-changed.mjs",
     "lint": "eslint src/ tests/ scripts/",
     "typecheck": "tsc -p tsconfig.typecheck.json",
+    "docs:api": "typedoc",
     "sync:opencode-catalog": "tsx scripts/sync-opencode-catalog.ts",
     "bench:skills": "tsx scripts/bench-skill-discovery.ts"
   },
@@ -103,6 +104,7 @@
     "marked": "^18.0.12",
     "semantic-release": "^25.0.5",
     "tsx": "^4.19.0",
+    "typedoc": "^0.28.20",
     "typescript": "^5.8.0",
     "typescript-eslint": "^8.0.0",
     "vitest": "^5.0.3"

@@ -39,6 +39,9 @@ vscode-extension/.vscode-test/
 .agenthood/traces/
 .agenthood/skill-output/
 .agenthood/skill-baseline.json
+
+# Generated API reference (npm run docs:api)
+docs/api/
 .agenthood/skill-cache/
 .agenthood/media/
 .agenthood/skill-exec-audit.ndjson

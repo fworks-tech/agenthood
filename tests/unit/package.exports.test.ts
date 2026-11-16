@@ -7,7 +7,7 @@ const { exports } = JSON.parse(readFileSync(join(repoRoot, 'package.json'), 'utf
   exports: Record<string, string>
 }
 
-describe('package exports — programmatic subpaths (#739)', () => {
+describe('package exports, programmatic subpaths (#739)', () => {
   it('exposes the llm and core barrels the Studio/site consume', () => {
     expect(exports['./dist/llm']).toBe('./dist/llm/index.js')
     expect(exports['./dist/llm/LLMRouter.js']).toBe('./dist/llm/LLMRouter.js')
@@ -26,7 +26,7 @@ describe('package exports — programmatic subpaths (#739)', () => {
     expect(existsSync(join(repoRoot, 'src', 'members', 'types.ts'))).toBe(true)
   })
 
-  it('keeps the exports map lockdown — no wildcard subpaths', () => {
+  it('keeps the exports map lockdown, no wildcard subpaths', () => {
     const wildcards = Object.keys(exports).filter((key) => key.includes('*'))
     expect(wildcards).toEqual([])
   })

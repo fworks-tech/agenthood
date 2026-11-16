@@ -61,8 +61,8 @@ describe('herald-summary', () => {
       ['Society — PR Standards', 'success'],
       ['The Reviewer — Commit Review', 'skipped'],
       ['The Envoy — VS Code Extension Build and Test', 'failure'],
-      ['Society — PR Labeler', 'success'],
-      ['The Herald — CI Summary', 'success'],
+      ['Society: PR Labeler', 'success'],
+      ['The Herald: CI Summary', 'success'],
     ]))
     await summarize(contextFor([{ number: 1, sha: 'abc1234' }]), m.client)
     expect(m.created).toHaveLength(1)
@@ -145,7 +145,7 @@ describe('herald-summary', () => {
   })
 
   it('finds the existing verdict comment across comment pages', async () => {
-    // 250 comments: the verdict comment sits on page 3 — a single-page lookup
+    // 250 comments: the verdict comment sits on page 3: a single-page lookup
     // would miss it and create a duplicate
     const m = mockGithub(() => completedTriggers([
       ['Society — PR Standards', 'success'],

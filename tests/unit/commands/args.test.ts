@@ -54,7 +54,7 @@ describe('parseStoreInspectArgs', () => {
 
     parseStoreInspectArgs(['--limit', 'nope'])
 
-    expect(error).toHaveBeenCalledWith('Invalid --limit value — expected a non-negative integer')
+    expect(error).toHaveBeenCalledWith('Invalid --limit value, expected a non-negative integer')
     expect(exit).toHaveBeenCalledWith(1)
   })
 

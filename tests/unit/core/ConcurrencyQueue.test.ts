@@ -210,7 +210,7 @@ describe('ConcurrencyQueue submit', () => {
     // 10th waiter: the only BACKGROUND task, admitted (depth 9 < max 10)
     const displaced = q.submit('victim', 'BACKGROUND', async () => {})
     // queue is now full; a USER submit displaces the lowest-priority waiter.
-    // the slot stays occupied so boss never runs — assert it queued instead.
+    // the slot stays occupied so boss never runs: assert it queued instead.
     const user = q.submit('boss', 'USER', async () => 'ok')
     void user.catch(() => {})
     try {

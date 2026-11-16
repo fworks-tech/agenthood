@@ -40,7 +40,7 @@ describe('SafetyGuard', () => {
       ':(){ :|:& };:',
     ]
 
-    // Destructive-looking but legitimate — must NOT be blocked.
+    // Destructive-looking but legitimate: must NOT be blocked.
     const safe = [
       'rm -rf node_modules',
       'rm -rf ./build',
@@ -125,7 +125,7 @@ describe('SafetyGuard', () => {
     })
 
     it('hasLoop returns true at threshold', () => {
-      guard.registerFileEdit('file.ts') // 1 — also counts as tool call
+      guard.registerFileEdit('file.ts') // 1: also counts as tool call
       guard.registerFileEdit('file.ts') // 2
       guard.registerFileEdit('file.ts') // 3
       expect(guard.hasLoop('file.ts')).toBe(false) // 3 < 4

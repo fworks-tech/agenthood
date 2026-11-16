@@ -158,7 +158,7 @@ describe('auditRoutingRecords', () => {
     rmSync(dir, { recursive: true, force: true })
   })
 
-  it('passes on a missing directory — a Society that has not routed yet', () => {
+  it('passes on a missing directory, a Society that has not routed yet', () => {
     expect(auditRoutingRecords(join(dir, 'nope'), MEMBERS)).toEqual([])
   })
 

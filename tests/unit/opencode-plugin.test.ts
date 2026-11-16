@@ -48,7 +48,7 @@ describe('agenthood opencode plugin', () => {
 
   it('matches the member list against the canonical registry (single manifest)', () => {
     // Intentional direction: the registry is truth. A spec without a shipped
-    // SKILL.md fails here on purpose — the tool enum derives from skills/ and
+    // SKILL.md fails here on purpose: the tool enum derives from skills/ and
     // the two must stay in sync (a member with no skill file cannot run).
     const registryNames = rawSpecs.map((s) => s.name).sort()
     expect(getMemberNames()).toEqual(registryNames)

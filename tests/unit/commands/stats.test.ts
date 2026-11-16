@@ -30,7 +30,7 @@ describe('skill stats (#625)', () => {
     expect(stats['pdf-form-fill'].lastRun).not.toBeNull()
   })
 
-  it('stores only counters — no prompt, argument or result content', () => {
+  it('stores only counters, no prompt, argument or result content', () => {
     recordSkillActivation(projectDir, 'pdf-form-fill', true)
     const raw = JSON.stringify(readSkillStats(projectDir))
     expect(Object.keys(JSON.parse(raw)['pdf-form-fill']).sort()).toEqual([

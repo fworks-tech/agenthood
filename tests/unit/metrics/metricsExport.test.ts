@@ -11,7 +11,7 @@ import { MetricsCollector } from '../../../src/memory/MetricsCollector.ts'
 import type { Server } from 'node:http'
 
 /** Real sockets on a real port. Vitest's 5s default is not enough headroom
- *  when the parallel worker pool is saturating the CPU — the same class of
+ *  when the parallel worker pool is saturating the CPU: the same class of
  *  flake the command-registry test hit on CI (#465). */
 const SOCKET_TIMEOUT = 15000
 

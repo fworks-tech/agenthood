@@ -53,7 +53,7 @@ describe('formatTriggerReport', () => {
       recs: [],
     })
     const out = lines.join('\n')
-    expect(out).toContain('Trigger rate — scribe')
+    expect(out).toContain('Trigger rate: scribe')
     expect(out).toContain('5 should-trigger, 4 should-not')
     expect(out).toContain('keyword')
     expect(out).toMatch(/train 1\.00 \(3q\) \| validation 0\.80 \(2q\)/)

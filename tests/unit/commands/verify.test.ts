@@ -379,7 +379,7 @@ describe('verify command', () => {
     vi.spyOn(process, 'exit').mockImplementation((() => {}) as any)
     await verify([])
     // the members validated are exactly the lockfile's keys, resolved against
-    // the canonical society dir — not every subdirectory of skills/.
+    // the canonical society dir, not every subdirectory of skills/.
     const validated = skillPathsRead().map((p) => p.split(/[\\/]/).at(-2) as string)
     expect(validated).toEqual(['the-test'])
     expect(skillPathsRead()[0]).toContain('skills')

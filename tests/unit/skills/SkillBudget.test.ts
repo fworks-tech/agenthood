@@ -115,7 +115,7 @@ describe('SkillBudget', () => {
     expect(compressedAt).toBeGreaterThanOrEqual(0)
   })
 
-  it('keeps 10+ members inside the window — the acceptance criterion', () => {
+  it('keeps 10+ members inside the window, the acceptance criterion', () => {
     const budget = new SkillBudget(8192)
 
     for (const name of MEMBERS.slice(0, 12)) budget.fit(bodyOf(name))

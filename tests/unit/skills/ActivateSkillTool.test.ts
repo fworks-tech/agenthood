@@ -24,7 +24,7 @@ describe('ActivateSkillTool schema (#531)', () => {
     expect(tool.inputSchema.properties?.skill_name.enum).toEqual(['a', 'b'])
   })
 
-  it('omits the enum when every skill is disabled — an empty enum is invalid', () => {
+  it('omits the enum when every skill is disabled, an empty enum is invalid', () => {
     const tool = new ActivateSkillTool(new Map([['a', manifest('a')]]), 128000, { disabled: new Set(['a']) })
     expect(tool.inputSchema.properties?.skill_name.enum).toBeUndefined()
   })

@@ -89,7 +89,7 @@ describe('eval command', () => {
     await evalMember(['reviewer', '--suite', suitePath])
 
     const output = log.mock.calls.flat().join(' ')
-    expect(output).toContain('Eval Report — reviewer')
+    expect(output).toContain('Eval Report, reviewer')
     expect(output).toContain('completed')
     expect(output).toContain('Aggregate: faithfulness 0.80, relevance 0.80, context_recall 0.80, answer_correctness 1.00')
     expect(runTask).toHaveBeenCalledTimes(3)
@@ -251,7 +251,7 @@ describe('eval --replay', () => {
     const report = JSON.parse(readFileSync(join(projectDir, '.agenthood', 'evals', 'replay-report.json'), 'utf8'))
     // The pair targets different strings: the redaction placeholder appears,
     // the original address does not. Scanners keep mis-reading this as
-    // toContain/not.toContain on the same string — it is not.
+    // toContain/not.toContain on the same string; it is not.
     expect(report.tasks[0].newOutput).toContain('[REDACTED]')
     expect(report.tasks[0].newOutput).not.toContain('dev@example.com')
   })

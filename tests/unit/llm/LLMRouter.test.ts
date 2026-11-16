@@ -8,7 +8,7 @@ import type { ILLMProvider } from '../../../src/llm/ILLMProvider.ts'
 import type { LLMRequest } from '../../../src/llm/types.ts'
 import type { ProviderName } from '../../../src/members/types.ts'
 
-// GroqProvider now fails fast without a key — provide one for routing tests
+// GroqProvider now fails fast without a key: provide one for routing tests
 beforeEach(() => {
   process.env.GROQ_API_KEY = 'test-key'
 })
@@ -116,7 +116,7 @@ describe('LLMRouter', () => {
     expect(provider).toBeInstanceOf(ProviderChain)
   })
 
-  describe('entry chains — shared buildChainFromEntries', () => {
+  describe('entry chains, shared buildChainFromEntries', () => {
     function chainProviders(chain: unknown): ILLMProvider[] {
       return (chain as unknown as { providers: ILLMProvider[] }).providers
     }
@@ -151,7 +151,7 @@ describe('LLMRouter', () => {
     })
   })
 
-  describe('route — dynamic strategy', () => {
+  describe('route, dynamic strategy', () => {
     it('returns a provider (not ProviderChain) for low complexity', async () => {
       const provider = await LLMRouter.route(
         makeRequest(),

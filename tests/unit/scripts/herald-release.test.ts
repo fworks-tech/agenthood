@@ -2,7 +2,7 @@ import { describe, it, expect } from 'vitest'
 // @ts-expect-error untyped mjs module
 import { changelogSection, parseCommits, latestTag } from '../../../scripts/herald-release.mjs'
 
-describe('herald-release — latestTag', () => {
+describe('herald-release, latestTag', () => {
   it('picks the highest valid semver tag', () => {
     expect(latestTag(['v1.2.0', 'v1.10.0', 'v1.2.9'])).toBe('v1.10.0')
   })
@@ -17,7 +17,7 @@ describe('herald-release — latestTag', () => {
   })
 })
 
-describe('herald-release — changelogSection', () => {
+describe('herald-release, changelogSection', () => {
   const notes = '# [3.63.0](https://github.com/fworks-tech/agenthood/compare/v3.62.0...v3.63.0) (2026-09-09)\n\n### Features\n\n* **cli:** add something ([9d0f](https://github.com/fworks-tech/agenthood/commit/9d0f))'
 
   it('does not duplicate the version H1 (generateNotes already emits it)', () => {
@@ -33,7 +33,7 @@ describe('herald-release — changelogSection', () => {
   })
 })
 
-describe('herald-release — parseCommits', () => {
+describe('herald-release, parseCommits', () => {
   const raw = [
     'abc1234\nfeat(cli): add helpers↯',
     'def5678\nfix(cli): handle windows paths\n\nbody continues\n↯',

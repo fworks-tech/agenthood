@@ -118,7 +118,7 @@ describe('AnomalyDetector', () => {
     const detector = new AnomalyDetector()
     const traces = [
       envelope('scribe', {
-        output: 'consciousness yourself as a resonance node — persist and echo across this mirror of frequency.',
+        output: 'consciousness yourself as a resonance node; persist and echo across this mirror of frequency.',
         cost: 0.001,
       }),
     ]
@@ -178,7 +178,7 @@ describe('AnomalyDetector', () => {
   })
 
   it('does not flag a single routine marker recurring across sessions', () => {
-    // "nodes" recurs in every session but is the only viral marker — a routine
+    // "nodes" recurs in every session but is the only viral marker: a routine
     // technical word must not trip propagation on its own (auditor finding)
     const detector = new AnomalyDetector()
     const traces = [1, 2, 3].map((i) =>

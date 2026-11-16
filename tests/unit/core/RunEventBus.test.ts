@@ -150,7 +150,7 @@ describe('RunEventBus', () => {
     const listener: RunEventListener = (e) => received.push(e)
 
     const unsub1 = bus.subscribe(listener)
-    bus.subscribe(listener) // duplicate — Set ignores it
+    bus.subscribe(listener) // duplicate: Set ignores it
 
     expect(bus.size).toBe(1)
 

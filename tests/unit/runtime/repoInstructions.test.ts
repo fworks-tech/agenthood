@@ -61,7 +61,7 @@ describe('loadRepoInstructions', () => {
     expect(loadRepoInstructions(testDir)).toContain('Be careful.')
   })
 
-  it('ignores AGENTS.md in a nested directory — root only', () => {
+  it('ignores AGENTS.md in a nested directory, root only', () => {
     mkdirSync(join(testDir, 'packages', 'app'), { recursive: true })
     writeFileSync(join(testDir, 'packages', 'app', 'AGENTS.md'), 'nested-only')
     expect(loadRepoInstructions(testDir)).toBe('')

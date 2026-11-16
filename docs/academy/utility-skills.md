@@ -1,6 +1,6 @@
 # Utility Skills
 
-> *Beyond the Society's 20 members: specialist skills for tasks no member owns.*
+> *Specialist skills for the tasks that none of the 20 members owns.*
 
 The [Skills Reference](skills-reference.md) documents the Society members: the 20 roles the runtime can invoke with `npx agenthood run`. This page documents the utility skills: specialist capability files that any agent runtime loads from `skills/`, ported from the GitHub Copilot customization library and the deepagents project. They have no runtime invocation (they are not registered members); they activate when their `description` matches the task at hand.
 
@@ -10,7 +10,7 @@ The [Skills Reference](skills-reference.md) documents the Society members: the 2
 
 ### Concept Explainer
 
-> *Every concept has a simple core buried under jargon.*
+> *Most concepts have a simple core under the jargon.*
 
 **What it does:** Breaks down complex technical concepts in beginner-friendly ways: everyday analogies first, terminology second, working examples always, with comprehension checks before moving on.
 
@@ -144,4 +144,4 @@ The [Skills Reference](skills-reference.md) documents the Society members: the 2
 
 ---
 
-*One Society. Every member knows their lane, and every skill knows its task.*
+*One Society. Each member knows its lane, and each skill knows its task.*

@@ -1,6 +1,6 @@
 # API Wrappers
 
-> Hardcoding to the OpenAI API is a technical debt time bomb. The Society abstracts the provider.
+> Code that calls one provider's API directly becomes expensive to move later.
 
 ---
 
@@ -52,7 +52,7 @@ const chain = new ProviderChain(
 )
 ```
 
-The Society does not care who generates the tokens, as long as the contract is respected.
+The rest of the system does not need to know which provider generated the tokens, as long as the contract holds.
 
 ---
 

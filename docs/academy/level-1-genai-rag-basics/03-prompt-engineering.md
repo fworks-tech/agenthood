@@ -1,6 +1,6 @@
 # Prompt Engineering
 
-> A poor prompt is a failure of leadership. The Society demands clarity.
+> A vague prompt gets a vague result. Say what you want, with the limits.
 
 ---
 

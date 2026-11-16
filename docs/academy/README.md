@@ -1,6 +1,6 @@
 # Agenthood Academy
 
-> *The Society does not hand you a certificate. It hands you a standard.*
+> *The Academy gives you a standard to work to, not a certificate.*
 
 The Academy is the structured path from "I know what a prompt is" to "I ship agents that work in production." Three levels. No filler.
 

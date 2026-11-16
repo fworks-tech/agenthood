@@ -1,6 +1,6 @@
 # Skills Reference
 
-> *Every member, a specialist. Zero overlap.*
+> *Each member is a specialist, and no two overlap.*
 
 ---
 
@@ -78,7 +78,7 @@ OpenAI-family, `text` for Google); override it with `skills.catalogFormat` or
 
 ### The Debugger
 
-> *Five steps to every root cause. No guessing allowed.*
+> *Five steps to the root cause. No guessing.*
 
 **Specialty:** Error triage, root cause analysis, systematic recovery
 **Tools:** `file.read`, `file.write`, `file.search`, `explain_code`
@@ -98,7 +98,7 @@ OpenAI-family, `text` for Google); override it with `skills.catalogFormat` or
 
 ### The Reviewer
 
-> *Five axes. No mercy. All respect.*
+> *Five axes, applied without mercy and with respect.*
 
 **Specialty:** Code review across correctness, readability, architecture, security, performance
 **Tools:** `file.read`, `file.write`
@@ -142,7 +142,7 @@ OpenAI-family, `text` for Google); override it with `skills.catalogFormat` or
 
 ### The Inspector
 
-> *Every pixel accounted for. Every boundary crossed with intent.*
+> *Every pixel accounted for, and every boundary crossed on purpose.*
 
 **Specialty:** Visual-reasoning benchmarking, pixel ranking, cross-panel mapping, graph-cut classification, confidence calibration
 **Tools:** `image_load`, `pixel_rank`, `coordinate_map`, `cut_classify`, `confidence_score`
@@ -154,7 +154,7 @@ OpenAI-family, `text` for Google); override it with `skills.catalogFormat` or
 
 ### The Librarian
 
-> *Every decision, recorded for posterity.*
+> *Decisions are recorded so they can be read later.*
 
 **Specialty:** Documentation management, ADR creation, API references, knowledge management
 **Tools:** `file.read`, `file.write`, `file.search`, `explain_code`
@@ -163,7 +163,7 @@ OpenAI-family, `text` for Google); override it with `skills.catalogFormat` or
 
 ### The Oracle
 
-> *Ask me anything about the Society. I have read every scroll.*
+> *Ask about the Society. The answer is in the record.*
 
 **Specialty:** Institutional knowledge, member authoring templates, naming guidance, convention rationale
 **Tools:** `file.read`, `file.write`, `file.search`, `explain_code`
@@ -192,7 +192,7 @@ OpenAI-family, `text` for Google); override it with `skills.catalogFormat` or
 
 ### The Envoy
 
-> *One Society. Every runtime. No exceptions.*
+> *One Society, the same rules in every runtime.*
 
 **Specialty:** Cross-provider translation, bootstrap generation, convention validation across runtimes
 **Tools:** `file.read`, `file.write`, `file.search`, `explain_code`
@@ -250,4 +250,4 @@ npx agenthood run scribe "sync PR #42"
 
 ---
 
-*One Society. Every member knows their lane.*
+*One Society. Each member knows its lane.*

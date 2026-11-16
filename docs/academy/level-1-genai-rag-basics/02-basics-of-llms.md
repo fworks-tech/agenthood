@@ -1,6 +1,6 @@
 # Basics of LLMs
 
-> An LLM is not a brain; it is an incredibly powerful token calculator. Treat it accordingly.
+> An LLM predicts tokens with great skill. Build around that fact, not around the idea of a mind.
 
 ---
 

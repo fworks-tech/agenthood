@@ -1,6 +1,6 @@
 # Deploy to Production
 
-> *An agent that works on your machine is a prototype. An agent that works for your users is a product.*
+> *An agent that runs on your laptop is a prototype. It becomes a product when other people can rely on it.*
 
 ---
 
@@ -10,19 +10,19 @@ Deploying an agent to production is the step that turns a working prototype into
 
 The production layer has three parts. An **API** that exposes the agent as an HTTP endpoint, so users and other systems can call it without a CLI. **Auth middleware** that identifies the caller and scopes what they can access, so one user's agent run cannot read another user's context. **Rate limiting** that bounds how many requests a user can make in a window, so one runaway client does not exhaust the LLM budget for everyone.
 
-These are the same concerns as any production API, plus one that is agent-specific: per-user context isolation. A multi-tenant agent must not share memory between users. User A's episodic memory, project memory, and long-term facts must be scoped to user A. Sharing memory across users is not a performance optimization; it is a security boundary violation. The HTTP API layer enforces this at the memory tier, not at the API edge, so the isolation holds even if the API is bypassed.
+These are the same concerns as any production API, plus one that is specific to agents, per-user context isolation. A multi-tenant agent must not share memory between users. User A's episodic memory, project memory, and long-term facts must be scoped to user A. Sharing memory across users is not a performance optimization; it is a security boundary violation. The HTTP API layer enforces this at the memory tier, not at the API edge, so isolation holds even when the API is bypassed.
 
 ---
 
 ## Why it matters in production
 
-Most agent demos never become products. The gap is not capability: a demo agent that writes code is already capable. The gap is auth, rate limits, and the runbook you did not write.
+Most agent demos never ship. The gap is rarely capability, since a demo that writes code already works. The gap is auth, rate limits and a runbook nobody wrote.
 
 Auth is the first failure. An agent with no auth is an open endpoint that can run arbitrary reasoning against your LLM budget. The first user to discover it will not be friendly. Auth is not a feature to add later; it is the boundary between "internal tool" and "product," and it must exist on day one of production.
 
 Rate limiting is the second. An agent that can be called without limit will be called without limit: by a buggy client, by a script in a loop, by an attacker. Each call costs tokens. Without rate limiting, one client can spend your entire monthly LLM budget in an afternoon. Rate limiting protects both your budget and the other users who share it.
 
-The runbook is the one teams skip and regret. What do you do when the agent starts returning errors at 3am? When the LLM provider is down? When a user reports a wrong answer? Without a runbook, the answer is "page someone who guesses." The runbook is the difference between a service you operate and a service that operates you.
+Teams skip the runbook and regret it. It answers what to do when the agent starts returning errors at 3am, when the LLM provider is down, or when a user reports a wrong answer. Without one, the on-call engineer guesses..
 
 ---
 

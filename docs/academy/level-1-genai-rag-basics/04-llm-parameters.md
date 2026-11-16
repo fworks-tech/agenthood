@@ -1,6 +1,6 @@
 # LLM Parameters
 
-> If you leave `temperature` at its default, you are surrendering control of your application's entropy.
+> Temperature is a setting you choose, not one you inherit.
 
 ---
 
@@ -24,7 +24,7 @@ In production, mismatched parameters lead to unstable agents. If you need JSON o
 
 ## How Agenthood implements it
 
-Agenthood defines strict parameter boundaries within the `LLMRequest` type. Every call to an `ILLMProvider` must declare its parameters.
+Agenthood defines strict parameter boundaries within the `LLMRequest` type. Each call to an `ILLMProvider` declares its parameters.
 
 This ensures agents cannot accidentally run amok. It is implemented in `src/llm/types.ts` (shipped in v2.0.0):
 
@@ -38,7 +38,7 @@ export interface LLMRequest {
 }
 ```
 
-The Society does not guess. It sets `temperature: 0` for operations like The Doorman's commit validation to guarantee absolute determinism.
+The Doorman's commit validation sets `temperature: 0`, so the same input gives the same verdict.
 
 ---
 

@@ -2,7 +2,7 @@
 
 > *The Society does not operate in isolation. It maintains portals.*
 
-The Agenthood connects to external systems through Portals — MCP (Model Context Protocol)
+The Agenthood connects to external systems through Portals: MCP (Model Context Protocol)
 servers that give members a window into outside worlds.
 Issue trackers, monitoring systems, communication platforms, data stores.
 The Society steps through. The Society steps back. Nothing leaks.
@@ -26,16 +26,16 @@ Workflow: [sentry-opencode-debugging.agent.md](../agentic-workflows/sentry-openc
 ## How Connectors Work
 
 Each connector is an MCP server configuration. Members call connector tools
-through the standard tool interface — they do not call external APIs directly.
+through the standard tool interface; they do not call external APIs directly.
 
-The credential proxy handles authentication — members never see raw API keys.
+The credential proxy handles authentication: members never see raw API keys.
 
 ---
 
 ## Runtime Integration (planned)
 
 With the TypeScript runtime, portal tools are available as injectable functions
-injected directly into member agents — no manual MCP server configuration
+injected directly into member agents: no manual MCP server configuration
 required for supported portals.
 
 The `tools_for(member_name)` method on each portal class enforces the
@@ -43,7 +43,7 @@ The `tools_for(member_name)` method on each portal class enforces the
 so The Herald only receives release tools and The Reviewer only receives
 PR read/comment tools.
 
-This is planned for a future milestone (see `src/portals/` — directory does not exist yet).
+This is planned for a future milestone (see `src/portals/`: directory does not exist yet).
 
 ---
 

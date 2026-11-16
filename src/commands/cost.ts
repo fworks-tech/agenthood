@@ -8,7 +8,7 @@ export interface SkillCostRow {
 }
 
 /** Aggregate per skill across activations (#624). A step charged to N skills
- *  splits evenly — one prompt's tokens are not attributable to one of them
+ *  splits evenly: one prompt's tokens are not attributable to one of them
  *  alone, so this is a cost share, not a bill. */
 export function aggregateBySkill(costs: CostEntry[]): Map<string, SkillCostRow> {
   const out = new Map<string, SkillCostRow>()
@@ -100,10 +100,10 @@ async function costHandler(args: string[]): Promise<void> {
     console.log(`    ${member.padEnd(20)} ${formatUsd(data.cost).padStart(10)} (${data.tokens.toLocaleString()} tok)`)
   }
 
-  // Per-skill cost share (#624) — the dimension skill authors act on.
+  // Per-skill cost share (#624): the dimension skill authors act on.
   const bySkill = aggregateBySkill(costs)
   if (bySkill.size > 0) {
-    console.log('\n  By Skill (cost share — one step activating N skills splits evenly):')
+    console.log('\n  By Skill (cost share, one step activating N skills splits evenly):')
     for (const [skill, data] of [...bySkill.entries()].sort((a, b) => b[1].cost - a[1].cost)) {
       console.log(`    ${skill.padEnd(24)} ${formatUsd(data.cost).padStart(10)} (${data.tokens.toLocaleString()} tok, ${data.activations} activation${data.activations === 1 ? '' : 's'})`)
     }

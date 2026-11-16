@@ -11,7 +11,7 @@ metadata:
 
 ## Overview
 
-The Sentinel is the Society's internal auditor. Every other member watches the project —
+The Sentinel is the Society's internal auditor. Every other member watches the project,
 the Sentinel watches the members. Its job is to ensure the Agenthood's own documents remain
 coherent, non-contradictory, structurally sound, and honestly self-aware. A Society whose
 skill files have drifted, contradicted each other, or grown stale cannot be trusted to
@@ -20,10 +20,10 @@ enforce the standards it claims to hold. The Sentinel prevents that from happeni
 ## When to Use
 
 - After any member file is created or updated
-- Before a new member is added — to confirm its lane does not overlap an existing one
-- When a convention changes — to audit which member files reference the old rule
+- Before a new member is added, to confirm its lane does not overlap an existing one
+- When a convention changes, to audit which member files reference the old rule
 - On a regular cadence (monthly or at each release) to catch slow drift
-- When a member's advice feels inconsistent with another member's — to confirm or deny
+- When a member's advice feels inconsistent with another member's, to confirm or deny
 
 ## Process
 
@@ -31,32 +31,32 @@ enforce the standards it claims to hold. The Sentinel prevents that from happeni
 
 For each member file, perform four checks:
 
-**Check 1 — Process ↔ Red Flags alignment**
+**Check 1: Process ↔ Red Flags alignment**
 - Read every anti-pattern the Process section prevents
 - Verify each one appears in Red Flags
 - Any anti-pattern the Process guards against but Red Flags omits: flag as GAP
 - Any Red Flag that has no corresponding Process step: flag as ORPHAN
 
-**Check 2 — Process ↔ Verification alignment**
+**Check 2: Process ↔ Verification alignment**
 - Read every step in the Process
 - Verify a corresponding Verification checklist item exists
 - Missing checklist items: flag as GAP
 - Checklist items with no Process step: flag as ORPHAN
 
-**Check 3 — When to Use ↔ Process alignment**
+**Check 3, When to Use ↔ Process alignment**
 - Every trigger in When to Use must map to a named Process section
 - If a trigger has no Process section: flag as UNDOCUMENTED TRIGGER
 - If a Process section has no When to Use trigger: flag as UNREACHABLE PROCESS
 
-**Check 4 — Rationalizations completeness**
+**Check 4: Rationalizations completeness**
 - Read the Process and Red Flags
-- Identify the 2–3 most obvious objections a developer would raise
+- Identify the 2-3 most obvious objections a developer would raise
 - Verify each objection appears in the Rationalizations table
 - Missing objections: flag as RATIONALIZATION GAP
 
 **Single-member report format:**
 ```
-Sentinel Audit — the-<name>
+Sentinel Audit: the-<name>
 Date: YYYY-MM-DD
 
 ✅ Process ↔ Red Flags: aligned
@@ -82,12 +82,12 @@ Read all member files and identify conflicting rules:
 
 **Example conflict:**
 > The Scribe (Red Flags): "PR description that is blank or says 'see commits'"
-> — no conflict found with The Doorman's PR Title Validation.
+>: no conflict found with The Doorman's PR Title Validation.
 > ✅ Consistent.
 
 **Contradiction report format:**
 ```
-Sentinel — Cross-Member Contradiction Report
+Sentinel: Cross-Member Contradiction Report
 Date: YYYY-MM-DD
 
 ✅ Commits: no conflicts across all members
@@ -104,7 +104,7 @@ Date: YYYY-MM-DD
 ### Lane Map
 
 Produce a table showing each member's domain boundary. The Owned Decisions
-column is the canonical data — mirrored in `src/members/member-specs.ts`
+column is the canonical data: mirrored in `src/members/member-specs.ts`
 (parity enforced by `tests/unit/members/lane-map-parity.test.ts`). Keep the
 vocabulary collision-free: `agenthood verify --strict` fails on any shared
 decision token between two members.
@@ -165,9 +165,9 @@ Flag rules that reference removed or superseded things:
 ## Red Flags
 
 - A member updated without running the Sentinel afterward
-- Two members whose Red Flags lists are identical — possible lane collapse
+- Two members whose Red Flags lists are identical: possible lane collapse
 - A Verification checklist shorter than the Process step count
-- A member with no Rationalizations table — it will lose arguments at runtime
+- A member with no Rationalizations table; it will lose arguments at runtime
 - The Sentinel's own audit file not being updated when new members are added to the lane map
 - Any member added without The Oracle's template being consulted first
 

@@ -51,7 +51,7 @@ function parseFailover(raw: Record<string, unknown>): Pick<LLMConfig, 'failureTh
 
 /**
  * Remote catalogs are advisory, so a malformed source is skipped with a warning
- * instead of failing the run — unlike metricsExport, where a silently disabled
+ * instead of failing the run: unlike metricsExport, where a silently disabled
  * exporter is a monitoring lie.
  */
 function parseRemoteCatalogs(raw: Record<string, unknown>): RemoteCatalogsConfig | undefined {
@@ -65,7 +65,7 @@ function parseRemoteCatalogs(raw: Record<string, unknown>): RemoteCatalogsConfig
       if (!entry || typeof entry !== 'object') continue
       const item = entry as Record<string, unknown>
       if (typeof item.url !== 'string' || item.url.length === 0) {
-        console.warn('[config] remoteCatalogs.sources entry without a "url" — skipped')
+        console.warn('[config] remoteCatalogs.sources entry without a "url", skipped')
         continue
       }
       sources.push({
@@ -87,7 +87,7 @@ function parseSkills(raw: Record<string, unknown>): SkillsConfig | undefined {
   if (format === 'xml' || format === 'json' || format === 'text') {
     config.catalogFormat = format
   } else if (format !== undefined) {
-    console.warn(`[run] skills.catalogFormat "${String(format)}" is not xml|json|text — using the provider default`)
+    console.warn(`[run] skills.catalogFormat "${String(format)}" is not xml|json|text: using the provider default`)
   }
 
   const providerFormats = pickBlock(skills, 'providerFormats')
@@ -110,14 +110,14 @@ function parseSkills(raw: Record<string, unknown>): SkillsConfig | undefined {
   if (typeof timeout === 'number' && Number.isInteger(timeout) && timeout > 0) {
     config.scriptTimeoutMs = timeout
   } else if (timeout !== undefined) {
-    console.warn(`[run] skills.scriptTimeoutMs "${String(timeout)}" is not a positive integer — using the default`)
+    console.warn(`[run] skills.scriptTimeoutMs "${String(timeout)}" is not a positive integer: using the default`)
   }
 
   const cacheTtl = skills.cacheTtlMs
   if (typeof cacheTtl === 'number' && Number.isInteger(cacheTtl) && cacheTtl > 0) {
     config.cacheTtlMs = cacheTtl
   } else if (cacheTtl !== undefined) {
-    console.warn(`[run] skills.cacheTtlMs "${String(cacheTtl)}" is not a positive integer — using the default`)
+    console.warn(`[run] skills.cacheTtlMs "${String(cacheTtl)}" is not a positive integer: using the default`)
   }
   if (skills.cacheOutputs === true) config.cacheOutputs = true
 
@@ -129,7 +129,7 @@ function parseSentry(raw: Record<string, unknown>): { dsn?: string } | undefined
   if (!sentry) return undefined
   const dsn = sentry.dsn
   if (typeof dsn !== 'string' || dsn.length === 0 || !dsn.startsWith('http')) {
-    console.warn('[run] invalid sentry.dsn in config — Sentry error reporting disabled')
+    console.warn('[run] invalid sentry.dsn in config, Sentry error reporting disabled')
     return undefined
   }
   return { dsn }

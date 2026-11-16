@@ -1,8 +1,8 @@
 /**
  * Structured wrapping for activated skill content (#535).
  *
- * One formatter for both activation paths — the `activate_skill` tool and an
- * explicit `/skill-name` — so the model, the trace, and the compaction guard
+ * One formatter for both activation paths: the `activate_skill` tool and an
+ * explicit `/skill-name`, so the model, the trace, and the compaction guard
  * all see the same shape. The XML branch keeps the `[SKILL_ACTIVATION]` prefix
  * that `ReActLoop` and `ContextCompressor` detect.
  */
@@ -60,7 +60,7 @@ function resourceKind(path: string): ResourceInfo['kind'] {
 }
 
 /**
- * Metadata only — the listing says how big a resource is so the model can
+ * Metadata only: the listing says how big a resource is so the model can
  * decide whether to read it, and never pays for the contents (#543).
  */
 export function describeResources(directory: string, resources: string[], limit = MAX_RESOURCES): ResourceInfo[] {
@@ -69,7 +69,7 @@ export function describeResources(directory: string, resources: string[], limit 
     try {
       bytes = statSync(join(directory, path)).size
     } catch {
-      // a resource listed by the parser but removed since — keep the entry
+      // a resource listed by the parser but removed since: keep the entry
     }
     return { path, kind: resourceKind(path), bytes }
   })
@@ -97,7 +97,7 @@ function resourcesXml(entries: ResourceInfo[], total: number): string {
   const lines = entries.map(
     (entry) => `  <file kind="${entry.kind}" bytes="${entry.bytes}">${escapeXml(entry.path)}</file>`,
   )
-  const omitted = total > entries.length ? `\n  <more>${total - entries.length} more — activate with eager to list</more>` : ''
+  const omitted = total > entries.length ? `\n  <more>${total - entries.length} more: activate with eager to list</more>` : ''
   return `\n<bundled_resources>\n${lines.join('\n')}${omitted}\n</bundled_resources>`
 }
 

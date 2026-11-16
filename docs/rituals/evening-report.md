@@ -19,7 +19,7 @@ npx agenthood ritual run evening-report
 ```
 
 ## What It Does
-Summarizes the day. What was completed, what is in progress, and what should happen tomorrow. Gives the developer a clean handoff to the next day — or to a colleague.
+Summarizes the day. What was completed, what is in progress, and what should happen tomorrow. Gives the developer a clean handoff to the next day, or to a colleague.
 
 ## Steps
 
@@ -27,13 +27,13 @@ Summarizes the day. What was completed, what is in progress, and what should hap
 2. Check closed issues from GitHub API (closed today)
 3. Check merged PRs from today
 4. List branches with commits today but no merged PR (in progress)
-5. Read `tasks.md` if present — identify completed vs remaining tasks
+5. Read `tasks.md` if present: identify completed vs remaining tasks
 6. Produce the report
 
 ## Report Format
 
 ```markdown
-## 🌆 Evening Report — {Weekday}, {Date}
+## 🌆 Evening Report: {Weekday}, {Date}
 
 ### ✅ Completed Today
 {commits made, PRs merged, issues closed}

@@ -1,5 +1,5 @@
 #!/bin/sh
-# The Scribe — inject commit message template from docs/conventions/.gitmessage
+# The Scribe: inject commit message template from docs/conventions/.gitmessage
 # Skips: -m flag, merges, amends, squashes
 
 MSG_FILE="$1"

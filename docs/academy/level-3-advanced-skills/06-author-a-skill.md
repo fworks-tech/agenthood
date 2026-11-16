@@ -1,6 +1,6 @@
 # Authoring a Skill
 
-> *A skill that cannot be parsed is a skill that never runs. The contract is small — learn it once.*
+> *A skill that cannot be parsed is a skill that never runs. The contract is small: learn it once.*
 
 ---
 
@@ -15,7 +15,7 @@ The frontmatter is the part that gets you blocked at the door. `name` must match
 directory name and follow lowercase-hyphen rules, `description` must say what the skill
 does **and when to use it**, and since [PR #904](https://github.com/fworks-tech/agenthood/pull/904) the runtime enforces `allowed-tools`: a
 declaration can only narrow the skill's tool surface below its permission profile, never
-widen it. A skill that declares nothing keeps its profile's default set — silence is
+widen it. A skill that declares nothing keeps its profile's default set: silence is
 permissive at the profile level, but it is no longer invisible.
 
 ## The frontmatter fields
@@ -28,13 +28,13 @@ permissive at the profile level, but it is no longer invisible.
 | `compatibility` | no | Free-form environment requirement, ≤500 chars, e.g. `Requires Bash and git access` |
 | `allowed-tools` | no | Space-, comma- or list-separated tool names. Narrows the tool surface, never widens it |
 | `metadata.version` | yes for members | Semver. `agenthood bump <member> --patch` increments it and re-locks |
-| `metadata.author` | to publish | Registry namespace — the `owner` in `owner/name`. Lowercase letters, digits, single hyphens |
+| `metadata.author` | to publish | Registry namespace: the `owner` in `owner/name`. Lowercase letters, digits, single hyphens |
 | `metadata.*` | no | Any nested shape: maps, lists, booleans. Passed through untouched for your own tooling |
 | `hidden` | no | `true` keeps the skill out of the available-skills catalog. It still activates by name |
-| `disable-model-invocation` | no | `true` hides the skill from the catalog and the `activate_skill` enum. `/skill-name` still works — for user-invoked-only workflows |
-| `metadata.priority` | no | Whole number 0–100. Higher sorts earlier in the catalog (`verify` rejects out-of-range) |
+| `disable-model-invocation` | no | `true` hides the skill from the catalog and the `activate_skill` enum. `/skill-name` still works, for user-invoked-only workflows |
+| `metadata.priority` | no | Whole number 0-100. Higher sorts earlier in the catalog (`verify` rejects out-of-range) |
 | `metadata.conditions` | no | Predicates that must hold before activation: `env:NAME`, `env:NAME=value`, `file.exists:path` (under the project root), `git.status:dirty\|clean` |
-| `fallback` | no | Ordered skill names to try when this one cannot activate — a fallback chain, capped at three hops, disabled with `--no-fallback` |
+| `fallback` | no | Ordered skill names to try when this one cannot activate: a fallback chain, capped at three hops, disabled with `--no-fallback` |
 | `router` | no | `true` marks a routing entry point, for setups with too many skills to list in full |
 
 `metadata` is deliberately unconstrained: nest a provider map or a dependency pin under it and
@@ -51,7 +51,7 @@ read like onboarding docs for a careful new hire.
 Skills are loaded by an agent that is trying to pick the right one from the `description`
 line alone. Vague descriptions misroute: a skill whose description says "helps with code"
 competes with every other skill in the registry, and the provider's choice is a coin flip.
-Undeclared or over-broad tool sets are the inverse problem — the skill runs, but with
+Undeclared or over-broad tool sets are the inverse problem: the skill runs, but with
 `file.write` in a review-only workflow, and nobody notices until a bot edits a file it
 should never touch. The narrow-only rule means a SKILL.md edit can never escalate
 privileges; drift gets caught by `agenthood verify` and the `agenthood.lock` hash gate.
@@ -66,7 +66,7 @@ member tool derivation lives in
 [`src/members/MemberRegistry.ts`](../../../src/members/MemberRegistry.ts):
 
 ```typescript
-// MemberRegistry: declared ∩ profile — narrowing only (#641)
+// MemberRegistry: declared ∩ profile: narrowing only (#641)
 static intersectDeclaredTools(declared: string, permission: PermissionProfile): string[] {
   const set = new Set(declared.split(/\s+/).filter(Boolean))
   return MemberRegistry.toolsByProfile[permission].filter((t) => set.has(t))
@@ -75,7 +75,7 @@ static intersectDeclaredTools(declared: string, permission: PermissionProfile): 
 
 Tool vocabulary members may declare: `file.read`, `file.write`, `file.search`, `code.write`,
 `code.refactor`, `code.explain`, `pr_sync` (trusted profile only). `ask_human` needs no
-declaration — every member can park for human input regardless of frontmatter.
+declaration: every member can park for human input regardless of frontmatter.
 
 ---
 
@@ -117,14 +117,14 @@ npx agenthood verify            # frontmatter shape + name↔directory match
 npx agenthood run scribe "summarize meeting.txt using the-notetaker's format"  
 ```
 
-`agenthood run` executes registered members, not arbitrary skill files — so the demo
+`agenthood run` executes registered members, not arbitrary skill files, so the demo
 hands the new skill's *format* to a member that is registered. To see it used as a
 standalone prompt, copy `skills/the-notetaker/` into your provider's skill path
 (`.agents/skills/`, `.claude/skills/`, …) and invoke it there. (`agenthood activate`
 covers registered members only.)
 
 Expected: `verify` reports the skill parses cleanly; if you typo `name: the-notetakers`
-(mismatched directory), `verify` fails the run before anything loads — that is the gate
+(mismatched directory), `verify` fails the run before anything loads, that is the gate
 doing its job.
 
 ---
@@ -134,7 +134,7 @@ doing its job.
 - [ ] `name` matches the directory, lowercase-hyphenated
 - [ ] `description` says what **and** when ("Use when …")
 - [ ] `license` is an SPDX id, `metadata.version` is semver
-- [ ] `allowed-tools` declares the minimum — leave the dangerous ones out
+- [ ] `allowed-tools` declares the minimum: leave the dangerous ones out
 - [ ] Body reads like onboarding for a careful new hire
 - [ ] `npx agenthood verify` passes; `agenthood.lock` re-locked if a member changed
 
@@ -142,7 +142,7 @@ doing its job.
 
 ## Share what you ship
 
-**LinkedIn post draft:** *I built an agent skill in one Markdown file — and it had a
+**LinkedIn post draft:** *I built an agent skill in one Markdown file, and it had a
 trust boundary.* Agenthood's SKILL.md contract: a trigger-phrase description, a narrow-only
 `allowed-tools` list, and a `verify` gate that fails the build, not the production.
 A skill that cannot be parsed is a skill that never runs.
@@ -151,6 +151,6 @@ A skill that cannot be parsed is a skill that never runs.
 
 ## Further reading
 
-- [ADR-028 — SKILL.md Frontmatter as an Enforced Contract](../../adr/ADR-028-skill-frontmatter-contract.md)
-- [`src/skills/discovery/SkillParser.ts`](../../../src/skills/discovery/SkillParser.ts) — validation source
-- [Agent Skills specification](https://agentskills.io/specification) — the upstream format `allowed-tools` comes from
+- [ADR-028: SKILL.md Frontmatter as an Enforced Contract](../../adr/ADR-028-skill-frontmatter-contract.md)
+- [`src/skills/discovery/SkillParser.ts`](../../../src/skills/discovery/SkillParser.ts): validation source
+- [Agent Skills specification](https://agentskills.io/specification): the upstream format `allowed-tools` comes from

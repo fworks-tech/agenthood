@@ -80,7 +80,7 @@ export class JSONFileTraceStore implements TraceStore {
         try {
           this.cached.push(JSON.parse(line) as TraceEnvelope)
         } catch {
-          // skip corrupt lines — retention/export can repair later
+          // skip corrupt lines: retention/export can repair later
         }
       }
     } catch {

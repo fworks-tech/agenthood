@@ -65,11 +65,11 @@ export function applySandboxProfile(config: LLMConfig): void {
   if (detectDocker()) {
     config.security = { ...config.security, dockerIsolation: true, strictSkillIntegrity: true }
     config.interactive = true
-    console.log('  Docker isolation enabled — member tools will run inside a container.')
+    console.log('  Docker isolation enabled, member tools will run inside a container.')
     return
   }
 
-  console.warn('  Docker not available — falling back to local sandbox profile (strict integrity + confirmation).')
+  console.warn('  Docker not available, falling back to local sandbox profile (strict integrity + confirmation).')
   config.security = { ...config.security, strictSkillIntegrity: true }
   config.interactive = true
 }
@@ -258,7 +258,7 @@ export class MemberRunner {
     usage: TokenUsage
     duration: number
   }): void {
-    // Trajectory persistence must never fail a run — trace visualize/diff
+    // Trajectory persistence must never fail a run: trace visualize/diff
     // read what this writes, but a write failure is not a run failure.
     try {
       const prompt = args.usage.promptTokens ?? 0
@@ -295,7 +295,7 @@ export class MemberRunner {
         completedAt: completedAt.toISOString(),
       })
     } catch {
-      // ignore — see above
+      // ignore: see above
     }
   }
 

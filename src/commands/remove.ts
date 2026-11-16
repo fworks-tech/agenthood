@@ -2,7 +2,7 @@
  * agenthood remove <skill-name>
  *
  * The inverse of `install`: deletes an installed skill directory and its
- * skills-lock.json entry. Members are refused — they belong to deactivate/eject.
+ * skills-lock.json entry. Members are refused; they belong to deactivate/eject.
  */
 
 import { existsSync, rmSync } from 'node:fs'
@@ -41,15 +41,15 @@ export async function remove(args: string[]): Promise<void> {
     return
   }
 
-  // same spec-shaped gate as install — a hostile arg must not escape the skills dir
+  // same spec-shaped gate as install: a hostile arg must not escape the skills dir
   if (!SPEC_NAME_RE.test(name)) {
-    console.error(`  ✗ Invalid skill name "${name}" — must match ${SPEC_NAME_RE}`)
+    console.error(`  ✗ Invalid skill name "${name}", must match ${SPEC_NAME_RE}`)
     process.exit(1)
     return
   }
 
   if (isKnownMember(name)) {
-    console.error(`  ✗ "${name}" is a Society member — use \`agenthood deactivate ${name}\` instead`)
+    console.error(`  ✗ "${name}" is a Society member, use \`agenthood deactivate ${name}\` instead`)
     process.exit(1)
     return
   }
@@ -64,7 +64,7 @@ export async function remove(args: string[]): Promise<void> {
   }
 
   if (dryRun) {
-    console.log(`\n  Dry run — would remove ${skillDir} and its ${SKILLS_LOCKFILE} entry\n`)
+    console.log(`\n  Dry run, would remove ${skillDir} and its ${SKILLS_LOCKFILE} entry\n`)
     return
   }
 

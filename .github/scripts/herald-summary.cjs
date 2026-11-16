@@ -1,11 +1,11 @@
-// Must match `on.workflow_run.workflows` in .github/workflows/herald.yml —
+// Must match `on.workflow_run.workflows` in .github/workflows/herald.yml,
 // parity is enforced by the test suite (herald-summary.test.ts).
 const TRIGGER_WORKFLOWS = [
   'Society — PR Standards',
   'The Envoy — VS Code Extension Build and Test',
   'The Reviewer — Commit Review',
 ];
-// Single source of truth for conclusion classification — add a new conclusion
+// Single source of truth for conclusion classification: add a new conclusion
 // here (e.g. 'stale'), not in the icon map or the filters.
 const FAILED_CONCLUSIONS = new Set(['failure', 'timed_out', 'action_required', 'cancelled']);
 const SKIPPED_CONCLUSIONS = new Set(['skipped', 'neutral', 'stale']);
@@ -19,11 +19,11 @@ const ICONS = {
   stale: ':recycle:',
   action_required: ':warning:',
 };
-// Single source of truth — the break condition and every per_page request
+// Single source of truth: the break condition and every per_page request
 // must agree on the page size.
 const PAGE_SIZE = 100;
 
-// Unique anchor so the bot only ever updates its own verdict — a bare
+// Unique anchor so the bot only ever updates its own verdict: a bare
 // substring match would let any commenter hijack the comment id
 const VERDICT_MARKER = '<!-- agenthood-herald-verdict -->';
 const VERDICT_AUTHOR = 'github-actions[bot]';
@@ -86,7 +86,7 @@ function buildVerdictBody(sha, prNumber, runs) {
     // conclusion is API-enum data, but escape it like the name for defense in depth
     return `| ${escapeCell(run.name)} | ${icon} ${escapeCell(run.conclusion)} |`;
   }).join('\n');
-  // skipped/neutral/stale are not failures — they mean the check did not run
+  // skipped/neutral/stale are not failures; they mean the check did not run
   // or produced no verdict. Only explicit failures and cancellations fail.
   const hasFailed = runs.some((run) => FAILED_CONCLUSIONS.has(run.conclusion));
   const skippedCount = runs.filter((run) => SKIPPED_CONCLUSIONS.has(run.conclusion)).length;
@@ -106,7 +106,7 @@ function buildVerdictBody(sha, prNumber, runs) {
     `**${verdict}**`,
     '',
     '---',
-    '<sub>The Herald — CI Summary</sub>',
+    '<sub>The Herald: CI Summary</sub>',
   ].join('\n');
 }
 
@@ -118,7 +118,7 @@ async function listComments(github, owner, repo, prNumber) {
 
 async function upsertComment(github, owner, repo, prNumber, body) {
   const comments = await listComments(github, owner, repo, prNumber);
-  // only the bot's own verdict — anchored by marker AND author, so user
+  // only the bot's own verdict: anchored by marker AND author, so user
   // comments can never be overwritten (comment_id hijack)
   const existingComment = comments.find((c) => c.user?.login === VERDICT_AUTHOR && c.body.includes(VERDICT_MARKER));
   if (existingComment) {
@@ -129,7 +129,7 @@ async function upsertComment(github, owner, repo, prNumber, body) {
 }
 
 async function summarizePr(pr, github, owner, repo) {
-  // only the triggering workflows' runs count as trials — unrelated checks
+  // only the triggering workflows' runs count as trials: unrelated checks
   // (labeler, dependabot, the Herald itself) never skew the verdict
   const trials = await listWorkflowRunsForSha(github, owner, repo, pr.head.sha);
   if (trials.length === 0) return;
@@ -140,7 +140,7 @@ async function summarizePr(pr, github, owner, repo) {
 }
 
 async function summarize(context, github) {
-  // workflow_run can carry several PRs sharing one head SHA — summarize all
+  // workflow_run can carry several PRs sharing one head SHA: summarize all
   const prList = context.payload.workflow_run?.pull_requests || [];
   if (prList.length === 0) return;
   const { owner, repo } = context.repo;

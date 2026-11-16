@@ -15,7 +15,7 @@ function parseLevel(value: string | undefined): LogLevel | undefined {
   const level = value?.toLowerCase() as LogLevel | undefined
   if (level === undefined) return undefined
   if (LOG_LEVELS.includes(level)) return level
-  console.error(`Invalid --level value: "${value}" — use one of ${LOG_LEVELS.join(', ')}`)
+  console.error(`Invalid --level value: "${value}", use one of ${LOG_LEVELS.join(', ')}`)
   process.exit(1)
 }
 
@@ -70,7 +70,7 @@ export async function log(args: string[] = []): Promise<void> {
     if (flag === '--tail') {
       tail = Number.parseInt(value ?? '', 10)
       if (Number.isNaN(tail) || tail < 0) {
-        console.error('Invalid --tail value — expected a non-negative integer')
+        console.error('Invalid --tail value, expected a non-negative integer')
         process.exit(1)
       }
       return true

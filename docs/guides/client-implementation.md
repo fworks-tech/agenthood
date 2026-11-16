@@ -24,7 +24,7 @@ const scopes = ['<project>/.agents/skills', '~/.agents/skills', '<project>/.clau
 ```
 
 Edge case: match `SKILL.md` case-insensitively (`skill.md` from other clients)
-and fall back to a lenient YAML parse for malformed frontmatter — strict-only
+and fall back to a lenient YAML parse for malformed frontmatter: strict-only
 parsers silently drop third-party skills.
 
 ### 2. Parse
@@ -38,7 +38,7 @@ const match = content.match(/^---\n([\s\S]*?)\n---\n?([\s\S]*)$/)
 ```
 
 Edge case: keep `parse()` permissive and enforce the spec in a separate
-`verify` gate — skills that fail strict parsing should warn, not vanish.
+`verify` gate: skills that fail strict parsing should warn, not vanish.
 
 ### 3. Disclose
 
@@ -59,7 +59,7 @@ warning when two scopes provide the same name.
 // mirrors src/skills/activation/ActivateSkillTool.ts
 ```
 
-Edge case: permission narrowing — declared `allowed-tools` may only narrow the
+Edge case: permission narrowing: declared `allowed-tools` may only narrow the
 skill's tool surface below its profile, never widen it.
 
 ### 5. Manage context
@@ -67,7 +67,7 @@ skill's tool surface below its profile, never widen it.
 Track token spend per skill and compress or defer when the budget overflows
 (see `src/core/ContextCompressor.ts` and `src/core/TokenCounter.ts`).
 
-Edge case: protect activated skill content from context compaction — pruning
+Edge case: protect activated skill content from context compaction: pruning
 the active skill mid-run produces wrong output with no error.
 
 ## Validation
@@ -86,6 +86,6 @@ npx agenthood doctor   # discovery scopes, lockfile integrity
 
 ## Further reading
 
-- [Agent Skills specification](https://agentskills.io/specification) — upstream format
-- [`src/skills/discovery/SkillDiscovery.ts`](../../src/skills/discovery/SkillDiscovery.ts) — discovery source
-- [`src/skills/discovery/SkillParser.ts`](../../src/skills/discovery/SkillParser.ts) — parsing source
+- [Agent Skills specification](https://agentskills.io/specification): upstream format
+- [`src/skills/discovery/SkillDiscovery.ts`](../../src/skills/discovery/SkillDiscovery.ts): discovery source
+- [`src/skills/discovery/SkillParser.ts`](../../src/skills/discovery/SkillParser.ts): parsing source

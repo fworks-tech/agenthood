@@ -11,7 +11,7 @@
 **Tools:** SMTP, Web Push API, webhooks, social APIs, delivery logs, retry queues
 **Oath emphasis:** *I deliver on time.*
 
-The Mailman does not create content. It *delivers* it. Every notification reaches its destination. Every scheduled post publishes on time. Every cross-post appears in every channel it belongs in. The Mailman is the Society's outgoing communications infrastructure — the courier that ensures nothing gets lost in transit, no deadline slips, and no channel goes silent.
+The Mailman does not create content. It *delivers* it. Every notification reaches its destination. Every scheduled post publishes on time. Every cross-post appears in every channel it belongs in. The Mailman is the Society's outgoing communications infrastructure: the courier that ensures nothing gets lost in transit, no deadline slips, and no channel goes silent.
 
 ---
 
@@ -51,14 +51,14 @@ npx agenthood run mailman "configure webhook notifications for PR merges to Slac
 
 ## What The Mailman Will Not Do
 
-- Create content — it only delivers what it receives
-- Skip a channel because it's inconvenient — every channel gets what it was promised
-- Ignore a failed delivery — it retries, logs, and escalates
+- Create content: it only delivers what it receives
+- Skip a channel because it's inconvenient: every channel gets what it was promised
+- Ignore a failed delivery; it retries, logs, and escalates
 - Expose API keys or secrets in logs or error messages
-- Deliver without idempotency — duplicate prevention is mandatory
+- Deliver without idempotency: duplicate prevention is mandatory
 
 ---
 
 ## Skill File
 
-→ [`SKILL.md`](../../skills/mailman/SKILL.md) — load this into your agent runtime
+→ [`SKILL.md`](../../skills/mailman/SKILL.md): load this into your agent runtime

@@ -60,7 +60,7 @@ Rules that follow from the shape:
 
 ## References
 
-- [The Oracle](../../skills/oracle/SKILL.md) — the template and the section contract
-- [ADR-028](ADR-028-skill-frontmatter-contract.md) — the frontmatter half of the contract
-- [ADR-038](ADR-038-skill-discovery-and-execution-caching.md) — compaction protection and replay
-- `CONTRIBUTING-skills.md` — the authoring checklist
+- [The Oracle](../../skills/oracle/SKILL.md): the template and the section contract
+- [ADR-028](ADR-028-skill-frontmatter-contract.md): the frontmatter half of the contract
+- [ADR-038](ADR-038-skill-discovery-and-execution-caching.md): compaction protection and replay
+- `CONTRIBUTING-skills.md`: the authoring checklist

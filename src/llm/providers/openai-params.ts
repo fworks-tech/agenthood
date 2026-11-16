@@ -44,7 +44,7 @@ export function buildCompleteParams(
   }
 }
 
-/** Shared stream() params — a subset of complete params (no tools, penalties, or stop). */
+/** Shared stream() params: a subset of complete params (no tools, penalties, or stop). */
 export function buildStreamParams(
   request: LLMRequest,
   model: string,
@@ -64,7 +64,7 @@ export function buildStreamParams(
 /**
  * Params for the OpenCode Go subscription proxy. Same as complete params
  * minus the sampling extras (top_p, frequency_penalty, presence_penalty,
- * stop) — the Go tier's upstream providers reject those with a 400
+ * stop): the Go tier's upstream providers reject those with a 400
  * "Upstream request failed" even when the SDK would send them harmlessly
  * elsewhere.
  */

@@ -107,7 +107,7 @@ export class RedactionFilter {
     // enumerable keys would silently drop their prototype and hidden state
     if (!isPlainObject(value) && !Array.isArray(value)) return value
     // memo (not a plain Set) so a shared reference appearing twice is
-    // redacted once and both sites return the same result — a diamond must
+    // redacted once and both sites return the same result: a diamond must
     // not leak the unredacted original at its second occurrence. The
     // in-progress placeholder is the *output* object so a cycle's back
     // reference resolves to the redacted copy, not the plaintext original.

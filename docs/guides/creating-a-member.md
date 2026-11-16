@@ -1,8 +1,8 @@
 # Creating a Member
 
 A member is a `SKILL.md` file with a name, a description, and instructions a model can follow. This
-guide takes you from nothing to a reviewed member in six steps. The reference contract — trust model,
-versioning, registry names — lives in [Third-Party Members](../members/contrib-members.md); this page
+guide takes you from nothing to a reviewed member in six steps. The reference contract: trust model,
+versioning, registry names: lives in [Third-Party Members](../members/contrib-members.md); this page
 is the walkthrough.
 
 Everything below is copy-paste ready. The worked example builds *The Translator*, a member that turns
@@ -18,7 +18,7 @@ does not guess, and it does not claim work it did not do.
 Skim [The Oracle](../../skills/oracle/SKILL.md). It is the member that writes members, and it holds the
 naming rules and the section template this guide follows.
 
-You need nothing else — no account, no build step. A `SKILL.md` file is the whole deliverable.
+You need nothing else: no account, no build step. A `SKILL.md` file is the whole deliverable.
 
 ## 2. Name your member
 
@@ -56,7 +56,7 @@ source_url: https://github.com/you/the-translator
 ```
 
 `description` is what the model sees when choosing a member. Front-load the trigger words, name both
-*what it does* and *when to use it*, and keep it under about two sentences — it is paid for on every
+*what it does* and *when to use it*, and keep it under about two sentences; it is paid for on every
 request.
 
 ## 4. Write the six sections
@@ -116,7 +116,7 @@ from. This list is the completeness check.
 ### 3. Rewrite for the reader
 
 For each claim: state it, then explain why it matters to that reader. Replace internal names with
-the behaviour they describe. Keep numbers exact — a timeout of 30 seconds stays 30 seconds.
+the behaviour they describe. Keep numbers exact: a timeout of 30 seconds stays 30 seconds.
 
 ### 4. Mark what did not survive
 
@@ -161,11 +161,11 @@ not to copy.
 
 Three things make a member real, and none of them is a config edit:
 
-1. **Location** — `skills/contrib/the-<name>/SKILL.md` inside the project (or this repo). Discovery
+1. **Location**: `skills/contrib/the-<name>/SKILL.md` inside the project (or this repo). Discovery
    finds it on the next run.
-2. **Frontmatter** — `metadata.author` is your handle and becomes the `owner` in `owner/name`; the
+2. **Frontmatter**: `metadata.author` is your handle and becomes the `owner` in `owner/name`; the
    `name` matches the directory.
-3. **Lockfile** — `npx agenthood verify --update-lock` records the file hash so drift is detectable.
+3. **Lockfile**: `npx agenthood verify --update-lock` records the file hash so drift is detectable.
 
 Check the whole thing:
 
@@ -179,10 +179,10 @@ npx agenthood verify --update-lock
 
 Open a PR (or a PR to the registry, when publishing). The PR is reviewed on four axes:
 
-- **Structure** — the six sections, the frontmatter, the name
-- **Behaviour** — does the Process actually produce the outcome it claims?
-- **Security** — anything that executes code gets a security review before it is listed
-- **Permissions** — the member's profile stays read-only unless it has a reason not to
+- **Structure**: the six sections, the frontmatter, the name
+- **Behaviour**: does the Process actually produce the outcome it claims?
+- **Security**: anything that executes code gets a security review before it is listed
+- **Permissions**: the member's profile stays read-only unless it has a reason not to
 
 Say in the PR why the member exists, what it is *not* for, and how you tested it. A member with no
 tested Process is a prompt, not a member.

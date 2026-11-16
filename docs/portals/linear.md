@@ -1,7 +1,7 @@
 # Connector: Linear
 
 ## What it provides
-Access to Linear's issue tracking — read and update cycles, projects, issues,
+Access to Linear's issue tracking: read and update cycles, projects, issues,
 and team metadata. Used by The Architect to track work in progress and by
 The Herald for standup briefings and release notes.
 
@@ -21,8 +21,8 @@ The Herald for standup briefings and release notes.
 | `linear.labels.list` | List available labels for a team | Architect |
 
 ## Primary Members
-- **The Architect** — reads and creates issues when speccing work, links issues to branches
-- **The Herald** — reads cycle progress for standup briefings and release notes
+- **The Architect**: reads and creates issues when speccing work, links issues to branches
+- **The Herald**: reads cycle progress for standup briefings and release notes
 
 ## Setup
 
@@ -52,4 +52,4 @@ or Herald need to create or update issues.
 - Rate limit: 1,500 requests / hour per API key
 - Linear uses cursor-based pagination; the MCP server handles this automatically
 - Issue identifiers follow the pattern `TEAM-NNN` (e.g., `ENG-42`)
-- The credential proxy injects the key — members never access it directly
+- The credential proxy injects the key: members never access it directly

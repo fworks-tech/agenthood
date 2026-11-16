@@ -1,4 +1,4 @@
-# AGENTS.md — The Member Registry
+# AGENTS.md: The Member Registry
 
 This file is the agent-agnostic convention source for the Agenthood.
 All AI coding agents (Claude Code, Copilot, Codex) should read this file
@@ -9,12 +9,12 @@ to understand the Society's standards before taking any action in a repository.
 ## Commit Standards
 
 - Follow [Conventional Commits](https://www.conventionalcommits.org/) strictly
-- Format: `type(scope)!: subject` — `!` marks breaking changes
+- Format: `type(scope)!: subject`; `!` marks breaking changes
 - Types: `feat`, `fix`, `docs`, `test`, `refactor`, `ci`, `chore`, `revert`
 - Subject: imperative, lowercase, ≤150 chars, no trailing period
-- One logical change per commit — if in doubt, split it
+- One logical change per commit. If in doubt, split it
 - Never write: `fix stuff`, `wip`, `update`, `changes`, `misc`, `asdf`
-- Never add `Co-Authored-By` footers — commits carry the author's identity only
+- Never add `Co-Authored-By` footers: commits carry the author's identity only
 
 ## Branch Standards
 
@@ -29,10 +29,10 @@ to understand the Society's standards before taking any action in a repository.
 - PR title follows the same Conventional Commits format as commits
 - PR description answers: what changed, why, how to test
 - **HARD GATE: Never merge unless ALL of the following are green:**
-  - **All CI checks** (GitHub Actions workflows — every job, every check)
-  - **Tests** (`npm test` or equivalent — zero failures)
-  - **Build** (`npm run build` or equivalent — zero errors)
-  - **Lint** (`npm run lint` or equivalent — zero warnings/errors)
+  - **All CI checks** (GitHub Actions workflows, every job, every check)
+  - **Tests** (`npm test` or equivalent, zero failures)
+  - **Build** (`npm run build` or equivalent, zero errors)
+  - **Lint** (`npm run lint` or equivalent, zero warnings/errors)
 - A red CI run is a blocking failure. No exceptions. Rebase, fix, re-run. Do not merge on a previous green run if the latest run is red.
 - If CI fails after merge conflicts are resolved, you must re-run CI and wait for green before merging.
 
@@ -41,45 +41,45 @@ to understand the Society's standards before taking any action in a repository.
 - Always create a branch before making changes
 - Always run tests before considering a task complete
 - Always prefer editing existing files over creating new ones
-- Never add comments that explain *what* — only *why* when non-obvious
+- Never add comments that explain *what*. Only *why*, when non-obvious
 - Never introduce abstractions beyond what the task requires
 - Never push to remote without explicit user confirmation
 - Never merge without explicit user confirmation
-- **Never merge a PR with failing CI** — verify `gh pr checks` shows ALL green before merging
+- **Never merge a PR with failing CI**: verify `gh pr checks` shows ALL green before merging
 
 ## The Members
 
 Load skills from `skills/` to activate specialized agents:
 
-- `scribe` — commit messages, PR descriptions, changelogs
-- `architect` — spec-driven development, planning, ADRs
-- `builder` — coding, implementation, refactoring, test updates, local validation
-- `reviewer` — code review, quality gates
-- `tester` — TDD, test generation, coverage
-- `debugger` — error triage, root cause analysis
-- `auditor` — security review, dependency audit
-- `herald` — semantic versioning, release notes
-- `librarian` — documentation, knowledge management
-- `doorman` — validation, health checks, enforcement
-- `oracle` — institutional knowledge, member authoring templates, naming guidance
-- `envoy` — cross-provider translation, bootstrap generation, convention validation
-- `sentinel` — Society document integrity, cross-member contradiction detection, structural drift
-- `warden` — code smell detection, complexity enforcement, architectural boundary violations
-- `steward` — context economy, member routing, provider cache strategy, session triage
-- `mediator` — first-in-line intent routing, handoff sequencing
-- `operator` — runtime health, deployment, incidents, rollback, monitoring
-- `strategist` — goal refinement, requirement discovery, ambiguity resolution
-- `mailman` — message delivery, content scheduling, notification dispatch, cross-posting
-- `inspector` — visual-reasoning benchmarking, pixel-level analysis, multi-panel correspondence
+- `scribe`: commit messages, PR descriptions, changelogs
+- `architect`: spec-driven development, planning, ADRs
+- `builder`: coding, implementation, refactoring, test updates, local validation
+- `reviewer`: code review, quality gates
+- `tester`: TDD, test generation, coverage
+- `debugger`: error triage, root cause analysis
+- `auditor`: security review, dependency audit
+- `herald`: semantic versioning, release notes
+- `librarian`: documentation, knowledge management
+- `doorman`: validation, health checks, enforcement
+- `oracle`: institutional knowledge, member authoring templates, naming guidance
+- `envoy`: cross-provider translation, bootstrap generation, convention validation
+- `sentinel`: Society document integrity, cross-member contradiction detection, structural drift
+- `warden`: code smell detection, complexity enforcement, architectural boundary violations
+- `steward`: context economy, member routing, provider cache strategy, session triage
+- `mediator`: first-in-line intent routing, handoff sequencing
+- `operator`: runtime health, deployment, incidents, rollback, monitoring
+- `strategist`: goal refinement, requirement discovery, ambiguity resolution
+- `mailman`: message delivery, content scheduling, notification dispatch, cross-posting
+- `inspector`: visual-reasoning benchmarking, pixel-level analysis, multi-panel correspondence
 
 ## Confidence-Gated Routing
 
-All routing decisions follow a confidence cascade — obvious requests route instantly,
+All routing decisions follow a confidence cascade: obvious requests route instantly,
 ambiguous requests surface to refinement. No request pays the same routing cost.
 
 **The Mediator** scores every intent classification (0-100%):
 - >= 90%: route directly to the specialist
-- 70-89%: route with stated confidence — the receiving member can reclassify
+- 70-89%: route with stated confidence; the receiving member can reclassify
 - 50-69%: run Parallel Evaluation (Strategist + Doorman) before routing
 - < 50%: escalate to The Strategist for refinement
 
@@ -94,7 +94,7 @@ Every routing decision produces a type-safe record in `.agenthood/routing/`.
 `clear-specialist`; `confidence` is an integer 0-100; `target` is a registered
 member; `reasoning` is the only free-text field. `agenthood verify` enforces
 all of it and reports every violation at once. The full record shape is in
-[skills/mediator/SKILL.md](skills/mediator/SKILL.md) — do not duplicate
+[skills/mediator/SKILL.md](skills/mediator/SKILL.md): do not duplicate
 it here, or the two drift.
 
 Binary classification without confidence is a guess. Calibrated confidence with
@@ -103,7 +103,7 @@ a cascade is a decision.
 ## Autonomous Runtime (agenthood run)
 
 Members can also be executed as real LLM agents via the TypeScript runtime.
-This is optional and additive — the prompt-driven workflow above continues to work unchanged.
+This is optional and additive: the prompt-driven workflow above continues to work unchanged.
 
 ```bash
 # Build the runtime (once, after install)
@@ -111,7 +111,7 @@ npm run build
 
 # Set the LLM provider key in your environment (do NOT commit it)
 # Set GROQ_API_KEY in your shell profile or CI secrets (free at console.groq.com)
-# or use Ollama for fully offline execution — no key required
+# or use Ollama for fully offline execution: no key required
 
 # List available members
 npx agenthood list
@@ -129,7 +129,7 @@ in the config (currently opencode, with Groq among the fallbacks). See
 and [ADR-009](docs/adr/ADR-009-groq-as-default-llm-provider.md) for design decisions.
 
 Every `agenthood run` records one decision and one provenance entry (success or
-failure) — the audit trail in `.agenthood/decisions/` and
+failure): the audit trail in `.agenthood/decisions/` and
 `.agenthood/provenance/`, with tamper-evident hash-chain integrity and causal
 links between decisions. See
 [ADR-015](docs/adr/ADR-015-decision-intelligence-and-provenance.md) and

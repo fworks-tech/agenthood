@@ -1,6 +1,6 @@
 ---
 name: web-research
-description: Runs a systematic web research task — plan the subtopics, delegate each to a parallel search, save findings with citations, then synthesise one cited report. Use when a question needs current external sources rather than the repository's own knowledge.
+description: Runs a systematic web research task; plan the subtopics, delegate each to a parallel search, save findings with citations, then synthesise one cited report. Use when a question needs current external sources rather than the repository's own knowledge.
 license: MIT
 allowed-tools:
   - file.read
@@ -23,19 +23,19 @@ The two failure modes it exists to prevent: a single search that returns plausib
 - Someone will act on the answer, so the sources have to be checkable afterwards
 - You are asked to "research", "compare", "find out what the industry does", or "check whether X is still true"
 
-Use only when the web is the source. A question about this codebase is not a research task — read the code.
+Use only when the web is the source. A question about this codebase is not a research task: read the code.
 
 ## Process
 
 ### 1. Write the plan before searching
 
-State the question in one sentence, then list 3–5 subtopics. Each subtopic is a claim you expect to confirm or refute, not a keyword. Write the plan down (in the report file's opening section) so a wrong plan is visible before it costs searches.
+State the question in one sentence, then list 3-5 subtopics. Each subtopic is a claim you expect to confirm or refute, not a keyword. Write the plan down (in the report file's opening section) so a wrong plan is visible before it costs searches.
 
 Reject a subtopic you cannot name the expected source type for (a spec, a changelog, a paper, a pricing page).
 
 ### 2. Delegate the subtopics in parallel
 
-One agent per subtopic, each with its own budget of 3–5 searches. Give each agent the subtopic, the expected source type, and the instruction to return:
+One agent per subtopic, each with its own budget of 3-5 searches. Give each agent the subtopic, the expected source type, and the instruction to return:
 
 - the claim, in one sentence
 - the source URL and its publication or last-updated date
@@ -54,11 +54,11 @@ A finding with no URL, or with a URL you did not open, is not a finding. Record 
 
 Write `research/report.md` with:
 
-1. **Answer** — the direct answer first, in two or three sentences
-2. **Findings** — one section per subtopic, each claim carrying `[n]`
-3. **Disagreements** — where sources conflict, state both positions and which one the evidence favours
-4. **Gaps** — what the research did not establish, and what would establish it
-5. **Sources** — numbered, with URL and date accessed
+1. **Answer**: the direct answer first, in two or three sentences
+2. **Findings**: one section per subtopic, each claim carrying `[n]`
+3. **Disagreements**, where sources conflict, state both positions and which one the evidence favours
+4. **Gaps**: what the research did not establish, and what would establish it
+5. **Sources**: numbered, with URL and date accessed
 
 Prefer the primary source over the article that summarises it. When only secondary sources exist, say so in the claim.
 

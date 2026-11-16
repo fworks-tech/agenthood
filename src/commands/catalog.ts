@@ -79,7 +79,7 @@ in remoteCatalogs.sources (.agenthood/config.json) is read.
 
 function printCatalog(report: CatalogReport): void {
   const suffix = report.origin === 'network' ? '' : ` (${report.origin})`
-  console.log(`\n  ${report.endpoint}${suffix} — ${report.catalog.skills.length} skill(s)\n`)
+  console.log(`\n  ${report.endpoint}${suffix}, ${report.catalog.skills.length} skill(s)\n`)
   for (const entry of report.catalog.skills) {
     const version = entry.version ? ` v${entry.version}` : ''
     const integrity = entry.integrity ? ` ${entry.integrity.split('-')[0]}` : ''

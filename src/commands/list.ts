@@ -91,7 +91,7 @@ export async function list(): Promise<void> {
 
   const byCategory = groupByCategory(registry.list());
 
-  console.log('\n\u{1F3DB}️  The Society — Member Status\n');
+  console.log('\n\u{1F3DB}️  The Society, Member Status\n');
 
   for (const [cat, group] of byCategory) {
     console.log(`  ${CATEGORY_LABELS[cat] ?? cat}:`);

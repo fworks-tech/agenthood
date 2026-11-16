@@ -1,7 +1,7 @@
 # Connector: GitHub
 
 ## What it provides
-Full access to the GitHub API — issues, pull requests, releases, labels,
+Full access to the GitHub API: issues, pull requests, releases, labels,
 milestones, branch protection, and repository metadata.
 
 ## Available Tools
@@ -23,10 +23,10 @@ milestones, branch protection, and repository metadata.
 | `github.branches.list` | List branches with last activity | Doorman, Herald |
 
 ## Primary Members
-- **The Herald** — reads merged PRs for standups, creates releases
-- **The Doorman** — reads open PRs for health checks, applies labels
-- **The Scribe** — reads PR diff to generate descriptions
-- **The Reviewer** — posts review comments
+- **The Herald**: reads merged PRs for standups, creates releases
+- **The Doorman**: reads open PRs for health checks, applies labels
+- **The Scribe**: reads PR diff to generate descriptions
+- **The Reviewer**: posts review comments
 
 ## Setup
 
@@ -49,4 +49,4 @@ milestones, branch protection, and repository metadata.
 ## Notes
 - Requires a GitHub Personal Access Token with `repo` and `read:org` scopes
 - Rate limit: 5,000 requests/hour for authenticated requests
-- The credential proxy injects the token — members never access it directly
+- The credential proxy injects the token: members never access it directly

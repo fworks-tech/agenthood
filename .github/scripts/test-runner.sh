@@ -7,7 +7,7 @@ if [ -z "${BASE_SHA:-}" ] || [ "$BASE_SHA" = "${HEAD_SHA:-}" ]; then
   exit $?
 fi
 
-# SHA env vars flow into git diff — reject anything that isn't a full hex SHA.
+# SHA env vars flow into git diff: reject anything that isn't a full hex SHA.
 # [[ =~ ]] is string-anchored (a grep would accept a matching line inside a
 # newline-delimited value); the value is never echoed into the error line
 # (GitHub Actions log-line forgery via embedded newlines).
@@ -18,14 +18,14 @@ for var in BASE_SHA HEAD_SHA; do
   fi
 done
 
-# git diff exits 0 (no changes) or 1 (differences) — anything above 1 is a
+# git diff exits 0 (no changes) or 1 (differences): anything above 1 is a
 # real failure that must not be mistaken for "no affected tests" (false green)
 set +e
 CHANGED=$(git diff --name-only --diff-filter=ACM "$BASE_SHA"..."$HEAD_SHA" 2>/dev/null)
 DIFF_STATUS=$?
 set -e
 if [ "$DIFF_STATUS" -gt 1 ]; then
-  echo "::error::git diff failed (exit $DIFF_STATUS) for $BASE_SHA...$HEAD_SHA — cannot determine affected tests"
+  echo "::error::git diff failed (exit $DIFF_STATUS) for $BASE_SHA...$HEAD_SHA: cannot determine affected tests"
   exit 1
 fi
 CORE_PATTERNS="src/core/ src/llm/ILLMProvider src/llm/types src/members/types src/agents/index src/index"

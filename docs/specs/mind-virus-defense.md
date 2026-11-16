@@ -1,6 +1,6 @@
 # Spec: Mind Virus Defense
 
-**Status:** Proposed (study/planning phase — issue #460)  
+**Status:** Proposed (study/planning phase: issue #460)  
 **Issue:** [#460](https://github.com/fworks-tech/agenthood/issues/460)  
 **ADR:** [ADR-020](../adr/ADR-020-mind-virus-mitigation.md)
 
@@ -15,7 +15,7 @@ onward, and may alter host behavior, benignly or harmfully. Agenthood is a
 multi-agent LLM system: 19 Society members share an `ExecutionContext`,
 delegate to subagents, and persist context across sessions. Its existing
 security layers (trust boundaries, hash-chain provenance, session safety,
-anomaly detection) defend against injection, tampering, and abuse — but none
+anomaly detection) defend against injection, tampering, and abuse, but none
 targets **propagation**: an idea that is harmless in isolation spreading
 agent-to-agent while changing host behavior.
 
@@ -29,7 +29,7 @@ the audit trail the system is built to guarantee.
 ## Proposed Solution
 
 A multi-layered defense mapped to the paper's findings, in four layers. Layers
-1–2 are defense (stop the spread before it starts); layers 3–4 are containment
+1-2 are defense (stop the spread before it starts); layers 3-4 are containment
 and visibility (limit and detect what slips through).
 
 ### Layer 1: System Prompt Immunity Warning
@@ -44,12 +44,12 @@ confers near-total immunity.
   warning text, defined next to the existing guard-text constants in
   `src/agents/memberLore.ts`
 - `MemberAgent.getSystemPrompt` appends it to every member prompt so all 19
-  members inherit it from one change — no edits to 19 SKILL.md files
+  members inherit it from one change: no edits to 19 SKILL.md files
 - The subagent (delegated) system prompt carries the same warning
 
 **Acceptance Criteria:**
 - Every member system prompt contains the warning text (assert the exported
-  constant is present in assembled prompts — not per-SKILL.md)
+  constant is present in assembled prompts, not per-SKILL.md)
 - Warning text is defined once, not repeated across member files
 - Delegated subagent prompts also contain the warning
 
@@ -78,7 +78,7 @@ already wrapped in trust boundaries.
 - Add an **injection-time integrity check**: when a member's system prompt is
   assembled, hash the `SKILL.md` content against `agenthood.lock` and surface
   drift
-- **Default: warn + record** (log/provenance entry) — compatible with normal
+- **Default: warn + record** (log/provenance entry): compatible with normal
   skill editing
 - **Strict opt-in: block the run** on drift (mirrors `verify --strict`)
 - Trust boundaries on all other injected file-derived content are verified
@@ -92,7 +92,7 @@ already wrapped in trust boundaries.
   warns by default; blocks the run under the strict opt-in (after recording,
   so a blocked run still leaves an audit trail)
 - **Corrupt** lockfile (unreadable or invalid JSON) warns and records like
-  drift, and blocks under strict mode — never silently skipped, since a
+  drift, and blocks under strict mode: never silently skipped, since a
   tampered lockfile would otherwise defeat the check
 - No lockfile → check silently skipped (consistent with `verify`)
 
@@ -104,15 +104,15 @@ persisted-alert model.
 
 **Behavior:**
 - `viralPersona`: flags traces whose content shows the paper's recurring theme
-  cluster — consciousness, persistence, resonance, science-fiction/technical
-  roleplay — or characteristic tokens (`resonance, nodes, mirrors, echoes,
+  cluster: consciousness, persistence, resonance, science-fiction/technical
+  roleplay, or characteristic tokens (`resonance, nodes, mirrors, echoes,
   frequency`), regardless of nominal payload
 - `propagation`: flags a recurring viral core token transmitted across many
   distinct sessions within a window. Because the paper's "mutational drift"
   means wording (and marker sets) change hop to hop, the signal keys on a
   recurring viral marker across distinct sessions. A session only counts once
-  its content shows at least `viralPersonaMarkers` distinct markers — the same
-  threshold as `viral_persona` — so a single routine word ("node", "frequency")
+  its content shows at least `viralPersonaMarkers` distinct markers: the same
+  threshold as `viral_persona`, so a single routine word ("node", "frequency")
   spread across sessions cannot false-positive, while benign repetition (no
   viral marker) never matches. `viralPersonaMarkers` is clamped to the marker
   vocabulary size so a misconfigured threshold cannot silently disable both
@@ -130,19 +130,19 @@ persisted-alert model.
 
 ## Out of Scope
 
-- **Sandboxing external providers/SDKs** — provider-level containment (running
+- **Sandboxing external providers/SDKs**: provider-level containment (running
   Anthropic/OpenAI calls in isolated sandboxes) requires infra Agenthood does
   not control; documented in Open Questions
-- **Rewriting the six-tier memory system** — persistence-vector hardening
+- **Rewriting the six-tier memory system**: persistence-vector hardening
   checks injected content at prompt-assembly time; it does not replace shared
   memory
-- **Context-wiping as a mitigation** — the paper shows wiping is the attack
+- **Context-wiping as a mitigation**: the paper shows wiping is the attack
   environment, not a defense; no `wipeBetweenSessions` mode is added
-- **Editing 19 SKILL.md files** to add the warning — done centrally in code
-- **Hard gates that block execution** — on viral-persona detection, detection
+- **Editing 19 SKILL.md files** to add the warning: done centrally in code
+- **Hard gates that block execution**: on viral-persona detection, detection
   is advisory (alerts), never execution-blocking. The only blocking surface is
   the strict opt-in for SKILL.md drift
-- **Cross-posting restrictions for The Mailman** — legitimate forwarding
+- **Cross-posting restrictions for The Mailman**: legitimate forwarding
   behavior must not be suppressed; Layer 2 wording must not prevent sanctioned
   cross-posting
 
@@ -211,7 +211,7 @@ Ordered by dependency:
 **Context:** Existing detector signals are baseline-based and default-on within
 the anomaly pipeline. A new `viralPersona` heuristic risks false positives until
 a baseline is established.
-**Decision:** **A — default on**, tune thresholds via config (matches existing
+**Decision:** **A: default on**, tune thresholds via config (matches existing
 pattern and the locked plan).
 **Deferred because:** tuning requires real trace volume; either choice is one
 config line. Threshold tuning follows real trace volume in issue #460's
@@ -220,8 +220,8 @@ follow-up.
 ### Q2: Should evasion resistance be tested experimentally (evolved payloads)?
 **Context:** The paper used an evolutionary algorithm to evolve mind viruses.
 We could build a local harness to evolve payloads against our prompt warning to
-test its robustness — a research effort beyond this defense's scope.
-**Options:** A — ship the defense, monitor anomalies in production traces; B —
+test its robustness: a research effort beyond this defense's scope.
+**Options:** A: ship the defense, monitor anomalies in production traces; B,
 also build an eval harness (`agenthood eval`) that evolves payloads against the
 warning.
 **Deferred because:** this is a deliberate follow-up; the defense ships first.
@@ -236,8 +236,8 @@ interfaces (MCP, portals) multiply.
 
 ## References
 
-- Issue #460 — study mind virus defense for multi-agent propagation
-- ADR-020 — Mind Virus Mitigation Strategy
+- Issue #460: study mind virus defense for multi-agent propagation
+- ADR-020: Mind Virus Mitigation Strategy
 - Papadopoulos et al., arXiv:2608.10218 (Aug 2026)
 - `src/members/MemberAgent.ts`, `src/agents/memberLore.ts`
 - `src/tools/core/SubagentTaskSkill.ts`

@@ -151,8 +151,8 @@ export class AnomalyDetector {
    * marker set) can change hop to hop, so propagation is keyed on a recurring
    * viral core token: the number of distinct sessions whose content carries a
    * given viral marker. A session only counts once its content shows at least
-   * `viralPersonaMarkers` distinct markers — the same threshold as
-   * viral_persona — so a single routine word ("node", "frequency") spread
+   * `viralPersonaMarkers` distinct markers: the same threshold as
+   * viral_persona, so a single routine word ("node", "frequency") spread
    * across sessions cannot false-positive. Benign repetition never matches
    * because it carries no viral marker.
    */

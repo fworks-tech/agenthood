@@ -38,7 +38,7 @@ const PRICING_TABLE: Array<{ match: string; price: ModelPrice }> = [
   { match: 'mixtral-8x7b', price: { provider: 'groq', inputPer1M: 0.24, outputPer1M: 0.24 } },
   { match: 'gemma2-9b', price: { provider: 'groq', inputPer1M: 0.2, outputPer1M: 0.2 } },
   { match: 'gemma2-27b', price: { provider: 'groq', inputPer1M: 0.27, outputPer1M: 0.27 } },
-  // Ollama (local — free)
+  // Ollama (local: free)
   { match: 'qwen2.5', price: { provider: 'ollama', inputPer1M: 0, outputPer1M: 0 } },
   { match: 'qwen2', price: { provider: 'ollama', inputPer1M: 0, outputPer1M: 0 } },
   { match: 'llama3', price: { provider: 'ollama', inputPer1M: 0, outputPer1M: 0 } },
@@ -113,7 +113,7 @@ const warnedModels = new Set<string>()
 export function estimateCost(model: string, inputTokens: number, outputTokens: number, provider?: string): CostEstimate {
   const price = getModelPrice(model, inputTokens, provider)
   if (price === FALLBACK_PRICE && !warnedModels.has(model)) {
-    console.warn(`[modelPricing] unknown model "${model}" — using fallback pricing`)
+    console.warn(`[modelPricing] unknown model "${model}", using fallback pricing`)
     warnedModels.add(model)
   }
   return {

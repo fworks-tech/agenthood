@@ -1,6 +1,6 @@
 /**
  * Runtime selection for a bundled skill script (#546) and its inline
- * dependency story (#539). Extension first, shebang second — both are facts the
+ * dependency story (#539). Extension first, shebang second: both are facts the
  * file states about itself, unlike a guess from its contents.
  */
 
@@ -10,7 +10,7 @@ export interface DetectedScript {
   language: ScriptLanguage
   /** Executable plus flags; the caller appends the script path and user args. */
   command: string[]
-  /** Why this runtime — printed in the tool result header. */
+  /** Why this runtime: printed in the tool result header. */
   reason: string
 }
 
@@ -46,7 +46,7 @@ function languageFromShebang(source: string): ScriptLanguage | undefined {
 
 /**
  * The runtime for a script, or undefined when the language is unsupported.
- * A missing runtime is the caller's error to report — this never falls back to
+ * A missing runtime is the caller's error to report; this never falls back to
  * another language, because "ran with the wrong interpreter" is worse than
  * "did not run".
  */

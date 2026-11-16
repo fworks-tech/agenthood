@@ -107,7 +107,7 @@ export class ProjectIngestion {
           },
         })
       } catch {
-        // node already exists — skip
+        // node already exists: skip
       }
     }
 

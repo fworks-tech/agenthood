@@ -10,7 +10,7 @@ updates:
     groups:
       # Any lockfile rewrite drops the nested dev/optional/peer entries that
       # npm 10 requires under @commitlint/read, breaking 'npm ci' on the Node
-      # version engines declares — dependabot-core #13931. Five separate PRs
+      # version engines declares - dependabot-core #13931. Five separate PRs
       # meant five identical lock repairs; grouped, it is one PR and one
       # repair. See #944.
       # update-types: minor keeps patch and minor together, so the group is
@@ -20,7 +20,7 @@ updates:
       #
       # 'minor' does NOT mean safe for a 0.x package. The semver major is 0,
       # so every minor bump on a pre-1.0 dep is classified minor while being
-      # breaking in practice — that is how #946 arrived: tree-sitter 0.21.1 ->
+      # breaking in practice - that is how #946 arrived: tree-sitter 0.21.1 ->
       # 0.25.1 as a routine 'minor', pairing a 0.25.1 core with grammars that
       # declare 0.21 peers (ERESOLVE on npm 10). update-types cannot express
       # 'minor only when major >= 1', and exclude-patterns matches names, not
@@ -40,7 +40,7 @@ updates:
       # tree-sitter grammars peer-pin the tree-sitter core ABI, so no grammar
       # can move alone. tree-sitter-go 0.25 wants core ^0.25 while every other
       # grammar in the tree (javascript, python, typescript) wants ^0.21.1,
-      # which makes 'npm ci' fail with ERESOLVE — see #932. Moving it means
+      # which makes 'npm ci' fail with ERESOLVE - see #932. Moving it means
       # raising core and all four grammars together, with query-compatibility
       # testing, so it is a migration rather than a version bump.
       #
@@ -57,14 +57,14 @@ updates:
       # it pulls in two new transitive dependencies with open high-severity
       # advisories ('sharp' and '@huggingface/transformers'), which fails The
       # Auditor. The removed get_job/job_history APIs are unused, so the API
-      # surface is fine — the blocker is the added attack surface. Unblock when
+      # surface is fine - the blocker is the added attack surface. Unblock when
       # a 0.39.x with no unfixed high advisory ships.
       - dependency-name: "@lancedb/lancedb"
       # js-yaml 5 is a rewrite with a different API surface, not a drop-in
       # upgrade. It removed the default export (so 'import yaml from js-yaml'
       # fails at module load) and made load() throw on empty input, which
       # silently downgraded empty-frontmatter skills to the lenient heuristic
-      # parser — a fail-open on a trust boundary. See #936.
+      # parser - a fail-open on a trust boundary. See #936.
       - dependency-name: "js-yaml"
   - package-ecosystem: npm
     directory: "/vscode-extension"
@@ -76,7 +76,7 @@ updates:
     ignore:
       # vsce refuses to package when the declared @types/vscode major.minor
       # exceeds engines.vscode, and this extension only uses APIs available in
-      # VS Code 1.90 — so there is nothing to gain by raising it. Bumping it
+      # VS Code 1.90 - so there is nothing to gain by raising it. Bumping it
       # requires raising engines.vscode in the same change, which drops support
       # for every VS Code release in between. That is a human decision, not an
       # automation.

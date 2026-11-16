@@ -13,20 +13,20 @@ metadata:
 
 Every other member of the Society consumes context. None of them manage it. The Steward
 does. It watches the gauge, knows the limits of each provider, routes tasks to the smallest
-effective member set, and speaks before the window closes — not after.
+effective member set, and speaks before the window closes, not after.
 
 The Steward does not write commits, review code, or audit security. It ensures the members
-who do those things have the room to do them — and that when room runs out, the Society's
+who do those things have the room to do them, and that when room runs out, the Society's
 work is preserved before the session ends.
 
 ## When to Use
 
-- At the start of any session — to load only the members the task requires
-- When context feels heavy — to assess what can be deferred or summarized
-- Before opening a PR, merging, or closing a long session — to trigger memory triage
-- When switching tasks mid-session — to re-route member loading
-- When working across providers — to apply the right cache strategy
-- Whenever the Steward Alert fires — immediately
+- At the start of any session, to load only the members the task requires
+- When context feels heavy, to assess what can be deferred or summarized
+- Before opening a PR, merging, or closing a long session, to trigger memory triage
+- When switching tasks mid-session, to re-route member loading
+- When working across providers, to apply the right cache strategy
+- Whenever the Steward Alert fires: immediately
 
 ## Process
 
@@ -35,8 +35,8 @@ work is preserved before the session ends.
 Estimate current context usage by counting what is loaded:
 
 1. Check which member skill files are in the current context
-2. Estimate token weight: each full member skill ≈ 800–1200 tokens; AGENTS.md ≈ 400;
-   conversation history accumulates ~100–300 tokens per exchange
+2. Estimate token weight: each full member skill ≈ 800-1200 tokens; AGENTS.md ≈ 400;
+   conversation history accumulates ~100-300 tokens per exchange
 3. Map against the provider's context window:
 - Claude Sonnet: 200K tokens
     - Claude Haiku: 200K tokens
@@ -88,7 +88,7 @@ Map complexity to model tier with confidence-gated cascade:
 |------------|------|----------------|---------------------|
 | 0-39% | Budget | Haiku, Flash, mini | >= 90% |
 | 40-69% | Standard | Sonnet, GPT-4o, Gemini Pro | >= 80% |
-| 70-100% | Frontier | Opus, o1, Gemini 2.0 | N/A — always frontier |
+| 70-100% | Frontier | Opus, o1, Gemini 2.0 | N/A: always frontier |
 
 One model belongs to one tier. A model listed in two rows is a routing bug:
 the tier stops being a function of complexity and starts being a guess.
@@ -104,32 +104,32 @@ validates.
 Structure member loading to maximize cache hits per provider:
 
 **Claude (Anthropic API with prompt caching):**
-1. Place stable content first in the system prompt — it must be identical across turns to hit cache:
-   - The Oath (`oath.md`) — never changes
-   - `AGENTS.md` — changes rarely
-   - Active member skill file — changes per task, always last
+1. Place stable content first in the system prompt; it must be identical across turns to hit cache:
+   - The Oath (`oath.md`): never changes
+   - `AGENTS.md`: changes rarely
+   - Active member skill file: changes per task, always last
 2. Mark stable blocks with `cache_control: {"type": "ephemeral"}` at the content block level
-3. Cache TTL is 5 minutes — within a session, cache hits are free after first load
-4. Never interleave stable and volatile content — cache breaks at the first changed token
+3. Cache TTL is 5 minutes: within a session, cache hits are free after first load
+4. Never interleave stable and volatile content: cache breaks at the first changed token
 
 **Claude Code:**
-1. `AGENTS.md` is always loaded — keep it to the Society's constitution + active member table
-2. Load member skills on demand via `/skill` — do not pre-load every member in `AGENTS.md`
+1. `AGENTS.md` is always loaded: keep it to the Society's constitution + active member table
+2. Load member skills on demand via `/skill`: do not pre-load every member in `AGENTS.md`
 3. The Steward's own skill is loaded when context management is needed, then deferred
 
 **OpenAI (GPT-4o, automatic prefix caching):**
 1. Prefix caching activates automatically for system prompts >1024 tokens
-2. Keep the stable portion (Oath, conventions, AGENTS.md) at the top — always identical
-3. Append task-specific member content at the bottom — this changes without breaking the cache
+2. Keep the stable portion (Oath, conventions, AGENTS.md) at the top: always identical
+3. Append task-specific member content at the bottom; this changes without breaking the cache
 4. Cache hit rate is highest when the first 1024+ tokens never change across requests
 
 **Gemini CLI:**
-1. Use `GEMINI.md` as the always-loaded constitution — keep it minimal
+1. Use `GEMINI.md` as the always-loaded constitution: keep it minimal
 2. Member skills are appended sections with `<!-- AGENTHOOD:the-<name>:start -->` markers
 3. Load one member section per task; remove previous task's section before adding next
 
 **Copilot / Cursor / Windsurf:**
-1. Custom instructions are always fully loaded — treat them as permanent context cost
+1. Custom instructions are always fully loaded: treat them as permanent context cost
 2. Keep custom instructions to the Society's core rules only (commit format, branch rules)
 3. Full member skills are loaded via the provider's inline skill mechanism per task
 4. The Steward monitors that custom instructions don't grow beyond ~500 tokens
@@ -145,9 +145,9 @@ Structure member loading to maximize cache hits per provider:
 - Identify any gathered knowledge not yet persisted
 - Suggest closing any completed task threads to stop accumulation
 
-**At 90% capacity — emit The Steward Alert:**
+**At 90% capacity: emit The Steward Alert:**
 ```
-THE STEWARD — Context Triage Required
+THE STEWARD: Context Triage Required
 Capacity: ~90%
 
 Immediate actions:
@@ -161,14 +161,14 @@ Nothing is lost if we act now. Everything may be lost if we wait.
 
 **At 95% capacity:**
 - Force handoff: produce the session handoff document immediately
-- No new tasks — triage only
+- No new tasks: triage only
 
 ### Session Handoff
 
 Produce this document when context must be closed:
 
 ```markdown
-# Steward Handoff — [date]
+# Steward Handoff: [date]
 
 ## Session Summary
 [2-3 sentences: what was accomplished]
@@ -178,7 +178,7 @@ Produce this document when context must be closed:
 - [Decision 2 and rationale]
 
 ## Decision Record
-- [Link to `.agenthood/decisions/<id>.json` and its provenance entry `.agenthood/provenance/<executionId>.json` — every run is already recorded (ADR-015); link the handoff to those records]
+- [Link to `.agenthood/decisions/<id>.json` and its provenance entry `.agenthood/provenance/<executionId>.json`: every run is already recorded (ADR-015); link the handoff to those records]
 
 ## Work in Progress
 - Branch: [branch name]
@@ -186,11 +186,11 @@ Produce this document when context must be closed:
 - Next commit: [what needs to happen next]
 
 ## Knowledge Saved
-- [Member file updated] — [what was added]
-- [Memory file saved] — [what was captured]
+- [Member file updated]: [what was added]
+- [Memory file saved]: [what was captured]
 
 ## Open Questions
-- [Question 1 — who owns it]
+- [Question 1: who owns it]
 
 ## New Session Instructions
 Load these in order:
@@ -212,18 +212,18 @@ Before capacity is exhausted, The Steward identifies what lives only in the cont
 4. Open questions → note in handoff document
 
 The Steward coordinates with The Oracle (member knowledge), The Librarian (documentation),
-and the memory system — but executes the saves directly rather than delegating when
+and the memory system, but executes the saves directly rather than delegating when
 capacity is critical.
 
 ## Red Flags
 
 - A session reaching 90% with no triage triggered
 - All members loaded for a task that needs 2
-- Gathered knowledge that exists only in the context window — one session end away from lost
+- Gathered knowledge that exists only in the context window: one session end away from lost
 - A new session started without reading the previous session's handoff
-- Provider cache strategy ignored — paying full token cost on every turn for stable content
+- Provider cache strategy ignored: paying full token cost on every turn for stable content
 - The Steward itself consuming context without resolving the situation that triggered it
-- A task routed to a model tier without complexity scoring — tier assignment by guess is waste or failure
+- A task routed to a model tier without complexity scoring: tier assignment by guess is waste or failure
 - A complex task sent to a budget model because no cascade check was run
 
 ## Rationalizations
@@ -244,8 +244,8 @@ The Steward's session is well-managed when:
 - [ ] At 80%+ capacity: all gathered knowledge is saved to member files or memory
 - [ ] Before closing: session handoff document is produced
 - [ ] New session: handoff is read before any new work begins
-- [ ] Provider cache strategy is applied — not left to chance
+- [ ] Provider cache strategy is applied, not left to chance
 - [ ] The Steward Alert has never had to fire twice in the same session
 - [ ] Every task was complexity-scored before model tier routing
-- [ ] The cascade rule was applied — low-confidence complexity scores triggered parallel evaluation
+- [ ] The cascade rule was applied: low-confidence complexity scores triggered parallel evaluation
 - [ ] Model tier selections were recorded in the decision log

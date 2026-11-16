@@ -40,17 +40,17 @@ export function selectVariantBody(manifest: ISkillManifest, model?: string): Var
 
   const { path, inside } = variantTarget(manifest.directory, variants[key])
   if (!inside) {
-    return { body: manifest.body, warning: `variant "${key}" points outside the skill directory — using the default body` }
+    return { body: manifest.body, warning: `variant "${key}" points outside the skill directory; using the default body` }
   }
   if (!existsSync(path)) {
-    return { body: manifest.body, warning: `variant "${key}" (${variants[key]}) not found — using the default body` }
+    return { body: manifest.body, warning: `variant "${key}" (${variants[key]}) not found; using the default body` }
   }
   try {
     const body = readFileSync(path, 'utf8').trim()
-    if (body === '') return { body: manifest.body, warning: `variant "${key}" is empty — using the default body` }
+    if (body === '') return { body: manifest.body, warning: `variant "${key}" is empty; using the default body` }
     return { body, variant: key }
   } catch (err) {
     const message = err instanceof Error ? err.message : String(err)
-    return { body: manifest.body, warning: `variant "${key}" could not be read (${message}) — using the default body` }
+    return { body: manifest.body, warning: `variant "${key}" could not be read (${message}); using the default body` }
   }
 }

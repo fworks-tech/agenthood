@@ -1,6 +1,6 @@
 /**
  * Skill references: `owner/name`, optionally `@owner/name` on the command line
- * (ADR-035). The local identity of a skill stays flat — the owner is a registry
+ * (ADR-035). The local identity of a skill stays flat: the owner is a registry
  * qualifier, never part of the directory or the frontmatter `name`.
  */
 
@@ -24,11 +24,11 @@ export function parseSkillRef(raw: string): SkillRef {
     return { name: parts[0] }
   }
   if (parts.length !== 2) {
-    throw new Error(`invalid skill reference "${raw}" — expected owner/name`)
+    throw new Error(`invalid skill reference "${raw}", expected owner/name`)
   }
   const [owner, name] = parts
   if (!OWNER_RE.test(owner)) {
-    throw new Error(`invalid owner "${owner}" in "${raw}" — use lowercase letters, digits and single hyphens`)
+    throw new Error(`invalid owner "${owner}" in "${raw}", use lowercase letters, digits and single hyphens`)
   }
   if (!name) throw new Error(`missing skill name in "${raw}"`)
   return { owner, name }
@@ -47,7 +47,7 @@ export function toRegistryPath(raw: string): string {
   const value = raw.startsWith('@') ? raw.slice(1) : raw
   const parts = value.split('/')
   if (parts.length > 2 || parts[0] === '') {
-    throw new Error(`invalid skill reference "${raw}" — expected owner/name`)
+    throw new Error(`invalid skill reference "${raw}", expected owner/name`)
   }
   return parts.map(encodeURIComponent).join('/')
 }

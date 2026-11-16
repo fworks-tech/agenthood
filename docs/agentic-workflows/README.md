@@ -1,12 +1,12 @@
 # Agentic Workflows
 
-> *Templates for multi-step Society operations. Not automated — intentional.*
+> *Templates for multi-step Society operations. Not automated: intentional.*
 
 ---
 
 ## What These Files Are
 
-Each `.agent.md` file in this directory is a **manual-prompt template** — a
+Each `.agent.md` file in this directory is a **manual-prompt template**: a
 structured set of instructions you paste into your AI coding assistant to
 perform a specific Society operation.
 
@@ -29,7 +29,7 @@ similar) would require:
 3. Per-project configuration for labels, milestones, and routing rules
 
 These dependencies are not yet stable enough to prescribe for all adopters.
-The template approach gives you the same structured process — with full
+The template approach gives you the same structured process: with full
 control over when and how it runs.
 
 This decision is documented in [ADR-001](../adr/ADR-001-markdown-skills-over-code-agents.md).
@@ -61,13 +61,13 @@ know the other system and want the equivalent here.
 ## How to Use a Template
 
 1. Open your AI coding assistant (Claude Code, OpenAI Codex CLI, etc.)
-2. Load the relevant Society member skill — e.g., for PR review, load
+2. Load the relevant Society member skill: e.g., for PR review, load
    `skills/reviewer/SKILL.md`
 3. Paste the template's **Steps** section as your prompt
 4. Add context: the issue body, PR diff, CI log, or merge commit as applicable
 5. The member will follow the steps and produce the appropriate output
 
-**Example — triaging a new issue in Claude Code:**
+**Example: triaging a new issue in Claude Code:**
 
 ```
 /load .claude/skills/doorman/doorman.md

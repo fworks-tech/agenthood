@@ -11,7 +11,7 @@ import { gateSkills, type SkillAvailability, type GateResult } from '../skills/d
 export interface DiscoverSkillsOptions {
   provider?: string
   format?: CatalogFormat
-  /** Skills disabled in config — filtered from the catalog (#537). */
+  /** Skills disabled in config: filtered from the catalog (#537). */
   disabled?: string[]
   /** What this run offers; the gate decides which skills are usable (ADR-037). */
   availability?: SkillAvailability
@@ -66,7 +66,7 @@ export async function discoverSkills(
     console.log(`[skills] ${gate.blocked.size} skill(s) cannot run on this model: ${[...gate.blocked.keys()].join(', ')}`)
   }
   // An empty catalog would render as `<available_skills/>`, which invites the
-  // model to invent skills — omit the whole section instead (#538).
+  // model to invent skills: omit the whole section instead (#538).
   if (map.size === 0) return { catalog: '', manifests: new Map(), ...gate }
 
   const format = options.format ?? defaultCatalogFormat(options.provider)

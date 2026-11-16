@@ -1,6 +1,6 @@
 ---
 name: the-example
-description: Use as the starting point for a third-party member — copy the directory, rename it, then replace the Process section.
+description: Use as the starting point for a third-party member; copy the directory, rename it, then replace the Process section.
 license: MIT
 metadata:
   author: your-handle
@@ -51,9 +51,9 @@ than its permission profile.
 
 ## Rationalizations
 
-- "Namespacing can wait until publishing" — the owner is the publish key and
+- "Namespacing can wait until publishing": the owner is the publish key and
   the update key; adding it later means re-reviewing every copy.
-- "The example does not need the required sections" — the Sentinel checks the
+- "The example does not need the required sections": the Sentinel checks the
   example too, and a broken reference teaches the wrong shape.
 
 ## Verification

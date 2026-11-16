@@ -5,7 +5,7 @@ import * as os from 'os';
 import { AGENTHOOD_MEMBERS } from './members.js';
 import { getMemberTriggers, getInstalledMembers, MemberItem } from './memberWatchProvider.js';
 
-suite('MemberWatchProvider — pure helpers', () => {
+suite('MemberWatchProvider, pure helpers', () => {
   test('getMemberTriggers returns patterns for trigger-capable members', () => {
     const auditorPatterns = getMemberTriggers('auditor');
     assert.ok(auditorPatterns.length > 0, 'The Auditor should have trigger patterns');

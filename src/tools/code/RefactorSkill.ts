@@ -28,7 +28,7 @@ export class RefactorSkill implements ITool {
       return { success: false, output: '', error: `Cannot read "${path}": ${msg}` }
     }
 
-    const prompt = `Refactor the following code. Goal: ${goal}\n\nOutput only the refactored code — no explanations, no markdown fences.\n\n${original}`
+    const prompt = `Refactor the following code. Goal: ${goal}\n\nOutput only the refactored code; no explanations, no markdown fences.\n\n${original}`
 
     let refactored: string
     try {

@@ -31,7 +31,7 @@ The Society uses both layers:
 |--------|------|------|-------------|
 | Commitlint only | Single source of truth; rich plugin ecosystem | Requires Node.js at hook time; agenthood repo itself cannot use it during development without extra setup | Creates a bootstrapping dependency |
 | Bash hook only | Zero dependencies; portable | No plugin ecosystem; rules must be hand-coded; harder to maintain | More maintenance burden for no gain in target projects |
-| Dual enforcement (chosen) | Each layer covers what the other cannot; agenthood is self-enforcing from day one | Two rule sets must stay in sync (The Doorman's job) | — |
+| Dual enforcement (chosen) | Each layer covers what the other cannot; agenthood is self-enforcing from day one | Two rule sets must stay in sync (The Doorman's job) | - |
 
 ## Consequences
 
@@ -49,7 +49,7 @@ The Sentinel CI workflow guards against this.
 
 ## References
 
-- [.githooks/commit-msg](https://github.com/fworks-tech/agenthood/blob/main/.githooks/commit-msg) — bash enforcement hook
-- [conventions/commitlint.config.ts](https://github.com/fworks-tech/agenthood/blob/main/docs/conventions/commitlint.config.ts) — Node.js enforcement config
-- [.github/workflows/pr.yml](https://github.com/fworks-tech/agenthood/blob/main/.github/workflows/pr.yml) — the `sentinel` job — member-structure drift detection
-- [ADR-002](ADR-002-conventional-commits-standard.md) — why Conventional Commits
+- [.githooks/commit-msg](https://github.com/fworks-tech/agenthood/blob/main/.githooks/commit-msg): bash enforcement hook
+- [conventions/commitlint.config.ts](https://github.com/fworks-tech/agenthood/blob/main/docs/conventions/commitlint.config.ts): Node.js enforcement config
+- [.github/workflows/pr.yml](https://github.com/fworks-tech/agenthood/blob/main/.github/workflows/pr.yml): the `sentinel` job for member-structure drift detection
+- [ADR-002](ADR-002-conventional-commits-standard.md): why Conventional Commits

@@ -23,13 +23,13 @@ trigger condition, and a focused skill file. No general-purpose member exists.
 | Option | Pros | Cons | Why Rejected |
 |--------|------|------|-------------|
 | Single general agent | Simple; no routing required | Context bloat; the agent must hold all knowledge simultaneously; no clear ownership | Degrades quality as scope grows |
-| Fewer, broader members (e.g., 4–5) | Easier to learn | Broad members produce diluted guidance; unclear when to invoke | Blurs accountability |
-| 16 specialized members (chosen) | Each member loads only relevant context; clear trigger conditions; easy to add/remove | Requires routing logic; adopters must learn which member to invoke | — |
+| Fewer, broader members (e.g., 4-5) | Easier to learn | Broad members produce diluted guidance; unclear when to invoke | Blurs accountability |
+| 16 specialized members (chosen) | Each member loads only relevant context; clear trigger conditions; easy to add/remove | Requires routing logic; adopters must learn which member to invoke | - |
 | More members (20+) | Maximum specialization | Diminishing returns; cognitive overhead for adopters | Premature for current scope |
 
 ## Consequences
 
-**Easier:** Each member's skill file is small and focused — it loads quickly
+**Easier:** Each member's skill file is small and focused; it loads quickly
 and fits within context budgets. Adding a new member does not affect existing
 members.
 
@@ -42,6 +42,6 @@ to any specialist.
 
 ## References
 
-- [members/README.md](https://github.com/fworks-tech/agenthood/blob/main/docs/members/README.md) — full member registry
-- [skills/steward/SKILL.md](https://github.com/fworks-tech/agenthood/blob/main/skills/steward/SKILL.md) — routing member
-- [architecture/agent-system.md](https://github.com/fworks-tech/agenthood/blob/main/docs/architecture/agent-system.md) — system design
+- [members/README.md](https://github.com/fworks-tech/agenthood/blob/main/docs/members/README.md): full member registry
+- [skills/steward/SKILL.md](https://github.com/fworks-tech/agenthood/blob/main/skills/steward/SKILL.md): routing member
+- [architecture/agent-system.md](https://github.com/fworks-tech/agenthood/blob/main/docs/architecture/agent-system.md): system design

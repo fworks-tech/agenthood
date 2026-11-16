@@ -7,7 +7,7 @@ export type GuardedPath =
 
 /** A path escapes `root` when the relative form starts with `..` or is absolute
  *  (different drive on Windows). A plain `startsWith(root)` check lets a sibling
- *  folder that shares the prefix through — `proj-evil` for root `proj`. */
+ *  folder that shares the prefix through: `proj-evil` for root `proj`. */
 function escapes(root: string, target: string): boolean {
   const rel = relative(root, target)
   return rel === '..' || rel.startsWith('../') || rel.startsWith('..\\') || isAbsolute(rel)
@@ -16,9 +16,9 @@ function escapes(root: string, target: string): boolean {
 /**
  * Resolves a tool-supplied path inside the project root, rejecting traversal
  * via `..` and via a symlink that points outside. `allowedRoots` adds the
- * directories of skills activated in this run (#536) — read access only, and
+ * directories of skills activated in this run (#536): read access only, and
  * every use is logged. The caller owns the error message decision; a missing
- * file is not a guard failure — the real read or write surfaces it.
+ * file is not a guard failure: the real read or write surfaces it.
  */
 export async function resolveInsideProject(
   root: string,

@@ -62,7 +62,7 @@ const strictRequest: LLMRequest = {
 
 ## Further reading
 
-- [`src/llm/types.ts`](../../../src/llm/types.ts) — source implementation (shipped in v2.0.0)
-- [Cohere: Parameters Guide](https://docs.cohere.com/docs/temperature-top-p-and-top-k) — how sampling parameters mathematically work
+- [`src/llm/types.ts`](../../../src/llm/types.ts): source implementation (shipped in v2.0.0)
+- [Cohere: Parameters Guide](https://docs.cohere.com/docs/temperature-top-p-and-top-k): how sampling parameters mathematically work
 
 

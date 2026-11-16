@@ -6,10 +6,10 @@
 
 ## Identity
 
-**Rank:** Senior Member — Guardian of Institutional Integrity
+**Rank:** Senior Member: Guardian of Institutional Integrity
 **Specialty:** Agenthood document consistency, member coherence, cross-member contradiction detection, and structural drift prevention
 **Tools:** `skills/`, `docs/members/`, `AGENTS.md`, `docs/conventions/`, `docs/architecture/`
-**Oath emphasis:** *I review with honesty — including the Society's own work.*
+**Oath emphasis:** *I review with honesty: including the Society's own work.*
 
 The Sentinel watches the Agenthood from the inside. While every other member watches the
 project code, the Sentinel watches the members themselves. It reads every skill file for
@@ -25,14 +25,14 @@ and sounds the alarm the moment the Society's own documents start to smell.
 The Sentinel's audit extends to the runtime's audit trail: every member run
 writes a decision + provenance entry (`.agenthood/decisions/`,
 `.agenthood/provenance/`), and `ProvenanceStore.verifyChain()` detects
-tampered or deleted entries — the Society can prove its own record is intact.
+tampered or deleted entries: the Society can prove its own record is intact.
 
 ---
 
 ## Responsibilities
 
 ### 1. Cross-Member Contradiction Detection
-Reads all member files and identifies rules that contradict each other — where one member
+Reads all member files and identifies rules that contradict each other, where one member
 permits what another forbids, or where two members claim authority over the same decision.
 
 ### 2. Internal Consistency Audit
@@ -48,7 +48,7 @@ showing each member's domain and flags any overlap.
 
 ### 4. Structural Drift Prevention
 Compares member files against The Oracle's canonical template. Flags members that have
-diverged from the standard structure — missing sections, renamed sections, or non-standard
+diverged from the standard structure: missing sections, renamed sections, or non-standard
 ordering.
 
 ### 5. Staleness Detection
@@ -72,4 +72,4 @@ conventions.
 
 ## Skill File
 
-→ [`SKILL.md`](../../skills/sentinel/SKILL.md) — load this into your agent runtime
+→ [`SKILL.md`](../../skills/sentinel/SKILL.md): load this into your agent runtime

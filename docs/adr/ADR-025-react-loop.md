@@ -6,7 +6,7 @@
 ## Context
 
 Members act on repositories: they must read files, search code, propose edits, and ask
-humans — in varying order, decided at runtime by the model. A fixed pipeline cannot
+humans: in varying order, decided at runtime by the model. A fixed pipeline cannot
 express that; a fully autonomous loop without bounds cannot be trusted or paid for
 (open-ended token spend, runaway tool calls).
 
@@ -16,7 +16,7 @@ express that; a fully autonomous loop without bounds cannot be trusted or paid f
 with tool invocations until it produces a final answer or `MaxStepsExceededError` fires.
 Each tool is constructed from `TOOL_MAP` in `MemberAgent` and gated before use:
 
-- `permissionProfile` (restricted/standard/trusted) classifies every tool fail-closed —
+- `permissionProfile` (restricted/standard/trusted) classifies every tool fail-closed,
   an unclassified tool is denied for every profile.
 - SKILL.md `allowed-tools` may narrow the profile set but never expand it (ADR-028).
 - `SafetyGuard` inspects commands; `security.sandbox` layers integrity confirmation and,

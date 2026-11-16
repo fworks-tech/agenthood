@@ -4,9 +4,9 @@ import type { ITool, ToolResult } from '../ITool.ts'
 import type { ExecutionContext } from '../../core/ExecutionContext.ts'
 
 // .agenthood holds runtime state (traces, eval history, caches) that grows
-// with usage — scanning it makes every search slower over time.
+// with usage: scanning it makes every search slower over time.
 const IGNORED_DIRS = new Set(['node_modules', '.git', 'dist', '.next', 'coverage', '.cache', '.agenthood'])
-const MAX_FILE_SIZE = 512 * 1024 // 512 KB — skip binary/large files
+const MAX_FILE_SIZE = 512 * 1024 // 512 KB: skip binary/large files
 const MAX_RESULTS = 50
 
 function collectMatches(
@@ -59,7 +59,7 @@ function collectMatches(
         results.push(relPath)
       }
     } catch {
-      // Binary or unreadable file — skip
+      // Binary or unreadable file: skip
     }
   }
 }
@@ -70,7 +70,7 @@ export class SearchCodebaseSkill implements ITool {
   inputSchema = {
     type: 'object',
     properties: {
-      query: { type: 'string', description: 'Search query — plain text or regex pattern' },
+      query: { type: 'string', description: 'Search query; plain text or regex pattern' },
     },
     required: ['query'],
   }
@@ -86,7 +86,7 @@ export class SearchCodebaseSkill implements ITool {
     try {
       pattern = new RegExp(query, 'i')
     } catch {
-      // Invalid regex — treat as literal string
+      // Invalid regex: treat as literal string
       pattern = new RegExp(query.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), 'i')
     }
 

@@ -3,7 +3,7 @@ import { join } from 'node:path'
 
 /** The Mediator's four intent buckets, slugs for the prose in
  * skills/mediator/SKILL.md "Classifying Intent". An intent outside this
- * set is bucket 1 by definition — a prompt that fits none of the four is
+ * set is bucket 1 by definition: a prompt that fits none of the four is
  * under-specified, not a fifth kind.
  */
 export const ROUTING_INTENTS = [
@@ -16,7 +16,7 @@ export const ROUTING_INTENTS = [
 export type RoutingIntent = (typeof ROUTING_INTENTS)[number]
 
 /** Below this the Mediator must run Parallel Evaluation or escalate to The
- * Strategist before routing. Kept here so the threshold lives in one place —
+ * Strategist before routing. Kept here so the threshold lives in one place,
  * SKILL.md, the Steward's own cascade, and this validator cannot drift.
  */
 export const PARALLEL_EVALUATION_THRESHOLD = 70
@@ -31,7 +31,7 @@ export type ParallelEvaluation = {
  * `.agenthood/routing/<id>.json`. Deliberately not a DecisionLogEntry: that
  * type carries `task`/`decision`/`rationale`/`outcome`/`tags` free-text, and
  * DecisionLog.loadCache() casts every .json in its own directory to that
- * shape — matchEntry() then dereferences entry.tags unguarded. A second record
+ * shape: matchEntry() then dereferences entry.tags unguarded. A second record
  * kind in that directory crashes search(). Separate home, separate shape.
  *
  * Field names are snake_case because this is the on-disk contract members
@@ -61,7 +61,7 @@ function isPlainObject(value: unknown): value is Record<string, unknown> {
  * Enforces what the member docs promise: intent is one of the four buckets,
  * confidence is 0-100, target is a registered member, and a sub-threshold
  * score actually triggered the cascade. Returns one message per violation, so
- * a member can fix every problem in one pass. Unknown extra keys are ignored —
+ * a member can fix every problem in one pass. Unknown extra keys are ignored,
  * the docs forbid free-text beyond `reasoning`, but an extra key is noise, not
  * a routing error, and dropping records over it would lose the audit trail.
  */
@@ -155,7 +155,7 @@ export function writeRoutingDecision(routingDir: string, decision: RoutingDecisi
 export type RoutingAudit = { file: string; errors: string[] }
 
 /** Reads and validates every routing record in `routingDir`. A missing
- * directory is not an error — a Society that has not routed anything yet is
+ * directory is not an error: a Society that has not routed anything yet is
  * in the correct state, and CI has no .agenthood at all.
  */
 export function auditRoutingRecords(routingDir: string, knownMembers: readonly string[]): RoutingAudit[] {

@@ -33,7 +33,7 @@ export interface RunScriptDeps {
   projectPath: string
   executionId: string
   manifests: Map<string, ISkillManifest>
-  /** Skills activated in this run — the authorization set. */
+  /** Skills activated in this run: the authorization set. */
   activeSkills: ReadonlySet<string>
   sandbox: boolean
   trustedAuthors?: string[]
@@ -187,7 +187,7 @@ export async function runSkillScript(request: RunScriptRequest, deps: RunScriptD
     if (!guarded.ok) return fail(guarded.error)
     scriptPath = guarded.path
     if (!existsSync(scriptPath)) return fail(`Script "${script}" not found in skill "${skillName}".`)
-    if (statSync(scriptPath).size > 1024 * 1024) return fail(`Script "${script}" is larger than 1 MiB — refusing to run it.`)
+    if (statSync(scriptPath).size > 1024 * 1024) return fail(`Script "${script}" is larger than 1 MiB, refusing to run it.`)
 
     const source = readFileSync(scriptPath, 'utf8')
     digest = createHash('sha256').update(source).digest('hex')

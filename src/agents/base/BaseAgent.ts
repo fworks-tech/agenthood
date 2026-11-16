@@ -16,7 +16,7 @@ export interface BaseAgentOptions {
 
 /**
  * Base lifecycle for every agent. Intentional dependency hub: by contract it
- * touches the LLM, tool, core, reasoning, memory, and evals layers — changing
+ * touches the LLM, tool, core, reasoning, memory, and evals layers: changing
  * any of those surfaces is expected to flow through here.
  */
 export abstract class BaseAgent {

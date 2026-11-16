@@ -31,7 +31,7 @@ function dirsAreRelated(testRelDir, srcRelDir) {
 }
 
 // Match by basename, restricted to test directories that are ancestors or
-// descendants of the source's own directory — `src/utils/format.ts` matches
+// descendants of the source's own directory: `src/utils/format.ts` matches
 // `tests/unit/utils/format.test.ts` but never `tests/other/format.test.ts`.
 export function findTestFilesForSource(sourceFile, index) {
   const baseName = basename(sourceFile).replace(/\.tsx?$/, '')
@@ -85,7 +85,7 @@ const FLAG_LIKE_PATH = /^-/
 // A test path must never look like a CLI flag: vitest would parse it as an
 // option, not a file. Our derivation cannot produce one today, but a future
 // change could map a source named `-c` onto a tests/ path that starts with a
-// dash — fail loudly instead of handing vitest an option.
+// dash: fail loudly instead of handing vitest an option.
 export function rejectFlagLikePaths(testFiles) {
   const flagLike = testFiles.filter((f) => FLAG_LIKE_PATH.test(f))
   if (flagLike.length > 0) {
@@ -111,7 +111,7 @@ async function main() {
 
   console.log(`Running tests for: ${testFiles.join(', ')}`)
   const result = spawnSync('npx', ['vitest', 'run', ...testFiles], { stdio: 'inherit' })
-  // a null status means the child died to a signal, not a normal exit — that
+  // a null status means the child died to a signal, not a normal exit, that
   // is a failure, not success
   process.exit(result.status ?? 1)
 }

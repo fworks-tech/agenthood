@@ -12,7 +12,7 @@
 
 <!-- Plain-language explanation. No jargon without definition.
      Target: a TypeScript developer who knows nothing about this concept.
-     Length: 2–4 paragraphs. No bullet lists in this section. -->
+     Length: 2-4 paragraphs. No bullet lists in this section. -->
 
 [Explanation here.]
 
@@ -21,8 +21,8 @@
 ## Why it matters in production
 
 <!-- The failure mode this concept prevents. Real consequences.
-     Not hypothetical — what actually breaks when you skip this.
-     Length: 1–3 paragraphs or a short list of specific failure scenarios. -->
+     Not hypothetical: what actually breaks when you skip this.
+     Length: 1-3 paragraphs or a short list of specific failure scenarios. -->
 
 [Failure modes and consequences here.]
 
@@ -31,7 +31,7 @@
 ## How Agenthood implements it
 
 <!-- Link to the actual class or interface in the source.
-     Include a concise code snippet (10–20 lines max) showing the API.
+     Include a concise code snippet (10-20 lines max) showing the API.
      If the component is planned for a future milestone, say so clearly with the milestone number. -->
 
 Agenthood implements this in [`src/path/to/File.ts`](../../src/path/to/File.ts):
@@ -72,8 +72,8 @@ Or in TypeScript:
      2. The source file this article covers
      3. One high-quality external reference (paper, RFC, well-known blog post) -->
 
-- [ADR-XXX — Decision title](../../adr/ADR-XXX-description.md)
-- [`src/path/to/File.ts`](../../src/path/to/File.ts) — source implementation
-- [External reference title](https://example.com) — brief note on why this source
+- [ADR-XXX: Decision title](../../adr/ADR-XXX-description.md)
+- [`src/path/to/File.ts`](../../src/path/to/File.ts): source implementation
+- [External reference title](https://example.com): brief note on why this source
 
 

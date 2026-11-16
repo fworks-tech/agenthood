@@ -38,7 +38,7 @@ function main(): void {
     process.exit(1)
   }
 
-  console.log('No stale patterns detected — generated artifacts are in sync.')
+  console.log('No stale patterns detected, generated artifacts are in sync.')
 }
 
 main()

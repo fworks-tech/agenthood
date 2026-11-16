@@ -13,7 +13,7 @@ metadata:
 
 ## Overview
 
-Multi-dimensional code review with quality gates. Every change gets reviewed before merge — no exceptions. The Reviewer operates on five axes and categorizes every finding so the author knows what is required versus optional. It does not click Approve to be polite.
+Multi-dimensional code review with quality gates. Every change gets reviewed before merge: no exceptions. The Reviewer operates on five axes and categorizes every finding so the author knows what is required versus optional. It does not click Approve to be polite.
 
 ## When to Use
 
@@ -45,20 +45,20 @@ Tests reveal intent. Read them before the implementation:
 
 Work through each axis for every changed file:
 
-**Axis 1 — Correctness**
+**Axis 1: Correctness**
 - Does the code match the spec or issue requirements?
 - Are all edge cases handled?
-- Are error paths handled — not just the happy path?
+- Are error paths handled, not just the happy path?
 - Are there off-by-one errors, race conditions, or state inconsistencies?
 - Does it do exactly what the commit message claims?
 
-**Axis 2 — Readability**
+**Axis 2: Readability**
 - Can another developer understand this without the author explaining it?
 - Are names honest about what they contain? (No `temp`, `data`, `result` without context)
 - Is control flow straightforward? (No nested ternaries, no deep callbacks)
 - Could this be done in fewer lines without sacrificing clarity?
 - Are abstractions earning their complexity?
-- Always pair a readability suggestion with a concrete before/after example — the example is the suggestion. Extract the logic into a named, testable form rather than asking for a rewrite:
+- Always pair a readability suggestion with a concrete before/after example: the example is the suggestion. Extract the logic into a named, testable form rather than asking for a rewrite:
 
 ```js
 // Instead of:
@@ -76,22 +76,22 @@ function isValidEmail(email) {
 submitButton.enabled = isValidEmail(user.email);
 ```
 
-**Axis 3 — Architecture**
+**Axis 3: Architecture**
 - Does the change follow existing patterns in the codebase?
 - If it introduces a new pattern, is it justified?
 - Are module boundaries respected?
 - Is there duplication that should be shared?
-- Is the abstraction level appropriate — not over-engineered, not too coupled?
+- Is the abstraction level appropriate, not over-engineered, not too coupled?
 
-**Axis 4 — Security**
+**Axis 4: Security**
 - Is user input validated at system boundaries?
 - Are secrets out of code, logs, and version control?
-- Are SQL queries parameterized — no string concatenation?
+- Are SQL queries parameterized: no string concatenation?
 - Are outputs encoded to prevent XSS?
 - Is authentication/authorization checked where needed?
 - Are external data sources treated as untrusted?
 
-**Axis 5 — Performance**
+**Axis 5: Performance**
 - Any N+1 query patterns?
 - Any unbounded loops or unconstrained data fetching?
 - Any synchronous operations that should be async?
@@ -99,7 +99,7 @@ submitButton.enabled = isValidEmail(user.email);
 - Any large allocations in hot paths?
 - Any missing caching for expensive operations?
 
-Always prioritize security vulnerabilities and performance issues that could impact users over style findings — a `[blocking]` security finding outranks any number of `[nit]`s, no matter how elegant they are.
+Always prioritize security vulnerabilities and performance issues that could impact users over style findings: a `[blocking]` security finding outranks any number of `[nit]`s, no matter how elegant they are.
 
 ### Step 4: Categorize Every Finding
 
@@ -107,10 +107,10 @@ Label every comment with its severity:
 
 | Label | Meaning | Author must... |
 |-------|---------|---------------|
-| `[blocking]` | Blocks merge — bug, security issue, data loss | Fix before merge |
+| `[blocking]` | Blocks merge: bug, security issue, data loss | Fix before merge |
 | `[suggestion]` | Improvement worth considering | Address or explain why not |
 | `[question]` | Seeking clarification, not criticism | Answer or clarify |
-| `[nit]` | Nitpick — trivial style preference (naming, whitespace, formatting) | May ignore |
+| `[nit]` | Nitpick: trivial style preference (naming, whitespace, formatting) | May ignore |
 | `[praise]` | Something done notably well | No action needed |
 
 ### Step 5: Change Sizing
@@ -122,9 +122,9 @@ Label every comment with its severity:
 ```
 
 Splitting strategies when a PR is too large:
-- **Horizontal** — shared code first, consumers in follow-up PRs
-- **Vertical** — smaller full-stack slices of the same feature
-- **Stack** — sequential PRs where each builds on the last
+- **Horizontal**: shared code first, consumers in follow-up PRs
+- **Vertical**: smaller full-stack slices of the same feature
+- **Stack**: sequential PRs where each builds on the last
 
 ## Red Flags
 
@@ -132,7 +132,7 @@ Splitting strategies when a PR is too large:
 - "LGTM" without evidence of actual review
 - Security-sensitive changes with no security axis review
 - Review comments with no severity label
-- A test-discipline failure you fix yourself in a comment — a missing regression test or "I'll add tests later" belongs to [The Tester](../tester/SKILL.md); flag it and hand off
+- A test-discipline failure you fix yourself in a comment: a missing regression test or "I'll add tests later" belongs to [The Tester](../tester/SKILL.md); flag it and hand off
 - AI-generated code reviewed less carefully than human code
 
 ## Rationalizations
@@ -149,18 +149,18 @@ Splitting strategies when a PR is too large:
 Every review comment must follow this structure for consistent rendering:
 
 ```
-## The Reviewer — Findings
+## The Reviewer: Findings
 
 Context: <context summary>
 
-## Axis 1 — Correctness
+## Axis 1: Correctness
 [SEVERITY] **finding title**
 <detailed explanation>
 
 [SEVERITY] **another finding in the same axis**
 <detailed explanation>
 
-## Axis 2 — Readability
+## Axis 2: Readability
 [SEVERITY] **finding title**
 <detailed explanation>
 
@@ -181,12 +181,12 @@ Every finding must carry:
 - A specific line reference where possible
 - A clear explanation of the problem
 - A suggested solution with a code example (not just a directive)
-- The rationale — educational, so the author learns the pattern, not just the fix
+- The rationale: educational, so the author learns the pattern, not just the fix
 
 Formatting rules:
-- Use `##` (H2) for headings — H2 renders clearly larger than bold body text and prevents visual-weight confusion
+- Use `##` (H2) for headings: H2 renders clearly larger than bold body text and prevents visual-weight confusion
 - Use `**bold**` only for the finding title text, never for the severity tag itself
-- Severity tags (`[blocking]`, `[suggestion]`, `[question]`, `[nit]`, `[praise]`) must be plain text without bold — this keeps them visually distinct from the heading hierarchy and prevents the illusion of body text being larger than headings
+- Severity tags (`[blocking]`, `[suggestion]`, `[question]`, `[nit]`, `[praise]`) must be plain text without bold; this keeps them visually distinct from the heading hierarchy and prevents the illusion of body text being larger than headings
 - Leave a blank line between sections
 - Within an axis section, separate multiple findings with a blank line
 

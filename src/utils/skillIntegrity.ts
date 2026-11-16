@@ -5,7 +5,7 @@ import type { ExecutionContext } from '../core/ExecutionContext.ts'
 import { contentHash, fileHash } from './hash.ts'
 
 export type SkillIntegrityStatus = 'clean' | 'drift' | 'corrupt' | 'no-lockfile' | 'missing'
-/** Reasons that surface the integrity gate as inactive or violated — everything except 'clean'. */
+/** Reasons that surface the integrity gate as inactive or violated: everything except 'clean'. */
 export type SkillIntegrityFailure = 'drift' | 'corrupt' | 'no-lockfile' | 'missing'
 
 export interface SkillIntegrityOptions {
@@ -19,8 +19,8 @@ export interface SkillIntegrityOptions {
  * have been tampered with (a mind-virus persistence vector); a corrupt lockfile is
  * treated as suspicious rather than silently skipped, since tampering may also leave
  * the lock unreadable. When the lock entry carries `resources`, the member's
- * scripts/ and references/ are checked too — those are the files that execute.
- * Pure — never throws; callers decide whether drift/corruption is a hard block.
+ * scripts/ and references/ are checked too; those are the files that execute.
+ * Pure: never throws; callers decide whether drift/corruption is a hard block.
  */
 export function checkSkillIntegrity(
   member: string,
@@ -46,17 +46,17 @@ export function checkSkillIntegrity(
   if (!existsSync(skillPath)) return 'missing'
   const current = contentHash(readFileSync(skillPath, 'utf-8'))
   if (current !== entry.version) return 'drift'
-  // SKILL.md matches — now the resource surface, when the lock recorded one.
+  // SKILL.md matches: now the resource surface, when the lock recorded one.
   if (entry.resources && checkResourceIntegrity(dirname(skillPath), entry.resources).length > 0) return 'drift'
   return 'clean'
 }
 
-// Resource dirs hashed alongside SKILL.md (#604) — mirrors the manifest
+// Resource dirs hashed alongside SKILL.md (#604): mirrors the manifest
 // surface (SkillParser.parseManifest collects scripts/ + references/).
 const RESOURCE_DIRS = ['scripts', 'references']
 
 // Map member-relative resource paths to SHA-256 hex. One level deep, files
-// only — same surface parseManifest advertises, so the lock cannot drift from
+// only: same surface parseManifest advertises, so the lock cannot drift from
 // the manifest on nesting.
 export function collectResourceHashes(memberDir: string): Record<string, string> {
   const hashes: Record<string, string> = {}
@@ -80,7 +80,7 @@ export function collectResourceHashes(memberDir: string): Record<string, string>
 }
 
 // Drifted, missing, and untracked resource paths vs the lockfile. Empty means
-// the resource surface matches — the --integrity report and validateMember
+// the resource surface matches: the --integrity report and validateMember
 // compose from this so the vocabulary stays in one place.
 export function checkResourceIntegrity(memberDir: string, locked?: Record<string, string>): string[] {
   const current = collectResourceHashes(memberDir)
@@ -106,7 +106,7 @@ export function checkResourceIntegrity(memberDir: string, locked?: Record<string
  * the console warning) composes from this so the operator-facing vocabulary
  * cannot drift between spellings. Per-surface *guidance* text intentionally
  * differs (a strict-mode throw tells the operator what to fix; a warning
- * tells them the run continued and how to re-lock) — only the reason phrases
+ * tells them the run continued and how to re-lock): only the reason phrases
  * are centralized here.
  */
 export function describeIntegrityFailure(member: string, reason: SkillIntegrityFailure): string {
@@ -128,7 +128,7 @@ export class SkillIntegrityError extends Error {
     // only no-lockfile means the gate itself is off; missing means the lockfile
     // has an entry but the SKILL.md file is gone, so the gate IS on
     const gate = reason === 'no-lockfile'
-      ? 'refusing to run (strict mode) — the integrity gate is OFF'
+      ? 'refusing to run (strict mode): the integrity gate is OFF'
       : 'refusing to run (strict mode)'
     const guidance: Record<SkillIntegrityFailure, string> = {
       corrupt: 'Fix or regenerate the lockfile.',
@@ -136,7 +136,7 @@ export class SkillIntegrityError extends Error {
       'no-lockfile': 'Run `agenthood verify` to generate the lockfile.',
       missing: 'Restore the skill file or regenerate the lockfile.',
     }
-    super(`[mind-virus] ${describeIntegrityFailure(member, reason)} — ${gate}. ${guidance[reason]}`)
+    super(`[mind-virus] ${describeIntegrityFailure(member, reason)}: ${gate}. ${guidance[reason]}`)
     this.name = 'SkillIntegrityError'
   }
 }
@@ -151,7 +151,7 @@ export async function recordSkillIntegrityDrift(
   member: string,
   reason: SkillIntegrityFailure = 'drift',
 ): Promise<void> {
-  const gateNote = reason === 'no-lockfile' ? ' — integrity gate is OFF' : ''
+  const gateNote = reason === 'no-lockfile' ? ': integrity gate is OFF' : ''
   const detail = `${describeIntegrityFailure(member, reason)}${gateNote}`
   try {
     const timestamp = new Date().toISOString()

@@ -33,7 +33,7 @@ export interface JSONSchemaProperty {
   type: string
   description?: string
   maxLength?: number
-  /** Allowed values — `activate_skill` constrains the name to discovered skills (#531). */
+  /** Allowed values: `activate_skill` constrains the name to discovered skills (#531). */
   enum?: string[]
   /** Element schema for `type: 'array'` (ADR-036 script arguments). */
   items?: JSONSchemaProperty
@@ -99,7 +99,7 @@ export interface SkillsConfig {
   catalogFormat?: CatalogFormatName
   /** Per-provider catalog format (#556). */
   providerFormats?: Record<string, CatalogFormatName>
-  /** Skills disabled by the user — filtered from the catalog and refused (#537). */
+  /** Skills disabled by the user: filtered from the catalog and refused (#537). */
   disabled?: string[]
   /** `false` disables fallback activation chains (#613). */
   fallback?: boolean
@@ -111,7 +111,7 @@ export interface SkillsConfig {
   cacheTtlMs?: number
 }
 
-/** One remote catalog (ADR-035). `tokenEnv` names an env var — never a literal token. */
+/** One remote catalog (ADR-035). `tokenEnv` names an env var: never a literal token. */
 export interface RemoteCatalogSource {
   url: string
   tokenEnv?: string

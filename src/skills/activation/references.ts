@@ -36,7 +36,7 @@ export function findMissingReferences(body: string, directory: string): string[]
   })
 }
 
-/** True when a reference resolves outside the skill directory — never allowed. */
+/** True when a reference resolves outside the skill directory: never allowed. */
 export function escapesSkillDirectory(reference: string, directory: string): boolean {
   const root = resolve(directory)
   const target = resolve(root, reference)

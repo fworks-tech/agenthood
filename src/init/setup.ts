@@ -32,12 +32,12 @@ async function safeCopy(src: string, dest: string, overwrite = false): Promise<v
 }
 
 /** Path (relative to the project root) where each runtime's member skills
- * live — consumed by init (installSkills/planPaths) and eject (cleanup) */
+ * live: consumed by init (installSkills/planPaths) and eject (cleanup) */
 function resolveSkillsDest(cwd: string, runtime: Runtime): string {
   return join(cwd, RUNTIME_SKILL_DIRS[runtime])
 }
 
-/** Files `init` would write for the given runtime/members — used by --dry-run */
+/** Files `init` would write for the given runtime/members: used by --dry-run */
 export function planPaths(cwd: string, runtime: Runtime, members: string[]): string[] {
   const skillsDest = resolveSkillsDest(cwd, runtime)
   const paths = members.map((m) => join(skillsDest, m, `${m}.md`))
@@ -56,7 +56,7 @@ export async function installSkills(cwd: string, runtime: Runtime, members: stri
     try {
       await symlink(join(cwd, '.agents', 'skills'), legacyDest)
     } catch {
-      // symlink may fail on Windows without privileges — fall back to copy
+      // symlink may fail on Windows without privileges: fall back to copy
       await mkdir(legacyDest, { recursive: true })
     }
   }
@@ -100,7 +100,7 @@ export async function scaffoldConfig(cwd: string, runtime: Runtime, members: str
     try {
       raw = JSON.parse(await readFile(examplePath, 'utf8')) as Record<string, unknown>
     } catch (err) {
-      console.warn(`[agenthood] bundled config.example.json is malformed (${err instanceof Error ? err.message : err}) — using defaults`)
+      console.warn(`[agenthood] bundled config.example.json is malformed (${err instanceof Error ? err.message : err}); using defaults`)
     }
     const config = { ...stripComments(raw), runtime, members }
     await writeFile(configPath, JSON.stringify(config, null, 2) + '\n', 'utf8')

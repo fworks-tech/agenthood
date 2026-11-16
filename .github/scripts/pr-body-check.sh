@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-# The Doorman — every PR must link to the issue(s) it resolves via a GitHub
+# The Doorman: every PR must link to the issue(s) it resolves via a GitHub
 # closing keyword (`close`, `closes`, `closed`, `fix`, `fixes`, `fixed`,
 # `resolve`, `resolves`, `resolved`) plus an issue number (AGENTS.md). The
 # keyword is case-insensitive, may be followed by an optional colon, and the

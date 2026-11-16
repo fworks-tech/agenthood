@@ -6,7 +6,7 @@ export function contentHash(content: string): string {
 }
 
 // Raw-byte SHA-256 for resource files (scripts, references) that may not be
-// UTF-8 text — contentHash would corrupt binary content via utf8 decoding.
+// UTF-8 text: contentHash would corrupt binary content via utf8 decoding.
 export function fileHash(filePath: string): string {
   return createHash('sha256').update(readFileSync(filePath)).digest('hex')
 }

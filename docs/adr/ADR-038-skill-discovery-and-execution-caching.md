@@ -28,7 +28,7 @@ scan and the spec-shape checks; the cached entry carries their results. A miss
 parses and rewrites the entry. Entries not seen in a run are dropped, so the file
 does not grow across deleted skills.
 
-`mtimeMs` + `size` misses a rewrite that restores the original mtime — the
+`mtimeMs` + `size` misses a rewrite that restores the original mtime: the
 single case the cache can serve stale content. `agenthood cache clear` covers an
 intentional disguise, and `agenthood verify` reads the file directly and is
 unaffected.
@@ -37,7 +37,7 @@ unaffected.
 
 Scanning keeps the 6-level depth limit and adds a 2000-directory cap, with
 `.venv`, `__pycache__`, `.tox`, `vendor` and `target` alongside the existing
-skips. Once the cap is hit, the scan stops and says so — a partially scanned
+skips. Once the cap is hit, the scan stops and says so: a partially scanned
 skill set that looks complete is the failure mode worth avoiding.
 
 `.gitignore` is **not** parsed. A correct matcher is a dependency (`ignore`),
@@ -53,7 +53,7 @@ measurement, not a claim.
 `skills.cacheOutputs: true` (default `false`) caches the result of a
 `run_skill_script` call at `.agenthood/skill-cache/output/<sha256>.json` for
 `skills.cacheTtlMs` (default 3600000). The key is the skill name, the script
-path, the arguments and a digest of the script file — an edited script is never
+path, the arguments and a digest of the script file: an edited script is never
 served from cache. One-off commands are never cached: their side effects live
 outside the run.
 
@@ -94,7 +94,7 @@ number is the deliverable, not the mechanism.
 - Tests cover the cache as a pure key/validation unit plus one integration run
   through `SkillDiscovery`.
 - Measured with `npm run bench:skills` (50 generated project skills, Windows
-  dev machine): cold 171 ms, warm 59 ms — a 66% reduction, 111 cache hits. The
+  dev machine): cold 171 ms, warm 59 ms: a 66% reduction, 111 cache hits. The
   gate fails cold discovery above 500 ms. `#614`'s >50% criterion is met by the
   cache; `import()` lazy loading remains rejected.
 

@@ -17,7 +17,7 @@ earns its tokens by encoding what a senior person knows and a generic model does
 - the threshold ("above ~200 lines, split it") a junior would not know
 
 Test: delete every line a competent model would produce unprompted. What is left is the skill. If
-nothing is left, the skill is a prompt wrapper — fold it into the description and delete the file.
+nothing is left, the skill is a prompt wrapper: fold it into the description and delete the file.
 
 **Do not** pad a body to fill the six sections. An empty `## Verification` is a signal that the work
 was never defined, not a formatting gap.
@@ -36,7 +36,7 @@ Both are on the bill, and they are paid repeatedly.
 
 `agenthood status` shows the catalog cost per skill; `agenthood verify --tokens` shows the body cost;
 `agenthood optimize --cost` ranks both against how often the skill actually triggers. A skill nobody
-activates is pure cost — either fix its description or hide it.
+activates is pure cost: either fix its description or hide it.
 
 **Progressive disclosure is the pattern:** the body tells the model *when* to read
 `references/whatever.md`, and the file is read only by the runs that need it. A 60-line body with
@@ -61,7 +61,7 @@ review gate should say so in its body, so the gate is not a surprise.
 
 ## 4. Say what you refuse
 
-A skill with no red flags is a skill that will rationalise. The useful section is not "be careful" —
+A skill with no red flags is a skill that will rationalise. The useful section is not "be careful",
 it is the specific excuse and its counter:
 
 | Excuse | Counter |
@@ -77,7 +77,7 @@ Write the excuse you have actually seen. A red flag nobody hits is decoration.
 - **The name is the key.** Directory, frontmatter, chain step and lockfile must agree. A rename without
   `verify --update-lock` shows as drift, and a rename without updating chains silently misses.
 - **A body is not a tool.** Instructions cannot fetch. If the step needs the network or the filesystem,
-  it is a bundled script (Docker by default) or a tool call — say which.
+  it is a bundled script (Docker by default) or a tool call: say which.
 - **Relative paths resolve from the skill directory**, not the project root. `references/x.md` is
   inside the skill; `../x.md` is outside and refused.
 - **`allowed-tools` can only narrow.** It intersects with the member's profile; declaring a tool the

@@ -7,7 +7,7 @@ import type { RedactionFilter } from '../core/RedactionFilter.ts'
  * Transparently redacts secrets/PII from outbound LLM request messages before
  * they reach any provider, so an accidental `sk-…` in a task, file, diff, or
  * tool output is never sent to a third party. Wrapping at provider
- * construction makes it unconditional — every caller (ReActLoop, tools, eval)
+ * construction makes it unconditional: every caller (ReActLoop, tools, eval)
  * is covered without each one remembering to redact.
  *
  * The Proxy preserves the wrapped provider's prototype identity, so routing

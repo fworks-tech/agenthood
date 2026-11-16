@@ -1,5 +1,5 @@
 /**
- * `.well-known/agentskills` catalog distribution (ADR-035 §3–4).
+ * `.well-known/agentskills` catalog distribution (ADR-035 §3-4).
  *
  * A catalog is an advisory listing of skills hosted elsewhere. It never replaces
  * local discovery: when the network, the token or the payload is bad, the caller
@@ -37,7 +37,7 @@ export interface CatalogSource {
   tokenEnv?: string
 }
 
-/** Where the returned catalog came from — `stale` is a cache older than the TTL. */
+/** Where the returned catalog came from: `stale` is a cache older than the TTL. */
 export type CatalogOrigin = 'network' | 'cache' | 'stale'
 
 export const DEFAULT_CATALOG_TTL_SECONDS = 24 * 60 * 60
@@ -57,9 +57,9 @@ export function parseCatalog(text: string): SkillCatalog {
   }
   if (!data || typeof data !== 'object') throw new Error('catalog body is not an object')
   const raw = data as Record<string, unknown>
-  // An unknown format version is rejected rather than guessed at — a v2 catalog
+  // An unknown format version is rejected rather than guessed at: a v2 catalog
   // read as v1 would silently drop fields.
-  if (raw.version !== 1) throw new Error(`unsupported catalog version ${JSON.stringify(raw.version)} — expected 1`)
+  if (raw.version !== 1) throw new Error(`unsupported catalog version ${JSON.stringify(raw.version)}: expected 1`)
   if (!Array.isArray(raw.skills)) throw new Error('catalog has no "skills" array')
 
   const skills = raw.skills.map((entry, index) => {

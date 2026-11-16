@@ -85,7 +85,7 @@ export async function run(args: string[], options?: { source?: TraceSource }): P
   if (interactive) config.interactive = true
   if (sandbox) {
     config.security = { ...config.security, sandbox: true }
-    console.log('\n🔒 Sandbox mode — strict skill-integrity gate plus confirmation on every tool call.\n')
+    console.log('\n🔒 Sandbox mode, strict skill-integrity gate plus confirmation on every tool call.\n')
   }
   // An explicit `--no-fallback` disables skill fallback chains for this run (#613).
   if (noFallback) config.skills = { ...config.skills, fallback: false }
@@ -111,7 +111,7 @@ export async function run(args: string[], options?: { source?: TraceSource }): P
     }
     forced = true
     requestShutdown()
-    console.error('\n⏹ Interrupted — finishing current step, then saving partial trace… (Ctrl+C again to force)')
+    console.error('\n⏹ Interrupted, finishing current step, then saving partial trace… (Ctrl+C again to force)')
     setTimeout(() => process.exit(130), 5000).unref()
   }
   process.on('SIGINT', onSignal)

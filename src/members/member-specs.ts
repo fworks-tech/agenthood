@@ -8,7 +8,7 @@ export interface RawSpec {
   permissionProfile: PermissionProfile
   preferredProvider: ProviderName
   /**
-   * The lane map's "Owned Decisions" — what only this member may decide.
+   * The lane map's "Owned Decisions": what only this member may decide.
    * Must mirror the Lane Map table in skills/sentinel/SKILL.md
    * (parity enforced by tests/unit/members/lane-map-parity.test.ts).
    * Shared tokens between members = lane overlap (verify --strict).
@@ -175,7 +175,7 @@ export const rawSpecs: RawSpec[] = [
   {
     name: 'mediator',
     description: 'Listens to user prompts first, classifies intent, and hands off to the right specialist',
-    tagline: 'First in line — intent routing',
+    tagline: 'First in line; intent routing',
     category: 'lifecycle',
     permissionProfile: 'restricted',
     preferredProvider: 'anthropic',

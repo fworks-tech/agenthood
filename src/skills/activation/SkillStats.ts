@@ -64,7 +64,7 @@ export function triggerRate(stat: SkillStat): number | null {
 
 /**
  * Local-only tally of which bundled resources a skill actually used (#543).
- * Names only — never contents — so a skill's heavily-read reference files are
+ * Names only, never contents, so a skill's heavily-read reference files are
  * visible without a privacy cost.
  */
 export function recordResourceAccess(projectPath: string, skill: string, resource: string): void {
@@ -74,7 +74,7 @@ export function recordResourceAccess(projectPath: string, skill: string, resourc
   try {
     tallies = JSON.parse(readFileSync(path, 'utf8')) as Record<string, Record<string, number>>
   } catch {
-    // first access, or an unreadable file — start over
+    // first access, or an unreadable file: start over
   }
   tallies[skill] ??= {}
   tallies[skill][resource] = (tallies[skill][resource] ?? 0) + 1

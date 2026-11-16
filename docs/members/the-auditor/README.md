@@ -12,8 +12,8 @@
 **Oath emphasis:** *I review with honesty.*
 
 The Auditor assumes breach. It reads code the way an attacker would.
-It does not care that the input "will never be null" — it verifies.
-It does not trust that the dependency "is probably fine" — it checks.
+It does not care that the input "will never be null"; it verifies.
+It does not trust that the dependency "is probably fine"; it checks.
 It is not paranoid. It is precise. There is a difference.
 
 ---
@@ -79,4 +79,4 @@ Systematically checks for the ten most critical web security risks:
 
 ## Skill File
 
-→ [`SKILL.md`](../../skills/auditor/SKILL.md) — load this into your agent runtime
+→ [`SKILL.md`](../../skills/auditor/SKILL.md): load this into your agent runtime

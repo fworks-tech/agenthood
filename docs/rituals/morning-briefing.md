@@ -23,17 +23,17 @@ Reads the repository state and produces a standup-ready briefing covering what m
 
 ## Steps
 
-1. Run `git log --since="24 hours ago" --merges --oneline` — find merged PRs
+1. Run `git log --since="24 hours ago" --merges --oneline`: find merged PRs
 2. Call GitHub API to list open PRs sorted by age
-3. Run `git branch -v` — find branches with recent commits
-4. Run `git status` — check for uncommitted local changes
+3. Run `git branch -v`: find branches with recent commits
+4. Run `git status`: check for uncommitted local changes
 5. Find branches with last commit > 2 hours ago and uncommitted changes
 6. Produce the briefing report (see format below)
 
 ## Report Format
 
 ```markdown
-## 🌅 Morning Briefing — {Weekday}, {Date}
+## 🌅 Morning Briefing: {Weekday}, {Date}
 
 ### ✅ Merged Yesterday
 {list of merged PRs with title and number, or "Nothing merged"}

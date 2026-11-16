@@ -13,7 +13,7 @@ letting untrusted code loose (#607, #536).
 
 Today there is no execution path at all. `activate_skill` injects instructions; the
 model then calls generic tools. A script referenced by a SKILL.md is executed, if at
-all, by a shell command the model composes — no timeout, no sandbox, no output cap,
+all, by a shell command the model composes: no timeout, no sandbox, no output cap,
 and no record of which skill it came from.
 
 The hard constraint is trust. A skill is downloaded text from a stranger (ADR-029).
@@ -49,7 +49,7 @@ The harness picks the runtime from the file extension, then the shebang:
 
 The runtime version is printed in the tool result header, so a failing script is
 debuggable without a second call. A missing runtime is an error naming what to
-install — never a silent fallback to another language.
+install: never a silent fallback to another language.
 
 ### 3. Inline dependencies
 
@@ -85,14 +85,14 @@ splits the reference on whitespace; no shell string is ever evaluated.
 - an error path with no message (bare `exit 1`).
 
 These are warnings in `verify`, not runtime refusals: static analysis cannot prove a
-shell script never prompts. The runtime enforces what it can — a closed stdin, a
+shell script never prompts. The runtime enforces what it can: a closed stdin, a
 timeout, and a non-zero exit surfaced as an error.
 
 ### 6. Relative references are checked at activation
 
 On activation, the skill body is scanned for path-like references (markdown links,
 inline code spans that look like paths). Each is resolved under the skill directory,
-and a missing target is reported in the activation block as a warning — not a failure,
+and a missing target is reported in the activation block as a warning, not a failure,
 because a skill may deliberately reference a path created at run time.
 
 No reference is ever resolved outside the skill directory. That is the same boundary
@@ -141,7 +141,7 @@ a hit rate it cannot observe.
 
 The project is **not** mounted. A script that needs project files is given them
 through an explicit argument, and the tool copies only that path into a temp mount.
-Network is denied, so a script that "phones home" fails — which is the point.
+Network is denied, so a script that "phones home" fails, which is the point.
 
 On a host without Docker, `--sandbox` **fails closed**: the script does not run, and
 the error says why. A sandbox flag that silently degrades to no sandbox is worse than
@@ -158,7 +158,7 @@ truncated, and the user who ran it. Audit logging is not optional under `--sandb
 Activating a skill records its directory in the run's allowlist. Path-based tools
 accept paths under an active skill directory without a confirmation prompt, for the
 lifetime of the run, and each accepted path is logged. `security.autoAllowSkillDirs:
-false` disables it. It never widens the network or shell surface — only read access
+false` disables it. It never widens the network or shell surface: only read access
 to files the skill already ships.
 
 ## Consequences

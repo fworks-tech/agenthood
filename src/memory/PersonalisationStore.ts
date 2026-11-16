@@ -123,7 +123,7 @@ export class PersonalisationStore {
         })
       }
     } catch {
-      // corrupt or missing — start fresh
+      // corrupt or missing: start fresh
     }
   }
 

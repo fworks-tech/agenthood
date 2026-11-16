@@ -13,7 +13,7 @@ could not narrow tools, so a tenant agent could not be less privileged than the
 member it pretended to be.
 
 The alternative was for hosts to fork the registry or to register members by
-writing files into the package — both make upgrades hostile.
+writing files into the package: both make upgrades hostile.
 
 ## Decision
 

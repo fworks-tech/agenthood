@@ -58,7 +58,7 @@ Though the formal pipeline is under development, you can test semantic chunking 
 
 ```bash
 # A future command to test chunking
-# No dedicated CLI subcommand — use the API directly via the runtime
+# No dedicated CLI subcommand: use the API directly via the runtime
 ```
 
 Or conceptually in TypeScript:
@@ -74,8 +74,8 @@ const text = "export class Agent { ... }";
 
 ## Further reading
 
-- [ADR-010 — LanceDB for Vector Storage](../../adr/ADR-010-lancedb-for-vector-storage.md)
-- [`src/rag/ChunkStrategy.ts`](../../../src/rag/ChunkStrategy.ts) — source implementation (shipped in Phase 1)
-- [Pinecone: Chunking Strategies](https://www.pinecone.io/learn/chunking-strategies/) — an excellent breakdown of chunking methods
+- [ADR-010: LanceDB for Vector Storage](../../adr/ADR-010-lancedb-for-vector-storage.md)
+- [`src/rag/ChunkStrategy.ts`](../../../src/rag/ChunkStrategy.ts): source implementation (shipped in Phase 1)
+- [Pinecone: Chunking Strategies](https://www.pinecone.io/learn/chunking-strategies/): an excellent breakdown of chunking methods
 
 

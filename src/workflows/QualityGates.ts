@@ -87,7 +87,7 @@ export class QualityGates {
 
   checkImpact(cwd: string): GateResult {
     const isRepo = existsSync(join(cwd, '.git'))
-    if (!isRepo) return { name: 'Impact', pass: true, detail: 'Not a git repository — skipping impact analysis' }
+    if (!isRepo) return { name: 'Impact', pass: true, detail: 'Not a git repository; skipping impact analysis' }
 
     try {
       const analyzer = new DiffImpactAnalyzer()
@@ -111,7 +111,7 @@ export class QualityGates {
 
   checkLint(cwd: string): GateResult {
     const configPath = join(cwd, 'eslint.config.ts')
-    if (!existsSync(configPath)) return { name: 'Lint', pass: true, detail: 'No eslint config found — skipping' }
+    if (!existsSync(configPath)) return { name: 'Lint', pass: true, detail: 'No eslint config found; skipping' }
 
     try {
       execSync('npx eslint src/', { cwd, encoding: 'utf-8', stdio: 'pipe', timeout: 60000 })

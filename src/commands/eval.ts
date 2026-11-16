@@ -196,7 +196,7 @@ function writeBenchmark(report: EvalReport, benchmarkPath: string, config: { pro
   mkdirSync(dirname(benchmarkPath), { recursive: true })
   writeFileSync(benchmarkPath, `${JSON.stringify(benchmark, null, 2)}\n`, 'utf8')
   const pct = benchmark.passRate === null ? 'n/a' : `${(benchmark.passRate * 100).toFixed(0)}%`
-  console.log(`\n  Benchmark: ${benchmarkPath} — pass_rate ${pct}, avg ${benchmark.avgTimeMs ?? 0}ms, ${benchmark.avgTokens ?? 0} tok\n`)
+  console.log(`\n  Benchmark: ${benchmarkPath}, pass_rate ${pct}, avg ${benchmark.avgTimeMs ?? 0}ms, ${benchmark.avgTokens ?? 0} tok\n`)
 }
 
 function loadSuiteOrExit(suitePath: string): EvalSuite {

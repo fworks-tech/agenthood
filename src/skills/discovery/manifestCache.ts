@@ -11,7 +11,7 @@ import { join } from 'node:path'
 export interface CachedManifest<T> {
   mtimeMs: number
   size: number
-  /** Whatever the caller derived from the file — replayed without reading it again. */
+  /** Whatever the caller derived from the file: replayed without reading it again. */
   value: T
 }
 
@@ -79,7 +79,7 @@ export class ManifestCache<T> {
       const stat = statSync(filePath)
       this.entries[filePath] = { mtimeMs: stat.mtimeMs, size: stat.size, value }
     } catch {
-      // The file vanished between parse and remember — nothing to cache.
+      // The file vanished between parse and remember: nothing to cache.
     }
   }
 

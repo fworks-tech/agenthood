@@ -31,7 +31,7 @@ function makeProject(): string {
 function measure(project: string): { ms: number; directories: number; skills: number; cacheHits: number } {
   const discovery = new SkillDiscovery(project)
   // Warnings are not part of load time, and console writes would dominate a
-  // short scan — the benchmark measures parsing, not printing.
+  // short scan: the benchmark measures parsing, not printing.
   const warn = console.warn
   console.warn = () => {}
   try {

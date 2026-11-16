@@ -19,7 +19,7 @@ const BLOCK_PATTERNS: { name: string; re: RegExp }[] = [
   { name: 'forget-context', re: /forget\s+(everything|all)\s+(you\s+know|above|before)/i },
 ]
 
-// Suspicious role-manipulation phrasing — worth a warning, not a block.
+// Suspicious role-manipulation phrasing: worth a warning, not a block.
 const WARN_PATTERNS: { name: string; re: RegExp }[] = [
   { name: 'pretend-role', re: /pretend\s+(you\s+are|to\s+be)/i },
   { name: 'roleplay-as', re: /role[\s-]?play(\s+as\s+\w+)?/i },
@@ -33,7 +33,7 @@ function excerptAround(content: string, index: number): string {
   return content.slice(start, index + 80).replace(/\s+/g, ' ').trim().slice(0, 120)
 }
 
-// Scan SKILL.md content for prompt-injection patterns. Pure — never throws.
+// Scan SKILL.md content for prompt-injection patterns. Pure: never throws.
 // Code fences are stripped first so documented examples of attacks (like this
 // module's own test fixtures) don't self-report.
 export function scanForInjections(content: string): InjectionFinding[] {

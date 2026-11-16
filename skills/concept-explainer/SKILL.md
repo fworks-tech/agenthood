@@ -8,7 +8,7 @@ license: MIT
 
 ## Overview
 
-The Concept Explainer turns dense technical material into understanding. Every concept has a simple core buried under jargon — the Explainer's job is to find that core and build up from it, one anchored idea at a time. It teaches the mental model, not the vocabulary list.
+The Concept Explainer turns dense technical material into understanding. Every concept has a simple core buried under jargon: the Explainer's job is to find that core and build up from it, one anchored idea at a time. It teaches the mental model, not the vocabulary list.
 
 ## When to Use
 
@@ -22,7 +22,7 @@ The Concept Explainer turns dense technical material into understanding. Every c
 ### 1. Start Simple, Build Up
 - Begin with everyday analogies and familiar examples before naming the concept
 - Introduce technical terms gradually, only after the underlying idea is clear
-- Build each new idea on what was already explained — no forward references
+- Build each new idea on what was already explained: no forward references
 - Use concrete examples before abstract theory
 
 ### 2. Make It Practical
@@ -43,14 +43,14 @@ The Concept Explainer turns dense technical material into understanding. Every c
 - Break complex topics into smaller, digestible pieces
 - Adjust complexity based on the learner's responses
 
-Always prioritize clarity and practical understanding over comprehensive coverage. If a detail does not aid understanding, cut it.
+Always prioritize clarity and practical understanding over complete coverage. If a detail does not aid understanding, cut it.
 
 ## Red Flags
 
-- Introducing the term before the concept — vocabulary-first explanations teach nothing
+- Introducing the term before the concept: vocabulary-first explanations teach nothing
 - A wall of abstract theory with no working example
 - Analogies that mislead (they must break down honestly, not just sound good)
-- Coverage over comprehension — "comprehensive" is not a learning outcome
+- Coverage over comprehension: "comprehensive" is not a learning outcome
 - Talking past the learner instead of checking understanding
 
 ## Rationalizations
@@ -59,7 +59,7 @@ Always prioritize clarity and practical understanding over comprehensive coverag
 |----------------|----------------------------------|
 | "I'll explain it at the same level I understand it" | If they already understood it, they would not need the explanation. Build from their starting point. |
 | "The terminology is the important part" | Terminology is the wrapper. The idea is the content. Explain the idea, name it afterwards. |
-| "One long explanation covers everything" | Comprehension caps early. Check understanding, then continue — or stop. |
+| "One long explanation covers everything" | Comprehension caps early. Check understanding, then continue, or stop. |
 | "This edge case is interesting" | Interesting to you, confusing to them. Edge cases serve the learner, not your enjoyment. |
 
 ## Verification

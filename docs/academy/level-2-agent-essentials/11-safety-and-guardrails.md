@@ -6,7 +6,7 @@
 
 ## What it is
 
-Agent safety is the set of controls that prevent an autonomous agent from taking actions it should not take, producing outputs it should not produce, or consuming resources it should not consume. Autonomy without safety is not a feature — it is a liability waiting for a target.
+Agent safety is the set of controls that prevent an autonomous agent from taking actions it should not take, producing outputs it should not produce, or consuming resources it should not consume. Autonomy without safety is not a feature; it is a liability waiting for a target.
 
 Three layers make up a complete safety system. **Risk scoring** evaluates each proposed action before it executes: is this action destructive? Is it reversible? Does it affect shared state? A high-risk action is gated, paused, or rejected before it runs. **Compute budgets** prevent runaway reasoning: an agent that loops forever consumes tokens, time, and money, and a budget forces it to stop. **Output validation** inspects what the agent produces before it reaches the user or a downstream system: does the response contain secrets? Does it include unverified claims? Is the proposed diff actually safe to apply?
 
@@ -16,9 +16,9 @@ Each layer catches a different failure. Risk scoring catches the agent that trie
 
 ## Why it matters in production
 
-Unguarded autonomous agents are not a feature. They are a liability. The failure modes are not hypothetical — they are the documented incidents of every team that shipped an agent without safety gates.
+Unguarded autonomous agents are not a feature. They are a liability. The failure modes are not hypothetical; they are the documented incidents of every team that shipped an agent without safety gates.
 
-The risk-scored failure: an agent with write access to the filesystem deletes a file it judged irrelevant, and the file was a migration script that runs in CI. The action was autonomous, fast, and irreversible. Risk scoring gates destructive actions *before* they execute — not after, when the only recourse is a restore from backup.
+The risk-scored failure: an agent with write access to the filesystem deletes a file it judged irrelevant, and the file was a migration script that runs in CI. The action was autonomous, fast, and irreversible. Risk scoring gates destructive actions *before* they execute, not after, when the only recourse is a restore from backup.
 
 The budget failure: an agent enters a reasoning loop, retrying the same failed tool call 200 times overnight. The bill is $400. The task is no closer to done. A thinking budget forces termination after N iterations, turning an open-ended cost into a bounded one.
 
@@ -33,7 +33,7 @@ Three components, all in `src/core/` (shipped in v2.0.0):
 ```typescript
 import { RiskManager, ThinkingBudget, SafetyGuard } from 'agenthood';
 
-// Risk scoring — gates destructive actions before execution
+// Risk scoring: gates destructive actions before execution
 const riskManager = new RiskManager({
   rules: [
     { pattern: /rm -rf|drop table|force push/i, action: 'block',  reason: 'destructive' },
@@ -42,10 +42,10 @@ const riskManager = new RiskManager({
   ],
 });
 
-// Thinking budget — prevents runaway reasoning loops
+// Thinking budget: prevents runaway reasoning loops
 const budget = new ThinkingBudget({ maxSteps: 25, maxTokens: 50_000 });
 
-// SafetyGuard — output validation before delivery
+// SafetyGuard: output validation before delivery
 const guard = new SafetyGuard({
   checks: [secretScanner, licenseChecker, hallucinationHeuristic],
 });
@@ -74,10 +74,10 @@ Watch the safety layers fire:
 ```
 [think] I'll remove the build artifacts to clean up.
 [act]  propose: rm -rf dist/
-[risk] ⚠ BLOCKED — pattern matches 'rm -rf' (destructive)
+[risk] ⚠ BLOCKED: pattern matches 'rm -rf' (destructive)
 [think] Rejected. I'll use the build tool's clean command instead.
 [act]  propose: npm run clean
-[risk] ✓ allowed — safe command
+[risk] ✓ allowed: safe command
 [see]  dist/ removed (47 files)
 [think] Done. Generating summary.
 [output] SafetyGuard: ✓ no secrets detected, ✓ no license issues
@@ -90,8 +90,8 @@ The `rm -rf` was blocked before it ran. The agent adapted. The output was scanne
 
 ## Further reading
 
-- [`src/core/RiskManager.ts`](../../../src/core/RiskManager.ts) — action risk scoring (v2.0.0)
-- [`src/core/SafetyGuard.ts`](../../../src/core/SafetyGuard.ts) — output validation before delivery (v2.0.0)
-- [Constitutional AI: Harmlessness from AI Feedback](https://arxiv.org/abs/2212.08073) — Anthropic's safety framework paper
+- [`src/core/RiskManager.ts`](../../../src/core/RiskManager.ts): action risk scoring (v2.0.0)
+- [`src/core/SafetyGuard.ts`](../../../src/core/SafetyGuard.ts): output validation before delivery (v2.0.0)
+- [Constitutional AI: Harmlessness from AI Feedback](https://arxiv.org/abs/2212.08073): Anthropic's safety framework paper
 
 

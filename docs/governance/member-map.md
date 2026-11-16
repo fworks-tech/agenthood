@@ -1,4 +1,4 @@
-# Member Map — RACI
+# Member Map: RACI
 
 > *Every member knows their lane. This is the map.*
 
@@ -7,11 +7,11 @@
 ## What this is
 
 A RACI (Responsible / Accountable / Consulted / Informed) matrix documenting all Society members. Every member has:
-- **Lane** — single-sentence specialty
-- **Owned decisions** — what this member alone decides
-- **Consulted members** — who they must consult before deciding
-- **Informed members** — who gets notified after a decision
-- **Escalation path** — who to escalate to when blocked
+- **Lane**: single-sentence specialty
+- **Owned decisions**: what this member alone decides
+- **Consulted members**, who they must consult before deciding
+- **Informed members**, who gets notified after a decision
+- **Escalation path**, who to escalate to when blocked
 
 ## The Map
 
@@ -32,10 +32,10 @@ A RACI (Responsible / Accountable / Consulted / Informed) matrix documenting all
 | **The Envoy** | Provider translation | Skill format mapping, Bootstrap, Skill matrix | Oracle (template spec), Sentinel (consistency) | All | Steward |
 | **The Sentinel** | Society integrity | Member consistency, contradiction detection, drift | Oracle (template), Warden (code quality) | All | Steward |
 | **The Warden** | Code health | Smell identification, Architectural decay, Complexity | Sentinel (member structure), Auditor (security) | Reviewer, Architect | Sentinel |
-| **The Steward** | Context economy | Load routing, cache strategy, session triage | Envoy (provider limits), Oracle (member load) | All | — |
-| **The Strategist** | Requirement discovery | Problem statements, Success measures, Ranked priorities | Oracle (prior art), Architect (feasibility) | Architect, Herald | — |
+| **The Steward** | Context economy | Load routing, cache strategy, session triage | Envoy (provider limits), Oracle (member load) | All | - |
+| **The Strategist** | Requirement discovery | Problem statements, Success measures, Ranked priorities | Oracle (prior art), Architect (feasibility) | Architect, Herald | - |
 | **The Mediator** | Workflow orchestration / first-in-line | Intake, Intent classification, Handoff sequencing, Orchestration entry | Steward (load routing), Architect (task structure) | All | Steward |
-| **The Operator** | Runtime health | Deployment, incidents, rollback, monitoring | Debugger (failures), Herald (releases) | All | — |
+| **The Operator** | Runtime health | Deployment, incidents, rollback, monitoring | Debugger (failures), Herald (releases) | All | - |
 | **The Inspector** | Visual-reasoning benchmarking | Pixel-level analysis, Multi-panel correspondence | Tester (benchmark design), Oracle (naming conventions) | Reviewer, Sentinel | Steward |
 
 *All members are shipped. Strategist and Operator shipped in M7 (PR #288). Inspector shipped in M8. Mediator shipped as first-in-line intent routing.*
@@ -47,7 +47,7 @@ A RACI (Responsible / Accountable / Consulted / Informed) matrix documenting all
 2. The Oracle proposes a boundary
 
 **Owned decisions are recorded.** Every member run writes its decision to the
-decision log (`.agenthood/decisions/`) with a provenance entry — the RACI map
+decision log (`.agenthood/decisions/`) with a provenance entry: the RACI map
 is enforced by process, and the audit trail makes each member's decisions
 queryable and provable.
 
@@ -56,4 +56,4 @@ queryable and provable.
 1. **When blocked:** Escalate to the member in your "Escalate To" column
 2. **When escalation fails:** Escalate to The Steward
 3. **When The Steward is blocked:** The task is deferred and the human is notified
-4. **Never:** Two members should resolve a conflict by both doing the work — that is duplicated effort
+4. **Never:** Two members should resolve a conflict by both doing the work, that is duplicated effort

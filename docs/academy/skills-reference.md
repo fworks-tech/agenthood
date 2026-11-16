@@ -16,7 +16,7 @@ Three activation paths, all landing on the same skill:
 
 A leading `/skill-name` in a task loads that skill before the model sees it;
 `/skill-name off` suppresses it for the run. Names are the skill's frontmatter
-`name` — flat, lowercase, hyphenated (`scribe`, `code-review`, not `the-scribe`).
+`name`: flat, lowercase, hyphenated (`scribe`, `code-review`, not `the-scribe`).
 
 The harness never keyword-matches a task against skill descriptions. Activation
 is either your explicit `/skill-name` or the model's own `activate_skill` call
@@ -159,7 +159,7 @@ OpenAI-family, `text` for Google); override it with `skills.catalogFormat` or
 **Specialty:** Documentation management, ADR creation, API references, knowledge management
 **Tools:** `file.read`, `file.write`, `file.search`, `explain_code`
 **Runtime:** `npx agenthood run librarian "document the API endpoints"`
-**Society memory:** every run writes a decision record (`.agenthood/decisions/`) + provenance entry (`.agenthood/provenance/`) — the audit trail the Librarian's postmortems link to
+**Society memory:** every run writes a decision record (`.agenthood/decisions/`) + provenance entry (`.agenthood/provenance/`): the audit trail the Librarian's postmortems link to
 
 ### The Oracle
 
@@ -168,7 +168,7 @@ OpenAI-family, `text` for Google); override it with `skills.catalogFormat` or
 **Specialty:** Institutional knowledge, member authoring templates, naming guidance, convention rationale
 **Tools:** `file.read`, `file.write`, `file.search`, `explain_code`
 **Runtime:** `npx agenthood run oracle "what members should I activate for a library project?"`
-**Society memory:** past member decisions are searchable as precedent via `DecisionSearch` — the Oracle can answer "how did we decide X before?" from `.agenthood/decisions/`
+**Society memory:** past member decisions are searchable as precedent via `DecisionSearch`: the Oracle can answer "how did we decide X before?" from `.agenthood/decisions/`
 
 ---
 
@@ -176,7 +176,7 @@ OpenAI-family, `text` for Google); override it with `skills.catalogFormat` or
 
 ### The Mediator
 
-> *First in line — intent routing.*
+> *First in line: intent routing.*
 
 **Specialty:** Intent classification, first-line handoff, orchestration entry
 **Tools:** `file.read`, `file.write`, `file.search`, `explain_code`
@@ -243,10 +243,10 @@ npx agenthood run scribe "sync PR #42"
 
 ## Related
 
-- [Getting Started](getting-started.md) — install and first workflow
-- [Utility Skills](utility-skills.md) — specialist skills beyond the 20 members
-- [Built-in Tools](../architecture/built-in-tools.md) — canonical tool registry with scoping
-- [Online docs](https://agenthood.flabs.tech/) — hosted documentation site
+- [Getting Started](getting-started.md): install and first workflow
+- [Utility Skills](utility-skills.md): specialist skills beyond the 20 members
+- [Built-in Tools](../architecture/built-in-tools.md): canonical tool registry with scoping
+- [Online docs](https://agenthood.flabs.tech/): hosted documentation site
 
 ---
 

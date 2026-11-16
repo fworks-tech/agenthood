@@ -1,7 +1,7 @@
 # Spec: Skill Regression Testing with Iteration Tracking and Convergence Detection
 
 **Issue:** #562
-**Depends on:** #519 (eval framework — merged via #656)
+**Depends on:** #519 (eval framework: merged via #656)
 **Pattern reference:** docs/specs/594-output-format-validation.md
 
 ## Problem
@@ -15,7 +15,7 @@ Add an append-only run history per member+suite, a pure convergence detector, an
 ## Data Model
 
 ```typescript
-// One recorded eval run — appended as a JSONL line.
+// One recorded eval run: appended as a JSONL line.
 interface EvalRunRecord {
   version: string               // skill version (frontmatter "version" or "0.0.0")
   timestamp: string             // ISO timestamp from EvalReport
@@ -58,7 +58,7 @@ interface RegressionResult {
 - File: `.agenthood/evals/history/<member>.jsonl` (one line per run, append-only)
 - Each line is a JSON `EvalRunRecord`
 - Directory created lazily on first write
-- No overwrite — history grows until explicitly cleared
+- No overwrite: history grows until explicitly cleared
 
 ## Pure Functions (`src/evals/convergence.ts`)
 
@@ -99,7 +99,7 @@ Every eval run auto-records to history (no flag needed). New flags:
 | `--convergence` | After eval, check convergence and print status |
 | `--history` | Print run history table for this member |
 
-Exit codes unchanged (0 = pass, 1 = regression, 2 = schema error). Convergence is informational — does not affect exit code.
+Exit codes unchanged (0 = pass, 1 = regression, 2 = schema error). Convergence is informational: does not affect exit code.
 
 When `--convergence` is set:
 - Load history for this member+suite

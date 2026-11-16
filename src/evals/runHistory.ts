@@ -5,7 +5,7 @@ import type { EvalRunRecord } from './types.ts'
 
 /**
  * Append-only JSONL history per member. Each eval run appends one JSON line
- * to `.agenthood/evals/history/<member>.jsonl`. No overwrite — history grows
+ * to `.agenthood/evals/history/<member>.jsonl`. No overwrite: history grows
  * until explicitly cleared.
  */
 export class RunHistory {
@@ -38,7 +38,7 @@ export class RunHistory {
     try {
       unlinkSync(path)
     } catch {
-      // already gone — nothing to clear
+      // already gone: nothing to clear
     }
   }
 

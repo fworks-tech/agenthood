@@ -18,7 +18,7 @@ export { SKILL_ACTIVATION_PREFIX }
 const MAX_FALLBACK_DEPTH = 3
 
 export interface ActivateSkillOptions {
-  /** Names disabled in config — refused outright (#537). */
+  /** Names disabled in config: refused outright (#537). */
   disabled?: ReadonlySet<string>
   /** `false` disables fallback chains (#613). */
   fallback?: boolean
@@ -58,7 +58,7 @@ export class ActivateSkillTool implements ITool {
   /**
    * `skill_name` is an enum of the names the model can actually activate, so the
    * call cannot miss on a guessed name (#531). No enum when every skill is
-   * filtered — an empty enum is not valid JSON Schema.
+   * filtered: an empty enum is not valid JSON Schema.
    */
   private static buildSchema(
     manifests: Map<string, ISkillManifest>,
@@ -116,7 +116,7 @@ export class ActivateSkillTool implements ITool {
       console.log(`[skills] blocked "${name}": ${blockedReason}`)
       const next = this.nextFallback(manifest, name, attempted)
       if (next) {
-        console.warn(`[skills] "${name}" cannot run here — falling back to "${next}"`)
+        console.warn(`[skills] "${name}" cannot run here, falling back to "${next}"`)
         return this.activate(next, context, [...attempted, name], eager, force)
       }
       return fail(`Skill "${name}" cannot activate here: ${blockedReason}`)
@@ -127,7 +127,7 @@ export class ActivateSkillTool implements ITool {
       console.warn(`[skills] skipped "${name}": ${conditions.reason}`)
       const next = this.nextFallback(manifest, name, attempted)
       if (next) {
-        console.warn(`[skills] "${name}" unavailable — falling back to "${next}"`)
+        console.warn(`[skills] "${name}" unavailable, falling back to "${next}"`)
         return this.activate(next, context, [...attempted, name], eager, force)
       }
       return fail(`Skill "${name}" cannot activate here: ${conditions.reason}`)
@@ -140,7 +140,7 @@ export class ActivateSkillTool implements ITool {
     if (this.options.activeSkills?.has(name) === true && !force && !noReplay) {
       this.recordForRun(name, context, manifest)
       recordSkillActivation(projectPath, name, true)
-      console.log(`[skills] "${name}" already active — skipped re-injection`)
+      console.log(`[skills] "${name}" already active, skipped re-injection`)
       return {
         success: true,
         output: `${SKILL_ACTIVATION_PREFIX}\n<skill_already_active name="${escapeXml(name)}">These instructions are earlier in the conversation. Call activate_skill with { "force": true } to load them again.</skill_already_active>`,
@@ -163,7 +163,7 @@ export class ActivateSkillTool implements ITool {
     const missing = findMissingReferences(variant.body, manifest.directory)
     const notices = [
       fit.compressed
-        ? `<skill_budget>Instructions compressed to fit the context window — saved ~${fit.savedTokens} tokens. Re-read SKILL.md from the skill directory for the full steps.</skill_budget>`
+        ? `<skill_budget>Instructions compressed to fit the context window: saved ~${fit.savedTokens} tokens. Re-read SKILL.md from the skill directory for the full steps.</skill_budget>`
         : undefined,
       missing.length > 0
         ? `<skill_missing_references>Not found under the skill directory: ${missing.join(', ')}. They may be created at run time.</skill_missing_references>`

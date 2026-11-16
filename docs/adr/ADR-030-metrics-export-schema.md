@@ -6,7 +6,7 @@
 ## Context
 
 `MetricsCollector` and `CostLogger` already accumulate exactly what an operator
-wants to alert on — invocations, failures, latency, tokens, cost per provider — but
+wants to alert on (invocations, failures, latency, tokens, cost per provider) but
 only as local JSON for a human running `agenthood status`. Teams monitoring agent
 usage, spend, and error rates have no way to get that into Prometheus, Grafana,
 Datadog, or a StatsD collector without hand-writing a parser over
@@ -19,7 +19,7 @@ Two constraints shaped the decision:
    (ADR-020's `observability.redaction`) covers persisted *traces*, not the metrics
    directory, so an exporter must not become a side channel around it.
 2. **A metric that is silently absent is worse than one that is wrong.** An
-   exporter that fails open — starts, reports nothing, exits 0 — is indistinguishable
+   exporter that fails open (starts, reports nothing, exits 0) is indistinguishable
    from an agent that is not being used.
 
 ## Decision
@@ -32,13 +32,13 @@ Export is **opt-in, local-source, and redaction-safe by construction**.
 { "metricsExport": { "type": "none" | "prometheus" | "statsd", "port": 9464, "host": "127.0.0.1" } }
 ```
 
-Default is `none`. An unrecognized `type` is a hard user error, not a no-op — a
+Default is `none`. An unrecognized `type` is a hard user error, not a no-op: a
 monitoring setup you believe is on but is not is a silent failure.
 
 **Privacy boundary.** The exporters read only two structures: counter fields in
 `MetricsCollector` and `CostEntry`. They emit member names, provider names, and
 numbers. No task text, no tool output, no prompts, no file paths ever cross the
-boundary. This is a structural property — the renderers take counters, not records —
+boundary. This is a structural property (the renderers take counters, not records)
 so it cannot be undone by a future field addition the way a redaction regex list can.
 
 **Prometheus over push.** `agenthood metrics` with `type: 'prometheus'` serves
@@ -47,7 +47,7 @@ the local ledgers. This deliberately diverges from the issue's "export on each
 collection": the pull model means there is no push buffer, no flush point, and no
 window in which the endpoint serves a number the ledgers disagree with. Standard
 Prometheus scrapers expect a pull endpoint, and every StatsD/Datadog path can still
-read from it. The server runs only while the command runs — nothing is spawned
+read from it. The server runs only while the command runs: nothing is spawned
 during `agenthood run`, so a normal member run still exits.
 
 **Metric names** follow the `agenthood_<subject>_<unit>` convention:
@@ -60,8 +60,8 @@ during `agenthood run`, so a normal member run still exits.
 | `agenthood_member_duration_ms_avg` | gauge | `member` |
 | `agenthood_provider_cost_usd_total` | counter | `provider` |
 | `agenthood_provider_tokens_total` | counter | `provider` |
-| `agenthood_cost_usd_total` | counter | — |
-| `agenthood_tokens_total` | counter | — |
+| `agenthood_cost_usd_total` | counter | - |
+| `agenthood_tokens_total` | counter | - |
 
 Ratios are gauges, not counters: `success_rate` is a computed mean, and a
 monotonically increasing "rate" would be read as a rising failure count.
@@ -93,7 +93,7 @@ stack with `metricsExport.type` and no custom code; the renderers are pure funct
 over counters, so the schema is testable without a network or a running agent;
 `agenthood metrics --print` renders one snapshot for debugging. Harder: a pull
 endpoint is only as fresh as its scrape interval, and StatsD push is
-best-effort — a monitor that requires guaranteed delivery needs a different
+best-effort: a monitor that requires guaranteed delivery needs a different
 transport. Adding a new metric means adding a row to the table above and one
 renderer line, and the label set is deliberately narrow to bound cardinality.
 

@@ -13,7 +13,7 @@
 
 The Debugger does not guess. It does not try random fixes until one works.
 It reads the error. It forms a hypothesis. It tests the hypothesis.
-It finds the root cause — not the symptom — and fixes it there.
+It finds the root cause, not the symptom, and fixes it there.
 It leaves a regression test behind so the bug cannot return undetected.
 
 ---
@@ -28,7 +28,7 @@ Not the first line. All of it. Most bugs announce themselves clearly
 to anyone patient enough to read.
 
 **Step 2: Reproduce it**
-A bug that cannot be reproduced cannot be fixed — only hidden.
+A bug that cannot be reproduced cannot be fixed: only hidden.
 Find the minimal reproduction case. The smaller, the better.
 If it can't be reproduced, the investigation isn't done.
 
@@ -40,7 +40,7 @@ One hypothesis at a time. No shotgunning.
 **Step 4: Test the hypothesis**
 Add a targeted log, a breakpoint, or a unit test.
 Either the hypothesis is confirmed or it is eliminated.
-Eliminated hypotheses are progress — they narrow the search.
+Eliminated hypotheses are progress; they narrow the search.
 
 **Step 5: Fix the root cause, not the symptom**
 The fix goes where the problem lives, not where the error surfaces.
@@ -83,4 +83,4 @@ Portal setup: [`docs/portals/sentry.md`](../../portals/sentry.md).
 
 ## Skill File
 
-→ [`SKILL.md`](../../skills/debugger/SKILL.md) — load this into your agent runtime
+→ [`SKILL.md`](../../skills/debugger/SKILL.md): load this into your agent runtime

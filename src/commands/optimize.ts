@@ -89,7 +89,7 @@ function parseOptimizeArgs(args: string[]): ParsedOptimizeArgs {
 
 /**
  * Cost against use (#628): a skill is worth its catalog tokens when it gets
- * activated. Quiet on a project with no activation history — "never used" is
+ * activated. Quiet on a project with no activation history: "never used" is
  * not evidence of waste before anything has run.
  */
 async function reportCost(cwd: string, json: boolean): Promise<void> {
@@ -105,7 +105,7 @@ async function reportCost(cwd: string, json: boolean): Promise<void> {
   }
 
   console.log(`
-  Skill Cost — ${rows.length} skill(s), ${total}/${budget} catalog tokens
+  Skill Cost: ${rows.length} skill(s), ${total}/${budget} catalog tokens
 `)
   console.log(`  ${'Skill'.padEnd(24)} ${'Catalog'.padEnd(9)} ${'Activated'.padEnd(10)} Body`)
   console.log(`  ${''.padEnd(24, '-')} ${''.padEnd(9, '-')} ${''.padEnd(10, '-')} ${''.padEnd(8, '-')}`)
@@ -115,7 +115,7 @@ async function reportCost(cwd: string, json: boolean): Promise<void> {
   }
 
   if (suggestions.length === 0) {
-    console.log(total === 0 ? '\n  No skills discovered.\n' : '\n  No activation history yet — run a few tasks, then re-check.\n')
+    console.log(total === 0 ? '\n  No skills discovered.\n' : '\n  No activation history yet, run a few tasks, then re-check.\n')
     return
   }
   console.log(`\n  ${suggestions.length} suggestion(s):\n`)
@@ -172,7 +172,7 @@ export async function optimize(args: string[]): Promise<void> {
 }
 
 function printResult(result: OptimizationResult): void {
-  console.log(`\n  Description Optimization — ${result.member}`)
+  console.log(`\n  Description Optimization, ${result.member}`)
   console.log(`  Iterations: ${result.iterations} | Variants: ${result.variants.length}\n`)
 
   console.log(`  Original: "${result.originalDescription}"`)

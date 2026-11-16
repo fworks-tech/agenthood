@@ -1,4 +1,4 @@
-# Agent Analysis — Data Handling and Opt-Out
+# Agent Analysis: Data Handling and Opt-Out
 
 The Agenthood PR workflow (`.github/workflows/pr.yml`) runs LLM-based code
 analysis on every pull request via the `agent-analysis` composite action
@@ -18,7 +18,7 @@ For each PR, the `agent-analysis` step:
 
 The LLM agent then operates on the checkout **on the runner**: it reads file
 contents from the working tree itself, exactly as a human reviewer would. The
-prompt contains file paths only — no diff or file content is copied into the
+prompt contains file paths only: no diff or file content is copied into the
 prompt by the action.
 
 ## Where data is sent
@@ -50,7 +50,7 @@ prompt by the action.
   (`api key`, `token`, `secret`, `password`, `credential`, `bearer`, `pat`,
   `jwt`) before the comment is published.
 
-## `agenthood pr-sync` — commit data to the LLM reviewer
+## `agenthood pr-sync`: commit data to the LLM reviewer
 
 `agenthood pr-sync` (when run with its reviewer step, on by default) sends a
 reviewer prompt to the LLM provider:

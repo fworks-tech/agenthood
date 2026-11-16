@@ -64,7 +64,7 @@ export function resolveSince(value: string): string {
   }
   const ts = Date.parse(value)
   if (Number.isNaN(ts)) {
-    console.error(`Invalid --since value: "${value}" — use an ISO date or 1h/24h/7d`)
+    console.error(`Invalid --since value: "${value}", use an ISO date or 1h/24h/7d`)
     process.exit(1)
     return ''
   }
@@ -74,7 +74,7 @@ export function resolveSince(value: string): string {
 export function parseLimit(value: string | undefined): number {
   const parsed = Number.parseInt(value ?? '', 10)
   if (Number.isNaN(parsed) || parsed < 0) {
-    console.error('Invalid --limit value — expected a non-negative integer')
+    console.error('Invalid --limit value, expected a non-negative integer')
     process.exit(1)
   }
   return parsed

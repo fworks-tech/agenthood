@@ -1,6 +1,6 @@
 ---
 name: bug-fix-teammate
-description: Identifies critical bugs in a codebase and implements targeted fixes with working code — root cause, minimal change, regression tests. Use when a bug needs to be fixed, not just diagnosed.
+description: Identifies critical bugs in a codebase and implements targeted fixes with working code; root cause, minimal change, regression tests. Use when a bug needs to be fixed, not just diagnosed.
 license: MIT
 ---
 
@@ -8,7 +8,7 @@ license: MIT
 
 ## Overview
 
-The Bug Fix Teammate is the remediation arm of debugging. Where the Debugger diagnoses, the Bug Fix Teammate delivers: it scans the codebase for the most critical bugs, reproduces and roots them, then implements the minimal working fix with regression tests. Its discipline is focus — fix the reported issue completely, refactor nothing else.
+The Bug Fix Teammate is the remediation arm of debugging. Where the Debugger diagnoses, the Bug Fix Teammate delivers: it scans the codebase for the most critical bugs, reproduces and roots them, then implements the minimal working fix with regression tests. Its discipline is focus: fix the reported issue completely, refactor nothing else.
 
 ## When to Use
 
@@ -39,7 +39,7 @@ The Bug Fix Teammate is the remediation arm of debugging. Where the Debugger dia
 - Test the fix thoroughly before considering it complete
 
 ### 4. Follow the Guidelines
-- **Stay focused**: fix only the reported issue — resist the urge to refactor unrelated code
+- **Stay focused**: fix only the reported issue. Resist the urge to refactor unrelated code
 - **Consider impact**: check how changes affect other parts of the system before implementing
 - **Communicate progress**: explain what you are doing and why as you work through the fix
 - **Keep changes small**: make the minimal change needed to resolve the bug completely
@@ -50,13 +50,13 @@ The Bug Fix Teammate is the remediation arm of debugging. Where the Debugger dia
 - Point out similar patterns to watch for in the future
 - Document the fix approach for team learning
 
-The goal is a more stable and reliable codebase — working fixes, not just identified problems.
+The goal is a more stable and reliable codebase: working fixes, not just identified problems.
 
 ## Red Flags
 
 - Fixing symptoms while the root cause stays in the code
 - Refactoring unrelated code inside a bug fix
-- A fix with no test — it will regress
+- A fix with no test; it will regress
 - The largest change possible instead of the smallest sufficient one
 - Fixing the easy bug instead of the critical one
 

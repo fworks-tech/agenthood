@@ -43,10 +43,10 @@ const MAXIMUM_CAPS: SafetyCaps = {
 }
 
 // ---------------------------------------------------------------------------
-// Catastrophic commands — blocked universally regardless of profile
+// Catastrophic commands: blocked universally regardless of profile
 // ---------------------------------------------------------------------------
 
-// ponytail: string-pattern guard only — it sees the command text, not its
+// ponytail: string-pattern guard only; it sees the command text, not its
 // filesystem effect, and cannot catch every evasion (env-var indirection,
 // aliases, split binaries). Real isolation is the `--sandbox` container path
 // tracked in #665; add it before treating this list as a hard boundary.

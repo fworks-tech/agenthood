@@ -1,14 +1,14 @@
 name: The Rituals — Scheduled Watches
 
 # Schedules are declared in docs/rituals/*.md frontmatter. Parity is enforced
-# by tests/unit/scripts/rituals-workflow.test.ts — edit the manifests together.
+# by tests/unit/scripts/rituals-workflow.test.ts - edit the manifests together.
 
 on:
   schedule:
-    - cron: '0 8 * * 1-5' # morning-briefing — herald
-    - cron: '0 9 * * 1-5' # the-inspection — doorman
-    - cron: '0 18 * * 1-5' # evening-report — herald
-    - cron: '0 */2 * * *' # the-watchman — doorman
+    - cron: '0 8 * * 1-5' # morning-briefing: herald
+    - cron: '0 9 * * 1-5' # the-inspection: doorman
+    - cron: '0 18 * * 1-5' # evening-report: herald
+    - cron: '0 */2 * * *' # the-watchman: doorman
   workflow_dispatch:
     inputs:
       ritual:
@@ -20,7 +20,7 @@ permissions:
   contents: read
 
 concurrency:
-  # One run per schedule — a late run of the same ritual replaces a still-running one
+  # One run per schedule - a late run of the same ritual replaces a still-running one
   group: rituals-${{ github.event.schedule || inputs.ritual }}
   cancel-in-progress: true
 
@@ -70,7 +70,7 @@ jobs:
               all is quiet.
     steps:
       # Job-level `if:` cannot use the matrix context (GitHub rejects the whole
-      # workflow file — zero-job runs failing on every push to main), so the
+      # workflow file - zero-job runs failing on every push to main), so the
       # entry selection happens here, where matrix is available, and the rest
       # of the steps honor the gate output.
       - name: Select matching ritual entry
@@ -124,5 +124,5 @@ jobs:
           npm ci --ignore-scripts
           npm run build
 
-          echo "## The $RITUAL_NAME ritual — $MEMBER" >> "$GITHUB_STEP_SUMMARY"
+          echo "## The $RITUAL_NAME ritual - $MEMBER" >> "$GITHUB_STEP_SUMMARY"
           node dist/cli.js run "$MEMBER" "$TASK" --provider opencode 2>&1 | tee -a "$GITHUB_STEP_SUMMARY"

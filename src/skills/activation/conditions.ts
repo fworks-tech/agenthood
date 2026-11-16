@@ -3,7 +3,7 @@
  * before it may load, so a CI-only or failing-tests-only skill stays out of the
  * way elsewhere.
  *
- * Deliberately tiny — four predicates, no expression language, no negation.
+ * Deliberately tiny: four predicates, no expression language, no negation.
  * A skill that needs more than this is describing a workflow, not a condition.
  */
 
@@ -14,10 +14,10 @@ import { execFileSync } from 'node:child_process'
 export type ConditionResult = { ok: true } | { ok: false; reason: string }
 
 const SUPPORTED = [
-  'env:NAME=value — the variable equals value',
-  'env:NAME — the variable is set',
-  'file.exists:path — the path exists under the project root',
-  'git.status:dirty|clean — the working tree has (no) uncommitted changes',
+  'env:NAME=value: the variable equals value',
+  'env:NAME: the variable is set',
+  'file.exists:path: the path exists under the project root',
+  'git.status:dirty|clean: the working tree has (no) uncommitted changes',
 ]
 
 /**
@@ -32,7 +32,7 @@ export function parseCondition(expression: string): { predicate: string; argumen
 
 const PREDICATES = new Set(['env', 'file.exists', 'git.status'])
 
-/** True for a supported predicate name — `verify` rejects the rest as typos. */
+/** True for a supported predicate name: `verify` rejects the rest as typos. */
 export function isKnownCondition(expression: string): boolean {
   return PREDICATES.has(parseCondition(expression).predicate)
 }

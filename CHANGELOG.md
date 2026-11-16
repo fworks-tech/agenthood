@@ -168,7 +168,7 @@
 
 ### Features
 
-* v3.68 Convert & Trust — onboarding, fail-closed skill trust, cost observability ([#913](https://github.com/fworks-tech/agenthood/issues/913)) ([6a96cc8](https://github.com/fworks-tech/agenthood/commit/6a96cc862aeae413db124473d856e397f9f80741)), refs #574, #619, #620, #578, #152, #151, #514, #515, #604, #606, #624, #625, #651, #465
+* v3.68 Convert & Trust: onboarding, fail-closed skill trust, cost observability ([#913](https://github.com/fworks-tech/agenthood/issues/913)) ([6a96cc8](https://github.com/fworks-tech/agenthood/commit/6a96cc862aeae413db124473d856e397f9f80741)), refs #574, #619, #620, #578, #152, #151, #514, #515, #604, #606, #624, #625, #651, #465
 
 # [3.67.0](https://github.com/fworks-tech/agenthood/compare/v3.66.0...v3.67.0) (2026-09-21)
 
@@ -669,7 +669,7 @@
 * **agents:** add mind virus immunity warning to system prompts ([cdeedf8](https://github.com/fworks-tech/agenthood/commit/cdeedf85f3f744568dacb78b32d9ca036c6797fd))
 * **core:** add injection-time SKILL.md integrity check ([41faff5](https://github.com/fworks-tech/agenthood/commit/41faff55408234b1beecbe76146fc6b5442f98d4))
 * **core:** add viral-persona and propagation anomaly signals ([23d66b2](https://github.com/fworks-tech/agenthood/commit/23d66b22ea60c3d1e47f4f3de8bf908f7b6ca56d))
-* **security:** complete mind virus defense — corrupt lockfile handling, marker clamp, redaction default, and test coverage for 461 fixes ([44b97ce](https://github.com/fworks-tech/agenthood/commit/44b97ce4af25122366dea395b9536880160dfb28))
+* **security:** complete mind virus defense: corrupt lockfile handling, marker clamp, redaction default, and test coverage for 461 fixes ([44b97ce](https://github.com/fworks-tech/agenthood/commit/44b97ce4af25122366dea395b9536880160dfb28))
 * **tools:** forbid message propagation in delegated tasks ([9f57f32](https://github.com/fworks-tech/agenthood/commit/9f57f327172dac5fc8d19d9d1a36bb6f36de2d20))
 
 ## [3.35.1](https://github.com/fworks-tech/agenthood/compare/v3.35.0...v3.35.1) (2026-08-19)
@@ -839,7 +839,7 @@
 
 ### Features
 
-* **cli:** add trace command — npx agenthood trace ([8db2134](https://github.com/fworks-tech/agenthood/commit/8db2134627ea006769f3c40d9e43db57e6e68eba)), refs #302
+* **cli:** add trace command: npx agenthood trace ([8db2134](https://github.com/fworks-tech/agenthood/commit/8db2134627ea006769f3c40d9e43db57e6e68eba)), refs #302
 
 # [3.21.0](https://github.com/fworks-tech/agenthood/compare/v3.20.0...v3.21.0) (2026-08-14)
 
@@ -1072,7 +1072,7 @@
 
 ### Features
 
-* add The Mailman — 17th Society member for delivery and cross-posting ([c9c0e3f](https://github.com/fworks-tech/agenthood/commit/c9c0e3fc8dcf25c55fc464edb336c716b8557b98))
+* add The Mailman: 17th Society member for delivery and cross-posting ([c9c0e3f](https://github.com/fworks-tech/agenthood/commit/c9c0e3fc8dcf25c55fc464edb336c716b8557b98))
 * **init:** strip junk files from init ([#360](https://github.com/fworks-tech/agenthood/issues/360)) ([7600ecc](https://github.com/fworks-tech/agenthood/commit/7600ecc11ee71bf91a07c5529ba54bb5f78095d6))
 
 ## [3.9.1](https://github.com/fworks-tech/agenthood/compare/v3.9.0...v3.9.1) (2026-07-06)
@@ -1138,8 +1138,8 @@
 
 ### Bug Fixes
 
-* **core:** address Warden findings — extract memberLore, refactor run.ts, deduplicate constants, add injection guards ([1fda655](https://github.com/fworks-tech/agenthood/commit/1fda6553c7a8769a58ea9c5d967e6d646ba1d6fd))
-* **core:** address Warden findings round 3 — indentation, dead code, boolean naming, nesting, unused dep ([00b5279](https://github.com/fworks-tech/agenthood/commit/00b52793e25cbdfd8cd71bbd40d609bfe95753d0))
+* **core:** address Warden findings: extract memberLore, refactor run.ts, deduplicate constants, add injection guards ([1fda655](https://github.com/fworks-tech/agenthood/commit/1fda6553c7a8769a58ea9c5d967e6d646ba1d6fd))
+* **core:** address Warden findings round 3: indentation, dead code, boolean naming, nesting, unused dep ([00b5279](https://github.com/fworks-tech/agenthood/commit/00b52793e25cbdfd8cd71bbd40d609bfe95753d0))
 * **core:** address Warden/Auditor/Reviewer findings round 2 ([b5923ed](https://github.com/fworks-tech/agenthood/commit/b5923edee17c538f671a5b51f1b60516696744c7))
 
 
@@ -1178,9 +1178,9 @@
 * **ci:** add explicit return 0 in decision function and guard call ([1eeabc6](https://github.com/fworks-tech/agenthood/commit/1eeabc633c38f2e861828a5df251f27c88daba7a))
 * **ci:** add explicit return 0 in else branch for consistency ([bb26af5](https://github.com/fworks-tech/agenthood/commit/bb26af582d423204f476035f868d1e16d4e8bfc6))
 * **ci:** add explicit return 0 to check_agenthood_decision ([bd3f78a](https://github.com/fworks-tech/agenthood/commit/bd3f78a8deb2d5f831267e2e7453bafb0522a913))
-* **ci:** address auditor findings — test-runner flag injection, npm ci, npm audit, temp paths ([67e9f3e](https://github.com/fworks-tech/agenthood/commit/67e9f3ed0c6c6bf921ee743f5a0873ab2fec1601))
+* **ci:** address auditor findings: test-runner flag injection, npm ci, npm audit, temp paths ([67e9f3e](https://github.com/fworks-tech/agenthood/commit/67e9f3ed0c6c6bf921ee743f5a0873ab2fec1601))
 * **ci:** address auditor high and medium findings ([b2bb7ac](https://github.com/fworks-tech/agenthood/commit/b2bb7ace7a1f1f6dead99773d56aad569e18b840))
-* **ci:** address review findings — setup-node in action, smart tester, extract scripts, pin tools ([be12b18](https://github.com/fworks-tech/agenthood/commit/be12b188497ab3818fe1a559aede78b239efa309))
+* **ci:** address review findings: setup-node in action, smart tester, extract scripts, pin tools ([be12b18](https://github.com/fworks-tech/agenthood/commit/be12b188497ab3818fe1a559aede78b239efa309))
 * **ci:** address reviewer and warden findings ([ac10c87](https://github.com/fworks-tech/agenthood/commit/ac10c8762ee4ad908dc4d4ba31fa58fc097a381f))
 * **ci:** address warden stale-comment quoting, temp_dir casing, revert vscode npm ci ([d7ec7b2](https://github.com/fworks-tech/agenthood/commit/d7ec7b2428ee737a1993abf15c6b37d8b9e8fe34))
 * **ci:** align blocking detection in reviewer.yml with line-start grep pattern ([307c75e](https://github.com/fworks-tech/agenthood/commit/307c75e7fecc1f82f93c185b5f00e2077837c345))
@@ -1217,7 +1217,7 @@
 
 ### Features
 
-* **evals:** implement EpisodeLearner — update LongTermMemory and ResidualMemory from eval scores ([b881c53](https://github.com/fworks-tech/agenthood/commit/b881c5321740922ad453159c69b2bdd992c3a887)), refs #119
+* **evals:** implement EpisodeLearner: update LongTermMemory and ResidualMemory from eval scores ([b881c53](https://github.com/fworks-tech/agenthood/commit/b881c5321740922ad453159c69b2bdd992c3a887)), refs #119
 
 # [3.3.0](https://github.com/fworks-tech/agenthood/compare/v3.2.0...v3.3.0) (2026-06-28)
 
@@ -1331,7 +1331,7 @@
 
 * **memory:** implement PersonalisationStore for per-project agent adaptation ([20c3f43](https://github.com/fworks-tech/agenthood/commit/20c3f437788586261979285a3329a8a5bd3dac3d)), refs #112
 * **memory:** implement ShortTerm, LongTerm, Episodic, and Project memory tiers ([98d6a56](https://github.com/fworks-tech/agenthood/commit/98d6a560e4209f52d860f5862643f4381af5cda4)), refs #262
-* **rag:** implement baseline RAG pipeline — ChunkStrategy, Indexer, Retriever ([9a257cf](https://github.com/fworks-tech/agenthood/commit/9a257cfa035df4e874c70cb73bc831aa52aeadb3)), refs #263
+* **rag:** implement baseline RAG pipeline: ChunkStrategy, Indexer, Retriever ([9a257cf](https://github.com/fworks-tech/agenthood/commit/9a257cfa035df4e874c70cb73bc831aa52aeadb3)), refs #263
 * **rag:** implement SocietyIndexer for members, ADRs, and conventions ([9caccad](https://github.com/fworks-tech/agenthood/commit/9caccade098cfc71fc5fd50e936b5bbc449a5bbb)), refs #107
 * **rag:** implement TreeSitterParser for AST-based code structure extraction ([6606bb9](https://github.com/fworks-tech/agenthood/commit/6606bb9ecc7578bb73a75561306d42f586b3c88b)), refs #106
 
@@ -1350,7 +1350,7 @@
 * **core:** move schema validator to core and harden error messages ([3f335f5](https://github.com/fworks-tech/agenthood/commit/3f335f56c44f9b57a6e44c91fd359a7a79754042)), refs #205
 * **memory:** implement LanceDB vector store with IVectorStore interface ([cfdb868](https://github.com/fworks-tech/agenthood/commit/cfdb868320c824afb074c668f0d561e16a1617e8)), refs #261
 * **memory:** implement memory governance with IMemoryStore and InMemoryStore ([faa524c](https://github.com/fworks-tech/agenthood/commit/faa524c0433f9342bacc4866eebe23520b6f135f)), refs #111
-* **memory:** implement ResidualMemory — decay-weighted trace signals ([91a34ea](https://github.com/fworks-tech/agenthood/commit/91a34ea6ab3ea5b2d3a3a7e812e0417ae048076b)), refs #110
+* **memory:** implement ResidualMemory: decay-weighted trace signals ([91a34ea](https://github.com/fworks-tech/agenthood/commit/91a34ea6ab3ea5b2d3a3a7e812e0417ae048076b)), refs #110
 * **rag:** implement KnowledgeGraphStore for relationship-aware retrieval ([0f0013e](https://github.com/fworks-tech/agenthood/commit/0f0013e45ffa33e3e2c5c84b64f8e293108aede5)), refs #105
 * **reasoning:** add infinite loop detection to reactloop ([869fdd7](https://github.com/fworks-tech/agenthood/commit/869fdd73b8daacd543b921e2d541747fcfde6ad9)), refs #206
 
@@ -1434,14 +1434,14 @@
 * **core:** add concurrency queue and safety guard ([694e01d](https://github.com/fworks-tech/agenthood/commit/694e01d7376f0eaaa5e63b3c0f345eb79a4785b6))
 * **core:** add RiskManager, SkillRegistry discovery, dynamic routing, and README rewrite ([8b284d9](https://github.com/fworks-tech/agenthood/commit/8b284d92225f2fd1e9ea5005cfb251970f554d0c)), refs #103, #162, #102
 * **core:** implement ContextCompressor with token-aware memory summarization ([cc5e078](https://github.com/fworks-tech/agenthood/commit/cc5e07801a297e6ce763264ae339e1e8579f7a6f)), refs #104
-* **core:** security hardening — Ajv, API key validation, symlink checks ([5a7738f](https://github.com/fworks-tech/agenthood/commit/5a7738fcc252d6f9bacf8c584338a6290d984296))
+* **core:** security hardening: Ajv, API key validation, symlink checks ([5a7738f](https://github.com/fworks-tech/agenthood/commit/5a7738fcc252d6f9bacf8c584338a6290d984296))
 * **llm:** add Anthropic prompt caching with cache control breakpoint ([75c13bb](https://github.com/fworks-tech/agenthood/commit/75c13bbd66e296d895f01e13f5a2c61c73e9979d))
 * **llm:** implement ProviderFailover for resilience ([#161](https://github.com/fworks-tech/agenthood/issues/161)) ([b86a604](https://github.com/fworks-tech/agenthood/commit/b86a604913f997ca731fd34ba798dfe954f77fdc))
 * **llm:** provider failover with circuit breaker and per-member preferences ([f68341c](https://github.com/fworks-tech/agenthood/commit/f68341c33f9baea5c8081e91ba976a1872b296f4))
 * **members:** wire all 14 society members to agenthood run ([3339aec](https://github.com/fworks-tech/agenthood/commit/3339aec52eab04a4c27904856aab4cb8ac4b17bb))
 * **reasoning:** implement ContextCompressor for token management ([#104](https://github.com/fworks-tech/agenthood/issues/104)) ([9558a4a](https://github.com/fworks-tech/agenthood/commit/9558a4aaca61fb4830a99432e0e3bbfb70cc66f1))
 * **release:** generate user-friendly release notes via @semantic-release/exec ([d4d47c4](https://github.com/fworks-tech/agenthood/commit/d4d47c49a22067484f6aa30b1f11c14b16920910))
-* **runtime:** release v2.0.0 — TypeScript runtime with autonomous agent execution ([0720bd5](https://github.com/fworks-tech/agenthood/commit/0720bd5f19f8805f5859f4871bde0a2632c2f8fd)), refs #202
+* **runtime:** release v2.0.0: TypeScript runtime with autonomous agent execution ([0720bd5](https://github.com/fworks-tech/agenthood/commit/0720bd5f19f8805f5859f4871bde0a2632c2f8fd)), refs #202
 * ship M4 foundation - TypeScript runtime with providers, agents, skills, and CLI ([7de7215](https://github.com/fworks-tech/agenthood/commit/7de721525f9b9c9828b1791979236cce45eec642))
 * **skills:** export and register SubagentTaskSkill with delegate_task name ([26bec93](https://github.com/fworks-tech/agenthood/commit/26bec93112273bd97b03bd2eb9864014d3159f45)), refs #3, #8, #9
 * **skills:** implement SubagentTaskSkill for agent delegation ([#199](https://github.com/fworks-tech/agenthood/issues/199)) ([58dc11d](https://github.com/fworks-tech/agenthood/commit/58dc11dec642a9e540b92c2f859752146a8da094))

@@ -12,7 +12,7 @@ the rules below. The lint is advisory; the failures it catches are not.
 
 | Property | Rule | Why |
 |----------|------|-----|
-| Arguments | Everything is a flag or a positional argument | stdin is closed during a run — a script that waits for input hangs |
+| Arguments | Everything is a flag or a positional argument | stdin is closed during a run: a script that waits for input hangs |
 | `--help` | Always, printing usage and options | This is how the model discovers the interface |
 | Output | JSON on stdout when the skill declares `output_format: json` | The model parses structure; prose forces another turn |
 | Exit codes | `0` success, `1` error, `2` usage | Anything else is outside the agreed contract |
@@ -24,7 +24,7 @@ These are the five rules `verify --scripts` enforces, in the same order.
 
 ## A good script, and a bad one
 
-**Bad** — hangs, guesses, and exits silently:
+**Bad**: hangs, guesses, and exits silently:
 
 ```python
 import sys
@@ -34,7 +34,7 @@ subprocess.run(f"kubectl delete deploy {name}", shell=True)   # no --dry-run, no
 sys.exit(3)                              # outside the contract
 ```
 
-**Good** — discoverable, structured, reversible:
+**Good**: discoverable, structured, reversible:
 
 ```python
 #!/usr/bin/env python3
@@ -75,7 +75,7 @@ error: <tool> not found. Install it with <command>, then re-run.
 error: <path> not found. Check the path or run with --dry-run to inspect.
 ```
 
-Compare "Invalid input" — the model retries the same call, then gives up and writes prose. A message
+Compare "Invalid input": the model retries the same call, then gives up and writes prose. A message
 that names the valid shape converts a dead end into a second call.
 
 ## Idempotency and `--dry-run`
@@ -104,7 +104,7 @@ gets the same interface rules:
 | Go | `flag` | `encoding/json` | Compile once if it is called repeatedly |
 
 A one-off command (`npx something@1.2.3`) is allowed only when version-pinned. Anything unpinned in a
-script is refused — a tool that changes under a skill is a skill that breaks silently.
+script is refused: a tool that changes under a skill is a skill that breaks silently.
 
 ## Sandbox expectations
 
@@ -129,6 +129,6 @@ matters; write the rest to a file and return its path.
 
 ## References
 
-- [ADR-036](../adr/ADR-036-skill-script-execution-and-sandboxing.md) — sandbox, runtimes, output caps
-- [ADR-040](../adr/ADR-040-skill-body-structure.md) — how the body points at a script
-- [The Builder](../../skills/builder/SKILL.md) — implementation standards a script follows
+- [ADR-036](../adr/ADR-036-skill-script-execution-and-sandboxing.md): sandbox, runtimes, output caps
+- [ADR-040](../adr/ADR-040-skill-body-structure.md): how the body points at a script
+- [The Builder](../../skills/builder/SKILL.md): implementation standards a script follows

@@ -6,7 +6,7 @@
 
 ## What it is
 
-An agent workflow is a structured sequence of agent invocations — sequential, parallel, or both — that produces a complete artifact. One agent writes the spec. Another writes the tests. A third implements the code. A fourth reviews it. The workflow chains them so the output of one step becomes the input of the next.
+An agent workflow is a structured sequence of agent invocations (sequential, parallel, or both) that produces a complete artifact. One agent writes the spec. Another writes the tests. A third implements the code. A fourth reviews it. The workflow chains them so the output of one step becomes the input of the next.
 
 The building blocks of a workflow are step types. A sequential step runs one agent and passes its output forward. A parallel step runs multiple agents simultaneously and merges their results. A human-in-the-loop step pauses the workflow until a person approves, rejects, or edits the output before the next step runs. Compose these three and you can express any real software delivery process.
 
@@ -16,17 +16,17 @@ The key insight is that a workflow is not a conversation. It is a directed graph
 
 ## Why it matters in production
 
-Real tasks are not single-agent. "Ship this feature" involves planning, testing, implementing, reviewing, and documenting. Without a workflow engine, you glue these together with imperative scripts — and the glue becomes the part that breaks.
+Real tasks are not single-agent. "Ship this feature" involves planning, testing, implementing, reviewing, and documenting. Without a workflow engine, you glue these together with imperative scripts, and the glue becomes the part that breaks.
 
 The failure mode is context loss. When one agent finishes and another starts, the second agent needs the *output* of the first, not the entire conversation history. Workflows enforce this boundary: each step receives exactly what the workflow definition says it should receive, nothing more. This is what makes steps reusable and workflows debuggable.
 
-Human-in-the-loop checkpoints are the other non-negotiable. An autonomous workflow that merges PRs without a human review is a liability. The workflow engine must pause, present the proposed action, and wait for a decision. ADR-005 calls this the approval model — and it is the reason the Society's orchestrator pattern includes `interrupt_on` gates.
+Human-in-the-loop checkpoints are the other non-negotiable. An autonomous workflow that merges PRs without a human review is a liability. The workflow engine must pause, present the proposed action, and wait for a decision. ADR-005 calls this the approval model, and it is the reason the Society's orchestrator pattern includes `interrupt_on` gates.
 
 ---
 
 ## How Agenthood implements it
 
-The `WorkflowEngine` (shipped — `src/workflows/WorkflowEngine.ts`) executes a graph of typed steps, each with a defined input and output contract. Workflows are declared as data — a `WorkflowDefinition` of `WorkflowStep`s (types: `agent`, `human-in-loop`, `parallel`, `goal`, `tool`) — then executed by the engine:
+The `WorkflowEngine` (shipped, `src/workflows/WorkflowEngine.ts`) executes a graph of typed steps, each with a defined input and output contract. Workflows are declared as data (a `WorkflowDefinition` of `WorkflowStep`s (types: `agent`, `human-in-loop`, `parallel`, `goal`, `tool`)) then executed by the engine:
 
 ```typescript
 import { WorkflowEngine, type WorkflowDefinition } from 'agenthood';
@@ -49,7 +49,7 @@ const planAndBuild: WorkflowDefinition = {
 const result = await new WorkflowEngine().run(planAndBuild);
 ```
 
-Each step produces a typed output that the next step consumes. The `HumanInLoopStep` pauses execution and emits an approval request — the workflow does not advance until the gate is resolved. `ParallelStep` runs its children concurrently and merges results when all complete.
+Each step produces a typed output that the next step consumes. The `HumanInLoopStep` pauses execution and emits an approval request: the workflow does not advance until the gate is resolved. `ParallelStep` runs its children concurrently and merges results when all complete.
 
 ---
 
@@ -76,8 +76,8 @@ The Steward routes the task through the appropriate members: Architect plans, Te
 
 ## Further reading
 
-- [ADR-005 — Orchestrator pattern over peer-to-peer](../../adr/ADR-005-orchestrator-pattern.md) — why workflows are orchestrated, not peer-to-peer
-- [`src/workflows/WorkflowEngine.ts`](../../../src/workflows/WorkflowEngine.ts) — workflow orchestration (shipped; see also `definitions/review-pr.ts` for a shipped workflow)
-- [Patterns for Building LLM-based Systems & Products](https://eugeneyan.com/writing/llm-patterns/) — Eugene Yan's pattern catalog
+- [ADR-005: Orchestrator pattern over peer-to-peer](../../adr/ADR-005-orchestrator-pattern.md): why workflows are orchestrated, not peer-to-peer
+- [`src/workflows/WorkflowEngine.ts`](../../../src/workflows/WorkflowEngine.ts): workflow orchestration (shipped; see also `definitions/review-pr.ts` for a shipped workflow)
+- [Patterns for Building LLM-based Systems & Products](https://eugeneyan.com/writing/llm-patterns/): Eugene Yan's pattern catalog
 
 

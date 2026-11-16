@@ -4,7 +4,7 @@ export type StepType = 'agent' | 'human-in-loop' | 'parallel' | 'goal' | 'tool'
 
 /**
  * Conditional step (#609): run only when an earlier step's output matches.
- * A missing or not-yet-run step fails closed — the step is skipped.
+ * A missing or not-yet-run step fails closed: the step is skipped.
  */
 export interface StepCondition {
   /** Name of the earlier step. */

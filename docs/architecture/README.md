@@ -3,7 +3,7 @@
 > *The Society runs on principles, not just conventions.*
 
 The Agenthood's architecture defines how agents think, coordinate, prioritize,
-recover, and operate. These documents are framework-agnostic — they describe
+recover, and operate. These documents are framework-agnostic; they describe
 the *what* and *why*, not the implementation.
 
 ---
@@ -30,16 +30,16 @@ Every task the Agenthood handles follows this path:
 ```
 User Request
     ↓
-ConcurrencyQueue        — assign priority, wait for slot
+ConcurrencyQueue - assign priority, wait for slot
     ↓
-Orchestrator            — route to the right member(s)
+Orchestrator - route to the right member(s)
                           (Phase 1: MemberOrchestrator detection shipped)
     ↓
-Member Execution        — reason → act → observe loop
+Member Execution - reason → act → observe loop
     ↓
-SafetyGuard             — enforce limits, detect loops
+SafetyGuard - enforce limits, detect loops
     ↓
-ProviderFailover        — retry with backup LLM if needed
+ProviderFailover - retry with backup LLM if needed
     ↓
 Response
 ```
@@ -48,12 +48,12 @@ Response
 
 ## Design Principles
 
-1. **Specialization over generalism** — each member does one thing well
-2. **Events over direct calls** — members communicate through the orchestrator
-3. **Human approval gates** — destructive actions always surface for review
-4. **Fail safe, not fail silent** — errors are classified, logged, and recovered from
-5. **One source of truth** — conventions live in one place, everything reads from there
-6. **Additive layers** — the TypeScript CLI extends the Society without modifying existing Markdown skills
+1. **Specialization over generalism**: each member does one thing well
+2. **Events over direct calls**: members communicate through the orchestrator
+3. **Human approval gates**: destructive actions always surface for review
+4. **Fail safe, not fail silent**: errors are classified, logged, and recovered from
+5. **One source of truth**: conventions live in one place, everything reads from there
+6. **Additive layers**: the TypeScript CLI extends the Society without modifying existing Markdown skills
 
 ---
 
@@ -67,18 +67,18 @@ which superseded the earlier Python/DeepAgents runtime approach.
 |-----------|----------------|--------|
 | Society members (skill files) | `skills/<name>/SKILL.md` | ✅ Shipped (v1.5.0) |
 | TS runtime: `ILLMProvider`, `LLMRouter`, `ReActLoop`, `BaseAgent` | `src/llm/`, `src/reasoning/`, `src/agents/` | ✅ Shipped |
-| `MemberRegistry` — wires members to TS `run` | `src/members/MemberRegistry.ts` | ✅ v2.0.0 |
-| `ProviderFailover` — circuit breaker + classification | `src/llm/ProviderFailover.ts` | ✅ v2.0.0 |
-| `ConcurrencyQueue` — priority + starvation | `src/core/ConcurrencyQueue.ts` | ✅ v2.0.0 |
-| `SafetyGuard` — caps, loop detection, blocklist | `src/core/SafetyGuard.ts` | ✅ v2.0.0 |
-| Orchestrator (publish/subscribe event bus) | `src/orchestrator/` | 📋 Planned — Phase 3 |
-| MemberOrchestrator Phase 1 — detection | `src/reasoning/MemberOrchestrator.ts` | ✅ v2.6.0 |
+| `MemberRegistry`: wires members to TS `run` | `src/members/MemberRegistry.ts` | ✅ v2.0.0 |
+| `ProviderFailover`: circuit breaker + classification | `src/llm/ProviderFailover.ts` | ✅ v2.0.0 |
+| `ConcurrencyQueue`: priority + starvation | `src/core/ConcurrencyQueue.ts` | ✅ v2.0.0 |
+| `SafetyGuard`: caps, loop detection, blocklist | `src/core/SafetyGuard.ts` | ✅ v2.0.0 |
+| Orchestrator (publish/subscribe event bus) | `src/orchestrator/` | 📋 Planned: Phase 3 |
+| MemberOrchestrator Phase 1: detection | `src/reasoning/MemberOrchestrator.ts` | ✅ v2.6.0 |
 | Memory tiers (IMemoryStore, ResidualMemory, InMemoryStore, VectorStore, ShortTerm, LongTerm, Episodic, Project, PersonalisationStore) | `src/memory/` | ✅ Shipped |
 | Decision intelligence (DecisionLog + causal chains, ProvenanceStore, DecisionSearch, GraphSnapshot) | `src/memory/` | ✅ ADR-015 |
-| RAG — KnowledgeGraphStore, FixedSizeChunkStrategy + MarkdownHierarchicalChunkStrategy, Indexer, Retriever, AgenticRAG, TreeSitterParser | `src/rag/` | ✅ Shipped |
+| RAG: KnowledgeGraphStore, FixedSizeChunkStrategy + MarkdownHierarchicalChunkStrategy, Indexer, Retriever, AgenticRAG, TreeSitterParser | `src/rag/` | ✅ Shipped |
 | Society index (members, ADRs, conventions) | `src/project/SocietyIndexer.ts` | ✅ Shipped |
-| Observability — trace pipeline (TraceEnvelope, Tracer ring buffer, JSONFileTraceStore, redaction, retention, anomaly detection wired into flush with `status --alerts`, health checks) | `src/core/` | ✅ Shipped + wired (M8) |
-| Evaluation — EvalRunner (LLM-as-judge), BaselineComparator, ReplayEvaluator (`eval --replay`), EpisodeLearner (EmbeddingIndex-backed, injected into agents) | `src/evals/` | ✅ Shipped + wired (M8) |
+| Observability: trace pipeline (TraceEnvelope, Tracer ring buffer, JSONFileTraceStore, redaction, retention, anomaly detection wired into flush with `status --alerts`, health checks) | `src/core/` | ✅ Shipped + wired (M8) |
+| Evaluation: EvalRunner (LLM-as-judge), BaselineComparator, ReplayEvaluator (`eval --replay`), EpisodeLearner (EmbeddingIndex-backed, injected into agents) | `src/evals/` | ✅ Shipped + wired (M8) |
 | Governance docs (RACI + release policy) | `../governance/` | ✅ v2.6.0 |
 
 The TS CLI is the single supported runtime for `agenthood run`.

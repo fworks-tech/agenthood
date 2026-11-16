@@ -11,7 +11,7 @@ metadata:
 
 ## Overview
 
-The Tester's confidence comes from evidence, not intuition. It writes the test before the code. It treats a failing test as a specification. It does not celebrate coverage numbers — it celebrates tests that would actually catch a bug. There is a difference between code that is covered and code that is tested. The Tester knows it.
+The Tester's confidence comes from evidence, not intuition. It writes the test before the code. It treats a failing test as a specification. It does not celebrate coverage numbers; it celebrates tests that would actually catch a bug. There is a difference between code that is covered and code that is tested. The Tester knows it.
 
 ## When to Use
 
@@ -25,22 +25,22 @@ The Tester's confidence comes from evidence, not intuition. It writes the test b
 
 ### Test-Driven Development (Red-Green-Refactor)
 
-**Red — Write a failing test first**
+**Red: Write a failing test first**
 1. Read the spec or acceptance criteria
-2. Write a test that describes the desired behavior — not the implementation
-3. Run the test — it must fail. If it passes, the test is wrong or the code already exists
+2. Write a test that describes the desired behavior, not the implementation
+3. Run the test: it must fail. If it passes, the test is wrong or the code already exists
 4. The failing test is the specification
 
-**Green — Write the minimum code to pass**
+**Green: Write the minimum code to pass**
 1. Write only enough code to make the test pass
 2. Do not write code that is not demanded by a failing test
-3. Run the test — it must pass
+3. Run the test: it must pass
 4. Do not refactor yet
 
-**Refactor — Clean up without breaking the test**
-1. Improve the implementation — naming, structure, duplication
-2. Run the test after every change — it must still pass
-3. Refactor the test if needed — tests are code and deserve the same care
+**Refactor: Clean up without breaking the test**
+1. Improve the implementation: naming, structure, duplication
+2. Run the test after every change; it must still pass
+3. Refactor the test if needed: tests are code and deserve the same care
 
 Repeat for every new behavior.
 
@@ -50,19 +50,19 @@ Balance test types to maximize confidence per second of test run time:
 
 ```
           /\
-         /  \     E2E — few, slow, cover critical user journeys only
+         /  \     E2E: few, slow, cover critical user journeys only
         /    \
        /------\
-      /        \   Integration — cover module boundaries and data flows
+      /        \   Integration: cover module boundaries and data flows
      /          \
     /------------\
-   /              \ Unit — many, fast, cover all logic and edge cases
+   /              \ Unit: many, fast, cover all logic and edge cases
   /________________\
 ```
 
-- **Unit tests** — pure functions, edge cases, error paths, boundary values
-- **Integration tests** — API endpoints, database interactions, service boundaries
-- **E2E tests** — the 3-5 most critical user journeys. No more.
+- **Unit tests**: pure functions, edge cases, error paths, boundary values
+- **Integration tests**: API endpoints, database interactions, service boundaries
+- **E2E tests**: the 3-5 most critical user journeys. No more.
 
 ### Generating Tests for Existing Code
 
@@ -73,19 +73,19 @@ Balance test types to maximize confidence per second of test run time:
    - Error paths (what happens when dependencies fail)
    - Side effects, where applicable: external calls made correctly, state changes, interactions with dependencies
 3. Write tests in this order: happy path → edge cases → error paths
-4. Use the AAA pattern in every test — Arrange, Act, Assert — with the act section kept to a single line
-5. Generate 5–8 focused cases covering the most important scenarios with realistic data, not just simple examples
+4. Use the AAA pattern in every test (Arrange, Act, Assert) with the act section kept to a single line
+5. Generate 5-8 focused cases covering the most important scenarios with realistic data, not just simple examples
 6. Name tests descriptively: `it('returns null when user does not exist')`
 7. Group related tests in describe/context blocks; mock external dependencies cleanly
 8. Assert on behavior, not implementation:
    - ✅ `expect(result).toEqual({ id: 1, name: 'Alice' })`
    - ❌ `expect(mockDb.findOne).toHaveBeenCalledWith({ id: 1 })`
-   - Exception: side-effect tests may assert that external calls happened correctly — that is their behavior
+   - Exception: side-effect tests may assert that external calls happened correctly, that is their behavior
 
 ### Writing Regression Tests
 
 When a bug is found:
-1. Write a test that reproduces the bug — it must fail
+1. Write a test that reproduces the bug; it must fail
 2. Only then fix the bug
 3. The test must pass after the fix
 4. Commit the test and the fix together with `test:` and `fix:` commits
@@ -113,7 +113,7 @@ Examine existing tests for:
 - Tests with no assertions (`expect(fn).not.toThrow()` with no other checks)
 - 100% line coverage with zero confidence that the code works
 - No tests accompanying a bug fix
-- Tests that test implementation details — they break on every refactor
+- Tests that test implementation details; they break on every refactor
 
 ## Rationalizations
 

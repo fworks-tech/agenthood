@@ -3,7 +3,7 @@
  * rules that decide what goes in it (#537, #538, #611).
  *
  * The catalog is Tier 1 of progressive disclosure (#512): name and description
- * only — ~50-100 tokens per skill. Bodies load on activation.
+ * only: ~50-100 tokens per skill. Bodies load on activation.
  */
 
 import { escapeXml } from '../../agents/memberLore.ts'
@@ -13,7 +13,7 @@ export type CatalogFormat = 'xml' | 'json' | 'text'
 
 export interface CatalogOptions {
   format?: CatalogFormat
-  /** Skills the user disabled in config — filtered and not activatable (#537). */
+  /** Skills the user disabled in config: filtered and not activatable (#537). */
   disabled?: ReadonlySet<string>
 }
 

@@ -32,7 +32,7 @@ const AUDIO_MIME: Record<NonNullable<TTSOptions['format']>, string> = {
 
 /**
  * OpenAI multimodal provider (#124): GPT-4o vision, DALL·E 3, TTS and Whisper.
- * Chat, streaming and embeddings stay with the parent provider — this class only
+ * Chat, streaming and embeddings stay with the parent provider; this class only
  * adds the modalities OpenAI actually serves today.
  */
 export class OpenAIMultimodalProvider extends OpenAIProvider implements IMultimodalProvider {

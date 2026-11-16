@@ -23,29 +23,29 @@ Scans the codebase for code health signals: TODOs and FIXMEs, files exceeding si
 
 ## Steps
 
-1. Search for `TODO` and `FIXME` comments — record file:line for each
-2. Find files exceeding 500 lines — list them with line count
+1. Search for `TODO` and `FIXME` comments: record file:line for each
+2. Find files exceeding 500 lines: list them with line count
 3. Parse `package.json` (and equivalents) for wildcard versions
-4. Check test file ratio — flag source files with no corresponding test file
+4. Check test file ratio: flag source files with no corresponding test file
 5. Check for files modified in the last 7 days with no corresponding test changes
 6. Produce the health report
 
 ## Report Format
 
 ```markdown
-## 🔍 Daily Inspection — {Date}
+## 🔍 Daily Inspection: {Date}
 
 ### 📋 TODO / FIXME ({count})
-{file:line — comment text}
+{file:line: comment text}
 
 ### 📏 Oversized Files ({count})
-{file — N lines (limit: 500)}
+{file: N lines (limit: 500)}
 
 ### 📦 Dependency Drift ({count})
-{dependency@^version — pin to exact version}
+{dependency@^version: pin to exact version}
 
 ### 🧪 Untested Files ({count})
-{file — no corresponding test file found}
+{file: no corresponding test file found}
 
 ### ✅ All Clear
 {categories with zero findings}
@@ -57,5 +57,5 @@ Scans the codebase for code health signals: TODOs and FIXMEs, files exceeding si
 ## Notes
 - File size limit: 500 lines (matches `.github/scripts/filesize-check.sh`); configurable thresholds are planned
 - TODO age threshold: flag TODOs older than 30 days
-- Does not modify any files — report only
-- The report's findings can be checked against `.agenthood/provenance/` — past inspection runs are tamper-evident (ADR-015)
+- Does not modify any files: report only
+- The report's findings can be checked against `.agenthood/provenance/`: past inspection runs are tamper-evident (ADR-015)

@@ -25,7 +25,7 @@ export function loadLockTargets(cwd: string, target: string | undefined, missing
 
   const keys = Object.keys(lock.members).filter((m) => MEMBER_NAME_RE.test(m))
   for (const bad of Object.keys(lock.members).filter((m) => !MEMBER_NAME_RE.test(m))) {
-    // JSON.stringify: hostile keys are attacker bytes — never echo them raw
+    // JSON.stringify: hostile keys are attacker bytes: never echo them raw
     console.warn(`Skipping invalid member key from lockfile: ${JSON.stringify(bad)}`)
   }
   return { lock, members: target ? [target] : keys }

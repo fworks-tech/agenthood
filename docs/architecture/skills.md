@@ -37,7 +37,7 @@ not gated cannot be listed; a skill that is not activated contributes nothing to
 | 5 | `<project>/skills` | project |
 
 **Project beats user.** When the same name appears twice the later project root wins, with a warning;
-within one scope the earlier root wins. A collision is reported, never silently dropped — two skills
+within one scope the earlier root wins. A collision is reported, never silently dropped: two skills
 with one name is a configuration bug the user has to see.
 
 Two bounds keep a large repository from stalling startup: depth 6 inside a root, and 2000 directories
@@ -53,10 +53,10 @@ skills. A catalog is never a hard dependency of a run (ADR-035).
 `SkillParser` reads the YAML frontmatter and the body, then validates the shape:
 
 - `name`, `description`, `license` (name must match the directory; `verify` enforces it)
-- `allowed-tools` — declared tool names, resolved through the member vocabulary
-- `metadata.*` — `author` (registry namespace), `version`, `priority`, `conditions`, `variants`
-- gating fields — `model-targets`, `requires`, `dependencies` (ADR-037)
-- behaviour switches — `hidden`, `router`, `disable-model-invocation`, `compaction-replay`
+- `allowed-tools`: declared tool names, resolved through the member vocabulary
+- `metadata.*`: `author` (registry namespace), `version`, `priority`, `conditions`, `variants`
+- gating fields: `model-targets`, `requires`, `dependencies` (ADR-037)
+- behaviour switches: `hidden`, `router`, `disable-model-invocation`, `compaction-replay`
 
 The parse result is cached in `.agenthood/skill-cache/metadata.json`, keyed by path and validated by
 `mtimeMs` + `size`. A hit skips the read, the YAML parse, the injection scan and the spec checks
@@ -83,7 +83,7 @@ flowchart TD
   E -- ok --> F[Available]
 ```
 
-Blocked skills are hidden from the catalog and refused by `activate_skill` — a skill that cannot run
+Blocked skills are hidden from the catalog and refused by `activate_skill`: a skill that cannot run
 here must not be offered. `agenthood skills --show-disabled` names each one and the reason.
 
 ## 4. Activation
@@ -92,13 +92,13 @@ here must not be offered. `agenthood skills --show-disabled` names each one and 
 
 1. resolves fallbacks when the named skill is blocked (ADR-037)
 2. selects the model variant (`metadata.variants`) when one matches the current model
-3. applies the budget — compressing or truncating a body too large for the window
+3. applies the budget: compressing or truncating a body too large for the window
 4. reports missing relative references as warnings, not failures
 5. wraps the body in `<skill_directives>` with its directory, and records the activation
 
 A second activation of the same skill returns a pointer instead of the body: the block is already in
 the transcript, and compaction protects it. `force: true` reloads. A `compaction-replay: false` skill
-opts out of both — compaction may summarise it, so re-activation always re-injects.
+opts out of both: compaction may summarise it, so re-activation always re-injects.
 
 Activation is additive across skills: the effective tool scope is the **intersection** of every active
 skill's `allowed-tools` (ADR-032), so activating one skill can temporarily narrow another's tools.
@@ -109,7 +109,7 @@ Two execution surfaces share the discovered manifest:
 
 | Surface | What runs | Sandbox |
 |---------|-----------|---------|
-| Instructions | The model follows the body | none — it is prompt text |
+| Instructions | The model follows the body | none; it is prompt text |
 | Bundled scripts | `run_skill_script` picks a runtime by extension, then shebang | Docker by default; host only for a trusted author (ADR-036) |
 
 A script run is authorized by activation (the skill must be active), bounded by a per-script timeout,
@@ -145,7 +145,7 @@ names, so a resumed run restores the same scope instead of starting empty.
 
 | You want to | Touch |
 |-------------|-------|
-| Add or edit a skill | `skills/<name>/SKILL.md` — nothing else |
+| Add or edit a skill | `skills/<name>/SKILL.md`: nothing else |
 | Change search roots or precedence | `src/skills/discovery/SkillDiscovery.ts` |
 | Change a frontmatter field | `SkillParser.ts`, `ISkillManifest.ts`, `CACHE_VERSION` |
 | Change gating rules | `src/skills/activation/gate.ts` (ADR-037) |
@@ -158,11 +158,11 @@ names, so a resumed run restores the same scope instead of starting empty.
 
 Extension points, in order of how often you will need them:
 
-1. **A new skill** — one file. No registration, no rebuild.
-2. **A new frontmatter field** — parser, manifest type, cache version, and a gate if it restricts.
-3. **A new tool** — classify it in `MemberAgent` (read-only/write/trusted) or it is denied by default.
-4. **A new search root** — one entry in `discover()`; precedence is the array order.
-5. **A new runtime for scripts** — `language.ts` detection plus the sandbox allowlist (ADR-036).
+1. **A new skill**: one file. No registration, no rebuild.
+2. **A new frontmatter field**: parser, manifest type, cache version, and a gate if it restricts.
+3. **A new tool**: classify it in `MemberAgent` (read-only/write/trusted) or it is denied by default.
+4. **A new search root**: one entry in `discover()`; precedence is the array order.
+5. **A new runtime for scripts**: `language.ts` detection plus the sandbox allowlist (ADR-036).
 
 ## Invariants
 
@@ -180,5 +180,5 @@ Extension points, in order of how often you will need them:
   · [ADR-038](../adr/ADR-038-skill-discovery-and-execution-caching.md)
   · [ADR-039](../adr/ADR-039-member-naming-and-identity.md)
   · [ADR-040](../adr/ADR-040-skill-body-structure.md)
-- [Agent system](agent-system.md) — members, profiles and delegation
-- [Creating a Member](../guides/creating-a-member.md) — the authoring path
+- [Agent system](agent-system.md): members, profiles and delegation
+- [Creating a Member](../guides/creating-a-member.md): the authoring path

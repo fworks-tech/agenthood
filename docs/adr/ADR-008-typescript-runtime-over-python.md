@@ -2,14 +2,14 @@
 
 **Date:** 2026-06-02
 **Status:** Accepted
-**Supersedes:** ADR-006 (Python runtime), ADR-007 (DeepAgents) — both deleted
+**Supersedes:** ADR-006 (Python runtime), ADR-007 (DeepAgents): both deleted
 
 ## Context
 
 ADR-006 introduced a separate Python package (`agenthood-runtime`) to provide the
 agentic execution layer, and ADR-007 selected DeepAgents + LangGraph as the execution
 engine. In practice, shipping a Python runtime alongside a Node.js CLI created two
-parallel stacks — two language runtimes, two package managers, two release pipelines —
+parallel stacks (two language runtimes, two package managers, two release pipelines)
 without delivering the v2 TypeScript runtime faster.
 
 The AI/ML ecosystem assumption that favoured Python (LangGraph, LangChain) has eroded:
@@ -23,7 +23,7 @@ The v2 agentic runtime is built entirely in TypeScript, living in `src/agents/`,
 `src/llm/`, and `src/memory/` within the existing Node.js package. No separate Python
 package is introduced or maintained.
 
-The `skills/the-*/SKILL.md` files remain unchanged —
+The `skills/the-*/SKILL.md` files remain unchanged,
 they are runtime-agnostic by design (ADR-001) and require no migration.
 
 ## Alternatives Considered
@@ -37,7 +37,7 @@ they are runtime-agnostic by design (ADR-001) and require no migration.
 ## Consequences
 
 **Easier:**
-- Single language across CLI, runtime, and tests — contributors need only TypeScript
+- Single language across CLI, runtime, and tests: contributors need only TypeScript
 - The existing `npm test` suite covers all layers without a Python test harness
 - Semantic-release handles one package, one changelog, one version
 
@@ -53,8 +53,8 @@ they are runtime-agnostic by design (ADR-001) and require no migration.
 
 ## References
 
-- [ADR-001](ADR-001-markdown-skills-over-code-agents.md) — Markdown skills remain runtime-agnostic
-- ADR-006 — Python runtime (deleted, superseded by this ADR)
-- ADR-007 — DeepAgents (deleted, superseded by this ADR)
-- [ADR-009](ADR-009-groq-as-default-llm-provider.md) — Groq as default provider in the TS runtime
-- [ADR-010](ADR-010-lancedb-for-vector-storage.md) — LanceDB as embedded vector store
+- [ADR-001](ADR-001-markdown-skills-over-code-agents.md): Markdown skills remain runtime-agnostic
+- ADR-006: Python runtime (deleted, superseded by this ADR)
+- ADR-007: DeepAgents (deleted, superseded by this ADR)
+- [ADR-009](ADR-009-groq-as-default-llm-provider.md): Groq as default provider in the TS runtime
+- [ADR-010](ADR-010-lancedb-for-vector-storage.md): LanceDB as embedded vector store

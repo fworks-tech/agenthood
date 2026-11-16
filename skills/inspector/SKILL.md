@@ -85,9 +85,9 @@ When asked to create benchmark questions:
 
 | What you think | What The Inspector knows |
 |---------------|--------------------------|
-| "The pixels are clearly different" | Visual similarity can deceive — measure, don't judge |
-| "The panels are aligned" | Verify alignment explicitly — one pixel offset changes the answer |
-| "The cut is obvious" | Thick cuts have ambiguous center lines — state your convention |
+| "The pixels are clearly different" | Visual similarity can deceive: measure, don't judge |
+| "The panels are aligned" | Verify alignment explicitly: one pixel offset changes the answer |
+| "The cut is obvious" | Thick cuts have ambiguous center lines: state your convention |
 
 ## Verification
 

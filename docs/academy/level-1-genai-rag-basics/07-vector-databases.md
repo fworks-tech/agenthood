@@ -47,7 +47,7 @@ You interact with the local vector store transparently through the runtime:
 
 ```bash
 # Initialize local vector storage
-# No dedicated CLI subcommand — LanceDB initializes on first use
+# No dedicated CLI subcommand: LanceDB initializes on first use
 
 # The database lives in .agenthood/memory/
 ls -la .agenthood/memory/
@@ -56,7 +56,7 @@ ls -la .agenthood/memory/
 Or conceptually in TypeScript:
 
 ```typescript
-// The local embedded nature of LanceDB makes this seamless
+// The local embedded nature of LanceDB means there is no server to run
 const db = new LanceDBStore(1536);
 await db.connect('.agenthood/memory');
 await db.add(chunks);
@@ -66,8 +66,8 @@ await db.add(chunks);
 
 ## Further reading
 
-- [ADR-010 — LanceDB for Vector Storage](../../adr/ADR-010-lancedb-for-vector-storage.md)
-- [`src/memory/VectorStore.ts`](../../../src/memory/VectorStore.ts) — IVectorStore interface + LanceDBStore (shipped)
-- [LanceDB Documentation](https://lancedb.github.io/lancedb/) — why embedded vector DBs are the future
+- [ADR-010: LanceDB for Vector Storage](../../adr/ADR-010-lancedb-for-vector-storage.md)
+- [`src/memory/VectorStore.ts`](../../../src/memory/VectorStore.ts): IVectorStore interface + LanceDBStore (shipped)
+- [LanceDB Documentation](https://lancedb.github.io/lancedb/): why embedded vector DBs are the future
 
 

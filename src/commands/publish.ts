@@ -53,7 +53,7 @@ export function validateSkill(skillMdPath: string, fallbackOwner?: string): { ok
   // optional; a monorepo can pass one --author instead of editing every file.
   const owner = parseOwner(frontmatter) ?? fallbackOwner
   if (!owner) {
-    return { ok: false, name, error: 'missing "metadata.author" — the registry namespace. Add it, or pass --author <owner>' }
+    return { ok: false, name, error: 'missing "metadata.author"; the registry namespace. Add it, or pass --author <owner>' }
   }
   if (!OWNER_RE.test(owner)) {
     return { ok: false, name, error: `metadata.author "${owner}" is not a valid namespace (lowercase letters, digits, single hyphens)` }
@@ -119,7 +119,7 @@ export async function publish(args: string[]): Promise<void> {
       const ref = `${result.owner}/${result.name}`
       const duplicate = seen.get(ref)
       if (duplicate) {
-        console.error(`    ✗ ${ref}: also declared by ${duplicate} — registry names must be unique`)
+        console.error(`    ✗ ${ref}: also declared by ${duplicate}, registry names must be unique`)
         hasErrors = true
         continue
       }
@@ -138,7 +138,7 @@ export async function publish(args: string[]): Promise<void> {
   }
 
   if (dryRun) {
-    console.log('\n  Dry run — no changes made.\n')
+    console.log('\n  Dry run, no changes made.\n')
     console.log('  To publish, push your skills to a GitHub repository:')
     console.log('    1. Ensure all SKILL.md files are committed')
     console.log('    2. Push to your GitHub repository')

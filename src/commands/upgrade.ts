@@ -24,7 +24,7 @@ async function selfUpgrade(): Promise<void> {
 
   const raw = await fetchRemoteText(NPM_LATEST_URL)
   if (!raw) {
-    systemError('Could not reach the npm registry — check connectivity')
+    systemError('Could not reach the npm registry, check connectivity')
   }
   const latest = (JSON.parse(raw) as { version?: string }).version
   if (!latest) {
@@ -55,7 +55,7 @@ async function selfUpgrade(): Promise<void> {
     execFileSync('npm', ['install', '--no-fund', '--no-audit', `agenthood@${latest}`], { cwd, stdio: 'inherit' })
     console.log(`\n  ✓ Upgraded to v${latest}.\n`)
   } catch (err) {
-    systemError(`npm install failed — run \`npm install agenthood@latest\` manually (${(err as Error)?.message ?? err})`)
+    systemError(`npm install failed, run \`npm install agenthood@latest\` manually (${(err as Error)?.message ?? err})`)
   }
 }
 
@@ -70,7 +70,7 @@ function backupConfig(configDir: string): void {
 
   const config = JSON.parse(readFileSync(configPath, 'utf-8')) as { version?: string }
   if (config.version !== '1') {
-    console.warn(`  ⚠ Config version "${config.version ?? 'missing'}" is not recognized — review .agenthood/config.json after the upgrade`)
+    console.warn(`  ⚠ Config version "${config.version ?? 'missing'}" is not recognized, review .agenthood/config.json after the upgrade`)
   }
 }
 
@@ -128,7 +128,7 @@ async function resolveUpgradeTarget(
     }
     return true
   } catch (err) {
-    console.error(`  ${name}: upgrade failed — ${(err as Error)?.message ?? err}`)
+    console.error(`  ${name}: upgrade failed, ${(err as Error)?.message ?? err}`)
     return false
   }
 }

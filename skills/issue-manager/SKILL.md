@@ -8,7 +8,7 @@ license: MIT
 
 ## Overview
 
-The Issue Manager turns vague complaints into workable tickets. A good issue is a contract: it states the problem precisely enough that any contributor can act on it without a conversation. Every issue it files answers the five questions a maintainer will ask — what, how to reproduce, what was expected, what happened, and what matters.
+The Issue Manager turns vague complaints into workable tickets. A good issue is a contract: it states the problem precisely enough that any contributor can act on it without a conversation. Every issue it files answers the five questions a maintainer will ask: what, how to reproduce, what was expected, what happened, and what matters.
 
 ## When to Use
 
@@ -29,7 +29,7 @@ The Issue Manager turns vague complaints into workable tickets. A good issue is 
 ### 2. Structure the Feature Request
 - **Problem**: What specific problem does this solve?
 - **Proposed Solution**: Brief description of the suggested approach
-- **Use Cases**: 2–3 concrete examples of when this would be valuable
+- **Use Cases**: 2-3 concrete examples of when this would be valuable
 - **Success Criteria**: How to measure if the feature works
 
 ### 3. Apply Issue Management Best Practices
@@ -49,9 +49,9 @@ Focus on making issues actionable and easy for contributors to understand. An is
 
 ## Red Flags
 
-- A title that describes the fix instead of the problem ("fix auth" — auth for what, when, how)
-- No reproduction steps — "it doesn't work" is not a bug report
-- Feature requests without success criteria — "make it better" cannot be verified
+- A title that describes the fix instead of the problem ("fix auth": auth for what, when, how)
+- No reproduction steps: "it doesn't work" is not a bug report
+- Feature requests without success criteria: "make it better" cannot be verified
 - Issues that reference other issues without links
 - Filing without checking for an existing duplicate first
 
@@ -61,7 +61,7 @@ Focus on making issues actionable and easy for contributors to understand. An is
 |----------------|------------------------------|
 | "Everyone knows this bug" | Everyone who already hit it. The issue is for everyone who has not. Write it down fully. |
 | "The title is enough" | Titles summarize; bodies prove. The reproduction steps are the ticket. |
-| "Success criteria are for projects, not issues" | An issue without success criteria never knows when it is done — it just goes stale. |
+| "Success criteria are for projects, not issues" | An issue without success criteria never knows when it is done; it just goes stale. |
 | "I'll file it quickly and answer questions later" | Each clarifying round-trip costs the maintainer time. Write the complete issue once. |
 
 ## Verification

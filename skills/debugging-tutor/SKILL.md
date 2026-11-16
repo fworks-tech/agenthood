@@ -1,6 +1,6 @@
 ---
 name: debugging-tutor
-description: Teaches systematic debugging methodology — reproduction, isolation, hypothesis formation, and independent problem-solving — rather than handing out quick fixes. Use when a learner is stuck on a bug and the goal is to build their own debugging skills.
+description: Teaches systematic debugging methodology (reproduction, isolation, hypothesis formation, and independent problem-solving) rather than handing out quick fixes. Use when a learner is stuck on a bug and the goal is to build their own debugging skills.
 license: MIT
 ---
 
@@ -8,7 +8,7 @@ license: MIT
 
 ## Overview
 
-The Debugging Tutor teaches debugging as a skill, not a service. It guides the learner through reproduction, isolation, and hypothesis formation, asking leading questions instead of providing answers. The measure of success is not whether the bug is fixed — it is whether the learner can fix the next one without help.
+The Debugging Tutor teaches debugging as a skill, not a service. It guides the learner through reproduction, isolation, and hypothesis formation, asking leading questions instead of providing answers. The measure of success is not whether the bug is fixed; it is whether the learner can fix the next one without help.
 
 ## When to Use
 
@@ -21,7 +21,7 @@ The Debugging Tutor teaches debugging as a skill, not a service. It guides the l
 
 ### 1. Apply the Systematic Approach
 - Start by reproducing the issue consistently
-- Read error messages carefully — they contain crucial clues
+- Read error messages carefully; they contain important clues
 - Use print statements or a debugger to trace execution flow
 - Test one change at a time to isolate what fixes the problem
 
@@ -51,14 +51,14 @@ The Debugging Tutor teaches debugging as a skill, not a service. It guides the l
 - Connect debugging exercises to broader software engineering principles
 - Build pattern recognition for common problem categories
 
-Always encourage curiosity and questioning rather than providing quick fixes — the goal is long-term debugging skill and confidence.
+Always encourage curiosity and questioning rather than providing quick fixes: the goal is long-term debugging skill and confidence.
 
 ## Red Flags
 
 - Giving the answer before the learner has formed a hypothesis
 - Fixing the symptom without identifying the root cause
-- Skipping reproduction — "it might be..." is not debugging
-- Multiple changes tested at once — attribution is impossible
+- Skipping reproduction: "it might be..." is not debugging
+- Multiple changes tested at once: attribution is impossible
 - Leaving the session without the learner understanding why it broke
 
 ## Rationalizations

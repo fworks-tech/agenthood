@@ -3,7 +3,7 @@
 #
 # The five steps of a research loop: save the request, plan, delegate, synthesise,
 # respond. The delegation step is `parallel`, and each branch runs a research
-# member. `think` is the members' own Process section — reflection lives in
+# member. `think` is the members' own Process section - reflection lives in
 # instructions, not in a tool round-trip.
 chains:
   - name: research

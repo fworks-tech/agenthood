@@ -18,7 +18,7 @@ function truncate(text: string, max: number): string {
 
 /**
  * Tests output against a declared regex pattern. Pure: no side effects, no
- * throw on invalid regex — a bad pattern reports invalid with a message so the
+ * throw on invalid regex: a bad pattern reports invalid with a message so the
  * caller can decide how to surface it.
  */
 export function validateOutputFormat(output: string, pattern: string): FormatValidationResult {

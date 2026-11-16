@@ -62,7 +62,7 @@ export function formatTriggerReport(input: {
 }): string[] {
   const lines = [
     '',
-    `  Trigger rate — ${input.member}`,
+    `  Trigger rate: ${input.member}`,
     `  Queries: ${input.shouldTrigger} should-trigger, ${input.shouldNot} should-not`,
     '',
     `  ${'Surface'.padEnd(10)} ${'P'.padStart(5)} ${'R'.padStart(5)} ${'Acc'.padStart(5)} ${'F1'.padStart(5)}  TP/FP/FN/TN`,
@@ -74,7 +74,7 @@ export function formatTriggerReport(input: {
     )
   }
   lines.push('')
-  lines.push(`  Keyword split F1 — train ${fmt(input.trainF1)} (${input.trainCount}q) | validation ${fmt(input.valF1)} (${input.valCount}q)`)
+  lines.push(`  Keyword split F1, train ${fmt(input.trainF1)} (${input.trainCount}q) | validation ${fmt(input.valF1)} (${input.valCount}q)`)
   if (input.recs.length > 0) {
     lines.push('', '  Recommendations:')
     for (const line of input.recs) lines.push(line)

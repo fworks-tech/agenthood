@@ -158,7 +158,7 @@ The `agenthood` CLI auto-discovers commands from `src/commands/`: each file expo
 - `agenthood upgrade --agenthood` — self-upgrade the agenthood package (backs up `.agenthood/config.json` first, pins the registry-validated version)
 Adding a command means adding a file in `src/commands/` and documenting it here.
 
-Three guides cover skill authoring beyond the checklist: [Skill Best Practices](docs/guides/skill-best-practices.md)
+Skill authoring starts with the [skill checklist](CONTRIBUTING-skills.md). Three guides go deeper: [Skill Best Practices](docs/guides/skill-best-practices.md)
 (multi-agent specifics, context spending, gotchas), [Script Design](docs/guides/script-design.md)
 (no prompts, `--help`, structured output, idempotency) and [Skill Evaluation](docs/guides/skill-evaluation.md)
 (trigger rate, suites, regressions in CI). The skill system's internals are in

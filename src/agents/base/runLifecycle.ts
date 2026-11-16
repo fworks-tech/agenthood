@@ -87,6 +87,7 @@ export class RunLifecycle {
     recordAgentTrace({
       role: this.getRole(),
       model: this.reasoningLoop.model || 'unknown',
+      provider: this.reasoningLoop.provider,
       usage: this.reasoningLoop.usage,
       toolUsage: args.context.usage,
       input: args.input,

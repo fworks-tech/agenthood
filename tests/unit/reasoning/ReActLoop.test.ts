@@ -25,12 +25,14 @@ function mockProvider(options?: { toolCalls?: { name: string; args: unknown }[] 
           toolCalls: [{ id: 'call_1', name: tc.name, args: tc.args }],
           usage: { promptTokens: 10, completionTokens: 5, totalTokens: 15 },
           model: 'mock-model',
+          provider: 'opencode',
         }
       }
       return {
         content: 'final answer',
         usage: { promptTokens: 10, completionTokens: 5, totalTokens: 15 },
         model: 'mock-model',
+        provider: 'opencode',
       }
     }),
     stream: vi.fn(),
@@ -46,6 +48,13 @@ describe('ReActLoop', () => {
     const loop = new ReActLoop(llm, new ToolRegistry())
     loop.setModel('claude-sonnet-4')
     expect(loop.model).toBe('claude-sonnet-4')
+  })
+
+  it('records the provider that served the step so cost is priced correctly', async () => {
+    const loop = new ReActLoop(mockProvider(), new ToolRegistry())
+    await loop.run('system', 'hi', createTestContext())
+    expect(loop.model).toBe('mock-model')
+    expect(loop.provider).toBe('opencode')
   })
 
   it('stops with an error after maxSteps', async () => {

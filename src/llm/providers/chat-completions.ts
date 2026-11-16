@@ -52,6 +52,7 @@ export function createChatCompletionsHandler(
         toolCalls,
         usage: parseUsage(response.usage),
         model: response.model ?? "",
+        provider: providerName,
       }
       await logger.debug(`${providerName} call completed`, providerName, {
         model: result.model,

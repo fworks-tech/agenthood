@@ -129,6 +129,7 @@ export class AnthropicProvider implements ILLMProvider {
           cacheReadInputTokens: response.usage.cache_read_input_tokens ?? undefined,
         },
         model: response.model,
+        provider: 'anthropic',
       }
 
       if (this.debug) {

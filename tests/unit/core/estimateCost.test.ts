@@ -17,14 +17,21 @@ describe('estimateCost', () => {
 
   it('returns correct cost for opencode models from the catalog without warning', () => {
     const warn = vi.spyOn(console, 'warn').mockImplementation(() => {})
-    expect(estimateCost('glm-5.3-flash', 1_000_000, 1_000_000).estimatedCost).toBe(0.65)
-    expect(estimateCost('opencode/gpt-5-nano', 1_000_000, 1_000_000).estimatedCost).toBe(0.45)
+    expect(estimateCost('glm-5.3-flash', 1_000_000, 1_000_000, 'opencode').estimatedCost).toBe(0.65)
+    expect(estimateCost('opencode/gpt-5-nano', 1_000_000, 1_000_000, 'opencode-go').estimatedCost).toBe(0.45)
     expect(warn).not.toHaveBeenCalled()
   })
 
   it('prices opencode models by the context tier the prompt falls into', () => {
-    expect(estimateCost('claude-haiku-5-5', 50_000, 0).estimatedCost).toBe(0.005)
-    expect(estimateCost('claude-haiku-5-5', 150_000, 0).estimatedCost).toBe(0.075)
+    expect(estimateCost('claude-haiku-5-5', 50_000, 0, 'opencode').estimatedCost).toBe(0.005)
+    expect(estimateCost('claude-haiku-5-5', 150_000, 0, 'opencode').estimatedCost).toBe(0.075)
+  })
+
+  it('uses the static table for non-opencode providers even on a catalog id', () => {
+    // claude-opus-4-5 is $5/$25 in the OpenCode catalog, but a direct Anthropic
+    // call must keep the table rate ($15/$75) for that id.
+    expect(estimateCost('claude-opus-4-5', 1_000_000, 1_000_000, 'anthropic').estimatedCost).toBe(90)
+    expect(estimateCost('claude-opus-4-5', 1_000_000, 1_000_000, 'opencode').estimatedCost).toBe(30)
   })
 
   it('returns fallback cost with warning for unknown models', () => {

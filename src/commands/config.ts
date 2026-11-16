@@ -81,7 +81,7 @@ function parseRemoteCatalogs(raw: Record<string, unknown>): RemoteCatalogsConfig
 function parseSkills(raw: Record<string, unknown>): SkillsConfig | undefined {
   const skills = pickBlock(raw, 'skills')
   if (!skills) return undefined
-  const config: SkillsConfig = { autoDiscover: skills.autoDiscover === true }
+  const config: SkillsConfig = {}
 
   const format = skills.catalogFormat
   if (format === 'xml' || format === 'json' || format === 'text') {

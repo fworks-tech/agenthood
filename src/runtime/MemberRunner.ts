@@ -151,14 +151,6 @@ export class MemberRunner {
       activateTool?.restoreActive(checkpointData.activatedSkills)
       console.log(`[skills] restored ${checkpointData.activatedSkills.length} active skill(s) from the checkpoint`)
     }
-    if (config.skills?.autoDiscover === true) {
-      try {
-        await sReg.discover(join(process.cwd(), 'src', 'skills'))
-      } catch (e) {
-        console.warn(`[run] skill auto-discovery failed: ${(e as Error)?.message ?? e}`)
-      }
-    }
-
     const agent = new MemberAgent(spec, llm, loop, sReg, {
       agentRegistry: this.deps.agents,
       episodeLearner: this.deps.episodeLearner,

@@ -31,7 +31,7 @@ describe('loadConfig', () => {
         { name: 'groq', model: 'llama-3.3-70b-versatile', priority: 2, models: ['a', 'b'] },
       ],
       failover: { failureThreshold: 3, cooldownMs: 60000, probeEnabled: true },
-      skills: { autoDiscover: true },
+      skills: { catalogFormat: 'json' },
     }), async () => {
       const cfg = await loadConfig()
       expect(cfg.provider).toBe('opencode')
@@ -41,7 +41,7 @@ describe('loadConfig', () => {
       expect(cfg.failureThreshold).toBe(3)
       expect(cfg.cooldownMs).toBe(60000)
       expect(cfg.probeEnabled).toBe(true)
-      expect(cfg.skills).toEqual({ autoDiscover: true })
+      expect(cfg.skills).toEqual({ catalogFormat: 'json' })
     })
   })
 
@@ -126,7 +126,6 @@ describe('loadConfig', () => {
   it('parses the skills catalog, disable and fallback settings (#528, #537, #556, #613)', async () => {
     await withFixture(JSON.stringify({
       skills: {
-        autoDiscover: true,
         catalogFormat: 'json',
         providerFormats: { google: 'text', bogus: 'yaml' },
         disabled: ['noisy', 42],
@@ -135,7 +134,6 @@ describe('loadConfig', () => {
     }), async () => {
       const cfg = await loadConfig()
       expect(cfg.skills).toEqual({
-        autoDiscover: true,
         catalogFormat: 'json',
         providerFormats: { google: 'text' },
         disabled: ['noisy'],

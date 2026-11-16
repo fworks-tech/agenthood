@@ -120,7 +120,8 @@ The `agenthood` CLI auto-discovers commands from `src/commands/`: each file expo
   - `--debug` dumps raw LLM request/response payloads to `.agenthood/debug/` (keys redacted).
   - `--interactive` enables human-in-the-loop confirmation prompts before tool execution. Only an explicit `y`/`yes` approves; any other answer, including a bare Enter, declines the call.
 - `agenthood checkpoints` — list past run checkpoints (`--json`, `--prune` to remove old ones)
-- `agenthood trace` — list recent invocation traces (`--member`, `--limit`, `--since`, `--json`); subcommands: `visualize <id>` (ASCII timeline), `diff <id1> <id2>` (side-by-side comparison)
+- `agenthood trace` — list recent invocation traces (`--member`, `--limit`, `--since`, `--json`); `--skill <name>` or `--tool <name>` list step-level trajectories instead, capped by `--limit`; subcommands: `visualize <id>` (ASCII timeline), `diff <id1> <id2>` (side-by-side comparison)
+- `agenthood workflow` — `list` shows the chains in `chains.yaml`; `run <chain> "<task>"` executes one through `WorkflowEngine`, with each step run by `MemberRunner`. A malformed `chains.yaml` fails with a message that names the file. A bare `workflow` is a usage error
 - `agenthood goal` — track multi-step goals across runs, persisted to `.agenthood/goals.json`; subcommands: `create <description> [--issue <ref>]`, `list [--json]`, `show <id> [--json]`, `subgoal <id> <description>`, `status <id> <sub-id> <pending|in_progress|blocked|completed>`, `next <id>` (advance the next pending sub-goal)
 - `agenthood log` — list recent structured log entries (`--level`, `--member`, `--limit`, `--since`, `--json`, `--tail N`, `--follow`)
 - `agenthood status` — project health and member metrics (`--watch`, `--json`, `--drift`, `--member`, `--learner`)

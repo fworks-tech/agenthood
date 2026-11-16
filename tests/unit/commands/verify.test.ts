@@ -242,6 +242,39 @@ describe('verify command', () => {
     expect(exit).not.toHaveBeenCalledWith(1)
   })
 
+  it('fails when metadata.priority is out of range or not an integer (#611)', async () => {
+    skillContent = VALID_SKILL.replace('  version: 1.0.0', '  version: 1.0.0\n  priority: 120')
+    const log = vi.spyOn(console, 'log').mockImplementation(() => {})
+    const exit = vi.spyOn(process, 'exit').mockImplementation((() => {}) as any)
+
+    await verify([])
+
+    expect(exit).toHaveBeenCalledWith(1)
+    expect(log.mock.calls.flat().join(' ')).toContain('metadata.priority')
+  })
+
+  it('fails on an unknown activation condition (#610)', async () => {
+    skillContent = VALID_SKILL.replace('  version: 1.0.0', '  version: 1.0.0\n  conditions:\n    - moon.phase:full')
+    const log = vi.spyOn(console, 'log').mockImplementation(() => {})
+    const exit = vi.spyOn(process, 'exit').mockImplementation((() => {}) as any)
+
+    await verify([])
+
+    expect(exit).toHaveBeenCalledWith(1)
+    expect(log.mock.calls.flat().join(' ')).toContain('metadata.conditions')
+  })
+
+  it('fails when fallback lists the skill itself (#613)', async () => {
+    skillContent = VALID_SKILL.replace('license: MIT', 'license: MIT\nfallback: the-test')
+    const log = vi.spyOn(console, 'log').mockImplementation(() => {})
+    const exit = vi.spyOn(process, 'exit').mockImplementation((() => {}) as any)
+
+    await verify([])
+
+    expect(exit).toHaveBeenCalledWith(1)
+    expect(log.mock.calls.flat().join(' ')).toContain('fallback lists the skill itself')
+  })
+
   it('fails when metadata.version is missing (#579)', async () => {
     skillContent = VALID_SKILL.replace('metadata:\n  version: 1.0.0\n', '')
     const log = vi.spyOn(console, 'log').mockImplementation(() => {})

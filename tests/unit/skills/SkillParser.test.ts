@@ -269,6 +269,18 @@ describe("SkillParser", () => {
       expect(parser.parse(none)?.owner).toBeUndefined()
     })
 
+    it("reads priority, conditions, fallback and the disable flag (#537, #610, #611, #613)", () => {
+      const path = writeSkill(
+        dir,
+        "---\nname: s\ndescription: d\nmetadata:\n  priority: 80\n  conditions:\n    - env:CI\n    - file.exists:package.json\nfallback: backup\ndisable-model-invocation: true\n---\nBody.",
+      )
+      const manifest = parser.parse(path)
+      expect(manifest?.priority).toBe(80)
+      expect(manifest?.conditions).toEqual(["env:CI", "file.exists:package.json"])
+      expect(manifest?.fallback).toEqual(["backup"])
+      expect(manifest?.disableModelInvocation).toBe(true)
+    })
+
     it("accepts unicode lowercase names and rejects uppercase (#517)", () => {
       const spec = (name: string) => parser.validateSpec(name, "d", name).map((e) => e.rule)
       expect(spec("café")).toEqual([])

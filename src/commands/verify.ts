@@ -11,12 +11,17 @@ import {
   SkillParser,
   parseAllowedTools,
   parseCompatibility,
+  parseConditions,
+  parseFallback,
   parseOwner,
+  parsePriority,
   parseSkillVersion,
   isSpdxLicense,
   MAX_COMPATIBILITY_LENGTH,
+  MAX_SKILL_PRIORITY,
   SEMVER_RE,
 } from '../skills/discovery/SkillParser.ts'
+import { isKnownCondition } from '../skills/activation/conditions.ts'
 import { OWNER_RE } from '../skills/namespace.ts'
 import { isKnownToolName } from '../members/toolVocabulary.ts'
 import { scanForInjections } from '../skills/discovery/injectionScan.ts'
@@ -85,6 +90,22 @@ function validateMember(membersDir: string, member: string, lockfile?: Lockfile,
     const owner = parseOwner(frontmatter)
     if (owner && !OWNER_RE.test(owner)) {
       result.issues.push(`metadata.author "${owner}" is not a valid namespace. Fix: lowercase letters, digits and single hyphens, e.g. fworks-tech`)
+    }
+    const priority = parsePriority(frontmatter)
+    if (priority !== undefined && (!Number.isInteger(priority) || priority < 0 || priority > MAX_SKILL_PRIORITY)) {
+      result.issues.push(`metadata.priority must be a whole number 0-${MAX_SKILL_PRIORITY}, got ${priority}`)
+    }
+    for (const condition of parseConditions(frontmatter) ?? []) {
+      if (!isKnownCondition(condition)) {
+        result.issues.push(`metadata.conditions entry "${condition}" uses no known predicate. Fix: env:NAME=value, env:NAME, file.exists:path, or git.status:dirty|clean`)
+      }
+    }
+    const fallback = parseFallback(frontmatter) ?? []
+    if (fallback.includes(member)) {
+      result.issues.push('fallback lists the skill itself — a chain must point at other skills')
+    }
+    for (const name of fallback) {
+      if (!MEMBER_NAME_RE.test(name)) result.issues.push(`fallback entry "${name}" is not a valid skill name`)
     }
     const version = parseSkillVersion(frontmatter)
     if (!version) {

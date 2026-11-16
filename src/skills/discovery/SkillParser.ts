@@ -20,6 +20,14 @@ export interface ParsedSkill {
   compatibility?: string
   /** Registry namespace, from `metadata.author` (#593). */
   owner?: string
+  /** `metadata.priority` 0-100 — higher sorts earlier in the catalog (#611). */
+  priority?: number
+  /** `metadata.conditions` — predicates that must hold before activation (#610). */
+  conditions?: string[]
+  /** `fallback` — skills to try when this one cannot activate (#613). */
+  fallback?: string[]
+  /** `disable-model-invocation: true` hides the skill from the catalog (#537). */
+  disableModelInvocation?: boolean
 }
 
 const SPDX_SHAPE_RE = /^[A-Za-z0-9.+-]+(?: (?:AND|OR|WITH) [A-Za-z0-9.+-]+)*$/
@@ -55,6 +63,45 @@ export function parseOwner(frontmatter: Record<string, unknown> | null): string 
       : undefined
   const raw = nested ?? frontmatter?.author
   return typeof raw === 'string' && raw.trim() !== '' ? raw.trim() : undefined
+}
+
+export const MAX_SKILL_PRIORITY = 100
+
+/** `metadata.priority`, an integer 0-100 (#611). An out-of-range value is reported by verify, not silently clamped. */
+export function parsePriority(frontmatter: Record<string, unknown> | null): number | undefined {
+  const meta = frontmatter?.metadata
+  const raw =
+    meta && typeof meta === 'object' && !Array.isArray(meta)
+      ? (meta as Record<string, unknown>).priority
+      : undefined
+  return typeof raw === 'number' && Number.isFinite(raw) ? raw : undefined
+}
+
+/** Read a string-or-string-array field. `conditions` and `fallback` share the shape. */
+function parseStringList(value: unknown): string[] | undefined {
+  const parts = Array.isArray(value) ? value : [value]
+  const items = parts
+    .filter((part): part is string => typeof part === 'string')
+    .map((part) => part.trim())
+    .filter(Boolean)
+  return items.length > 0 ? items : undefined
+}
+
+function nestedField(frontmatter: Record<string, unknown> | null, key: string): unknown {
+  const meta = frontmatter?.metadata
+  return meta && typeof meta === 'object' && !Array.isArray(meta)
+    ? (meta as Record<string, unknown>)[key]
+    : undefined
+}
+
+/** `metadata.conditions` — one predicate per entry (#610). */
+export function parseConditions(frontmatter: Record<string, unknown> | null): string[] | undefined {
+  return parseStringList(nestedField(frontmatter, 'conditions') ?? frontmatter?.conditions)
+}
+
+/** `fallback` — an ordered list of skills to try when activation is refused (#613). */
+export function parseFallback(frontmatter: Record<string, unknown> | null): string[] | undefined {
+  return parseStringList(frontmatter?.fallback)
 }
 
 /** `metadata.version` (agentskills convention). Pre-release and build suffixes allowed. */
@@ -138,6 +185,9 @@ export class SkillParser {
 
     const compatibility = parseCompatibility(raw.frontmatter)
     const owner = parseOwner(raw.frontmatter)
+    const priority = parsePriority(raw.frontmatter)
+    const conditions = parseConditions(raw.frontmatter)
+    const fallback = parseFallback(raw.frontmatter)
     const declaredName = typeof raw.frontmatter.name === 'string' ? raw.frontmatter.name : filePath
     return {
       name: normalizeSkillName(declaredName),
@@ -148,6 +198,12 @@ export class SkillParser {
       license: parseLicense(raw.frontmatter),
       ...(compatibility ? { compatibility } : {}),
       ...(owner ? { owner } : {}),
+      ...(priority === undefined ? {} : { priority }),
+      ...(conditions ? { conditions } : {}),
+      ...(fallback ? { fallback } : {}),
+      ...(raw.frontmatter['disable-model-invocation'] === true || raw.frontmatter.disable_model_invocation === true
+        ? { disableModelInvocation: true }
+        : {}),
       ...(raw.frontmatter.hidden === true ? { hidden: true } : {}),
       ...(raw.frontmatter.router === true ? { router: true } : {}),
     }
@@ -199,6 +255,10 @@ export class SkillParser {
       ...(parsed.license ? { license: parsed.license } : {}),
       ...(parsed.compatibility ? { compatibility: parsed.compatibility } : {}),
       ...(parsed.owner ? { owner: parsed.owner } : {}),
+      ...(parsed.priority === undefined ? {} : { priority: parsed.priority }),
+      ...(parsed.conditions ? { conditions: parsed.conditions } : {}),
+      ...(parsed.fallback ? { fallback: parsed.fallback } : {}),
+      ...(parsed.disableModelInvocation ? { disableModelInvocation: true } : {}),
       ...(parsed.hidden ? { hidden: true } : {}),
       ...(parsed.router ? { router: true } : {}),
     }

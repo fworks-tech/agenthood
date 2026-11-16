@@ -50,8 +50,7 @@ beforeEach(() => {
 
 afterEach(() => {
   vi.restoreAllMocks()
-
-    vi.restoreAllMocks()})
+})
 
 afterAll(() => {
   rmSync(fixtureDir, { recursive: true, force: true })

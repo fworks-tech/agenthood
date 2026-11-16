@@ -1,5 +1,5 @@
 import { isAbsolute, relative, resolve } from 'node:path'
-import { lstat, realpath } from 'node:fs/promises'
+import { realpath } from 'node:fs/promises'
 
 export type GuardedPath =
   | { ok: true; path: string }
@@ -34,12 +34,11 @@ export async function resolveInsideProject(
   if (home !== projectRoot) console.log(`[skills] read allowed under activated skill: ${target}`)
 
   try {
-    const stats = await lstat(target)
-    if (stats.isSymbolicLink()) {
-      const real = await realpath(target)
-      if (escapes(home, real)) {
-        return { ok: false, error: `Symlink traversal denied: "${path}" -> "${real}"` }
-      }
+    // realpath resolves every component, so a symlinked directory (docs -> /etc)
+    // is caught too, not just a symlinked file.
+    const real = await realpath(target)
+    if (escapes(home, real)) {
+      return { ok: false, error: `Symlink traversal denied: "${path}" -> "${real}"` }
     }
   } catch {
     // non-existent path: the caller's read/write reports the real error

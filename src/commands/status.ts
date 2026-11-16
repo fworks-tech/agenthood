@@ -17,7 +17,7 @@ import { readSkillStats } from '../skills/activation/SkillStats.ts'
 import { metadataBudget, skillUsage, type SkillUsageRow } from '../skills/observability.ts'
 
 function formatPct(rate: number | null): string {
-  if (rate === null) return '—'
+  if (rate === null) return '-'
   return `${(rate * 100).toFixed(0)}%`
 }
 
@@ -36,7 +36,7 @@ function printSkillContext(rows: SkillUsageRow[], budget: number): void {
     const name = row.name.length > 22 ? `${row.name.slice(0, 22)}…` : row.name
     console.log(`  ${name.padEnd(24)} ${String(row.metadataTokens).padEnd(9)} ${String(row.activations).padEnd(10)} ${row.bodyTokens}`)
   }
-  const overBudget = total > budget ? ' — over budget' : ''
+  const overBudget = total > budget ? ': over budget' : ''
   console.log(`
   Catalog total: ${total}/${budget} tokens${overBudget}`)
   if (total > budget) {
@@ -63,7 +63,7 @@ function printPlain(memberCount: number, decisionCount: number, lockStatus: stri
     console.log(`  ${''.padEnd(20, '-')} ${''.padEnd(6, '-')} ${''.padEnd(8, '-')} ${''.padEnd(14, '-')} ${''.padEnd(24, '-')}`)
     for (const entry of allStats) {
       const avgDur = formatDuration(entry.metrics.invocations > 0 ? Math.round(entry.metrics.totalDurationMs / entry.metrics.invocations) : 0)
-      const lastRun = entry.metrics.lastRun ? new Date(entry.metrics.lastRun).toLocaleDateString() : '—'
+      const lastRun = entry.metrics.lastRun ? new Date(entry.metrics.lastRun).toLocaleDateString(): '; '
       const successRate = formatPct(entry.metrics.invocations > 0 ? entry.metrics.successes / entry.metrics.invocations : null)
       const name = entry.member.length > 18 ? entry.member.slice(0, 18) + '\u2026' : entry.member
       console.log(`  ${name.padEnd(20)} ${String(entry.metrics.invocations).padEnd(6)} ${successRate.padEnd(8)} ${avgDur.padEnd(14)} ${lastRun}`)
@@ -312,16 +312,16 @@ function printMemberWindows(member: string, windows: TraceWindow[], json: boolea
     return
   }
 
-  console.log(`\n  Trace Summary — ${member}\n`)
+  console.log(`\n  Trace Summary, ${member}\n`)
   console.log(`  ${'Window'.padEnd(8)} ${'Calls'.padEnd(7)} ${'Success'.padEnd(9)} ${'Errors'.padEnd(7)} ${'Avg Dur'.padEnd(10)} ${'Cost'.padEnd(10)} Tokens`)
   console.log(`  ${''.padEnd(8, '-')} ${''.padEnd(7, '-')} ${''.padEnd(9, '-')} ${''.padEnd(7, '-')} ${''.padEnd(10, '-')} ${''.padEnd(10, '-')} ${''.padEnd(10, '-')}`)
   for (const w of windows) {
     if (!w.summary) {
-      console.log(`  ${w.label.padEnd(8)} ${String(0).padEnd(7)} ${String(0).padEnd(9)} ${String(0).padEnd(7)} ${'—'.padEnd(10)} ${'$0.0000'.padEnd(10)} 0`)
+      console.log(`  ${w.label.padEnd(8)} ${String(0).padEnd(7)} ${String(0).padEnd(9)} ${String(0).padEnd(7)} ${'-'.padEnd(10)} ${'$0.0000'.padEnd(10)} 0`)
       continue
     }
     const s = w.summary
-    const quality = s.avgQuality === null ? '—' : s.avgQuality.toFixed(2)
+    const quality = s.avgQuality === null ? '-' : s.avgQuality.toFixed(2)
     console.log(
       `  ${w.label.padEnd(8)} ${String(s.callCount).padEnd(7)} ${String(s.successCount).padEnd(9)} ${String(s.errorCount).padEnd(7)} ${formatDuration(s.avgDurationMs).padEnd(10)} $${s.totalCost.toFixed(4).padEnd(9)} ${s.totalTokens.total.toLocaleString()} (${quality})`,
     )

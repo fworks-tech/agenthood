@@ -15,7 +15,7 @@ function printTable(traces: TraceEnvelope[]): void {
   for (const t of traces) {
     const member = t.member.length > 18 ? `${t.member.slice(0, 18)}…` : t.member
     const timestamp = new Date(t.timestamp).toISOString().slice(0, 19)
-    const quality = t.qualityScore === null ? '—' : t.qualityScore.toFixed(2)
+    const quality = t.qualityScore === null ? '-' : t.qualityScore.toFixed(2)
     console.log(`  ${member.padEnd(20)} ${timestamp.padEnd(24)} ${formatDuration(t.durationMs).padEnd(10)} $${t.cost.toFixed(4).padEnd(9)} ${quality.padEnd(9)} ${t.status}`)
   }
   console.log()
@@ -207,7 +207,7 @@ export async function trace(args: string[] = []): Promise<void> {
   }
 
   // Activation history (#605): the skill that was active per step, across every
-  // trajectory. Names and times only — the store never holds prompt content.
+  // trajectory. Names and times only: the store never holds prompt content.
   if (args.includes('--activations')) {
     const entries = new TrajectoryStore(cwd)
       .list()

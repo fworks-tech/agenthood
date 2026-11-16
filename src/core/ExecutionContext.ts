@@ -1,4 +1,5 @@
 import type { ILLMProvider } from '../llm/ILLMProvider.ts'
+import type { ISkillManifest } from '../skills/discovery/ISkillManifest.ts'
 import type { Message } from '../llm/types.ts'
 import type { RedactionFilter } from './RedactionFilter.ts'
 import type { RunEventBus } from './RunEventBus.ts'
@@ -37,6 +38,8 @@ export interface ExecutionContext {
   artifacts: Artifact[]
   oracle?: { ask(question: string): Promise<string> }
   skillsCatalog?: string
+  /** Discovered skills, so a per-run tool registry can expose `activate_skill` (#531). */
+  skillManifests?: Map<string, ISkillManifest>
   /** Per-repo agent guidance read from AGENTS.md / CLAUDE.md (#567) */
   repoInstructions?: string
   /** Tools a skill declares via `allowed-tools`; undefined means unrestricted (#582) */

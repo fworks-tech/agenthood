@@ -122,4 +122,34 @@ describe('loadConfig', () => {
       expect(cfg.providers![0].name).toBe('ollama')
     })
   })
+
+  it('parses the skills catalog, disable and fallback settings (#528, #537, #556, #613)', async () => {
+    await withFixture(JSON.stringify({
+      skills: {
+        autoDiscover: true,
+        catalogFormat: 'json',
+        providerFormats: { google: 'text', bogus: 'yaml' },
+        disabled: ['noisy', 42],
+        fallback: false,
+      },
+    }), async () => {
+      const cfg = await loadConfig()
+      expect(cfg.skills).toEqual({
+        autoDiscover: true,
+        catalogFormat: 'json',
+        providerFormats: { google: 'text' },
+        disabled: ['noisy'],
+        fallback: false,
+      })
+    })
+  })
+
+  it('warns and uses the provider default for an unknown catalog format', async () => {
+    const warn = vi.spyOn(console, 'warn').mockImplementation(() => {})
+    await withFixture(JSON.stringify({ skills: { catalogFormat: 'yaml' } }), async () => {
+      const cfg = await loadConfig()
+      expect(cfg.skills?.catalogFormat).toBeUndefined()
+      expect(warn.mock.calls.flat().join(' ')).toContain('catalogFormat')
+    })
+  })
 })

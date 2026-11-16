@@ -5,7 +5,14 @@ import { LanceDBStore } from '../memory/VectorStore.ts'
 import { KnowledgeGraphStore } from '../rag/KnowledgeGraphStore.ts'
 import { SkillDiscovery } from '../skills/discovery/SkillDiscovery.ts'
 import type { ISkillManifest } from '../skills/discovery/ISkillManifest.ts'
-import { escapeXml } from '../agents/memberLore.ts'
+import { defaultCatalogFormat, formatSkillCatalog, type CatalogFormat } from '../skills/catalog/format.ts'
+
+export interface DiscoverSkillsOptions {
+  provider?: string
+  format?: CatalogFormat
+  /** Skills disabled in config — filtered from the catalog (#537). */
+  disabled?: string[]
+}
 
 export async function connectVectorStore(projectPath: string): Promise<LanceDBStore> {
   const vectorStore = new LanceDBStore(1536)
@@ -31,7 +38,7 @@ export function loadSocietyGraph(projectPath: string): KnowledgeGraphStore {
   return graph
 }
 
-export async function discoverSkills(projectPath: string): Promise<{ catalog: string; manifests: Map<string, ISkillManifest> }> {
+export async function discoverSkills(projectPath: string, options: DiscoverSkillsOptions = {}): Promise<{ catalog: string; manifests: Map<string, ISkillManifest> }> {
   const discovery = new SkillDiscovery()
   const manifests = discovery.discover(projectPath)
   // Packaged tool skills merge at lowest precedence: a user/project skill
@@ -43,23 +50,21 @@ export async function discoverSkills(projectPath: string): Promise<{ catalog: st
       seen.add(m.name)
     }
   }
+
+  // Every manifest stays activatable by name; the catalog is what gets filtered.
+  const map = new Map(manifests.map((m) => [m.name, m] as const))
+  // An empty catalog would render as `<available_skills/>`, which invites the
+  // model to invent skills — omit the whole section instead (#538).
   if (manifests.length === 0) return { catalog: '', manifests: new Map() }
 
-  const lines: string[] = ['', '<available_skills>']
-  const map = new Map<string, ISkillManifest>()
-  for (const m of manifests) {
-    // Hidden skills stay activatable by name but never eat catalog budget (#588).
-    map.set(m.name, m)
-    if (m.hidden) continue
-    lines.push(`  <skill name="${escapeXml(m.name)}">`)
-    lines.push(`    <description>${escapeXml(m.description)}</description>`)
-    lines.push(`    <location>${escapeXml(m.location)}</location>`)
-    lines.push('  </skill>')
-  }
-  lines.push('</available_skills>')
-  lines.push('')
-  lines.push('When a task matches a skill\'s description, call the activate_skill tool with the skill\'s name to load its full instructions.')
-  lines.push('')
+  const format = options.format ?? defaultCatalogFormat(options.provider)
+  const body = formatSkillCatalog(manifests, {
+    format,
+    disabled: new Set(options.disabled ?? []),
+  })
+  if (!body) return { catalog: '', manifests: map }
 
-  return { catalog: lines.join('\n'), manifests: map }
+  const instruction =
+    'When a task matches a skill\'s description, call the activate_skill tool with the skill\'s name to load its full instructions.'
+  return { catalog: ['', body, '', instruction, ''].join('\n'), manifests: map }
 }

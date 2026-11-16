@@ -48,6 +48,16 @@ This decision is documented in [ADR-001](../adr/ADR-001-markdown-skills-over-cod
 
 ---
 
+## Composition Patterns
+
+[deepagents-patterns.md](deepagents-patterns.md) maps five published agent
+patterns (content writer, sandboxed coding, deep research, content builder,
+async subagent server) onto Agenthood's primitives: `AGENTS.md`, skills,
+`chains.yaml`, `delegate_task` and the Docker script sandbox. Use it when you
+know the other system and want the equivalent here.
+
+---
+
 ## How to Use a Template
 
 1. Open your AI coding assistant (Claude Code, OpenAI Codex CLI, etc.)

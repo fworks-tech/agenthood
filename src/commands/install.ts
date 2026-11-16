@@ -13,6 +13,8 @@ import { resolveSkillsDir, SKILLS_LOCKFILE } from '../members.ts'
 import { loadSkillsLockfile, saveSkillsLockfile } from './skillsLock.ts'
 import { SkillParser, SPEC_NAME_RE } from '../skills/discovery/SkillParser.ts'
 import { resolveSkillFile } from '../skills/discovery/skillFile.ts'
+import { isSkillReference, parseSkillRef, formatSkillRef } from '../skills/namespace.ts'
+import { SkillRegistryClient } from '../skills/registry/SkillRegistryClient.ts'
 import { validateRemoteUrl, fetchRemoteText, GIT_TIMEOUT_MS } from '../skills/discovery/RemoteSkillSource.ts'
 import { assertFrozenInstall, reportFrozenFailure } from '../skills/frozen.ts'
 import { contentHash } from '../utils/hash.ts'
@@ -76,11 +78,23 @@ function findSkillMd(dir: string): string | null {
 
 export const command: CommandDescriptor = {
   name: 'install',
-  description: 'Install a skill from a URL or git repository',
+  description: 'Install a skill from a URL, git repository or registry reference',
   handler: (args) => install(args),
 }
 
 async function fetchSkillSource(source: string, tmpDir: string): Promise<string> {
+  if (isSkillReference(source)) {
+    const ref = formatSkillRef(parseSkillRef(source))
+    let content: string
+    try {
+      content = await new SkillRegistryClient().download(ref)
+    } catch (err) {
+      throw new Error(`registry download failed for ${ref}: ${(err as Error)?.message ?? err}`, { cause: err })
+    }
+    mkdirSync(tmpDir, { recursive: true })
+    writeFileSync(join(tmpDir, 'SKILL.md'), content)
+    return join(tmpDir, 'SKILL.md')
+  }
   const isGit = isGitUrl(source) || isGithubUrl(source)
   if (isGit) {
     cloneRepo(toGitUrl(source), join(tmpDir, 'repo'))
@@ -130,8 +144,9 @@ export async function install(args: string[]): Promise<void> {
   const frozen = args.includes('--frozen')
   const source = args.filter((a) => !a.startsWith('--'))[0]
   if (!source) {
-    console.error('\nUsage: agenthood install <url-or-git-repo> [--dry-run] [--frozen]\n')
+    console.error('\nUsage: agenthood install <url-or-git-repo-or-owner/name> [--dry-run] [--frozen]\n')
     console.error('Examples:')
+    console.error('  agenthood install @fworks-tech/reviewer')
     console.error('  agenthood install https://github.com/user/repo')
     console.error('  agenthood install https://example.com/skill/SKILL.md')
     console.error('  agenthood install git@github.com:user/repo.git')
@@ -152,6 +167,14 @@ export async function install(args: string[]): Promise<void> {
   try {
     const skillMdPath = await fetchSkillSource(source, tmpDir)
     const name = resolveSkillName(skillMdPath)
+    if (isSkillReference(source)) {
+      const ref = parseSkillRef(source)
+      // A registry entry that returns a different skill than the one asked for
+      // would install under the wrong name — refuse rather than guess.
+      if (ref.name !== name) {
+        throw new Error(`registry returned "${name}" for ${formatSkillRef(ref)}`)
+      }
+    }
     const destDir = join(skillsDir, name)
 
     if (frozen) {

@@ -10,7 +10,8 @@ import { join } from 'node:path'
 import { execSync } from 'node:child_process'
 import type { CommandDescriptor } from './types.ts'
 import { SkillDiscovery } from '../skills/discovery/SkillDiscovery.ts'
-import { SkillParser } from '../skills/discovery/SkillParser.ts'
+import { SkillParser, parseOwner, SPEC_NAME_RE } from '../skills/discovery/SkillParser.ts'
+import { OWNER_RE } from '../skills/namespace.ts'
 
 function hasRemote(): boolean {
   try {
@@ -30,7 +31,7 @@ function isDirty(): boolean {
   }
 }
 
-function validateSkill(skillMdPath: string): { ok: boolean; name?: string; error?: string } {
+export function validateSkill(skillMdPath: string, fallbackOwner?: string): { ok: boolean; name?: string; owner?: string; error?: string } {
   const content = readFileSync(skillMdPath, 'utf-8')
   const parser = new SkillParser()
   const { frontmatter } = parser.parseRaw(content)
@@ -43,17 +44,45 @@ function validateSkill(skillMdPath: string): { ok: boolean; name?: string; error
     return { ok: false, name: String(frontmatter.name), error: 'missing "description" field in frontmatter' }
   }
 
-  return { ok: true, name: String(frontmatter.name) }
+  const name = String(frontmatter.name)
+  if (!SPEC_NAME_RE.test(name)) {
+    return { ok: false, name, error: `name "${name}" is not a valid skill name` }
+  }
+
+  // Publishing requires a namespace (#593, ADR-035 §1). Local-only skills stay
+  // optional; a monorepo can pass one --author instead of editing every file.
+  const owner = parseOwner(frontmatter) ?? fallbackOwner
+  if (!owner) {
+    return { ok: false, name, error: 'missing "metadata.author" — the registry namespace. Add it, or pass --author <owner>' }
+  }
+  if (!OWNER_RE.test(owner)) {
+    return { ok: false, name, error: `metadata.author "${owner}" is not a valid namespace (lowercase letters, digits, single hyphens)` }
+  }
+
+  return { ok: true, name, owner }
+}
+
+/** `--author <owner>` or `--author=<owner>`. */
+function readAuthor(args: string[]): string | undefined {
+  const index = args.findIndex((arg) => arg === '--author' || arg.startsWith('--author='))
+  if (index === -1) return undefined
+  return (args[index].split('=')[1] ?? args[index + 1])?.trim()
 }
 
 export const command: CommandDescriptor = {
   name: 'publish',
-  description: 'Publish skills to GitHub for skills.sh indexing',
+  description: 'Publish skills to GitHub for skills.sh indexing (owner/name namespaces)',
   handler: (args) => publish(args),
 }
 
 export async function publish(args: string[]): Promise<void> {
   const dryRun = args.includes('--dry-run')
+  const fallbackOwner = readAuthor(args)
+  if (fallbackOwner !== undefined && !OWNER_RE.test(fallbackOwner)) {
+    console.error(`\n  ✗ --author "${fallbackOwner}" is not a valid namespace (lowercase letters, digits, single hyphens).\n`)
+    process.exit(1)
+    return
+  }
   const cwd = process.cwd()
 
   if (!existsSync(join(cwd, '.git'))) {
@@ -81,12 +110,21 @@ export async function publish(args: string[]): Promise<void> {
   console.log(`\n  Found ${skills.length} skill(s) to publish:\n`)
 
   let hasErrors = false
+  const seen = new Map<string, string>()
   for (const skill of skills) {
     const skillMdPath = join(skill.directory, 'SKILL.md')
-    const result = validateSkill(skillMdPath)
+    const result = validateSkill(skillMdPath, fallbackOwner)
 
     if (result.ok) {
-      console.log(`    ✓ ${result.name} (${skill.tier})`)
+      const ref = `${result.owner}/${result.name}`
+      const duplicate = seen.get(ref)
+      if (duplicate) {
+        console.error(`    ✗ ${ref}: also declared by ${duplicate} — registry names must be unique`)
+        hasErrors = true
+        continue
+      }
+      seen.set(ref, skill.directory)
+      console.log(`    ✓ ${ref} (${skill.tier})`)
     } else {
       console.error(`    ✗ ${skill.directory}: ${result.error}`)
       hasErrors = true

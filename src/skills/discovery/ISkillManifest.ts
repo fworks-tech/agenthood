@@ -16,6 +16,8 @@ export interface ISkillManifest {
   license?: string
   /** Free-form runtime requirement (`compatibility`), capped at 500 chars. */
   compatibility?: string
+  /** Registry namespace from `metadata.author` — the `owner` in `owner/name` (ADR-035). */
+  owner?: string
   /** Hidden from the available-skills catalog; still activatable by name (#588). */
   hidden?: boolean
   /** A routing entry point — the only skills whose metadata loads at startup (#588). */

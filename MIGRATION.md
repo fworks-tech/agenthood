@@ -83,3 +83,46 @@ agenthood trace --tool read_file
 start and appended to each member's system prompt inside a
 `<repo_instructions>` boundary. It is read-only, capped at 64 KB, and never
 replaces the member role or safety guards.
+
+### New: skill frontmatter fields
+
+`metadata.version` (semver) and `license` are required on every member;
+`verify` fails without them. `compatibility`, `hidden`, and `router` are
+optional. `metadata` itself is free-form — nested maps, lists and booleans all
+survive.
+
+```yaml
+---
+name: my-skill
+description: Use when …
+license: MIT
+compatibility: Requires Bash and git access
+allowed-tools: file.read file.search
+metadata:
+  version: 1.0.0
+  author: acme
+---
+```
+
+`agenthood bump <member> --patch|--minor|--major` increments the version and
+re-locks the member. The lock records it as `skillVersion` next to the hash.
+
+### New: skill namespaces and `.well-known` catalogs
+
+Publishing now requires a namespace: `metadata.author` is the `owner` in
+`owner/name`, so a registry key no longer collides with an unrelated skill of
+the same name. Local names and directories do not change — a slash is not a
+portable directory name.
+
+```bash
+agenthood install @acme/lint
+agenthood catalog https://skills.example.com
+```
+
+`agenthood install owner/name` resolves through the registry; only an argument
+shaped exactly like a reference changes meaning, so existing URLs, git addresses
+and paths behave as before. `agenthood catalog` lists `.well-known/agentskills`
+catalogs configured under `remoteCatalogs` in `.agenthood/config.json`; the
+token comes from an environment variable named by `tokenEnv` and is never stored
+in config. See ADR-035.
+

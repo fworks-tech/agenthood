@@ -28,6 +28,7 @@ permissive at the profile level, but it is no longer invisible.
 | `compatibility` | no | Free-form environment requirement, ≤500 chars, e.g. `Requires Bash and git access` |
 | `allowed-tools` | no | Space-, comma- or list-separated tool names. Narrows the tool surface, never widens it |
 | `metadata.version` | yes for members | Semver. `agenthood bump <member> --patch` increments it and re-locks |
+| `metadata.author` | to publish | Registry namespace — the `owner` in `owner/name`. Lowercase letters, digits, single hyphens |
 | `metadata.*` | no | Any nested shape: maps, lists, booleans. Passed through untouched for your own tooling |
 | `hidden` | no | `true` keeps the skill out of the available-skills catalog. It still activates by name |
 | `router` | no | `true` marks a routing entry point, for setups with too many skills to list in full |

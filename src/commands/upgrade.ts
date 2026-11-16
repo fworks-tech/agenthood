@@ -1,5 +1,6 @@
 import type { CommandDescriptor } from './types.ts'
 import { SkillRegistryClient } from '../skills/registry/SkillRegistryClient.ts'
+import { isSkillReference } from '../skills/namespace.ts'
 import { resolveSkillsDir } from '../members.ts'
 import { loadSkillsLockfile, saveSkillsLockfile, type LockEntry, type Lockfile } from './skillsLock.ts'
 import { existsSync, readFileSync, writeFileSync, mkdirSync } from 'node:fs'
@@ -99,8 +100,11 @@ async function resolveUpgradeTarget(
   client: SkillRegistryClient,
   lock: Lockfile,
 ): Promise<boolean> {
+  // A registry install recorded its namespace as the source (#593); a bare name
+  // stays a bare lookup for entries published before namespaces.
+  const ref = entry?.source && isSkillReference(entry.source) ? entry.source : name
   try {
-    const remote = await client.get(name)
+    const remote = await client.get(ref)
     if (!remote) {
       console.log(`  ${name}: not found in registry`)
       return false
@@ -112,7 +116,7 @@ async function resolveUpgradeTarget(
     }
 
     // Download the skill to compute its content hash for drift detection
-    const skillContent = await client.download(name, remote.version)
+    const skillContent = await client.download(ref, remote.version)
     const hash = contentHash(skillContent)
 
     console.log(`  ${name}: upgrading from ${entry?.version ?? 'unknown'} to v${remote.version}`)

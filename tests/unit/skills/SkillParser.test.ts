@@ -260,6 +260,15 @@ describe("SkillParser", () => {
       expect(isSpdxLicense("see LICENSE")).toBe(false)
     })
 
+    it("reads the registry owner from metadata.author (#593)", () => {
+      const nested = writeSkill(dir, "---\nname: s\ndescription: d\nmetadata:\n  author: acme\n---\nBody.")
+      expect(parser.parse(nested)?.owner).toBe("acme")
+      const flat = writeSkill(dir, "---\nname: s\ndescription: d\nauthor: acme\n---\nBody.")
+      expect(parser.parse(flat)?.owner).toBe("acme")
+      const none = writeSkill(dir, "---\nname: s\ndescription: d\n---\nBody.")
+      expect(parser.parse(none)?.owner).toBeUndefined()
+    })
+
     it("accepts unicode lowercase names and rejects uppercase (#517)", () => {
       const spec = (name: string) => parser.validateSpec(name, "d", name).map((e) => e.rule)
       expect(spec("café")).toEqual([])

@@ -192,14 +192,20 @@ export class RemoteSkillFetcher {
  * Fetch a text body from a validated https URL with per-hop SSRF re-validation
  * on redirects, a hard timeout, and a size cap. Shared by remote skill
  * discovery and `agenthood install`.
+ *
+ * `headers` (e.g. a catalog bearer token) are sent only to the original origin —
+ * a redirect to another host must not receive the credential.
  */
-export async function fetchRemoteText(raw: string): Promise<string | undefined> {
+export async function fetchRemoteText(raw: string, headers?: Record<string, string>): Promise<string | undefined> {
   // redirect:'manual' — every hop is re-validated, so a public host cannot
   // bounce the request to an internal address.
   let href = validateRemoteUrl(raw)
+  const origin = new URL(href).origin
   for (let hops = 0; hops < REDIRECT_LIMIT; hops++) {
+    const hopHeaders = headers && new URL(href).origin === origin ? headers : undefined
     const response = await fetch(href, {
       redirect: 'manual',
+      headers: hopHeaders,
       signal: AbortSignal.timeout(HTTP_TIMEOUT_MS),
     })
     if (response.ok) {

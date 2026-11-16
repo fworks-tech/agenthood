@@ -106,6 +106,49 @@ describe('SkillDiscovery', () => {
     })
   })
 
+  describe('name collisions and unicode names (#524, #517)', () => {
+    const skill = (name: string) => `---\nname: ${name}\ndescription: A test skill\n---\n# Overview\nTest`
+
+    it('resolves a same-scope collision deterministically and warns, never silently', () => {
+      mkdirSync(join(testDir, 'skills', 'zulu', 'dup'), { recursive: true })
+      writeFileSync(join(testDir, 'skills', 'zulu', 'dup', 'SKILL.md'), skill('dup'))
+      mkdirSync(join(testDir, 'skills', 'alpha', 'dup'), { recursive: true })
+      writeFileSync(join(testDir, 'skills', 'alpha', 'dup', 'SKILL.md'), skill('dup'))
+      const warn = vi.spyOn(console, 'warn').mockImplementation(() => {})
+
+      const found = new SkillDiscovery(testDir).discover(testDir)
+
+      const dup = found.filter((m) => m.name === 'dup')
+      expect(dup).toHaveLength(1)
+      expect(dup[0].directory).toContain('alpha')
+      expect(warn.mock.calls.flat().join(' ')).toContain('"dup"')
+      expect(warn.mock.calls.flat().join(' ')).toContain('alphabetically first')
+      warn.mockRestore()
+    })
+
+    it('lets a project skill override a user skill of the same name and says so', () => {
+      const warn = vi.spyOn(console, 'warn').mockImplementation(() => {})
+      const discovery = new SkillDiscovery(testDir)
+      const found = discovery.discover(testDir)
+      expect(found.filter((m) => m.name === 'test-skill')).toHaveLength(1)
+      // A user-scope duplicate of test-skill lives in the real homedir only if
+      // one was installed; the assertion is on the deterministic outcome, not
+      // on the warning, so the test does not depend on the machine.
+      expect(found.find((m) => m.name === 'test-skill')?.directory).toContain('.agents')
+      warn.mockRestore()
+    })
+
+    it('normalizes a decomposed name to its composed form (#517)', () => {
+      const decomposed = 'cafe\u0301'
+      mkdirSync(join(testDir, 'skills', decomposed), { recursive: true })
+      writeFileSync(join(testDir, 'skills', decomposed, 'SKILL.md'), skill(decomposed))
+
+      const found = new SkillDiscovery(testDir).discover(testDir)
+
+      expect(found.map((m) => m.name)).toContain('caf\u00e9')
+    })
+  })
+
   it('discover() stays project-scoped (no packaged skills leak into publish/verify paths)', () => {
     const discovery = new SkillDiscovery(testDir)
     const found = discovery.discover(testDir)

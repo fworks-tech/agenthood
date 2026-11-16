@@ -259,6 +259,18 @@ describe("SkillParser", () => {
       expect(isSpdxLicense("MIT License")).toBe(false)
       expect(isSpdxLicense("see LICENSE")).toBe(false)
     })
+
+    it("accepts unicode lowercase names and rejects uppercase (#517)", () => {
+      const spec = (name: string) => parser.validateSpec(name, "d", name).map((e) => e.rule)
+      expect(spec("café")).toEqual([])
+      expect(spec("日本語")).toEqual([])
+      expect(spec("Café")).toContain("name-format")
+      expect(spec("café-")) .toContain("name-format")
+    })
+
+    it("treats a decomposed directory name as matching its composed name (#517)", () => {
+      expect(parser.validateSpec("café", "d", "cafe\u0301").map((e) => e.rule)).toEqual([])
+    })
     it("accepts nested metadata shapes (#516)", () => {
       const file = writeSkill(
         dir,

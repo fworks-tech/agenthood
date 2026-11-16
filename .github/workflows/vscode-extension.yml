@@ -12,6 +12,9 @@ on:
       - "vscode-extension/**"
       - ".github/workflows/vscode-extension.yml"
 
+permissions:
+  contents: read
+
 jobs:
   build:
     name: The Envoy — build and test VS Code Extension

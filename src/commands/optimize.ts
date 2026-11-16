@@ -191,7 +191,7 @@ function printResult(result: OptimizationResult): void {
   console.log()
 }
 
-function applyDescription(result: OptimizationResult): void {
+export function applyDescription(result: OptimizationResult): void {
   const spec = rawSpecs.find((s) => s.name === result.member)
   if (!spec) return
   spec.description = result.bestDescription
@@ -200,7 +200,8 @@ function applyDescription(result: OptimizationResult): void {
   const content = readFileSync(filePath, 'utf8')
   const escapedName = result.member.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
   const pattern = new RegExp(`(name:\\s*'${escapedName}',\\s*\\n\\s*description:\\s*')[^']*(')`)
-  const updated = content.replace(pattern, `$1${result.bestDescription.replace(/'/g, "\\'")}$2`)
+  const replacement = result.bestDescription.replace(/\\/g, '\\\\').replace(/'/g, "\\'")
+  const updated = content.replace(pattern, (_match, prefix: string, suffix: string) => `${prefix}${replacement}${suffix}`)
 
   if (updated === content) {
     console.log('  Warning: could not locate description in member-specs.ts to update.\n')

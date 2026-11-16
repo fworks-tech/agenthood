@@ -1,5 +1,5 @@
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest'
-import { mkdirSync, mkdtempSync, rmSync, writeFileSync } from 'node:fs'
+import { mkdirSync, mkdtempSync, realpathSync, rmSync, writeFileSync } from 'node:fs'
 import { join } from 'node:path'
 import { tmpdir } from 'node:os'
 import { ActivateSkillTool } from '../../../src/skills/activation/ActivateSkillTool.ts'
@@ -192,7 +192,7 @@ describe('ActivateSkillTool run scope (#536, #542, #543)', () => {
       const ctx = context()
       await tool.execute({ skill_name: 'a' }, ctx)
       expect(activeSkills.has('a')).toBe(true)
-      expect(ctx.skillAllowlist?.has(skillDir)).toBe(true)
+      expect(ctx.skillAllowlist?.has(realpathSync(skillDir))).toBe(true)
     } finally {
       rmSync(skillDir, { recursive: true, force: true })
     }

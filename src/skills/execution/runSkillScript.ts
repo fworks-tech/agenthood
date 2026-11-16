@@ -46,7 +46,7 @@ interface CommandResult {
 
 const DEFAULT_TIMEOUT_MS = 120_000
 /** Windows runs .cmd shims through the shell; these characters would let a token escape. */
-const SHELL_SAFE = /^[\w@.,:=/+\-~%^]+$/
+const SHELL_SAFE = /^[\w@.,:=/+\-~]+$/
 /** Shims PATHEXT resolves but spawn cannot start directly on Windows. */
 const WINDOWS_SHIMS = new Set(['npx', 'uvx', 'pipx', 'cargo', 'uv'])
 

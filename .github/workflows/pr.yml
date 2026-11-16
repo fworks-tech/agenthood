@@ -301,6 +301,8 @@ jobs:
         run: npm run typecheck
       - name: The Warden — build
         run: npm run build
+      - name: The Librarian — API reference builds from source
+        run: npm run docs:api
       - name: The Doorman — lockfile integrity gate
         run: node dist/cli.js verify --lock-only
 

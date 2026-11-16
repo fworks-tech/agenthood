@@ -16,7 +16,7 @@ Use the punctuation that does the job, not a dash standing in for all of them.
 | A list-like aside | parentheses | "Every member (Scribe, Architect, Reviewer) loads the same way." |
 | A numeric range | hyphen | "2023-2026", "60-300s" |
 
-Do not use an em dash (—) or an en dash (–) in prose. The one exception is an
+Do not use an em dash (U+2014) or an en dash (U+2013) in prose. The one exception is an
 external identifier that must match GitHub exactly, such as a required check
 name. Those live in `.github/workflows/`, `.github/scripts/herald-summary.cjs`
 and its test fixture, and they are allowlisted.
@@ -37,16 +37,16 @@ specific thing you mean.
 
 | Avoid | Write instead |
 |-------|---------------|
-| delve into | read, examine, open |
-| leverage | use |
-| robust / comprehensive / holistic | name the property or the coverage |
-| seamless / seamlessly | "without a restart", "in one step" |
-| unlock / elevate / empower | the concrete outcome |
-| cutting-edge / state-of-the-art | the version or the capability |
-| it is worth noting | say the thing, or cut it |
-| let's dive / deep dive | start with the finding |
-| at the end of the day / when it comes to | cut both |
-| tapestry / realm / testament to | the literal subject |
+| `delve into` | read, examine, open |
+| `leverage` | use |
+| `robust` / `comprehensive` / `holistic` | name the property or the coverage |
+| `seamless` / `seamlessly` | "without a restart", "in one step" |
+| `unlock` / `elevate` / `empower` | the concrete outcome |
+| `cutting-edge` / `state-of-the-art` | the version or the capability |
+| `it is worth noting` | say the thing, or cut it |
+| `let's dive` / `deep dive` | start with the finding |
+| `at the end of the day` / `when it comes to` | cut both |
+| `tapestry` / `realm` / `testament to` | the literal subject |
 
 The list is a warning, not a ban. "Robust against malformed input" is a
 technical claim; "a robust solution" is filler. The checker reports the phrase

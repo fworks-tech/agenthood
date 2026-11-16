@@ -5,6 +5,100 @@
 
 ---
 
+## v4.0.0: November 16, 2026
+
+### 🐛 Bug Fixes
+
+- **Ci:** accept --!> as an inline finding block terminator
+- **Ci:** escape backslashes in Herald table cells
+- **Ci:** hold the prose check to the lines it can police
+- **Ci:** keep the workflow YAML valid after the prose pass
+- **Cli:** keep a rotated key out of a tracked config
+- **Cli:** keep bare "workflow" an error instead of listing chains
+- **Cli:** keep the contrib contract report opt-in (#154)
+- **Cli:** name chains.yaml when the file is malformed instead of a parser dump
+- **Cli:** remove the last escaped em dashes from output
+- **Cli:** show a hyphen for a missing table value
+- **Commands:** keep special characters when applying an optimized description
+- **Core:** cap the trajectory directory
+- **Core:** index retained traces once during pruning
+- **Cost:** record the provider that answered
+- **Cost:** tolerate torn lines and rotate the ledger
+- **Docs:** repair colons the dash pass broke
+- **Hooks:** block a real token beside a placeholder
+- **Hooks:** ignore empty and placeholder secret values
+- **Marketplace:** validate the plugin manifest and sync its version
+- **Memory:** serialize provenance writes across processes
+- **Metrics:** bind the server to the configured host
+- **Rag:** bound embedding concurrency
+- **Reasoning:** escape regex metacharacters in file patterns
+- **Release:** generate dash-free release notes deterministically
+- **Release:** honor the ! breaking marker when computing the version
+- **Release:** normalize a dash inherited from a commit subject
+- **Security:** harden the environment samples and ignore rules
+- **Security:** redact cloud tokens and debug payloads
+- **Skills:** bound one-off arguments and script output
+- **Skills:** clone remote sources into a unique directory
+- **Skills:** close two authorization gaps in the script runner (#536, #607)
+- **Skills:** escape activation notices before they enter the block (#549, #551)
+- **Skills:** ignore declared tools that match no registered tool
+- **Skills:** intersect the scopes of active skills
+- **Skills:** normalize unicode names, warn on mismatch and resolve collisions (#517, #513, #524)
+- **Skills:** refuse to overwrite an unparsable member lockfile
+- **Skills:** remove regex backtracking in compatibility fallback
+- **Tools:** compare real paths on both sides of the guard
+- **Tools:** resolve a symlinked directory before allowing a path
+- **Trace:** apply --limit to skill and tool trajectory listings
+- **Trace:** keep one trajectory per run under a shared correlation id
+- **Trace:** record step duration, run input and the step's provider cost
+- **Workflows:** index chain steps so a repeated member keeps its own result
+
+### 🔧 Code Refactoring
+
+- remove the no-op span API from Tracer, refs #1048
+
+### ✨ Features
+
+- **Ci:** check every text file for AI-typical punctuation
+- **Ci:** enforce the prose style on every pull request
+- **Cli:** rank skill cost against use and show activation history (#605, #628)
+- **Cli:** report skill token budgets and cross-location duplicates (#615, #616)
+- **Community:** define the third-party member authoring contract (#154)
+- **Llm:** add the multimodal provider interface and OpenAI implementation (#124)
+- **Runtime:** load AGENTS.md / CLAUDE.md as per-repo agent instructions, refs #567
+- **Skills:** activate through one tool, slash commands and structured blocks (#529, #530, #531, #535, #512)
+- **Skills:** add compatibility, hidden and router to the frontmatter (#581, #516, #588)
+- **Skills:** add metadata.version with semver validation (#579)
+- **Skills:** add registry namespaces and .well-known catalogs (#593, #522)
+- **Skills:** add the web-research skill from deepagents (#339)
+- **Skills:** authorize script runs by activation and isolate untrusted skills (#536, #542, #543, #607)
+- **Skills:** cache parsed skill metadata and bound the discovery scan (#525, #614, #617)
+- **Skills:** cache successful script output behind an opt-in switch (#598)
+- **Skills:** deduplicate activations, protect skill context and restore on resume (#532, #533, #618)
+- **Skills:** detect outdated copies and roll back to a version (#570, #592, #591)
+- **Skills:** enforce allowed-tools from SKILL.md at call time, refs #582
+- **Skills:** format, filter and order the skill catalog per provider (#528, #556, #537, #538, #611, #512)
+- **Skills:** gate skills on the model, tools and dependencies available here (#549, #551, #552, #553, #554, #555, #571)
+- **Skills:** honour compaction-replay and keep nested invocation safe (#587), refs #532
+- **Skills:** lint script interfaces and document the execution contract (#540, #547, #548)
+- **Skills:** measure skill cost, health and activation health (#586, #597, #626, #627)
+- **Skills:** parse conditions, priority, fallback and model-invocation opt-out (#537, #610, #611, #613)
+- **Skills:** resolve user-scope skills through XDG data paths (#523)
+- **Skills:** run bundled scripts with real runtimes, pinned one-offs and capped output (#539, #541, #544, #545, #546)
+- **Skills:** validate license as SPDX and add the license command (#580), refs #588
+- **Subagent:** delegate a skill to an isolated subagent context (#534, #612)
+- **Trace:** persist every ReAct step and filter trajectories by skill or tool, refs #605
+- **Verify:** fail on allowed-tools names agenthood does not know, refs #561
+- **Workflows:** compose skills, conditions and parallel branches in chains (#609)
+- **Workflows:** execute chains.yaml through WorkflowEngine, refs #609
+
+### 🔹 BREAKING CHANGES
+
+- **Skills:** enforce allowed-tools from SKILL.md at call time
+- remove the no-op span API from Tracer
+
+---
+
 ## v3.78.0: November 16, 2026
 
 ### 🐛 Bug Fixes

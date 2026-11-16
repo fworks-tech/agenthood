@@ -7,7 +7,8 @@ import { loadLockfile } from '../utils/lockfile.ts'
 import type { Lockfile } from '../utils/lockfile.ts'
 import { checkResourceIntegrity, checkSkillIntegrity, collectResourceHashes } from '../utils/skillIntegrity.ts'
 import { findResourceRevision, findRevision, restoreMember } from './rollback.ts'
-import { SkillParser } from '../skills/discovery/SkillParser.ts'
+import { SkillParser, parseAllowedTools } from '../skills/discovery/SkillParser.ts'
+import { isKnownToolName } from '../members/toolVocabulary.ts'
 import { scanForInjections } from '../skills/discovery/injectionScan.ts'
 import { userError } from '../core/cliError.ts'
 import type { SkillTier } from '../skills/discovery/ISkillManifest.ts'
@@ -70,6 +71,12 @@ function validateMember(membersDir: string, member: string, lockfile?: Lockfile,
     const description = typeof frontmatter.description === 'string' ? frontmatter.description : ''
     for (const e of parser.validateSpec(name, description, member)) {
       result.issues.push(`Spec (${e.rule}): ${e.message}. Fix: ${e.fix}`)
+    }
+    // Runtime ignores unknown names so skills from other clients still load; an
+    // author-time typo should not pass silently (#561).
+    const declared = parseAllowedTools(frontmatter['allowed-tools'] ?? frontmatter.allowed_tools) ?? []
+    for (const tool of declared.filter((t) => !isKnownToolName(t))) {
+      result.issues.push(`allowed-tools names "${tool}", which matches no tool. Fix: use a skill vocabulary name such as file.read or code.write`)
     }
   }
 

@@ -48,7 +48,9 @@ export async function discoverSkills(projectPath: string): Promise<{ catalog: st
   const lines: string[] = ['', '<available_skills>']
   const map = new Map<string, ISkillManifest>()
   for (const m of manifests) {
+    // Hidden skills stay activatable by name but never eat catalog budget (#588).
     map.set(m.name, m)
+    if (m.hidden) continue
     lines.push(`  <skill name="${escapeXml(m.name)}">`)
     lines.push(`    <description>${escapeXml(m.description)}</description>`)
     lines.push(`    <location>${escapeXml(m.location)}</location>`)

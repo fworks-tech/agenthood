@@ -14,6 +14,8 @@ export interface ISkillManifest {
   version?: string
   /** SPDX identifier or expression from `license`. */
   license?: string
+  /** Free-form runtime requirement (`compatibility`), capped at 500 chars. */
+  compatibility?: string
   /** Hidden from the available-skills catalog; still activatable by name (#588). */
   hidden?: boolean
   /** A routing entry point — the only skills whose metadata loads at startup (#588). */

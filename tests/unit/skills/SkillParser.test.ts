@@ -1,6 +1,6 @@
 import { describe, it, expect, beforeEach, afterEach } from "vitest"
 import { SkillParser, MAX_SKILL_FILE_BYTES, isSpdxLicense } from "../../../src/skills/discovery/SkillParser.ts"
-import { mkdtempSync, writeFileSync, rmSync } from "node:fs"
+import { mkdtempSync, writeFileSync, readFileSync, rmSync } from "node:fs"
 import { join } from "node:path"
 import { tmpdir } from "node:os"
 
@@ -258,6 +258,20 @@ describe("SkillParser", () => {
       expect(isSpdxLicense("UNLICENSED")).toBe(true)
       expect(isSpdxLicense("MIT License")).toBe(false)
       expect(isSpdxLicense("see LICENSE")).toBe(false)
+    })
+    it("accepts nested metadata shapes (#516)", () => {
+      const file = writeSkill(
+        dir,
+        "---\nname: s\ndescription: d\nmetadata:\n  version: 1.0.0\n  tags:\n    - a\n    - b\n  provider:\n    family: claude\n  experimental: true\n---\nBody.",
+      )
+      const { frontmatter, heuristic } = parser.parseRaw(readFileSync(file, "utf-8"))
+      expect(heuristic).toBeUndefined()
+      expect(frontmatter?.metadata).toEqual({
+        version: "1.0.0",
+        tags: ["a", "b"],
+        provider: { family: "claude" },
+        experimental: true,
+      })
     })
   })
 })

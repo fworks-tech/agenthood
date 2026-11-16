@@ -18,6 +18,24 @@ declaration can only narrow the skill's tool surface below its permission profil
 widen it. A skill that declares nothing keeps its profile's default set — silence is
 permissive at the profile level, but it is no longer invisible.
 
+## The frontmatter fields
+
+| Field | Required | What it does |
+|---|---|---|
+| `name` | yes | Skill identity. Must match the directory and the spec pattern (`^[a-z0-9]+(-[a-z0-9]+)*$`) |
+| `description` | yes | What it does **and when to use it**, ≤1024 chars. This is the router's only signal |
+| `license` | yes for members | SPDX id or expression (`MIT`, `Apache-2.0`, `MIT OR Apache-2.0`), or `UNLICENSED`. Prose like `MIT License` fails `verify` |
+| `compatibility` | no | Free-form environment requirement, ≤500 chars, e.g. `Requires Bash and git access` |
+| `allowed-tools` | no | Space-, comma- or list-separated tool names. Narrows the tool surface, never widens it |
+| `metadata.version` | yes for members | Semver. `agenthood bump <member> --patch` increments it and re-locks |
+| `metadata.*` | no | Any nested shape: maps, lists, booleans. Passed through untouched for your own tooling |
+| `hidden` | no | `true` keeps the skill out of the available-skills catalog. It still activates by name |
+| `router` | no | `true` marks a routing entry point, for setups with too many skills to list in full |
+
+`metadata` is deliberately unconstrained: nest a provider map or a dependency pin under it and
+the runtime neither validates nor rewrites it. Tool skills in `skills/` use it to declare
+install commands (`metadata.dependencies`).
+
 The body is pure prompt. No format is enforced on it, which is exactly why the best bodies
 read like onboarding docs for a careful new hire.
 
@@ -69,10 +87,12 @@ Write `skills/the-notetaker/SKILL.md`:
 ```markdown
 ---
 name: the-notetaker
-# `license` is informational — the runtime parses name/description/allowed-tools;
 description: Turns raw meeting transcripts into decisions, owners, and follow-ups. Use when a transcript needs to become action items.
 allowed-tools: file.read file.search ask_human
 license: MIT
+compatibility: Requires a local file path to the transcript
+metadata:
+  version: 1.0.0
 ---
 
 # The Notetaker
@@ -108,6 +128,7 @@ doing its job.
 
 - [ ] `name` matches the directory, lowercase-hyphenated
 - [ ] `description` says what **and** when ("Use when …")
+- [ ] `license` is an SPDX id, `metadata.version` is semver
 - [ ] `allowed-tools` declares the minimum — leave the dangerous ones out
 - [ ] Body reads like onboarding for a careful new hire
 - [ ] `npx agenthood verify` passes; `agenthood.lock` re-locked if a member changed

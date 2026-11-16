@@ -7,7 +7,15 @@ import { loadLockfile } from '../utils/lockfile.ts'
 import type { Lockfile, LockfileMember } from '../utils/lockfile.ts'
 import { checkResourceIntegrity, checkSkillIntegrity, collectResourceHashes } from '../utils/skillIntegrity.ts'
 import { findResourceRevision, findRevision, restoreMember } from './rollback.ts'
-import { SkillParser, parseAllowedTools, parseSkillVersion, isSpdxLicense, SEMVER_RE } from '../skills/discovery/SkillParser.ts'
+import {
+  SkillParser,
+  parseAllowedTools,
+  parseCompatibility,
+  parseSkillVersion,
+  isSpdxLicense,
+  MAX_COMPATIBILITY_LENGTH,
+  SEMVER_RE,
+} from '../skills/discovery/SkillParser.ts'
 import { isKnownToolName } from '../members/toolVocabulary.ts'
 import { scanForInjections } from '../skills/discovery/injectionScan.ts'
 import { userError } from '../core/cliError.ts'
@@ -65,6 +73,10 @@ function validateMember(membersDir: string, member: string, lockfile?: Lockfile,
       result.issues.push('Frontmatter missing "license". Fix: add license: MIT (or UNLICENSED)')
     } else if (!isSpdxLicense(String(frontmatter.license))) {
       result.issues.push(`license "${String(frontmatter.license)}" is not an SPDX identifier. Fix: use the SPDX id, e.g. MIT, Apache-2.0, or UNLICENSED`)
+    }
+    const compatibility = parseCompatibility(frontmatter)
+    if (compatibility && compatibility.length > MAX_COMPATIBILITY_LENGTH) {
+      result.issues.push(`compatibility is ${compatibility.length} chars, over the ${MAX_COMPATIBILITY_LENGTH}-char spec limit. Fix: state the environment requirement in one short sentence`)
     }
     const version = parseSkillVersion(frontmatter)
     if (!version) {

@@ -25,6 +25,7 @@ export class RunSkillScriptTool implements ITool {
       args: { type: 'array', items: { type: 'string' }, description: 'Arguments passed to the script unchanged' },
       page: { type: 'integer', description: 'Read a page of previously spilled output instead of running' },
       page_size: { type: 'integer', description: 'Lines per page, default 200' },
+      no_cache: { type: 'boolean', description: 'Bypass the output cache for this call' },
     },
     required: ['script'],
   }

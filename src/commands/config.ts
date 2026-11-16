@@ -113,6 +113,14 @@ function parseSkills(raw: Record<string, unknown>): SkillsConfig | undefined {
     console.warn(`[run] skills.scriptTimeoutMs "${String(timeout)}" is not a positive integer — using the default`)
   }
 
+  const cacheTtl = skills.cacheTtlMs
+  if (typeof cacheTtl === 'number' && Number.isInteger(cacheTtl) && cacheTtl > 0) {
+    config.cacheTtlMs = cacheTtl
+  } else if (cacheTtl !== undefined) {
+    console.warn(`[run] skills.cacheTtlMs "${String(cacheTtl)}" is not a positive integer — using the default`)
+  }
+  if (skills.cacheOutputs === true) config.cacheOutputs = true
+
   return config
 }
 

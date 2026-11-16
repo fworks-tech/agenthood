@@ -5,6 +5,7 @@ import type { ISkillManifest } from '../discovery/ISkillManifest.ts'
 import type { SkillAvailability } from '../discovery/gating.ts'
 import { ActivateSkillTool } from './ActivateSkillTool.ts'
 import { RunSkillScriptTool } from '../execution/RunSkillScriptTool.ts'
+import { DEFAULT_OUTPUT_TTL_MS } from '../execution/resultCache.ts'
 
 /**
  * Member runs had the catalog in the prompt but no tool to act on it —
@@ -38,6 +39,7 @@ export function registerActivateTool(
       sandbox: config.security?.sandbox === true,
       trustedAuthors: config.security?.trustedAuthors ?? [],
       timeoutMs: config.skills?.scriptTimeoutMs,
+      cacheTtlMs: config.skills?.cacheOutputs === true ? config.skills.cacheTtlMs ?? DEFAULT_OUTPUT_TTL_MS : undefined,
     }),
   )
   return tool

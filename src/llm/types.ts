@@ -102,6 +102,10 @@ export interface SkillsConfig {
   fallback?: boolean
   /** Per-script timeout, default 120000ms (#546). */
   scriptTimeoutMs?: number
+  /** Cache successful bundled-script output; opt-in because a script may mutate state (#598). */
+  cacheOutputs?: boolean
+  /** Output cache TTL in ms, default 3600000 (#598). */
+  cacheTtlMs?: number
 }
 
 /** One remote catalog (ADR-035). `tokenEnv` names an env var — never a literal token. */

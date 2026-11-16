@@ -6,6 +6,7 @@
  */
 
 import { appendFileSync, existsSync, mkdirSync, readFileSync, statSync } from 'node:fs'
+import { createHash } from 'node:crypto'
 import { execFileSync, spawn } from 'node:child_process'
 import { basename, join, relative, sep } from 'node:path'
 import type { ToolResult } from '../../tools/ITool.ts'
@@ -16,6 +17,7 @@ import { isOneOffReference, parseOneOffCommand } from './oneOff.ts'
 import { recordResourceAccess } from '../activation/SkillStats.ts'
 import { MAX_INLINE_BYTES, capBytes, headAndTail, outputLogPath, pageLines, spillOutput } from './output.ts'
 import { detectDocker, sandboxDockerArgs, sandboxRequired } from './sandbox.ts'
+import { readCachedOutput, recordCacheResult, resultCacheKey, writeCachedOutput } from './resultCache.ts'
 
 export interface RunScriptRequest {
   skill?: string
@@ -23,6 +25,8 @@ export interface RunScriptRequest {
   args?: string[]
   page?: number
   page_size?: number
+  /** Bypass the output cache for this call (ADR-038). */
+  no_cache?: boolean
 }
 
 export interface RunScriptDeps {
@@ -35,6 +39,8 @@ export interface RunScriptDeps {
   trustedAuthors?: string[]
   timeoutMs?: number
   noCache?: boolean
+  /** Output cache TTL in ms; unset or 0 disables caching (ADR-038). */
+  cacheTtlMs?: number
 }
 
 interface CommandResult {
@@ -133,6 +139,7 @@ export async function runSkillScript(request: RunScriptRequest, deps: RunScriptD
   let command: string[]
   let detected: DetectedScript | undefined
   let scriptPath = script
+  let digest = ''
   if (oneOff?.ok) {
     command = oneOff.command.argv
   } else {
@@ -142,7 +149,9 @@ export async function runSkillScript(request: RunScriptRequest, deps: RunScriptD
     if (!existsSync(scriptPath)) return fail(`Script "${script}" not found in skill "${skillName}".`)
     if (statSync(scriptPath).size > 1024 * 1024) return fail(`Script "${script}" is larger than 1 MiB — refusing to run it.`)
 
-    detected = detectScript(scriptPath, readFileSync(scriptPath, 'utf8'))
+    const source = readFileSync(scriptPath, 'utf8')
+    digest = createHash('sha256').update(source).digest('hex')
+    detected = detectScript(scriptPath, source)
     if (!detected) {
       return fail(`Unsupported script "${script}". Supported: .py, .js, .mjs, .cjs, .ts, .sh, .bash, or a shebang.`)
     }
@@ -166,6 +175,20 @@ export async function runSkillScript(request: RunScriptRequest, deps: RunScriptD
 
   const argv = [...command, ...(request.args ?? [])]
   const final = decision.required ? ['docker', ...sandboxDockerArgs(manifest.directory, argv)] : argv
+
+  // Output cache (ADR-038): opt-in, bundled scripts only, keyed by content.
+  const ttl = deps.cacheTtlMs ?? 0
+  const cacheKey = ttl > 0 && !oneOff?.ok ? resultCacheKey(skillName, script, request.args ?? [], digest) : undefined
+  if (cacheKey && !request.no_cache) {
+    const cached = readCachedOutput(deps.projectPath, cacheKey, ttl)
+    if (cached !== undefined) {
+      recordCacheResult(deps.projectPath, true)
+      const meta = header({ skill: skillName, script: basename(scriptPath), runtime: 'cached', sandbox: 'none', exit: '0', cache: 'hit' })
+      return { success: true, output: `${meta}
+${cached}` }
+    }
+    recordCacheResult(deps.projectPath, false)
+  }
 
   const timeoutMs = deps.timeoutMs ?? DEFAULT_TIMEOUT_MS
   const started = Date.now()
@@ -200,6 +223,8 @@ export async function runSkillScript(request: RunScriptRequest, deps: RunScriptD
   if (result.timedOut) {
     return { success: false, output: meta, error: `Script "${script}" timed out after ${timeoutMs}ms and was stopped.` }
   }
+
+  if (cacheKey && result.code === 0) writeCachedOutput(deps.projectPath, cacheKey, combined)
 
   if (Buffer.byteLength(combined, 'utf8') > MAX_INLINE_BYTES) {
     const path = spillOutput(deps.projectPath, deps.executionId, script, combined)

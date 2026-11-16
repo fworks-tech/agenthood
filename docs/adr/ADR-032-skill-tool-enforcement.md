@@ -42,3 +42,6 @@ from the existing tool map instead of duplicating it.
 - Delegation is declarable (`delegate_task`) but no longer free inside an active
   scope.
 - Denials are observable in the event stream and in step trajectories.
+- Enforcement reads `ExecutionContext.skillAllowedTools`. `ApplicationContext`
+  always wires it, but a hand-built context that omits it skips enforcement
+  entirely. Hosts that build contexts themselves must set the hook.

@@ -25,15 +25,18 @@ export interface GateResult {
   warnings: Map<string, string[]>
 }
 
-const K_CONTEXT_RE = /\b(\d+)\s*K\s*\+?\s*(?:token\s+)?context\b/i
-const TOKEN_CONTEXT_RE = /\b(\d[\d,]*)\s*tokens?\s+context\b/i
+const K_CONTEXT_RE = /\b(\d+) ?K ?\+? ?(?:token )?context\b/i
+const TOKEN_CONTEXT_RE = /\b(\d[\d,]*) ?tokens? ?context\b/i
 
 /** `<n>K+ context` / `<n> token context` from `compatibility`, as a fallback only. */
 export function contextFromCompatibility(prose: string | undefined): number | undefined {
   if (!prose) return undefined
-  const k = K_CONTEXT_RE.exec(prose)
+  // Collapse whitespace first: overlapping `\s*` runs let a crafted manifest with a
+  // long space run force quadratic backtracking (js/polynomial-redos).
+  const normalized = prose.replace(/\s+/g, ' ')
+  const k = K_CONTEXT_RE.exec(normalized)
   if (k) return Number(k[1]) * 1000
-  const tokens = TOKEN_CONTEXT_RE.exec(prose)
+  const tokens = TOKEN_CONTEXT_RE.exec(normalized)
   return tokens ? Number(tokens[1].replace(/,/g, '')) : undefined
 }
 

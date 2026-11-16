@@ -1,5 +1,6 @@
 import type { ILLMProvider } from "../llm/ILLMProvider.ts"
 import type { Message } from "../llm/types.ts"
+import { isReplayableSkillBlock } from "../skills/activation/skillContent.ts"
 
 /**
  * Compresses conversation context when approaching token limits.
@@ -107,8 +108,10 @@ export class ContextCompressor {
     let j = start + 1
     while (j < body.length && body[j].role === "tool") j++
     const turn = body.slice(start, j)
+    // The tool result is wrapped in <tool_output>, so the marker is searched
+    // for, not required at the start (it never was at the start in a live run).
     const isProtected = turn.some(
-      (t) => t.role === "tool" && typeof t.content === "string" && t.content.startsWith("[SKILL_ACTIVATION]"),
+      (t) => t.role === "tool" && typeof t.content === "string" && isReplayableSkillBlock(t.content),
     )
     return { turn, end: j, isProtected }
   }

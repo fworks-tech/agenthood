@@ -16,13 +16,13 @@ export interface CachedManifest<T> {
 }
 
 interface CacheFile<T> {
-  version: 1
+  version: number
   entries: Record<string, CachedManifest<T>>
   misses: number
   hits: number
 }
 
-export const CACHE_VERSION = 1
+export const CACHE_VERSION = 2
 
 export function skillCacheDir(projectPath: string): string {
   return join(projectPath, '.agenthood', 'skill-cache')

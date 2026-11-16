@@ -183,3 +183,41 @@ describe('ContextCompressor', () => {
     expect(result[secondIdx - 1].content).toBe('[SKILL_ACTIVATION] first result')
   })
 })
+
+describe('ContextCompressor skill replay (#587)', () => {
+  const wrapped = (body: string) => `<tool_output>\n${body}\n</tool_output>`
+
+  it('protects a skill block wrapped by the live tool-output boundary (#532 regression)', async () => {
+    const compressor = new ContextCompressor(stubProvider(200), 0.8)
+    const messages: Message[] = [
+      { role: 'system', content: 'You are a helpful assistant.' },
+      { role: 'user', content: 'long message '.repeat(30) + '1' },
+      { role: 'assistant', content: 'activating', toolCalls: [{ id: 'tc1', name: 'activate_skill', args: {} }] },
+      { role: 'tool', content: wrapped('[SKILL_ACTIVATION]\n<skill_content name="a">body</skill_content>'), tool_call_id: 'tc1', name: 'activate_skill' },
+      { role: 'user', content: 'long message '.repeat(30) + '2' },
+    ]
+    const result = await compressor.compress(messages, 200, true)
+    expect(result.some((m) => m.content.includes('skill_content name="a"'))).toBe(true)
+  })
+
+  it('summarises a one-shot skill block instead of replaying it', async () => {
+    const compressor = new ContextCompressor(stubProvider(200), 0.8)
+    const messages: Message[] = [
+      { role: 'system', content: 'You are a helpful assistant.' },
+      { role: 'user', content: 'long message '.repeat(30) + '1' },
+      { role: 'assistant', content: 'activating', toolCalls: [{ id: 'tc1', name: 'activate_skill', args: {} }] },
+      {
+        role: 'tool',
+        content: wrapped('[SKILL_ACTIVATION]\n[compaction-replay-off]\n<skill_content name="oneshot">body</skill_content>'),
+        tool_call_id: 'tc1',
+        name: 'activate_skill',
+      },
+      { role: 'user', content: 'long message '.repeat(30) + '2' },
+      { role: 'user', content: 'long message '.repeat(30) + '3' },
+      { role: 'user', content: 'long message '.repeat(30) + '4' },
+      { role: 'user', content: 'long message '.repeat(30) + '5' },
+    ]
+    const result = await compressor.compress(messages, 200, true)
+    expect(result.some((m) => m.content.includes('skill_content name="oneshot"'))).toBe(false)
+  })
+})

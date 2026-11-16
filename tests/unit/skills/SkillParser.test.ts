@@ -308,3 +308,26 @@ describe("SkillParser", () => {
     })
   })
 })
+
+describe('compaction-replay (#587)', () => {
+  const parser = new SkillParser()
+  let dir: string
+
+  beforeEach(() => {
+    dir = mkdtempSync(join(tmpdir(), 'skill-replay-'))
+  })
+
+  afterEach(() => {
+    rmSync(dir, { recursive: true, force: true })
+  })
+
+  it('reads compaction-replay: false as a one-shot marker', () => {
+    const file = writeSkill(dir, '---\nname: one-shot\ndescription: d\ncompaction-replay: false\n---\nBody')
+    expect(parser.parse(file)?.compactionReplay).toBe(false)
+  })
+
+  it('leaves replayable skills unmarked', () => {
+    const file = writeSkill(dir, '---\nname: replayable\ndescription: d\n---\nBody')
+    expect(parser.parse(file)?.compactionReplay).toBeUndefined()
+  })
+})

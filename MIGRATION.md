@@ -85,6 +85,18 @@ skips the dependent one too. `guards.stop_on_blocking` stops the chain on a
 `doorman_before_merge` and `scribe_before_commit` are parsed as policy but not
 enforced by the CLI runner.
 
+### New: `compaction-replay` and cross-skill invocation
+
+A skill that invokes another skill calls `activate_skill`; the activation block
+is tagged `<skill_directives>` and survives compaction, so the invoking skill
+resumes with its instructions. Set `compaction-replay: false` for instructions
+that must not be replayed — compaction may summarise the body, and the next
+activation re-injects it instead of returning an "already active" pointer.
+
+Compaction now finds the activation marker inside the live `<tool_output>`
+wrapper; before this, protection only matched a raw message, so it never fired in
+a real run.
+
 ### New: skill delegation and context isolation
 
 `delegate_task` accepts `skill` and `isolation` (`shared` default, `full`). A

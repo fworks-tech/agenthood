@@ -1,6 +1,8 @@
 import { describe, it, expect } from 'vitest'
+// @ts-expect-error untyped plugin
+import { analyzeCommits } from '@semantic-release/commit-analyzer'
 // @ts-expect-error untyped mjs module
-import { changelogSection, parseCommits, latestTag } from '../../../scripts/herald-release.mjs'
+import { changelogSection, parseCommits, latestTag, PARSER_OPTS } from '../../../scripts/herald-release.mjs'
 
 describe('herald-release, latestTag', () => {
   it('picks the highest valid semver tag', () => {
@@ -30,6 +32,24 @@ describe('herald-release, changelogSection', () => {
     const section = changelogSection({ notes: notes + '\n\n\n' })
     expect(section.endsWith('\n\n')).toBe(true)
     expect(section).not.toMatch(/\n{3,}$/)
+  })
+})
+
+describe('herald-release, breaking headers', () => {
+  it('reads the ! marker as a major release', async () => {
+    // The Angular preset no longer declares the breaking-header pattern.
+    // Without PARSER_OPTS, `feat!:` and `refactor!:` parse as no release, and
+    // a major ships as a minor.
+    const context = {
+      commits: [
+        { hash: 'a', message: 'feat(skills)!: enforce allowed-tools at call time' },
+        { hash: 'b', message: 'refactor!: remove the no-op span API' },
+      ],
+      logger: { log() {} },
+    } as unknown as Parameters<typeof analyzeCommits>[1]
+
+    const type = await analyzeCommits({ parserOpts: PARSER_OPTS }, context)
+    expect(type).toBe('major')
   })
 })
 

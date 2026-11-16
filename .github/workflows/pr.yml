@@ -19,7 +19,7 @@ permissions:
 
 jobs:
   # ──────────────────────────────────────────────
-  # The Doorman — PR standards (commits + body)
+  # The Doorman - PR standards (commits + body)
   # ──────────────────────────────────────────────
   commitlint:
     name: The Doorman — PR Standards Validation
@@ -32,7 +32,7 @@ jobs:
       - uses: ./.github/actions/setup-env
         with:
           install-args: "--ignore-scripts --no-audit"
-      - name: The Doorman — validate commits in PR range
+      - name: The Doorman - validate commits in PR range
         env:
           NODE_OPTIONS: "--import tsx"
           BASE_SHA: ${{ github.event.pull_request.base.sha }}
@@ -43,7 +43,7 @@ jobs:
             --from "$BASE_SHA" \
             --to "$HEAD_SHA" \
             --verbose
-      - name: The Doorman — PR body must link to an issue
+      - name: The Doorman - PR body must link to an issue
         # Drafts and bot PRs (Dependabot/Renovate) skip the gate: drafts are
         # WIP by definition and bots do not author Closes footers.
         if: github.event.pull_request.draft == false && github.event.pull_request.user.type != 'Bot'
@@ -54,7 +54,7 @@ jobs:
         run: .github/scripts/pr-body-check.sh
 
   # ──────────────────────────────────────────────
-  # The Auditor — Gitleaks secret scanning
+  # The Auditor - Gitleaks secret scanning
   # ──────────────────────────────────────────────
   gitleaks:
     name: The Auditor — Secret Scanning
@@ -75,31 +75,31 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           GITLEAKS_LICENSE: ${{ secrets.GITLEAKS_LICENSE || '' }}
-      - name: The Auditor — post findings to PR
+      - name: The Auditor - post findings to PR
         if: failure() && github.event_name == 'pull_request'
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
           # YAML literal blocks strip the common indentation before the shell
-          # sees them, so `EOF` and the markdown body land at column 0 — the
+          # sees them, so `EOF` and the markdown body land at column 0 - the
           # heredoc is well-formed. The body is piped (stdin) so workflow
           # expressions and markdown are never interpolated into the gh args.
           cat <<'EOF' | .github/scripts/post-pr-comment.sh ${{ github.event.pull_request.number }}
-          ## The Auditor — Secret Scan :warning:
+          ## The Auditor - Secret Scan :warning:
 
           Potential secrets or configuration issues were detected. Review the [workflow run](${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}) for details.
 
           *-- The Auditor, Agenthood*
           EOF
-      - name: The Auditor — agent analysis
-        # disabled: no working LLM provider — was: if: github.event_name == 'pull_request'
+      - name: The Auditor - agent analysis
+        # disabled: no working LLM provider - was: if: github.event_name == 'pull_request'
         if: false
         # Sends changed-file names to an external LLM provider.
         # Data handling and opt-out: docs/governance/agent-analysis-data.md
         uses: ./.github/actions/agent-analysis
         with:
           agent-name: the-auditor
-          prompt-template: "audit these changed files for security concerns, secrets, and dependency risks. Be concise — use bullet points, keep under 40 lines. Report blocking findings and at most 2 action-needed warnings; classify minor style, nit, and accepted-and-documented residual items as notes, not warnings.\n%s"
+          prompt-template: "audit these changed files for security concerns, secrets, and dependency risks. Be concise - use bullet points, keep under 40 lines. Report blocking findings and at most 2 action-needed warnings; classify minor style, nit, and accepted-and-documented residual items as notes, not warnings.\n%s"
           pr-number: ${{ github.event.pull_request.number }}
           range: ${{ github.event.pull_request.base.sha }}...${{ github.event.pull_request.head.sha }}
           max-files: "15"
@@ -107,7 +107,7 @@ jobs:
           model: "opencode/qwen3.8-flash"
 
   # ──────────────────────────────────────────────
-  # The Scribe — auto-label PR by changed files
+  # The Scribe - auto-label PR by changed files
   # ──────────────────────────────────────────────
   labeler:
     name: The Scribe — PR Labeler
@@ -119,7 +119,7 @@ jobs:
           repo-token: ${{ secrets.GITHUB_TOKEN }}
 
   # ──────────────────────────────────────────────
-  # The Warden — file size enforcement
+  # The Warden - file size enforcement
   # ──────────────────────────────────────────────
   filesize:
     name: The Warden — File Size Enforcement
@@ -129,21 +129,21 @@ jobs:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
         with:
           fetch-depth: 0
-      - name: The Warden — enforce file size limits
+      - name: The Warden - enforce file size limits
         shell: bash
         env:
           BASE_SHA: ${{ github.event.pull_request.base.sha }}
           HEAD_SHA: ${{ github.event.pull_request.head.sha }}
         run: .github/scripts/filesize-check.sh
-      - name: The Warden — agent analysis
-        # disabled: no working LLM provider — delete this if: to re-enable
+      - name: The Warden - agent analysis
+        # disabled: no working LLM provider - delete this if: to re-enable
         if: false
         # Sends changed-file names to an external LLM provider.
         # Data handling and opt-out: docs/governance/agent-analysis-data.md
         uses: ./.github/actions/agent-analysis
         with:
           agent-name: the-warden
-          prompt-template: "analyze these changed files for code smells, complexity issues, and architectural decay. Be concise — use bullet points, keep under 40 lines. Report blocking violations and at most 2 action-needed warnings; classify minor style, nit, line-length, and documented-target observations as notes, not warnings.\n%s"
+          prompt-template: "analyze these changed files for code smells, complexity issues, and architectural decay. Be concise - use bullet points, keep under 40 lines. Report blocking violations and at most 2 action-needed warnings; classify minor style, nit, line-length, and documented-target observations as notes, not warnings.\n%s"
           pr-number: ${{ github.event.pull_request.number }}
           range: ${{ github.event.pull_request.base.sha }}...${{ github.event.pull_request.head.sha }}
           max-files: "25"
@@ -151,7 +151,7 @@ jobs:
           model: "opencode/qwen3.8-flash"
 
   # ──────────────────────────────────────────────
-  # The Librarian — documentation sync check
+  # The Librarian - documentation sync check
   # ──────────────────────────────────────────────
   librarian:
     name: The Librarian — Documentation Sync
@@ -161,20 +161,20 @@ jobs:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
         with:
           fetch-depth: 0
-      - name: The Librarian — verify docs reflect changed files
+      - name: The Librarian - verify docs reflect changed files
         shell: bash
         env:
           BASE_SHA: ${{ github.event.pull_request.base.sha }}
           HEAD_SHA: ${{ github.event.pull_request.head.sha }}
         run: .github/scripts/librarian-check.sh
-      - name: The Librarian — post doc sync report to PR
+      - name: The Librarian - post doc sync report to PR
         if: failure() && github.event_name == 'pull_request'
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
           # see the Auditor step above for why the heredoc/pipe is safe here
           cat <<'EOF' | .github/scripts/post-pr-comment.sh ${{ github.event.pull_request.number }}
-          ## The Librarian — Documentation Check :warning:
+          ## The Librarian - Documentation Check :warning:
 
           Documentation may be out of sync with code changes. Review the [workflow run](${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}) for details.
 
@@ -182,7 +182,7 @@ jobs:
           EOF
 
   # ──────────────────────────────────────────────
-  # The Sentinel — member file structure
+  # The Sentinel - member file structure
   # ──────────────────────────────────────────────
   sentinel:
     name: The Sentinel — Member File Structure
@@ -190,16 +190,16 @@ jobs:
     timeout-minutes: 20
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
-      - name: The Sentinel — run all member structure checks
+      - name: The Sentinel - run all member structure checks
         shell: bash
         run: .github/scripts/sentinel-check.sh
-      - name: The Sentinel — agent analysis
+      - name: The Sentinel - agent analysis
         # Sends changed-file names to an external LLM provider.
         # Data handling and opt-out: docs/governance/agent-analysis-data.md
         uses: ./.github/actions/agent-analysis
         with:
           agent-name: the-sentinel
-          prompt-template: "analyze these changed member files for structural drift and consistency issues. Be concise — use bullet points, keep under 40 lines.\n%s"
+          prompt-template: "analyze these changed member files for structural drift and consistency issues. Be concise - use bullet points, keep under 40 lines.\n%s"
           pr-number: ${{ github.event.pull_request.number }}
           range: ${{ github.event.pull_request.base.sha }}...${{ github.event.pull_request.head.sha }}
           max-files: "10"
@@ -207,10 +207,10 @@ jobs:
           model: "opencode/qwen3.8-flash"
 
   # ──────────────────────────────────────────────
-  # The Tester — test suite
+  # The Tester - test suite
   # ──────────────────────────────────────────────
   # ──────────────────────────────────────────────
-  # The Auditor — dependency audit
+  # The Auditor - dependency audit
   # ──────────────────────────────────────────────
   audit:
     name: The Auditor — Dependency Audit
@@ -220,12 +220,12 @@ jobs:
         with:
           fetch-depth: 0
       - uses: ./.github/actions/setup-env
-      - name: The Auditor — audit project dependencies
+      - name: The Auditor - audit project dependencies
         shell: bash
         run: .github/scripts/audit-check.sh
 
   # ──────────────────────────────────────────────
-  # The Tester — test suite
+  # The Tester - test suite
   # ──────────────────────────────────────────────
   tests:
     name: The Tester — Test Suite
@@ -235,7 +235,7 @@ jobs:
         with:
           fetch-depth: 0
       - uses: ./.github/actions/setup-env
-      - name: The Tester — run affected tests
+      - name: The Tester - run affected tests
         shell: bash
         env:
           BASE_SHA: ${{ github.event.pull_request.base.sha }}
@@ -243,7 +243,7 @@ jobs:
         run: .github/scripts/test-runner.sh
 
   # ──────────────────────────────────────────────
-  # The Tester — coverage threshold gate + Codecov (#668)
+  # The Tester - coverage threshold gate + Codecov (#668)
   # A full run so the global floor is measured against everything, not just
   # changed files. The vitest thresholds step is the actual gate; the Codecov
   # upload is reporting only and never blocks a merge.
@@ -254,10 +254,10 @@ jobs:
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
       - uses: ./.github/actions/setup-env
-      - name: The Tester — enforce coverage thresholds (#668)
+      - name: The Tester - enforce coverage thresholds (#668)
         shell: bash
         run: npx vitest run --coverage
-      - name: The Uploader — Codecov report (best-effort, non-blocking)
+      - name: The Uploader - Codecov report (best-effort, non-blocking)
         uses: codecov/codecov-action@303a32d7a59b442fa8d48b6a1cc6825c09c847a5 # v7.1.1
         continue-on-error: true
         with:
@@ -266,7 +266,7 @@ jobs:
           fail_ci_if_error: false
 
   # ──────────────────────────────────────────────
-  # The Tester — Windows cross-platform compatibility
+  # The Tester - Windows cross-platform compatibility
   # ──────────────────────────────────────────────
   tests-windows:
     name: The Tester — Windows Compatibility
@@ -274,18 +274,18 @@ jobs:
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
       - uses: ./.github/actions/setup-env
-      - name: The Tester — build the CLI on Windows
+      - name: The Tester - build the CLI on Windows
         shell: bash
         run: npm run build
-      - name: The Tester — run full suite on Windows
+      - name: The Tester - run full suite on Windows
         shell: bash
         run: npx vitest run
-      - name: The Tester — CLI smoke test (agenthood list)
+      - name: The Tester - CLI smoke test (agenthood list)
         shell: bash
         run: node dist/cli.js list
 
   # ──────────────────────────────────────────────
-  # The Warden — lint and typecheck gates
+  # The Warden - lint and typecheck gates
   # ──────────────────────────────────────────────
   lint-typecheck:
     name: The Warden — Lint & Typecheck
@@ -297,17 +297,19 @@ jobs:
       - uses: ./.github/actions/setup-env
       - name: The Warden — lint
         run: npm run lint
-      - name: The Warden — typecheck
+      - name: The Warden — prose style
+        run: npm run lint:prose
+      - name: The Warden - typecheck
         run: npm run typecheck
-      - name: The Warden — build
+      - name: The Warden - build
         run: npm run build
-      - name: The Librarian — API reference builds from source
+      - name: The Librarian - API reference builds from source
         run: npm run docs:api
-      - name: The Doorman — lockfile integrity gate
+      - name: The Doorman - lockfile integrity gate
         run: node dist/cli.js verify --lock-only
 
   # ──────────────────────────────────────────────
-  # The Envoy — package smoke test
+  # The Envoy - package smoke test
   # ──────────────────────────────────────────────
   packaging:
     name: The Envoy — Package Smoke Test
@@ -317,12 +319,12 @@ jobs:
         with:
           fetch-depth: 0
       - uses: ./.github/actions/setup-env
-      - name: The Envoy — pack, scratch install, and CLI check
+      - name: The Envoy - pack, scratch install, and CLI check
         shell: bash
         run: .github/scripts/package-smoke.sh
 
   # ──────────────────────────────────────────────
-  # The Tester — CLI end-to-end journey (#673)
+  # The Tester - CLI end-to-end journey (#673)
   # Builds the CLI, then drives the real dist/cli.js binary as a subprocess
   # through version → help → list → status → unknown-command. Complements the
   # tarball smoke test above (which covers `npm install`) by exercising the
@@ -334,7 +336,7 @@ jobs:
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
       - uses: ./.github/actions/setup-env
-      - name: The Tester — build the CLI
+      - name: The Tester - build the CLI
         run: npm run build
-      - name: The Tester — run the CLI journey
+      - name: The Tester - run the CLI journey
         run: npx vitest run tests/e2e

@@ -8,6 +8,7 @@ import { logCost } from "../core/CostLogger.ts"
 import { ToolRegistry, ToolNotFoundError } from "../tools/ToolRegistry.ts"
 import type { ITool } from "../tools/ITool.ts"
 import { ThinkingBudget } from "./ThinkingBudget.ts"
+import { deniedBySkillScope } from "./skillScope.ts"
 import { validateSchema, SchemaValidationError } from "../core/SchemaValidator.ts"
 import { redactEventText } from "../core/RunEventBus.ts"
 import { isShutdownRequested } from "../core/shutdown.ts"
@@ -170,16 +171,17 @@ export class ReActLoop {
         const partialResult = `Max steps (${this.maxSteps}) exceeded. Partial result:\n${lastContent}`
         throw new MaxStepsExceededError(partialResult, this.maxSteps)
       }
+      const started = performance.now();
       const response = await this.runStep(step, messages, context);
 
       if (!response.toolCalls || response.toolCalls.length === 0) {
-        this.recordStep(step, response, [], context);
+        this.recordStep(step, response, [], context, started, userInput);
         return response.content;
       }
 
       try {
         const tools = await this.runToolCalls(response.toolCalls, messages, recentCalls, step, context);
-        this.recordStep(step, response, tools, context);
+        this.recordStep(step, response, tools, context, started, userInput);
       } catch (err) {
         // a park must land in the checkpoint with its dangling ask_human call
         if (err instanceof AskHumanSignal) {
@@ -274,20 +276,6 @@ export class ReActLoop {
     }, context.project.localPath)
   }
 
-  /** Reason the active skill scope forbids this tool, or undefined when allowed. */
-  private deniedBySkillScope(toolName: string, context: ExecutionContext): string | undefined {
-    if (toolName === 'activate_skill') return undefined
-    let allowed: Set<string> | undefined
-    for (const skill of this.activatedSkills) {
-      const tools = context.skillAllowedTools?.(skill)
-      if (!tools) continue
-      allowed = allowed ? new Set([...allowed].filter((tool) => tools.includes(tool))) : new Set(tools)
-    }
-    if (!allowed || allowed.has(toolName)) return undefined
-    const names = [...allowed].join(', ') || '(none)'
-    return `Tool "${toolName}" is not declared by the active skill (${[...this.activatedSkills].join(', ')}). Allowed: ${names}`
-  }
-
   /** Skills activated since the last cost entry, then cleared. */
   private stepActivatedSkills(): string[] {
     if (this.pendingSkillActivations.size === 0) return []
@@ -317,7 +305,7 @@ export class ReActLoop {
       // A skill that declares allowed-tools narrows the tools the model may use
       // while it is active. Activation itself stays available, otherwise the
       // next skill could never be loaded.
-      const denied = this.deniedBySkillScope(toolCall.name, context)
+      const denied = deniedBySkillScope(toolCall.name, this.activatedSkills, context)
       if (denied) {
         context.events.emit({
           type: "tool.denied",
@@ -413,6 +401,8 @@ export class ReActLoop {
     response: LLMResponse,
     tools: TrajectoryToolCall[],
     context: ExecutionContext,
+    started: number,
+    input: string,
   ): void {
     const promptTokens = response.usage?.promptTokens ?? 0
     const completionTokens = response.usage?.completionTokens ?? 0
@@ -420,11 +410,11 @@ export class ReActLoop {
     this._steps.push({
       step,
       model,
-      inputSummary: '',
+      inputSummary: step === 0 ? redactEventText(context, input).slice(0, 500) : '',
       outputSummary: redactEventText(context, response.content).slice(0, 2000),
       tokens: { prompt: promptTokens, completion: completionTokens },
-      cost: estimateCost(model, promptTokens, completionTokens).estimatedCost,
-      durationMs: 0,
+      cost: estimateCost(model, promptTokens, completionTokens, response.provider ?? this._provider).estimatedCost,
+      durationMs: Math.round(performance.now() - started),
       status: 'success',
       skills: [...this.activatedSkills],
       tools,

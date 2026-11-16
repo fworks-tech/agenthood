@@ -69,7 +69,7 @@ paper's findings to Agenthood's existing surfaces:
    injected `SKILL.md` against `agenthood.lock` when the prompt is assembled
    and surface drift. Drift is **recorded durably** (decision + provenance
    entries) and warns by default (compatible with normal skill editing); a
-   strict opt-in blocks the run: after recording, so a blocked run still
+   strict opt-in blocks the run after recording, so a blocked run still
    leaves an audit trail. A **corrupt** lockfile (unreadable or invalid JSON)
    is treated as suspicious rather than silently skipped; it warns and records
    like drift, and blocks under strict mode, since tampering may also leave

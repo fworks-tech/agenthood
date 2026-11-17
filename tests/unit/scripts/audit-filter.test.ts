@@ -1,10 +1,18 @@
 import { describe, it, expect } from 'vitest'
 import { execFileSync, spawnSync } from 'node:child_process'
+import { mkdtempSync, writeFileSync } from 'node:fs'
+import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 import { fileURLToPath } from 'node:url'
 
 const dirname = fileURLToPath(new URL('.', import.meta.url))
 const filter = join(dirname, '..', '..', '..', '.github', 'scripts', 'audit-filter.mjs')
+
+// Run npm ls against an empty project: otherwise the semantic-release name
+// exemption depends on the host's node_modules and can hide the advisory a test
+// is meant to exercise.
+const isolated = mkdtempSync(join(tmpdir(), 'audit-filter-'))
+writeFileSync(join(isolated, 'package.json'), '{"name":"audit-filter-test","version":"1.0.0"}')
 
 function runFilter(
   json: unknown,
@@ -14,6 +22,7 @@ function runFilter(
 ): { code: number; output: string; stderr: string } {
   const res = spawnSync('node', [filter, JSON.stringify(json), String(min), String(exemptNpm)], {
     encoding: 'utf8',
+    cwd: isolated,
     env: { ...process.env, ...env },
   })
   return { code: res.status ?? 1, output: res.stdout, stderr: res.stderr }
@@ -96,49 +105,63 @@ describe('audit-filter.mjs', () => {
 
   describe('accepted advisories with no upstream fix', () => {
     const advisory = 'https://github.com/advisories/GHSA-fc5q-39xc-vjpf'
-    const leaf = (via: unknown[]) => ({
-      severity: 'high', nodes: ['node_modules/glob-lib'], via,
+    const leaf = (via: unknown[], nodes = ['node_modules/picomatch']) => ({
+      severity: 'high', nodes, via,
     })
     const dependent = {
-      severity: 'high', nodes: ['node_modules/build-tool'], via: ['glob-lib'],
+      severity: 'high', nodes: ['node_modules/vite'], via: ['picomatch'],
     }
+    // pin the clock: the allowlist entry expires, and the passing cases must not
+    // start failing on the expiry date
+    const active = { AUDIT_TODAY: '2026-11-17' }
 
-    it('clears a chain that rests only on an accepted advisory, cycle included', () => {
-      // build-tool <-> build-tool-coverage mirrors vitest <-> @vitest/coverage-v8
+    it('clears a chain that rests only on an allowlisted advisory, cycle included', () => {
       const res = runFilter({
         vulnerabilities: {
-          'glob-lib': leaf([{ url: advisory }]),
-          'build-tool': { severity: 'high', nodes: ['node_modules/build-tool'], via: ['build-tool-coverage', 'glob-lib'] },
-          'build-tool-coverage': { severity: 'high', nodes: ['node_modules/build-tool-coverage'], via: ['build-tool'] },
+          picomatch: leaf([{ url: advisory }]),
+          vite: { severity: 'high', nodes: ['node_modules/vite'], via: ['vitest', 'picomatch'] },
+          vitest: { severity: 'high', nodes: ['node_modules/vitest'], via: ['vite'] },
         },
-      }, 3, 1)
+      }, 3, 1, active)
       expect(res.code).toBe(0)
-      expect(res.stderr).toContain('accepted GHSA-fc5q-39xc-vjpf')
+      expect(res.stderr).toContain('::warning::')
+      expect(res.stderr).toContain('GHSA-fc5q-39xc-vjpf')
     })
 
-    it('still fails a chain with an advisory that is not accepted', () => {
+    it('fails when a node of the advisory is outside the allowlisted packages', () => {
       const res = runFilter({
         vulnerabilities: {
-          'glob-lib': leaf([{ url: advisory }, { url: 'https://github.com/advisories/GHSA-none-0000-0000' }]),
-          'build-tool': dependent,
+          picomatch: leaf([{ url: advisory }], ['node_modules/picomatch', 'node_modules/other']),
         },
-      }, 3, 1)
+      }, 3, 1, active)
       expect(res.code).toBe(2)
-      expect(res.output).toContain('build-tool [high]')
+      expect(res.output).toContain('picomatch [high]')
     })
 
-    it('stops accepting the advisory once its exception expires', () => {
+    it('still fails a chain with an advisory that is not allowlisted', () => {
+      const res = runFilter({
+        vulnerabilities: {
+          picomatch: leaf([{ url: advisory }, { url: 'https://github.com/advisories/GHSA-none-0000-0000' }]),
+          vite: dependent,
+        },
+      }, 3, 1, active)
+      expect(res.code).toBe(2)
+      expect(res.output).toContain('vite [high]')
+    })
+
+    it('stops accepting the advisory once its exception expires and names the date', () => {
       const res = runFilter(
-        { vulnerabilities: { 'glob-lib': leaf([{ url: advisory }]) } },
-        3, 1, { AUDIT_TODAY: '2027-01-01' },
+        { vulnerabilities: { picomatch: leaf([{ url: advisory }]) } },
+        3, 1, { AUDIT_TODAY: '2027-02-02' },
       )
       expect(res.code).toBe(2)
+      expect(res.output).toContain('expired on 2027-02-01')
     })
 
     it('never accepts an advisory in the production pass', () => {
       const res = runFilter(
-        { vulnerabilities: { 'glob-lib': leaf([{ url: advisory }]) } },
-        0, 0,
+        { vulnerabilities: { picomatch: leaf([{ url: advisory }]) } },
+        0, 0, active,
       )
       expect(res.code).toBe(2)
     })

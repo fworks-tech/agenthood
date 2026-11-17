@@ -20,8 +20,8 @@ must escalate to the Orchestrator, which routes to the appropriate member.
 
 ## Tool Registry
 
-> **Canonical source:** [`src/members/MemberRegistry.ts`](../src/members/MemberRegistry.ts) and
-> [`src/members/member-specs.ts`](../src/members/member-specs.ts) define every grant.
+> **Canonical source:** [`src/members/MemberRegistry.ts`](../../src/members/MemberRegistry.ts) and
+> [`src/members/member-specs.ts`](../../src/members/member-specs.ts) define every grant.
 > This table mirrors them. Members with the **standard** profile (9): Scribe, Architect,
 > Builder, Tester, Debugger, Herald, Librarian, Mailman, Inspector.
 > Members with the **restricted** profile (10): Reviewer, Auditor, Doorman, Oracle, Envoy,

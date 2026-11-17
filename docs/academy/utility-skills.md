@@ -16,7 +16,7 @@ The [Skills Reference](skills-reference.md) documents the Society members: the 2
 
 **When to use:** Explaining a technical topic to a learner, onboarding someone into unfamiliar code, writing educational documentation, answering "why does this work" with more than a one-liner.
 
-**File:** [`skills/concept-explainer/SKILL.md`](../skills/concept-explainer/SKILL.md)
+**File:** [`skills/concept-explainer/SKILL.md`](../../skills/concept-explainer/SKILL.md)
 **Relation:** Complements The Librarian (documentation): the Explainer teaches, the Librarian records.
 
 ### Debugging Tutor
@@ -27,7 +27,7 @@ The [Skills Reference](skills-reference.md) documents the Society members: the 2
 
 **When to use:** A learner is stuck on a bug and needs to build independent problem-solving skill, or a team repeatedly hits the same error categories.
 
-**File:** [`skills/debugging-tutor/SKILL.md`](../skills/debugging-tutor/SKILL.md)
+**File:** [`skills/debugging-tutor/SKILL.md`](../../skills/debugging-tutor/SKILL.md)
 **Relation:** Complements The Debugger (diagnosis) and The Bug Fix Teammate (remediation): the Tutor builds the skill, the others do the work.
 
 ### Onboarding Planner
@@ -38,7 +38,7 @@ The [Skills Reference](skills-reference.md) documents the Society members: the 2
 
 **When to use:** A new team member joins, a developer arrives with an unfamiliar stack, or onboarding documentation needs structure.
 
-**File:** [`skills/onboarding-plan/SKILL.md`](../skills/onboarding-plan/SKILL.md)
+**File:** [`skills/onboarding-plan/SKILL.md`](../../skills/onboarding-plan/SKILL.md)
 **Relation:** Complements The Librarian (docs) and The Concept Explainer (learning material).
 
 ---
@@ -53,7 +53,7 @@ The [Skills Reference](skills-reference.md) documents the Society members: the 2
 
 **When to use:** Before starting a non-trivial feature, when a task needs phases and dependencies, or when a plan must be written down for a team to follow.
 
-**File:** [`skills/implementation-planner/SKILL.md`](../skills/implementation-planner/SKILL.md)
+**File:** [`skills/architect/SKILL.md`](../../skills/architect/SKILL.md)
 **Relation:** Sits between The Strategist (goal refinement) and The Architect (specs/ADRs): more tactical than the Strategist, less formal than the Architect.
 
 ### Bug Fix Teammate
@@ -64,7 +64,7 @@ The [Skills Reference](skills-reference.md) documents the Society members: the 2
 
 **When to use:** A bug needs a complete fix with tests rather than a diagnosis, or the codebase needs bug triage.
 
-**File:** [`skills/bug-fix-teammate/SKILL.md`](../skills/bug-fix-teammate/SKILL.md)
+**File:** [`skills/bug-fix-teammate/SKILL.md`](../../skills/bug-fix-teammate/SKILL.md)
 **Relation:** Complements The Debugger (diagnoses) and The Builder (implements): action-oriented bug resolution with teaching.
 
 ### Cleanup Specialist
@@ -75,7 +75,7 @@ The [Skills Reference](skills-reference.md) documents the Society members: the 2
 
 **When to use:** A file, directory, or codebase has accumulated dead code or duplication and needs maintainability work without behavior change.
 
-**File:** [`skills/cleanup-specialist/SKILL.md`](../skills/cleanup-specialist/SKILL.md)
+**File:** [`skills/cleanup-specialist/SKILL.md`](../../skills/cleanup-specialist/SKILL.md)
 **Relation:** Complements The Warden (detects smells): the Warden reports, the Specialist remediates.
 
 ---
@@ -90,7 +90,7 @@ The [Skills Reference](skills-reference.md) documents the Society members: the 2
 
 **When to use:** Filing bug reports or feature requests, triaging an issue queue, or teaching contributors to write actionable issues.
 
-**File:** [`skills/issue-manager/SKILL.md`](../skills/issue-manager/SKILL.md)
+**File:** [`skills/issue-manager/SKILL.md`](../../skills/issue-manager/SKILL.md)
 **Relation:** Complements The Doorman (standards enforcement) and The Scribe (communication): no lane overlap.
 
 ### Pull Request Assistant
@@ -101,7 +101,7 @@ The [Skills Reference](skills-reference.md) documents the Society members: the 2
 
 **When to use:** Opening a PR that needs a complete description, or reviewing one before merge.
 
-**File:** [`skills/pull-request-assistant/SKILL.md`](../skills/pull-request-assistant/SKILL.md)
+**File:** [`skills/pull-request-assistant/SKILL.md`](../../skills/pull-request-assistant/SKILL.md)
 **Relation:** Overlaps The Scribe (PR descriptions) and The Reviewer (multi-axis review); this is the combined, template-driven variant; the members remain canonical for runtime use.
 
 ---
@@ -116,7 +116,7 @@ The [Skills Reference](skills-reference.md) documents the Society members: the 2
 
 **When to use:** Generating or reviewing HTML, auditing an interface against accessibility standards, or designing forms and dynamic content.
 
-**File:** [`skills/accessibility-auditor/SKILL.md`](../skills/accessibility-auditor/SKILL.md)
+**File:** [`skills/accessibility-auditor/SKILL.md`](../../skills/accessibility-auditor/SKILL.md)
 **Relation:** Complements The Auditor (security): a specialized, WCAG-focused review lane.
 
 ---
@@ -131,7 +131,7 @@ The [Skills Reference](skills-reference.md) documents the Society members: the 2
 
 **When to use:** "Remember this", "save what we learned", "update memory", or "capture learnings": any session that produced knowledge worth keeping.
 
-**File:** [`skills/remember/SKILL.md`](../skills/remember/SKILL.md)
+**File:** [`skills/remember/SKILL.md`](../../skills/remember/SKILL.md)
 **Relation:** Complements The Librarian (knowledge management): the Rememberer captures from sessions, the Librarian curates the corpus.
 
 ---

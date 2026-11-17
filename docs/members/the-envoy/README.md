@@ -89,4 +89,4 @@ Groq and Ollama providers are LLM backends for the TypeScript runtime (`agenthoo
 
 ## Skill File
 
-→ [`SKILL.md`](../../skills/envoy/SKILL.md): load this into your agent runtime
+→ [`SKILL.md`](../../../skills/envoy/SKILL.md): load this into your agent runtime

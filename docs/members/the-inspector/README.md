@@ -75,4 +75,4 @@ POST /visual-reasoning
 
 ## Skill File
 
-→ [`SKILL.md`](../../skills/inspector/SKILL.md): load this into your agent runtime
+→ [`SKILL.md`](../../../skills/inspector/SKILL.md): load this into your agent runtime

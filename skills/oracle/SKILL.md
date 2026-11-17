@@ -152,7 +152,7 @@ Before confirming the task is done:
 
 ## Skill File
 
-→ [\`SKILL.md\`](../../skills/the-<name>/SKILL.md) - load this into your agent runtime
+→ \`SKILL.md\` at \`skills/<role>/SKILL.md\` - load this into your agent runtime
 ```
 
 **Step 5: Registration checklist**

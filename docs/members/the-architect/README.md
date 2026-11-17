@@ -76,4 +76,4 @@ When requirements are vague, runs a structured interview:
 
 ## Skill File
 
-→ [`SKILL.md`](../../skills/architect/SKILL.md): load this into your agent runtime
+→ [`SKILL.md`](../../../skills/architect/SKILL.md): load this into your agent runtime

@@ -54,7 +54,7 @@ Each member is a subagent with:
 ### Member → Tool Scope
 
 Full tool-scope definitions live in [`built-in-tools.md`](built-in-tools.md) and are
-implemented in [`src/members/MemberRegistry.ts`](../src/members/MemberRegistry.ts).
+implemented in [`src/members/MemberRegistry.ts`](../../src/members/MemberRegistry.ts).
 
 | Member | Permission Profile | Key Tools |
 |--------|-------------------|-----------|

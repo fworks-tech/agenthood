@@ -1,31 +1,92 @@
 # Agenthood
 
-[![npm version](https://img.shields.io/npm/v/agenthood?style=flat-square&logo=npm)](https://www.npmjs.com/package/agenthood) [![npm downloads](https://img.shields.io/npm/dm/agenthood?style=flat-square&logo=npm)](https://www.npmjs.com/package/agenthood) [![License: MIT](https://img.shields.io/badge/License-MIT-blue?style=flat-square)](LICENSE) [![Node.js](https://img.shields.io/badge/node-%3E%3D22.14.0-brightgreen?style=flat-square&logo=node.js)](https://nodejs.org) [![skills.sh](https://skills.sh/b/fworks-tech/agenthood)](https://skills.sh/fworks-tech/agenthood) [![SkillsMP](https://img.shields.io/badge/registry-SkillsMP-purple?style=flat-square)](https://skillsmp.com/creators/fworks-tech) [![Security: self-audited](https://img.shields.io/badge/security-self--audited-blue?style=flat-square)](docs/security-audit-report.md)
+[![npm version](https://img.shields.io/npm/v/agenthood?style=flat-square&logo=npm)](https://www.npmjs.com/package/agenthood) [![npm downloads](https://img.shields.io/npm/dm/agenthood?style=flat-square&logo=npm)](https://www.npmjs.com/package/agenthood) [![PR Standards](https://img.shields.io/github/actions/workflow/status/fworks-tech/agenthood/pr.yml?style=flat-square&label=PR%20standards)](https://github.com/fworks-tech/agenthood/actions/workflows/pr.yml) [![License: MIT](https://img.shields.io/badge/License-MIT-blue?style=flat-square)](LICENSE) [![Node.js](https://img.shields.io/badge/node-%3E%3D22.14.0-brightgreen?style=flat-square&logo=node.js)](https://nodejs.org) [![skills.sh](https://skills.sh/b/fworks-tech/agenthood)](https://skills.sh/fworks-tech/agenthood) [![SkillsMP](https://img.shields.io/badge/registry-SkillsMP-purple?style=flat-square)](https://skillsmp.com/creators/fworks-tech) [![Security: self-audited](https://img.shields.io/badge/security-self--audited-blue?style=flat-square)](docs/security-audit-report.md)
 
-**Agenthood 4.0 is out.** Members and workflows are data now. Register your own agents at runtime,
-declare a multi-step chain in `chains.yaml`, and every step keeps the traces, decisions and
-provenance records the built-in Society already writes.
+**A full AI engineering team that earns every merge.**
 
-> A full AI engineering team that earns every merge.
+Twenty members: architect, reviewer, security auditor, DevOps engineer,
+strategist, operator, and the rest of the roles a software project actually
+needs. Each one is a single Markdown skill file that any agent runtime can load.
+A TypeScript runtime runs them autonomously across the lifecycle, from planning
+to release. Nothing here is tied to a model provider, and nothing needs a
+sign-up.
 
-Twenty specialized agents (architect, reviewer, security expert, DevOps engineer, strategist, operator, and more), each one a portable Markdown skill file any runtime can load into any project. A TypeScript runtime runs them autonomously across the software lifecycle. Nothing here is tied to a provider: the files work wherever skills are supported.
+They care about the parts of engineering that are easy to skip. A commit message
+that says `fix stuff` does not merge. A pull request without a linked issue gets
+sent back. Every run writes a decision record and a provenance entry, so the work
+can be audited afterwards instead of taken on faith.
 
-They care about the parts of engineering that are easy to skip. A commit message that says `fix stuff` will not merge. A pull request without a linked issue gets sent back. Every run leaves a decision and provenance record, so the work can be audited afterwards instead of taken on faith.
+[Quick start](#quick-start) · [What's new in 4.0](#whats-new-in-40) · [The team](#the-team) · [Commands](#command-reference) · [Upgrade from 3.x](MIGRATION.md)
 
-[What's new](#whats-new-in-40) · [Get started](#getting-started) · [Upgrade from 3.x](MIGRATION.md) · [Release notes](docs/release-notes.md)
+---
+
+## Two ways to run it
+
+| Mode | What happens | Best for |
+|------|--------------|----------|
+| **Skill mode** | Members load as Markdown skill files into Claude Code, Copilot, Gemini CLI, Cursor, OpenCode, or any runtime that reads skills | Working inside an assistant you already use |
+| **Runtime mode** | `agenthood run` executes a member as an LLM agent with tools, checkpoints, and an audit trail | CI automation, batch work, and multi-step chains |
+
+Both modes read the same member definitions, so a rule you rely on in one mode
+holds in the other.
+
+---
+
+## Quick start
+
+Requirements: Node.js 22.14 or newer, `git`, and the `gh` CLI if you want PR
+sync. No API key is needed to install and load the members.
+
+```bash
+npm install --save-dev agenthood
+npx agenthood init       # interactive setup, about 2 minutes
+npx agenthood check      # confirm the Society is operational
+```
+
+`init` installs the member skills into the skill directory of the runtime you
+pick, activates the git hooks, and writes the PR template and commit template.
+
+To run members as autonomous agents instead, point one at a task:
+
+```bash
+npx agenthood run scribe "write a commit message for the current diff"
+npx agenthood run reviewer "review the changes in the last commit"
+npx agenthood run architect "plan the implementation for issue #42"
+```
+
+The runtime defaults to OpenCode and works with a free Groq key. See
+[Groq zero-cost setup](docs/guides/groq-zero-cost-setup.md) or
+`npx agenthood doctor` when a provider is not answering.
+
+Not using npm? `npx skills add fworks-tech/agenthood` installs the same skills
+through [skills.sh](https://skills.sh/fworks-tech/agenthood).
+
+### Your first commit
+
+1. **Write code.** Make the change.
+2. **Stage it.** `git add -p`
+3. **Commit.** The Doorman validates the message against Conventional Commits. On a failure you get the reason and a suggested subject.
+4. **Push.** Pre-push hooks run the tests before the branch leaves your machine.
+5. **Open the PR.** The body arrives pre-filled with `## What changed`, `## Why`, and `## How to test`.
+6. **Review.** The Reviewer checks correctness, security, performance, maintainability, and coverage.
+
+Seven CI workflows enforce the same standards on the server, including a review
+comment from the Reviewer on every pushed diff. The full matrix is in
+[Getting Started](docs/academy/getting-started.md#ci-pipeline).
 
 ---
 
 ## What's new in 4.0
 
 - **Compose.** Custom members and `chains.yaml` workflows ([ADR-033](docs/adr/ADR-033-chain-workflows.md)). Every step runs through `MemberRunner`, so traces and audit records stay uniform.
-- **Skill contracts.** A skill's `allowed-tools` narrows what the model may call ([ADR-032](docs/adr/ADR-032-skill-tool-enforcement.md)). Skills also declare the model, tools and dependencies they need and only activate where those exist ([ADR-037](docs/adr/ADR-037-skill-usability-gating-and-variants.md)).
+- **Skill contracts.** A skill's `allowed-tools` narrows what the model may call ([ADR-032](docs/adr/ADR-032-skill-tool-enforcement.md)). Skills also declare the model, tools, and dependencies they need and only activate where those exist ([ADR-037](docs/adr/ADR-037-skill-usability-gating-and-variants.md)).
 - **Scripts in a sandbox.** Bundled scripts run on pinned runtimes, inside Docker or not at all, with interface lint and an audit log ([ADR-036](docs/adr/ADR-036-skill-script-execution-and-sandboxing.md)).
 - **Bounded discovery.** The catalog is cached, activations are deduplicated, and compaction cannot drop an active skill ([ADR-038](docs/adr/ADR-038-skill-discovery-and-execution-caching.md)).
 - **Cost and health.** `status` reports the catalog budget, `health` checks stale references, `trace --activations` is the audit trail, and `optimize --cost` ranks spend against use.
-- **Multimodal.** Vision, image generation, speech and a video stub behind `IMultimodalProvider`.
+- **Multimodal.** Vision, image generation, speech, and a video stub behind `IMultimodalProvider`.
 
-The breaking changes are in [MIGRATION.md](MIGRATION.md); the full history is in the [release notes](docs/release-notes.md).
+Breaking changes are in [MIGRATION.md](MIGRATION.md). The full history is in the
+[release notes](docs/release-notes.md).
 
 ---
 
@@ -37,194 +98,201 @@ The breaking changes are in [MIGRATION.md](MIGRATION.md); the full history is in
 > *I ship with confidence.*
 > *I never push to main.*
 
----
-
-## How it works
-
-Each agent is a single `.md` file that describes a role, its responsibilities, standards, and how it communicates. Load one or all of them into Claude Code, Copilot, Gemini CLI, or any runtime that supports skill files. Hand them a task, or run them autonomously via the TypeScript CLI: end to end, with human checkpoints where it matters.
-
-1. **Install the Society**: `npm install --save-dev agenthood && npx agenthood init` (or `npx skills add fworks-tech/agenthood` via [skills.sh](https://skills.sh/fworks-tech/agenthood))
-2. **Load into your runtime**: point Claude Code, Copilot, or your agent framework at the skills directory
-3. **Invoke any agent**: ask the Reviewer to check your PR, ask the Auditor to scan your auth flow. Each one stays in its lane and applies its own checklist.
-4. **Run them autonomously**: `agenthood run scribe "write a commit message"` executes a member as a real LLM agent; chain them for full-lifecycle work
-
-Every member run records one decision and one provenance entry in `.agenthood/decisions/` and `.agenthood/provenance/`: a tamper-evident hash chain you can audit. See [ADR-015](docs/adr/ADR-015-decision-intelligence-and-provenance.md).
-
-Beyond the 20 members, `skills/` ships **41 utility skills**: specialist capability files (docker, kubernetes, jira, postgres, redis, and more) that any agent runtime activates on task match. See the [Academy utility skills guide](docs/academy/utility-skills.md).
+Each line maps to something the tooling enforces: commitlint on the message,
+branch naming against the issue, required checks on the pull request, a green
+pipeline before release, and branch protection on `main`. The full reading is in
+[oath.md](oath.md).
 
 ---
 
-## Meet the team
+## The team
 
-The roles a real software team needs, each with its own checklist.
+Twenty members, each with its own checklist and its own lane.
 
-| | Agent | Role |
-|---|-------|------|
-| ✍️ | [The Scribe](skills/scribe/SKILL.md) | Commits, PRs, changelogs |
-| 🏗️ | [The Architect](skills/architect/SKILL.md) | System design, ADRs, tech decisions |
-| 🛠️ | [The Builder](skills/builder/SKILL.md) | Coding, implementation, refactoring, validation |
-| 🔍 | [The Reviewer](skills/reviewer/SKILL.md) | Code review, standards enforcement |
+| | Member | Role |
+|---|--------|------|
+| 🎯 | [The Strategist](skills/strategist/SKILL.md) | Goal refinement, requirement discovery |
+| 🏗️ | [The Architect](skills/architect/SKILL.md) | System design, ADRs, technical decisions |
+| 🔮 | [The Oracle](skills/oracle/SKILL.md) | Institutional knowledge, authoring templates |
+| 🛠️ | [The Builder](skills/builder/SKILL.md) | Implementation, refactoring, local validation |
 | 🧪 | [The Tester](skills/tester/SKILL.md) | TDD, coverage, edge cases |
 | 🐛 | [The Debugger](skills/debugger/SKILL.md) | Error triage, root cause analysis |
-| 🔒 | [The Auditor](skills/auditor/SKILL.md) | Security, vulnerability scanning, dependency audit |
-| 📦 | [The Herald](skills/herald/SKILL.md) | Releases, versioning, changelogs |
-| 📝 | [The Librarian](skills/librarian/SKILL.md) | Documentation, API references |
-| 🚪 | [The Doorman](skills/doorman/SKILL.md) | Validation, branch protection, health checks |
-| 🔮 | [The Oracle](skills/oracle/SKILL.md) | Institutional knowledge, authoring templates |
-| 🌐 | [The Envoy](skills/envoy/SKILL.md) | Cross-provider translation, convention validation |
-| 👁️ | [The Sentinel](skills/sentinel/SKILL.md) | Integrity, cross-member contradiction detection |
 | ⚖️ | [The Warden](skills/warden/SKILL.md) | Code health, complexity enforcement |
-| 🧭 | [The Steward](skills/steward/SKILL.md) | Context economy, provider cache strategies |
-| 🚦 | [The Mediator](skills/mediator/SKILL.md) | First-in-line intent routing, handoff sequencing |
-| 🎯 | [The Strategist](skills/strategist/SKILL.md) | Goal refinement, requirement discovery |
+| 🔍 | [The Reviewer](skills/reviewer/SKILL.md) | Code review, standards enforcement |
+| 🔒 | [The Auditor](skills/auditor/SKILL.md) | Security review, dependency audit |
+| 👁️ | [The Sentinel](skills/sentinel/SKILL.md) | Integrity, cross-member contradiction detection |
+| 🚪 | [The Doorman](skills/doorman/SKILL.md) | Validation, branch protection, health checks |
+| ✍️ | [The Scribe](skills/scribe/SKILL.md) | Commit messages, PR descriptions, changelogs |
+| 📦 | [The Herald](skills/herald/SKILL.md) | Releases, versioning, release notes |
+| 📝 | [The Librarian](skills/librarian/SKILL.md) | Documentation, API references |
 | 🩺 | [The Operator](skills/operator/SKILL.md) | Runtime health, deployments, rollback |
-| 👁️ | [The Inspector](skills/inspector/SKILL.md) | Visual-reasoning benchmarking, pixel analysis |
+| 🧭 | [The Steward](skills/steward/SKILL.md) | Context economy, provider cache strategy |
+| 🚦 | [The Mediator](skills/mediator/SKILL.md) | Intent routing, handoff sequencing |
+| 🌐 | [The Envoy](skills/envoy/SKILL.md) | Cross-provider translation, convention validation |
 | 📬 | [The Mailman](skills/mailman/SKILL.md) | Message delivery, scheduling, cross-posting |
+| 👁️ | [The Inspector](skills/inspector/SKILL.md) | Visual-reasoning benchmarking, pixel analysis |
+
+Beyond the members, `skills/` ships 41 utility skills: specialist capability
+files for docker, kubernetes, postgres, redis, jira, sentry, and more. Any agent
+runtime activates them when the task matches. See the
+[utility skills guide](docs/academy/utility-skills.md).
 
 ### Community members
 
-Third-party members live in `skills/contrib/` and are listed here after review. No community member
-has been published yet: the first row is yours.
+Third-party members live in `skills/contrib/` and are listed here after review.
+No community member has been published yet, so the first row is yours.
 
 | Member | Author | Specialty | Install |
 |--------|--------|-----------|---------|
 | _The Translator_ | _@example_ | _Tech-to-plain-language_ | `npx agenthood install @example/the-translator` |
 
-The _row above is the format_, not a published member. To add one, open a PR that adds your
-`skills/contrib/the-<name>/SKILL.md` and your row. The walkthrough is
-[Creating a Member](docs/guides/creating-a-member.md); the contract is
-[Third-Party Members](docs/members/contrib-members.md). CI validates the structure of every skill in
-`skills/contrib/` and that each one is listed here.
+The row above shows the format, not a published member. To add one, open a PR
+with your `skills/contrib/the-<name>/SKILL.md` and your row. The walkthrough is
+[Creating a Member](docs/guides/creating-a-member.md) and the contract is
+[Third-Party Members](docs/members/contrib-members.md). CI validates every skill
+in `skills/contrib/` and checks that each one appears in this table.
 
 ---
 
-## Getting started
+## Chains
 
-### Option A: Drop into any AI runtime
+A chain is a YAML declaration, not a script. Members run in order, guards decide
+when to stop, and every step keeps the same traces and provenance records as a
+single run.
 
-```bash
-npm install --save-dev agenthood
-npx agenthood init       # interactive setup (~2 minutes)
-npx agenthood check      # verify everything is in place
+```yaml
+# chains.yaml
+chains:
+  - name: build
+    sequence:
+      - member: tester
+      - member: builder
+      - member: reviewer
+      - member: doorman
+    guards: { stop_on_blocking: true, doorman_before_merge: true, scribe_before_commit: true }
+    max_rounds: 3
 ```
 
-Members are loaded as context by your existing AI assistant. Works with Claude Code, Copilot, Gemini CLI, Cursor, OpenCode, or any skill-file runtime.
-
-### Option B: Run agents autonomously
-
-Execute members as real LLM agents that reason, act, and remember across sessions.
-
 ```bash
-# From the repo clone (when installed via npm, the runtime is pre-built)
-npm run build                              # build the runtime (once)
-npx agenthood list                          # see available agents
-npx agenthood run scribe "write a commit message for the current diff"
-npx agenthood run reviewer "review the changes in the last commit"
-npx agenthood run architect "plan the implementation for issue #42"
-
-# Force a skill into context regardless of the model's judgment
-npx agenthood run builder "/scribe write the commit message for this diff"
-npx agenthood verify                    # validate member SKILL.md integrity (add --conflicts to scan for overlapping skill descriptions)
-npx agenthood status --watch            # live project health monitoring
-npx agenthood trace                     # list recent invocation traces
-npx agenthood log                       # list recent structured log entries
-npx agenthood health                    # runtime health checks (exit 0/1/2)
-npx agenthood doctor                    # all diagnostics in one pass: node, version, config, API keys, providers, skill files, lockfile integrity, git hooks (exit 0/1)
-npx agenthood eval reviewer --suite evals/benchmarks/review-pr.json  # scored eval with baseline gating
-npx agenthood rollback scribe       # restore SKILL.md from lockfile
-npx agenthood workflow review-pr        # execute the review-pr workflow
+npx agenthood workflow list                      # declared chains and built-in workflows
+npx agenthood workflow run build "implement issue #42"
+npx agenthood workflow review-pr                 # built-in workflow
 ```
 
-#### Structured logging
-
-Log entries are persisted to the same NDJSON store as traces (`.agenthood/traces/traces.ndjson`) and share its retention policy:
-
-```bash
-npx agenthood log                      # recent entries (default limit 20)
-npx agenthood log --level warn         # filter by debug|info|warn|error
-npx agenthood log --member scribe --limit 50
-npx agenthood log --since 1h --json    # machine-readable JSON output
-```
-
-Programmatically, the runtime's `Logger` (in `src/core/Logger.ts`) writes the same entries: `log(level, message, member?)` plus `debug`/`info`/`warn`/`error` helpers. Log `message` and `metadata` payloads pass through the same redaction rules as traces (`observability.redaction`) before they are persisted or published. Existing `console.*` calls keep working: `log()` is the recommended replacement, not a breaking migration. Logs also publish `log.created` events on the `RunEventBus` when the logger is wired to one.
-
-Set one of these in a `.env` file in your project root (loaded automatically by the runtime), and add `.env` to your `.gitignore` so keys never get committed. The default provider follows the `providers` list in `.agenthood/config.json` (opencode primary, Groq among the fallbacks): set the keys for the providers you want available:
-
-| Variable | Provider | Free tier |
-|----------|----------|-----------|
-| `OPENCODE_API_KEY` | OpenCode (default) / OpenCodeGo | [opencode.ai](https://opencode.ai) |
-| `GROQ_API_KEY` | Groq (fallback) | [console.groq.com](https://console.groq.com) |
-| `OPENROUTER_API_KEY` | OpenRouter | [openrouter.ai](https://openrouter.ai/keys) |
-| `ANTHROPIC_API_KEY` | Anthropic | - |
-| `OPENAI_API_KEY` | OpenAI | - |
-
-Or use Ollama for fully offline execution (no key required).
-
-For a full walkthrough (install, commands, CI pipeline, and next steps) see the [Academy Getting Started guide](docs/academy/getting-started.md).
+Nine chains ship with the project, among them `build`, `review`, `security`,
+`planning`, and `bug`. Design notes are in [chain-workflows.md](docs/architecture/chain-workflows.md)
+and [ADR-033](docs/adr/ADR-033-chain-workflows.md).
 
 ---
 
-## Compose
+## Command reference
 
-4.0 makes members and workflows data.
+### Setup
 
-**Custom members.** Hosts register their own agents instead of mapping them onto
-built-ins:
+| Command | What it does |
+|---------|--------------|
+| `agenthood init` | Install hooks, templates, and member skills. `--ci` runs it unattended |
+| `agenthood check` | Run the Doorman health check |
+| `agenthood doctor` | Diagnose node, version, config, API keys, providers, skills, lockfile, and hooks in one pass |
+| `agenthood eject` | Remove every Society file from the project |
 
-```ts
-const app = await ApplicationContext.create(cwd, config, {
-  customMembers: [{ name: 'tenant-auditor', description: '…', systemPrompt: '…',
-    permissionProfile: 'restricted', tools: ['file.read'], model: 'glm-5.3-flash' }],
-})
-```
+### Members
 
-**Chains.** Declare a workflow in `chains.yaml` and run it: every step goes
-through `MemberRunner`, so traces, decisions and provenance are unchanged:
+| Command | What it does |
+|---------|--------------|
+| `agenthood list` | List members with status, permission profile, and provider |
+| `agenthood run <member> "<task>"` | Run a member as an LLM agent. `--detect` picks the members for the task |
+| `agenthood activate <member>` | Enable a member's skill file in your runtime |
+| `agenthood deactivate <member>` | Disable a member's skill file |
+| `agenthood verify` | Validate skill integrity, spec conformance, and the lockfile. `--strict` adds lane overlap and injection checks |
+| `agenthood diff [member]` | Compare a skill against the version locked in `agenthood.lock` |
+| `agenthood rollback [member]` | Restore a skill from the lockfile |
+
+### Observability
+
+| Command | What it does |
+|---------|--------------|
+| `agenthood status` | Project health and member metrics. `--watch` polls, `--drift` compares against the lockfile |
+| `agenthood stats` | Per-skill usage: activations, trigger rate, error rate |
+| `agenthood trace` | Recent invocation traces. `--activations` shows which skill loaded when |
+| `agenthood log` | Structured log entries, filterable by level, member, and time |
+| `agenthood checkpoints` | List past run checkpoints |
+| `agenthood cost` | Cumulative spend by provider, member, and day |
+| `agenthood health` | Runtime health checks. Exit codes 0 healthy, 1 degraded, 2 unhealthy |
+| `agenthood metrics` | Export metrics to Prometheus or StatsD |
+
+### Skills and workflows
+
+| Command | What it does |
+|---------|--------------|
+| `agenthood skills` | List discovered skills in catalog order and what was filtered out |
+| `agenthood search` | Search the skill registry |
+| `agenthood install <url>` | Install a skill from a URL, a git repository, or a registry reference |
+| `agenthood create <name>` | Scaffold a skill directory with a `SKILL.md` template |
+| `agenthood update` / `upgrade` | Compare or upgrade installed skill copies |
+| `agenthood workflow list` | Declared chains and built-in workflows |
+| `agenthood workflow run <chain> "<task>"` | Run a chain |
+| `agenthood ritual run <name>` | Run a declared ritual, which binds a schedule to a member |
+| `agenthood goal` | Track a multi-step goal: subgoals, status, next step |
+| `agenthood eval <member> --suite <path>` | Scored eval run with baseline gating |
+| `agenthood optimize <member>` | Rewrite a member description against trigger accuracy |
+| `agenthood mcp` | Expose the skills as MCP tools |
+| `agenthood pr-sync --pr <N>` | Sync the PR body with commits landed since the last sync |
+| `agenthood oath` | Print the oath |
+
+Every command takes `--help`, and `npx agenthood help` prints the full list.
+
+---
+
+## How a run is recorded
+
+Each member run leaves three artifacts under `.agenthood/`:
+
+| Path | Content |
+|------|---------|
+| `decisions/` | One decision record per run: what was chosen, what was rejected, and why |
+| `provenance/` | A SHA-256 hash chain over those records, so a later edit is visible |
+| `traces/traces.ndjson` | Every invocation trace and log entry, under one retention policy |
 
 ```bash
-agenthood workflow list
-agenthood workflow run build "implement issue #42"
+npx agenthood trace --member reviewer
+npx agenthood status --member reviewer
 ```
 
-**Audit.** Trajectories now store one step per turn; `trace --skill` and
-`trace --tool` answer "who used this, and what did it cost".
-
-See [examples/compose](examples/compose) and [MIGRATION.md](MIGRATION.md).
-
-## What's shipped
-
-### Runtime (TypeScript CLI)
-See the [CHANGELOG.md](CHANGELOG.md) for the full version history.
-
-### Playground (agenthood-site)
-[**Agenthood Studio**](https://agenthood.flabs.tech/studio/playground): a browser-based chat interface for all 20 Society members. Features configurable provider backend (7 LLM providers: Anthropic, OpenAI, Groq, OpenRouter, Ollama, OpenCode, OpenCodeGo), SSE streaming, turnstile CAPTCHA, session-scoped config persistence, Upstash Redis rate limiting, and structured logging with field-level redaction. [Source](https://github.com/fworks-tech/agenthood-site)
-
-**Multi-agent Workspaces**: assemble a team of members, give one instruction, and watch them collaborate: the Mediator plans the handoff sequence, members run in order, and a synthesizer streams one final answer. Includes a human checkpoint: pause, review, continue or stop. [Try it](https://agenthood.flabs.tech/studio/workspaces)
+The reasoning behind the schema is in
+[decision-intelligence.md](docs/architecture/decision-intelligence.md) and
+[ADR-015](docs/adr/ADR-015-decision-intelligence-and-provenance.md). This is the
+part a reviewer can check months later: which agent decided what, on which
+inputs, in which order.
 
 ---
 
 ## Compatibility
 
-Agenthood is agent-agnostic. The skill files work with:
+The skill files load into:
 
 - [Claude Code](https://claude.ai/code): via `.claude/skills/`
 - [GitHub Copilot](https://github.com/features/copilot): via `.github/copilot-instructions.md`
 - [Gemini CLI](https://github.com/google-gemini/gemini-cli): via skill files
 - [Cursor](https://cursor.com): via skill files
-- [OpenCode](https://opencode.ai): via the plugin below, or any skill-file runtime
+- [OpenCode](https://opencode.ai): via the plugin below, or as skill files
+- Any runtime that reads skill files or `AGENTS.md`
 
-The TypeScript runtime (`agenthood run`) supports OpenCode (default) and OpenCodeGo, per `.agenthood/config.json`, plus Groq (free tier at [console.groq.com](https://console.groq.com)), OpenRouter, Anthropic, OpenAI, and Ollama for fully offline execution: 7 providers in total.
+The runtime ships seven providers: OpenCode (default), OpenCodeGo, Groq
+([free tier](https://console.groq.com)), OpenRouter, Anthropic, OpenAI, and
+Ollama for fully offline execution. Configure them in `.agenthood/config.json`,
+or override per run with `--provider`.
 
 ### opencode plugin
 
-Install once, use everywhere: no per-project config needed:
+Install once, then the plugin loads the members in every project:
 
 ```bash
-npm i -g agenthood   # add @<version> to pin, e.g. agenthood@4.0.0
+npm i -g agenthood   # add @<version> to pin, for example agenthood@4.0.0
 ```
 
 ```jsonc
-// ~/.config/opencode/opencode.jsonc  (global scope)
+// ~/.config/opencode/opencode.jsonc  (global)
 {
   "$schema": "https://opencode.ai/config.json",
   "plugin": ["agenthood"]
@@ -232,20 +300,27 @@ npm i -g agenthood   # add @<version> to pin, e.g. agenthood@4.0.0
 ```
 
 ```jsonc
-// ./opencode.json  (project scope: same one-liner)
+// ./opencode.json  (project)
 {
   "$schema": "https://opencode.ai/config.json",
   "plugin": ["agenthood"]
 }
 ```
 
-The plugin wires the Society into opencode: all 20 member skills (`skills/`), `AGENTS.md` instructions, a primary `steward` router agent, and an `agenthood_run_member` tool that executes a member as a real runtime agent (enforced behavior + audit trail). After adding or updating the plugin entry, **quit and restart opencode**: config is loaded once at startup, not hot-reloaded.
+The plugin registers all 20 member skills, the `AGENTS.md` instructions, a
+primary `steward` router agent, and an `agenthood_run_member` tool. Config is
+read once at startup, so restart opencode after adding or updating the entry.
 
-The [Agenthood Studio playground](https://agenthood.flabs.tech/studio/playground) exercises the same runtime through a browser UI: every chat request runs through `agenthood/dist/llm` with provider routing, failover, and streaming.
+The VS Code extension (`agenthood-vscode`) runs the same runtime inside the
+editor.
 
-### Custom members (host runtimes)
+---
 
-Hosts that embed Agenthood as a library can register their own members. A custom member runs through the same ReAct loop, tool registry, checkpoints, events, and audit trail as the built-in Society: no forked execution path.
+## Custom members
+
+A host that embeds Agenthood as a library can register its own members. Custom
+members run through the same ReAct loop, tool registry, checkpoints, events, and
+audit trail as the built-in Society. There is no second execution path.
 
 ```ts
 import { ApplicationContext } from 'agenthood/dist/runtime/ApplicationContext.js'
@@ -256,7 +331,7 @@ const releaseCaptain: CustomMemberDefinition = {
   name: 'release-captain',             // [a-z0-9][a-z0-9-]{1,63}, must not collide
   description: 'Owns release readiness for one product',
   systemPrompt: 'Verify the checklist before shipping.', // body only, no frontmatter
-  permissionProfile: 'restricted',     // default: restricted
+  permissionProfile: 'restricted',     // default
   tools: ['file.read', 'file.search'], // intersected with the profile, never widens it
   model: 'claude-sonnet-5-5',          // optional per-member model
 }
@@ -270,58 +345,59 @@ const app = await ApplicationContext.create(process.cwd(), config, {
 await app.runner.runMemberTask('release-captain', 'is v4 ready?', config)
 ```
 
-`app.members.list()` returns built-ins and custom members together, and `app.members.register(def)` works without the composition-time option. Registration is append-only: a built-in name collision, an invalid slug, an empty or oversized system prompt, and a duplicate name all throw. Declared `tools` can only narrow the permission profile; a custom member with no `tools` gets the profile defaults.
-
-Custom members have no `SKILL.md` on disk, so the skill-integrity gate does not apply to them: the host owns their content. When `model` is set it wins over the shared config model for that member's runs, and it reaches the provider request, the `reasoning` event, the checkpoint, and the cost row.
-
----
-
-## Architecture
-
-The framework runs on five core principles adapted from production AI agent systems. See the [architecture docs](docs/architecture/README.md) for details on how agents coordinate, prioritize, fail over, and stay safe.
-
-| Principle | Document |
-|-----------|---------|
-| Multi-agent orchestration & agent roles | [agent-system.md](docs/architecture/agent-system.md) |
-| Priority queues & concurrency slots | [concurrency-and-queues.md](docs/architecture/concurrency-and-queues.md) |
-| Agent mode vs Ask mode | [operating-modes.md](docs/architecture/operating-modes.md) |
-| Multi-LLM support & automatic failover | [provider-failover.md](docs/architecture/provider-failover.md) |
-| Tool registry, scoping & safety caps | [built-in-tools.md](docs/architecture/built-in-tools.md) |
-| Agent memory tiers | [memory](src/memory/): ResidualMemory, ShortTermMemory, LongTermMemory, EpisodicMemory, ProjectMemory, DecisionLog, ProvenanceStore, DecisionSearch, GraphSnapshot, MetricsCollector, InMemoryStore, PersonalisationStore, LanceDBStore |
-| Decision intelligence & auditability | [decision-intelligence.md](docs/architecture/decision-intelligence.md): per-run decision records, causal chains (CAUSED/INFLUENCED/PRECEDENT_FOR), tamper-evident provenance (SHA-256 hash chain), precedent search, society-graph snapshots |
-| Workflow engine & quality gates | [workflows](src/workflows/): WorkflowEngine, QualityGates, DiffImpactAnalyzer, WorkflowCheckpoint, GoalChain |
-| Service-agnostic RAG (graph, vector, agentic) | [rag](src/rag/): KnowledgeGraphStore, FixedSizeChunkStrategy + MarkdownHierarchicalChunkStrategy, Indexer, Retriever, AgenticRAG, TreeSitterParser, ProjectIngestion |
+`app.members.list()` returns built-ins and custom members together.
+`app.members.register(def)` works after composition. Registration is
+append-only: a name collision, an invalid slug, an empty or oversized system
+prompt, and a duplicate all throw. Declared `tools` can only narrow the
+permission profile. A custom member has no `SKILL.md` on disk, so the integrity
+gate does not apply to it: the host owns the content.
 
 ---
 
-## For this repo
+## Studio
 
-```bash
-npm install && npm run build
-make setup          # activates git hooks and commit template
-npm test            # run all tests
-npm run typecheck   # strict TypeScript check
-npm run lint        # ESLint
-```
+[**Agenthood Studio**](https://agenthood.flabs.tech/studio/playground) is a
+browser front end for the same runtime: every request runs through
+`agenthood/dist/llm` with provider routing, failover, and streaming.
 
----
+[**Workspaces**](https://agenthood.flabs.tech/studio/workspaces) assemble a team
+for one instruction. The Mediator plans the handoff sequence, the members run in
+order, and a synthesizer streams the final answer, with a human checkpoint to
+pause, review, continue, or stop.
 
-## Repository structure
-
-See [STRUCTURE.md](STRUCTURE.md) for the full directory tree.
+The source is [agenthood-site](https://github.com/fworks-tech/agenthood-site).
 
 ---
 
-## Academy
-
-Structured learning path from "what is a prompt?" to "ship agents to production."
+## Documentation
 
 - [Getting Started](docs/academy/getting-started.md): install, first commit, CI, configuration
-- [Skills Reference](docs/academy/skills-reference.md): all members, their tools, and invocation
-- [Utility Skills](docs/academy/utility-skills.md): specialist skills beyond the members
-- [Level 1: GenAI & RAG Basics](docs/academy/level-1-genai-rag-basics/): LLMs, prompt engineering, RAG
-- [Level 2: AI Agent Essentials](docs/academy/level-2-agent-essentials/): memory, planning, multi-agent systems
-- [Level 3: Advanced Agent Skills](docs/academy/level-3-advanced-skills/): integration, performance, deployment
+- [Skills Reference](docs/academy/skills-reference.md): every member, its tools, and how to invoke it
+- [Utility Skills](docs/academy/utility-skills.md): the 41 specialist skills
+- [Runtime Guide](docs/runtime-guide.md): configuration, providers, and operations
+- [Architecture](docs/architecture/README.md): agent system, queues, operating modes, failover, tools, decisions, skills
+- [ADRs](docs/adr/): 40 records of the decisions behind the design
+- [Academy](docs/academy/): a learning path from "what is a prompt" to shipping agents, across three levels
+- [Troubleshooting](docs/guides/troubleshooting.md): the failures people hit first
+
+---
+
+## Development
+
+```bash
+npm install
+npm run build
+make setup           # activate hooks and the commit template
+npm test             # full test suite
+npm run typecheck    # strict TypeScript check
+npm run lint         # ESLint
+npm run lint:prose   # house prose style
+```
+
+Directory layout is in [STRUCTURE.md](STRUCTURE.md), contribution rules are in
+[CONTRIBUTING.md](CONTRIBUTING.md), and the security policy is in
+[SECURITY.md](SECURITY.md). [CHANGELOG.md](CHANGELOG.md) is generated by
+semantic-release, so fix the commit, not the changelog.
 
 ---
 
@@ -329,7 +405,7 @@ Structured learning path from "what is a prompt?" to "ship agents to production.
 
 - [Conventional Commits](https://www.conventionalcommits.org/)
 - [addyosmani/agent-skills](https://github.com/addyosmani/agent-skills)
-- [opencode](https://github.com/sst/opencode): default free LLM provider
+- [opencode](https://github.com/sst/opencode): default LLM provider
 - [semantic-release](https://github.com/semantic-release/semantic-release)
 - [commitlint](https://commitlint.js.org/)
 

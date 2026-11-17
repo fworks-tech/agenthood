@@ -20,6 +20,7 @@ the *what* and *why*, not the implementation.
 | [decision-intelligence.md](decision-intelligence.md) | Decision records, causal chains, provenance integrity, precedent search |
 | [chain-workflows.md](chain-workflows.md) | `chains.yaml` composition, guards, and running a chain |
 | [skills.md](skills.md) | The skill pipeline inside: discovery, parsing, gating, activation, execution, extension points |
+| [ADR index](../adr/README.md) | Every architecture decision, with date, status and a one line summary |
 
 ---
 

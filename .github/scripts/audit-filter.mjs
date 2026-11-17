@@ -18,10 +18,13 @@
 // mixed advisory must never pass), and a missing/empty node list is treated as
 // non-exempt (fail closed: lack of data must not silently pass).
 //
-// Accepted advisories: an advisory listed in ACCEPTED_ADVISORIES clears the
-// packages that rest on it, walking each `via` chain to its leaves. The list is
-// dated, applies to the broad dev pass only, and names one advisory at a time,
-// so a new advisory on the same package still fails the gate.
+// Accepted advisories: an advisory in ADVISORY_ALLOWLIST clears the packages
+// that rest on it, walking each `via` chain to its leaves. Each entry names one
+// advisory, the packages it may affect, a reason and an expiry date. The entry
+// is used only in the broad dev pass, only while unexpired, and only when every
+// node of that advisory belongs to one of its packages. A new advisory on the
+// same package, a node outside the listed packages, or an expired entry still
+// fails the gate.
 
 let audit
 try {
@@ -157,26 +160,34 @@ const isExemptNode = (n) =>
   srTransitiveNames.has(pkgNameFromNode(n))
 
 // Advisories the project accepts because upstream has shipped no fix yet. Each
-// entry names one advisory and dies on its `until` date, so an exception cannot
-// outlive the patch. A package is cleared only when every advisory behind it is
-// accepted: a different advisory on the same package still fails the gate.
-// Exceptions apply to the broad pass only (exemptNpm); the production pass
-// accepts nothing, because prod ships with the package.
-const ACCEPTED_ADVISORIES = {
-  'GHSA-fc5q-39xc-vjpf': {
-    until: '2026-12-17',
-    reason: 'picomatch ReDoS, no patched release (4.0.7 is latest)',
+// entry names one advisory, the packages it may affect, a reason and an expiry
+// date, so an exception can neither outlive the patch nor silently widen to
+// another package: any node outside `packages` fails the gate. Exceptions apply
+// to the broad dev pass only (exemptNpm, set only by audit-check.sh's dev call);
+// the production pass accepts nothing, because prod ships with the package.
+const ADVISORY_ALLOWLIST = [
+  {
+    id: 'GHSA-fc5q-39xc-vjpf',
+    packages: ['picomatch'],
+    reason: 'picomatch ReDoS; 4.0.7 is the latest release, so no patched version exists',
+    expires: '2027-02-01',
   },
-}
+]
 // AUDIT_TODAY lets the tests pin the clock without faking timers.
 const today = process.env.AUDIT_TODAY || new Date().toISOString().slice(0, 10)
-const waived = new Set()
+const waived = new Map()
+const expired = new Map()
 
-const accepts = (url) => {
+const accepts = (url, nodes) => {
   const id = (url || '').split('/').pop()
-  const entry = ACCEPTED_ADVISORIES[id]
-  if (!exemptNpm || entry === undefined || today > entry.until) return false
-  waived.add(id)
+  const entry = ADVISORY_ALLOWLIST.find((e) => e.id === id)
+  if (!exemptNpm || entry === undefined) return false
+  if (today > entry.expires) {
+    expired.set(id, entry)
+    return false
+  }
+  if (!nodes.every((n) => entry.packages.includes(pkgNameFromNode(n)))) return false
+  waived.set(id, entry)
   return true
 }
 
@@ -197,7 +208,7 @@ const clears = (name, seen) => {
   if (seen.has(name)) return true
   seen.add(name)
   const viasClear = vias.every((via) =>
-    typeof via === 'string' ? clears(via, seen) : accepts(via.url))
+    typeof via === 'string' ? clears(via, seen) : accepts(via.url, nodes))
   return viasClear || (exemptNpm && nodes.every(isExemptNode))
 }
 
@@ -207,7 +218,12 @@ for (const [name, v] of Object.entries(vulns)) {
   console.log(`${name} [${v.severity}] ${(v.nodes || []).join(', ')}`)
   bad = true
 }
-for (const id of waived) {
-  console.warn(`npm audit filter: accepted ${id} until ${ACCEPTED_ADVISORIES[id].until} (${ACCEPTED_ADVISORIES[id].reason})`)
+for (const [id, entry] of expired) {
+  console.log(`exception expired: ${id} expired on ${entry.expires} (${entry.reason})`)
+}
+for (const [id, entry] of waived) {
+  // stderr: audit-check.sh captures stdout, so an annotation on stdout would
+  // only surface when the gate already fails
+  console.error(`::warning::npm audit exception ${id} is active until ${entry.expires} (${entry.reason})`)
 }
 process.exit(bad ? 2 : 0)

@@ -2,11 +2,12 @@
 set -euo pipefail
 
 # The Auditor: fail on high/critical vulnerabilities in project dependencies
-# (npm itself, npm's own bundled deps, and the semantic-release release toolchain
-# are exempt) and on ANY severity in production dependencies (--omit=dev: prod
-# ships with the package, so no open advisory is acceptable there). Fail loudly
-# when the audit itself fails: a transient network error or malformed output
-# must not pass the gate silently. Only a clean audit result exits 0.
+# (npm itself, npm's own bundled deps, the semantic-release release toolchain and
+# the dated accepted-advisory list in audit-filter.mjs are exempt) and on ANY
+# severity in production dependencies (--omit=dev: prod ships with the package, so
+# no open advisory is acceptable there). Fail loudly when the audit itself fails: a
+# transient network error or malformed output must not pass the gate silently.
+# Only a clean audit result exits 0.
 
 # severity floors for the two scope passes: prod fails on ANY severity,
 # dev/all-scope fails only on high+ (npm and the semantic-release toolchain
@@ -78,4 +79,4 @@ audit_findings() {
 audit_fail_on "project dependencies" "$SEVERITY_HIGH" "$EXEMPT_NPM"
 audit_fail_on "production dependencies" "$SEVERITY_INFO" "$NO_EXEMPT" --omit=dev
 
-echo "The Auditor: no high/critical vulnerabilities outside npm and the semantic-release toolchain; no production vulnerabilities."
+echo "The Auditor: no high/critical vulnerabilities outside npm, the semantic-release toolchain and the accepted advisory list; no production vulnerabilities."

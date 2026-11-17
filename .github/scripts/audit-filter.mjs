@@ -17,6 +17,11 @@
 // least one node is NOT exempt still fails the gate (a real project dep in a
 // mixed advisory must never pass), and a missing/empty node list is treated as
 // non-exempt (fail closed: lack of data must not silently pass).
+//
+// Accepted advisories: an advisory listed in ACCEPTED_ADVISORIES clears the
+// packages that rest on it, walking each `via` chain to its leaves. The list is
+// dated, applies to the broad dev pass only, and names one advisory at a time,
+// so a new advisory on the same package still fails the gate.
 
 let audit
 try {
@@ -151,11 +156,58 @@ const isExemptNode = (n) =>
   srTree.has(n.replace(/^node_modules\//, '')) ||
   srTransitiveNames.has(pkgNameFromNode(n))
 
+// Advisories the project accepts because upstream has shipped no fix yet. Each
+// entry names one advisory and dies on its `until` date, so an exception cannot
+// outlive the patch. A package is cleared only when every advisory behind it is
+// accepted: a different advisory on the same package still fails the gate.
+// Exceptions apply to the broad pass only (exemptNpm); the production pass
+// accepts nothing, because prod ships with the package.
+const ACCEPTED_ADVISORIES = {
+  'GHSA-fc5q-39xc-vjpf': {
+    until: '2026-12-17',
+    reason: 'picomatch ReDoS, no patched release (4.0.7 is latest)',
+  },
+}
+// AUDIT_TODAY lets the tests pin the clock without faking timers.
+const today = process.env.AUDIT_TODAY || new Date().toISOString().slice(0, 10)
+const waived = new Set()
+
+const accepts = (url) => {
+  const id = (url || '').split('/').pop()
+  const entry = ACCEPTED_ADVISORIES[id]
+  if (!exemptNpm || entry === undefined || today > entry.until) return false
+  waived.add(id)
+  return true
+}
+
+const vulns = audit.vulnerabilities || {}
+
+// A package clears when it sits entirely inside npm or the semantic-release
+// toolchain, or when nothing unaccepted sits behind it: the `via` chain is walked
+// to the advisories at its leaves. `seen` cuts dependency cycles (vitest <->
+// @vitest/coverage-v8) optimistically; every member's `via` list is inspected
+// before the cut, so a real advisory inside the cycle is still found.
+const clears = (name, seen) => {
+  const v = vulns[name]
+  if (v === undefined || !((order[v.severity] ?? 0) >= min)) return true
+  const nodes = v.nodes || []
+  const vias = v.via || []
+  if (!nodes.length) return false
+  if (!vias.length) return exemptNpm && nodes.every(isExemptNode)
+  if (seen.has(name)) return true
+  seen.add(name)
+  const viasClear = vias.every((via) =>
+    typeof via === 'string' ? clears(via, seen) : accepts(via.url))
+  return viasClear || (exemptNpm && nodes.every(isExemptNode))
+}
+
 let bad = false
-for (const [name, v] of Object.entries(audit.vulnerabilities || {})) {
-  if (!((order[v.severity] ?? 0) >= min &&
-    (!exemptNpm || !(v.nodes || []).length || (v.nodes || []).some((n) => !isExemptNode(n))))) continue
+for (const [name, v] of Object.entries(vulns)) {
+  if (clears(name, new Set())) continue
   console.log(`${name} [${v.severity}] ${(v.nodes || []).join(', ')}`)
   bad = true
+}
+for (const id of waived) {
+  console.warn(`npm audit filter: accepted ${id} until ${ACCEPTED_ADVISORIES[id].until} (${ACCEPTED_ADVISORIES[id].reason})`)
 }
 process.exit(bad ? 2 : 0)

@@ -33,6 +33,21 @@ and a security advisory is published.
 - **LLM agent analysis:** CI agent outputs are filtered for secrets before
   posting, and verdicts are parsed from a structured trailing block
 
+## Accepted residual risks
+
+`.github/scripts/audit-filter.mjs` carries a dated `ADVISORY_ALLOWLIST` for advisories with no
+upstream fix. The gate fails closed: an entry covers only the advisory, packages and scope it names,
+and it stops working after its expiry date.
+
+| Advisory | Package | Scope | Why it is acceptable | Expires |
+|----------|---------|-------|----------------------|---------|
+| [GHSA-fc5q-39xc-vjpf](https://github.com/advisories/GHSA-fc5q-39xc-vjpf) | `picomatch` | dev only, through `vite`, `vitest`, `@vitest/coverage-v8`, `tinyglobby`/`fdir`, `micromatch` and `@typescript-eslint/typescript-estree` | the advisory (ReDoS) affects every published release (`4.0.7` is the latest), and `npm audit --omit=dev` reports zero findings: the CLI that ships never loads `picomatch` at runtime | 2027-02-01 |
+
+An active entry shows up in CI as a `::warning::` annotation naming the advisory and the reason. The
+production pass (`--omit=dev`) accepts no exception at any severity. When the entry expires the
+Auditor fails until the dependency is upgraded or the entry is renewed with a new decision, recorded
+in [ADR-043](docs/adr/ADR-043-dependency-audit-exception-policy.md).
+
 ## Self-audit
 
 The Society audits itself with the same gates it enforces on adopters:

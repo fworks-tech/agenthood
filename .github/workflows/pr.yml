@@ -301,6 +301,8 @@ jobs:
         run: npm run lint:prose
       - name: The Warden - typecheck
         run: npm run typecheck
+      - name: The Warden - links
+        run: npm run lint:links
       - name: The Warden - build
         run: npm run build
       - name: The Librarian - API reference builds from source

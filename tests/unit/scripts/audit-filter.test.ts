@@ -1,32 +1,33 @@
 import { describe, it, expect } from 'vitest'
-import { execFileSync } from 'node:child_process'
+import { execFileSync, spawnSync } from 'node:child_process'
 import { join } from 'node:path'
 import { fileURLToPath } from 'node:url'
 
 const dirname = fileURLToPath(new URL('.', import.meta.url))
 const filter = join(dirname, '..', '..', '..', '.github', 'scripts', 'audit-filter.mjs')
 
-function runFilter(json: unknown, min: number, exemptNpm: number): { code: number; output: string } {
-  try {
-    const output = execFileSync('node', [filter, JSON.stringify(json), String(min), String(exemptNpm)], {
-      encoding: 'utf8',
-    })
-    return { code: 0, output }
-  } catch (err) {
-    const e = err as { status?: number; stdout?: string; stderr?: string }
-    return { code: e.status ?? 1, output: `${e.stdout ?? ''}${e.stderr ?? ''}` }
-  }
+function runFilter(
+  json: unknown,
+  min: number,
+  exemptNpm: number,
+  env: Record<string, string> = {},
+): { code: number; output: string; stderr: string } {
+  const res = spawnSync('node', [filter, JSON.stringify(json), String(min), String(exemptNpm)], {
+    encoding: 'utf8',
+    env: { ...process.env, ...env },
+  })
+  return { code: res.status ?? 1, output: res.stdout, stderr: res.stderr }
 }
 
 describe('audit-filter.mjs', () => {
   it('exits 0 on a clean audit', () => {
-    expect(runFilter({ vulnerabilities: {} }, 3, 1)).toEqual({ code: 0, output: '' })
+    expect(runFilter({ vulnerabilities: {} }, 3, 1)).toMatchObject({ code: 0, output: '' })
   })
 
   it('exits 1 and reports the upstream error when npm audit errors', () => {
     const res = runFilter({ error: { code: 'ETARGET', summary: 'registry error' } }, 3, 1)
     expect(res.code).toBe(1)
-    expect(res.output).toContain('ETARGET')
+    expect(res.stderr).toContain('ETARGET')
   })
 
   it('exits 2 on a high advisory for a real project dependency', () => {
@@ -91,6 +92,56 @@ describe('audit-filter.mjs', () => {
       3, 1,
     )
     expect(res.code).toBe(0)
+  })
+
+  describe('accepted advisories with no upstream fix', () => {
+    const advisory = 'https://github.com/advisories/GHSA-fc5q-39xc-vjpf'
+    const leaf = (via: unknown[]) => ({
+      severity: 'high', nodes: ['node_modules/glob-lib'], via,
+    })
+    const dependent = {
+      severity: 'high', nodes: ['node_modules/build-tool'], via: ['glob-lib'],
+    }
+
+    it('clears a chain that rests only on an accepted advisory, cycle included', () => {
+      // build-tool <-> build-tool-coverage mirrors vitest <-> @vitest/coverage-v8
+      const res = runFilter({
+        vulnerabilities: {
+          'glob-lib': leaf([{ url: advisory }]),
+          'build-tool': { severity: 'high', nodes: ['node_modules/build-tool'], via: ['build-tool-coverage', 'glob-lib'] },
+          'build-tool-coverage': { severity: 'high', nodes: ['node_modules/build-tool-coverage'], via: ['build-tool'] },
+        },
+      }, 3, 1)
+      expect(res.code).toBe(0)
+      expect(res.stderr).toContain('accepted GHSA-fc5q-39xc-vjpf')
+    })
+
+    it('still fails a chain with an advisory that is not accepted', () => {
+      const res = runFilter({
+        vulnerabilities: {
+          'glob-lib': leaf([{ url: advisory }, { url: 'https://github.com/advisories/GHSA-none-0000-0000' }]),
+          'build-tool': dependent,
+        },
+      }, 3, 1)
+      expect(res.code).toBe(2)
+      expect(res.output).toContain('build-tool [high]')
+    })
+
+    it('stops accepting the advisory once its exception expires', () => {
+      const res = runFilter(
+        { vulnerabilities: { 'glob-lib': leaf([{ url: advisory }]) } },
+        3, 1, { AUDIT_TODAY: '2027-01-01' },
+      )
+      expect(res.code).toBe(2)
+    })
+
+    it('never accepts an advisory in the production pass', () => {
+      const res = runFilter(
+        { vulnerabilities: { 'glob-lib': leaf([{ url: advisory }]) } },
+        0, 0,
+      )
+      expect(res.code).toBe(2)
+    })
   })
 
   it('treats primitive or array JSON as malformed (exit 1)', () => {

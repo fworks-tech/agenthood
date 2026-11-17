@@ -68,6 +68,7 @@ See the decision entry at `.agenthood/decisions/[id].json` and its provenance at
 - Issue #[number]
 - ADR-[NNN]
 - [Other references]
+- Worked example: [postmortem-example.md](../academy/examples/postmortem-example.md)
 
 ---
 

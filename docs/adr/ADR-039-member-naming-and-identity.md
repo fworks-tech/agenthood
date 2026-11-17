@@ -1,7 +1,7 @@
 # ADR-039: Member Naming and Identity
 
 **Date:** 2026-11-16
-**Status:** Accepted
+**Status:** Superseded by ADR-044
 
 ## Context
 

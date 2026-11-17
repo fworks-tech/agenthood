@@ -243,7 +243,7 @@ metadata:
   conditions:
     - env:CI
     - file.exists:package.json
-fallback: code-review
+fallback: docker
 ```
 
 ### New: running a skill's scripts
@@ -287,7 +287,7 @@ requires:
   optional-tools: [jq]         # unmet = warning
   context: 200000
 dependencies:
-  required: [code-review]      # must be installed and usable
+  required: [web-research]      # must be installed and usable
   optional: [test-runner]
 metadata:
   variants:

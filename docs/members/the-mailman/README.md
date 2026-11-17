@@ -64,4 +64,4 @@ npx agenthood run mailman "configure webhook notifications for PR merges to Slac
 
 ## Skill File
 
-→ [`SKILL.md`](../../skills/mailman/SKILL.md): load this into your agent runtime
+→ [`SKILL.md`](../../../skills/mailman/SKILL.md): load this into your agent runtime

@@ -17,7 +17,7 @@ The human sees the work continue. The Society handles the plumbing.
 ## Supported Providers
 
 The Agenthood runtime is **LLM-agnostic**. The seven providers below are implemented
-in [`src/llm/providers/`](../src/llm/providers/). Any member can run on any provider.
+in [`src/llm/providers/`](../../src/llm/providers/). Any member can run on any provider.
 
 | Provider | Default model | Notes |
 |----------|---------------|-------|
@@ -30,9 +30,9 @@ in [`src/llm/providers/`](../src/llm/providers/). Any member can run on any prov
 | **Ollama** | Local model (configurable) | Air-gapped / offline use; default for the Doorman |
 
 All providers use a unified `ILLMProvider` interface
-([`src/llm/ILLMProvider.ts`](../src/llm/ILLMProvider.ts)) with normalized request and
+([`src/llm/ILLMProvider.ts`](../../src/llm/ILLMProvider.ts)) with normalized request and
 response types. Member skills are written once and run on any provider via `LLMRouter`
-([`src/llm/LLMRouter.ts`](../src/llm/LLMRouter.ts)).
+([`src/llm/LLMRouter.ts`](../../src/llm/LLMRouter.ts)).
 
 ### Supported providers
 
@@ -145,7 +145,7 @@ from environment variables.
 
 Different members prefer different providers based on their task type. These
 preferences are encoded in `MemberSpec.preferredProvider` in
-[`src/members/MemberRegistry.ts`](../src/members/MemberRegistry.ts) and respected
+[`src/members/MemberRegistry.ts`](../../src/members/MemberRegistry.ts) and respected
 by `LLMRouter` when building the failover chain.
 
 | Member | Preferred Provider | Reason |

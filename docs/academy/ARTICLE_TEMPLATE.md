@@ -34,7 +34,7 @@
      Include a concise code snippet (10-20 lines max) showing the API.
      If the component is planned for a future milestone, say so clearly with the milestone number. -->
 
-Agenthood implements this in [`src/path/to/File.ts`](../../src/path/to/File.ts):
+Agenthood implements this in `src/path/to/File.ts`:
 
 ```typescript
 // Code snippet showing the key API
@@ -72,8 +72,8 @@ Or in TypeScript:
      2. The source file this article covers
      3. One high-quality external reference (paper, RFC, well-known blog post) -->
 
-- [ADR-XXX: Decision title](../../adr/ADR-XXX-description.md)
-- [`src/path/to/File.ts`](../../src/path/to/File.ts): source implementation
+- `docs/adr/ADR-XXX-description.md`: the decision this component implements
+- `src/path/to/File.ts`: source implementation
 - [External reference title](https://example.com): brief note on why this source
 
 

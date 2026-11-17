@@ -84,4 +84,4 @@ The schedules below are declared in `docs/rituals/` and run in CI via `.github/w
 
 ## Skill File
 
-→ [`SKILL.md`](../../skills/herald/SKILL.md): load this into your agent runtime
+→ [`SKILL.md`](../../../skills/herald/SKILL.md): load this into your agent runtime

@@ -108,4 +108,4 @@ When health check finds idle uncommitted changes:
 
 ## Skill File
 
-→ [`SKILL.md`](../../skills/doorman/SKILL.md): load this into your agent runtime
+→ [`SKILL.md`](../../../skills/doorman/SKILL.md): load this into your agent runtime

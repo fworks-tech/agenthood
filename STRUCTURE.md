@@ -124,3 +124,7 @@ agenthood/
     ├── unit/                        ← Unit tests (agents, core, llm, memory, rag, skills)
     └── helpers/                     ← Test utilities
 ```
+
+## Decision records
+
+The full index of architecture decisions is in [docs/adr/README.md](docs/adr/README.md).

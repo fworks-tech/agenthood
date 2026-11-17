@@ -109,7 +109,7 @@ The M6 gap items have narrowed since this article was written: `WorkflowEngine` 
 
 - [`src/rag/AgenticRAG.ts`](../../../src/rag/AgenticRAG.ts): the Agentic RAG orchestrator (v2.6.0)
 - [`src/rag/ChunkStrategy.ts`](../../../src/rag/ChunkStrategy.ts): `MarkdownHierarchicalChunkStrategy` (v2.6.0)
-- [`src/skills/rag/RetrievalClassifier.ts`](../../../src/skills/rag/RetrievalClassifier.ts): strategy classifier (v2.6.0)
+- [`src/tools/rag/RetrievalClassifier.ts`](../../../src/tools/rag/RetrievalClassifier.ts): strategy classifier (v2.6.0)
 - [`src/reasoning/MemberOrchestrator.ts`](../../../src/reasoning/MemberOrchestrator.ts): member detection (v2.6.0)
 - [ADR-005: Orchestrator pattern over peer-to-peer](../../adr/ADR-005-orchestrator-pattern.md): the architectural decision that `MemberOrchestrator` Phase 1 implements
 - [`docs/academy/level-2-agent-essentials/09-agentic-rag.md`](09-agentic-rag.md): full conceptual walkthrough of Agentic RAG

@@ -5,8 +5,8 @@ authoring contract for a member that lives outside this repository: a
 `contrib` member, so it can be reviewed, installed, versioned and updated
 without forking.
 
-The design decisions are in [ADR-035](../adr/ADR-035-skill-namespaces-and-remote-catalogs.md)
-(namespaces, flat on-disk identity) and [ADR-036](../adr/ADR-036-script-execution-security.md)
+The design decisions are in [ADR-035](../adr/ADR-035-skill-namespaces-and-well-known-catalogs.md)
+(namespaces, flat on-disk identity) and [ADR-036](../adr/ADR-036-skill-script-execution-and-sandboxing.md)
 (script execution).
 
 ## Where a contrib member lives

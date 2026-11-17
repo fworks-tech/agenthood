@@ -55,8 +55,8 @@ The deploy script in `scripts/deploy.sh` ran `chmod -R 750 .agenthood/` which re
 
 ## Decision Record
 
-See [Decision Log entry](.agenthood/decisions/dec-20260615-vector-permissions.json)
-and its [provenance entry](.agenthood/provenance/<executionId>.json). The
+See the decision entry at `.agenthood/decisions/dec-20260615-vector-permissions.json`
+and its provenance at `.agenthood/provenance/<executionId>.json`. The
 provenance chain (`ProvenanceStore.verifyChain()`) proves this record was not
 modified after the fact.
 

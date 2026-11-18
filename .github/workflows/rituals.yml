@@ -103,11 +103,11 @@ jobs:
           MEMBER: ${{ matrix.member }}
           TASK: ${{ matrix.task }}
           OPENCODE_API_KEY: ${{ secrets.OPENCODE_API_KEY }}
-          # qwen3.8-flash is a messages-protocol model. Its transport
-          # authenticates with x-api-key, which OpenCodeProvider now sends
-          # (the old Bearer authToken was ignored, hence the 401 "Missing
-          # API key" on every scheduled ritual).
-          OPENCODE_MODEL: qwen3.8-flash
+          # deepseek-v4.1-flash speaks chat-completions, so the ritual no
+          # longer depends on the messages transport. The runtime has no shell
+          # tool, so ritual-facts.sh measures here and the member formats the
+          # report.
+          OPENCODE_MODEL: deepseek-v4.1-flash
           GH_TOKEN: ${{ github.token }}
         run: |
           set -o pipefail

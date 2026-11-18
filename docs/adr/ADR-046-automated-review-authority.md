@@ -46,19 +46,48 @@ Reviewer comments it actually followed.
    the skill contract, the lock check and The Sentinel decide whether a PR can
    merge. None of them calls a model.
 3. **The model gets the diff, bounded.** The Reviewer receives up to 100 KB of
-   `git diff`, wrapped as untrusted data. `package-lock.json`, `CHANGELOG.md`
-   and `docs/release-notes.md` are excluded from the diff and the file list.
-   The file list is capped at 100 names. The prompt reserves `blocking=true`
-   for a defect the diff introduces and forbids claims the diff does not show.
+   `git diff`, wrapped as untrusted data. `package-lock.json`,
+   `agenthood.lock`, `CHANGELOG.md` and `docs/release-notes.md` are excluded
+   from the diff and the file list. The file list is capped at 100 names. The
+   prompt reserves `blocking=true` for a defect the diff introduces and
+   forbids claims the diff does not show.
 4. **The comment states its coverage.** Every analysis comment carries the
    reviewed commit SHA, the changed-file count in scope, the diff size, a
-   `capped at 100 KB` marker only when the byte cap fired, and the number of
-   files left out of the list. A visible verdict line is derived from the
-   decision marker, so the comment and the marker cannot disagree.
+   `capped at 100 KB` marker only when the byte cap fired, the number of
+   files left out of the list, and the generated files the exclusions
+   removed from the range when any appeared in it. A visible verdict line is
+   derived from the decision marker, so the comment and the marker cannot
+   disagree.
 5. **Determinism is proved by two dispatches.** `reviewer.yml` accepts
    `workflow_dispatch`. Two runs on one SHA must both pass the `review` check.
    The comments may differ because the model is advisory; the gate verdict may
    not.
+6. **A skipped review is announced.** When the prerequisites are missing (no
+   pull request context, no `OPENCODE_API_KEY`), the job still exits 0, but
+   the absence is posted to the PR thread with the reason when a PR exists,
+   and written to the run summary when it does not (there is no thread to
+   comment on). A comment was chosen over a skipped step because the thread
+   is the record people read; the summary covers the dispatch case.
+7. **A posting failure never fails an advisory job.** Comment bodies are
+   capped in bytes below the 65,536 character API ceiling with a truncation
+   note, and a failed post is a warning in advisory mode. A blocking agent
+   still fails closed, because its comment is the gate's evidence.
+8. **No agent gates on a model verdict.** The inventory after this decision:
+
+   | Agent | Step | Model | Gate | Threshold |
+   |---|---|---|---|---|
+   | the-reviewer | `reviewer.yml:80` | `opencode/gpt-5-nano` (`reviewer.yml:99`) | advisory (`reviewer.yml:100`) | n/a |
+   | the-sentinel | `pr.yml:196` | `opencode/qwen3.8-flash` (`pr.yml:207`) | advisory, changed here | default 2, out of the gate path |
+   | the-auditor | `pr.yml:94` | `opencode/qwen3.8-flash` (`pr.yml:107`) | disabled (`pr.yml:96`) | default 2 if re-enabled |
+   | the-warden | `pr.yml:138` | `opencode/qwen3.8-flash` (`pr.yml:151`) | disabled (`pr.yml:140`) | default 2 if re-enabled |
+
+   The sentinel carried the same flip shape #1082 exposed: a flash-class
+   model, the default threshold of 2 (`action.yml:40`, `decision-gate.sh:97`)
+   and a blocking gate, so its analysis moves to advisory mode. Its
+   deterministic structure check (`sentinel-check.sh`) stays the gate. The
+   disabled auditor and warden steps inherit advisory semantics only if
+   someone re-enables them without setting `gate-mode`, which this table
+   records.
 
 ## Consequences
 
@@ -77,17 +106,30 @@ Reviewer comments it actually followed.
   the gate path must explain how it keeps this property.
 - Advisory mode is covered end to end by tests. `decision-gate.test.sh` proves
   that a blocking marker, over-threshold warnings and conflicting markers still
-  fail closed in `blocking` mode and are ignored in `advisory` mode.
+  fail closed in `blocking` mode and are ignored in `advisory` mode, that an
+  oversized comment body is capped with a truncation note, and that the diff
+  stream binds on the 100 KB byte cap with its marker.
   `reviewer-workflow.test.ts` proves that the workflow passes `advisory`, that
   the action maps it to `AGENTHOOD_GATE_MODE`, that the script reads that
-  variable, and that the diff payload stays bounded.
+  variable, and that the diff payload stays bounded. Those TS assertions are
+  wiring checks on literal strings, not a behavioral contract; the test file
+  says so.
+- A skip notice posts once per skipped run. A later real analysis marks it
+  outdated through the shared heading; consecutive skips (a repo with no
+  `OPENCODE_API_KEY` commenting on an open PR) accumulate one entry per push.
+  Accepted: the case means misconfiguration and each entry names it.
+- The posting-failure branch (API error, rate limit) is guarded in the script
+  but has no live run exercising it; the cap and the skip path are covered by
+  tests and the F1 dispatch proof.
 - The analysis comment uses one H2 title, demotes the report's H1/H2 headings
   below it, and marks the previous comment outdated. The Reviewer workflow needs
   `issues: write` for that edit.
 
 ## References
 
-- PR #1082: the adoption PR where the flip was observed.
+- PR #1082: the adoption PR where the flip was observed. PR #1086 closes the
+  edges this ADR left open: skip visibility, the comment cap and the
+  blocking-mode inventory.
 - Runs `44207151420`, `44207545321`, `44209272806` and `44209638155` on PR
   #1082. Attempt 1 and attempt 2 of `44209638155` are the same-SHA flip.
 - Proof runs on `348f63c1`, both success and both `no blocking findings,

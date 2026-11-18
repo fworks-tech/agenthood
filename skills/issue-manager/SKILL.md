@@ -2,6 +2,9 @@
 name: issue-manager
 description: Creates well-structured, actionable GitHub issues and manages issue-driven work with clear titles, reproduction steps, and measurable success criteria. Use when filing bug reports, proposing features, or triaging an existing issue queue.
 license: MIT
+allowed-tools: file.read file.search code.explain ask_human
+metadata:
+  version: 1.0.0
 ---
 
 # The Issue Manager

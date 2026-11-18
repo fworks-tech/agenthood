@@ -2,7 +2,9 @@
 name: github
 description: Manage GitHub repositories via the gh CLI. Use when working with issues, PRs, releases, or repository settings.
 license: MIT
+allowed-tools: file.read file.search code.explain
 metadata:
+  version: 1.0.0
   category: project-management
   dependencies:
     cli: gh

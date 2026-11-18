@@ -2,6 +2,9 @@
 name: accessibility-auditor
 description: Audits web interfaces for WCAG compliance; semantic HTML, ARIA, keyboard navigation, color contrast, screen reader compatibility, and accessible forms. Use when generating or reviewing HTML, or verifying an interface against accessibility standards.
 license: MIT
+allowed-tools: file.read file.search code.explain file.write code.write
+metadata:
+  version: 1.0.0
 ---
 
 # The Accessibility Auditor

@@ -2,7 +2,9 @@
 name: email
 description: Send emails via SMTP or sendmail. Use when sending transactional emails or notifications programmatically.
 license: MIT
+allowed-tools: file.read file.search code.explain
 metadata:
+  version: 1.0.0
   category: messaging
   dependencies:
     cli: sendmail

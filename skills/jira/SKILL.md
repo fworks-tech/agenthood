@@ -2,7 +2,9 @@
 name: jira
 description: Manage Jira issues, sprints, and epics via the jira-cli. Use when viewing, creating, or updating Jira issues.
 license: MIT
+allowed-tools: file.read file.search code.explain
 metadata:
+  version: 1.0.0
   category: project-management
   dependencies:
     cli: jira

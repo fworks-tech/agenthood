@@ -2,7 +2,9 @@
 name: aws
 description: Manage AWS resources via the aws CLI. Use when managing S3, EC2, Lambda, or other AWS services.
 license: MIT
+allowed-tools: file.read file.search code.explain
 metadata:
+  version: 1.0.0
   category: cloud
   dependencies:
     cli: aws

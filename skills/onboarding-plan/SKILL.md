@@ -2,6 +2,9 @@
 name: onboarding-plan
 description: Creates personalized, phased onboarding plans for new team members; environment setup, codebase discovery, first contributions, and early wins. Use when a new developer joins the team and needs a structured path from first day to first contribution.
 license: MIT
+allowed-tools: file.read file.search code.explain ask_human file.write
+metadata:
+  version: 1.0.0
 ---
 
 # The Onboarding Planner

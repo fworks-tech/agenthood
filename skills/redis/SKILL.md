@@ -2,7 +2,9 @@
 name: redis
 description: Manage Redis via the redis-cli. Use when interacting with Redis caches, queues, or key-value stores.
 license: MIT
+allowed-tools: file.read file.search code.explain
 metadata:
+  version: 1.0.0
   category: databases
   dependencies:
     cli: redis-cli

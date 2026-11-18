@@ -2,7 +2,9 @@
 name: kubernetes
 description: Manage Kubernetes clusters via kubectl. Use when deploying, inspecting, or debugging Kubernetes resources.
 license: MIT
+allowed-tools: file.read file.search code.explain
 metadata:
+  version: 1.0.0
   category: cloud
   dependencies:
     cli: kubectl

@@ -2,7 +2,9 @@
 name: gitlab
 description: Manage GitLab repositories via the glab CLI. Use when working with merge requests, issues, or CI/CD pipelines.
 license: MIT
+allowed-tools: file.read file.search code.explain
 metadata:
+  version: 1.0.0
   category: project-management
   dependencies:
     cli: glab

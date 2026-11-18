@@ -2,6 +2,9 @@
 name: remember
 description: Reviews conversation history and captures valuable knowledge (best practices, coding conventions, architecture decisions, workflows, and user feedback) into persistent memory (AGENTS.md) or reusable skills. Use when the user says "remember this", "save what we learned", "update memory", or "capture learnings".
 license: MIT
+allowed-tools: file.read file.search code.explain file.write
+metadata:
+  version: 1.0.0
 ---
 
 # The Rememberer

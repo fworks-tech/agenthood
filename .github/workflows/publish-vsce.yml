@@ -12,6 +12,8 @@ jobs:
   publish:
     name: Publish to VS Code Marketplace
     runs-on: ubuntu-latest
+    env:
+      VSCE_TOKEN: ${{ secrets.VSCE_TOKEN }}
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
 
@@ -25,8 +27,16 @@ jobs:
       - run: cd vscode-extension && npm audit --audit-level=high || echo "::warning::publish-vsce npm audit found vulnerabilities"
 
       - name: Publish to Marketplace
-        # --no-install: use the lockfile-pinned @vscode/vsce ^3.0.0 installed by
-        # npm ci - never a fresh, unpinned 2.x fetch from the registry
+        # --no-install: use the lockfile-pinned @vscode/vsce installed by
+        # npm ci - never a fresh, unpinned fetch from the registry
+        # A missing token skips the publish instead of failing the release:
+        # the job runs on `release: published`, and a guaranteed red after
+        # the tag trains everyone to ignore it.
+        if: env.VSCE_TOKEN != ''
         run: cd vscode-extension && npx --no-install @vscode/vsce publish
         env:
           VSCE_TOKEN: ${{ secrets.VSCE_TOKEN }}
+
+      - name: Report the unpublished extension
+        if: env.VSCE_TOKEN == ''
+        run: echo "::notice::VSCE_TOKEN is not set - the extension was not published. Add the secret and dispatch this workflow to publish it."

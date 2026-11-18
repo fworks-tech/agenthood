@@ -31,6 +31,12 @@ A green workflow run therefore means the sync step succeeded, not that the PR
 passed CI. The PR description says what the automation changed; a maintainer
 runs the gates or pushes a commit under a personal token before merging.
 
+## The sync PR body
+
+The catalog sync writes the pull request body itself, including
+`Refs #NNN` for its tracking issue, and rewrites it on every run. An existing
+PR therefore cannot keep the body it had before the issue was anchored.
+
 ## When the automatic branch already exists
 
 The catalog sync forces its branch with `--force-with-lease` on every run that

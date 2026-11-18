@@ -81,12 +81,18 @@ validate_prerequisites() {
     ANALYSIS_MODEL_ID="$ANALYSIS_MODEL"
   fi
   export ANALYSIS_PROVIDER ANALYSIS_MODEL_ID
-  # Configure provider and model for agent analysis
+  # Configure provider and model for agent analysis. A review of a maxed diff
+  # runs past the failover's 60 s per-request default: PR #1089's 28-39 KB
+  # diffs timed out twice, then fell through to ollama, which does not exist
+  # on a runner. 300 s fits a retry pair inside the 600 s cap below.
   mkdir -p .agenthood
   cat > .agenthood/config.json <<EOF
 {
   "provider": "${ANALYSIS_PROVIDER}",
-  "model": "${ANALYSIS_MODEL_ID}"
+  "model": "${ANALYSIS_MODEL_ID}",
+  "failover": {
+    "requestTimeoutMs": 300000
+  }
 }
 EOF
 

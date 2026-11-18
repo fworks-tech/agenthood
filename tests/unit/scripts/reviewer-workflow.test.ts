@@ -52,6 +52,12 @@ describe('reviewer workflow', () => {
     expect(cut).toBeGreaterThan(omitted)
   })
 
+  it('gives the analysis a per-request timeout that fits a full diff', () => {
+    // The failover default is 60 s; PR #1089's 28-39 KB reviews exceeded it,
+    // retried, then fell through to ollama (absent on a runner).
+    expect(analysis).toContain('"requestTimeoutMs": 300000')
+  })
+
   it('states the comment truncation note in bytes only', () => {
     expect(gate).toContain('-byte comment ceiling')
     expect(gate).not.toContain('65536-character')

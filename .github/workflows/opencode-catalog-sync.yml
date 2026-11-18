@@ -1,5 +1,11 @@
 name: OpenCode Catalog Sync
 
+env:
+  # Anchored to the tracking issue. Fixed, not label-searched: the workflow owns
+  # exactly one long-lived PR, and a search could match a different issue and
+  # split the branch.
+  SYNC_ISSUE: "1098"
+
 on:
   schedule:
     - cron: '0 6 * * 1'
@@ -36,7 +42,7 @@ jobs:
             echo "OpenCode catalog unchanged"
             exit 0
           fi
-          branch="chore/opencode-catalog-sync"
+          branch="chore/issue-${SYNC_ISSUE}-opencode-catalog-sync"
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git checkout -B "$branch"

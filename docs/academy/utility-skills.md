@@ -30,6 +30,8 @@ The [Skills Reference](skills-reference.md) documents the Society members: the 2
 **File:** [`skills/onboarding-plan/SKILL.md`](../../skills/onboarding-plan/SKILL.md)
 **Relation:** Complements The Librarian (docs) and The Concept Explainer (learning material).
 
+> *`debugging-tutor` folded into [`debugger`](../../skills/debugger/SKILL.md) in 4.1.*
+
 ---
 
 ## Planning & Building
@@ -45,6 +47,8 @@ The [Skills Reference](skills-reference.md) documents the Society members: the 2
 **File:** [`skills/cleanup-specialist/SKILL.md`](../../skills/cleanup-specialist/SKILL.md)
 **Relation:** Complements The Warden (detects smells): the Warden reports, the Specialist remediates.
 
+> *`bug-fix-teammate` folded into [`debugger`](../../skills/debugger/SKILL.md) in 4.1.*
+
 ---
 
 ## GitHub Workflow
@@ -59,6 +63,8 @@ The [Skills Reference](skills-reference.md) documents the Society members: the 2
 
 **File:** [`skills/issue-manager/SKILL.md`](../../skills/issue-manager/SKILL.md)
 **Relation:** Complements The Doorman (standards enforcement) and The Scribe (communication): no lane overlap.
+
+> *`pull-request-assistant` folded into [`scribe`](../../skills/scribe/SKILL.md) and [`reviewer`](../../skills/reviewer/SKILL.md) in 4.1.*
 
 ---
 

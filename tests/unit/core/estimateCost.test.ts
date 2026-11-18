@@ -49,6 +49,15 @@ describe('estimateCost', () => {
     expect(warn).toHaveBeenCalledOnce()
   })
 
+  it('stays silent for failed-run traces that never named a model', () => {
+    // runLifecycle records '' or 'unknown' when a run dies before a response;
+    // that is a failure, not a model someone misconfigured.
+    const warn = vi.spyOn(console, 'warn').mockImplementation(() => {})
+    estimateCost('unknown', 1, 1)
+    estimateCost('', 1, 1)
+    expect(warn).not.toHaveBeenCalled()
+  })
+
   it('returns zero cost for zero tokens', () => {
     expect(estimateCost('gpt-4o', 0, 0).estimatedCost).toBe(0)
   })

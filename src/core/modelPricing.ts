@@ -112,7 +112,10 @@ const warnedModels = new Set<string>()
 /** Cost estimate with a one-time warning for models missing from the table. */
 export function estimateCost(model: string, inputTokens: number, outputTokens: number, provider?: string): CostEstimate {
   const price = getModelPrice(model, inputTokens, provider)
-  if (price === FALLBACK_PRICE && !warnedModels.has(model)) {
+  // '' and 'unknown' are failed-run traces (runLifecycle records them before a
+  // response names the model), not a model someone misconfigured.
+  const unpriceableTrace = model.trim() === '' || model.trim() === 'unknown'
+  if (price === FALLBACK_PRICE && !unpriceableTrace && !warnedModels.has(model)) {
     console.warn(`[modelPricing] unknown model "${model}", using fallback pricing`)
     warnedModels.add(model)
   }

@@ -46,6 +46,8 @@ report_skip() {
     echo "_Review skipped: $reason._"
   } > "$file"
   if [ -n "$PR_NUMBER" ]; then
+    # Same supersede rule as an analysis: one skip per PR, not one per push.
+    stale_previous_comment
     cap_comment_bytes "$file"
     gh pr comment "$PR_NUMBER" --body-file "$file" 2>>"$error_file" \
       || echo "::warning::could not post the $AGENT_NAME skip notice"
@@ -79,12 +81,18 @@ validate_prerequisites() {
     ANALYSIS_MODEL_ID="$ANALYSIS_MODEL"
   fi
   export ANALYSIS_PROVIDER ANALYSIS_MODEL_ID
-  # Configure provider and model for agent analysis
+  # Configure provider and model for agent analysis. A review of a maxed diff
+  # runs past the failover's 60 s per-request default: PR #1089's 28-39 KB
+  # diffs timed out twice, then fell through to ollama, which does not exist
+  # on a runner. 300 s fits a retry pair inside the 600 s cap below.
   mkdir -p .agenthood
   cat > .agenthood/config.json <<EOF
 {
   "provider": "${ANALYSIS_PROVIDER}",
-  "model": "${ANALYSIS_MODEL_ID}"
+  "model": "${ANALYSIS_MODEL_ID}",
+  "failover": {
+    "requestTimeoutMs": 300000
+  }
 }
 EOF
 
@@ -93,6 +101,11 @@ EOF
     echo "No files changed. Skipping agent analysis."
     exit 0
   fi
+
+  # What the diff exclusions drop from the range, derived from the same
+  # listing as the prompt: no second git sweep just for the disclosure.
+  OMITTED_FILES=$(echo "$CHANGED" | grep -E '(^|/)(package-lock\.json|agenthood\.lock)$|^CHANGELOG\.md$|^docs/release-notes\.md$' | tr '\n' ' ' || true)
+  export OMITTED_FILES
 
   MAX_FILES="${MAX_FILES:-15}"
   # `|| true`: head exits early when there are more lines, SIGPIPE-ing echo
@@ -185,10 +198,8 @@ build_review_meta() {
     fi
     # The exclusions apply only to the diff; disclose what they removed from
     # the range so the comment never claims more coverage than it has.
-    local omitted
-    omitted=$(git diff --name-only "${BASE_SHA}...${HEAD_SHA}" -- ':(glob)**/package-lock.json' agenthood.lock CHANGELOG.md docs/release-notes.md 2>/dev/null | tr '\n' ' ' || true)
-    if [ -n "$omitted" ]; then
-      meta="$meta · omitted from diff: ${omitted% }"
+    if [ -n "${OMITTED_FILES:-}" ]; then
+      meta="$meta · omitted from diff: ${OMITTED_FILES% }"
     fi
     if [ "$TOTAL_FILES" -gt "$MAX_FILES" ]; then
       meta="$meta · $((TOTAL_FILES - MAX_FILES)) file(s) not listed"

@@ -39,4 +39,32 @@ describe('reviewer workflow', () => {
     expect(analysis).toContain(':(exclude,glob)**/package-lock.json')
     expect(analysis).toContain('capped at 100 KB')
   })
+
+  it('discloses omitted files from the first listing, not a second git sweep', () => {
+    expect(analysis).toContain('OMITTED_FILES=$(echo "$CHANGED" | grep')
+    expect(analysis).not.toContain("git diff --name-only \"${BASE_SHA}...${HEAD_SHA}\" -- ':(glob)**/package-lock.json'")
+  })
+
+  it('discloses omitted files before the max-files cut, so the cut never hides an omission', () => {
+    const omitted = analysis.indexOf('OMITTED_FILES=$(echo "$CHANGED" | grep')
+    const cut = analysis.indexOf('CHANGED=$(echo "$CHANGED" | head')
+    expect(omitted).toBeGreaterThan(-1)
+    expect(cut).toBeGreaterThan(omitted)
+  })
+
+  it('gives the analysis a per-request timeout that fits a full diff', () => {
+    // The failover default is 60 s; PR #1089's 28-39 KB reviews exceeded it,
+    // retried, then fell through to ollama (absent on a runner).
+    expect(analysis).toContain('"requestTimeoutMs": 300000')
+  })
+
+  it('states the comment truncation note in bytes only', () => {
+    expect(gate).toContain('-byte comment ceiling')
+    expect(gate).not.toContain('65536-character')
+  })
+
+  it('supersedes the previous skip comment through the shared stale marking', () => {
+    const skip = analysis.slice(analysis.indexOf('report_skip() {'), analysis.indexOf('validate_prerequisites() {'))
+    expect(skip).toContain('stale_previous_comment')
+  })
 })

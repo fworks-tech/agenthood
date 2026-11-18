@@ -114,13 +114,18 @@ Reviewer comments it actually followed.
   variable, and that the diff payload stays bounded. Those TS assertions are
   wiring checks on literal strings, not a behavioral contract; the test file
   says so.
-- A skip notice posts once per skipped run. A later real analysis marks it
-  outdated through the shared heading; consecutive skips (a repo with no
-  `OPENCODE_API_KEY` commenting on an open PR) accumulate one entry per push.
-  Accepted: the case means misconfiguration and each entry names it.
+- A skip notice supersedes the previous skip through the same outdated-marking
+  an analysis gets, so a repo without `OPENCODE_API_KEY` leaves one skip
+  comment per PR instead of one per push.
 - The posting-failure branch (API error, rate limit) is guarded in the script
   but has no live run exercising it; the cap and the skip path are covered by
   tests and the F1 dispatch proof.
+- Herald changes reach the verdict comments late. The summary fires on
+  `workflow_run`, which executes the default branch's code, so a merged
+  change to `herald-summary.cjs` only applies after it reaches `main`. On PR
+  #1087 the Reviewer still appeared twice because the summary ran the
+  pre-merge script; the pre-merge proof is the `herald-summary.test.ts`
+  rerun test, not a live verdict comment.
 - The analysis comment uses one H2 title, demotes the report's H1/H2 headings
   below it, and marks the previous comment outdated. The Reviewer workflow needs
   `issues: write` for that edit.

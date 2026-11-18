@@ -6,17 +6,25 @@
 
 Twenty members: architect, reviewer, security auditor, DevOps engineer,
 strategist, operator, and the rest of the roles a software project actually
-needs. Each one is a single Markdown skill file that any agent runtime can load.
-A TypeScript runtime runs them autonomously across the lifecycle, from planning
-to release. Nothing here is tied to a model provider, and nothing needs a
-sign-up.
+needs. Each one is a single Markdown skill file that any agent runtime can
+load. A TypeScript runtime runs them autonomously across the lifecycle, from
+planning to release.
 
-They care about the parts of engineering that are easy to skip. A commit message
-that says `fix stuff` does not merge. A pull request without a linked issue gets
-sent back. Every run writes a decision record and a provenance entry, so the work
-can be audited afterwards instead of taken on faith.
+What earns the merge is the record. Every run a member takes writes a
+decision (what was chosen, what was rejected, and why), a provenance entry
+chained by SHA-256 so a later edit is visible, and an invocation trace. This
+repository's own CI runs under the same discipline: a reviewer comment that
+states the commit it read and the scope it covered, a skipped review that
+announces its reason instead of passing green, a security exception that
+carries an expiry date. The record is the product; the members are how it
+gets written.
 
-[Quick start](#quick-start) · [What's new in 4.0](#whats-new-in-40) · [The team](#the-team) · [Commands](#command-reference) · [Upgrade from 3.x](MIGRATION.md)
+That is the answer to the question this page exists for: why trust what this
+repository does. The claim is not taken on faith. [The evidence](#the-evidence)
+section links to live runs and comments from this repository's CI that you
+can open and check.
+
+[Quick start](#quick-start) · [What's new in 4.1](#whats-new-in-41) · [The evidence](#the-evidence) · [The team](#the-team) · [Commands](#command-reference) · [Upgrade from 3.x](MIGRATION.md)
 
 ---
 
@@ -70,23 +78,76 @@ through [skills.sh](https://skills.sh/fworks-tech/agenthood).
 5. **Open the PR.** The body arrives pre-filled with `## What changed`, `## Why`, and `## How to test`.
 6. **Review.** The Reviewer checks correctness, security, performance, maintainability, and coverage.
 
-Seven CI workflows enforce the same standards on the server, including a review
-comment from the Reviewer on every pushed diff. The full matrix is in
-[Getting Started](docs/academy/getting-started.md#ci-pipeline).
+Nine CI workflows enforce the same standards on the server, including an
+advisory review comment from the Reviewer on every pushed diff. The full
+matrix is in [Getting Started](docs/academy/getting-started.md#ci-pipeline).
 
 ---
 
-## What's new in 4.0
+## What's new in 4.1
 
-- **Compose.** Custom members and `chains.yaml` workflows ([ADR-033](docs/adr/ADR-033-chain-workflows.md)). Every step runs through `MemberRunner`, so traces and audit records stay uniform.
-- **Skill contracts.** A skill's `allowed-tools` narrows what the model may call ([ADR-032](docs/adr/ADR-032-skill-tool-enforcement.md)). Skills also declare the model, tools, and dependencies they need and only activate where those exist ([ADR-037](docs/adr/ADR-037-skill-usability-gating-and-variants.md)).
-- **Scripts in a sandbox.** Bundled scripts run on pinned runtimes, inside Docker or not at all, with interface lint and an audit log ([ADR-036](docs/adr/ADR-036-skill-script-execution-and-sandboxing.md)).
-- **Bounded discovery.** The catalog is cached, activations are deduplicated, and compaction cannot drop an active skill ([ADR-038](docs/adr/ADR-038-skill-discovery-and-execution-caching.md)).
-- **Cost and health.** `status` reports the catalog budget, `health` checks stale references, `trace --activations` is the audit trail, and `optimize --cost` ranks spend against use.
-- **Multimodal.** Vision, image generation, speech, and a video stub behind `IMultimodalProvider`.
+- **The reviewer reads a real diff and never gates.** The Reviewer receives
+  up to 100 KB of the actual `git diff`, posts findings with the scope it
+  covered, and its verdict is advisory: what stops a merge are the
+  deterministic checks ([ADR-046](docs/adr/ADR-046-automated-review-authority.md)).
+- **Skips are visible.** A review that cannot run (no pull request context,
+  no API key) says so in the PR thread or the run summary, instead of leaving
+  a green check that reviewed nothing.
+- **The legacy utility skills were resolved.** Nine unclassified skills from
+  the 3.x era: six adopted under the frontmatter contract, three fused into
+  the members whose protocol they repeated, none retired. The public catalog
+  now lists 20 members and 23 utilities
+  ([#1082](https://github.com/fworks-tech/agenthood/pull/1082)).
+- **The decisions got indexed.** [ADR-043](docs/adr/ADR-043-dependency-audit-exception-policy.md)
+  (dependency audit exception policy) and
+  [ADR-046](docs/adr/ADR-046-automated-review-authority.md) (automated review
+  authority) joined the ADR index.
 
-Breaking changes are in [MIGRATION.md](MIGRATION.md). The full history is in the
-[release notes](docs/release-notes.md).
+Breaking changes from 4.0 are in [MIGRATION.md](MIGRATION.md). The full
+history is in the [release notes](docs/release-notes.md).
+
+---
+
+## The evidence
+
+The claims above, checked against this repository's own CI.
+
+**A reviewer with real input.** On PR
+[#1087](https://github.com/fworks-tech/agenthood/pull/1087#issuecomment-6966824192)
+the Reviewer read an 8 file, 19 KB diff at commit `f5f4e7a8` and returned
+"no blocking findings, 3 warnings", with a scope line stating the commit, the
+changed-file count, the diff size, and what the exclusions left out.
+
+**A verdict that survives a rerun.** Two `workflow_dispatch` runs on the same
+commit (`348f63c1`) returned the same verdict, "no blocking findings, 3
+warnings": run
+[44215065350](https://github.com/fworks-tech/agenthood/actions/runs/44215065350)
+and run
+[44215545410](https://github.com/fworks-tech/agenthood/actions/runs/44215545410).
+The same-SHA flip that motivated
+[ADR-046](docs/adr/ADR-046-automated-review-authority.md) cannot decide a
+merge anymore, because the verdict no longer gates.
+
+**Accepted risk with an expiry.** The dependency audit carries an exception
+for GHSA-fc5q-39xc-vjpf in
+[audit-filter.mjs](.github/scripts/audit-filter.mjs), scoped to the affected
+dependency and expiring 2027-02-01
+([ADR-043](docs/adr/ADR-043-dependency-audit-exception-policy.md)). It is an
+exception you can read and watch expire, not a bypass.
+
+### Where the model does not decide
+
+No merge in this repository depends on a model verdict. The checks that stop
+a merge are deterministic: commitlint, the test suite, the build, the link
+and prose checks, and the Sentinel's structural checks. Model analyses run
+advisory ([ADR-046](docs/adr/ADR-046-automated-review-authority.md)); a model
+finding becomes a merge blocker only when someone turns it into a failing
+test, a lint rule, or a link check.
+
+One honest residue: the Herald's CI summary fires on `workflow_run`, which
+executes the default branch's code. A change to the Herald reaches its own
+comments only after it merges; the duplicated Reviewer row on PR #1087 was
+that delay, not a broken fix.
 
 ---
 
@@ -149,8 +210,7 @@ No community member has been published yet, so the first row is yours.
 The row above shows the format, not a published member. To add one, open a PR
 with your `skills/contrib/the-<name>/SKILL.md` and your row. The walkthrough is
 [Creating a Member](docs/guides/creating-a-member.md) and the contract is
-[Third-Party Members](docs/members/contrib-members.md). CI validates every skill
-in `skills/contrib/` and checks that each one appears in this table.
+[Third-Party Members](docs/members/contrib-members.md).
 
 ---
 
@@ -312,7 +372,10 @@ primary `steward` router agent, and an `agenthood_run_member` tool. Config is
 read once at startup, so restart opencode after adding or updating the entry.
 
 The VS Code extension (`agenthood-vscode`) runs the same runtime inside the
-editor.
+editor. Its source is in [vscode-extension/](vscode-extension/) and it
+packages to a `.vsix` with `npm run package`. The marketplace publish runs
+when a GitHub release is published and the `VSCE_TOKEN` secret is set, so
+there is no marketplace listing yet.
 
 ---
 
@@ -377,7 +440,7 @@ The source is [agenthood-site](https://github.com/fworks-tech/agenthood-site).
 - [Patterns](docs/patterns/README.md): four workflow patterns mapped from deepagents onto the Society
 - [Runtime Guide](docs/runtime-guide.md): configuration, providers, and operations
 - [Architecture](docs/architecture/README.md): agent system, queues, operating modes, failover, tools, decisions, skills
-- [ADRs](docs/adr/): 43 records of the decisions behind the design
+- [ADRs](docs/adr/): 44 records of the decisions behind the design
 - [Academy](docs/academy/): a learning path from "what is a prompt" to shipping agents, across three levels
 - [Troubleshooting](docs/guides/troubleshooting.md): the failures people hit first
 

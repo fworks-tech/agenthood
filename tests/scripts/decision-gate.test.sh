@@ -61,7 +61,7 @@ assert_mode "advisory still fails conflicting blocks" 1 "$tmp/conflicting" advis
 head -c 70000 /dev/zero | tr '\0' 'x' > "$tmp/big-body.md"
 cap_comment_bytes "$tmp/big-body.md"
 big_bytes=$(wc -c < "$tmp/big-body.md" | tr -d ' ')
-if [ "$big_bytes" -le 65536 ] && grep -q 'comment truncated' "$tmp/big-body.md"; then
+if [ "$big_bytes" -le 65536 ] && grep -q 'comment truncated' "$tmp/big-body.md" && grep -q 'byte comment ceiling' "$tmp/big-body.md"; then
   echo "ok   - oversized comment body capped with a truncation note"
 else
   echo "FAIL - oversized comment body capped with a truncation note"; fail=1

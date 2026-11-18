@@ -74,10 +74,11 @@ Co-Authored-By: Claude Sonnet 4.6 <noreply@anthropic.com>
 2. Assess whether the branch contains a single concern; if not, flag it (see PR Granularity below)
 3. Run `git diff origin/main...HEAD` to read the full diff
 4. Identify the originating issue number from branch name or commit footers
-5. Write the description in three sections:
+5. Write the description in four sections:
    - **What**: one paragraph summarizing what changed
    - **Why**: one paragraph explaining the motivation or problem solved
    - **How to test**: numbered steps a reviewer can follow to verify the change
+   - **Breaking changes**: API, behavior or migration changes, or "None"
 6. Add screenshots section if the diff touches UI files
 7. Add `Closes #N` footer: mandatory, not decorative. GitHub auto-closes the issue on merge only when the footer is present, and The Doorman enforces it in CI (`pr-body-check.sh`). A PR that resolves an issue but says "covers #N" or omits the footer will fail the gate and leave the issue open
 8. Add `Co-Authored-By` footer

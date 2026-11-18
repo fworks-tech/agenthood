@@ -34,8 +34,9 @@ a tooling decision, and is not part of this ADR.
 
 A suite run is: load the suite, run the member, grade deterministic assertions,
 ask one LLM judge for the remaining metrics, compare to the baseline, print the
-report. The default judge metrics are faithfulness, relevance and context recall;
-assertions cover exact, contains, regex and semantic matches. A custom judge is a
+report. The default metrics are faithfulness, relevance, context recall and
+answer correctness; the first three are LLM-scored and the last uses embeddings.
+Assertions cover exact, contains, regex and semantic matches. A custom judge is a
 constructor argument, not a new command.
 
 ### 2. Baseline, history and convergence are separate records

@@ -48,7 +48,11 @@ jobs:
           git checkout -B "$branch"
           git add src/llm/providers/opencode-catalog.json
           git commit -m "chore(llm): sync OpenCode model catalog"
-          git push --force-with-lease origin "$branch"
+          # --force-with-lease without a value needs a remote-tracking ref, and a
+          # fresh checkout has none: the second run was rejected with "stale info".
+          # The lease is explicit, and an empty expected value means "must not exist".
+          remote_sha=$(git ls-remote origin "refs/heads/$branch" | cut -f1)
+          git push --force-with-lease="refs/heads/$branch:$remote_sha" origin "$branch"
           # The body links the tracking issue; edited on every run so an existing
           # PR cannot keep a stale body from before the issue was anchored.
           body=$(printf 'Automated refresh of src/llm/providers/opencode-catalog.json from https://opencode.ai/zen/v1/models and https://opencode.ai/zen/go/v1/models. Prices, protocols and context windows follow the live catalog.\n\nRefs #%s, the tracking issue for this refresh.' "$SYNC_ISSUE")

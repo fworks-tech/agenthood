@@ -217,6 +217,17 @@ export function skillSearchRoots(projectDir: string): SkillRoot[] {
 }
 
 /**
+ * `verify --dedup [--merge]` wiring, kept out of verify.ts so that file stays
+ * under the size limit. `--merge` alone is an error, not a silent no-op (#616).
+ */
+export function reportDedupFlags(flags: ReadonlySet<string>, cwd: string): void {
+  if (!flags.has('--dedup')) {
+    userError('--merge requires --dedup', { fix: 'Run `agenthood verify --dedup --merge` to consolidate duplicate skills.' })
+  }
+  reportDuplicates(skillSearchRoots(cwd), { merge: flags.has('--merge'), projectDir: cwd })
+}
+
+/**
  * One skill name in several roots (#616). Detection is read-only; the
  * consolidation is opt-in through `verify --dedup --merge`, which writes the
  * diff first and refuses a version tie instead of picking a winner.

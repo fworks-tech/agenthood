@@ -66,7 +66,17 @@ async function listWorkflowRunsForSha(github, owner, repo, sha) {
   const runs = await paginate((page) => github.rest.actions.listWorkflowRunsForRepo({
     owner, repo, head_sha: sha, per_page: PAGE_SIZE, page,
   }));
-  return runs.filter((run) => TRIGGER_WORKFLOWS.includes(run.name));
+  return dedupeToLatestRun(runs.filter((run) => TRIGGER_WORKFLOWS.includes(run.name)));
+}
+
+// A rerun supersedes earlier attempts of the same workflow: keep only the
+// newest run per check name (the API returns runs newest first), so the
+// trial count matches the distinct checks and the table shows the final
+// attempt's verdict instead of one row per attempt.
+function dedupeToLatestRun(runs) {
+  const newest = new Map();
+  for (const run of runs) if (!newest.has(run.name)) newest.set(run.name, run);
+  return [...newest.values()];
 }
 
 function verdictFor(hasFailed, skippedCount) {
@@ -149,4 +159,4 @@ async function summarize(context, github) {
   }
 }
 
-module.exports = { summarize, escapeCell, TRIGGER_WORKFLOWS };
+module.exports = { summarize, escapeCell, TRIGGER_WORKFLOWS, dedupeToLatestRun };

@@ -57,5 +57,48 @@ assert_mode "blocking fails a blocking verdict"   1 "$tmp/blocking" blocking
 assert_mode "advisory ignores warnings over threshold" 0 "$tmp/too-many" advisory
 assert_mode "advisory still fails conflicting blocks" 1 "$tmp/conflicting" advisory
 
+# F2: an oversized comment body is capped below the API ceiling, with a note
+head -c 70000 /dev/zero | tr '\0' 'x' > "$tmp/big-body.md"
+cap_comment_bytes "$tmp/big-body.md"
+big_bytes=$(wc -c < "$tmp/big-body.md" | tr -d ' ')
+if [ "$big_bytes" -le 65536 ] && grep -q 'comment truncated' "$tmp/big-body.md"; then
+  echo "ok   - oversized comment body capped with a truncation note"
+else
+  echo "FAIL - oversized comment body capped with a truncation note"; fail=1
+fi
+
+printf 'small body\n' > "$tmp/small-body.md"
+cp "$tmp/small-body.md" "$tmp/small-body.orig"
+cap_comment_bytes "$tmp/small-body.md"
+if cmp -s "$tmp/small-body.md" "$tmp/small-body.orig"; then
+  echo "ok   - comment body under the ceiling is untouched"
+else
+  echo "FAIL - comment body under the ceiling is untouched"; fail=1
+fi
+
+# F6: the diff payload binds on the 100KB byte cap with a marker, not on
+# MAX_FILES (the file-name cap only trims the listing)
+head -c 150000 /dev/zero | tr '\0' 'a' | fold -w 100 > "$tmp/big-stream.txt"
+cap_stream_bytes "$tmp/stream-marker" < "$tmp/big-stream.txt" > "$tmp/capped-stream.txt" || true
+stream_bytes=$(wc -c < "$tmp/capped-stream.txt" | tr -d ' ')
+if [ "$stream_bytes" -le 101000 ] && [ -s "$tmp/stream-marker" ] && grep -q '(diff truncated at ~100KB)' "$tmp/capped-stream.txt"; then
+  echo "ok   - oversized stream binds on the byte cap with a marker"
+else
+  echo "FAIL - oversized stream binds on the byte cap with a marker"; fail=1
+fi
+
+printf 'small line\n' | cap_stream_bytes "$tmp/small-marker" > "$tmp/small-stream.txt"
+if [ "$(cat "$tmp/small-stream.txt")" = "small line" ] && [ ! -e "$tmp/small-marker" ]; then
+  echo "ok   - stream under the cap passes through unmarked"
+else
+  echo "FAIL - stream under the cap passes through unmarked"; fail=1
+fi
+
+if grep 'git diff' .github/scripts/agent-analysis.sh | grep -q MAX_FILES; then
+  echo "FAIL - MAX_FILES stays out of the diff pipelines"; fail=1
+else
+  echo "ok   - MAX_FILES stays out of the diff pipelines"
+fi
+
 [ "$fail" -eq 0 ] && echo "all decision-gate checks passed" || echo "decision-gate checks FAILED"
 exit "$fail"

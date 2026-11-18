@@ -1,6 +1,8 @@
 #!/usr/bin/env bash
 # Shared decision-gate check for agent analysis outputs.
 # Sourced by .github/scripts/agent-analysis.sh and reviewer.yml.
+# Also hosts the publication caps the analysis path needs: the diff stream
+# byte cap and the comment body cap.
 #
 # Injection model: the analysis prompt embeds untrusted material (git diffs),
 # so the verdict is only trusted when it is the LAST decision block in the
@@ -153,4 +155,36 @@ check_decision_gate() {
   # a decision marker exists but its final block is malformed -- fail
   echo "::error::${prefix}found a malformed trailing decision block -- see PR comment for details"
   return 1
+}
+
+# Caps a stream at 100 KB of complete lines so TASK stays under the kernel
+# per-argument limit (MAX_ARG_STRLEN=128KB) without splitting a line. Touches
+# the marker file when the cut happened and prints a visible marker line.
+# `LC_ALL=C`: byte semantics, no locale-dependent character counting.
+cap_stream_bytes() {
+  local marker="$1"
+  LC_ALL=C awk -v marker="$marker" '{
+    bytes += length($0) + 1
+    if (bytes > 100000) { print "(diff truncated at ~100KB)"; print "1" > marker; exit }
+    print
+  }'
+}
+
+# GitHub rejects comment bodies over 65,536 characters. Cap below it in bytes
+# (a byte count bounds the character count from above) and note how much was
+# cut, so an oversized analysis degrades to a truncated comment instead of a
+# failed post.
+GH_COMMENT_CEILING=60000
+cap_comment_bytes() {
+  local file="$1" bytes cut
+  bytes=$(wc -c < "$file" | tr -d ' ')
+  if [ "$bytes" -le "$GH_COMMENT_CEILING" ]; then
+    return 0
+  fi
+  cut=$((bytes - GH_COMMENT_CEILING))
+  {
+    head -c "$GH_COMMENT_CEILING" "$file"
+    printf '\n\n_(comment truncated: %s bytes cut to fit the 65536-character comment ceiling)_\n' "$cut"
+  } > "${file}.capped"
+  mv "${file}.capped" "$file"
 }

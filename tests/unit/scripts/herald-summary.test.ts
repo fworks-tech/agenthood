@@ -72,6 +72,24 @@ describe('herald-summary', () => {
     expect(body).toContain('Some trials failed')
   })
 
+  it('counts a rerun of a workflow once, keeping the newest attempt', async () => {
+    // newest first: the reviewer ran three times on this SHA (one attempt
+    // failed earlier); only the latest attempt may count and show
+    const m = mockGithub(() => completedTriggers([
+      ['The Reviewer — Commit Review', 'success'],
+      ['The Reviewer — Commit Review', 'failure'],
+      ['The Reviewer — Commit Review', 'success'],
+      ['Society — PR Standards', 'success'],
+    ]))
+    await summarize(contextFor([{ number: 1, sha: 'abc1234' }]), m.client)
+    expect(m.created).toHaveLength(1)
+    const body = m.created[0].body
+    expect(body).toContain('All 2 trials have concluded')
+    expect(body).toContain('cleared for merge')
+    expect(body.match(/The Reviewer — Commit Review/g)).toHaveLength(1)
+    expect(body).not.toContain('Some trials failed')
+  })
+
   it('treats skipped/neutral/stale as non-failing', async () => {
     const m = mockGithub(() => completedTriggers([
       ['Society — PR Standards', 'success'],

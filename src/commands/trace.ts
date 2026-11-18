@@ -260,7 +260,9 @@ export async function trace(args: string[] = []): Promise<void> {
   }
 
   const store = new JSONFileTraceStore(tracesPath)
-  const result = (await store.query({ member, since, limit })).filter((e) => e.entryType !== 'log')
+  // Logs live in the same file; drop them before the limit so a page of recent
+  // logs never hides real traces.
+  const result = (await store.query({ member, since })).filter((e) => e.entryType !== 'log').slice(0, limit)
 
   if (json) {
     const redactor = createRedactionFilterFromConfig(loadObservabilityConfig(cwd))

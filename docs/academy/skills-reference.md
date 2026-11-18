@@ -2,6 +2,9 @@
 
 > *Each member is a specialist, and no two overlap.*
 
+This page documents the 20 Society members. Specialist skills that are not
+members live in [Utility Skills](utility-skills.md).
+
 ---
 
 ## Invoking a member

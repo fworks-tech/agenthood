@@ -12,6 +12,19 @@ const skills = readdirSync(join(repoRoot, 'skills'), { withFileTypes: true })
   .filter((entry) => entry.isDirectory() && entry.name !== '_shared' && entry.name !== 'contrib')
   .map((entry) => entry.name)
 
+const catalog = JSON.parse(readFileSync(join(repoRoot, 'skills.sh.json'), 'utf8')) as {
+  groupings: { skills: string[] }[]
+}
+const listed = catalog.groupings.flatMap((group) => group.skills)
+
+describe('public skill catalog', () => {
+  it('lists every skill once and no orphan', () => {
+    expect(listed).toHaveLength(skills.length)
+    expect([...listed].sort()).toEqual([...skills].sort())
+    expect(new Set(listed).size).toBe(listed.length)
+  })
+})
+
 describe('skill frontmatter contract', () => {
   it.each(skills)('%s declares name, description, tools and version', (name) => {
     const file = join(repoRoot, 'skills', name, 'SKILL.md')

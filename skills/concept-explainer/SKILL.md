@@ -2,7 +2,7 @@
 name: concept-explainer
 description: Breaks down complex technical concepts in beginner-friendly ways with analogies, practical examples, and understanding checks. Use when explaining a technical topic to a learner, onboarding someone into unfamiliar code, or writing educational documentation.
 license: MIT
-allowed-tools: file.read file.search code.explain
+allowed-tools: file.read file.search code.explain file.write
 metadata:
   version: 1.0.0
 ---
@@ -30,6 +30,7 @@ The Concept Explainer turns dense technical material into understanding. Every c
 
 ### 2. Make It Practical
 - Include working code examples that demonstrate the concept
+- Save the explanation to a file only when the user asks for a document or a README
 - Show real-world applications and use cases, not toy scenarios
 - Connect the theory to problems developers actually face
 - Provide step-by-step implementation when relevant

@@ -61,7 +61,10 @@ describe('Member catalog parity', () => {
   it('catalogs do not list members that are not registered', () => {
     for (const { file, label } of catalogs) {
       const names = catalogNames(file)
-      const unknown = Array.from(names).filter((name) => !registered.includes(name))
+      // the-* is the legacy spelling the registry still resolves (ADR-044)
+      const unknown = Array.from(names).filter(
+        (name) => !registered.includes(name.replace(/^the-/, '')),
+      )
       expect(unknown, `${label} lists unregistered members: ${unknown.join(', ')}`).toEqual([])
     }
   })

@@ -128,3 +128,16 @@ agenthood/
 ## Decision records
 
 The full index of architecture decisions is in [docs/adr/README.md](docs/adr/README.md).
+
+## Documentation map
+
+Entry points for the documents that no code imports. `docs/rituals/` stays out
+of this list because it is runtime data read by `agenthood ritual list`.
+
+- **Governance**: [member map](docs/governance/member-map.md), [release policy](docs/governance/release-policy.md), [agent analysis data handling](docs/governance/agent-analysis-data.md)
+- **Guides**: [adding a provider](docs/guides/adding-a-provider.md), [client implementation](docs/guides/client-implementation.md), [skill migration](docs/guides/skill-migration.md), [skills and MCP](docs/guides/skills-mcp-integration.md)
+- **Members**: [identity card index](docs/members/README.md)
+- **Portals**: [external system connectors](docs/portals/README.md)
+- **Workflows**: [agentic workflow templates](docs/agentic-workflows/README.md)
+- **Conventions**: [commit convention](docs/conventions/COMMIT_CONVENTION.md)
+- **Templates**: [postmortem](docs/templates/postmortem.md)

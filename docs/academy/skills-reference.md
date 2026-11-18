@@ -2,6 +2,9 @@
 
 > *Each member is a specialist, and no two overlap.*
 
+This page documents the 20 Society members. Specialist skills that are not
+members live in [Utility Skills](utility-skills.md).
+
 ---
 
 ## Invoking a member
@@ -16,7 +19,7 @@ Three activation paths, all landing on the same skill:
 
 A leading `/skill-name` in a task loads that skill before the model sees it;
 `/skill-name off` suppresses it for the run. Names are the skill's frontmatter
-`name`: flat, lowercase, hyphenated (`scribe`, `code-review`, not `the-scribe`).
+`name`: flat, lowercase, hyphenated (`scribe`, `bug-fix-teammate`, not `the-scribe`).
 
 The harness never keyword-matches a task against skill descriptions. Activation
 is either your explicit `/skill-name` or the model's own `activate_skill` call

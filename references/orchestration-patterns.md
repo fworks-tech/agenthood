@@ -4,7 +4,7 @@
 
 | Layer | What | Example |
 |---|---|---|
-| Skill | Workflow with steps and exit criteria | code-review |
+| Skill | Workflow with steps and exit criteria | bug-fix-teammate |
 | Member | Role with perspective and output format | reviewer |
 | Command | User-facing entry point | `agenthood run reviewer` |
 

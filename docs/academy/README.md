@@ -84,6 +84,8 @@ Every article in the Academy follows the same structure:
 
 Each article also includes a LinkedIn repurposing section at the bottom. The Society shares knowledge. It does not hoard it.
 
+Start from [ARTICLE_TEMPLATE.md](ARTICLE_TEMPLATE.md) and keep the section order.
+
 ---
 
 ## For Adopters

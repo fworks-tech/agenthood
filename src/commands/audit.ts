@@ -1,6 +1,7 @@
-import { existsSync, readdirSync, readFileSync } from 'node:fs'
-import { join } from 'node:path'
+import { existsSync, mkdirSync, readdirSync, readFileSync, renameSync, statSync } from 'node:fs'
+import { basename, join } from 'node:path'
 import { userError } from '../core/cliError.ts'
+import { loadObservabilityConfig, resolveTraceStorePath } from '../core/TraceStore.ts'
 import { MEMBER_NAMES } from '../members.ts'
 import { ProvenanceStore } from '../memory/ProvenanceStore.ts'
 import { auditRoutingRecords } from '../reasoning/routing.ts'
@@ -48,6 +49,7 @@ interface AuditFlags {
   since?: string
   json: boolean
   strict: boolean
+  clear: boolean
   help: boolean
 }
 
@@ -60,6 +62,8 @@ const HELP = `
   --member <name>   Only events from one member
   --since <time>    Only events newer than <time> (ISO date or 1h/24h/7d)
   --json            Machine-readable output
+  --clear           Archive the current trail to .agenthood/archive/<timestamp>/
+                    and start clean; never deletes
   --strict          Exit 1 on a broken chain, an orphan, a missing decision,
                     or an invalid routing record
 `
@@ -78,7 +82,7 @@ function readJsonDir<T>(dir: string): T[] {
 }
 
 function parseFlags(args: string[]): AuditFlags {
-  const flags: AuditFlags = { json: false, strict: false, help: false }
+  const flags: AuditFlags = { json: false, strict: false, clear: false, help: false }
   for (let i = 0; i < args.length; i++) {
     const arg = args[i]
     switch (arg) {
@@ -93,6 +97,9 @@ function parseFlags(args: string[]): AuditFlags {
         break
       case '--strict':
         flags.strict = true
+        break
+      case '--clear':
+        flags.clear = true
         break
       case '--help':
       case '-h':
@@ -110,11 +117,55 @@ function truncate(text: string, max: number): string {
   return single.length > max ? `${single.slice(0, max - 1)}…` : single
 }
 
+const TRAIL_DIRS = ['decisions', 'provenance', 'routing', 'trajectories', 'metrics'] as const
+
+/**
+ * Moves the trail into .agenthood/archive/<timestamp>/ so a demo or a task
+ * starts clean without destroying evidence. Rename, never delete: the archive
+ * stays inside the project and the next audit sees an empty trail.
+ */
+function clearTrail(cwd: string, json: boolean): void {
+  const root = join(cwd, '.agenthood')
+  const tracesPath = resolveTraceStorePath(cwd, loadObservabilityConfig(cwd))
+  const targets = [
+    ...TRAIL_DIRS.map((name) => join(root, name)),
+    tracesPath,
+    join(root, 'costs.jsonl'),
+  ].filter((path) => {
+    if (!existsSync(path)) return false
+    return !statSync(path).isDirectory() || readdirSync(path).length > 0
+  })
+
+  if (targets.length === 0) {
+    if (json) console.log(JSON.stringify({ cleared: false, reason: 'empty' }, null, 2))
+    else console.log('  Trail is already empty.')
+    return
+  }
+
+  const archivePath = join(root, 'archive', new Date().toISOString().replace(/[:.]/g, '-'))
+  mkdirSync(archivePath, { recursive: true })
+  const archived = targets.map((target) => {
+    const name = basename(target)
+    renameSync(target, join(archivePath, name))
+    return name
+  })
+
+  if (json) {
+    console.log(JSON.stringify({ cleared: true, archivePath, archived }, null, 2))
+    return
+  }
+  console.log(`  Archived ${archived.length} trail entr${archived.length === 1 ? 'y' : 'ies'} to ${archivePath}`)
+}
+
 /** Ordered, verified view of the decision trail. */
 export async function audit(args: string[] = [], cwd: string = process.cwd()): Promise<void> {
   const flags = parseFlags(args)
   if (flags.help) {
     console.log(HELP)
+    return
+  }
+  if (flags.clear) {
+    clearTrail(cwd, flags.json)
     return
   }
 

@@ -1,4 +1,4 @@
-import { mkdtempSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs'
+import { existsSync, mkdtempSync, mkdirSync, readFileSync, readdirSync, writeFileSync } from 'node:fs'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 import { afterEach, describe, expect, it, vi } from 'vitest'
@@ -119,5 +119,31 @@ describe('audit command', () => {
     expect(parsed.chain.valid).toBe(true)
     expect(parsed.ok).toBe(true)
     expect(parsed.counts).toEqual({ decisions: 1, provenance: 1, routing: 0 })
+  })
+
+  it('archives the trail on --clear and starts clean', async () => {
+    const root = workspace()
+    writeDecision(root, 'dec-1', '2026-07-01T10:00:00.000Z')
+    await track(root, 'prov-1', '2026-07-01T10:00:00.000Z', 'dec-1')
+
+    expect(await output(['--clear'], root)).toContain('Archived 2 trail entries')
+
+    const archiveRoot = join(root, '.agenthood', 'archive')
+    const [stamp] = readdirSync(archiveRoot)
+    expect(readdirSync(join(archiveRoot, stamp)).sort()).toEqual(['decisions', 'provenance'])
+    expect(existsSync(join(archiveRoot, stamp, 'decisions', 'dec-1.json'))).toBe(true)
+    expect(existsSync(join(root, '.agenthood', 'decisions'))).toBe(false)
+    expect(await output([], root)).toContain('0 event(s)')
+    expect(await output(['--clear'], root)).toContain('already empty')
+  })
+
+  it('reports a clear in JSON', async () => {
+    const root = workspace()
+    writeDecision(root, 'dec-1', '2026-07-01T10:00:00.000Z')
+
+    const parsed = JSON.parse(await output(['--clear', '--json'], root))
+
+    expect(parsed.cleared).toBe(true)
+    expect(parsed.archived).toEqual(['decisions'])
   })
 })

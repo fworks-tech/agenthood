@@ -47,8 +47,10 @@ const opencodeConverters: ParamConverters = {
 }
 
 // Anthropic `/v1/messages` request shape. Zen serves Claude and qwen3.8-flash on
-// this endpoint with `Authorization: Bearer`, so the SDK needs `authToken`, not
-// `apiKey` (which would send x-api-key).
+// this endpoint and reads the credential from `x-api-key`; an Authorization
+// Bearer header is ignored (the endpoint answers 401 "Missing API key"). The
+// Anthropic SDK (1.8.0) sends every credential, `apiKey` included, as Bearer,
+// so this transport is the fetch path with explicit headers.
 function toAnthropicBody(req: LLMRequest, model: string) {
   let system: string | undefined
   const messages: { role: 'user' | 'assistant'; content: unknown }[] = []
@@ -182,17 +184,8 @@ export class OpenCodeProvider extends ChatCompletionsProvider {
 
   // The chat client covers chat models; messages and responses models use their
   // own endpoints. Jev decision models have no prose, so they are rejected.
-  // When inside the OpenCode client session (no standalone API key), we use a
-  // fetch-based transport with the session header instead of the Anthropic SDK,
-  // which requires either apiKey or authToken.
-  private async anthropicClient(): Promise<import("@anthropic-ai/sdk").default> {
-    const { default: Anthropic } = await import("@anthropic-ai/sdk")
-    return new Anthropic({
-      authToken: this.apiKey || undefined,
-      baseURL: this.anthropicBaseUrl,
-      defaultHeaders: { "x-opencode-session": this.sessionId },
-    })
-  }
+  // Messages models never touch the Anthropic SDK: it sends every credential
+  // as Authorization Bearer, and this endpoint only reads x-api-key.
 
   private async messagesRequest(body: Record<string, unknown>, stream = false): Promise<Response> {
     const url = `${this.anthropicBaseUrl}/v1/messages`
@@ -200,7 +193,7 @@ export class OpenCodeProvider extends ChatCompletionsProvider {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        'Authorization': this.apiKey ? `Bearer ${this.apiKey}` : '',
+        ...(this.apiKey ? { 'x-api-key': this.apiKey } : {}),
         'x-opencode-session': this.sessionId,
         'anthropic-version': '2023-06-01',
       },
@@ -222,16 +215,10 @@ export class OpenCodeProvider extends ChatCompletionsProvider {
     if (protocol === 'chat') return super.complete(request)
     if (protocol === 'messages') {
       const body = toAnthropicBody(request, this._model)
-      // Use fetch for client-session (no apiKey), SDK otherwise
-      if (!this.apiKey) {
-        const res = await this.messagesRequest(body)
-        return fromAnthropic(await res.json() as { content?: AnthropicResponseBlock[]; usage?: { input_tokens?: number; output_tokens?: number }; model?: string }, this._model)
-      }
-      const client = await this.anthropicClient()
-      const res = (await client.messages.create(body as never)) as {
-        content?: AnthropicResponseBlock[]; usage?: { input_tokens?: number; output_tokens?: number }; model?: string
-      }
-      return fromAnthropic(res, this._model)
+      // Always fetch: the SDK cannot send x-api-key, the only header this
+      // endpoint reads.
+      const res = await this.messagesRequest(body)
+      return fromAnthropic(await res.json() as { content?: AnthropicResponseBlock[]; usage?: { input_tokens?: number; output_tokens?: number }; model?: string }, this._model)
     }
     if (protocol === 'systemone') {
       throw new UnsupportedOperationError(`Jev "${this._model}" is a decision model (no prose); call decideWithJev() from llm/systemone.ts`, 'OpenCode')
@@ -248,10 +235,8 @@ export class OpenCodeProvider extends ChatCompletionsProvider {
     if (protocol === 'chat') return super.stream(request)
     if (protocol === 'messages') {
       const body = toAnthropicBody(request, this._model)
-      // Use fetch for client-session (no apiKey), SDK otherwise
-      if (!this.apiKey) {
-        const res = await this.messagesRequest(body, true)
-        async function* generate(): AsyncGenerator<LLMChunk> {
+      const res = await this.messagesRequest(body, true)
+      async function* generate(): AsyncGenerator<LLMChunk> {
           const reader = res.body?.getReader()
           if (!reader) { yield { delta: '', done: true }; return }
           const decoder = new TextDecoder()
@@ -278,20 +263,6 @@ export class OpenCodeProvider extends ChatCompletionsProvider {
           yield { delta: '', done: true }
         }
         return generate()
-      }
-      const client = await this.anthropicClient()
-      const stream = await client.messages.create({ ...body, stream: true } as never) as unknown as AsyncIterable<{
-        type: string; delta?: { type?: string; text?: string }
-      }>
-      async function* generate(): AsyncGenerator<LLMChunk> {
-        for await (const event of stream) {
-          if (event.type === 'content_block_delta' && event.delta?.type === 'text_delta' && event.delta.text) {
-            yield { delta: event.delta.text, done: false }
-          }
-        }
-        yield { delta: '', done: true }
-      }
-      return generate()
     }
     if (protocol === 'systemone') {
       throw new UnsupportedOperationError(`Jev "${this._model}" is a decision model (no prose); call decideWithJev() from llm/systemone.ts`, 'OpenCode')

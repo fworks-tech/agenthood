@@ -109,11 +109,11 @@ jobs:
           MEMBER: ${{ matrix.member }}
           TASK: ${{ matrix.task }}
           OPENCODE_API_KEY: ${{ secrets.OPENCODE_API_KEY }}
-          # gpt-5-nano, responses protocol: the model whose endpoint accepts
-          # this provider's auth, proven by the reviewer comment on PR #1087.
-          # The previous qwen3.8-flash is a messages-protocol model whose Zen
-          # endpoint answered 401 "Missing API key" on every scheduled ritual.
-          OPENCODE_MODEL: gpt-5-nano
+          # qwen3.8-flash is a messages-protocol model. Its transport
+          # authenticates with x-api-key, which OpenCodeProvider now sends
+          # (the old Bearer authToken was ignored, hence the 401 "Missing
+          # API key" on every scheduled ritual).
+          OPENCODE_MODEL: qwen3.8-flash
           GH_TOKEN: ${{ github.token }}
         run: |
           set -o pipefail

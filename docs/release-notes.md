@@ -5,6 +5,14 @@
 
 ---
 
+## v4.1.1: November 18, 2026
+
+### 🐛 Bug Fixes
+
+- **Opencode:** port the agenthood plugin to the v2 plugin api (#1103)
+
+---
+
 ## v4.1.0: November 18, 2026
 
 ### 🐛 Bug Fixes

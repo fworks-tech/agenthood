@@ -105,6 +105,9 @@ Commands:
   trace                   List recent member invocation traces
                             Use --member <name>, --limit <n>, --since <time>
                             Use --json for machine-readable output
+  audit                   Verify the decision trail: ordered events, hash chain, gaps
+                            Use --member <name>, --since <time>, --json
+                            Use --strict to exit 1 on a broken chain or a gap
   log                     List recent log entries (debug/info/warn/error)
                             Use --level <level>, --member <name>, --limit <n>
                             Use --since <time> or --json for machine-readable output

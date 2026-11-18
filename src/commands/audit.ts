@@ -1,0 +1,226 @@
+import { existsSync, readdirSync, readFileSync } from 'node:fs'
+import { join } from 'node:path'
+import { userError } from '../core/cliError.ts'
+import { MEMBER_NAMES } from '../members.ts'
+import { ProvenanceStore } from '../memory/ProvenanceStore.ts'
+import { auditRoutingRecords } from '../reasoning/routing.ts'
+import { resolveSince } from './args.ts'
+import type { CommandDescriptor } from './types.ts'
+
+interface DecisionEntry {
+  id: string
+  timestamp: string
+  member: string
+  task: string
+  decision: string
+  outcome: string
+}
+
+interface ProvenanceEntry {
+  entityId: string
+  timestamp: string
+  agentId: string
+  activityId: string
+  sequenceId?: number
+  metadata?: { decisionId?: string }
+}
+
+interface RoutingEntry {
+  id: string
+  timestamp: string
+  member: string
+  intent: string
+  confidence: number
+  target: string
+}
+
+interface AuditEvent {
+  timestamp: string
+  kind: 'decision' | 'provenance' | 'routing'
+  member: string
+  sequence?: number
+  id: string
+  summary: string
+}
+
+interface AuditFlags {
+  member?: string
+  since?: string
+  json: boolean
+  strict: boolean
+  help: boolean
+}
+
+const HELP = `
+  agenthood audit: verify what the Society decided, in the order it happened
+
+  Reads .agenthood/decisions, .agenthood/provenance, and .agenthood/routing,
+  merges them into one timeline, and verifies the provenance hash chain.
+
+  --member <name>   Only events from one member
+  --since <time>    Only events newer than <time> (ISO date or 1h/24h/7d)
+  --json            Machine-readable output
+  --strict          Exit 1 on a broken chain, an orphan, a missing decision,
+                    or an invalid routing record
+`
+
+function readJsonDir<T>(dir: string): T[] {
+  if (!existsSync(dir)) return []
+  return readdirSync(dir)
+    .filter((file) => file.endsWith('.json'))
+    .flatMap((file) => {
+      try {
+        return [JSON.parse(readFileSync(join(dir, file), 'utf8')) as T]
+      } catch {
+        return []
+      }
+    })
+}
+
+function parseFlags(args: string[]): AuditFlags {
+  const flags: AuditFlags = { json: false, strict: false, help: false }
+  for (let i = 0; i < args.length; i++) {
+    const arg = args[i]
+    switch (arg) {
+      case '--member':
+        flags.member = args[++i]
+        break
+      case '--since':
+        flags.since = resolveSince(args[++i] ?? '')
+        break
+      case '--json':
+        flags.json = true
+        break
+      case '--strict':
+        flags.strict = true
+        break
+      case '--help':
+      case '-h':
+        flags.help = true
+        break
+      default:
+        userError(`Unknown flag: "${arg}"`, { fix: 'Run "agenthood audit --help" to see the flags.' })
+    }
+  }
+  return flags
+}
+
+function truncate(text: string, max: number): string {
+  const single = String(text ?? '').replace(/\s+/g, ' ').trim()
+  return single.length > max ? `${single.slice(0, max - 1)}…` : single
+}
+
+/** Ordered, verified view of the decision trail. */
+export async function audit(args: string[] = [], cwd: string = process.cwd()): Promise<void> {
+  const flags = parseFlags(args)
+  if (flags.help) {
+    console.log(HELP)
+    return
+  }
+
+  const root = join(cwd, '.agenthood')
+  const decisions = readJsonDir<DecisionEntry>(join(root, 'decisions')).filter(
+    (entry) => typeof entry?.id === 'string' && typeof entry?.member === 'string' && typeof entry?.timestamp === 'string',
+  )
+  const provenance = readJsonDir<ProvenanceEntry>(join(root, 'provenance')).filter(
+    (entry) => typeof entry?.entityId === 'string' && typeof entry?.timestamp === 'string',
+  )
+  const routing = readJsonDir<RoutingEntry>(join(root, 'routing')).filter(
+    (entry) => typeof entry?.id === 'string' && typeof entry?.timestamp === 'string',
+  )
+  const routingFailures = auditRoutingRecords(join(root, 'routing'), MEMBER_NAMES)
+
+  const since = flags.since
+  const wanted = (member: string) => !flags.member || member === flags.member
+  const fresh = (timestamp: string) => !since || timestamp >= since
+
+  const events: AuditEvent[] = []
+  for (const d of decisions) {
+    if (!wanted(d.member) || !fresh(d.timestamp)) continue
+    events.push({
+      timestamp: d.timestamp,
+      kind: 'decision',
+      member: d.member,
+      id: d.id,
+      summary: `${d.outcome}: ${truncate(d.decision, 70)}`,
+    })
+  }
+  for (const p of provenance) {
+    if (!wanted(p.agentId) || !fresh(p.timestamp)) continue
+    events.push({
+      timestamp: p.timestamp,
+      kind: 'provenance',
+      member: p.agentId,
+      sequence: p.sequenceId,
+      id: p.entityId,
+      summary: p.activityId,
+    })
+  }
+  for (const r of routing) {
+    if (!wanted(r.member) || !fresh(r.timestamp)) continue
+    events.push({
+      timestamp: r.timestamp,
+      kind: 'routing',
+      member: r.member,
+      id: r.id,
+      summary: `${r.intent} ${r.confidence}% → ${r.target}`,
+    })
+  }
+  events.sort((a, b) => (a.timestamp === b.timestamp ? (a.sequence ?? 0) - (b.sequence ?? 0) : a.timestamp < b.timestamp ? -1 : 1))
+
+  const chain = await new ProvenanceStore({ provenanceDir: join(root, 'provenance') }).verifyChain()
+
+  const decisionIds = new Set(decisions.map((d) => d.id))
+  const linked = new Set(provenance.map((p) => p.metadata?.decisionId).filter(Boolean) as string[])
+  const orphans = provenance
+    .filter((p) => p.metadata?.decisionId && !decisionIds.has(p.metadata.decisionId))
+    .filter((p) => wanted(p.agentId) && fresh(p.timestamp))
+  const missing = decisions.filter((d) => !linked.has(d.id)).filter((d) => wanted(d.member) && fresh(d.timestamp))
+  const ok = chain.valid && routingFailures.length === 0 && orphans.length === 0 && missing.length === 0
+
+  if (flags.json) {
+    console.log(
+      JSON.stringify(
+        {
+          root: cwd,
+          events,
+          chain,
+          counts: { decisions: decisions.length, provenance: provenance.length, routing: routing.length },
+          orphans: orphans.map((p) => p.entityId),
+          decisionsWithoutProvenance: missing.map((d) => d.id),
+          routingFailures,
+          ok,
+        },
+        null,
+        2,
+      ),
+    )
+    if (flags.strict && !ok) process.exitCode = 1
+    return
+  }
+
+  console.log(`\n  Audit: ${cwd}`)
+  console.log(
+    `  ${events.length} event(s): ${decisions.length} decision(s), ${provenance.length} provenance, ${routing.length} routing\n`,
+  )
+  for (const event of events) {
+    const sequence = event.sequence !== undefined ? `#${event.sequence}` : '  '
+    console.log(`  ${event.timestamp}  ${event.kind.padEnd(10)} ${sequence.padEnd(4)} ${event.member.padEnd(12)} ${event.summary}`)
+  }
+
+  console.log(`\n  Provenance chain: ${chain.valid ? 'valid' : `BROKEN at ${chain.brokenAt ?? 'unknown'}`}`)
+  if (!chain.valid && chain.detail) console.log(`  ${chain.detail}`)
+  for (const orphan of orphans) console.log(`  ⚠ provenance without decision: ${orphan.entityId}`)
+  for (const decision of missing) console.log(`  ⚠ decision without provenance: ${decision.id}`)
+  for (const failure of routingFailures) console.log(`  ⚠ invalid routing record ${failure.file}: ${failure.errors.join('; ')}`)
+  if (ok) console.log('  ✓ The trail is complete and the chain is intact.')
+  console.log()
+
+  if (flags.strict && !ok) process.exitCode = 1
+}
+
+export const command: CommandDescriptor = {
+  name: 'audit',
+  description: 'Verify the decision trail: ordered events, hash chain, gaps',
+  handler: (args) => audit(args),
+}

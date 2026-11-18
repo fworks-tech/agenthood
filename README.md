@@ -374,6 +374,7 @@ The source is [agenthood-site](https://github.com/fworks-tech/agenthood-site).
 - [Getting Started](docs/academy/getting-started.md): install, first commit, CI, configuration
 - [Skills Reference](docs/academy/skills-reference.md): every member, its tools, and how to invoke it
 - [Utility Skills](docs/academy/utility-skills.md): the 23 specialist skills
+- [Patterns](docs/patterns/README.md): four workflow patterns mapped from deepagents onto the Society
 - [Runtime Guide](docs/runtime-guide.md): configuration, providers, and operations
 - [Architecture](docs/architecture/README.md): agent system, queues, operating modes, failover, tools, decisions, skills
 - [ADRs](docs/adr/): 43 records of the decisions behind the design

@@ -1,12 +1,17 @@
 # Patterns
 
-Workflow patterns ported from the [deepagents](https://github.com/langchain-ai/deepagents)
-examples, mapped onto the Society. The upstream repository is
+Workflow patterns mapped from the [deepagents](https://github.com/langchain-ai/deepagents)
+examples onto the Society. The upstream repository is
 [LangChain's deepagents](https://github.com/langchain-ai/deepagents/tree/main/examples),
 licensed [MIT](https://github.com/langchain-ai/deepagents/blob/main/LICENSE)
 (Copyright LangChain, Inc.). These pages attribute each pattern to its source
 folder, map every upstream primitive to what exists here, and name what is not
 covered instead of inventing an equivalent.
+
+These pages describe concepts. No deepagents code was vendored, copied or
+adapted into this repository, which is neither a fork of nor derived from the
+upstream project: the MIT license above covers the upstream source, not this
+project.
 
 Every page has a three column table: the primitive in the upstream example, the
 equivalent in this repository with a real file path, and a status. Status

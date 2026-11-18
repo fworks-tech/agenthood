@@ -5,6 +5,11 @@ licensed [MIT](https://github.com/langchain-ai/deepagents/blob/main/LICENSE)
 (Copyright LangChain, Inc.). This page maps that example onto Agenthood; it is
 not a copy of the upstream code.
 
+Until the [sandbox issue](https://github.com/fworks-tech/agenthood/issues/1093)
+closes, read this page as a design reference rather than an executable path: the
+upstream pattern gets its guarantees from the sandbox, and this runtime does not
+have that layer.
+
 ## What the upstream pattern does
 
 An autonomous coding agent deployed as an API. Given a task, it plans,
@@ -41,7 +46,7 @@ The build chain against a real issue, with the gate enforced at the end:
 npx agenthood workflow run build "implement issue #42"
 ```
 
-The HTTP deployment and the sandbox do not exist. Until the
+The HTTP deployment and the sandbox do not exist. The
 [server](https://github.com/fworks-tech/agenthood/issues/1091) and
-[sandbox](https://github.com/fworks-tech/agenthood/issues/1093) issues land,
-this page is a reference architecture, not a command to serve one.
+[sandbox](https://github.com/fworks-tech/agenthood/issues/1093) issues track
+them.

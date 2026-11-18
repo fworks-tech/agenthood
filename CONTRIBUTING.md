@@ -132,6 +132,7 @@ The `agenthood` CLI auto-discovers commands from `src/commands/`: each file expo
 
 - `agenthood run <member> "<task>"`: invoke a member or core agent. Runs exit with code 1 on failure (via `process.exitCode`, so piped stderr is not truncated); the error is logged by the command, not the library; library callers calling `ApplicationContext.runMember`/`runAgent` receive the thrown error instead of a process exit.
   - Members use their unprefixed names (`agenthood run scribe`); the legacy `the-scribe` form still resolves as an alias.
+  - Every run injects the project's `AGENTS.md` (or `CLAUDE.md`) into the member prompt, capped at 64 KB. A host whose `AGENTS.md` is contributor documentation sets `{ "repoInstructions": false }` in `.agenthood/config.json`; the run decision then carries the `repo-instructions-disabled` tag (#1071).
   - Concurrent runs in one process arbitrate through a shared ConcurrencyQueue by origin (`cli`/`playground`/`api` = USER priority, `automated` = SCHEDULED); rituals pass `automated` so an interactive run always jumps ahead.
   - A `--` separator ends flag parsing, so a task beginning with `-` is always treated as data (the opencode plugin passes it).
   - `--resume <id>` resumes from a checkpoint saved during a previous interrupted run.

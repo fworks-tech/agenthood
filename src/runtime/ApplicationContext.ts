@@ -62,6 +62,8 @@ export interface ApplicationContextOptions {
   checkpointStore?: CheckpointStore
   /** Host-registered members, applied after the built-in Society. */
   customMembers?: CustomMemberDefinition[]
+  /** `false` leaves AGENTS.md / CLAUDE.md out of the prompt (#1071). Default true. */
+  repoInstructions?: boolean
 }
 
 export class ApplicationContext {
@@ -83,7 +85,7 @@ export class ApplicationContext {
     llm: ILLMProvider,
     options: ApplicationContextOptions,
   ) {
-    const { societyGraph, vectorStore, skills, availability, sentry, checkpointStore, customMembers } = options
+    const { societyGraph, vectorStore, skills, availability, sentry, checkpointStore, customMembers, repoInstructions } = options
     this.llm = llm
     this.societyGraph = societyGraph
     this.agents = new AgentRegistry()
@@ -129,7 +131,8 @@ export class ApplicationContext {
       oracle: { ask: (q: string) => oracleAgent.ask(q, this.ctx) },
       skillsCatalog: skills.catalog || undefined,
       skillManifests: skills.manifests,
-      repoInstructions: loadRepoInstructions(projectPath) || undefined,
+      repoInstructions: repoInstructions === false ? undefined : loadRepoInstructions(projectPath) || undefined,
+      ...(repoInstructions === false ? { repoInstructionsOptOut: true } : {}),
       skillAllowedTools: (name) => toRegistryToolNames(skills.manifests.get(name)?.allowedTools),
       sentry,
       redactor,
@@ -175,6 +178,7 @@ export class ApplicationContext {
       sentry: config.sentry,
       checkpointStore: host?.checkpointStore,
       customMembers: host?.customMembers,
+      repoInstructions: config.repoInstructions,
     })
     try {
       await reindexLegacyPatterns(new EmbeddingIndex(vectorStore), vectorStore, (text) => llm.embed(text))

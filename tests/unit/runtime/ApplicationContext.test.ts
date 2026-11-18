@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeAll, afterAll } from 'vitest'
-import { mkdtempSync, rmSync, existsSync, readFileSync } from 'node:fs'
+import { mkdtempSync, rmSync, existsSync, readFileSync, writeFileSync } from 'node:fs'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 
@@ -164,6 +164,21 @@ describe('ApplicationContext run pipeline', () => {
 
     expect(app.members.list()).toHaveLength(21)
     expect(app.members.get('release-captain').sourcePath).toBe('custom:release-captain')
+  })
+
+  it('injects repo instructions by default and leaves them out when config opts out (#1071)', async () => {
+    writeFileSync(join(projectDir, 'AGENTS.md'), '# House rules\nUse tabs.\n')
+    try {
+      const injected = await ApplicationContext.create(projectDir, {} as never)
+      expect(injected.ctx.repoInstructions).toContain('Use tabs.')
+      expect(injected.ctx.repoInstructionsOptOut).toBeUndefined()
+
+      const optedOut = await ApplicationContext.create(projectDir, { repoInstructions: false } as never)
+      expect(optedOut.ctx.repoInstructions).toBeUndefined()
+      expect(optedOut.ctx.repoInstructionsOptOut).toBe(true)
+    } finally {
+      rmSync(join(projectDir, 'AGENTS.md'), { force: true })
+    }
   })
 
   it('succeeds when the LLM reports usage and stamps source from the context', async () => {

@@ -130,6 +130,25 @@ describe('BaseAgent lifecycle', () => {
     })
   })
 
+  it('tags the decision when the host opted out of repo instructions (#1071)', async () => {
+    const { llm, toolRegistry, loop } = createAgentHarness()
+    const recordDecision = vi.fn().mockResolvedValue(undefined)
+    const context = createTestContext({
+      repoInstructionsOptOut: true,
+      memory: {
+        ...createTestContext().memory,
+        decisions: {
+          ...createTestContext().memory.decisions,
+          record: recordDecision,
+        },
+      },
+    })
+
+    await new TestAgent(llm, loop, toolRegistry).run('test task', context)
+
+    expect(recordDecision.mock.calls[0][0].tags).toEqual(['run', 'repo-instructions-disabled'])
+  })
+
   it('records a failed decision and rethrows the error', async () => {
     const { llm } = createAgentHarness()
     const recordDecision = vi.fn().mockResolvedValue(undefined)

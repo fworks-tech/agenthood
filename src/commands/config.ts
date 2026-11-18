@@ -78,6 +78,21 @@ function parseRemoteCatalogs(raw: Record<string, unknown>): RemoteCatalogsConfig
   return config
 }
 
+/**
+ * The opt-out is a trust-boundary switch (#1071): a typo must not silently keep
+ * injecting contributor docs into every prompt, so a non-boolean fails the run.
+ */
+function parseRepoInstructions(raw: Record<string, unknown>): boolean | undefined {
+  const value = raw.repoInstructions
+  if (value === undefined) return undefined
+  if (typeof value !== 'boolean') {
+    throw new Error(
+      `Invalid repoInstructions in .agenthood/config.json: expected true or false, got ${JSON.stringify(value)}.`,
+    )
+  }
+  return value
+}
+
 function parseSkills(raw: Record<string, unknown>): SkillsConfig | undefined {
   const skills = pickBlock(raw, 'skills')
   if (!skills) return undefined
@@ -179,6 +194,8 @@ export async function loadConfig(providerOverride?: string): Promise<LLMConfig> 
   if (sentry) cfg.sentry = sentry
   const security = parseSecurity(raw)
   if (security) cfg.security = security
+  const repoInstructions = parseRepoInstructions(raw)
+  if (repoInstructions !== undefined) cfg.repoInstructions = repoInstructions
   if (providerOverride) cfg.provider = providerOverride
   return cfg
 }

@@ -196,7 +196,7 @@ export class RunLifecycle {
       rationale: args.rationale,
       alternatives: [],
       outcome: args.isSuccessful ? 'completed' : 'failed',
-      tags: ['run'],
+      tags: ['run', ...(args.context.repoInstructionsOptOut ? ['repo-instructions-disabled'] : [])],
       decisionMaker: this.getRole(),
     })
   }

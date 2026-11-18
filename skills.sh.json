@@ -7,18 +7,28 @@
       "description": "Agents that shape work before code is written and keep the Society running efficiently.",
       "skills": [
         "architect",
-        "oracle",
         "envoy",
-        "steward"
+        "issue-manager",
+        "mediator",
+        "onboarding-plan",
+        "operator",
+        "oracle",
+        "remember",
+        "steward",
+        "strategist"
       ]
     },
     {
       "title": "Quality & Review",
       "description": "Agents that verify correctness, maintainability, and codebase health.",
       "skills": [
+        "accessibility-auditor",
+        "builder",
+        "cleanup-specialist",
+        "debugger",
+        "inspector",
         "reviewer",
         "tester",
-        "debugger",
         "warden"
       ]
     },
@@ -27,17 +37,42 @@
       "description": "Agents that enforce standards, detect risks, and protect the Society from drift.",
       "skills": [
         "auditor",
-        "sentinel",
-        "doorman"
+        "doorman",
+        "sentinel"
       ]
     },
     {
       "title": "Release & Documentation",
       "description": "Agents that turn code changes into clear communication and shipped releases.",
       "skills": [
-        "scribe",
+        "concept-explainer",
         "herald",
-        "librarian"
+        "librarian",
+        "mailman",
+        "scribe"
+      ]
+    },
+    {
+      "title": "Infrastructure & Integration",
+      "description": "External systems and CLIs that agents use to inspect, query, and change infrastructure.",
+      "skills": [
+        "aws",
+        "datadog",
+        "docker",
+        "elasticsearch",
+        "email",
+        "github",
+        "gitlab",
+        "jira",
+        "kubernetes",
+        "linear",
+        "mongodb",
+        "mysql",
+        "postgres",
+        "redis",
+        "sentry",
+        "telegram",
+        "web-research"
       ]
     }
   ]

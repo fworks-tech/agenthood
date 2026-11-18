@@ -2,7 +2,9 @@
 name: elasticsearch
 description: Manage Elasticsearch clusters via the REST API. Use when querying, indexing, or managing Elasticsearch indices.
 license: MIT
+allowed-tools: file.read file.search code.explain
 metadata:
+  version: 1.0.0
   category: databases
   dependencies:
     cli: curl

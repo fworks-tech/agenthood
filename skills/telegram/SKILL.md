@@ -2,7 +2,9 @@
 name: telegram
 description: Send messages and manage Telegram bots via the Bot API. Use when sending notifications or building chat interactions.
 license: MIT
+allowed-tools: file.read file.search code.explain
 metadata:
+  version: 1.0.0
   category: messaging
   config:
     - name: TELEGRAM_BOT_TOKEN

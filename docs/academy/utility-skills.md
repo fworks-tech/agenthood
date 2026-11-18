@@ -19,17 +19,6 @@ The [Skills Reference](skills-reference.md) documents the Society members: the 2
 **File:** [`skills/concept-explainer/SKILL.md`](../../skills/concept-explainer/SKILL.md)
 **Relation:** Complements The Librarian (documentation): the Explainer teaches, the Librarian records.
 
-### Debugging Tutor
-
-> *The measure of success is whether the learner can fix the next one without help.*
-
-**What it does:** Teaches systematic debugging as a skill: consistent reproduction, careful error-message reading, one change at a time, hypothesis formation, and pattern recognition: through leading questions rather than handed answers.
-
-**When to use:** A learner is stuck on a bug and needs to build independent problem-solving skill, or a team repeatedly hits the same error categories.
-
-**File:** [`skills/debugging-tutor/SKILL.md`](../../skills/debugging-tutor/SKILL.md)
-**Relation:** Complements The Debugger (diagnosis) and The Bug Fix Teammate (remediation): the Tutor builds the skill, the others do the work.
-
 ### Onboarding Planner
 
 > *Foundation, exploration, integration: a path from first day to first contribution.*
@@ -44,17 +33,6 @@ The [Skills Reference](skills-reference.md) documents the Society members: the 2
 ---
 
 ## Planning & Building
-
-### Bug Fix Teammate
-
-> *Fix the reported issue completely. Refactor nothing else.*
-
-**What it does:** The remediation arm of debugging: scans for the most critical bugs, prioritizes by impact, reproduces and roots them, implements the minimal working fix, adds regression tests, and shares the knowledge gained.
-
-**When to use:** A bug needs a complete fix with tests rather than a diagnosis, or the codebase needs bug triage.
-
-**File:** [`skills/bug-fix-teammate/SKILL.md`](../../skills/bug-fix-teammate/SKILL.md)
-**Relation:** Complements The Debugger (diagnoses) and The Builder (implements): action-oriented bug resolution with teaching.
 
 ### Cleanup Specialist
 
@@ -81,17 +59,6 @@ The [Skills Reference](skills-reference.md) documents the Society members: the 2
 
 **File:** [`skills/issue-manager/SKILL.md`](../../skills/issue-manager/SKILL.md)
 **Relation:** Complements The Doorman (standards enforcement) and The Scribe (communication): no lane overlap.
-
-### Pull Request Assistant
-
-> *A PR is a contract between author and reviewers: draft it well, enforce it fairly.*
-
-**What it does:** Generates complete PR descriptions (what/why/testing/breaking changes), runs review passes across security, performance, testing, and documentation, checks deployment requirements (migrations, env vars, feature flags), and formats feedback with issue/suggestion/why and emoji labels.
-
-**When to use:** Opening a PR that needs a complete description, or reviewing one before merge.
-
-**File:** [`skills/pull-request-assistant/SKILL.md`](../../skills/pull-request-assistant/SKILL.md)
-**Relation:** Overlaps The Scribe (PR descriptions) and The Reviewer (multi-axis review); this is the combined, template-driven variant; the members remain canonical for runtime use.
 
 ---
 

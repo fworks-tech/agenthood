@@ -2,6 +2,9 @@
 name: cleanup-specialist
 description: Removes dead code, eliminates duplication, refactors messy patterns, and applies consistent formatting across code and documentation; safely, with tests before and after. Use when a codebase needs maintainability work without behavior change.
 license: MIT
+allowed-tools: file.read file.search code.explain file.write code.write code.refactor
+metadata:
+  version: 1.0.0
 ---
 
 # The Cleanup Specialist

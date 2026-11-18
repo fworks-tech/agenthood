@@ -54,6 +54,7 @@ Work through each axis for every changed file:
 - Are error paths handled, not just the happy path?
 - Are there off-by-one errors, race conditions, or state inconsistencies?
 - Does it do exactly what the commit message claims?
+- Does the deployment surface hold: migrations have a rollback, new env vars and feature flags are documented, and third-party changes are called out?
 
 **Axis 2: Readability**
 - Can another developer understand this without the author explaining it?

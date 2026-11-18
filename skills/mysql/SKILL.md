@@ -2,7 +2,9 @@
 name: mysql
 description: Manage MySQL databases via the mysql CLI. Use when querying, inspecting schema, or managing MySQL databases.
 license: MIT
+allowed-tools: file.read file.search code.explain
 metadata:
+  version: 1.0.0
   category: databases
   dependencies:
     cli: mysql

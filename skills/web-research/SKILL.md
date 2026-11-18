@@ -6,6 +6,8 @@ allowed-tools:
   - file.read
   - file.write
   - file.search
+metadata:
+  version: 1.0.0
 ---
 
 # Web Research

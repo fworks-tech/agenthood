@@ -23,6 +23,30 @@ member's own skill name.
 The `the-*` member spelling is a separate compatibility path and still resolves
 through `MemberRegistry` (ADR-044). Only the alias skill directories were removed.
 
+The nine legacy utility skills got a verdict in the same release. Three repeated
+a member protocol and were fused into it:
+
+| Removed skill | Folded into |
+|---|---|
+| `bug-fix-teammate` | `debugger` (triage and remediation) |
+| `debugging-tutor` | `debugger` (teaching mode) |
+| `pull-request-assistant` | `scribe` (breaking changes), `reviewer` (deployment surface) |
+
+### Rolling back to 4.0
+
+Nothing in 4.1 writes new state, so a rollback is the older package plus a clean
+cache:
+
+```bash
+npm install -g agenthood@4.0.0
+rm -rf .agenthood/skill-cache        # rebuilt by either version
+agenthood verify
+```
+
+If you copied member skills into a runtime with `agenthood init`, run it again
+after the downgrade so the fused protocols match the older versions. Decisions,
+provenance and traces are append-only, so keep them.
+
 ## 3.77 → 4.0
 
 4.0 makes members and workflows data. Three changes need action; the rest is additive.

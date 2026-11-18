@@ -75,6 +75,12 @@ Reviewer comments it actually followed.
   agent still fails closed because its verdict is the gate.
 - The gate cannot flip on a rerun. A future change that puts the model back in
   the gate path must explain how it keeps this property.
+- Advisory mode is covered end to end by tests. `decision-gate.test.sh` proves
+  that a blocking marker, over-threshold warnings and conflicting markers still
+  fail closed in `blocking` mode and are ignored in `advisory` mode.
+  `reviewer-workflow.test.ts` proves that the workflow passes `advisory`, that
+  the action maps it to `AGENTHOOD_GATE_MODE`, that the script reads that
+  variable, and that the diff payload stays bounded.
 - The analysis comment uses one H2 title, demotes the report's H1/H2 headings
   below it, and marks the previous comment outdated. The Reviewer workflow needs
   `issues: write` for that edit.

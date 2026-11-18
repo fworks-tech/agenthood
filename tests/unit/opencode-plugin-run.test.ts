@@ -1,7 +1,7 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest'
 import pluginModule, { runMember } from '../../src/opencode-plugin.ts'
 import type { FakeChild } from '../helpers/opencodePluginFixtures.ts'
-import { fakeChild } from '../helpers/opencodePluginFixtures.ts'
+import { fakeChild, fakePluginContext } from '../helpers/opencodePluginFixtures.ts'
 
 const state = vi.hoisted(() => ({
   cliExists: true,
@@ -171,20 +171,22 @@ describe('runMember', () => {
 })
 
 describe('server tool execute', () => {
-  it('runs the member in the caller directory through the mocked spawn', async () => {
+  const runTool = async () => {
+    const { ctx, tools } = fakePluginContext('/caller')
+    await pluginModule.setup(ctx)
+    return tools.find((t) => t.name === 'agenthood_run_member')
+  }
+
+  it('runs the member in the plugin location through the mocked spawn', async () => {
     const child = fakeChild() as any
     state.spawnChild = child
-    const hooks = await (pluginModule.server as any)()
-    const def = hooks.tool?.['agenthood_run_member']
+    const tool = await runTool()
     setImmediate(() => {
       child.stdout.emit('data', Buffer.from('member says hi'))
       child.emit('close', 0)
     })
-    const result = await def?.execute(
-      { member: 'oracle', task: 'hi' },
-      { directory: '/caller', abort: new AbortController().signal } as never,
-    )
-    expect(result).toEqual({ title: 'agenthood run oracle', output: 'member says hi' })
+    const result = await tool.execute({ member: 'oracle', task: 'hi' }, { signal: new AbortController().signal })
+    expect(result).toEqual({ content: 'member says hi', metadata: { title: 'agenthood run oracle' } })
     expect(state.spawnCalls[0]?.args.slice(-4)).toEqual(['run', 'oracle', '--', 'hi'])
     expect(state.spawnCalls[0]?.options.cwd).toBe('/caller')
     expect((state.spawnCalls[0]?.options as any).stdio).toEqual(['ignore', 'pipe', 'pipe'])
@@ -192,15 +194,11 @@ describe('server tool execute', () => {
 
   it('reports a missing CLI without spawning', async () => {
     state.cliExists = false
-    const hooks = await (pluginModule.server as any)()
-    const def = hooks.tool?.['agenthood_run_member']
-    const result = await def?.execute(
-      { member: 'oracle', task: 'hi' },
-      { directory: '/caller', abort: new AbortController().signal } as never,
-    )
+    const tool = await runTool()
+    const result = await tool.execute({ member: 'oracle', task: 'hi' }, { signal: new AbortController().signal })
     expect(result).toEqual({
-      title: 'agenthood run oracle',
-      output: expect.stringContaining('agenthood CLI not found'),
+      content: expect.stringContaining('agenthood CLI not found'),
+      metadata: { title: 'agenthood run oracle' },
     })
     expect(state.spawnCalls).toEqual([])
   })

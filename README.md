@@ -355,7 +355,7 @@ npm i -g agenthood   # add @<version> to pin, for example agenthood@4.0.0
 // ~/.config/opencode/opencode.jsonc  (global)
 {
   "$schema": "https://opencode.ai/config.json",
-  "plugin": ["agenthood"]
+  "plugins": ["agenthood"]
 }
 ```
 
@@ -363,13 +363,13 @@ npm i -g agenthood   # add @<version> to pin, for example agenthood@4.0.0
 // ./opencode.json  (project)
 {
   "$schema": "https://opencode.ai/config.json",
-  "plugin": ["agenthood"]
+  "plugins": ["agenthood"]
 }
 ```
 
-The plugin registers all 20 member skills, the `AGENTS.md` instructions, a
-primary `steward` router agent, and an `agenthood_run_member` tool. Config is
-read once at startup, so restart opencode after adding or updating the entry.
+The plugin registers all 20 member skills and an `agenthood_run_member` tool.
+It cannot create agents, so the primary `agenthood-live` orchestrator comes from
+an `agents` block in your config. Copy the one in this repo's `opencode.json`.
 
 The VS Code extension (`agenthood-vscode`) runs the same runtime inside the
 editor. Its source is in [vscode-extension/](vscode-extension/) and it

@@ -19,6 +19,33 @@ export function fakeChild(): FakeChild {
   return child
 }
 
+export function fakePluginContext(directory = '/proj') {
+  const skills: any[] = []
+  const tools: any[] = []
+  const hooks: Record<string, (event: any) => unknown> = {}
+  const registration = { dispose: async () => {} }
+  const ctx = {
+    location: { directory },
+    skill: {
+      transform: async (callback: (editor: { add: (item: unknown) => void }) => void) => {
+        callback({ add: (item) => skills.push(item) })
+        return registration
+      },
+    },
+    tool: {
+      transform: async (callback: (editor: { add: (item: unknown) => void }) => void) => {
+        callback({ add: (item) => tools.push(item) })
+        return registration
+      },
+      hook: async (name: string, callback: (event: any) => unknown) => {
+        hooks[name] = callback
+        return registration
+      },
+    },
+  }
+  return { ctx: ctx as any, skills, tools, hooks }
+}
+
 export function parseSkill(path: string): { front: Record<string, string>; body: string } {
   const content = readFileSync(path, 'utf8')
   // Normalize line endings to handle both LF and CRLF

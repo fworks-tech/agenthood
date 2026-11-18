@@ -34,22 +34,26 @@ export function syncOpencodeAgents(repoRoot: string, outDir: string): string[] {
   return written.sort()
 }
 
+export function livePermissions(): Array<{ action: string; resource: string; effect: 'allow' | 'deny' }> {
+  const members = rawSpecs.map((spec) => spec.name)
+  return [
+    { action: 'subagent', resource: '*', effect: 'deny' },
+    ...members.map((name) => ({ action: 'subagent', resource: name, effect: 'allow' as const })),
+    ...members.map((name) => ({ action: 'skill', resource: name, effect: 'allow' as const })),
+    { action: 'edit', resource: '*', effect: 'allow' },
+    { action: 'shell', resource: '*', effect: 'allow' },
+  ]
+}
+
 const LIVE_AGENT = `---
-description: Run the Agenthood Society end-to-end: orchestrate member subagents in parallel with a Redis audit trail. Start here for any Agenthood task.
+description: "Run the Agenthood Society end-to-end: orchestrate member subagents in parallel with a Redis audit trail. Start here for any Agenthood task."
 mode: primary
-permission:
-  task:
-    'the-*': allow
-    '*': deny
-  skill:
-    'the-*': allow
-  edit: allow
-  bash: allow
+permissions: ${JSON.stringify(livePermissions())}
 ---
 
 # Agenthood Live
 
-Autonomous multi-agent orchestrator. Only the-* members route and sequence;
+Autonomous multi-agent orchestrator. Only registry members route and sequence;
 infra skills appear exclusively as task tools, never as chain nodes.
 
 ## Loop

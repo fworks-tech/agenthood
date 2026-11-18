@@ -11,6 +11,7 @@ import pluginModule, {
   getMemberNames,
   mirrorRunRecord,
   parseRedisTarget,
+  LIVE_AGENT_PERMISSIONS,
   wireAgenthoodConfig,
 } from '../../src/opencode-plugin.ts'
 import type { RedisSocket, RunRecord } from '../../src/opencode-plugin.ts'
@@ -32,9 +33,9 @@ describe('agenthood opencode plugin', () => {
 
     expect(cfg.skills?.paths?.some((p) => p.endsWith('skills'))).toBe(true)
     expect(cfg.instructions?.some((i) => i.endsWith('AGENTS.md'))).toBe(true)
-    expect(cfg.agent?.['agenthood-live']?.mode).toBe('primary')
-    expect(cfg.agent?.['agenthood-live']?.description).toBeTruthy()
-    expect(cfg.agent?.['steward']).toBeUndefined()
+    expect(cfg.agents?.['agenthood-live']?.mode).toBe('primary')
+    expect(cfg.agents?.['agenthood-live']?.description).toBeTruthy()
+    expect(cfg.agents?.['steward']).toBeUndefined()
   })
 
   it('registers agenthood_run_member with a member enum and task string', async () => {
@@ -135,24 +136,24 @@ describe('wireAgenthoodConfig', () => {
     wireAgenthoodConfig(cfg, paths, () => true)
     expect(cfg.skills?.paths).toEqual(['/pkg/skills'])
     expect(cfg.instructions).toEqual(['/pkg/AGENTS.md'])
-    expect(cfg.agent?.['agenthood-live']?.mode).toBe('primary')
-    expect(cfg.agent?.['agenthood-live']?.description).toBeTruthy()
-    expect(cfg.agent?.['steward']).toBeUndefined()
+    expect(cfg.agents?.['agenthood-live']?.mode).toBe('primary')
+    expect(cfg.agents?.['agenthood-live']?.description).toBeTruthy()
+    expect(cfg.agents?.['steward']).toBeUndefined()
   })
 
   it('is idempotent and preserves existing entries', () => {
     const cfg: PluginConfig = {
       skills: { paths: ['/other'], urls: ['https://x'] },
       instructions: ['/other/START.md'],
-      agent: { build: { description: 'b' } },
+      agents: { build: { description: 'b' } },
     }
     wireAgenthoodConfig(cfg, paths, () => true)
     wireAgenthoodConfig(cfg, paths, () => true)
     expect(cfg.skills?.paths).toEqual(['/other', '/pkg/skills'])
     expect(cfg.skills?.urls).toEqual(['https://x'])
     expect(cfg.instructions).toEqual(['/other/START.md', '/pkg/AGENTS.md'])
-    expect(cfg.agent?.build).toEqual({ description: 'b' })
-    expect(cfg.agent?.['agenthood-live']?.mode).toBe('primary')
+    expect(cfg.agents?.build).toEqual({ description: 'b' })
+    expect(cfg.agents?.['agenthood-live']?.mode).toBe('primary')
   })
 
   it('skips instructions when the file is absent', () => {
@@ -163,23 +164,17 @@ describe('wireAgenthoodConfig', () => {
   })
 
   it('refreshes a stale live entry', () => {
-    const cfg: PluginConfig = { agent: { 'agenthood-live': { description: 'old', mode: 'subagent' } } }
+    const cfg: PluginConfig = { agents: { 'agenthood-live': { description: 'old', mode: 'subagent' } } }
     wireAgenthoodConfig(cfg, paths, () => false)
-    expect(cfg.agent?.['agenthood-live']?.mode).toBe('primary')
-    expect(cfg.agent?.['agenthood-live']?.description).toContain('end-to-end')
+    expect(cfg.agents?.['agenthood-live']?.mode).toBe('primary')
+    expect(cfg.agents?.['agenthood-live']?.description).toContain('end-to-end')
   })
 
-  it('validates permission shape at runtime', () => {
+  it('grants the live agent V2 permission rules with the catch-all subagent deny first', () => {
     const cfg: PluginConfig = {}
-    const paths = { skillsPath: '/pkg/skills', instructionsPath: '/pkg/AGENTS.md' }
-    // Should not throw with valid permission shape
     wireAgenthoodConfig(cfg, paths, () => true)
-    const perm = cfg.agent?.['agenthood-live']?.permission as Record<string, unknown> | undefined
-    expect(perm).toBeDefined()
-    expect(perm?.task).toEqual({ 'the-*': 'allow', '*': 'deny' })
-    expect(perm?.skill).toEqual({ 'the-*': 'allow' })
-    expect(perm?.edit).toBe('allow')
-    expect(perm?.bash).toBe('allow')
+    expect(cfg.agents?.['agenthood-live']?.permissions).toEqual(LIVE_AGENT_PERMISSIONS)
+    expect(cfg.agent).toBeUndefined()
   })
 })
 
@@ -423,7 +418,7 @@ describe('shipped skills and prompts', () => {
     const hooks = await (pluginModule.server as any)()
     const cfg: PluginConfig = {}
     await hooks.config?.(cfg)
-    expect(cfg.agent?.['agenthood-live']).toEqual(project.agent['agenthood-live'])
+    expect(cfg.agents?.['agenthood-live']).toEqual(project.agents['agenthood-live'])
   })
 })
 
@@ -447,7 +442,7 @@ describe('opencode agent sync', () => {
       const liveRaw = readFileSync(join(dir, live), 'utf8')
       const liveMatch = liveRaw.match(/^---\r?\n([\s\S]*?)\r?\n---/)
       expect(liveMatch?.[1]).toContain('mode: primary')
-      expect(liveMatch?.[1]).toContain('task:')
+      expect(liveMatch?.[1]).not.toContain('permission')
     } finally {
       await rm(dir, { recursive: true, force: true })
     }

@@ -42,7 +42,25 @@ const CLI = join(PACKAGE_ROOT, 'dist', 'cli.js')
 
 // The SDK Config type predates the `skills` config block; the live merged
 // config opencode passes to the hook does carry it.
-export type PluginConfig = Config & { skills?: { paths?: string[]; urls?: string[] } }
+export interface PermissionRule {
+  action: string
+  resource: string
+  effect: 'allow' | 'ask' | 'deny'
+}
+
+export type PluginConfig = Config & {
+  skills?: { paths?: string[]; urls?: string[] }
+  agents?: Record<string, { description?: string; mode?: 'primary' | 'subagent' | 'all'; permissions?: PermissionRule[] }>
+}
+
+// Last matching rule wins, so the catch-all subagent deny comes before the member allow.
+export const LIVE_AGENT_PERMISSIONS: PermissionRule[] = [
+  { action: 'subagent', resource: '*', effect: 'deny' },
+  { action: 'subagent', resource: 'the-*', effect: 'allow' },
+  { action: 'skill', resource: 'the-*', effect: 'allow' },
+  { action: 'edit', resource: '*', effect: 'allow' },
+  { action: 'shell', resource: '*', effect: 'allow' },
+]
 
 export interface AgenthoodConfigPaths {
   skillsPath: string
@@ -112,36 +130,12 @@ export function wireAgenthoodConfig(
     cfg.instructions = cfg.instructions ?? []
     if (!cfg.instructions.includes(paths.instructionsPath)) cfg.instructions.push(paths.instructionsPath)
   }
-  cfg.agent ??= {}
-  // The SDK agent permission type predates the task/skill fan-out keys the
-  // opencode docs describe, so the literal cannot satisfy it directly. Cast
-  // locally; the keys pass through the merged JSON config untouched, same
-  // rationale as skills.paths above.
-  cfg.agent['agenthood-live'] = {
+  cfg.agents ??= {}
+  cfg.agents['agenthood-live'] = {
     description: 'Run the Agenthood Society end-to-end: orchestrate member subagents in parallel with a Redis audit trail. Start here for any Agenthood task.',
     mode: 'primary',
-    permission: {
-      task: { 'the-*': 'allow', '*': 'deny' },
-      skill: { 'the-*': 'allow' },
-      edit: 'allow',
-      bash: 'allow',
-    },
-  } as unknown as NonNullable<NonNullable<Config['agent']>[string]>
-
-  // Runtime guard: validate permission shape matches expected schema.
-  // If the SDK changes the permission type, this throws with a clear message
-  // instead of silently producing invalid config.
-  const p = cfg.agent['agenthood-live'].permission as Record<string, unknown>
-  const required = ['task', 'skill', 'edit', 'bash'] as const
-  for (const key of required) {
-    if (!(key in p)) throw new Error(`agenthood-live permission missing required key: ${key}`)
+    permissions: LIVE_AGENT_PERMISSIONS,
   }
-  const task = p.task as Record<string, string>
-  const skill = p.skill as Record<string, string>
-  if (task['the-*'] !== 'allow' || task['*'] !== 'deny') throw new Error('agenthood-live permission.task has unexpected shape')
-  if (skill['the-*'] !== 'allow') throw new Error('agenthood-live permission.skill has unexpected shape')
-  if (p.edit !== 'allow') throw new Error('agenthood-live permission.edit must be "allow"')
-  if (p.bash !== 'allow') throw new Error('agenthood-live permission.bash must be "allow"')
 }
 
 // Caps so one runaway member run cannot flood the session context.

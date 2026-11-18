@@ -11,16 +11,17 @@
       "oauth": {}
     }
   },
-  "agent": {
+  "agents": {
     "agenthood-live": {
       "description": "Run the Agenthood Society end-to-end: orchestrate member subagents in parallel with a Redis audit trail. Start here for any Agenthood task.",
       "mode": "primary",
-      "permission": {
-        "task": { "the-*": "allow", "*": "deny" },
-        "skill": { "the-*": "allow" },
-        "edit": "allow",
-        "bash": "allow"
-      }
+      "permissions": [
+        { "action": "subagent", "resource": "*", "effect": "deny" },
+        { "action": "subagent", "resource": "the-*", "effect": "allow" },
+        { "action": "skill", "resource": "the-*", "effect": "allow" },
+        { "action": "edit", "resource": "*", "effect": "allow" },
+        { "action": "shell", "resource": "*", "effect": "allow" }
+      ]
     }
   }
 }

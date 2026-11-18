@@ -37,14 +37,6 @@ export function syncOpencodeAgents(repoRoot: string, outDir: string): string[] {
 const LIVE_AGENT = `---
 description: Run the Agenthood Society end-to-end: orchestrate member subagents in parallel with a Redis audit trail. Start here for any Agenthood task.
 mode: primary
-permission:
-  task:
-    'the-*': allow
-    '*': deny
-  skill:
-    'the-*': allow
-  edit: allow
-  bash: allow
 ---
 
 # Agenthood Live

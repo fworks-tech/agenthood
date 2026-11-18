@@ -70,9 +70,9 @@ Reviewer comments it actually followed.
   from at most five file names (hundreds of bytes) to at most 100 KB of diff
   (about 25k tokens at four bytes per token). The byte cap is the cost bound.
   The two dispatch runs are proof, not part of the normal flow.
-- Missing model output is a warning in advisory mode. A CLI failure still fails
-  the job because the analysis did not run. The distinction is operational
-  failure versus a verdict a human should read.
+- A missing verdict or a CLI failure is a warning in advisory mode. The comment
+  names the failure and the deterministic checks remain the gate. A blocking
+  agent still fails closed because its verdict is the gate.
 - The gate cannot flip on a rerun. A future change that puts the model back in
   the gate path must explain how it keeps this property.
 - The analysis comment uses one H2 title, demotes the report's H1/H2 headings

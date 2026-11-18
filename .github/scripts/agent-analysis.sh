@@ -248,8 +248,12 @@ if [ -s "$body_file" ]; then
 fi
 
 if [ "$rc" -ne 0 ]; then
-  echo "::error::${AGENT_NAME} CLI exited with code $rc -- failing closed, analysis incomplete"
-  exit 1
+  if [ "$GATE_MODE" = "advisory" ]; then
+    echo "::warning::${AGENT_NAME} CLI exited with code $rc; the advisory analysis is incomplete"
+  else
+    echo "::error::${AGENT_NAME} CLI exited with code $rc -- failing closed, analysis incomplete"
+    exit 1
+  fi
 fi
 
 if [ -z "$(verdicts_for "$analysis_file")" ]; then

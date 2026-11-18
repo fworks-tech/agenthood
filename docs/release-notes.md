@@ -5,6 +5,14 @@
 
 ---
 
+## v4.1.2: November 18, 2026
+
+### 🐛 Bug Fixes
+
+- **Opencode:** run members on node and let a project .env win (#1106)
+
+---
+
 ## v4.1.1: November 18, 2026
 
 ### 🐛 Bug Fixes

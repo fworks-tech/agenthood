@@ -1,3 +1,10 @@
+## [4.1.2](https://github.com/fworks-tech/agenthood/compare/v4.1.1...v4.1.2) (2026-11-18)
+
+
+### Bug Fixes
+
+* **opencode:** run members on node and let a project .env win ([#1106](https://github.com/fworks-tech/agenthood/issues/1106)) ([bd42a7f](https://github.com/fworks-tech/agenthood/commit/bd42a7f2ab1b84ff30ff991f86e51cba5d15b13f))
+
 ## [4.1.1](https://github.com/fworks-tech/agenthood/compare/v4.1.0...v4.1.1) (2026-11-18)
 
 

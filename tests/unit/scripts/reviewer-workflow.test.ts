@@ -45,6 +45,13 @@ describe('reviewer workflow', () => {
     expect(analysis).not.toContain("git diff --name-only \"${BASE_SHA}...${HEAD_SHA}\" -- ':(glob)**/package-lock.json'")
   })
 
+  it('discloses omitted files before the max-files cut, so the cut never hides an omission', () => {
+    const omitted = analysis.indexOf('OMITTED_FILES=$(echo "$CHANGED" | grep')
+    const cut = analysis.indexOf('CHANGED=$(echo "$CHANGED" | head')
+    expect(omitted).toBeGreaterThan(-1)
+    expect(cut).toBeGreaterThan(omitted)
+  })
+
   it('states the comment truncation note in bytes only', () => {
     expect(gate).toContain('-byte comment ceiling')
     expect(gate).not.toContain('65536-character')

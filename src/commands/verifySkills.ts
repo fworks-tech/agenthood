@@ -8,12 +8,16 @@ import { existsSync, readFileSync, readdirSync, statSync } from 'node:fs'
 import { join, relative } from 'node:path'
 import { SkillParser, parseDependencies, parseOwner, parseRequires, parseVariants } from '../skills/discovery/SkillParser.ts'
 import type { SkillDependencies, SkillRequires } from '../skills/discovery/ISkillManifest.ts'
-import { SkillDiscovery, userSkillDirs } from '../skills/discovery/SkillDiscovery.ts'
+import { userSkillDirs } from '../skills/discovery/SkillDiscovery.ts'
 import { variantTarget } from '../skills/discovery/variants.ts'
 import { lintScript } from '../skills/execution/lint.ts'
 import { countTokens } from '../core/modelPricing.ts'
 import { DEFAULT_METADATA_BUDGET } from '../skills/observability.ts'
 import { isKnownToolName } from '../members/toolVocabulary.ts'
+import { applyDedup, planDedup, type SkillRoot } from '../skills/dedup.ts'
+import { userError } from '../core/cliError.ts'
+
+export type { SkillRoot }
 
 export function reportScriptLint(membersDir: string): void {
   const findings = []
@@ -201,11 +205,6 @@ export function reportTokenBudgets(
   console.log(`      Total across all skills: ${total} tokens`)
 }
 
-export interface SkillRoot {
-  path: string
-  scope: 'user' | 'project'
-}
-
 /** Every search root, in the order discovery consults them (#616). */
 export function skillSearchRoots(projectDir: string): SkillRoot[] {
   return [
@@ -218,33 +217,80 @@ export function skillSearchRoots(projectDir: string): SkillRoot[] {
 }
 
 /**
- * One skill name in several roots (#616). Runtime precedence already picks a
- * winner (project over user, earlier root over later), so this reports the
- * losers and the fix; it never moves a file.
+ * `verify --dedup [--merge --yes]` wiring, kept out of verify.ts so that file
+ * stays under the size limit. `--merge` alone is an error, not a silent no-op,
+ * and `--yes` confirms a removal whose diff cannot be reviewed first (#616).
  */
-export function reportDuplicates(roots: SkillRoot[]): void {
-  const byName = new Map<string, { directory: string; scope: 'user' | 'project' }[]>()
-  for (const root of roots) {
-    for (const manifest of new SkillDiscovery().scanRoot(root.path)) {
-      const entries = byName.get(manifest.name) ?? []
-      if (!entries.some((entry) => entry.directory === manifest.directory)) {
-        entries.push({ directory: manifest.directory, scope: root.scope })
-        byName.set(manifest.name, entries)
-      }
-    }
+export function reportDedupFlags(flags: ReadonlySet<string>, cwd: string): void {
+  if (!flags.has('--dedup')) {
+    userError('--merge requires --dedup', { fix: 'Run `agenthood verify --dedup --merge --yes` to consolidate duplicate skills.' })
   }
+  reportDuplicates(skillSearchRoots(cwd), {
+    merge: flags.has('--merge'),
+    confirm: flags.has('--yes'),
+    projectDir: cwd,
+  })
+}
 
-  const duplicates = [...byName.entries()].filter(([, entries]) => entries.length > 1)
-  if (duplicates.length === 0) {
+/**
+ * One skill name in several roots (#616). Detection is read-only; the
+ * consolidation is opt-in through `verify --dedup --merge --yes`, which writes
+ * the diff as an audit artifact and refuses a version tie instead of picking a
+ * winner. The diff is written after the plan is accepted, so `--yes` is the
+ * confirmation step: there is no interactive pause inside the command.
+ */
+export function reportDuplicates(
+  roots: SkillRoot[],
+  options: { merge?: boolean; confirm?: boolean; projectDir?: string } = {},
+): void {
+  const plan = planDedup(roots)
+  if (plan.groups.length === 0) {
     console.log('  ✓ Skill locations: no duplicate names across roots')
     return
   }
-  console.log(`  ! Skill locations: ${duplicates.length} name(s) installed more than once; advisory, not a failure`)
-  for (const [name, entries] of duplicates.sort(([a], [b]) => a.localeCompare(b))) {
-    console.log(`      - ${name} (${entries.length} copies)`)
-    for (const entry of entries) console.log(`          ${entry.directory} (${entry.scope})`)
-    console.log('          Keep the project copy and remove the user copy; the runtime already ignores the loser.')
+
+  console.log(`  ! Skill locations: ${plan.groups.length} name(s) installed more than once; advisory, not a failure`)
+  for (const group of plan.groups) {
+    console.log(`      - ${group.name} (${group.copies.length} copies)`)
+    for (const copy of group.copies) {
+      const state = group.action === 'conflict' ? 'tied' : copy === group.winner ? 'kept' : 'removed'
+      console.log(`          ${copy.directory} (${copy.scope}) ${copy.version ? `v${copy.version}` : 'no version'}, ${state}`)
+    }
+    if (group.action === 'conflict') {
+      console.log('          Version tie with different contents: not resolved automatically, resolve by hand')
+    } else if (group.action === 'identical') {
+      console.log('          Keep the project copy and remove the user copy; the runtime already ignores the loser.')
+    }
   }
+  const next = options.merge
+    ? options.confirm
+      ? 'applying now'
+      : 'rerun with --yes to apply'
+    : 'pass --merge to apply'
+  console.log(`      Consolidation would save an estimated ${plan.savedTokens} metadata token(s); nothing was moved (${next})`)
+
+  if (!options.merge) return
+  if (!options.confirm) {
+    userError('--merge removes skill directories; rerun with --yes after reading the plan', {
+      fix: 'Run `agenthood verify --dedup --merge --yes` to consolidate the copies listed above.',
+    })
+  }
+  const result = applyDedup(plan, options.projectDir ?? process.cwd())
+  if (result.conflicts.length > 0) {
+    userError(`${result.conflicts.length} skill(s) have a version tie and were not consolidated`, {
+      fix: 'Resolve the tied copies by hand, then run `agenthood verify --dedup --merge --yes` again.',
+    })
+  }
+  if (result.escaped.length > 0) {
+    userError(`${result.escaped.length} skill group(s) resolve outside every search root and were not consolidated`, {
+      fix: 'Remove the symlink or move the skill under a search root, then run the command again.',
+    })
+  }
+  if (result.removed.length === 0) return
+  const noun = result.removed.length === 1 ? 'copy' : 'copies'
+  console.log(
+    `  ✓ Deduplicated ${result.removed.length} ${noun}; saves an estimated ${plan.savedTokens} metadata token(s); audit diff at ${result.diffPath}`,
+  )
 }
 
 /**

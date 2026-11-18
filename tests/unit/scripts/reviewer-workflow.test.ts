@@ -39,4 +39,19 @@ describe('reviewer workflow', () => {
     expect(analysis).toContain(':(exclude,glob)**/package-lock.json')
     expect(analysis).toContain('capped at 100 KB')
   })
+
+  it('discloses omitted files from the first listing, not a second git sweep', () => {
+    expect(analysis).toContain('OMITTED_FILES=$(echo "$CHANGED" | grep')
+    expect(analysis).not.toContain("git diff --name-only \"${BASE_SHA}...${HEAD_SHA}\" -- ':(glob)**/package-lock.json'")
+  })
+
+  it('states the comment truncation note in bytes only', () => {
+    expect(gate).toContain('-byte comment ceiling')
+    expect(gate).not.toContain('65536-character')
+  })
+
+  it('supersedes the previous skip comment through the shared stale marking', () => {
+    const skip = analysis.slice(analysis.indexOf('report_skip() {'), analysis.indexOf('validate_prerequisites() {'))
+    expect(skip).toContain('stale_previous_comment')
+  })
 })

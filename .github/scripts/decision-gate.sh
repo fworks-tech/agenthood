@@ -184,7 +184,7 @@ cap_comment_bytes() {
   cut=$((bytes - GH_COMMENT_CEILING))
   {
     head -c "$GH_COMMENT_CEILING" "$file"
-    printf '\n\n_(comment truncated: %s bytes cut to fit the 65536-character comment ceiling)_\n' "$cut"
+    printf '\n\n_(comment truncated: %s bytes cut to fit the %s-byte comment ceiling)_\n' "$cut" "$GH_COMMENT_CEILING"
   } > "${file}.capped"
   mv "${file}.capped" "$file"
 }

@@ -22,7 +22,7 @@ GATE_MODE="${AGENTHOOD_GATE_MODE:-blocking}"
 # their existing file list.
 DIFF_ARGS=("$BASE_SHA...$HEAD_SHA")
 if [ "${INCLUDE_DIFF:-false}" = "true" ]; then
-  DIFF_ARGS+=(-- . ':(exclude,glob)**/package-lock.json' ':(exclude)CHANGELOG.md' ':(exclude)docs/release-notes.md')
+  DIFF_ARGS+=(-- . ':(exclude,glob)**/package-lock.json' ':(exclude)agenthood.lock' ':(exclude)CHANGELOG.md' ':(exclude)docs/release-notes.md')
 fi
 
 temp_dir="$(mktemp -d "${RUNNER_TEMP:-/tmp}/agent-analysis.XXXXXX")"
@@ -34,14 +34,38 @@ summary_file="${temp_dir}/${AGENT_NAME}_summary.md"
 NAME_DISPLAY=$(echo "$AGENT_NAME" | sed 's/-/ /g; s/\b\(.\)/\u\1/g')
 > "$error_file"
 
+# A skipped review must not masquerade as a reviewed one. When a PR exists the
+# skip is announced in the thread (the thread is the record people read);
+# otherwise the run summary carries it, since there is no thread to comment on.
+report_skip() {
+  local reason="$1" file="${temp_dir}/${AGENT_NAME}_skip.md"
+  echo "::notice::skipping $AGENT_NAME analysis: $reason"
+  {
+    echo "## $NAME_DISPLAY: Analysis"
+    echo ""
+    echo "_Review skipped: $reason._"
+  } > "$file"
+  if [ -n "$PR_NUMBER" ]; then
+    cap_comment_bytes "$file"
+    gh pr comment "$PR_NUMBER" --body-file "$file" 2>>"$error_file" \
+      || echo "::warning::could not post the $AGENT_NAME skip notice"
+  else
+    {
+      echo "### $NAME_DISPLAY: analysis skipped"
+      echo ""
+      echo "_Review skipped: $reason._"
+    } >> "${GITHUB_STEP_SUMMARY:-/dev/null}"
+  fi
+}
+
 validate_prerequisites() {
   if [ -z "$OPENCODE_API_KEY" ]; then
-    echo "::notice::OPENCODE_API_KEY not set -- skipping $AGENT_NAME agent analysis."
+    report_skip "OPENCODE_API_KEY not set"
     exit 0
   fi
 
   if [ -z "$PR_NUMBER" ]; then
-    echo "::notice::No pull request context -- skipping $AGENT_NAME agent analysis."
+    report_skip "no pull request context"
     exit 0
   fi
 
@@ -126,7 +150,7 @@ Use the exact file path and new-side line number from the diff: added lines and 
     # `|| true`: awk exits at the cap, SIGPIPE-ing git diff (141 under pipefail)
     TRUNCATED_MARKER="$temp_dir/diff_truncated"
     rm -f "$TRUNCATED_MARKER"
-    DIFF=$(git diff "${DIFF_ARGS[@]}" | LC_ALL=C awk -v marker="$TRUNCATED_MARKER" '{ bytes += length($0) + 1; if (bytes > 100000) { print "(diff truncated at ~100KB)"; print "1" > marker; exit } print }' || true)
+    DIFF=$(git diff "${DIFF_ARGS[@]}" | cap_stream_bytes "$TRUNCATED_MARKER" || true)
     DIFF_BYTES=$(printf '%s' "$DIFF" | wc -c | tr -d ' ')
     if [ -s "$TRUNCATED_MARKER" ]; then DIFF_TRUNCATED=true; else DIFF_TRUNCATED=false; fi
     if [ -n "$DIFF" ]; then
@@ -158,6 +182,13 @@ build_review_meta() {
     fi
     if [ "${DIFF_TRUNCATED:-false}" = "true" ]; then
       meta="$meta (capped at 100 KB)"
+    fi
+    # The exclusions apply only to the diff; disclose what they removed from
+    # the range so the comment never claims more coverage than it has.
+    local omitted
+    omitted=$(git diff --name-only "${BASE_SHA}...${HEAD_SHA}" -- ':(glob)**/package-lock.json' agenthood.lock CHANGELOG.md docs/release-notes.md 2>/dev/null | tr '\n' ' ' || true)
+    if [ -n "$omitted" ]; then
+      meta="$meta · omitted from diff: ${omitted% }"
     fi
     if [ "$TOTAL_FILES" -gt "$MAX_FILES" ]; then
       meta="$meta · $((TOTAL_FILES - MAX_FILES)) file(s) not listed"
@@ -244,7 +275,18 @@ build_comment_body
 
 if [ -s "$body_file" ]; then
   stale_previous_comment
-  gh pr comment "$PR_NUMBER" --body-file "$body_file"
+  cap_comment_bytes "$body_file"
+  # A posting failure must not fail an advisory job: a red check for
+  # formatting breaks the advisory invariant ADR-046 declares. A blocking
+  # agent still fails closed, because its comment is the gate's evidence.
+  if ! gh pr comment "$PR_NUMBER" --body-file "$body_file" 2>>"$error_file"; then
+    if [ "$GATE_MODE" = "advisory" ]; then
+      echo "::warning::could not post the $AGENT_NAME analysis comment; the advisory verdict is incomplete"
+    else
+      echo "::error::could not post the $AGENT_NAME analysis comment -- failing closed"
+      exit 1
+    fi
+  fi
 fi
 
 if [ "$rc" -ne 0 ]; then

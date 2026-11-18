@@ -475,7 +475,11 @@ export async function verify(args: string[]): Promise<void> {
   // --contrib (#154): the third-party contract is only actionable for a project
   // that hosts contrib skills, so the scan stays opt-in like --tokens.
   if (flags.has('--contrib')) reportContribSkills(cwd)
-  if (flags.has('--dedup')) reportDuplicates(skillSearchRoots(cwd))
+  if (flags.has('--dedup')) {
+    reportDuplicates(skillSearchRoots(cwd), { merge: flags.has('--merge'), projectDir: cwd })
+  } else if (flags.has('--merge')) {
+    userError('--merge requires --dedup', { fix: 'Run `agenthood verify --dedup --merge` to consolidate duplicate skills.' })
+  }
 
   // Advisory (#595): overlapping descriptions mean two skills can both trigger
   // for the same task. Warns only: the resolution (dedup vs specialize) is a

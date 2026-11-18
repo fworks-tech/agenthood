@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest'
-import pluginModule, { nodeRuntime, runMember } from '../../src/opencode-plugin.ts'
+import pluginModule, { memberTimeoutMs, nodeRuntime, runMember } from '../../src/opencode-plugin.ts'
 import type { FakeChild } from '../helpers/opencodePluginFixtures.ts'
 import { fakeChild, fakePluginContext } from '../helpers/opencodePluginFixtures.ts'
 
@@ -214,5 +214,21 @@ describe('nodeRuntime', () => {
     expect(nodeRuntime('/opt/opencode/opencode')).toBe('node')
     expect(nodeRuntime('C:\\app\\opencode.exe')).toBe('node')
     expect(nodeRuntime('/opt/opencode/opencode', { AGENTHOOD_NODE: '/opt/node/bin/node' })).toBe('/opt/node/bin/node')
+  })
+})
+
+describe('memberTimeoutMs', () => {
+  it('defaults to five minutes', () => {
+    expect(memberTimeoutMs({})).toBe(300_000)
+  })
+
+  it('takes a positive override from the environment', () => {
+    expect(memberTimeoutMs({ AGENTHOOD_MEMBER_TIMEOUT_MS: '900000' })).toBe(900_000)
+  })
+
+  it('ignores values that would disable the watchdog', () => {
+    for (const value of ['0', '-1', 'soon', '']) {
+      expect(memberTimeoutMs({ AGENTHOOD_MEMBER_TIMEOUT_MS: value })).toBe(300_000)
+    }
   })
 })

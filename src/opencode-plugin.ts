@@ -113,7 +113,14 @@ export interface CollectedOutput {
   timedOut?: boolean
 }
 
-const DEFAULT_RUN_TIMEOUT_MS = 60_000
+// A real member run reads files and edits code; one minute cut it off mid-flight.
+const DEFAULT_RUN_TIMEOUT_MS = 300_000
+
+/** The watchdog timeout for a member run: AGENTHOOD_MEMBER_TIMEOUT_MS, else 5 minutes. */
+export function memberTimeoutMs(env: NodeJS.ProcessEnv = process.env): number {
+  const parsed = Number(env.AGENTHOOD_MEMBER_TIMEOUT_MS)
+  return Number.isFinite(parsed) && parsed > 0 ? parsed : DEFAULT_RUN_TIMEOUT_MS
+}
 
 /** Collects a spawned member run's stdout/stderr until close, spawn error, or timeout. */
 export function collectOutput(child: ChildProcess, abort: AbortSignal, timeoutMs = DEFAULT_RUN_TIMEOUT_MS): Promise<CollectedOutput> {
@@ -187,7 +194,7 @@ export async function runMember(member: string, task: string, options: RunMember
   // `--` keeps a task beginning with `-` as data: the CLI would otherwise
   // parse `--detect` / `--provider` out of it
   const child = options.dependencies.spawnProcess(nodeRuntime(), [CLI, 'run', member, '--', task], { cwd: options.directory })
-  return formatRunResult(await collectOutput(child, options.abort, options.timeoutMs ?? DEFAULT_RUN_TIMEOUT_MS))
+  return formatRunResult(await collectOutput(child, options.abort, options.timeoutMs ?? memberTimeoutMs()))
 }
 
 const memberRunDependencies: RunMemberDependencies = {

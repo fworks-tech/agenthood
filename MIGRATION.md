@@ -23,6 +23,15 @@ member's own skill name.
 The `the-*` member spelling is a separate compatibility path and still resolves
 through `MemberRegistry` (ADR-044). Only the alias skill directories were removed.
 
+The nine legacy utility skills got a verdict in the same release. Three repeated
+a member protocol and were fused into it:
+
+| Removed skill | Folded into |
+|---|---|
+| `bug-fix-teammate` | `debugger` (triage and remediation) |
+| `debugging-tutor` | `debugger` (teaching mode) |
+| `pull-request-assistant` | `scribe` (breaking changes), `reviewer` (deployment surface) |
+
 ## 3.77 → 4.0
 
 4.0 makes members and workflows data. Three changes need action; the rest is additive.

@@ -132,7 +132,7 @@ Twenty members, each with its own checklist and its own lane.
 | 📬 | [The Mailman](skills/mailman/SKILL.md) | Message delivery, scheduling, cross-posting |
 | 👁️ | [The Inspector](skills/inspector/SKILL.md) | Visual-reasoning benchmarking, pixel analysis |
 
-Beyond the members, `skills/` ships 26 utility skills: specialist capability
+Beyond the members, `skills/` ships 23 utility skills: specialist capability
 files for docker, kubernetes, postgres, redis, jira, sentry, and more. Any agent
 runtime activates them when the task matches. See the
 [utility skills guide](docs/academy/utility-skills.md).
@@ -373,7 +373,7 @@ The source is [agenthood-site](https://github.com/fworks-tech/agenthood-site).
 
 - [Getting Started](docs/academy/getting-started.md): install, first commit, CI, configuration
 - [Skills Reference](docs/academy/skills-reference.md): every member, its tools, and how to invoke it
-- [Utility Skills](docs/academy/utility-skills.md): the 26 specialist skills
+- [Utility Skills](docs/academy/utility-skills.md): the 23 specialist skills
 - [Runtime Guide](docs/runtime-guide.md): configuration, providers, and operations
 - [Architecture](docs/architecture/README.md): agent system, queues, operating modes, failover, tools, decisions, skills
 - [ADRs](docs/adr/): 40 records of the decisions behind the design

@@ -150,6 +150,11 @@ export interface LLMConfig {  provider?: string
     /** Authors whose scripts may run on the host (ADR-036). */
     trustedAuthors?: string[]
   }
+  /**
+   * Inject AGENTS.md / CLAUDE.md into every member prompt (#567). Default true;
+   * a host whose AGENTS.md is contributor documentation sets it to false (#1071).
+   */
+  repoInstructions?: boolean
   /** Log full LLM request/response to .agenthood/debug/ */
   debug?: boolean
   /** Pause before each tool call for human confirmation */

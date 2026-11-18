@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest'
-import { mkdtempSync, mkdirSync, writeFileSync, rmSync } from 'node:fs'
+import { mkdtempSync, mkdirSync, writeFileSync, rmSync, readFileSync } from 'node:fs'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 import { loadConfig } from '../../../src/commands/config.ts'
@@ -148,6 +148,45 @@ describe('loadConfig', () => {
       const cfg = await loadConfig()
       expect(cfg.skills?.catalogFormat).toBeUndefined()
       expect(warn.mock.calls.flat().join(' ')).toContain('catalogFormat')
+    })
+  })
+
+  it('parses the repoInstructions opt-out (#1071)', async () => {
+    await withFixture(JSON.stringify({ repoInstructions: false }), async () => {
+      const cfg = await loadConfig()
+      expect(cfg.repoInstructions).toBe(false)
+    })
+    await withFixture(JSON.stringify({}), async () => {
+      const cfg = await loadConfig()
+      expect(cfg.repoInstructions).toBeUndefined()
+    })
+  })
+
+  it('rejects a non-boolean repoInstructions with a clear message (#1071)', async () => {
+    await withFixture(JSON.stringify({ repoInstructions: 'false' }), async () => {
+      await expect(loadConfig()).rejects.toThrow(
+        'Invalid repoInstructions in .agenthood/config.json: expected true or false, got "false".',
+      )
+    })
+  })
+
+  it('accepts the config the rituals workflow generates with printf (#1071)', async () => {
+    // The workflow writes this file before every ritual run; a format change
+    // that stopped parsing would break every ritual, not just this feature.
+    const workflow = readFileSync(
+      join(import.meta.dirname, '..', '..', '..', '.github', 'workflows', 'rituals.yml'),
+      'utf8',
+    )
+    const format = workflow.match(/printf '([^']*)' "\$OPENCODE_MODEL"/)?.[1]
+    if (!format) throw new Error('printf format not found in rituals.yml')
+    const generated = format.replace(/\\n/g, '\n').replace('%s', 'qwen3.8-flash')
+
+    await withFixture(generated, async () => {
+      const cfg = await loadConfig()
+      expect(cfg.provider).toBe('opencode')
+      expect(cfg.model).toBe('qwen3.8-flash')
+      // Absent means the default: AGENTS.md keeps being injected.
+      expect(cfg.repoInstructions).toBeUndefined()
     })
   })
 })

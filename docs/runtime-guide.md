@@ -15,6 +15,19 @@ stripped, so a cloned repository cannot close the tag and speak as the harness.
 Content is truncated at 64 KB with a visible marker: the file is guidance, not a data
 channel. Only the project root is scanned; nested `AGENTS.md` files are ignored.
 
+A host that embeds the runtime in an application whose `AGENTS.md` is contributor
+documentation can turn the injection off:
+
+```json
+{ "repoInstructions": false }
+```
+
+`true` is the default and keeps the 4.0 behavior. `false` leaves both files out of
+every member prompt, and the run's decision record carries the
+`repo-instructions-disabled` tag so the audit trail shows why the guidance is
+missing. Any other value fails the run with a clear error instead of guessing.
+The setting is also accepted as `repoInstructions` on `ApplicationContext.create`.
+
 ## Provider Failover Configuration
 
 The runtime supports automatic provider failover when a provider fails (rate limit, outage, auth error). Configure an ordered list of providers in `.agenthood/config.json`:

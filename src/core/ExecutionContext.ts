@@ -44,6 +44,8 @@ export interface ExecutionContext {
   skillAllowlist?: Set<string>
   /** Per-repo agent guidance read from AGENTS.md / CLAUDE.md (#567) */
   repoInstructions?: string
+  /** The host opted out of the injection; recorded in the run's decision tags (#1071). */
+  repoInstructionsOptOut?: boolean
   /** Tools a skill declares via `allowed-tools`; undefined means unrestricted (#582) */
   skillAllowedTools?: (skillName: string) => string[] | undefined
   /** Optional Sentry error reporting configuration from .agenthood/config.json */

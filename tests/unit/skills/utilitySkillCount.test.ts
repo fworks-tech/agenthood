@@ -23,3 +23,17 @@ describe('utility skill count in README', () => {
     expect(readme).toContain(`the ${utilitySkills.length} specialist skills`)
   })
 })
+
+describe('utility skill page coverage', () => {
+  const page = readFileSync(join(repoRoot, 'docs', 'academy', 'utility-skills.md'), 'utf8')
+  const documented = [...page.matchAll(/^\*\*File:\*\* \[`skills\/([a-z0-9-]+)\/SKILL\.md`\]/gm)].map(
+    (match) => match[1],
+  )
+
+  it('gives every utility skill exactly one File link, and no other skill', () => {
+    const missing = utilitySkills.filter((name) => !documented.includes(name))
+    const extra = documented.filter((name) => !utilitySkills.includes(name))
+    const duplicates = documented.filter((name, index) => documented.indexOf(name) !== index)
+    expect({ missing, extra, duplicates }).toEqual({ missing: [], extra: [], duplicates: [] })
+  })
+})

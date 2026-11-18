@@ -1,5 +1,5 @@
 {
-  "version": "4.0.0",
-  "type": "major",
-  "prevTag": "v3.78.0"
+  "version": "4.1.0",
+  "type": "minor",
+  "prevTag": "v4.0.0"
 }

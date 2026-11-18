@@ -1,71 +1,38 @@
 /**
  * src/opencode-plugin.ts
  *
- * Official opencode plugin entrypoint. Lets the Agenthood Society load globally
- * via a single line in opencode config:
+ * Official opencode V2 plugin entrypoint. Load it from opencode config:
  *
- *   { "plugin": ["agenthood"] }
+ *   { "plugins": ["agenthood"] }
  *
- * The plugin wires what the repo's `opencode.json` wires locally: the skills
- * directory and AGENTS.md instructions: by mutating the merged config in the
- * `config` hook, plus a primary `agenthood-live` orchestrator agent. It also registers
- * `agenthood_run_member`, a tool that executes a Society member as a real
- * runtime agent (enforced behavior + audit trail) instead of free-styling from
- * the skill text. The CLI (`dist/cli.js`) is untouched and spawned as-is. A
- * `tool.execute.after` hook mirrors each member run to Redis when
+ * It registers the Society's member skills and `agenthood_run_member`, a tool that
+ * runs a member as a real runtime agent (enforced behavior + audit trail) instead
+ * of free-styling from the skill text. The CLI (`dist/cli.js`) is spawned as-is.
+ * An `execute.after` tool hook mirrors each member run to Redis when
  * AGENTHOOD_REDIS=host[:port] is set (unset means file-only audit), with the
  * optional AGENTHOOD_REDIS_PASSWORD sent as RESP AUTH first.
  *
- * opencode resolves this module via the package root (`exports["."]`, so
- * `{ "plugin": ["agenthood"] }` works) with `exports["./server"]` kept as an
- * alias. Requires a default export of `{ id, server }` (see
- * `@opencode-ai/plugin`'s `PluginModule`). Config is loaded once at startup,
- * not hot-reloaded: after installing the plugin, opencode must be restarted.
+ * The `agenthood-live` agent is not registered here: the V2 plugin API cannot
+ * create agents, so it comes from the `agents` block in `opencode.json`.
  */
 
 import { spawn } from 'node:child_process'
 import type { ChildProcess } from 'node:child_process'
 import { randomUUID } from 'node:crypto'
-import { existsSync, readdirSync } from 'node:fs'
+import { existsSync, readFileSync, readdirSync } from 'node:fs'
 import { connect } from 'node:net'
 import type { Socket } from 'node:net'
 import { dirname, join } from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { z } from 'zod'
-import type { Config, Hooks, Plugin, PluginModule, ToolContext, ToolDefinition, ToolResult } from '@opencode-ai/plugin'
+import { Plugin, Skill } from '@opencode/plugin'
+import { rawSpecs } from './members/member-specs.ts'
 
 const __filename = fileURLToPath(import.meta.url)
 const __dirname = dirname(__filename)
 // dist/opencode-plugin.js (or src/opencode-plugin.ts) -> package root
 const PACKAGE_ROOT = join(__dirname, '..')
 const CLI = join(PACKAGE_ROOT, 'dist', 'cli.js')
-
-// The SDK Config type predates the `skills` config block; the live merged
-// config opencode passes to the hook does carry it.
-export interface PermissionRule {
-  action: string
-  resource: string
-  effect: 'allow' | 'ask' | 'deny'
-}
-
-export type PluginConfig = Config & {
-  skills?: { paths?: string[]; urls?: string[] }
-  agents?: Record<string, { description?: string; mode?: 'primary' | 'subagent' | 'all'; permissions?: PermissionRule[] }>
-}
-
-// Last matching rule wins, so the catch-all subagent deny comes before the member allow.
-export const LIVE_AGENT_PERMISSIONS: PermissionRule[] = [
-  { action: 'subagent', resource: '*', effect: 'deny' },
-  { action: 'subagent', resource: 'the-*', effect: 'allow' },
-  { action: 'skill', resource: 'the-*', effect: 'allow' },
-  { action: 'edit', resource: '*', effect: 'allow' },
-  { action: 'shell', resource: '*', effect: 'allow' },
-]
-
-export interface AgenthoodConfigPaths {
-  skillsPath: string
-  instructionsPath: string
-}
 
 export interface DirectoryEntry {
   name: string
@@ -78,9 +45,9 @@ export interface MemberDiscoveryFileSystem {
   warn: (message: string) => void
 }
 
-// Derived from the shipped skills dir so the enum cannot drift from the members
-// actually published in the package. Defensive: a partial install must not
-// crash plugin load: the server() guard below skips tool registration.
+// Members are the registry (member-specs), matched against the shipped skills dir
+// so the enum cannot drift from what is published. Defensive: a partial install
+// must not crash plugin load: setup() skips tool registration when none are found.
 export function discoverMemberNames(
   skillsDir: string,
   fs: MemberDiscoveryFileSystem = {
@@ -89,17 +56,11 @@ export function discoverMemberNames(
     warn: (message) => console.warn(message),
   },
 ): string[] {
+  const members = new Set(rawSpecs.map((spec) => spec.name))
   try {
-    // Match member directories (without 'the-' prefix)
-    const memberNames = new Set([
-      'scribe', 'architect', 'builder', 'reviewer', 'tester', 'debugger',
-      'auditor', 'herald', 'librarian', 'doorman', 'oracle', 'envoy',
-      'sentinel', 'warden', 'strategist', 'steward', 'operator', 'mediator',
-      'mailman', 'inspector',
-    ])
     return fs
       .readdir(skillsDir)
-      .filter((entry) => entry.isDirectory() && memberNames.has(entry.name) && fs.exists(join(skillsDir, entry.name, 'SKILL.md')))
+      .filter((entry) => entry.isDirectory() && members.has(entry.name) && fs.exists(join(skillsDir, entry.name, 'SKILL.md')))
       .map((entry) => entry.name)
       .sort()
   } catch (err) {
@@ -116,26 +77,20 @@ export function getMemberNames(): string[] {
   return cachedMemberNames
 }
 
-// Mutation is the opencode `config`-hook contract (the hook returns void);
-// the includes-guards keep repeated invocations idempotent.
-export function wireAgenthoodConfig(
-  cfg: PluginConfig,
-  paths: AgenthoodConfigPaths,
-  hasInstructions: (path: string) => boolean = existsSync,
-): void {
-  cfg.skills ??= {}
-  cfg.skills.paths = cfg.skills.paths ?? []
-  if (!cfg.skills.paths.includes(paths.skillsPath)) cfg.skills.paths.push(paths.skillsPath)
-  if (hasInstructions(paths.instructionsPath)) {
-    cfg.instructions = cfg.instructions ?? []
-    if (!cfg.instructions.includes(paths.instructionsPath)) cfg.instructions.push(paths.instructionsPath)
-  }
-  cfg.agents ??= {}
-  cfg.agents['agenthood-live'] = {
-    description: 'Run the Agenthood Society end-to-end: orchestrate member subagents in parallel with a Redis audit trail. Start here for any Agenthood task.',
-    mode: 'primary',
-    permissions: LIVE_AGENT_PERMISSIONS,
-  }
+export function memberSkills(skillsDir: string, names: string[]): Skill.Info[] {
+  return names.map((name) => {
+    const path = join(skillsDir, name, 'SKILL.md')
+    const content = readFileSync(path, 'utf8')
+    const description = content.match(/^description:\s*(.+)$/m)?.[1]?.trim()
+    return {
+      id: Skill.ID.make(name),
+      name: Skill.Name.make(name),
+      description,
+      autoinvoke: false,
+      path: Skill.Info.fields.path.make(path),
+      content,
+    }
+  })
 }
 
 // Caps so one runaway member run cannot flood the session context.
@@ -226,20 +181,25 @@ export async function runMember(member: string, task: string, options: RunMember
   return formatRunResult(await collectOutput(child, options.abort, options.timeoutMs ?? DEFAULT_RUN_TIMEOUT_MS))
 }
 
-/** `agenthood_run_member` tool executor: spawns the CLI in the caller's project. */
-export async function executeRunMember(
-  { member, task }: { member: string; task: string },
-  context: ToolContext,
-): Promise<ToolResult> {
+const memberRunDependencies: RunMemberDependencies = {
+  existsCli: existsSync,
+  spawnProcess: (command, args, options) => spawn(command, args, { ...options, stdio: ['ignore', 'pipe', 'pipe'] }),
+}
+
+export function runMemberTool(names: string[], directory: string) {
   return {
-    title: `agenthood run ${member}`,
-    output: await runMember(member, task, {
-      directory: context.directory,
-      abort: context.abort,
-      dependencies: {
-        existsCli: existsSync,
-        spawnProcess: (command, args, options) => spawn(command, args, { ...options, stdio: ['ignore', 'pipe', 'pipe'] }),
-      },
+    name: 'agenthood_run_member',
+    description:
+      'Run an Agenthood Society member as a real agent on a task (enforced behavior + audit trail). '
+      + `Members: ${names.join(', ')}. `
+      + 'Use steward to route ambiguous tasks to the minimal member set first.',
+    input: z.object({
+      member: z.enum(names as [string, ...string[]]),
+      task: z.string().describe('Task for the member, e.g. "write a commit message for the current diff"'),
+    }),
+    execute: async ({ member, task }: { member: string; task: string }, context: { signal: AbortSignal }) => ({
+      content: await runMember(member, task, { directory, abort: context.signal, dependencies: memberRunDependencies }),
+      metadata: { title: `agenthood run ${member}` },
     }),
   }
 }
@@ -376,38 +336,23 @@ export async function mirrorRunRecord(
   })
 }
 
-export function buildRunMemberTool(names: string[]): Record<string, ToolDefinition> {
-  if (names.length === 0) return {}
-  return {
-    agenthood_run_member: {
-      description:
-        'Run an Agenthood Society member as a real agent on a task (enforced behavior + audit trail). '
-        + `Members: ${names.join(', ')}. `
-        + 'Use steward to route ambiguous tasks to the minimal member set first.',
-      args: {
-        member: z.enum(names as [string, ...string[]]),
-        task: z.string().describe('Task for the member, e.g. "write a commit message for the current diff"'),
-      },
-      execute: executeRunMember,
-    },
-  }
-}
-
-const server: Plugin = async () => {
-  const hooks: Hooks = {
-    config: async (raw) => {
-      const cfg = raw as PluginConfig
-      wireAgenthoodConfig(cfg, {
-        skillsPath: join(PACKAGE_ROOT, 'skills'),
-        instructionsPath: join(PACKAGE_ROOT, 'AGENTS.md'),
+export default Plugin.define({
+  id: 'agenthood',
+  async setup(ctx) {
+    const names = getMemberNames()
+    await ctx.skill.transform((editor) => {
+      for (const skill of memberSkills(join(PACKAGE_ROOT, 'skills'), names)) editor.add(skill)
+    })
+    if (names.length > 0) {
+      await ctx.tool.transform((editor) => {
+        editor.add(runMemberTool(names, ctx.location.directory))
       })
-    },
-    tool: buildRunMemberTool(getMemberNames()),
-    'tool.execute.after': async (input) => {
-      if (input.tool !== 'agenthood_run_member') return
+    }
+    await ctx.tool.hook('execute.after', async (event) => {
+      if (event.tool !== 'agenthood_run_member') return
       const target = parseRedisTarget(process.env.AGENTHOOD_REDIS)
       if (!target) return
-      const args = (input.args ?? {}) as { member?: unknown; task?: unknown }
+      const args = (event.input ?? {}) as { member?: unknown; task?: unknown }
       await mirrorRunRecord(
         target,
         {
@@ -420,9 +365,6 @@ const server: Plugin = async () => {
         undefined,
         process.env.AGENTHOOD_REDIS_PASSWORD,
       )
-    },
-  }
-  return hooks
-}
-
-export default { id: 'agenthood', server } satisfies PluginModule
+    })
+  },
+})

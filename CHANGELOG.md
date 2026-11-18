@@ -1,3 +1,10 @@
+## [4.1.1](https://github.com/fworks-tech/agenthood/compare/v4.1.0...v4.1.1) (2026-11-18)
+
+
+### Bug Fixes
+
+* **opencode:** port the agenthood plugin to the v2 plugin api ([#1103](https://github.com/fworks-tech/agenthood/issues/1103)) ([1eb7cf6](https://github.com/fworks-tech/agenthood/commit/1eb7cf6aec9fec702e6696a72a4add667e58add6))
+
 # [4.1.0](https://github.com/fworks-tech/agenthood/compare/v4.0.0...v4.1.0) (2026-11-18)
 
 

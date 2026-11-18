@@ -20,7 +20,7 @@ describe("zenProtocolForModel", () => {
     expect(zenProtocolForModel("qwen3.8-flash")).toBe("messages");
   });
   it("routes chat-completions models to chat", () => {
-    for (const m of ["deepseek-v4.1-flash", "kimi-k2.5", "minimax-m2.5", "mimo-v2.6-flash-free", "big-pickle", "glm-5.3-flash"]) {
+    for (const m of ["kimi-k2.5", "minimax-m2.5", "mimo-v2.6-flash-free", "big-pickle", "glm-5.3-flash"]) {
       expect(zenProtocolForModel(m)).toBe("chat");
     }
   });

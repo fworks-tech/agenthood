@@ -103,11 +103,12 @@ jobs:
           MEMBER: ${{ matrix.member }}
           TASK: ${{ matrix.task }}
           OPENCODE_API_KEY: ${{ secrets.OPENCODE_API_KEY }}
-          # deepseek-v4.1-flash speaks chat-completions, so the ritual no
-          # longer depends on the messages transport. The runtime has no shell
-          # tool, so ritual-facts.sh measures here and the member formats the
-          # report.
-          OPENCODE_MODEL: deepseek-v4.1-flash
+          # qwen3.8-flash speaks the messages protocol, and OpenCodeProvider
+          # now sends x-api-key, the header that endpoint reads (the old
+          # Bearer token was ignored). It stays because it is the cheapest
+          # paid model in the catalog: the watchman dispatch measured
+          # $0.0042 against $0.0161 on deepseek-v4.1-flash.
+          OPENCODE_MODEL: qwen3.8-flash
           GH_TOKEN: ${{ github.token }}
         run: |
           set -o pipefail

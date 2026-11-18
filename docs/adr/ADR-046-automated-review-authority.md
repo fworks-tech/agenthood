@@ -77,9 +77,9 @@ Reviewer comments it actually followed.
    | Agent | Step | Model | Gate | Threshold |
    |---|---|---|---|---|
    | the-reviewer | `reviewer.yml:80` | `opencode/gpt-5-nano` (`reviewer.yml:99`) | advisory (`reviewer.yml:100`) | n/a |
-   | the-sentinel | `pr.yml:196` | `opencode/deepseek-v4.1-flash` (`pr.yml:207`) | advisory, changed here | default 2, out of the gate path |
-   | the-auditor | `pr.yml:94` | `opencode/deepseek-v4.1-flash` (`pr.yml:107`) | disabled (`pr.yml:96`) | default 2 if re-enabled |
-   | the-warden | `pr.yml:138` | `opencode/deepseek-v4.1-flash` (`pr.yml:151`) | disabled (`pr.yml:140`) | default 2 if re-enabled |
+   | the-sentinel | `pr.yml:196` | `opencode/qwen3.8-flash` (`pr.yml:207`) | advisory, changed here | default 2, out of the gate path |
+   | the-auditor | `pr.yml:94` | `opencode/qwen3.8-flash` (`pr.yml:107`) | disabled (`pr.yml:96`) | default 2 if re-enabled |
+   | the-warden | `pr.yml:138` | `opencode/qwen3.8-flash` (`pr.yml:151`) | disabled (`pr.yml:140`) | default 2 if re-enabled |
 
    The sentinel carried the same flip shape #1082 exposed: a flash-class
    model, the default threshold of 2 (`action.yml:40`, `decision-gate.sh:97`)

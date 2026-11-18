@@ -376,7 +376,7 @@ The source is [agenthood-site](https://github.com/fworks-tech/agenthood-site).
 - [Utility Skills](docs/academy/utility-skills.md): the 23 specialist skills
 - [Runtime Guide](docs/runtime-guide.md): configuration, providers, and operations
 - [Architecture](docs/architecture/README.md): agent system, queues, operating modes, failover, tools, decisions, skills
-- [ADRs](docs/adr/): 40 records of the decisions behind the design
+- [ADRs](docs/adr/): 43 records of the decisions behind the design
 - [Academy](docs/academy/): a learning path from "what is a prompt" to shipping agents, across three levels
 - [Troubleshooting](docs/guides/troubleshooting.md): the failures people hit first
 

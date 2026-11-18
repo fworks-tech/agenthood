@@ -57,3 +57,4 @@ Commits: {N} · PRs merged: {N} · Issues closed: {N}
 - Trigger manually at any time with the command in [Status](#status)
 - If no activity detected, produces a minimal report
 - Does not modify any files or git state
+- In CI the workflow shell collects the measurements ([ritual-facts.sh](../../.github/scripts/ritual-facts.sh)) and the member formats the report from them: the runtime session has no shell tool, so a task that asked the member to run git or gh always failed.

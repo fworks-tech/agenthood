@@ -59,3 +59,4 @@ Scans the codebase for code health signals: TODOs and FIXMEs, files exceeding si
 - TODO age threshold: flag TODOs older than 30 days
 - Does not modify any files: report only
 - The report's findings can be checked against `.agenthood/provenance/`: past inspection runs are tamper-evident (ADR-015)
+- In CI the workflow shell collects the measurements ([ritual-facts.sh](../../.github/scripts/ritual-facts.sh)) and the member formats the report from them: the runtime session has no shell tool, so a task that asked the member to run git or gh always failed.

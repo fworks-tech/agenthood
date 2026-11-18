@@ -55,3 +55,4 @@ A lightweight pulse check performed by The Doorman. Looks for work that has been
 - Branch drift threshold: 20 commits behind main (configurable thresholds are planned)
 - Low priority: never interrupts USER or SCHEDULED work
 - Every ritual run records a decision + provenance entry in `.agenthood/decisions/` and `.agenthood/provenance/` (ADR-015): the Watchman's checks are auditable
+- In CI the workflow shell collects the measurements ([ritual-facts.sh](../../.github/scripts/ritual-facts.sh)) and the member formats the report from them: the runtime session has no shell tool, so a task that asked the member to run git or gh always failed.

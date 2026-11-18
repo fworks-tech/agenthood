@@ -10,10 +10,12 @@
  * means adding a file, not touching this one.
  */
 
-import { existsSync as envFileExists } from 'node:fs'
+import { loadProjectEnv } from './core/projectEnv.ts'
 
-// dotenv/config parity: load .env when present, ignore when absent
-if (envFileExists('.env')) process.loadEnvFile()
+// A project .env wins over inherited variables: the OpenCode host injects its
+// own OPENCODE_API_KEY into plugin children, and that key cannot authenticate
+// a standalone run.
+loadProjectEnv()
 
 import { readdirSync, realpathSync } from 'node:fs';
 import { join, dirname } from 'node:path';

@@ -46,11 +46,13 @@ export async function discoverSkills(
   options: DiscoverSkillsOptions = {},
 ): Promise<{ catalog: string; manifests: Map<string, ISkillManifest> } & GateResult> {
   const discovery = new SkillDiscovery()
-  const manifests = discovery.discover(projectPath)
+  // Startup pays the catalog, not the bodies: name, description and the flags
+  // the gate needs. activate_skill reads a body when it is actually used (#614).
+  const manifests = discovery.discover(projectPath, { metadataOnly: true })
   // Packaged tool skills merge at lowest precedence: a user/project skill
   // with the same name wins, so local overrides keep working.
   const seen = new Set(manifests.map((m) => m.name))
-  for (const m of discovery.discoverPackaged()) {
+  for (const m of discovery.discoverPackaged({ metadataOnly: true })) {
     if (!seen.has(m.name)) {
       manifests.push(m)
       seen.add(m.name)

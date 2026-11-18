@@ -2,7 +2,7 @@ import type { ITool, ToolResult } from '../../tools/ITool.ts'
 import type { ExecutionContext } from '../../core/ExecutionContext.ts'
 import type { ISkillManifest } from '../discovery/ISkillManifest.ts'
 import type { JSONSchema } from '../../llm/types.ts'
-import { realpathSync } from 'node:fs'
+import { readFileSync, realpathSync } from 'node:fs'
 import { recordSkillActivation } from './SkillStats.ts'
 import { SkillBudget } from './SkillBudget.ts'
 import { evaluateConditions } from './conditions.ts'
@@ -10,6 +10,8 @@ import { formatSkillContent, SKILL_ACTIVATION_PREFIX, type SkillContentFormat } 
 import { findMissingReferences } from './references.ts'
 import { gateSkills, type GateResult, type SkillAvailability } from '../discovery/gating.ts'
 import { selectVariantBody } from '../discovery/variants.ts'
+import { scanForInjections } from '../discovery/injectionScan.ts'
+import { SkillParser } from '../discovery/SkillParser.ts'
 import { escapeXml } from '../../agents/memberLore.ts'
 
 export { SKILL_ACTIVATION_PREFIX }
@@ -157,8 +159,11 @@ export class ActivateSkillTool implements ITool {
     // A body already in the transcript cannot be shrunk later, so the budget is
     // applied here, against what is already loaded. The variant, when one
     // matches the model, is what gets loaded (ADR-037, #551).
+    const hydrated = this.hydrateBody(manifest)
+    if (!hydrated.ok) return fail(hydrated.error)
+    const loaded = hydrated.manifest
     const model = this.options.availability?.model
-    const variant = selectVariantBody(manifest, model)
+    const variant = selectVariantBody(loaded, model)
     const fit = this.budget.fit(variant.body)
     const missing = findMissingReferences(variant.body, manifest.directory)
     const notices = [
@@ -175,7 +180,7 @@ export class ActivateSkillTool implements ITool {
       ...(this.gate.warnings.get(name) ?? []).map((message) => `<skill_warning>${escapeXml(message)}</skill_warning>`),
     ].filter(Boolean)
 
-    const output = formatSkillContent(manifest, fit.body, {
+    const output = formatSkillContent(loaded, fit.body, {
       format: this.options.format,
       trigger: attempted.length > 0 ? 'fallback' : 'model',
       now: this.options.now?.(),
@@ -185,6 +190,34 @@ export class ActivateSkillTool implements ITool {
     })
     this.cache.set(cachedKey, output)
     return { success: true, output }
+  }
+
+  /**
+   * Lazy discovery (#614) leaves `body` empty at startup. The file is read here,
+   * at the point the body would enter the prompt, so the injection screen still
+   * runs before any instruction content reaches the model.
+   */
+  private hydrateBody(manifest: ISkillManifest): { ok: true; manifest: ISkillManifest } | { ok: false; error: string } {
+    if (manifest.body !== '') return { ok: true, manifest }
+    let content: string
+    try {
+      content = readFileSync(manifest.location, 'utf8')
+    } catch (err) {
+      return { ok: false, error: `Skill "${manifest.name}" body could not be read: ${(err as Error)?.message ?? err}` }
+    }
+    const findings = scanForInjections(content)
+    const blocked = findings.filter((finding) => finding.severity === 'block')
+    if (blocked.length > 0) {
+      return {
+        ok: false,
+        error: `Skill "${manifest.name}" refused: prompt injection (${blocked.map((finding) => finding.pattern).join(', ')})`,
+      }
+    }
+    for (const finding of findings) {
+      console.warn(`[skills] "${manifest.name}", possible injection (${finding.pattern}): "${finding.excerpt}"`)
+    }
+    const parsed = new SkillParser().parseRaw(content)
+    return { ok: true, manifest: { ...manifest, body: parsed?.body ?? content } }
   }
 
   /**

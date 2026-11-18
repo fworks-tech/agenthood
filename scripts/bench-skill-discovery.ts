@@ -1,9 +1,12 @@
 /**
  * Skill discovery benchmark (#614). Generates 50 fixture skills and measures
  * the startup scan repeatedly, reporting median and p95. Cold clears the
- * metadata cache first; warm reuses it. The gate is the issue's budget: cold
- * startup under 500 ms with 50 skills, and a warm run that actually uses the
- * cache.
+ * metadata cache first; warm reuses it. Full parses bodies for every skill;
+ * lazy (metadata-only) is the startup path after #614, where activation reads
+ * the body on demand.
+ *
+ * The gate is the issue's budget: cold startup under 500 ms with 50 skills,
+ * and a warm run that actually uses the cache.
  *
  *   npm run bench:skills
  */
@@ -11,7 +14,7 @@
 import { mkdirSync, mkdtempSync, rmSync, writeFileSync } from 'node:fs'
 import { join } from 'node:path'
 import { tmpdir } from 'node:os'
-import { SkillDiscovery } from '../src/skills/discovery/SkillDiscovery.ts'
+import { SkillDiscovery, type DiscoverOptions } from '../src/skills/discovery/SkillDiscovery.ts'
 
 const SKILL_COUNT = 50
 const RUNS = 10
@@ -37,7 +40,10 @@ function makeProject(): string {
   return root
 }
 
-function measure(project: string): { ms: number; directories: number; skills: number; cacheHits: number } {
+function measure(
+  project: string,
+  options: DiscoverOptions,
+): { ms: number; directories: number; skills: number; cacheHits: number } {
   const discovery = new SkillDiscovery(project)
   // Warnings are not part of load time, and console writes would dominate a
   // short scan: the benchmark measures parsing, not printing.
@@ -45,7 +51,7 @@ function measure(project: string): { ms: number; directories: number; skills: nu
   console.warn = () => {}
   try {
     const started = performance.now()
-    discovery.discover(project)
+    discovery.discover(project, options)
     const stats = discovery.lastStats()
     return {
       ms: performance.now() - started,
@@ -66,40 +72,60 @@ function percentile(sorted: number[], p: number): number {
 
 const fmt = (ms: number) => ms.toFixed(1)
 
-const project = makeProject()
-try {
+interface Series {
+  cold: number[]
+  warm: number[]
+  coldStats: ReturnType<typeof measure>
+  warmStats: ReturnType<typeof measure>
+}
+
+function series(project: string, options: DiscoverOptions): Series {
   const cold: number[] = []
   const warm: number[] = []
-  let lastCold: ReturnType<typeof measure> | undefined
-  let lastWarm: ReturnType<typeof measure> | undefined
+  let coldStats: ReturnType<typeof measure> | undefined
+  let warmStats: ReturnType<typeof measure> | undefined
   for (let run = 0; run < RUNS; run++) {
     rmSync(join(project, '.agenthood', 'skill-cache'), { recursive: true, force: true })
-    lastCold = measure(project)
-    lastWarm = measure(project)
-    if (lastCold.skills !== SKILL_COUNT || lastCold.cacheHits !== 0) {
-      throw new Error(`cold run measured ${lastCold.skills} skills / ${lastCold.cacheHits} cache hits, expected ${SKILL_COUNT} / 0`)
+    coldStats = measure(project, options)
+    warmStats = measure(project, options)
+    if (coldStats.skills !== SKILL_COUNT || coldStats.cacheHits !== 0) {
+      throw new Error(`cold run measured ${coldStats.skills} skills / ${coldStats.cacheHits} cache hits, expected ${SKILL_COUNT} / 0`)
     }
-    if (lastWarm.cacheHits !== SKILL_COUNT) {
-      throw new Error(`warm run used the cache ${lastWarm.cacheHits} times, expected ${SKILL_COUNT}`)
+    if (warmStats.cacheHits !== SKILL_COUNT) {
+      throw new Error(`warm run used the cache ${warmStats.cacheHits} times, expected ${SKILL_COUNT}`)
     }
-    cold.push(lastCold.ms)
-    warm.push(lastWarm.ms)
+    cold.push(coldStats.ms)
+    warm.push(warmStats.ms)
   }
   cold.sort((a, b) => a - b)
   warm.sort((a, b) => a - b)
-  const coldMedian = percentile(cold, 50)
-  const warmMedian = percentile(warm, 50)
-  const reduction = ((coldMedian - warmMedian) / coldMedian) * 100
+  return { cold, warm, coldStats: coldStats as ReturnType<typeof measure>, warmStats: warmStats as ReturnType<typeof measure> }
+}
+
+const project = makeProject()
+try {
+  const full = series(project, {})
+  const lazy = series(project, { metadataOnly: true })
+
+  const fullCold = percentile(full.cold, 50)
+  const lazyCold = percentile(lazy.cold, 50)
+  const lazyWarm = percentile(lazy.warm, 50)
+  const initialReduction = ((fullCold - lazyCold) / fullCold) * 100
+  const secondLoadReduction = ((fullCold - lazyWarm) / fullCold) * 100
 
   console.log(`skills: ${SKILL_COUNT} (isolated fixture, ${RUNS} runs)`)
-  console.log(`cold: median ${fmt(coldMedian)} ms, p95 ${fmt(percentile(cold, 95))} ms (full parse)`)
-  console.log(`warm: median ${fmt(warmMedian)} ms, p95 ${fmt(percentile(warm, 95))} ms (cache hits ${lastWarm?.cacheHits ?? 0})`)
-  console.log(`reduction: ${reduction.toFixed(0)}% (warm median vs cold median)`)
+  console.log(`full cold: median ${fmt(fullCold)} ms, p95 ${fmt(percentile(full.cold, 95))} ms (bodies parsed)`)
+  console.log(`full warm: median ${fmt(percentile(full.warm, 50))} ms, p95 ${fmt(percentile(full.warm, 95))} ms (cache hits ${full.warmStats.cacheHits})`)
+  console.log(`lazy cold: median ${fmt(lazyCold)} ms, p95 ${fmt(percentile(lazy.cold, 95))} ms (metadata only)`)
+  console.log(`lazy warm: median ${fmt(lazyWarm)} ms, p95 ${fmt(percentile(lazy.warm, 95))} ms (cache hits ${lazy.warmStats.cacheHits})`)
+  console.log(`initial-load reduction: ${initialReduction.toFixed(0)}% (lazy cold vs full cold)`)
+  console.log(`second-load reduction: ${secondLoadReduction.toFixed(0)}% (lazy warm vs full cold)`)
 
   const problems: string[] = []
-  if (coldMedian > BUDGET_MS) problems.push(`cold median ${fmt(coldMedian)} ms exceeds ${BUDGET_MS} ms`)
-  if (percentile(cold, 95) > BUDGET_MS) problems.push(`cold p95 ${fmt(percentile(cold, 95))} ms exceeds ${BUDGET_MS} ms`)
-  if (warmMedian >= coldMedian) problems.push('warm discovery is not faster than cold')
+  if (fullCold > BUDGET_MS) problems.push(`full cold median ${fmt(fullCold)} ms exceeds ${BUDGET_MS} ms`)
+  if (lazyCold > BUDGET_MS) problems.push(`lazy cold median ${fmt(lazyCold)} ms exceeds ${BUDGET_MS} ms`)
+  if (percentile(lazy.cold, 95) > BUDGET_MS) problems.push(`lazy cold p95 ${fmt(percentile(lazy.cold, 95))} ms exceeds ${BUDGET_MS} ms`)
+  if (lazyCold >= fullCold) problems.push('lazy discovery is not faster than full discovery')
   if (problems.length > 0) {
     for (const problem of problems) console.error(`FAIL: ${problem}`)
     process.exitCode = 1

@@ -48,6 +48,22 @@ describe('SkillDiscovery', () => {
       expect(found.map((m) => m.name)).toContain('test-skill')
       expect(second.lastStats().cacheHits).toBeGreaterThanOrEqual(1)
     })
+
+    it('leaves the body empty in metadata mode and a full run still parses it (#614)', () => {
+      const lazy = new SkillDiscovery(testDir).discover(testDir, { metadataOnly: true })
+      const lazySkill = lazy.find((m) => m.name === 'test-skill')
+      expect(lazySkill?.description).toBe('A test skill')
+      expect(lazySkill?.body).toBe('')
+
+      const full = new SkillDiscovery(testDir).discover(testDir)
+      expect(full.find((m) => m.name === 'test-skill')?.body).toContain('# Overview')
+    })
+
+    it('does not replay a bodyless cache entry into a full discovery (#614)', () => {
+      new SkillDiscovery(testDir).discover(testDir, { metadataOnly: true })
+      const full = new SkillDiscovery(testDir).discover(testDir)
+      expect(full.find((m) => m.name === 'test-skill')?.body).toContain('# Overview')
+    })
   })
 
   it('verifies skill integrity when loading', () => {

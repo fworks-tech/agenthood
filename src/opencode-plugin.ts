@@ -171,13 +171,22 @@ export interface RunMemberOptions {
   timeoutMs?: number
 }
 
+/**
+ * The V2 host runs plugins on Bun, where process.execPath is the host binary
+ * instead of Node. The Agenthood CLI is a Node script, so fall back to node on
+ * PATH (or AGENTHOOD_NODE) when the host runtime is something else.
+ */
+export function nodeRuntime(execPath: string = process.execPath, env: NodeJS.ProcessEnv = process.env): string {
+  return /(^|[\\/])node(?:\.exe)?$/i.test(execPath) ? execPath : env.AGENTHOOD_NODE || 'node'
+}
+
 /** Runs `agenthood run <member> "<task>"` in the caller's project and streams the result. */
 export async function runMember(member: string, task: string, options: RunMemberOptions): Promise<string> {
   if (!options.dependencies.existsCli(CLI)) return `agenthood CLI not found at ${CLI}: run \`npm run build\` in the agenthood package.`
 
   // `--` keeps a task beginning with `-` as data: the CLI would otherwise
   // parse `--detect` / `--provider` out of it
-  const child = options.dependencies.spawnProcess(process.execPath, [CLI, 'run', member, '--', task], { cwd: options.directory })
+  const child = options.dependencies.spawnProcess(nodeRuntime(), [CLI, 'run', member, '--', task], { cwd: options.directory })
   return formatRunResult(await collectOutput(child, options.abort, options.timeoutMs ?? DEFAULT_RUN_TIMEOUT_MS))
 }
 

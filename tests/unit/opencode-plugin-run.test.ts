@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest'
-import pluginModule, { runMember } from '../../src/opencode-plugin.ts'
+import pluginModule, { nodeRuntime, runMember } from '../../src/opencode-plugin.ts'
 import type { FakeChild } from '../helpers/opencodePluginFixtures.ts'
 import { fakeChild, fakePluginContext } from '../helpers/opencodePluginFixtures.ts'
 
@@ -201,5 +201,18 @@ describe('server tool execute', () => {
       metadata: { title: 'agenthood run oracle' },
     })
     expect(state.spawnCalls).toEqual([])
+  })
+})
+
+describe('nodeRuntime', () => {
+  it('keeps a Node executable', () => {
+    expect(nodeRuntime('/usr/bin/node')).toBe('/usr/bin/node')
+    expect(nodeRuntime('C:\\Program Files\\nodejs\\node.exe')).toBe('C:\\Program Files\\nodejs\\node.exe')
+  })
+
+  it('falls back to node when the host runtime is not Node', () => {
+    expect(nodeRuntime('/opt/opencode/opencode')).toBe('node')
+    expect(nodeRuntime('C:\\app\\opencode.exe')).toBe('node')
+    expect(nodeRuntime('/opt/opencode/opencode', { AGENTHOOD_NODE: '/opt/node/bin/node' })).toBe('/opt/node/bin/node')
   })
 })

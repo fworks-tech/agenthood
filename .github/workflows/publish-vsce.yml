@@ -7,6 +7,7 @@ on:
 
 permissions:
   contents: read
+  issues: write
 
 jobs:
   publish:
@@ -38,5 +39,16 @@ jobs:
           VSCE_TOKEN: ${{ secrets.VSCE_TOKEN }}
 
       - name: Report the unpublished extension
+        # The notice only lives in this run's log, which nobody opens on a
+        # green job. The open issue is the durable signal; close it by hand
+        # once the secret exists and the publish has run.
         if: env.VSCE_TOKEN == ''
-        run: echo "::notice::VSCE_TOKEN is not set - the extension was not published. Add the secret and dispatch this workflow to publish it."
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          echo "::notice::VSCE_TOKEN is not set - the extension was not published."
+          open_issues=$(gh issue list --state open --search "VSCE_TOKEN missing in:title" --json number -q 'length')
+          if [ "$open_issues" -eq 0 ]; then
+            gh issue create --title "VSCE_TOKEN missing: the VS Code extension is not published" \
+              --body "A \`publish-vsce\` run skipped the marketplace publish because the \`VSCE_TOKEN\` repository secret does not exist. The GitHub release and the npm package are unaffected. Fix: add the \`VSCE_TOKEN\` secret (a Marketplace token from a publisher with the \`agenthood-vscode\` extension), then dispatch \`publish-vsce.yml\`. Close this issue when the extension is listed on the Marketplace."
+          fi

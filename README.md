@@ -370,6 +370,8 @@ npm i -g agenthood   # add @<version> to pin, for example agenthood@4.0.0
 The plugin registers all 20 member skills and an `agenthood_run_member` tool.
 It cannot create agents, so the primary `agenthood-live` orchestrator comes from
 an `agents` block in your config. Copy the one in this repo's `opencode.json`.
+A member run has a five-minute watchdog; set `AGENTHOOD_MEMBER_TIMEOUT_MS` to
+change it.
 
 The VS Code extension (`agenthood-vscode`) runs the same runtime inside the
 editor. Its source is in [vscode-extension/](vscode-extension/) and it

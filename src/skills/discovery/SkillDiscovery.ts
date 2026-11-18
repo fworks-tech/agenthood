@@ -34,6 +34,23 @@ interface CachedSkill {
   findings: { severity: string; pattern: string; excerpt: string }[]
   heuristic: boolean
   declaredName: string
+  /** `metadata` entries replay as bodyless manifests: activation hydrates (#614). */
+  mode: 'full' | 'metadata'
+}
+
+export interface DiscoverOptions {
+  /**
+   * Parse only the frontmatter and leave `body` empty. The startup catalog pays
+   * name and description; activation reads the body when it is about to enter
+   * the prompt (#614).
+   */
+  metadataOnly?: boolean
+}
+
+/** The YAML block, the only text scanned when bodies are lazy (#614). */
+function frontmatterBlock(content: string): string {
+  const match = content.match(/^---\r?\n([\s\S]*?)\r?\n---/)
+  return match ? match[1] : content
 }
 
 // The packaged skills dir inside the installed package is the versioned trust
@@ -78,6 +95,7 @@ export class SkillDiscovery {
   private readonly defaultProjectDir: string
   private remoteFetcher?: RemoteSkillFetcher
   private cache: ManifestCache<CachedSkill>
+  private metadataOnly = false
   private stats: ScanStats = { directories: 0, skills: 0, cacheHits: 0, durationMs: 0, truncated: false }
 
   constructor(projectDir: string = process.cwd()) {
@@ -95,19 +113,21 @@ export class SkillDiscovery {
    * `verify --dedup` uses it to see the same name twice; discovery itself hides
    * the loser behind a warning.
    */
-  scanRoot(root: string): ISkillManifest[] {
+  scanRoot(root: string, options: DiscoverOptions = {}): ISkillManifest[] {
     if (!existsSync(root)) return []
+    this.metadataOnly = options.metadataOnly ?? false
     this.cache = new ManifestCache<CachedSkill>(this.defaultProjectDir)
     // Per-root budget: a large user root must not silently cut the next root.
     this.stats = { directories: 0, skills: 0, cacheHits: 0, durationMs: 0, truncated: false }
     return this.scanDir(root, 0)
   }
 
-  discover(projectDir: string): ISkillManifest[] {
+  discover(projectDir: string, options: DiscoverOptions = {}): ISkillManifest[] {
     this.manifests.clear()
     this.scopes.clear()
     this.precedence.clear()
     this.discovered = true
+    this.metadataOnly = options.metadataOnly ?? false
     this.cache = new ManifestCache<CachedSkill>(projectDir)
     const started = Date.now()
     this.stats = { directories: 0, skills: 0, cacheHits: 0, durationMs: 0, truncated: false }
@@ -207,8 +227,9 @@ export class SkillDiscovery {
    * packaged files. Kept separate from discover() so publish/verify/MCP
    * keep their project-scoped behavior.
    */
-  discoverPackaged(): ISkillManifest[] {
+  discoverPackaged(options: DiscoverOptions = {}): ISkillManifest[] {
     const result: ISkillManifest[] = []
+    this.metadataOnly = options.metadataOnly ?? false
 
     let entries: Dirent[]
     // readdirSync ENOENT (no packaged dir in stripped installs) is caught by
@@ -287,7 +308,9 @@ export class SkillDiscovery {
       }
       const skillMdPath = resolved.path
       const cached = this.cache.lookup(skillMdPath)
-      if (cached) return this.fromCache(cached.value, entry, fullPath)
+      if (cached && cached.value.mode === (this.metadataOnly ? 'metadata' : 'full')) {
+        return this.fromCache(cached.value, entry, fullPath)
+      }
 
       const parsed = this.parser.parse(skillMdPath)
       if (!parsed) return []
@@ -300,8 +323,10 @@ export class SkillDiscovery {
       // Fail-closed injection screen (ADR-029): a block-severity finding refuses
       // to load the skill at all, on the same drop-the-manifest path a packaging
       // mismatch takes. Warn-severity findings load and announce themselves,
-      // security skills legitimately discuss this vocabulary.
-      const findings = scanForInjections(content)
+      // security skills legitimately discuss this vocabulary. In metadata mode
+      // only the frontmatter is screened here because only it enters the
+      // catalog; activation screens the body before it enters the prompt (#614).
+      const findings = scanForInjections(this.metadataOnly ? frontmatterBlock(content) : content)
       if (findings.some((f) => f.severity === 'block')) {
         for (const f of findings.filter((f) => f.severity === 'block')) {
           console.warn(`[SkillDiscovery] "${entry}" not loaded, prompt injection (${f.pattern}): "${f.excerpt}"`)
@@ -311,7 +336,12 @@ export class SkillDiscovery {
       for (const f of findings) {
         console.warn(`[SkillDiscovery] "${entry}", possible injection (${f.pattern}): "${f.excerpt}"`)
       }
-      const manifest = this.parser.parseManifest(skillMdPath, fullPath, { ...parsed, name: parsed.name || entry }, tier)
+      const manifest = this.parser.parseManifest(
+        skillMdPath,
+        fullPath,
+        { ...parsed, name: parsed.name || entry, body: this.metadataOnly ? '' : parsed.body },
+        tier,
+      )
       const packaged = isPackagedDir(fullPath)
       if (!packaged) this.verifyIntegrity(parsed.name || entry, skillMdPath)
       // A packaged file whose frontmatter name disagrees with its directory
@@ -328,7 +358,13 @@ export class SkillDiscovery {
       if (!packaged && parsed.name && parsed.name !== normalizeSkillName(entry)) {
         console.warn(`[SkillDiscovery] "${entry}" declares name "${parsed.name}", it activates as "${parsed.name}", not "${entry}"`)
       }
-      this.cache.remember(skillMdPath, { manifest, findings, heuristic: heuristic ?? false, declaredName: parsed.name })
+      this.cache.remember(skillMdPath, {
+        manifest,
+        findings,
+        heuristic: heuristic ?? false,
+        declaredName: parsed.name,
+        mode: this.metadataOnly ? 'metadata' : 'full',
+      })
       return [manifest]
     }
     return this.scanDir(fullPath, depth + 1)

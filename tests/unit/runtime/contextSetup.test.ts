@@ -44,6 +44,13 @@ describe('discoverSkills packaged merge', () => {
     expect(manifests.has('test-skill')).toBe(true)
   })
 
+  it('startup keeps skill bodies off the manifests until activation (#614)', async () => {
+    const { catalog, manifests } = await discoverSkills(testDir)
+    expect(catalog).toContain('A test skill')
+    expect(manifests.get('test-skill')?.description).toBe('A test skill')
+    expect(manifests.get('test-skill')?.body).toBe('')
+  })
+
   it('project skill wins over a packaged skill with the same name', async () => {
     const discovery = new SkillDiscovery(testDir)
     const packagedName = discovery.discoverPackaged().find((m) => m.name === 'docker')?.name

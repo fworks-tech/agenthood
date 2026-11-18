@@ -1,3 +1,19 @@
+# [4.1.0](https://github.com/fworks-tech/agenthood/compare/v4.0.0...v4.1.0) (2026-11-18)
+
+
+### Bug Fixes
+
+* **ci:** give the automated reviewer real input and a deterministic gate ([#1085](https://github.com/fworks-tech/agenthood/issues/1085)) ([7729ef1](https://github.com/fworks-tech/agenthood/commit/7729ef1651c0bc3a151c7609412ac0b444b2128c))
+* **ci:** repair the scheduled rituals and lead the README with the audit record ([#1089](https://github.com/fworks-tech/agenthood/issues/1089)) ([7d62f76](https://github.com/fworks-tech/agenthood/commit/7d62f76e850a4ee94214485d40d0b99dda77a7f7)), refs #1087
+
+
+### Features
+
+* adopt the legacy utility skills and widen the public catalog ([#1082](https://github.com/fworks-tech/agenthood/issues/1082)) ([65edc0f](https://github.com/fworks-tech/agenthood/commit/65edc0fa9d0e46ca71eb82862cbfa0a776224a78))
+* **runtime:** let a host opt out of AGENTS.md prompt injection ([#1100](https://github.com/fworks-tech/agenthood/issues/1100)) ([1871c7a](https://github.com/fworks-tech/agenthood/commit/1871c7accc3deaa75da93cc49133583076808a00)), refs #406, #1071
+* **skills:** cross-location skill dedup with opt-in merge ([#1096](https://github.com/fworks-tech/agenthood/issues/1096)) ([693ea62](https://github.com/fworks-tech/agenthood/commit/693ea620cce1d67a0376ca58b973410acb3d7329))
+* **skills:** load skill bodies on demand at activation ([#1097](https://github.com/fworks-tech/agenthood/issues/1097)) ([ac317d3](https://github.com/fworks-tech/agenthood/commit/ac317d3f12998b445552ff707053d7976ca2ad75)), refs #614
+
 # [4.0.0](https://github.com/fworks-tech/agenthood/compare/v3.78.0...v4.0.0) (2026-11-16)
 
 

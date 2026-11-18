@@ -6,11 +6,12 @@
  * conflict, never a guess, because "keep the highest" has no answer when the
  * versions are equal and picking one destroys the other's work.
  *
- * Everything here is a plan until `applyDedup` runs, and `applyDedup` writes
- * the diff to disk before it removes anything.
+ * Everything here is a plan until `applyDedup` runs. Apply writes the diff as
+ * an audit artifact immediately before removing the losing directories, and the
+ * CLI requires `--yes` because the artifact cannot be read in time to veto it.
  */
-import { mkdirSync, readFileSync, rmSync, writeFileSync } from 'node:fs'
-import { join } from 'node:path'
+import { mkdirSync, readFileSync, realpathSync, rmSync, writeFileSync } from 'node:fs'
+import { isAbsolute, join, relative } from 'node:path'
 import { countTokens } from '../core/modelPricing.ts'
 import { SkillDiscovery } from './discovery/SkillDiscovery.ts'
 import { diffLines } from './lineDiff.ts'
@@ -45,6 +46,8 @@ export interface DedupPlan {
   groups: DedupGroup[]
   /** Catalog tokens the consolidations would remove (conflicts excluded). */
   savedTokens: number
+  /** The roots the plan was built from; apply refuses a loser outside them. */
+  roots: SkillRoot[]
 }
 
 export interface DedupApplyResult {
@@ -53,12 +56,15 @@ export interface DedupApplyResult {
   diffPath?: string
   /** Groups that stopped the merge: nothing was mutated. */
   conflicts: DedupGroup[]
+  /** Groups whose losing copy resolved outside every root: nothing was mutated. */
+  escaped: DedupGroup[]
 }
 
-const VERSION_RE = /^(\d+)(?:\.(\d+))?(?:\.(\d+))?/
+const VERSION_RE = /^v?(\d+)(?:\.(\d+))?(?:\.(\d+))?/i
 
 /**
- * Semver-ish compare: numeric segments when both parse, lexical otherwise.
+ * Semver-ish compare: numeric segments when both parse (an optional `v` prefix
+ * is ignored), lexical otherwise.
  * shortcut: pre-release suffixes are not ordered, so 1.0.0-beta ties 1.0.0.
  * Upgrade when skills start pinning pre-release versions.
  */
@@ -131,20 +137,43 @@ export function planDedup(roots: SkillRoot[]): DedupPlan {
     }
   }
   groups.sort((a, b) => a.name.localeCompare(b.name))
-  return { groups, savedTokens }
+  return { groups, savedTokens, roots }
+}
+
+function insideRoots(directory: string, roots: SkillRoot[]): boolean {
+  let real: string
+  try {
+    real = realpathSync(directory)
+  } catch {
+    return false
+  }
+  return roots.some((root) => {
+    let realRoot: string
+    try {
+      realRoot = realpathSync(root.path)
+    } catch {
+      return false
+    }
+    const rel = relative(realRoot, real)
+    return rel === '' || (!rel.startsWith('..') && !isAbsolute(rel))
+  })
 }
 
 /**
- * Writes the diff under `.agenthood/dedup/` and only then removes the losing
- * directories. A plan with any conflict is refused whole: partially
- * consolidating around an unresolved tie is how someone loses work.
+ * Writes the diff under `.agenthood/dedup/` as an audit artifact, then removes
+ * the losing directories. A plan with any conflict is refused whole, and a
+ * copy whose real path escapes every root is refused too: a symlink must not
+ * turn a name collision into a delete outside the search roots.
  */
 export function applyDedup(plan: DedupPlan, projectDir: string): DedupApplyResult {
   const conflicts = plan.groups.filter((group) => group.action === 'conflict')
-  if (conflicts.length > 0) return { removed: [], conflicts }
+  if (conflicts.length > 0) return { removed: [], conflicts, escaped: [] }
 
   const groups = plan.groups.filter((group) => group.winner !== undefined && group.losers.length > 0)
-  if (groups.length === 0) return { removed: [], conflicts: [] }
+  if (groups.length === 0) return { removed: [], conflicts: [], escaped: [] }
+
+  const escaped = groups.filter((group) => group.losers.some((loser) => !insideRoots(loser.directory, plan.roots)))
+  if (escaped.length > 0) return { removed: [], conflicts: [], escaped }
 
   const diffDir = join(projectDir, '.agenthood', 'dedup')
   mkdirSync(diffDir, { recursive: true })
@@ -168,5 +197,5 @@ export function applyDedup(plan: DedupPlan, projectDir: string): DedupApplyResul
       removed.push(loser)
     }
   }
-  return { removed, diffPath, conflicts: [] }
+  return { removed, diffPath, conflicts: [], escaped: [] }
 }

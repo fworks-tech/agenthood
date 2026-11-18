@@ -91,9 +91,12 @@ number is the deliverable, not the mechanism.
   name in several roots with the consolidation suggestion.
 - Cross-location duplicates keep the existing runtime rule (project beats user,
   earlier root beats later) for identical copies. `verify --dedup` reports only;
-  `--dedup --merge` is the explicit consolidation path: it writes the diff to
-  `.agenthood/dedup/dedup-merge.diff` before removing anything, keeps the highest
-  version, and refuses a version tie with different contents (#616).
+  `--dedup --merge --yes` is the explicit consolidation path: it writes the diff
+  to `.agenthood/dedup/dedup-merge.diff` as an audit artifact immediately before
+  removing anything, keeps the highest version, and refuses a version tie with
+  different contents (#616). `--yes` confirms the removal because the diff is
+  written in the same step and cannot be reviewed first; a losing copy whose real
+  path escapes every search root is refused before anything is written.
 - Tests cover the cache as a pure key/validation unit plus one integration run
   through `SkillDiscovery`.
 - Measured with `npm run bench:skills` (50 generated project skills, Windows

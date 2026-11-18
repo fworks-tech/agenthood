@@ -1,8 +1,8 @@
 import { describe, it, expect, afterEach } from 'vitest'
-import { existsSync, mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs'
+import { existsSync, mkdirSync, mkdtempSync, readFileSync, rmSync, symlinkSync, writeFileSync } from 'node:fs'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
-import { applyDedup, planDedup } from '../../../src/skills/dedup.ts'
+import { applyDedup, compareVersions, planDedup } from '../../../src/skills/dedup.ts'
 
 const made: string[] = []
 function root(): string {
@@ -24,6 +24,11 @@ function put(rootDir: string, name: string, version: string | undefined, body: s
 }
 
 describe('cross-location skill dedup (#616)', () => {
+  it('compares versions with an optional v prefix numerically', () => {
+    expect(compareVersions('v1.2.0', '1.10.0')).toBeLessThan(0)
+    expect(compareVersions('v2.0.0', '1.9.9')).toBeGreaterThan(0)
+  })
+
   it('detects a duplicate installed in three locations', () => {
     const user = root()
     const projectA = root()
@@ -111,7 +116,7 @@ describe('cross-location skill dedup (#616)', () => {
     expect(existsSync(join(projectDir, '.agenthood'))).toBe(false)
   })
 
-  it('writes the diff to disk before removing the losing copy', () => {
+  it('keeps the audit diff after removing the losing copy', () => {
     const project = root()
     const user = root()
     put(project, 'shared', '2.0.0', 'kept body')
@@ -131,5 +136,27 @@ describe('cross-location skill dedup (#616)', () => {
     expect(diff).toContain(join(user, 'shared'))
     expect(diff).toContain('-removed body')
     expect(diff).toContain('+kept body')
+  })
+
+  it('refuses to remove a copy whose symlink escapes every root', () => {
+    const project = root()
+    const other = root()
+    const outside = root()
+    const projectDir = root()
+    put(outside, 'shared', '1.0.0', 'outside body')
+    put(other, 'shared', '2.0.0', 'newer body')
+    symlinkSync(join(outside, 'shared'), join(project, 'shared'), process.platform === 'win32' ? 'junction' : 'dir')
+
+    const plan = planDedup([
+      { path: project, scope: 'project' },
+      { path: other, scope: 'project' },
+    ])
+    expect(plan.groups[0].losers[0].directory).toBe(join(project, 'shared'))
+
+    const result = applyDedup(plan, projectDir)
+    expect(result.removed).toHaveLength(0)
+    expect(result.escaped).toHaveLength(1)
+    expect(existsSync(join(outside, 'shared', 'SKILL.md'))).toBe(true)
+    expect(existsSync(join(projectDir, '.agenthood'))).toBe(false)
   })
 })

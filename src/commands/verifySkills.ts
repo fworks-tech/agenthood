@@ -217,22 +217,32 @@ export function skillSearchRoots(projectDir: string): SkillRoot[] {
 }
 
 /**
- * `verify --dedup [--merge]` wiring, kept out of verify.ts so that file stays
- * under the size limit. `--merge` alone is an error, not a silent no-op (#616).
+ * `verify --dedup [--merge --yes]` wiring, kept out of verify.ts so that file
+ * stays under the size limit. `--merge` alone is an error, not a silent no-op,
+ * and `--yes` confirms a removal whose diff cannot be reviewed first (#616).
  */
 export function reportDedupFlags(flags: ReadonlySet<string>, cwd: string): void {
   if (!flags.has('--dedup')) {
-    userError('--merge requires --dedup', { fix: 'Run `agenthood verify --dedup --merge` to consolidate duplicate skills.' })
+    userError('--merge requires --dedup', { fix: 'Run `agenthood verify --dedup --merge --yes` to consolidate duplicate skills.' })
   }
-  reportDuplicates(skillSearchRoots(cwd), { merge: flags.has('--merge'), projectDir: cwd })
+  reportDuplicates(skillSearchRoots(cwd), {
+    merge: flags.has('--merge'),
+    confirm: flags.has('--yes'),
+    projectDir: cwd,
+  })
 }
 
 /**
  * One skill name in several roots (#616). Detection is read-only; the
- * consolidation is opt-in through `verify --dedup --merge`, which writes the
- * diff first and refuses a version tie instead of picking a winner.
+ * consolidation is opt-in through `verify --dedup --merge --yes`, which writes
+ * the diff as an audit artifact and refuses a version tie instead of picking a
+ * winner. The diff is written after the plan is accepted, so `--yes` is the
+ * confirmation step: there is no interactive pause inside the command.
  */
-export function reportDuplicates(roots: SkillRoot[], options: { merge?: boolean; projectDir?: string } = {}): void {
+export function reportDuplicates(
+  roots: SkillRoot[],
+  options: { merge?: boolean; confirm?: boolean; projectDir?: string } = {},
+): void {
   const plan = planDedup(roots)
   if (plan.groups.length === 0) {
     console.log('  ✓ Skill locations: no duplicate names across roots')
@@ -252,23 +262,34 @@ export function reportDuplicates(roots: SkillRoot[], options: { merge?: boolean;
       console.log('          Keep the project copy and remove the user copy; the runtime already ignores the loser.')
     }
   }
-  console.log(
-    `      Consolidation would save an estimated ${plan.savedTokens} metadata token(s); nothing was moved (${
-      options.merge ? 'applying now' : 'pass --merge to apply'
-    })`,
-  )
+  const next = options.merge
+    ? options.confirm
+      ? 'applying now'
+      : 'rerun with --yes to apply'
+    : 'pass --merge to apply'
+  console.log(`      Consolidation would save an estimated ${plan.savedTokens} metadata token(s); nothing was moved (${next})`)
 
   if (!options.merge) return
+  if (!options.confirm) {
+    userError('--merge removes skill directories; rerun with --yes after reading the plan', {
+      fix: 'Run `agenthood verify --dedup --merge --yes` to consolidate the copies listed above.',
+    })
+  }
   const result = applyDedup(plan, options.projectDir ?? process.cwd())
   if (result.conflicts.length > 0) {
     userError(`${result.conflicts.length} skill(s) have a version tie and were not consolidated`, {
-      fix: 'Resolve the tied copies by hand, then run `agenthood verify --dedup --merge` again.',
+      fix: 'Resolve the tied copies by hand, then run `agenthood verify --dedup --merge --yes` again.',
+    })
+  }
+  if (result.escaped.length > 0) {
+    userError(`${result.escaped.length} skill group(s) resolve outside every search root and were not consolidated`, {
+      fix: 'Remove the symlink or move the skill under a search root, then run the command again.',
     })
   }
   if (result.removed.length === 0) return
   const noun = result.removed.length === 1 ? 'copy' : 'copies'
   console.log(
-    `  ✓ Deduplicated ${result.removed.length} ${noun}; saves an estimated ${plan.savedTokens} metadata token(s); diff written to ${result.diffPath}`,
+    `  ✓ Deduplicated ${result.removed.length} ${noun}; saves an estimated ${plan.savedTokens} metadata token(s); audit diff at ${result.diffPath}`,
   )
 }
 

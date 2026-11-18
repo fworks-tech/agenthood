@@ -35,7 +35,12 @@ export interface SkillUsageRow {
   name: string
   /** Tokens this skill's catalog entry adds to every prompt. */
   metadataTokens: number
-  bodyTokens: number
+  /**
+   * Tokens the body costs on activation, or null when discovery was
+   * metadata-only and the body was never read. Null is not zero: an
+   * unmeasured body must not report as free.
+   */
+  bodyTokens: number | null
   activations: number
 }
 
@@ -52,7 +57,7 @@ export function skillUsage(
     .map((manifest) => ({
       name: manifest.name,
       metadataTokens: countTokens(formatSkillCatalog([manifest], { format })),
-      bodyTokens: countTokens(manifest.body),
+      bodyTokens: manifest.body === '' ? null : countTokens(manifest.body),
       activations: stats[manifest.name]?.activations ?? 0,
     }))
     .sort((a, b) => b.metadataTokens - a.metadataTokens)

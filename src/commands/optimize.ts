@@ -111,7 +111,7 @@ async function reportCost(cwd: string, json: boolean): Promise<void> {
   console.log(`  ${''.padEnd(24, '-')} ${''.padEnd(9, '-')} ${''.padEnd(10, '-')} ${''.padEnd(8, '-')}`)
   for (const row of rows) {
     const name = row.name.length > 22 ? `${row.name.slice(0, 22)}…` : row.name
-    console.log(`  ${name.padEnd(24)} ${String(row.metadataTokens).padEnd(9)} ${String(row.activations).padEnd(10)} ${row.bodyTokens}`)
+    console.log(`  ${name.padEnd(24)} ${String(row.metadataTokens).padEnd(9)} ${String(row.activations).padEnd(10)} ${row.bodyTokens ?? 'n/a'}`)
   }
 
   if (suggestions.length === 0) {

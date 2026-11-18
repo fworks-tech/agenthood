@@ -48,6 +48,11 @@ describe('skill token usage (#586)', () => {
     expect(row.metadataTokens).toBe(0)
   })
 
+  it('reports a body left unread by metadata-only discovery as unmeasured, not zero', () => {
+    const [row] = skillUsage([manifest({ name: 'the-test', body: '' })], {})
+    expect(row.bodyTokens).toBeNull()
+  })
+
   it('reads the budget from config and falls back to 4000', () => {
     expect(metadataBudget('/nonexistent')).toBe(4000)
   })

@@ -13,10 +13,12 @@
 # that parrots a single verdict as its own final line: the prompt hardening
 # in agent-analysis.sh is the defense in depth for that case.)
 
-# Usage: check_decision_gate <output-file> [agent-name]
+# Usage: check_decision_gate <output-file> [agent-name] [blocking|advisory]
 # Fails when the last decision block is blocking, when it reports more
 # warnings than AGENTHOOD_WARNING_THRESHOLD (default 2), or when the verdict
-# blocks disagree with each other.
+# blocks disagree with each other. In advisory mode the injection checks still
+# run, but the verdict never fails the job: the analysis stays a comment and
+# the deterministic CI checks remain the gate.
 # Fails when content other than whitespace follows the final verdict block.
 # A well-formed injected marker after the real verdict is already caught by
 # the conflicting-blocks check; this catches trailing junk that lacks the
@@ -91,7 +93,7 @@ blocking_section_findings() {
 }
 
 check_decision_gate() {
-  local file="$1" agent_name="${2:-}" prefix="" verdicts last_block
+  local file="$1" agent_name="${2:-}" mode="${3:-blocking}" prefix="" verdicts last_block
   local threshold="${AGENTHOOD_WARNING_THRESHOLD:-2}"
   # coerce an invalid threshold to the default; a non-numeric value would
   # otherwise break the comparison and a huge value would disable the gate
@@ -115,6 +117,10 @@ check_decision_gate() {
   fi
 
   last_block=$(last_verdict "$verdicts")
+  if [ "$mode" = "advisory" ]; then
+    echo "::notice::${prefix}advisory review: the verdict is posted but does not gate"
+    return 0
+  fi
   case "$last_block" in
     *'blocking=true '*)
       # Cross-check: a blocking verdict must be backed by at least one listed
@@ -123,7 +129,7 @@ check_decision_gate() {
       # self-contradiction, downgraded here to a warning instead of a red run.
       # Fail-closed on doubt: findings written as inline `[blocking]` bullets
       # or as prose inside the blocking section keep the verdict standing.
-      if [ "$(blocking_section_findings "$file")" -eq 0 ] && ! grep -qE '^[[:space:]]*\[blocking\]' "$file"; then
+      if [ "$(blocking_section_findings "$file")" -eq 0 ] && ! grep -qE '^[[:space:]]*([-*][[:space:]]+)?\[blocking\]' "$file"; then
         echo "::warning::${prefix}verdict says blocking=true but the blocking section lists no findings -- self-contradictory verdict downgraded to non-blocking (empty-blocking false positive)"
         return 0
       fi

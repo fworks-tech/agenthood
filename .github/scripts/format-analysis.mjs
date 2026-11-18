@@ -40,6 +40,26 @@ export function formatSummary(raw) {
   return summary
 }
 
+// The comment wrapper owns the H2. Demote the report's H1 and H2 sections so
+// the rendered comment has one top-level heading instead of two competing
+// ones. Fenced code is evidence and must keep its literal heading lines.
+export function demoteReportHeadings(summary) {
+  let inFence = false
+  return summary
+    .split('\n')
+    .map((line) => {
+      if (/^\s*(?:```|~~~)/.test(line)) {
+        inFence = !inFence
+        return line
+      }
+      if (inFence) return line
+      if (/^# (?!#)/.test(line)) return `## ${line.slice(2)}`
+      if (/^## (?!#)/.test(line)) return `### ${line.slice(3)}`
+      return line
+    })
+    .join('\n')
+}
+
 export function extractInlineFindings(raw) {
   // agents sometimes echo the prompt's empty sample block: take the first
   // block that parses as a non-empty array
@@ -198,7 +218,7 @@ function hunkSpans(path, range, cache) {
 async function main() {
   const raw = readFileSync(analysisPath, 'utf8')
   const findings = extractInlineFindings(raw)
-  const summary = formatSummary(stripInlineBlocks(raw))
+  const summary = demoteReportHeadings(formatSummary(stripInlineBlocks(raw)))
   writeFileSync(summaryPath, summary)
 
   if (findings.length > 0) {

@@ -30,6 +30,7 @@ The Concept Explainer turns dense technical material into understanding. Every c
 
 ### 2. Make It Practical
 - Include working code examples that demonstrate the concept
+- Save the explanation to a file only when the user asks for a document or a README
 - Show real-world applications and use cases, not toy scenarios
 - Connect the theory to problems developers actually face
 - Provide step-by-step implementation when relevant

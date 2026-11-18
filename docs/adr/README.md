@@ -52,6 +52,7 @@ to explain the gap in the numbering.
 | 043 | [ADR-043: Dependency Audit Exception Policy](ADR-043-dependency-audit-exception-policy.md) | 2026-11-17 | Accepted | Dated, scoped allowlist entries in the audit gate, with a dev-only waiver. |
 | 044 | [ADR-044: Member Naming Uses the Shipped Unprefixed Layout](ADR-044-member-naming-shipped-layout.md) | 2026-11-17 | Accepted | The unprefixed skill directory and `name` are authoritative; `the-*` stays an alias. |
 | 045 | [ADR-045: Evaluation Tooling Scope](ADR-045-eval-tooling-scope.md) | 2026-11-17 | Accepted | Eval, history, A/B and description optimization are one pipeline; dashboards, multi-judge and auto-stop stay out. |
+| 046 | [ADR-046: Automated Review Authority](ADR-046-automated-review-authority.md) | 2026-11-17 | Accepted | The automated Reviewer is advisory; deterministic checks gate, and comments carry the reviewed SHA. |
 
 ## How the index is maintained
 

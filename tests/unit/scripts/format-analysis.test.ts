@@ -1,6 +1,6 @@
 import { describe, it, expect } from 'vitest'
 // @ts-expect-error untyped mjs module
-import { extractInlineFindings, formatSummary, stripInlineBlocks } from '../../../.github/scripts/format-analysis.mjs'
+import { demoteReportHeadings, extractInlineFindings, formatSummary, stripInlineBlocks } from '../../../.github/scripts/format-analysis.mjs'
 
 describe('extractInlineFindings', () => {
   it('skips echoed empty sample blocks and takes the first non-empty array', () => {
@@ -34,6 +34,19 @@ describe('extractInlineFindings', () => {
 
   it('strips echoed blocks closed with --!>', () => {
     expect(stripInlineBlocks('report\n<!--AGENTHOOD_INLINE\n--!>\ntail')).toBe('report\n\ntail')
+  })
+})
+
+describe('demoteReportHeadings', () => {
+  it('nests report sections under the comment header', () => {
+    expect(demoteReportHeadings('## Findings\n## Axis 1\n### Detail')).toBe(
+      '### Findings\n### Axis 1\n### Detail',
+    )
+  })
+
+  it('demotes an H1 and leaves fenced headings alone', () => {
+    const report = '# Scan\n```\n## code\n```\n## Findings'
+    expect(demoteReportHeadings(report)).toBe('## Scan\n```\n## code\n```\n### Findings')
   })
 })
 

@@ -22,13 +22,24 @@ assert() {
   fi
 }
 
+# assert_mode <name> <expected-exit> <file> <mode>
+assert_mode() {
+  local got; got=$(check_decision_gate "$3" "" "$4" >/dev/null 2>&1; echo $?)
+  if [ "$got" = "$2" ]; then
+    echo "ok   - $1"
+  else
+    echo "FAIL - $1 (expected exit $2, got $got)"; fail=1
+  fi
+}
+
 printf '<!--AGENTHOOD_DECISION: blocking=false warnings=0-->\n' > "$tmp/no-space"
 printf '<!--AGENTHOOD_DECISION: blocking=false warnings=0 -->\n' > "$tmp/space"
 printf '<!--AGENTHOOD_DECISION: blocking=false warnings=0   -->\n' > "$tmp/multi-space"
-printf '<!--AGENTHOOD_DECISION: blocking=true warnings=0-->\n' > "$tmp/blocking"
+printf '## BLOCKING\n- MIGRATION.md:35 is missing a rollback step\n<!--AGENTHOOD_DECISION: blocking=true warnings=0-->\n' > "$tmp/blocking"
 printf '<!--AGENTHOOD_DECISION: blocking=false warnings=5-->\n' > "$tmp/too-many"
 printf '<!--AGENTHOOD_DECISION: blocking=false warnings=0\n' > "$tmp/truncated"
 printf 'some prose\n  <!--AGENTHOOD_DECISION: blocking=true warnings=0-->\ntrailing text\n' > "$tmp/quoted-in-prose"
+printf -- '- [blocking] MIGRATION.md:35 needs a rollback step\n<!--AGENTHOOD_DECISION: blocking=true warnings=0-->\n' > "$tmp/inline-blocking"
 printf '<!--AGENTHOOD_DECISION: blocking=false warnings=0-->\n<!--AGENTHOOD_DECISION: blocking=true warnings=1-->\n' > "$tmp/conflicting"
 
 assert "valid marker, no space -> pass"        0 "$tmp/no-space"
@@ -38,7 +49,13 @@ assert "blocking=true -> fail"                  1 "$tmp/blocking"
 assert "warnings over threshold -> fail"        1 "$tmp/too-many"
 assert "truncated (no -->) -> fail-closed"      1 "$tmp/truncated"
 assert "quoted marker mid-prose -> not a verdict" 0 "$tmp/quoted-in-prose"
+assert "inline [blocking] bullet -> fail"        1 "$tmp/inline-blocking"
 assert "conflicting blocks -> fail"             1 "$tmp/conflicting"
+
+assert_mode "advisory ignores a blocking verdict" 0 "$tmp/blocking" advisory
+assert_mode "blocking fails a blocking verdict"   1 "$tmp/blocking" blocking
+assert_mode "advisory ignores warnings over threshold" 0 "$tmp/too-many" advisory
+assert_mode "advisory still fails conflicting blocks" 1 "$tmp/conflicting" advisory
 
 [ "$fail" -eq 0 ] && echo "all decision-gate checks passed" || echo "decision-gate checks FAILED"
 exit "$fail"

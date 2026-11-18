@@ -38,6 +38,10 @@ inputs:
     description: Warnings above which the decision gate blocks the job
     required: false
     default: "2"
+  gate-mode:
+    description: blocking fails the job on a blocking verdict; advisory posts the verdict without gating
+    required: false
+    default: "blocking"
 
 runs:
   using: composite
@@ -58,5 +62,6 @@ runs:
         OPENCODE_API_KEY: ${{ inputs.api-key }}
         OPENCODE_MODEL: ${{ inputs.model }}
         AGENTHOOD_WARNING_THRESHOLD: ${{ inputs.warning-threshold }}
+        AGENTHOOD_GATE_MODE: ${{ inputs.gate-mode }}
         GH_TOKEN: ${{ github.token }}
       run: .github/scripts/agent-analysis.sh

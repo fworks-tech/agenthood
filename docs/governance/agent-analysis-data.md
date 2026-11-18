@@ -1,9 +1,9 @@
 # Agent Analysis: Data Handling and Opt-Out
 
-The Agenthood PR workflow (`.github/workflows/pr.yml`) runs LLM-based code
-analysis on every pull request via the `agent-analysis` composite action
-(`.github/actions/agent-analysis`). This document states what data is sent,
-where it goes, and how to opt out.
+The Agenthood PR workflows (`.github/workflows/pr.yml` and
+`.github/workflows/reviewer.yml`) run LLM-based code analysis on pull requests
+via the `agent-analysis` composite action (`.github/actions/agent-analysis`).
+This document states what data is sent, where it goes, and how to opt out.
 
 ## What data is sent
 
@@ -13,13 +13,16 @@ For each PR, the `agent-analysis` step:
    capped at `max-files`, default 15).
 2. Embeds those names into a member-specific prompt template (e.g. "audit
    these changed files for security concerns...").
-3. Invokes the local Agenthood CLI (`node dist/cli.js run <member> <prompt>
+3. For the Reviewer, appends the pull request diff, capped at 100 KB and
+   marked as untrusted data. `package-lock.json`, `CHANGELOG.md` and
+   `docs/release-notes.md` are excluded from the diff and the file list.
+4. Invokes the local Agenthood CLI (`node dist/cli.js run <member> <prompt>
    --provider opencode-go`) on the CI runner.
 
-The LLM agent then operates on the checkout **on the runner**: it reads file
-contents from the working tree itself, exactly as a human reviewer would. The
-prompt contains file paths only: no diff or file content is copied into the
-prompt by the action.
+The other agents receive file names only. Every agent also operates on the
+checkout **on the runner**: it can read file contents from the working tree
+itself, exactly as a human reviewer would. Apart from the Reviewer's diff, the
+prompt carries no file content.
 
 ## Where data is sent
 
@@ -37,10 +40,12 @@ prompt by the action.
   environment secrets. The step skips itself with a notice:
   `OPENCODE_API_KEY not set -- skipping <member> agent analysis.`
 - **Remove the jobs**: delete the `agent-analysis` steps from
-  `.github/workflows/pr.yml` (under `gitleaks`, `filesize`, and `sentinel`),
-  or remove the three jobs entirely.
-- **Restrict which files are analyzed**: the analysis only ever receives
-  changed files from same-repo PRs; set `max-files` lower to shrink scope.
+  `.github/workflows/pr.yml` (under `gitleaks`, `filesize`, and `sentinel`)
+  and from `.github/workflows/reviewer.yml`, or remove the jobs entirely.
+- **Restrict which files are analyzed**: the analysis only ever receives files
+  from the PR diff. For the other agents, set `max-files` lower to shrink the
+  name list. For the Reviewer, set `include-diff: "false"` to stop sending the
+  diff; the review then sees file names only.
 
 ## Also note
 

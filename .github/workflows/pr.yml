@@ -205,6 +205,9 @@ jobs:
           max-files: "10"
           api-key: ${{ secrets.OPENCODE_API_KEY }}
           model: "opencode/qwen3.8-flash"
+          # advisory per ADR-046: a flash-class model verdict must not gate the
+          # job; the deterministic sentinel-check.sh step above stays the gate
+          gate-mode: "advisory"
 
   # ──────────────────────────────────────────────
   # The Tester - test suite

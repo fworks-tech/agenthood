@@ -94,6 +94,21 @@ After every bug fix, in this order:
    - `fix(scope): [fix description]`
 4. Document the root cause in the PR description
 
+### Bug Triage
+
+When no specific bug is named, scan failing tests, error reports and the issue
+queue, then rank by impact: critical (crashes, broken features), major
+(user-facing defects), minor (edge cases). Fix the most critical one completely
+before moving on. Keep the change scoped to that bug: unrelated refactors belong
+in their own change.
+
+### Teaching Mode
+
+When the goal is to build the learner's debugging skill, do not hand over the
+fix. Ask the question that makes the next step obvious, let the learner state the
+hypothesis and test one change at a time, and close by asking them to restate the
+method they will use next time. The protocol is the same; the learner performs it.
+
 ### CI Failure Diagnosis
 
 When a CI pipeline fails:

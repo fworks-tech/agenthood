@@ -1,5 +1,28 @@
 # Migration
 
+## 4.0 → 4.1
+
+4.1 ships no state migration. One compatibility layer is gone: the deprecated
+alias skills. Each was an 11-line stub that pointed at a member, so a config,
+chain or `fallback` that names one still works after you replace it with the
+member's own skill name.
+
+| Removed alias | Use |
+|---|---|
+| `code-review` | `reviewer` |
+| `commit-messages` | `scribe` |
+| `debugging-and-error-recovery` | `debugger` |
+| `implementation-planner` | `architect` |
+| `institutional-knowledge` | `oracle` |
+| `release-notes` | `herald` |
+| `runtime-health` | `operator` |
+| `security-and-hardening` | `auditor` |
+| `test-driven-development` | `tester` |
+| `validation-and-enforcement` | `doorman` |
+
+The `the-*` member spelling is a separate compatibility path and still resolves
+through `MemberRegistry` (ADR-044). Only the alias skill directories were removed.
+
 ## 3.77 → 4.0
 
 4.0 makes members and workflows data. Three changes need action; the rest is additive.
@@ -243,7 +266,7 @@ metadata:
   conditions:
     - env:CI
     - file.exists:package.json
-fallback: docker
+fallback: reviewer
 ```
 
 ### New: running a skill's scripts
@@ -287,7 +310,7 @@ requires:
   optional-tools: [jq]         # unmet = warning
   context: 200000
 dependencies:
-  required: [web-research]      # must be installed and usable
+  required: [reviewer]         # must be installed and usable
   optional: [test-runner]
 metadata:
   variants:

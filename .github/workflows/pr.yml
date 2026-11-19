@@ -92,8 +92,8 @@ jobs:
           *-- The Auditor, Agenthood*
           EOF
       - name: The Auditor - agent analysis
-        # re-enabled: the opencode-go provider fixed the "no working LLM provider" gap
-        if: github.event_name == 'pull_request'
+        # re-enabled in #1124; opened/reopened only: one audit per PR, not one per push
+        if: github.event_name == 'pull_request' && github.event.action != 'synchronize'
         # Sends changed-file names to an external LLM provider.
         # Data handling and opt-out: docs/governance/agent-analysis-data.md
         uses: ./.github/actions/agent-analysis
@@ -139,8 +139,8 @@ jobs:
           HEAD_SHA: ${{ github.event.pull_request.head.sha }}
         run: .github/scripts/filesize-check.sh
       - name: The Warden - agent analysis
-        # re-enabled: the opencode-go provider fixed the "no working LLM provider" gap
-        if: github.event_name == 'pull_request'
+        # re-enabled in #1124; opened/reopened only: one scan per PR, not one per push
+        if: github.event_name == 'pull_request' && github.event.action != 'synchronize'
         # Sends changed-file names to an external LLM provider.
         # Data handling and opt-out: docs/governance/agent-analysis-data.md
         uses: ./.github/actions/agent-analysis

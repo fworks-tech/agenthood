@@ -80,8 +80,8 @@ Reviewer comments it actually followed.
    |---|---|---|---|---|
    | the-reviewer | `reviewer.yml:79` | `opencode-go/qwen3.8-flash` (`reviewer.yml:99`) | advisory (`reviewer.yml:100`) | n/a |
    | the-sentinel | `pr.yml:196` | `opencode-go/qwen3.8-flash` (`pr.yml:207`) | advisory, changed here | default 2, out of the gate path |
-   | the-auditor | `pr.yml:94` | `opencode-go/qwen3.8-flash` (`pr.yml:107`) | advisory, re-enabled in #1124 | default 2, out of the gate path |
-   | the-warden | `pr.yml:141` | `opencode-go/qwen3.8-flash` (`pr.yml:154`) | advisory, re-enabled in #1124 | default 2, out of the gate path |
+   | the-auditor | `pr.yml:94` | `opencode-go/qwen3.8-flash` (`pr.yml:107`) | advisory, re-enabled in #1124; opened/reopened only | default 2, out of the gate path |
+   | the-warden | `pr.yml:141` | `opencode-go/qwen3.8-flash` (`pr.yml:154`) | advisory, re-enabled in #1124; opened/reopened only | default 2, out of the gate path |
 
    The sentinel carried the same flip shape #1082 exposed: a flash-class
    model, the default threshold of 2 (`action.yml:40`, `decision-gate.sh:97`)
@@ -89,7 +89,12 @@ Reviewer comments it actually followed.
    deterministic structure check (`sentinel-check.sh`) stays the gate. The
    auditor and warden steps were re-enabled in #1124 with `gate-mode:
    advisory` set explicitly, closing the "if re-enabled without setting
-   gate-mode" hole this table recorded.
+   gate-mode" hole this table recorded. The two were then narrowed to fire
+   only on `opened`/`reopened` (`github.event.action != 'synchronize'`): one
+   audit per PR instead of one per push, because the pushes in between are
+   covered by the deterministic jobs in the same workflows, and duplicate
+   model comments per push is noise, not signal. The Reviewer still runs per
+   push.
 
 ## Consequences
 

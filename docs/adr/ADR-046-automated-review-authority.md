@@ -79,9 +79,9 @@ Reviewer comments it actually followed.
    | Agent | Step | Model | Gate | Threshold |
    |---|---|---|---|---|
    | the-reviewer | `reviewer.yml:79` | `opencode-go/qwen3.8-flash` (`reviewer.yml:99`) | advisory (`reviewer.yml:100`) | n/a |
-   | the-sentinel | `pr.yml:196` | `opencode-go/qwen3.8-flash` (`pr.yml:207`) | advisory, changed here | default 2, out of the gate path |
-   | the-auditor | `pr.yml:94` | `opencode-go/qwen3.8-flash` (`pr.yml:107`) | advisory, re-enabled in #1124; opened/reopened only | default 2, out of the gate path |
-   | the-warden | `pr.yml:141` | `opencode-go/qwen3.8-flash` (`pr.yml:154`) | advisory, re-enabled in #1124; opened/reopened only | default 2, out of the gate path |
+   | the-sentinel | `pr.yml:220` | `opencode-go/qwen3.8-flash` (`pr.yml:231`) | advisory, changed here | default 2, out of the gate path |
+   | the-auditor | `pr.yml:103` | `opencode-go/qwen3.8-flash` (`pr.yml:116`) | advisory, re-enabled in #1124; opened/reopened only | default 2, out of the gate path |
+   | the-warden | `pr.yml:150` | `opencode-go/qwen3.8-flash` (`pr.yml:163`) | advisory, re-enabled in #1124; opened/reopened only | default 2, out of the gate path |
 
    The sentinel carried the same flip shape #1082 exposed: a flash-class
    model, the default threshold of 2 (`action.yml:40`, `decision-gate.sh:97`)

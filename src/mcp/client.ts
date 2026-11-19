@@ -15,7 +15,7 @@ import { McpCallError, McpServerError } from './errors.ts'
 const PROTOCOL_VERSION = '2025-11-25'
 const START_TIMEOUT_MS = 10_000
 const CALL_TIMEOUT_MS = 30_000
-const INHERITED_ENV = ['PATH', 'SystemRoot', 'HOME', 'USERPROFILE', 'TEMP', 'TMP']
+export const INHERITED_ENV = ['PATH', 'SystemRoot', 'HOME', 'USERPROFILE', 'TEMP', 'TMP']
 const METHOD_NOT_FOUND = -32601
 
 export interface McpToolInfo {
@@ -47,7 +47,7 @@ function hookProcessExit(): void {
   }
 }
 
-function inheritedEnv(): NodeJS.ProcessEnv {
+export function inheritedEnv(): NodeJS.ProcessEnv {
   const env: NodeJS.ProcessEnv = {}
   for (const key of INHERITED_ENV) {
     if (process.env[key] !== undefined) env[key] = process.env[key]

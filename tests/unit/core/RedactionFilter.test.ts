@@ -39,6 +39,20 @@ describe('RedactionFilter', () => {
     expect(filter.redactText('sk_live_abcdefghijklmnop')).toBe('[REDACTED]')
   })
 
+  it('redacts private key blocks in every PEM shape', () => {
+    const filter = new RedactionFilter({ enabled: true })
+    for (const shape of [
+      'PRIVATE KEY',
+      'ENCRYPTED PRIVATE KEY',
+      'RSA PRIVATE KEY',
+      'OPENSSH PRIVATE KEY',
+      'PGP PRIVATE KEY BLOCK',
+    ]) {
+      const pem = `-----BEGIN ${shape}-----\nMIIBVgIBADANBgRHK\n-----END ${shape}-----`
+      expect(filter.redactText(pem)).toBe('[REDACTED]')
+    }
+  })
+
   it('redacts URL query parameter values but keeps the key', () => {
     const filter = new RedactionFilter({ enabled: true })
     expect(filter.redact(envelope('call https://api.example.com/users?token=abc123')).input)
@@ -51,6 +65,7 @@ describe('RedactionFilter', () => {
       'https://api.github.com/repos/o/r/issues/1/comments?per_page=100',
       'https://github.com/o/r/blob/main/f.ts?plain=1#L5',
       'https://example.com/docs?v=2.1&state=open',
+      'https://api.github.com/repos/o/r/commits?author=octocat&page=2',
     ]) {
       expect(filter.redact(envelope(url)).input).toBe(url)
     }
@@ -60,6 +75,12 @@ describe('RedactionFilter', () => {
     const filter = new RedactionFilter({ enabled: true })
     expect(filter.redact(envelope('gh api "repos/x/y?Access_Token=abc123&client_secret=hunter2&per_page=100"')).input)
       .toBe('gh api "repos/x/y?Access_Token=[REDACTED]&client_secret=[REDACTED]&per_page=100"')
+  })
+
+  it('keeps ?author= benign but still redacts ?authorization=', () => {
+    const filter = new RedactionFilter({ enabled: true })
+    expect(filter.redact(envelope('https://ex.io/cb?authorization=abc123&author=octocat')).input)
+      .toBe('https://ex.io/cb?authorization=[REDACTED]&author=octocat')
   })
 
   it('redacts IPv4 and IPv6 addresses', () => {

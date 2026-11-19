@@ -45,6 +45,23 @@ describe('RedactionFilter', () => {
       .toBe('call https://api.example.com/users?token=[REDACTED]')
   })
 
+  it('leaves benign query parameters intact', () => {
+    const filter = new RedactionFilter({ enabled: true })
+    for (const url of [
+      'https://api.github.com/repos/o/r/issues/1/comments?per_page=100',
+      'https://github.com/o/r/blob/main/f.ts?plain=1#L5',
+      'https://example.com/docs?v=2.1&state=open',
+    ]) {
+      expect(filter.redact(envelope(url)).input).toBe(url)
+    }
+  })
+
+  it('redacts credential-shaped values mixed with benign params, case-insensitively', () => {
+    const filter = new RedactionFilter({ enabled: true })
+    expect(filter.redact(envelope('gh api "repos/x/y?Access_Token=abc123&client_secret=hunter2&per_page=100"')).input)
+      .toBe('gh api "repos/x/y?Access_Token=[REDACTED]&client_secret=[REDACTED]&per_page=100"')
+  })
+
   it('redacts IPv4 and IPv6 addresses', () => {
     const filter = new RedactionFilter({ enabled: true })
     expect(filter.redact(envelope('server at 192.168.1.10 crashed')).input).toContain('server at [REDACTED] crashed')

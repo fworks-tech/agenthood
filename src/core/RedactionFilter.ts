@@ -24,7 +24,12 @@ const CLOUD_TOKEN_RE =
 const PRIVATE_KEY_RE =
   /-----BEGIN (?:RSA|OPENSSH|EC|DSA|PGP) PRIVATE KEY-----[\s\S]*?-----END (?:RSA|OPENSSH|EC|DSA|PGP) PRIVATE KEY-----/g
 const BEARER_RE = /\bBearer\s+[A-Za-z0-9._~+/=-]{8,}\b/g
-const URL_QUERY_RE = /([?&][^=&\s]+=)[^&\s]+/g
+// Only credential-shaped query keys are redacted: redacting every `?key=value`
+// turned benign params inside diffs sent to CI models into `[REDACTED]`
+// artifacts the bots then flagged as defects (#1127). Keys merely *contain*
+// these shapes, so `?design=` over-redacts; never leaking is the safer skew.
+const URL_QUERY_RE =
+  /([?&][^=&\s]*(?:key|token|secret|passw|auth|credential|session|access|refresh|sig)[^=&\s]*=)[^&\s]+/gi
 const IPV4_RE = /\b\d{1,3}(?:\.\d{1,3}){3}\b/g
 // Requires "::" compression or four or more segments so times like 10:30:45 are not matched
 const IPV6_RE =

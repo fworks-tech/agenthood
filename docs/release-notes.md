@@ -5,6 +5,15 @@
 
 ---
 
+## v4.3.0: November 19, 2026
+
+### ✨ Features
+
+- **Cli:** show run duration, cost and tokens in the audit (#1117)
+- **Cli:** write validated routing records from stdin (#1118)
+
+---
+
 ## v4.2.0: November 19, 2026
 
 ### 🐛 Bug Fixes

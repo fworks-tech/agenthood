@@ -1,4 +1,5 @@
-import { existsSync, mkdirSync, readdirSync, readFileSync, renameSync, statSync } from 'node:fs'
+import { createReadStream, existsSync, mkdirSync, readdirSync, readFileSync, renameSync, statSync } from 'node:fs'
+import { createInterface } from 'node:readline'
 import { basename, join } from 'node:path'
 import { userError } from '../core/cliError.ts'
 import { loadObservabilityConfig, resolveTraceStorePath } from '../core/TraceStore.ts'
@@ -38,6 +39,7 @@ interface RoutingEntry {
 
 /** The per-run numbers a trace carries, attached to the provenance event it belongs to. */
 interface TraceMetrics {
+  timestamp: string
   durationMs: number
   cost: number
   tokens: number
@@ -149,43 +151,49 @@ function truncate(text: string, max: number): string {
 }
 
 /**
- * Reads the trace store next to the trail and indexes it by correlationId,
+ * Streams the trace store next to the trail and indexes it by correlationId,
  * which equals the provenance entityId for the same run. Traces only decorate
  * the timeline: an unreadable store or line never fails the audit, because a
- * missing metric is not a missing decision.
+ * missing metric is not a missing decision. Duplicate lines for one run keep
+ * the newest timestamp, so file order cannot change the result.
  */
-function loadTraces(path: string, unreadable: string[]): Map<string, TraceMetrics> {
+async function loadTraces(path: string, unreadable: string[]): Promise<Map<string, TraceMetrics>> {
   const byCorrelation = new Map<string, TraceMetrics>()
   if (!existsSync(path)) return byCorrelation
-  let lines: string[]
+  const reader = createInterface({ input: createReadStream(path, 'utf8'), crlfDelay: Infinity })
+  let lineNo = 0
   try {
-    lines = readFileSync(path, 'utf8').split('\n')
+    for await (const line of reader) {
+      lineNo++
+      if (line.trim() === '') continue
+      let parsed: TraceEnvelope
+      try {
+        parsed = JSON.parse(line) as TraceEnvelope
+      } catch {
+        unreadable.push(`line ${lineNo}: invalid JSON`)
+        continue
+      }
+      if (parsed.entryType === 'log') continue
+      if (typeof parsed?.correlationId !== 'string' || typeof parsed?.timestamp !== 'string') {
+        unreadable.push(`line ${lineNo}: missing required fields`)
+        continue
+      }
+      const existing = byCorrelation.get(parsed.correlationId)
+      if (existing && existing.timestamp >= parsed.timestamp) continue
+      byCorrelation.set(parsed.correlationId, {
+        durationMs: parsed.durationMs,
+        cost: parsed.cost,
+        tokens: parsed.tokenCount?.total ?? 0,
+        status: parsed.status,
+        qualityScore: parsed.qualityScore,
+        model: parsed.model,
+        timestamp: parsed.timestamp,
+      })
+    }
   } catch (error) {
     unreadable.push(`store: ${(error as Error).message}`)
-    return byCorrelation
-  }
-  for (const [index, line] of lines.entries()) {
-    if (line.trim() === '') continue
-    let parsed: TraceEnvelope
-    try {
-      parsed = JSON.parse(line) as TraceEnvelope
-    } catch {
-      unreadable.push(`line ${index + 1}: invalid JSON`)
-      continue
-    }
-    if (parsed.entryType === 'log') continue
-    if (typeof parsed?.correlationId !== 'string' || typeof parsed?.timestamp !== 'string') {
-      unreadable.push(`line ${index + 1}: missing required fields`)
-      continue
-    }
-    byCorrelation.set(parsed.correlationId, {
-      durationMs: parsed.durationMs,
-      cost: parsed.cost,
-      tokens: parsed.tokenCount?.total ?? 0,
-      status: parsed.status,
-      qualityScore: parsed.qualityScore,
-      model: parsed.model,
-    })
+  } finally {
+    reader.close()
   }
   return byCorrelation
 }
@@ -274,7 +282,7 @@ export async function audit(args: string[] = [], cwd: string = process.cwd()): P
   )
   const routingFailures = auditRoutingRecords(join(root, 'routing'), MEMBER_NAMES)
   const traceProblems: string[] = []
-  const traces = loadTraces(resolveTraceStorePath(cwd, loadObservabilityConfig(cwd)), traceProblems)
+  const traces = await loadTraces(resolveTraceStorePath(cwd, loadObservabilityConfig(cwd)), traceProblems)
 
   const since = flags.since
   const wanted = (member: string) => !flags.member || member === flags.member

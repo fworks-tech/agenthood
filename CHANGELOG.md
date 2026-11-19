@@ -1,3 +1,18 @@
+# [4.4.0](https://github.com/fworks-tech/agenthood/compare/v4.3.0...v4.4.0) (2026-11-19)
+
+
+### Bug Fixes
+
+* **ci:** retire librarian and auditor gate warnings once their checks pass ([#1125](https://github.com/fworks-tech/agenthood/issues/1125)) ([adfa085](https://github.com/fworks-tech/agenthood/commit/adfa0857507df7bbcee4c944811852bced7e666c))
+* **cli:** flag provenance entries the chain never covered ([#1121](https://github.com/fworks-tech/agenthood/issues/1121)) ([fec8299](https://github.com/fworks-tech/agenthood/commit/fec8299f91b754e9632567dd235fd34db4f64b84))
+* **core:** stop url-query over-redaction and catch pkcs8 private keys ([#1128](https://github.com/fworks-tech/agenthood/issues/1128)) ([cce7264](https://github.com/fworks-tech/agenthood/commit/cce7264c22cd9fca9c709c41306cd02cff0180ed)), refs #1126
+* **deps:** sync the lockfile with package.json ([#1132](https://github.com/fworks-tech/agenthood/issues/1132)) ([bb00ac2](https://github.com/fworks-tech/agenthood/commit/bb00ac222ac6ee5dff44693427f6732e1435d783))
+
+
+### Features
+
+* **observability:** record the provider that answered in the run trace ([#1142](https://github.com/fworks-tech/agenthood/issues/1142)) ([14285b6](https://github.com/fworks-tech/agenthood/commit/14285b6768e95986d3d5c6bf362090158c2b7d19))
+
 # [4.3.0](https://github.com/fworks-tech/agenthood/compare/v4.2.0...v4.3.0) (2026-11-19)
 
 

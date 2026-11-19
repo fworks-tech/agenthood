@@ -149,6 +149,25 @@ describe('trace command', () => {
     expect(output).not.toContain('drift detected')
   })
 
+  it('does not let newer log entries consume the limit', async () => {
+    const logs = ['09:40', '09:50', '10:10'].map((time) => ({
+      ...envelope('scribe', `2026-07-01T${time}:00.000Z`),
+      entryType: 'log',
+      level: 'info',
+      message: 'noise',
+    }))
+    vi.mocked(existsSync).mockReturnValue(true)
+    vi.mocked(readFileSync).mockReturnValue(`${tracesNdjson}\n${logs.map((l) => JSON.stringify(l)).join('\n')}`)
+    const log = vi.spyOn(console, 'log').mockImplementation(() => {})
+
+    await trace(['--limit', '2'])
+
+    const output = log.mock.calls.flat().join(' ')
+    expect(output).toContain('reviewer')
+    expect(output).toContain('scribe')
+    expect(output).not.toContain('noise')
+  })
+
   it('rejects invalid --since values', async () => {
     const exit = vi.spyOn(process, 'exit').mockImplementation(() => undefined as never)
     const error = vi.spyOn(console, 'error').mockImplementation(() => {})

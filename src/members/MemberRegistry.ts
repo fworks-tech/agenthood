@@ -79,6 +79,9 @@ export class MemberRegistry {
         outputFormat = extractFrontmatterField(content, 'output_format')
         outputFormatMode = extractFrontmatterField(content, 'output_format_mode') as 'strict' | 'lenient' | undefined
         allowedTools = extractFrontmatterField(content, 'allowed-tools')
+        if (/^mcpServers\s*:/m.test(content.match(/^---\n([\s\S]*?)\n---/)?.[1] ?? '')) {
+          console.warn(`[members] "${raw.name}" SKILL.md declares mcpServers: ignored, only host configuration declares MCP servers (ADR-047)`)
+        }
       }
 
       this.specs.set(raw.name, {
@@ -91,6 +94,7 @@ export class MemberRegistry {
         tools: allowedTools
           ? MemberRegistry.intersectDeclaredTools(allowedTools, raw.permissionProfile)
           : this.defaultTools(raw.permissionProfile),
+        declaredTools: allowedTools ? allowedTools.split(/\s+/).filter(Boolean) : undefined,
         systemPrompt,
         sourcePath: skillPath,
         canDelegate: raw.canDelegate,
@@ -161,6 +165,7 @@ export class MemberRegistry {
       tools: def.tools
         ? MemberRegistry.intersectDeclaredTools(def.tools.join(' '), permissionProfile)
         : this.defaultTools(permissionProfile),
+      declaredTools: def.tools,
       systemPrompt,
       sourcePath: `${CUSTOM_SOURCE_PREFIX}${def.name}`,
       canDelegate: def.canDelegate ?? false,
@@ -186,13 +191,33 @@ export class MemberRegistry {
     return { restricted, standard, trusted }
   })()
 
+  /** Capability tokens are not tool names: they gate whether MCP tools exist for a profile (ADR-047). */
+  private static readonly capabilitiesByProfile: Record<PermissionProfile, string[]> = {
+    restricted: [],
+    standard: ['mcp'],
+    trusted: ['mcp'],
+  }
+
   private defaultTools(permission: PermissionProfile): string[] {
     return [...MemberRegistry.toolsByProfile[permission]]
   }
 
-  /** SKILL.md allowed-tools may only narrow, never expand: declared ∩ profile. */
-  static intersectDeclaredTools(declared: string, permission: PermissionProfile): string[] {
+  /**
+   * The names a member may be granted: the profile's tools, plus the server
+   * allowlist when the profile carries the `mcp` capability (ADR-047).
+   */
+  static grantsFor(permission: PermissionProfile, mcpTools: string[] = []): string[] {
+    const mcp = MemberRegistry.capabilitiesByProfile[permission].includes('mcp') ? mcpTools : []
+    return [...MemberRegistry.toolsByProfile[permission], ...mcp]
+  }
+
+  /** SKILL.md allowed-tools may only narrow, never expand: declared ∩ grants. */
+  static intersectDeclaredTools(
+    declared: string,
+    permission: PermissionProfile,
+    grants: string[] = MemberRegistry.toolsByProfile[permission],
+  ): string[] {
     const set = new Set(declared.split(/\s+/).filter(Boolean))
-    return MemberRegistry.toolsByProfile[permission].filter((t) => set.has(t))
+    return grants.filter((t) => set.has(t))
   }
 }

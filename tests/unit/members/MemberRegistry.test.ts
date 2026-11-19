@@ -216,3 +216,43 @@ describe('allowed-tools enforcement (#641)', () => {
     }
   })
 })
+
+describe('MCP tool grants (ADR-047)', () => {
+  const allowlist = ['mcp.fixture.echo', 'mcp.fixture.add']
+
+  it('drops MCP names without a server grant, even when declared', () => {
+    expect(MemberRegistry.intersectDeclaredTools('mcp.fixture.echo file.read', 'standard')).toEqual(['file.read'])
+  })
+
+  it('grants a declared server tool only when the server lists it and the profile carries mcp', () => {
+    const grants = MemberRegistry.grantsFor('standard', allowlist)
+    expect(MemberRegistry.intersectDeclaredTools('mcp.fixture.echo file.read', 'standard', grants))
+      .toEqual(['file.read', 'mcp.fixture.echo'])
+    expect(MemberRegistry.intersectDeclaredTools('mcp.fixture.nope', 'standard', grants)).toEqual([])
+  })
+
+  it('never grants MCP tools to a restricted profile, even with an allowlist', () => {
+    const grants = MemberRegistry.grantsFor('restricted', allowlist)
+    expect(grants).not.toContain('mcp.fixture.echo')
+    expect(MemberRegistry.intersectDeclaredTools('mcp.fixture.echo file.read', 'restricted', grants)).toEqual(['file.read'])
+  })
+
+  it('keeps the profile tools unchanged when no server is referenced', () => {
+    expect(MemberRegistry.grantsFor('standard')).toEqual(MemberRegistry.grantsFor('standard', []))
+    expect(MemberRegistry.intersectDeclaredTools('file.read pr_sync', 'standard', MemberRegistry.grantsFor('standard')))
+      .toEqual(['file.read'])
+  })
+
+  it('keeps the raw declaration on the spec, so a run can resolve MCP names later', () => {
+    const registry = new MemberRegistry()
+    const spec = registry.register({
+      name: 'mcp-custom',
+      description: 'Host member with an MCP tool',
+      systemPrompt: 'Use the tool.',
+      permissionProfile: 'standard',
+      tools: ['mcp.fixture.echo', 'file.read'],
+    })
+    expect(spec.declaredTools).toEqual(['mcp.fixture.echo', 'file.read'])
+    expect(spec.tools).toEqual(['file.read'])
+  })
+})

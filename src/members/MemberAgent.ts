@@ -23,6 +23,7 @@ import { checkSkillIntegrity, describeIntegrityFailure, recordSkillIntegrityDrif
 import type { SkillIntegrityFailure } from '../utils/skillIntegrity.ts'
 import { sharedConversationalStyle, CUSTOM_SOURCE_PREFIX } from './MemberRegistry.ts'
 import type { EpisodeLearner } from '../evals/EpisodeLearner.ts'
+import { parseDeclaredMcpTool } from '../mcp/names.ts'
 
 const TOOL_MAP = TOOL_VOCABULARY
 
@@ -53,6 +54,8 @@ export interface MemberAgentOptions {
   strictSkillIntegrity?: boolean
   /** Skill blocks loaded by an explicit `/skill-name` before the model saw the task (#530). */
   explicitSkills?: string[]
+  /** Live MCP tools for this run, keyed by declared name (mcp.<server>.<tool>) (ADR-047) */
+  mcpTools?: Map<string, ITool>
 }
 
 export class MemberAgent extends BaseAgent {
@@ -61,6 +64,7 @@ export class MemberAgent extends BaseAgent {
   private agentRegistry?: AgentRegistry
   private readonly strictSkillIntegrity: boolean
   private readonly explicitSkills: string[]
+  private readonly mcpTools: Map<string, ITool>
   private readonly warnedTools = new Set<string>()
 
   constructor(
@@ -74,6 +78,7 @@ export class MemberAgent extends BaseAgent {
     this.agentRegistry = options.agentRegistry
     this.strictSkillIntegrity = options.strictSkillIntegrity === true
     this.explicitSkills = options.explicitSkills ?? []
+    this.mcpTools = options.mcpTools ?? new Map()
     this.role = spec.name
     this.tools = this.buildTools()
   }
@@ -120,7 +125,7 @@ export class MemberAgent extends BaseAgent {
    * never leak to a restricted member.
    */
   private isToolPermitted(toolName: string): boolean {
-    if (WRITE_TOOLS.has(toolName)) return this.spec.permissionProfile === 'standard' || this.spec.permissionProfile === 'trusted'
+    if (WRITE_TOOLS.has(toolName) || parseDeclaredMcpTool(toolName)) return this.spec.permissionProfile === 'standard' || this.spec.permissionProfile === 'trusted'
     if (TRUSTED_TOOLS.has(toolName)) return this.spec.permissionProfile === 'trusted'
     if (READ_ONLY_TOOLS.has(toolName)) return true
     return false
@@ -169,6 +174,7 @@ export class MemberAgent extends BaseAgent {
   }
 
   private instantiateTool(toolName: string): ITool | null {
+    if (parseDeclaredMcpTool(toolName)) return this.mcpTools.get(toolName) ?? null
     const Ctor = TOOL_MAP[toolName]
     if (!Ctor) return null
     return new Ctor() as ITool

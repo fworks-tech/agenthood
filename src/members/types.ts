@@ -32,6 +32,8 @@ export interface MemberSpec {
   permissionProfile: PermissionProfile
   preferredProvider: ProviderName
   tools: string[]
+  /** The raw declaration; MCP tools resolve against it per run, since servers are unknown here (ADR-047) */
+  declaredTools?: string[]
   systemPrompt: string
   sourcePath: string
   /** Opt-in: grants the delegate_task tool so the member can call other agents */

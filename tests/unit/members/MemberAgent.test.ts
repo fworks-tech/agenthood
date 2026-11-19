@@ -127,6 +127,33 @@ describe('MemberAgent tool construction', () => {
     )
     expect(toolNames(standard)).not.toContain('pr_sync')
   })
+
+  it('offers an MCP tool to standard profiles only, from the run map (ADR-047)', () => {
+    const { llm, toolRegistry, loop } = createAgentHarness()
+    const mcpTool = { name: 'mcp__fixture__echo', description: '', inputSchema: { type: 'object' as const }, execute: vi.fn() }
+    const mcpTools = new Map([['mcp.fixture.echo', mcpTool]])
+
+    const standard = new MemberAgent(
+      makeSpec({ tools: ['mcp.fixture.echo'], permissionProfile: 'standard' }),
+      llm, loop, toolRegistry, { mcpTools },
+    )
+    expect(toolNames(standard)).toContain('mcp__fixture__echo')
+
+    const restricted = new MemberAgent(
+      makeSpec({ tools: ['mcp.fixture.echo'], permissionProfile: 'restricted' }),
+      llm, loop, toolRegistry, { mcpTools },
+    )
+    expect(toolNames(restricted)).not.toContain('mcp__fixture__echo')
+  })
+
+  it('fails closed on a declared MCP tool with no live instance', () => {
+    const { llm, toolRegistry, loop } = createAgentHarness()
+    const agent = new MemberAgent(
+      makeSpec({ tools: ['mcp.fixture.echo'], permissionProfile: 'trusted' }),
+      llm, loop, toolRegistry,
+    )
+    expect(toolNames(agent)).toEqual(['read_file', 'ask_human'])
+  })
 })
 
 describe('MemberAgent mind-virus immunity warning', () => {

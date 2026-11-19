@@ -96,5 +96,5 @@ jobs:
           max-files: "100"
           include-diff: "true"
           api-key: ${{ secrets.OPENCODE_API_KEY }}
-          model: "opencode/gpt-5-nano"
+          model: "opencode-go/qwen3.8-flash"
           gate-mode: "advisory"

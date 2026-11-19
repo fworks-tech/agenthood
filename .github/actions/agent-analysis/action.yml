@@ -31,9 +31,9 @@ inputs:
     required: false
     default: ""
   model:
-    description: Model ID as provider/model (e.g. opencode/mimo-v2.5-free). The part before / selects the CLI provider.
+    description: Model ID as provider/model (e.g. opencode-go/qwen3.8-flash). The part before / selects the CLI provider.
     required: false
-    default: "opencode/gpt-5-nano"
+    default: "opencode-go/qwen3.8-flash"
   warning-threshold:
     description: Warnings above which the decision gate blocks the job
     required: false

@@ -71,9 +71,9 @@ validate_prerequisites() {
     exit 0
   fi
 
-  # OPENCODE_MODEL is "provider/model" (e.g. opencode/mimo-v2.5-free) so the
+  # OPENCODE_MODEL is "provider/model" (e.g. opencode-go/qwen3.8-flash) so the
   # action's model input selects both the CLI provider and the model.
-  ANALYSIS_MODEL="${OPENCODE_MODEL:-opencode/gpt-5-nano}"
+  ANALYSIS_MODEL="${OPENCODE_MODEL:-opencode-go/qwen3.8-flash}"
   ANALYSIS_PROVIDER="${ANALYSIS_MODEL%%/*}"
   ANALYSIS_MODEL_ID="${ANALYSIS_MODEL#*/}"
   if [ "$ANALYSIS_PROVIDER" = "$ANALYSIS_MODEL" ]; then
@@ -276,6 +276,20 @@ rc=0
 timeout --kill-after=30 600 node dist/cli.js run "$AGENT_NAME" "$TASK" --provider "$ANALYSIS_PROVIDER" \
   1> "$analysis_file" \
   2>> "$error_file" || rc=$?
+
+# A run that produced no report leaves its only evidence in files the runner
+# deletes on job end; echo the tails so CI failures of the provider are
+# diagnosable without re-pushing. Long opaque tokens are masked on the way to
+# the log, matching what the posted comment already guarantees.
+if [ "$rc" -ne 0 ] || ! grep -q 'AGENTHOOD_DECISION' "$analysis_file" 2>/dev/null; then
+  {
+    echo "::group::$AGENT_NAME raw output (rc=$rc)"
+    tail -c 2000 "$analysis_file" 2>/dev/null | sed -E 's/[A-Za-z0-9_-]{32,}/[MASKED]/g' || true
+    echo ""
+    tail -c 1000 "$error_file" 2>/dev/null | sed -E 's/[A-Za-z0-9_-]{32,}/[MASKED]/g' || true
+    echo "::endgroup::"
+  } >> "${GITHUB_STEP_SUMMARY:-/dev/null}"
+fi
 
 # Strip the final-report block down to the summary (deduping the `[step N]`
 # reasoning leak) and post any `<!--AGENTHOOD_INLINE` findings as review

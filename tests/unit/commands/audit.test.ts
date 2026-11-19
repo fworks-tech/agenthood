@@ -40,6 +40,13 @@ async function track(root: string, entityId: string, timestamp: string, decision
   })
 }
 
+function stripSequence(root: string, entityId: string): void {
+  const file = join(root, '.agenthood', 'provenance', `${entityId}.json`)
+  const entry = JSON.parse(readFileSync(file, 'utf8')) as Record<string, unknown>
+  delete entry.sequenceId
+  writeFileSync(file, JSON.stringify(entry))
+}
+
 function writeTrace(root: string, correlationId: string, timestamp: string, overrides: Record<string, unknown> = {}): void {
   const dir = join(root, '.agenthood', 'traces')
   mkdirSync(dir, { recursive: true })
@@ -127,6 +134,98 @@ describe('audit command', () => {
 
     await output(['--strict'], root)
     expect(process.exitCode).toBe(1)
+  })
+
+  it('fails --strict when an entry keeps its checksum but loses its sequence', async () => {
+    const root = workspace()
+    writeDecision(root, 'dec-1', '2026-07-01T10:00:00.000Z')
+    await track(root, 'prov-1', '2026-07-01T10:00:00.000Z', 'dec-1')
+    writeDecision(root, 'dec-2', '2026-07-01T11:00:00.000Z')
+    await track(root, 'prov-2', '2026-07-01T11:00:00.000Z', 'dec-2')
+    stripSequence(root, 'prov-2')
+
+    const text = await output(['--strict'], root)
+
+    expect(text).toContain('unverified provenance entry: prov-2')
+    expect(process.exitCode).toBe(1)
+  })
+
+  it('warns about an unverified entry in normal mode without changing the exit code', async () => {
+    const root = workspace()
+    writeDecision(root, 'dec-1', '2026-07-01T10:00:00.000Z')
+    await track(root, 'prov-1', '2026-07-01T10:00:00.000Z', 'dec-1')
+    stripSequence(root, 'prov-1')
+
+    const text = await output([], root)
+
+    expect(text).toContain('unverified provenance entry: prov-1')
+    expect(process.exitCode).toBeUndefined()
+  })
+
+  it('reports a pre-chain legacy entry as unchained and never fails --strict', async () => {
+    const root = workspace()
+    writeDecision(root, 'legacy-1', '2026-07-01T10:00:00.000Z')
+    const dir = join(root, '.agenthood', 'provenance')
+    mkdirSync(dir, { recursive: true })
+    writeFileSync(
+      join(dir, 'legacy-1.json'),
+      JSON.stringify({
+        entityId: 'legacy-1',
+        entityType: 'decision',
+        activityId: 'run:legacy-1',
+        agentId: 'scribe',
+        timestamp: '2026-07-01T10:00:00.000Z',
+        metadata: { decisionId: 'legacy-1' },
+      }),
+    )
+
+    await output(['--strict'], root)
+    expect(process.exitCode).toBeUndefined()
+
+    const parsed = JSON.parse(await output(['--json'], root))
+    expect(parsed.provenanceStates).toEqual({ chained: 0, unchained: 1, suspect: 0 })
+    expect(parsed.unverified).toEqual([])
+  })
+
+  it('still exits 0 on a clean trail under --strict', async () => {
+    const root = workspace()
+    writeDecision(root, 'dec-1', '2026-07-01T10:00:00.000Z')
+    await track(root, 'prov-1', '2026-07-01T10:00:00.000Z', 'dec-1')
+
+    await output(['--strict'], root)
+    expect(process.exitCode).toBeUndefined()
+
+    const parsed = JSON.parse(await output(['--json'], root))
+    expect(parsed.provenanceStates).toEqual({ chained: 1, unchained: 0, suspect: 0 })
+  })
+
+  it('carries the three provenance counts in JSON output', async () => {
+    const root = workspace()
+    writeDecision(root, 'dec-1', '2026-07-01T10:00:00.000Z')
+    await track(root, 'prov-1', '2026-07-01T10:00:00.000Z', 'dec-1')
+    writeDecision(root, 'dec-2', '2026-07-01T11:00:00.000Z')
+    await track(root, 'prov-2', '2026-07-01T11:00:00.000Z', 'dec-2')
+    writeDecision(root, 'dec-3', '2026-07-01T12:00:00.000Z')
+    await track(root, 'prov-3', '2026-07-01T12:00:00.000Z', 'dec-3')
+    stripSequence(root, 'prov-3')
+    const dir = join(root, '.agenthood', 'provenance')
+    writeFileSync(
+      join(dir, 'legacy-1.json'),
+      JSON.stringify({
+        entityId: 'legacy-1',
+        entityType: 'decision',
+        activityId: 'run:legacy-1',
+        agentId: 'scribe',
+        timestamp: '2026-07-01T13:00:00.000Z',
+        metadata: { decisionId: 'legacy-1' },
+      }),
+    )
+    writeDecision(root, 'legacy-1', '2026-07-01T13:00:00.000Z')
+
+    const parsed = JSON.parse(await output(['--json'], root))
+    expect(parsed.provenanceStates).toEqual({ chained: 2, unchained: 1, suspect: 1 })
+    expect(parsed.unverified).toEqual(['prov-3'])
+    expect(parsed.ok).toBe(false)
   })
 
   it('emits parseable JSON with the chain verdict', async () => {

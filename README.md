@@ -348,7 +348,7 @@ or override per run with `--provider`.
 Install once, then the plugin loads the members in every project:
 
 ```bash
-npm i -g agenthood   # add @<version> to pin, for example agenthood@4.0.0
+npm i -g agenthood   # add @<version> to pin, for example agenthood@4.3.0
 ```
 
 ```jsonc

@@ -5,6 +5,8 @@ import { writeRoutingDecision, type RoutingDecision } from '../reasoning/routing
 import { userError } from '../core/cliError.ts'
 import type { CommandDescriptor } from './types.ts'
 
+const STDIN_FIX = 'Pipe one JSON object: agenthood route < record.json'
+
 const HELP = `
   agenthood route: record one routing decision for the audit trail
 
@@ -48,9 +50,12 @@ export function writeRoutingRecord(raw: string, cwd: string, members: readonly s
   }
 
   const record = parsed as Record<string, unknown>
-  const id = typeof record.id === 'string' && record.id.trim() !== '' ? record.id : `route-${Date.now()}`
+  // Fill only when absent: a wrong-typed value goes to the validator and fails closed.
+  const id = record.id === undefined || record.id === null || record.id === '' ? `route-${Date.now()}` : record.id
   const timestamp =
-    typeof record.timestamp === 'string' && record.timestamp.trim() !== '' ? record.timestamp : new Date().toISOString()
+    record.timestamp === undefined || record.timestamp === null || record.timestamp === ''
+      ? new Date().toISOString()
+      : record.timestamp
   const decision = { ...record, id, timestamp } as RoutingDecision
 
   return writeRoutingDecision(join(cwd, '.agenthood', 'routing'), decision, members)
@@ -58,13 +63,13 @@ export function writeRoutingRecord(raw: string, cwd: string, members: readonly s
 
 function readStdin(): string {
   if (process.stdin.isTTY) {
-    userError('No routing record on stdin.', { fix: 'Pipe one JSON object: agenthood route < record.json' })
+    userError('No routing record on stdin.', { fix: STDIN_FIX })
   }
   try {
     return readFileSync(0, 'utf8')
   } catch (error) {
     userError(`Could not read stdin: ${(error as Error).message}`, {
-      fix: 'Pipe one JSON object: agenthood route < record.json',
+      fix: STDIN_FIX,
     })
   }
 }
@@ -79,7 +84,7 @@ export async function route(args: string[] = [], cwd: string = process.cwd()): P
 
   const raw = readStdin()
   if (raw.trim() === '') {
-    userError('The routing record on stdin is empty.', { fix: 'Pipe one JSON object: agenthood route < record.json' })
+    userError('The routing record on stdin is empty.', { fix: STDIN_FIX })
   }
 
   try {

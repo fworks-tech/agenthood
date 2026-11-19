@@ -54,6 +54,16 @@ describe('agenthood route', () => {
     expect(existsSync(join(root, '.agenthood', 'routing'))).toBe(false)
   })
 
+  it('rejects a wrong-typed id or timestamp instead of replacing it', () => {
+    const root = workspace()
+
+    expect(() => writeRoutingRecord(record({ id: 42 }), root, MEMBERS)).toThrow(/id must be a non-empty string/)
+    expect(() => writeRoutingRecord(record({ timestamp: 42 }), root, MEMBERS)).toThrow(
+      /timestamp must be a non-empty string/,
+    )
+    expect(existsSync(join(root, '.agenthood', 'routing'))).toBe(false)
+  })
+
   it('reports every schema violation and writes nothing', () => {
     const root = workspace()
     const bad = record({ target: 'nobody', confidence: 12, cascade_applied: false })

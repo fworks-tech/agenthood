@@ -32,12 +32,12 @@
   },
   "providers": [
     {
-      "name": "opencode",
+      "name": "opencode-go",
       "model": "qwen3.8-flash",
       "priority": 1
     },
     {
-      "name": "opencode-go",
+      "name": "opencode",
       "model": "qwen3.8-flash",
       "priority": 2
     },

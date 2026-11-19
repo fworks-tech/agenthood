@@ -92,8 +92,8 @@ jobs:
           *-- The Auditor, Agenthood*
           EOF
       - name: The Auditor - agent analysis
-        # disabled: no working LLM provider - was: if: github.event_name == 'pull_request'
-        if: false
+        # re-enabled: the opencode-go provider fixed the "no working LLM provider" gap
+        if: github.event_name == 'pull_request'
         # Sends changed-file names to an external LLM provider.
         # Data handling and opt-out: docs/governance/agent-analysis-data.md
         uses: ./.github/actions/agent-analysis
@@ -104,7 +104,10 @@ jobs:
           range: ${{ github.event.pull_request.base.sha }}...${{ github.event.pull_request.head.sha }}
           max-files: "15"
           api-key: ${{ secrets.OPENCODE_API_KEY }}
-          model: "opencode/qwen3.8-flash"
+          model: "opencode-go/qwen3.8-flash"
+          # advisory per ADR-046: a flash-class model verdict must not gate the
+          # job; the deterministic gitleaks scan stays the gate
+          gate-mode: "advisory"
 
   # ──────────────────────────────────────────────
   # The Scribe - auto-label PR by changed files
@@ -136,8 +139,8 @@ jobs:
           HEAD_SHA: ${{ github.event.pull_request.head.sha }}
         run: .github/scripts/filesize-check.sh
       - name: The Warden - agent analysis
-        # disabled: no working LLM provider - delete this if: to re-enable
-        if: false
+        # re-enabled: the opencode-go provider fixed the "no working LLM provider" gap
+        if: github.event_name == 'pull_request'
         # Sends changed-file names to an external LLM provider.
         # Data handling and opt-out: docs/governance/agent-analysis-data.md
         uses: ./.github/actions/agent-analysis
@@ -148,7 +151,10 @@ jobs:
           range: ${{ github.event.pull_request.base.sha }}...${{ github.event.pull_request.head.sha }}
           max-files: "25"
           api-key: ${{ secrets.OPENCODE_API_KEY }}
-          model: "opencode/qwen3.8-flash"
+          model: "opencode-go/qwen3.8-flash"
+          # advisory per ADR-046: a flash-class model verdict must not gate the
+          # job; the deterministic filesize-check.sh step above stays the gate
+          gate-mode: "advisory"
 
   # ──────────────────────────────────────────────
   # The Librarian - documentation sync check
@@ -204,7 +210,7 @@ jobs:
           range: ${{ github.event.pull_request.base.sha }}...${{ github.event.pull_request.head.sha }}
           max-files: "10"
           api-key: ${{ secrets.OPENCODE_API_KEY }}
-          model: "opencode/qwen3.8-flash"
+          model: "opencode-go/qwen3.8-flash"
           # advisory per ADR-046: a flash-class model verdict must not gate the
           # job; the deterministic sentinel-check.sh step above stays the gate
           gate-mode: "advisory"

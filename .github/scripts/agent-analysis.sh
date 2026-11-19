@@ -71,9 +71,9 @@ validate_prerequisites() {
     exit 0
   fi
 
-  # OPENCODE_MODEL is "provider/model" (e.g. opencode/mimo-v2.5-free) so the
+  # OPENCODE_MODEL is "provider/model" (e.g. opencode-go/qwen3.8-flash) so the
   # action's model input selects both the CLI provider and the model.
-  ANALYSIS_MODEL="${OPENCODE_MODEL:-opencode/gpt-5-nano}"
+  ANALYSIS_MODEL="${OPENCODE_MODEL:-opencode-go/qwen3.8-flash}"
   ANALYSIS_PROVIDER="${ANALYSIS_MODEL%%/*}"
   ANALYSIS_MODEL_ID="${ANALYSIS_MODEL#*/}"
   if [ "$ANALYSIS_PROVIDER" = "$ANALYSIS_MODEL" ]; then

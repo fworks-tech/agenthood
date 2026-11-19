@@ -72,22 +72,24 @@ Reviewer comments it actually followed.
    capped in bytes below the 65,536 character API ceiling with a truncation
    note, and a failed post is a warning in advisory mode. A blocking agent
    still fails closed, because its comment is the gate's evidence.
-8. **No agent gates on a model verdict.** The inventory after this decision:
+8. **No agent gates on a model verdict.** The inventory after this decision
+   (refreshed for #1124: both disabled steps re-enabled, CI bot models moved
+   to the `opencode-go` provider):
 
    | Agent | Step | Model | Gate | Threshold |
    |---|---|---|---|---|
-   | the-reviewer | `reviewer.yml:80` | `opencode/gpt-5-nano` (`reviewer.yml:99`) | advisory (`reviewer.yml:100`) | n/a |
-   | the-sentinel | `pr.yml:196` | `opencode/qwen3.8-flash` (`pr.yml:207`) | advisory, changed here | default 2, out of the gate path |
-   | the-auditor | `pr.yml:94` | `opencode/qwen3.8-flash` (`pr.yml:107`) | disabled (`pr.yml:96`) | default 2 if re-enabled |
-   | the-warden | `pr.yml:138` | `opencode/qwen3.8-flash` (`pr.yml:151`) | disabled (`pr.yml:140`) | default 2 if re-enabled |
+   | the-reviewer | `reviewer.yml:79` | `opencode-go/qwen3.8-flash` (`reviewer.yml:99`) | advisory (`reviewer.yml:100`) | n/a |
+   | the-sentinel | `pr.yml:196` | `opencode-go/qwen3.8-flash` (`pr.yml:207`) | advisory, changed here | default 2, out of the gate path |
+   | the-auditor | `pr.yml:94` | `opencode-go/qwen3.8-flash` (`pr.yml:107`) | advisory, re-enabled in #1124 | default 2, out of the gate path |
+   | the-warden | `pr.yml:141` | `opencode-go/qwen3.8-flash` (`pr.yml:154`) | advisory, re-enabled in #1124 | default 2, out of the gate path |
 
    The sentinel carried the same flip shape #1082 exposed: a flash-class
    model, the default threshold of 2 (`action.yml:40`, `decision-gate.sh:97`)
    and a blocking gate, so its analysis moves to advisory mode. Its
    deterministic structure check (`sentinel-check.sh`) stays the gate. The
-   disabled auditor and warden steps inherit advisory semantics only if
-   someone re-enables them without setting `gate-mode`, which this table
-   records.
+   auditor and warden steps were re-enabled in #1124 with `gate-mode:
+   advisory` set explicitly, closing the "if re-enabled without setting
+   gate-mode" hole this table recorded.
 
 ## Consequences
 

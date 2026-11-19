@@ -180,7 +180,8 @@ async function loadTraces(path: string, unreadable: string[]): Promise<Map<strin
         continue
       }
       const existing = byCorrelation.get(parsed.correlationId)
-      if (existing && existing.timestamp >= parsed.timestamp) continue
+      // Ties fall back to file order, where the last line is the most recent write.
+      if (existing && existing.timestamp > parsed.timestamp) continue
       byCorrelation.set(parsed.correlationId, {
         durationMs: parsed.durationMs,
         cost: parsed.cost,

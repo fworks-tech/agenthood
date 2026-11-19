@@ -278,6 +278,21 @@ describe('audit command', () => {
     expect(parsed.ok).toBe(true)
   })
 
+  it('shows the provider that answered alongside the model', async () => {
+    const root = workspace()
+    writeDecision(root, 'dec-1', '2026-07-01T10:00:00.000Z')
+    await track(root, 'prov-1', '2026-07-01T10:00:00.000Z', 'dec-1')
+    writeTrace(root, 'prov-1', '2026-07-01T10:00:01.000Z', { model: 'qwen3.8-flash', provider: 'opencode-go' })
+
+    expect(await output([], root)).toContain('qwen3.8-flash via opencode-go')
+
+    const parsed = JSON.parse(await output(['--json'], root))
+    expect(parsed.events.find((event: { id: string }) => event.id === 'prov-1').trace).toMatchObject({
+      model: 'qwen3.8-flash',
+      provider: 'opencode-go',
+    })
+  })
+
   it('ignores log entries in the trace store', async () => {
     const root = workspace()
     writeDecision(root, 'dec-1', '2026-07-01T10:00:00.000Z')

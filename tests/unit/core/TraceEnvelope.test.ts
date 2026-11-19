@@ -47,10 +47,12 @@ describe('createTraceEnvelope', () => {
       correlationId: 'corr-2',
       source: 'cli',
       model: 'llama-3',
+      provider: 'groq',
     })
 
     expect(env.source).toBe('cli')
     expect(env.model).toBe('llama-3')
+    expect(env.provider).toBe('groq')
     expect(env.status).toBe('error')
   })
 })

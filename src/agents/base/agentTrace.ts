@@ -92,6 +92,7 @@ function buildAgentTraceEnvelope(args: AgentTraceArgs) {
     correlationId: context.correlationId ?? context.executionId,
     source: context.source,
     model,
+    provider,
   })
 }
 

@@ -24,6 +24,11 @@ export const sharedConversationalStyle = existsSync(SHARED_STYLE_PATH)
   ? readFileSync(SHARED_STYLE_PATH, 'utf-8').trim()
   : ''
 
+/** A SKILL.md may not declare MCP servers: only host configuration does (ADR-047). */
+export function declaresMcpServers(skillContent: string): boolean {
+  return /^mcpServers\s*:/m.test(skillContent.match(/^---\n([\s\S]*?)\n---/)?.[1] ?? '')
+}
+
 export class MemberNotFoundError extends Error {
   constructor(name: string) {
     super(`Member not found: "${name}"`)
@@ -79,7 +84,7 @@ export class MemberRegistry {
         outputFormat = extractFrontmatterField(content, 'output_format')
         outputFormatMode = extractFrontmatterField(content, 'output_format_mode') as 'strict' | 'lenient' | undefined
         allowedTools = extractFrontmatterField(content, 'allowed-tools')
-        if (/^mcpServers\s*:/m.test(content.match(/^---\n([\s\S]*?)\n---/)?.[1] ?? '')) {
+        if (declaresMcpServers(content)) {
           console.warn(`[members] "${raw.name}" SKILL.md declares mcpServers: ignored, only host configuration declares MCP servers (ADR-047)`)
         }
       }

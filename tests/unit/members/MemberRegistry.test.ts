@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest'
-import { MemberRegistry, MemberNotFoundError } from '../../../src/members/MemberRegistry.ts'
+import { MemberRegistry, MemberNotFoundError, declaresMcpServers } from '../../../src/members/MemberRegistry.ts'
 
 describe('MemberRegistry', () => {
   const registry = new MemberRegistry()
@@ -241,6 +241,12 @@ describe('MCP tool grants (ADR-047)', () => {
     expect(MemberRegistry.grantsFor('standard')).toEqual(MemberRegistry.grantsFor('standard', []))
     expect(MemberRegistry.intersectDeclaredTools('file.read pr_sync', 'standard', MemberRegistry.grantsFor('standard')))
       .toEqual(['file.read'])
+  })
+
+  it('detects an mcpServers key in SKILL.md frontmatter, and only there', () => {
+    expect(declaresMcpServers('---\nname: x\nmcpServers:\n  atlas:\n    command: node\n---\nbody')).toBe(true)
+    expect(declaresMcpServers('---\nname: x\nallowed-tools: mcp.atlas.search\n---\nmcpServers: in body')).toBe(false)
+    expect(declaresMcpServers('---\nname: x\n---\nbody')).toBe(false)
   })
 
   it('keeps the raw declaration on the spec, so a run can resolve MCP names later', () => {

@@ -35,8 +35,9 @@ export async function recordMcpDecision(context: ExecutionContext, member: strin
     tags: ['mcp'],
     decisionMaker: member,
   })
+  // one provenance file per entityId: a shared id would overwrite earlier events and break the chain
   await context.memory.provenance.track({
-    entityId: context.executionId,
+    entityId: id,
     entityType: 'decision',
     activityId: `mcp:${member}`,
     agentId: member,

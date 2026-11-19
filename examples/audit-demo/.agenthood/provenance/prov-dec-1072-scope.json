@@ -1,0 +1,16 @@
+{
+  "entityId": "prov-dec-1072-scope",
+  "entityType": "decision",
+  "activityId": "run:dec-1072-scope",
+  "agentId": "architect",
+  "agentType": "software_agent",
+  "role": "author",
+  "timestamp": "2026-11-19T09:02:11.000Z",
+  "confidence": 0.9,
+  "metadata": {
+    "decisionId": "dec-1072-scope",
+    "issue": 1072
+  },
+  "sequenceId": 1,
+  "checksum": "f8867522d24843c6647d9a7ce6c7f3ab7c640b0314e706b20ec964b2b5de9f95"
+}

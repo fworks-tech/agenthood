@@ -1,0 +1,17 @@
+{
+  "id": "dec-1072-scope",
+  "timestamp": "2026-11-19T09:02:11.000Z",
+  "member": "architect",
+  "task": "Define the scope of the MCP client (#1072)",
+  "decision": "Ship a STDIO client that reads mcpServers from the project config and validates every server before use",
+  "rationale": "Operators already declare servers in opencode.json; validating the same file keeps one source of truth",
+  "alternatives": [
+    "A separate agenthood.mcp.json file",
+    "A remote HTTP transport in the same release"
+  ],
+  "outcome": "completed",
+  "tags": [
+    "mcp",
+    "config"
+  ]
+}

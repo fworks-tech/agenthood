@@ -1,0 +1,17 @@
+{
+  "entityId": "prov-dec-1072-config",
+  "entityType": "decision",
+  "activityId": "run:dec-1072-config",
+  "agentId": "builder",
+  "agentType": "software_agent",
+  "role": "author",
+  "timestamp": "2026-11-19T09:18:44.000Z",
+  "confidence": 0.9,
+  "metadata": {
+    "decisionId": "dec-1072-config",
+    "issue": 1072
+  },
+  "sequenceId": 2,
+  "previousChecksum": "f8867522d24843c6647d9a7ce6c7f3ab7c640b0314e706b20ec964b2b5de9f95",
+  "checksum": "ac6d083122fcbc72ba8a5910a54a7d1fda59a62571b6314957c46d4e801e965d"
+}

@@ -1,0 +1,18 @@
+{
+  "id": "route-1072-scope",
+  "timestamp": "2026-11-19T09:01:02.000Z",
+  "member": "mediator",
+  "target": "architect",
+  "reasoning": "Scope and configuration shape belong to the architect; the request names one clear specialist",
+  "intent": "clear-specialist",
+  "confidence": 88,
+  "confidence_factors": [
+    "single specialist owns the area",
+    "no competing owner"
+  ],
+  "alternatives_considered": [
+    "builder"
+  ],
+  "cascade_applied": true,
+  "parallel_evaluation": null
+}

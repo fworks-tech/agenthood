@@ -1,0 +1,16 @@
+{
+  "id": "dec-1072-config",
+  "timestamp": "2026-11-19T09:18:44.000Z",
+  "member": "builder",
+  "task": "Implement the mcpServers block and its validator",
+  "decision": "Validate command, args and env per server, and fail closed on an unknown transport",
+  "rationale": "A half-valid server would start and then fail mid-run, which is harder to audit than a refused start",
+  "alternatives": [
+    "Warn and skip invalid servers"
+  ],
+  "outcome": "completed",
+  "tags": [
+    "mcp",
+    "validation"
+  ]
+}

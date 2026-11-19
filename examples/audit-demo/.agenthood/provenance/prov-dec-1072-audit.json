@@ -1,0 +1,17 @@
+{
+  "entityId": "prov-dec-1072-audit",
+  "entityType": "decision",
+  "activityId": "run:dec-1072-audit",
+  "agentId": "auditor",
+  "agentType": "software_agent",
+  "role": "author",
+  "timestamp": "2026-11-19T10:41:37.000Z",
+  "confidence": 0.9,
+  "metadata": {
+    "decisionId": "dec-1072-audit",
+    "issue": 1072
+  },
+  "sequenceId": 4,
+  "previousChecksum": "1299d1699cb70e23fa907865dbc0a8b3c07a08491a5af980988515596a4bad5d",
+  "checksum": "fba27fe01ce391ec10d0438c504c06b8942e4de44d8e271539fff5d9ab40eca4"
+}

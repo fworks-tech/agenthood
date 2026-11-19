@@ -1,0 +1,16 @@
+{
+  "id": "dec-1072-review",
+  "timestamp": "2026-11-19T10:05:02.000Z",
+  "member": "reviewer",
+  "task": "Review the MCP client branch",
+  "decision": "Request a test that proves a missing mcpServers block keeps the previous behaviour",
+  "rationale": "The default path is what every existing project runs, so a silent change there is a breaking change",
+  "alternatives": [
+    "Accept the branch and cover it in the next release"
+  ],
+  "outcome": "completed",
+  "tags": [
+    "mcp",
+    "tests"
+  ]
+}

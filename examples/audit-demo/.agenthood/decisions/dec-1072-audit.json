@@ -1,0 +1,14 @@
+{
+  "id": "dec-1072-audit",
+  "timestamp": "2026-11-19T10:41:37.000Z",
+  "member": "auditor",
+  "task": "Audit the trail for the MCP client work",
+  "decision": "Accept the change: the chain is intact, every decision has provenance and no routing record fails validation",
+  "rationale": "The trail answers who decided what and why, in order, without gaps",
+  "alternatives": [],
+  "outcome": "completed",
+  "tags": [
+    "audit",
+    "mcp"
+  ]
+}

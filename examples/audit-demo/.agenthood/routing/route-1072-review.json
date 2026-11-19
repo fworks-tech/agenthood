@@ -1,0 +1,18 @@
+{
+  "id": "route-1072-review",
+  "timestamp": "2026-11-19T10:03:19.000Z",
+  "member": "mediator",
+  "target": "reviewer",
+  "reasoning": "A branch that changes a config contract needs the reviewer before the doorman",
+  "intent": "capacity-sensitive",
+  "confidence": 81,
+  "confidence_factors": [
+    "contract change",
+    "reviewer available"
+  ],
+  "alternatives_considered": [
+    "auditor"
+  ],
+  "cascade_applied": true,
+  "parallel_evaluation": null
+}

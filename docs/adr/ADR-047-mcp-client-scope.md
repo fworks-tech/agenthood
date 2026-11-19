@@ -81,7 +81,7 @@ defect.
 **9. What the trace records.** Each event is one decision in `.agenthood/decisions` with one provenance
 entry in `.agenthood/provenance` linked by `metadata.decisionId`, the same shape a run uses. The events
 are: servers started (name, tool count), the tools granted to the member, each invocation (server, tool,
-outcome, duration), and each fail-closed error. The record holds the tool name and outcome. It does not
+outcome), and each fail-closed error. The record holds the tool name and outcome. It does not
 hold arguments or results, because a tool call may carry secrets; the shared redactor guards the rest.
 Decisions carry the tag `mcp`.
 

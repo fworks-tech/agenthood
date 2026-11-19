@@ -1,3 +1,11 @@
+# [4.3.0](https://github.com/fworks-tech/agenthood/compare/v4.2.0...v4.3.0) (2026-11-19)
+
+
+### Features
+
+* **cli:** show run duration, cost and tokens in the audit ([#1117](https://github.com/fworks-tech/agenthood/issues/1117)) ([ce123d1](https://github.com/fworks-tech/agenthood/commit/ce123d1903caf103fc42d590c6f219f4f60ed6c3))
+* **cli:** write validated routing records from stdin ([#1118](https://github.com/fworks-tech/agenthood/issues/1118)) ([93993d3](https://github.com/fworks-tech/agenthood/commit/93993d3d3e08a3c49cb81de5479b20d5ef14aee4))
+
 # [4.2.0](https://github.com/fworks-tech/agenthood/compare/v4.1.2...v4.2.0) (2026-11-19)
 
 

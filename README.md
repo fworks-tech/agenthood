@@ -24,7 +24,7 @@ repository does. The claim is not taken on faith. [The evidence](#the-evidence)
 section links to live runs and comments from this repository's CI that you
 can open and check.
 
-[Quick start](#quick-start) · [What's new in 4.1](#whats-new-in-41) · [The evidence](#the-evidence) · [The team](#the-team) · [Commands](#command-reference) · [Upgrade from 3.x](MIGRATION.md)
+[Quick start](#quick-start) · [What's new in 4.3](#whats-new-in-43) · [The evidence](#the-evidence) · [The team](#the-team) · [Commands](#command-reference) · [Upgrade from 3.x](MIGRATION.md)
 
 ---
 
@@ -84,8 +84,21 @@ matrix is in [Getting Started](docs/academy/getting-started.md#ci-pipeline).
 
 ---
 
-## What's new in 4.1
+## What's new in 4.3
 
+- **The trail is auditable end to end.** `agenthood audit` replays decisions,
+  provenance and routing records as one ordered timeline and verifies the
+  SHA-256 chain. `--strict` exits 1 on a broken chain, a gap or an unreadable
+  file; `--clear` archives the trail and starts clean
+  ([#1113](https://github.com/fworks-tech/agenthood/pull/1113), 4.2).
+- **Runs carry their numbers.** The audit joins each run to its trace, so the
+  timeline shows duration, cost and tokens per run; a corrupt or missing trace
+  decorates nothing and never fails the audit
+  ([#1117](https://github.com/fworks-tech/agenthood/pull/1117)).
+- **Routing is a first-class record.** `agenthood route` writes a validated
+  routing decision from JSON on stdin: a wrong-typed field fails closed and
+  nothing is written
+  ([#1118](https://github.com/fworks-tech/agenthood/pull/1118)).
 - **The reviewer reads a real diff and never gates.** The Reviewer receives
   up to 100 KB of the actual `git diff`, posts findings with the scope it
   covered, and its verdict is advisory: what stops a merge are the
@@ -93,15 +106,6 @@ matrix is in [Getting Started](docs/academy/getting-started.md#ci-pipeline).
 - **Skips are visible.** A review that cannot run (no pull request context,
   no API key) says so in the PR thread or the run summary, instead of leaving
   a green check that reviewed nothing.
-- **The legacy utility skills were resolved.** Nine unclassified skills from
-  the 3.x era: six adopted under the frontmatter contract, three fused into
-  the members whose protocol they repeated, none retired. The public catalog
-  now lists 20 members and 23 utilities
-  ([#1082](https://github.com/fworks-tech/agenthood/pull/1082)).
-- **The decisions got indexed.** [ADR-043](docs/adr/ADR-043-dependency-audit-exception-policy.md)
-  (dependency audit exception policy) and
-  [ADR-046](docs/adr/ADR-046-automated-review-authority.md) (automated review
-  authority) joined the ADR index.
 
 Breaking changes from 4.0 are in [MIGRATION.md](MIGRATION.md). The full
 history is in the [release notes](docs/release-notes.md).
@@ -275,6 +279,8 @@ and [ADR-033](docs/adr/ADR-033-chain-workflows.md).
 | `agenthood status` | Project health and member metrics. `--watch` polls, `--drift` compares against the lockfile |
 | `agenthood stats` | Per-skill usage: activations, trigger rate, error rate |
 | `agenthood trace` | Recent invocation traces. `--activations` shows which skill loaded when |
+| `agenthood audit` | Replay the decision trail in order and verify the hash chain. `--strict` fails on a gap, `--clear` archives the trail |
+| `agenthood route` | Write a validated routing decision from JSON on stdin |
 | `agenthood log` | Structured log entries, filterable by level, member, and time |
 | `agenthood checkpoints` | List past run checkpoints |
 | `agenthood cost` | Cumulative spend by provider, member, and day |
@@ -306,15 +312,17 @@ Every command takes `--help`, and `npx agenthood help` prints the full list.
 
 ## How a run is recorded
 
-Each member run leaves three artifacts under `.agenthood/`:
+Each member run leaves four artifacts under `.agenthood/`:
 
 | Path | Content |
 |------|---------|
 | `decisions/` | One decision record per run: what was chosen, what was rejected, and why |
 | `provenance/` | A SHA-256 hash chain over those records, so a later edit is visible |
+| `routing/` | One routing record per Mediator decision, written by `agenthood route` |
 | `traces/traces.ndjson` | Every invocation trace and log entry, under one retention policy |
 
 ```bash
+npx agenthood audit            # the trail in order, chain verified, metrics attached
 npx agenthood trace --member reviewer
 npx agenthood status --member reviewer
 ```
@@ -348,7 +356,7 @@ or override per run with `--provider`.
 Install once, then the plugin loads the members in every project:
 
 ```bash
-npm i -g agenthood   # add @<version> to pin, for example agenthood@4.0.0
+npm i -g agenthood   # add @<version> to pin, for example agenthood@4.3.0
 ```
 
 ```jsonc

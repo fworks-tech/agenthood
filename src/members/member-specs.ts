@@ -25,7 +25,7 @@ export const rawSpecs: RawSpec[] = [
     tagline: 'Commits, PRs, changelogs',
     category: 'engineering',
     permissionProfile: 'standard',
-    preferredProvider: 'anthropic',
+    preferredProvider: 'opencode-go',
     ownedDecisions: ['Commit messages', 'PR descriptions'],
   },
   {
@@ -34,7 +34,7 @@ export const rawSpecs: RawSpec[] = [
     tagline: 'Specs, planning, ADRs',
     category: 'engineering',
     permissionProfile: 'standard',
-    preferredProvider: 'anthropic',
+    preferredProvider: 'opencode-go',
     ownedDecisions: ['Specs', 'ADRs', 'Task decomposition', 'Branch scope'],
   },
   {
@@ -43,7 +43,7 @@ export const rawSpecs: RawSpec[] = [
     tagline: 'Coding and implementation',
     category: 'engineering',
     permissionProfile: 'standard',
-    preferredProvider: 'anthropic',
+    preferredProvider: 'opencode-go',
     ownedDecisions: ['Smallest verified change', 'Local validation', 'Handover'],
   },
   {
@@ -52,7 +52,7 @@ export const rawSpecs: RawSpec[] = [
     tagline: 'Five-axis code review',
     category: 'validation',
     permissionProfile: 'restricted',
-    preferredProvider: 'anthropic',
+    preferredProvider: 'opencode-go',
     ownedDecisions: ['Review criteria', 'Approval gates'],
   },
   {
@@ -61,7 +61,7 @@ export const rawSpecs: RawSpec[] = [
     tagline: 'TDD and test generation',
     category: 'engineering',
     permissionProfile: 'standard',
-    preferredProvider: 'anthropic',
+    preferredProvider: 'opencode-go',
     ownedDecisions: ['TDD process', 'Coverage targets', 'Test types'],
   },
   {
@@ -70,7 +70,7 @@ export const rawSpecs: RawSpec[] = [
     tagline: 'Root cause analysis',
     category: 'engineering',
     permissionProfile: 'standard',
-    preferredProvider: 'anthropic',
+    preferredProvider: 'opencode-go',
     ownedDecisions: ['Root cause protocol', 'Investigation steps'],
   },
   {
@@ -79,7 +79,7 @@ export const rawSpecs: RawSpec[] = [
     tagline: 'Security and dependencies',
     category: 'validation',
     permissionProfile: 'restricted',
-    preferredProvider: 'anthropic',
+    preferredProvider: 'opencode-go',
     ownedDecisions: ['OWASP', 'Secrets', 'Dependency vulnerabilities'],
   },
   {
@@ -88,7 +88,7 @@ export const rawSpecs: RawSpec[] = [
     tagline: 'Releases and versioning',
     category: 'lifecycle',
     permissionProfile: 'standard',
-    preferredProvider: 'anthropic',
+    preferredProvider: 'opencode-go',
     ownedDecisions: ['Semver', 'changelogs', 'Release notes'],
   },
   {
@@ -97,7 +97,7 @@ export const rawSpecs: RawSpec[] = [
     tagline: 'Documentation and ADRs',
     category: 'knowledge',
     permissionProfile: 'standard',
-    preferredProvider: 'anthropic',
+    preferredProvider: 'opencode-go',
     ownedDecisions: ['ADR storage', 'Doc sync', 'Knowledge management'],
   },
   {
@@ -106,7 +106,7 @@ export const rawSpecs: RawSpec[] = [
     tagline: 'Validation and enforcement',
     category: 'validation',
     permissionProfile: 'restricted',
-    preferredProvider: 'ollama',
+    preferredProvider: 'opencode-go',
     ownedDecisions: ['Hook setup', 'Lint', 'Gate checks', 'Health checks'],
   },
   {
@@ -115,7 +115,7 @@ export const rawSpecs: RawSpec[] = [
     tagline: 'Research and knowledge',
     category: 'knowledge',
     permissionProfile: 'restricted',
-    preferredProvider: 'anthropic',
+    preferredProvider: 'opencode-go',
     ownedDecisions: ['Member templates', 'Naming', 'Registration maps'],
   },
   {
@@ -124,7 +124,7 @@ export const rawSpecs: RawSpec[] = [
     tagline: 'Communication and handoffs',
     category: 'lifecycle',
     permissionProfile: 'restricted',
-    preferredProvider: 'anthropic',
+    preferredProvider: 'opencode-go',
     ownedDecisions: ['Skill format mapping', 'Bootstrap', 'Skill matrix'],
   },
   {
@@ -133,7 +133,7 @@ export const rawSpecs: RawSpec[] = [
     tagline: 'Member file validation',
     category: 'validation',
     permissionProfile: 'restricted',
-    preferredProvider: 'anthropic',
+    preferredProvider: 'opencode-go',
     ownedDecisions: ['Member consistency', 'Contradiction detection', 'Drift'],
   },
   {
@@ -142,7 +142,7 @@ export const rawSpecs: RawSpec[] = [
     tagline: 'File size enforcement',
     category: 'validation',
     permissionProfile: 'restricted',
-    preferredProvider: 'anthropic',
+    preferredProvider: 'opencode-go',
     ownedDecisions: ['Smell identification', 'Architectural decay', 'Complexity'],
   },
   {
@@ -151,7 +151,7 @@ export const rawSpecs: RawSpec[] = [
     tagline: 'Goal refinement and requirement discovery',
     category: 'engineering',
     permissionProfile: 'restricted',
-    preferredProvider: 'anthropic',
+    preferredProvider: 'opencode-go',
     ownedDecisions: ['Problem statements', 'Success measures', 'Ranked priorities'],
   },
   {
@@ -160,7 +160,7 @@ export const rawSpecs: RawSpec[] = [
     tagline: 'Context economy and load routing',
     category: 'lifecycle',
     permissionProfile: 'restricted',
-    preferredProvider: 'groq',
+    preferredProvider: 'opencode-go',
     ownedDecisions: ['Load routing', 'Cache strategy', 'Session triage'],
   },
   {
@@ -169,7 +169,7 @@ export const rawSpecs: RawSpec[] = [
     tagline: 'Deployment, incidents, rollback',
     category: 'lifecycle',
     permissionProfile: 'restricted',
-    preferredProvider: 'anthropic',
+    preferredProvider: 'opencode-go',
     ownedDecisions: ['Deployment', 'Incidents', 'Rollback', 'Monitoring'],
   },
   {
@@ -178,7 +178,7 @@ export const rawSpecs: RawSpec[] = [
     tagline: 'First in line; intent routing',
     category: 'lifecycle',
     permissionProfile: 'restricted',
-    preferredProvider: 'anthropic',
+    preferredProvider: 'opencode-go',
     ownedDecisions: ['Intake', 'Intent classification', 'Handoff sequencing', 'Orchestration entry'],
   },
   {
@@ -187,7 +187,7 @@ export const rawSpecs: RawSpec[] = [
     tagline: 'Delivery and cross-posting',
     category: 'lifecycle',
     permissionProfile: 'standard',
-    preferredProvider: 'anthropic',
+    preferredProvider: 'opencode-go',
     ownedDecisions: ['Message dispatch', 'Content scheduling', 'Cross-posting'],
   },
   {
@@ -196,7 +196,7 @@ export const rawSpecs: RawSpec[] = [
     tagline: 'Pixel-level visual reasoning',
     category: 'validation',
     permissionProfile: 'standard',
-    preferredProvider: 'anthropic',
+    preferredProvider: 'opencode-go',
     ownedDecisions: ['Pixel-level analysis', 'Multi-panel correspondence'],
   },
 ]

@@ -143,24 +143,15 @@ from environment variables.
 
 ## Member-Level Provider Preferences
 
-Different members prefer different providers based on their task type. These
-preferences are encoded in `MemberSpec.preferredProvider` in
-[`src/members/MemberRegistry.ts`](../../src/members/MemberRegistry.ts) and respected
-by `LLMRouter` when building the failover chain.
+Every member prefers the same provider. The preference is encoded in
+`MemberSpec.preferredProvider` in [`src/members/member-specs.ts`](../../src/members/member-specs.ts)
+and respected by `LLMRouter.createForMember`, which ranks it ahead of the operator's
+config order.
 
-| Member | Preferred Provider | Reason |
-|--------|-------------------|--------|
-| The Scribe | Anthropic | Strong at natural language writing |
-| The Architect | Anthropic | Long context, reasoning |
-| The Reviewer | Anthropic | Precise, detailed analysis |
-| The Auditor | Anthropic | Security reasoning, caution |
-| The Tester | Anthropic | Structured output, deterministic |
-| The Debugger | Anthropic | Broad training on error patterns |
-| The Herald | Anthropic | Templated output, low complexity |
-| The Librarian | Anthropic | Documentation quality |
-| The Doorman | Ollama → Groq | Fast, simple validation: no need for top-tier model |
-| The Oracle | Anthropic | Long-context retrieval |
-| The Envoy | Anthropic | Cross-runtime translation |
-| The Sentinel | Anthropic | Standards enforcement |
-| The Warden | Anthropic | Code health analysis |
-| The Steward | Groq | Lightweight routing, low cost |
+| Members | Preferred Provider | Reason |
+|---------|-------------------|--------|
+| All shipped members | OpenCode Go | The Society runs on one provider; the config order governs failover |
+
+`MemberRegistry` uses the same value as the default for custom members. The per-member
+preference mechanism is unchanged: a member that genuinely needs a different provider can
+still declare one, and `--provider` still overrides it for a single run.

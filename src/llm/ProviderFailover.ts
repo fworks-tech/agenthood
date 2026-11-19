@@ -344,7 +344,7 @@ export class ProviderChain implements ILLMProvider {
       console.info(`Using ${name} (primary)`)
       return
     }
-    console.info(`${name} failed, falling back to next provider`)
+    console.info(`Falling back to ${name}`)
   }
 
   private freshState(): CircuitBreakerState {

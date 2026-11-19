@@ -290,12 +290,14 @@ export async function trace(args: string[] = []): Promise<void> {
   const store = new JSONFileTraceStore(tracesPath)
   // Logs live in the same file; drop them before the limit so a page of recent
   // logs never hides real traces.
-  const result = (await store.query({ member, since })).filter((e) => e.entryType !== 'log').slice(0, limit)
+  const matching = (await store.query({ member, since })).filter((e) => e.entryType !== 'log')
+  const result = matching.slice(0, limit)
 
-  // Only the runs on screen: the oldest shown trace bounds the MCP section. The
+  // Only the runs on screen: the first run past the limit bounds the MCP
+  // section, because a run's events precede its envelope timestamp. The
   // existsSync guard keeps a read-only listing from creating the decision directory.
   const mcp = result.length > 0 && existsSync(join(cwd, '.agenthood', 'decisions'))
-    ? mcpDecisions(await new DecisionLog().all(), { member, since: result[result.length - 1].timestamp })
+    ? mcpDecisions(await new DecisionLog().all(), { member, since: matching[limit]?.timestamp ?? since })
     : []
 
   if (json) {

@@ -249,6 +249,9 @@ build_comment_body() {
       # Redact in place: keep the diagnostic line, mask long tokens, rather than
       # dropping the whole line (which hid useful errors that happened to
       # mention a secret keyword).
+      # shortcut: only tokens of 20+ chars are masked; a short secret that
+      # appears on a line mentioning a secret keyword survives. Upgrade to a
+      # keyword-aware redactor if build output ever carries short credentials.
       sed -E 's/[A-Za-z0-9_-]{20,}/[REDACTED]/g' "$error_file" | sed 's/^/> /' || true
       echo ""
     fi
@@ -271,37 +274,50 @@ SAFE_CHANGED=$(cat ${temp_dir}/${AGENT_NAME}_safe_changed.txt)
 build_task
 echo "agent-analysis: running $AGENT_NAME on $(echo "$SAFE_CHANGED" | tr '\n' ' ')"
 
-# Capture build output so a failure is diagnosable from the posted comment.
-npm ci --ignore-scripts >>"$error_file" 2>&1
-npm run build >>"$error_file" 2>&1
-
-rc=0
-# Bounded so a stalled provider cannot hold the job until GitHub's 6h limit.
-timeout --kill-after=30 600 node dist/cli.js run "$AGENT_NAME" "$TASK" --provider "$ANALYSIS_PROVIDER" \
-  1> "$analysis_file" \
-  2>> "$error_file" || rc=$?
-
-# A run that produced no report leaves its only evidence in files the runner
-# deletes on job end; echo the tails so CI failures of the provider are
-# diagnosable without re-pushing. Long opaque tokens are masked on the way to
-# the log, matching what the posted comment already guarantees.
-if [ "$rc" -ne 0 ] || ! grep -q 'AGENTHOOD_DECISION' "$analysis_file" 2>/dev/null; then
-  {
-    echo "::group::$AGENT_NAME raw output (rc=$rc)"
-    tail -c 2000 "$analysis_file" 2>/dev/null | sed -E 's/[A-Za-z0-9_-]{32,}/[MASKED]/g' || true
-    echo ""
-    tail -c 1000 "$error_file" 2>/dev/null | sed -E 's/[A-Za-z0-9_-]{32,}/[MASKED]/g' || true
-    echo "::endgroup::"
-  } >> "${GITHUB_STEP_SUMMARY:-/dev/null}"
+# Build into a separate log; surface it in the comment only on failure, so a
+# successful run does not masquerade as an analysis with issues.
+build_log="${temp_dir}/${AGENT_NAME}_build.txt"
+: > "$build_log"
+build_rc=0
+npm ci --ignore-scripts >>"$build_log" 2>&1 || build_rc=$?
+if [ "$build_rc" -eq 0 ]; then
+  npm run build >>"$build_log" 2>&1 || build_rc=$?
+fi
+if [ "$build_rc" -ne 0 ]; then
+  echo "Build failed (rc=$build_rc):" >>"$error_file"
+  cat "$build_log" >>"$error_file"
 fi
 
-# Strip the final-report block down to the summary (deduping the `[step N]`
-# reasoning leak) and post any `<!--AGENTHOOD_INLINE` findings as review
-# comments. Failures must not drop the comment, hence `|| true`. Touch first so
-# an empty/missing file is deterministic rather than "file missing".
-touch "$summary_file"
-node .github/scripts/format-analysis.mjs "$analysis_file" "$summary_file" || true
+rc=0
+if [ "$build_rc" -eq 0 ]; then
+  # Bounded so a stalled provider cannot hold the job until GitHub's 6h limit.
+  timeout --kill-after=30 600 node dist/cli.js run "$AGENT_NAME" "$TASK" --provider "$ANALYSIS_PROVIDER" \
+    1> "$analysis_file" \
+    2>> "$error_file" || rc=$?
 
+  # A run that produced no report leaves its only evidence in files the runner
+  # deletes on job end; echo the tails so CI failures of the provider are
+  # diagnosable without re-pushing. Long opaque tokens are masked on the way to
+  # the log, matching what the posted comment already guarantees.
+  if [ "$rc" -ne 0 ] || ! grep -q 'AGENTHOOD_DECISION' "$analysis_file" 2>/dev/null; then
+    {
+      echo "::group::$AGENT_NAME raw output (rc=$rc)"
+      tail -c 2000 "$analysis_file" 2>/dev/null | sed -E 's/[A-Za-z0-9_-]{32,}/[MASKED]/g' || true
+      echo ""
+      tail -c 1000 "$error_file" 2>/dev/null | sed -E 's/[A-Za-z0-9_-]{32,}/[MASKED]/g' || true
+      echo "::endgroup::"
+    } >> "${GITHUB_STEP_SUMMARY:-/dev/null}"
+  fi
+
+  # Strip the final-report block down to the summary (deduping the `[step N]`
+  # reasoning leak) and post any `<!--AGENTHOOD_INLINE` findings as review
+  # comments. Failures must not drop the comment, hence `|| true`. Touch first so
+  # an empty/missing file is deterministic rather than "file missing".
+  touch "$summary_file"
+  node .github/scripts/format-analysis.mjs "$analysis_file" "$summary_file" || true
+fi
+
+touch "$summary_file"
 build_comment_body
 
 if [ -s "$body_file" ]; then
@@ -329,15 +345,21 @@ if [ "$rc" -ne 0 ]; then
   fi
 fi
 
-if [ -z "$(verdicts_for "$analysis_file")" ]; then
-  if [ "$GATE_MODE" = "advisory" ]; then
-    echo "::warning::${AGENT_NAME} produced no decision verdict; posting the analysis without one"
-  else
-    echo "::error::${AGENT_NAME} produced no decision verdict -- failing closed"
+if [ "$build_rc" -eq 0 ]; then
+  if [ -z "$(verdicts_for "$analysis_file")" ]; then
+    if [ "$GATE_MODE" = "advisory" ]; then
+      echo "::warning::${AGENT_NAME} produced no decision verdict; posting the analysis without one"
+    else
+      echo "::error::${AGENT_NAME} produced no decision verdict -- failing closed"
+      exit 1
+    fi
+  fi
+
+  if ! check_decision_gate "$analysis_file" "$AGENT_NAME" "$GATE_MODE"; then
     exit 1
   fi
 fi
 
-if ! check_decision_gate "$analysis_file" "$AGENT_NAME" "$GATE_MODE"; then
-  exit 1
+if [ "$build_rc" -ne 0 ]; then
+  exit "$build_rc"
 fi

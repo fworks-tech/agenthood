@@ -89,7 +89,8 @@
     "typecheck": "tsc -p tsconfig.typecheck.json",
     "docs:api": "typedoc",
     "sync:opencode-catalog": "tsx scripts/sync-opencode-catalog.ts",
-    "bench:skills": "tsx scripts/bench-skill-discovery.ts"
+    "bench:skills": "tsx scripts/bench-skill-discovery.ts",
+    "demo:mcp": "tsx scripts/demo-mcp.ts"
   },
   "devDependencies": {
     "@commitlint/cli": "^21.2.2",

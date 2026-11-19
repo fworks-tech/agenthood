@@ -5,6 +5,19 @@
 
 ---
 
+## v4.2.0: November 19, 2026
+
+### 🐛 Bug Fixes
+
+- **Opencode:** give a member run five minutes and an env override (#1109)
+- **Trace:** apply --limit after dropping log entries (#1111)
+
+### ✨ Features
+
+- **Cli:** audit the decision trail in order and verify the chain (#1113)
+
+---
+
 ## v4.1.2: November 18, 2026
 
 ### 🐛 Bug Fixes

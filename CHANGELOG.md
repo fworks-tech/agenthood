@@ -1,3 +1,16 @@
+# [4.2.0](https://github.com/fworks-tech/agenthood/compare/v4.1.2...v4.2.0) (2026-11-19)
+
+
+### Bug Fixes
+
+* **opencode:** give a member run five minutes and an env override ([#1109](https://github.com/fworks-tech/agenthood/issues/1109)) ([f7b1217](https://github.com/fworks-tech/agenthood/commit/f7b1217a3a730108d392fb81eff1e7848151de44))
+* **trace:** apply --limit after dropping log entries ([#1111](https://github.com/fworks-tech/agenthood/issues/1111)) ([717d5de](https://github.com/fworks-tech/agenthood/commit/717d5def4c60994c8bf10375d6fb60175b9d915e))
+
+
+### Features
+
+* **cli:** audit the decision trail in order and verify the chain ([#1113](https://github.com/fworks-tech/agenthood/issues/1113)) ([44d0151](https://github.com/fworks-tech/agenthood/commit/44d015192fe6828a967070baf9475443ce5bf532))
+
 ## [4.1.2](https://github.com/fworks-tech/agenthood/compare/v4.1.1...v4.1.2) (2026-11-18)
 
 

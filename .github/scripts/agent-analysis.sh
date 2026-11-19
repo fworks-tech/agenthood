@@ -249,15 +249,15 @@ build_comment_body() {
       # Redact in place: keep the diagnostic line, mask long tokens, rather than
       # dropping the whole line (which hid useful errors that happened to
       # mention a secret keyword).
-      # shortcut: only tokens of 20+ chars are masked; a short secret that
-      # appears on a line mentioning a secret keyword survives. Upgrade to a
-      # keyword-aware redactor if build output ever carries short credentials.
-      sed -E 's/[A-Za-z0-9_-]{20,}/[REDACTED]/g' "$error_file" | sed 's/^/> /' || true
+      # Mask long tokens and, additionally, the value after any secret-like
+      # assignment (key/token/password/...=value), so short credentials do not
+      # survive even when the long-token pass misses them.
+      sed -E 's/[A-Za-z0-9_-]{20,}/[REDACTED]/g; s/([A-Za-z0-9_-]*(api[_-]?key|token|secret|password|credential|bearer|pat|jwt))([[:space:]]*[=:][[:space:]]*)[^[:space:]]+/[REDACTED]/gI' "$error_file" | sed 's/^/> /' || true
       echo ""
     fi
 
     if [ -s "$summary_file" ]; then
-      sed -E 's/[A-Za-z0-9_-]{32,}/[REDACTED]/g' "$summary_file" || true
+      sed -E 's/[A-Za-z0-9_-]{32,}/[REDACTED]/g; s/([A-Za-z0-9_-]*(api[_-]?key|token|secret|password|credential|bearer|pat|jwt))([[:space:]]*[=:][[:space:]]*)[^[:space:]]+/[REDACTED]/gI' "$summary_file" || true
     fi
 
     if [ ! -s "$summary_file" ] && [ ! -s "$error_file" ]; then

@@ -36,6 +36,8 @@ export interface TraceEnvelope {
   timestamp: string
   source: TraceSource
   model?: string
+  /** Chain winner that answered the run; absent for streamed or unknown-provider runs. */
+  provider?: string
   /** Discriminates log entries from member-invocation traces in the same NDJSON store. Defaults to 'trace' for backwards compatibility. */
   entryType?: 'trace' | 'log'
   /** Present on log entries ('debug' | 'info' | 'warn' | 'error'). */

@@ -13,6 +13,7 @@ export interface CreateTraceEnvelopeInput {
   correlationId: string
   source?: TraceSource
   model?: string
+  provider?: string
   timestamp?: string
 }
 
@@ -33,5 +34,6 @@ export function createTraceEnvelope(input: CreateTraceEnvelopeInput): TraceEnvel
     output: input.output,
   }
   if (input.model) envelope.model = input.model
+  if (input.provider) envelope.provider = input.provider
   return envelope
 }

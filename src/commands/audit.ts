@@ -48,6 +48,7 @@ interface TraceMetrics {
   status?: TraceEnvelope['status']
   qualityScore?: number | null
   model?: string
+  provider?: string
 }
 
 interface AuditEvent {
@@ -193,6 +194,7 @@ async function loadTraces(path: string, unreadable: string[]): Promise<Map<strin
         status: parsed.status,
         qualityScore: parsed.qualityScore,
         model: parsed.model,
+        provider: parsed.provider,
         timestamp: parsed.timestamp,
       })
     }
@@ -204,12 +206,13 @@ async function loadTraces(path: string, unreadable: string[]): Promise<Map<strin
   return byCorrelation
 }
 
-/** `2.0s · $0.0031 · 20922 tok`, plus the status when the run did not succeed. */
+/** `2.0s · $0.0031 · 20922 tok · qwen3.8-flash via opencode-go`, plus the status when the run did not succeed. */
 function formatTrace(trace: TraceMetrics): string {
   const parts: string[] = []
   if (typeof trace.durationMs === 'number') parts.push(`${(trace.durationMs / 1000).toFixed(1)}s`)
   if (typeof trace.cost === 'number') parts.push(`$${trace.cost.toFixed(4)}`)
   if (typeof trace.tokens === 'number') parts.push(`${trace.tokens} tok`)
+  if (trace.model) parts.push(trace.provider ? `${trace.model} via ${trace.provider}` : trace.model)
   if (trace.status && trace.status !== 'success') parts.push(trace.status)
   return parts.join(' · ')
 }

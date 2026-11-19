@@ -84,6 +84,9 @@ jobs:
           # sees them, so `EOF` and the markdown body land at column 0 - the
           # heredoc is well-formed. The body is piped (stdin) so workflow
           # expressions and markdown are never interpolated into the gh args.
+          source .github/scripts/stale-comment.sh
+          stale_dir=$(mktemp -d)
+          mark_previous_comment_outdated '.[] | select(.user.login == "github-actions[bot]" and (.body | startswith("## The Auditor - Secret Scan")))' "${{ github.event.pull_request.number }}" "$stale_dir"
           cat <<'EOF' | .github/scripts/post-pr-comment.sh ${{ github.event.pull_request.number }}
           ## The Auditor - Secret Scan :warning:
 
@@ -91,6 +94,12 @@ jobs:
 
           *-- The Auditor, Agenthood*
           EOF
+      - name: The Auditor - retire the secret scan warning on a green run
+        if: success() && github.event_name == 'pull_request'
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GH_RUN_ID: ${{ github.run_id }}
+        run: .github/scripts/resolve-pr-comment.sh ${{ github.event.pull_request.number }} "## The Auditor - Secret Scan"
       - name: The Auditor - agent analysis
         # disabled: no working LLM provider - was: if: github.event_name == 'pull_request'
         if: false
@@ -173,6 +182,9 @@ jobs:
           GH_TOKEN: ${{ github.token }}
         run: |
           # see the Auditor step above for why the heredoc/pipe is safe here
+          source .github/scripts/stale-comment.sh
+          stale_dir=$(mktemp -d)
+          mark_previous_comment_outdated '.[] | select(.user.login == "github-actions[bot]" and (.body | startswith("## The Librarian - Documentation Check")))' "${{ github.event.pull_request.number }}" "$stale_dir"
           cat <<'EOF' | .github/scripts/post-pr-comment.sh ${{ github.event.pull_request.number }}
           ## The Librarian - Documentation Check :warning:
 
@@ -180,6 +192,12 @@ jobs:
 
           *-- The Librarian, Agenthood*
           EOF
+      - name: The Librarian - retire the doc sync warning on a green run
+        if: success() && github.event_name == 'pull_request'
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GH_RUN_ID: ${{ github.run_id }}
+        run: .github/scripts/resolve-pr-comment.sh ${{ github.event.pull_request.number }} "## The Librarian - Documentation Check"
 
   # ──────────────────────────────────────────────
   # The Sentinel - member file structure

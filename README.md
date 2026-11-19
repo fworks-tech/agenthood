@@ -279,7 +279,7 @@ and [ADR-033](docs/adr/ADR-033-chain-workflows.md).
 | `agenthood status` | Project health and member metrics. `--watch` polls, `--drift` compares against the lockfile |
 | `agenthood stats` | Per-skill usage: activations, trigger rate, error rate |
 | `agenthood trace` | Recent invocation traces. `--activations` shows which skill loaded when |
-| `agenthood audit` | Replay the decision trail in order and verify the hash chain. `--strict` fails on a gap, `--clear` archives the trail |
+| `agenthood audit` | Replay the decision trail in order and verify the hash chain. `--strict` fails on a gap, `--clear` archives the trail. An entry with a checksum but no sequence is reported as unverified and fails `--strict` |
 | `agenthood route` | Write a validated routing decision from JSON on stdin |
 | `agenthood log` | Structured log entries, filterable by level, member, and time |
 | `agenthood checkpoints` | List past run checkpoints |

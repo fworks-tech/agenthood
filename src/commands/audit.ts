@@ -25,6 +25,7 @@ interface ProvenanceEntry {
   agentId: string
   activityId: string
   sequenceId?: number
+  checksum?: string
   metadata?: { decisionId?: string }
 }
 
@@ -75,6 +76,8 @@ const HELP = `
   merges them into one timeline, and verifies the provenance hash chain.
   Provenance events carry the run's duration, cost and tokens when the trace
   store has them; a corrupt trace line is reported without failing the audit.
+  Every provenance entry is reported as chained, unchained (pre-chain legacy,
+  never fails), or unverified (a checksum the chain never covered).
 
   --member <name>   Only events from one member
   --since <time>    Only events newer than <time> (ISO date or 1h/24h/7d)
@@ -82,7 +85,8 @@ const HELP = `
   --clear           Archive the current trail to .agenthood/archive/<timestamp>/
                     and start clean; never deletes
   --strict          Exit 1 on a broken chain, an orphan, a missing decision,
-                    an invalid routing record, or an unreadable trail file
+                    an invalid routing record, an unreadable trail file, or an
+                    unverified provenance entry
 `
 
 /**
@@ -328,13 +332,28 @@ export async function audit(args: string[] = [], cwd: string = process.cwd()): P
 
   const chain = await new ProvenanceStore({ provenanceDir: join(root, 'provenance') }).verifyChain()
 
+  // Chain coverage is a property of the store, not of the view: --member and
+  // --since must never hide an entry the chain failed to cover. verifyChain
+  // skips non-numeric sequence ids, so an entry that keeps its checksum but
+  // loses its sequence is unverified, and the tail is exactly where an editor
+  // can tamper without breaking the next previousChecksum link.
+  const unverified: string[] = []
+  const unchained: string[] = []
+  let chained = 0
+  for (const p of provenance) {
+    if (typeof p.sequenceId === 'number') chained++
+    else if (p.checksum) unverified.push(p.entityId)
+    else unchained.push(p.entityId)
+  }
+
   const decisionIds = new Set(decisions.map((d) => d.id))
   const linked = new Set(provenance.map((p) => p.metadata?.decisionId).filter(Boolean) as string[])
   const orphans = provenance
     .filter((p) => p.metadata?.decisionId && !decisionIds.has(p.metadata.decisionId))
     .filter((p) => wanted(p.agentId) && fresh(p.timestamp))
   const missing = decisions.filter((d) => !linked.has(d.id)).filter((d) => wanted(d.member) && fresh(d.timestamp))
-  const ok = chain.valid && routingFailures.length === 0 && orphans.length === 0 && missing.length === 0 && problems.length === 0
+  const ok =
+    chain.valid && routingFailures.length === 0 && orphans.length === 0 && missing.length === 0 && problems.length === 0 && unverified.length === 0
 
   if (flags.json) {
     console.log(
@@ -344,6 +363,8 @@ export async function audit(args: string[] = [], cwd: string = process.cwd()): P
           events,
           chain,
           counts: { decisions: decisions.length, provenance: provenance.length, routing: routing.length, traces: traces.size },
+          provenanceStates: { chained, unchained: unchained.length, suspect: unverified.length },
+          unverified,
           orphans: orphans.map((p) => p.entityId),
           decisionsWithoutProvenance: missing.map((d) => d.id),
           routingFailures,
@@ -371,6 +392,8 @@ export async function audit(args: string[] = [], cwd: string = process.cwd()): P
 
   console.log(`\n  Provenance chain: ${chain.valid ? 'valid' : `BROKEN at ${chain.brokenAt ?? 'unknown'}`}`)
   if (!chain.valid && chain.detail) console.log(`  ${chain.detail}`)
+  console.log(`  Provenance coverage: ${chained} chained, ${unchained.length} unchained, ${unverified.length} unverified`)
+  for (const id of unverified) console.log(`  ⚠ unverified provenance entry: ${id} (carries a checksum the chain never covered)`)
   for (const orphan of orphans) console.log(`  ⚠ provenance without decision: ${orphan.entityId}`)
   for (const decision of missing) console.log(`  ⚠ decision without provenance: ${decision.id}`)
   for (const failure of routingFailures) console.log(`  ⚠ invalid routing record ${failure.file}: ${failure.errors.join('; ')}`)

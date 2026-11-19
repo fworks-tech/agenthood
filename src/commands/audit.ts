@@ -65,20 +65,37 @@ const HELP = `
   --clear           Archive the current trail to .agenthood/archive/<timestamp>/
                     and start clean; never deletes
   --strict          Exit 1 on a broken chain, an orphan, a missing decision,
-                    or an invalid routing record
+                    an invalid routing record, or an unreadable trail file
 `
 
-function readJsonDir<T>(dir: string): T[] {
+/**
+ * Reads a trail directory. A file that cannot be parsed or lacks the fields the
+ * audit needs is reported, not skipped: silently dropping it would let a
+ * corrupted trail pass as complete.
+ */
+function loadRecords<T>(
+  dir: string,
+  label: string,
+  accept: (entry: Record<string, unknown>) => boolean,
+  problems: string[],
+): T[] {
   if (!existsSync(dir)) return []
-  return readdirSync(dir)
-    .filter((file) => file.endsWith('.json'))
-    .flatMap((file) => {
-      try {
-        return [JSON.parse(readFileSync(join(dir, file), 'utf8')) as T]
-      } catch {
-        return []
-      }
-    })
+  const entries: T[] = []
+  for (const file of readdirSync(dir).filter((name) => name.endsWith('.json'))) {
+    let parsed: unknown
+    try {
+      parsed = JSON.parse(readFileSync(join(dir, file), 'utf8'))
+    } catch (error) {
+      problems.push(`${label}/${file}: ${(error as Error).message}`)
+      continue
+    }
+    if (parsed === null || typeof parsed !== 'object' || !accept(parsed as Record<string, unknown>)) {
+      problems.push(`${label}/${file}: missing required fields`)
+      continue
+    }
+    entries.push(parsed as T)
+  }
+  return entries
 }
 
 function parseFlags(args: string[]): AuditFlags {
@@ -170,14 +187,24 @@ export async function audit(args: string[] = [], cwd: string = process.cwd()): P
   }
 
   const root = join(cwd, '.agenthood')
-  const decisions = readJsonDir<DecisionEntry>(join(root, 'decisions')).filter(
-    (entry) => typeof entry?.id === 'string' && typeof entry?.member === 'string' && typeof entry?.timestamp === 'string',
+  const problems: string[] = []
+  const decisions = loadRecords<DecisionEntry>(
+    join(root, 'decisions'),
+    'decisions',
+    (entry) => typeof entry.id === 'string' && typeof entry.member === 'string' && typeof entry.timestamp === 'string',
+    problems,
   )
-  const provenance = readJsonDir<ProvenanceEntry>(join(root, 'provenance')).filter(
-    (entry) => typeof entry?.entityId === 'string' && typeof entry?.timestamp === 'string',
+  const provenance = loadRecords<ProvenanceEntry>(
+    join(root, 'provenance'),
+    'provenance',
+    (entry) => typeof entry.entityId === 'string' && typeof entry.timestamp === 'string',
+    problems,
   )
-  const routing = readJsonDir<RoutingEntry>(join(root, 'routing')).filter(
-    (entry) => typeof entry?.id === 'string' && typeof entry?.timestamp === 'string',
+  const routing = loadRecords<RoutingEntry>(
+    join(root, 'routing'),
+    'routing',
+    (entry) => typeof entry.id === 'string' && typeof entry.timestamp === 'string',
+    problems,
   )
   const routingFailures = auditRoutingRecords(join(root, 'routing'), MEMBER_NAMES)
 
@@ -227,7 +254,7 @@ export async function audit(args: string[] = [], cwd: string = process.cwd()): P
     .filter((p) => p.metadata?.decisionId && !decisionIds.has(p.metadata.decisionId))
     .filter((p) => wanted(p.agentId) && fresh(p.timestamp))
   const missing = decisions.filter((d) => !linked.has(d.id)).filter((d) => wanted(d.member) && fresh(d.timestamp))
-  const ok = chain.valid && routingFailures.length === 0 && orphans.length === 0 && missing.length === 0
+  const ok = chain.valid && routingFailures.length === 0 && orphans.length === 0 && missing.length === 0 && problems.length === 0
 
   if (flags.json) {
     console.log(
@@ -240,6 +267,7 @@ export async function audit(args: string[] = [], cwd: string = process.cwd()): P
           orphans: orphans.map((p) => p.entityId),
           decisionsWithoutProvenance: missing.map((d) => d.id),
           routingFailures,
+          unreadable: problems,
           ok,
         },
         null,
@@ -264,6 +292,7 @@ export async function audit(args: string[] = [], cwd: string = process.cwd()): P
   for (const orphan of orphans) console.log(`  ⚠ provenance without decision: ${orphan.entityId}`)
   for (const decision of missing) console.log(`  ⚠ decision without provenance: ${decision.id}`)
   for (const failure of routingFailures) console.log(`  ⚠ invalid routing record ${failure.file}: ${failure.errors.join('; ')}`)
+  for (const problem of problems) console.log(`  ⚠ unreadable trail file ${problem}`)
   if (ok) console.log('  ✓ The trail is complete and the chain is intact.')
   console.log()
 

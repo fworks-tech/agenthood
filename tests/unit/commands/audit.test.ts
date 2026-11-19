@@ -121,6 +121,32 @@ describe('audit command', () => {
     expect(parsed.counts).toEqual({ decisions: 1, provenance: 1, routing: 0 })
   })
 
+  it('reports an unreadable trail file and exits 1 under --strict', async () => {
+    const root = workspace()
+    writeDecision(root, 'dec-1', '2026-07-01T10:00:00.000Z')
+    await track(root, 'prov-1', '2026-07-01T10:00:00.000Z', 'dec-1')
+    writeFileSync(join(root, '.agenthood', 'decisions', 'dec-2.json'), '{"id": "dec-2",')
+
+    expect(await output([], root)).toContain('unreadable trail file decisions/dec-2.json')
+    expect(process.exitCode).toBeUndefined()
+
+    const parsed = JSON.parse(await output(['--json'], root))
+    expect(parsed.unreadable).toHaveLength(1)
+    expect(parsed.unreadable[0]).toContain('decisions/dec-2.json')
+    expect(parsed.ok).toBe(false)
+
+    await output(['--strict'], root)
+    expect(process.exitCode).toBe(1)
+  })
+
+  it('reports a decision file that lacks required fields', async () => {
+    const root = workspace()
+    mkdirSync(join(root, '.agenthood', 'decisions'), { recursive: true })
+    writeFileSync(join(root, '.agenthood', 'decisions', 'dec-1.json'), '{"decision": "no id"}')
+
+    expect(await output([], root)).toContain('unreadable trail file decisions/dec-1.json: missing required fields')
+  })
+
   it('archives the trail on --clear and starts clean', async () => {
     const root = workspace()
     writeDecision(root, 'dec-1', '2026-07-01T10:00:00.000Z')

@@ -108,7 +108,7 @@ Commands:
   audit                   Verify the decision trail: ordered events, hash chain, gaps
                             Use --member <name>, --since <time>, --json
                             Use --clear to archive the trail and start clean
-                            Use --strict to exit 1 on a broken chain or a gap
+                            Use --strict to exit 1 on a broken chain, a gap or an unreadable file
   log                     List recent log entries (debug/info/warn/error)
                             Use --level <level>, --member <name>, --limit <n>
                             Use --since <time> or --json for machine-readable output

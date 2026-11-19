@@ -43,8 +43,9 @@ interface TraceMetrics {
   durationMs: number
   cost: number
   tokens: number
-  status: TraceEnvelope['status']
-  qualityScore: number | null
+  /** Optional: the loader validates correlationId and timestamp only, so a line can lack the rest. */
+  status?: TraceEnvelope['status']
+  qualityScore?: number | null
   model?: string
 }
 

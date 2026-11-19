@@ -207,6 +207,19 @@ describe('audit command', () => {
     })
   })
 
+  it('accepts a trace line without status', async () => {
+    const root = workspace()
+    writeDecision(root, 'dec-1', '2026-07-01T10:00:00.000Z')
+    await track(root, 'prov-1', '2026-07-01T10:00:00.000Z', 'dec-1')
+    writeTrace(root, 'prov-1', '2026-07-01T10:00:01.000Z', { status: undefined, qualityScore: undefined })
+
+    expect(await output([], root)).toContain('2.0s · $0.0031 · 120 tok')
+
+    const parsed = JSON.parse(await output(['--json'], root))
+    expect(parsed.events.find((event: { id: string }) => event.id === 'prov-1').trace.status).toBeUndefined()
+    expect(parsed.ok).toBe(true)
+  })
+
   it('reports an unreadable trace store without failing the audit', async () => {
     const root = workspace()
     writeDecision(root, 'dec-1', '2026-07-01T10:00:00.000Z')

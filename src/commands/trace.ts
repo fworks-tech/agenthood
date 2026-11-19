@@ -42,7 +42,7 @@ function printMcp(decisions: DecisionEntry[]): void {
   if (decisions.length === 0) return
   console.log('  MCP (ADR-047):')
   for (const d of decisions) {
-    console.log(`  ${new Date(d.timestamp).toISOString().slice(0, 19)}  ${d.outcome.padEnd(9)} ${d.task}: ${d.decision}`)
+    console.log(`  ${new Date(d.timestamp).toISOString().slice(0, 19)}  ${(d.outcome ?? '').padEnd(9)} ${(d.task ?? '')}: ${d.decision ?? ''}`)
   }
   console.log()
 }

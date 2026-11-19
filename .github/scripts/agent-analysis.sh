@@ -215,11 +215,11 @@ build_verdict_line() {
   local block verdict warnings noun
   block=$(last_verdict "$(verdicts_for "$analysis_file")")
   case "$block" in
-    *'blocking=true '*) verdict="blocking" ;;
-    *'blocking=false '*) verdict="no blocking findings" ;;
+    *blocking=true*) verdict="blocking" ;;
+    *blocking=false*) verdict="no blocking findings" ;;
     *) verdict="verdict unavailable" ;;
   esac
-  warnings=$(echo "$block" | sed -E 's/.*warnings=([0-9]+).*/\1/')
+  warnings=$(echo "$block" | sed -E 's/.*warnings[[:space:]]*=[[:space:]]*([0-9]+).*/\1/')
   case "$warnings" in
     ''|*[!0-9]*) warnings=0 ;;
   esac
@@ -246,12 +246,15 @@ build_comment_body() {
     if [ -s "$error_file" ]; then
       echo "> **Note:** The analysis encountered issues:"
       echo ">"
-      grep -v -iE '(api[_-]?key|token|secret|password|credential|bearer|pat|jwt)' "$error_file" | sed 's/^/> /' || true
+      # Redact in place: keep the diagnostic line, mask long tokens, rather than
+      # dropping the whole line (which hid useful errors that happened to
+      # mention a secret keyword).
+      sed -E 's/[A-Za-z0-9_-]{20,}/[REDACTED]/g' "$error_file" | sed 's/^/> /' || true
       echo ""
     fi
 
     if [ -s "$summary_file" ]; then
-      grep -v -iE '(api[_-]?key|token|secret|password|credential|bearer|pat|jwt)' "$summary_file" || true
+      sed -E 's/[A-Za-z0-9_-]{32,}/[REDACTED]/g' "$summary_file" || true
     fi
 
     if [ ! -s "$summary_file" ] && [ ! -s "$error_file" ]; then
@@ -268,8 +271,9 @@ SAFE_CHANGED=$(cat ${temp_dir}/${AGENT_NAME}_safe_changed.txt)
 build_task
 echo "agent-analysis: running $AGENT_NAME on $(echo "$SAFE_CHANGED" | tr '\n' ' ')"
 
-npm ci --ignore-scripts
-npm run build
+# Capture build output so a failure is diagnosable from the posted comment.
+npm ci --ignore-scripts >>"$error_file" 2>&1
+npm run build >>"$error_file" 2>&1
 
 rc=0
 # Bounded so a stalled provider cannot hold the job until GitHub's 6h limit.
@@ -293,7 +297,9 @@ fi
 
 # Strip the final-report block down to the summary (deduping the `[step N]`
 # reasoning leak) and post any `<!--AGENTHOOD_INLINE` findings as review
-# comments. Failures must not drop the comment, hence `|| true`.
+# comments. Failures must not drop the comment, hence `|| true`. Touch first so
+# an empty/missing file is deterministic rather than "file missing".
+touch "$summary_file"
 node .github/scripts/format-analysis.mjs "$analysis_file" "$summary_file" || true
 
 build_comment_body

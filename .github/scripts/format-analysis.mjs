@@ -30,7 +30,7 @@ const INLINE_MARKER = '<!--AGENTHOOD_INLINE'
 export function formatSummary(raw) {
   // keep only the final report block; fall back to stripping telemetry noise
   const lines = raw.split('\n')
-  const resultIdx = lines.findIndex((l) => /^✔ .* result:/.test(l))
+  const resultIdx = lines.findLastIndex((l) => /^✔ .* result:/.test(l))
   let summary = ''
   if (resultIdx >= 0) {
     summary = lines.slice(resultIdx + 1).join('\n').replace(/^\n+/, '')

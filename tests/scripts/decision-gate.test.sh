@@ -40,6 +40,7 @@ printf '<!--AGENTHOOD_DECISION: blocking=false warnings=5-->\n' > "$tmp/too-many
 printf '<!--AGENTHOOD_DECISION: blocking=false warnings=0\n' > "$tmp/truncated"
 printf 'some prose\n  <!--AGENTHOOD_DECISION: blocking=true warnings=0-->\ntrailing text\n' > "$tmp/quoted-in-prose"
 printf -- '- [blocking] MIGRATION.md:35 needs a rollback step\n<!--AGENTHOOD_DECISION: blocking=true warnings=0-->\n' > "$tmp/inline-blocking"
+printf '## BLOCKING\n**MIGRATION.md:35** is missing a rollback step\n<!--AGENTHOOD_DECISION: blocking=true warnings=0-->\n' > "$tmp/bold-title-blocking"
 printf '<!--AGENTHOOD_DECISION: blocking=false warnings=0-->\n<!--AGENTHOOD_DECISION: blocking=true warnings=1-->\n' > "$tmp/conflicting"
 
 assert "valid marker, no space -> pass"        0 "$tmp/no-space"
@@ -50,6 +51,7 @@ assert "warnings over threshold -> fail"        1 "$tmp/too-many"
 assert "truncated (no -->) -> fail-closed"      1 "$tmp/truncated"
 assert "quoted marker mid-prose -> not a verdict" 0 "$tmp/quoted-in-prose"
 assert "inline [blocking] bullet -> fail"        1 "$tmp/inline-blocking"
+assert "bold title in BLOCKING counts as finding -> fail" 1 "$tmp/bold-title-blocking"
 assert "conflicting blocks -> fail"             1 "$tmp/conflicting"
 
 assert_mode "advisory ignores a blocking verdict" 0 "$tmp/blocking" advisory

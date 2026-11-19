@@ -86,4 +86,20 @@ describe('formatSummary', () => {
     const raw = ['[step 0] m · 1+2 tok · $0 · x', 'partial output'].join('\n')
     expect(formatSummary(raw)).toBe('partial output')
   })
+
+  it('keeps the final report block when a marker leaks earlier', () => {
+    const raw = [
+      '✔ the-x result:',
+      'leaked first report',
+      '[step 1] m · 1 tok · $0 · x',
+      '✔ the-x result:',
+      'the real report',
+    ].join('\n')
+    expect(formatSummary(raw)).toBe('the real report')
+  })
+
+  it('returns empty for an empty report', () => {
+    const raw = '✔ the-x result:\n'
+    expect(formatSummary(raw)).toBe('')
+  })
 })

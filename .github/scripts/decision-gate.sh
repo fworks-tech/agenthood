@@ -43,7 +43,7 @@ verdict_has_trailing_content() {
 # be mistaken for a truncated/injected marker (fail-closed is for real malforma-
 # tion (no `-->`, or a bad boolean) which still falls out of this regex).
 verdicts_for() {
-  grep -oE '^<!--AGENTHOOD_DECISION: blocking=(true|false) warnings=[0-9]+[[:space:]]*-->' "$1" 2>/dev/null | sed '/^$/d'
+  grep -oE '^<!--AGENTHOOD_DECISION:[[:space:]]*blocking[[:space:]]*=[[:space:]]*(true|false)[[:space:]]+warnings[[:space:]]*=[[:space:]]*[0-9]+[[:space:]]*-->' "$1" 2>/dev/null | sed '/^$/d'
 }
 
 has_conflicting_blocks() {
@@ -80,7 +80,9 @@ blocking_section_findings() {
       gsub(/^[ \t]+|[ \t]+$/, "", line)
       if (line == "") next
       if (line ~ /^([-=_*]){3,}$/) next
-      is_heading = (line ~ /^#/ || line ~ /^\*\*/ || line ~ /^[\xe2\x9a\x80\x9d]/)
+      # Only #-headings (and the BLOCKING heading itself) terminate a section;
+      # bolded finding titles must not, or a real blocking verdict is downgraded.
+      is_heading = (line ~ /^#/ || line ~ /^[\xe2\x9a\x80\x9d]/)
       stripped = line
       gsub(/^[#*0-9. ]+/, "", stripped)
       if (stripped ~ /^(BLOCKING|[Bb]locking)/) {

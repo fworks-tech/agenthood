@@ -122,6 +122,11 @@ export interface RemoteCatalogsConfig {
   sources?: RemoteCatalogSource[]
 }
 
+export interface McpServerConfig {
+  command: string
+  args: string[]
+}
+
 export interface LLMConfig {  provider?: string
   model?: string
   embeddingModel?: string
@@ -155,6 +160,8 @@ export interface LLMConfig {  provider?: string
    * a host whose AGENTS.md is contributor documentation sets it to false (#1071).
    */
   repoInstructions?: boolean
+  /** External MCP servers the host runs as STDIO children (ADR-047) */
+  mcpServers?: Record<string, McpServerConfig>
   /** Log full LLM request/response to .agenthood/debug/ */
   debug?: boolean
   /** Pause before each tool call for human confirmation */

@@ -21,6 +21,8 @@ const TOOLS = [
 const send = (message) => process.stdout.write(JSON.stringify(message) + '\n')
 
 if (mode === 'fail-start') process.exit(3)
+// a server that ignores stdin EOF: only the host can end it
+setInterval(() => {}, 60_000)
 
 createInterface({ input: process.stdin }).on('line', (line) => {
   const message = JSON.parse(line)

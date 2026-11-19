@@ -138,8 +138,8 @@ The Society reads from `.agenthood/config.json`, scaffolded by `init`:
     "commitlintConfig": "commitlint.config.ts"
   },
   "providers": [
-    { "name": "opencode", "model": "mimo-v2.5", "priority": 1 },
-    { "name": "opencode-go", "model": "mimo-v2.5", "priority": 2 },
+    { "name": "opencode-go", "model": "qwen3.8-flash", "priority": 1 },
+    { "name": "opencode", "model": "qwen3.8-flash", "priority": 2 },
     { "name": "anthropic", "model": "claude-sonnet-5", "priority": 3 }
   ],
   "qualityGates": { "typescript": true, "tests": true, "lint": true }
@@ -153,7 +153,7 @@ The runtime automatically loads variables from a `.env` file in your project roo
 | Variable | Required for | Default |
 |----------|-------------|---------|
 | `GROQ_API_KEY` | Runtime mode fallback (free at console.groq.com) | - |
-| `OPENCODE_API_KEY` | Runtime mode default provider (opencode, free tier at opencode.ai) | - |
+| `OPENCODE_API_KEY` | Runtime mode default provider (opencode-go, free tier at opencode.ai) | - |
 | `ANTHROPIC_API_KEY` | Runtime mode, high-complexity tasks | - |
 | `OPENAI_API_KEY` | Runtime mode (fallback provider) | - |
 | `GITHUB_TOKEN` | PR sync (auto-set in CI) | - |

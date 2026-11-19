@@ -5,6 +5,21 @@
 
 ---
 
+## v4.4.0: November 19, 2026
+
+### 🐛 Bug Fixes
+
+- **Ci:** retire librarian and auditor gate warnings once their checks pass (#1125)
+- **Cli:** flag provenance entries the chain never covered (#1121)
+- **Core:** stop url-query over-redaction and catch pkcs8 private keys (#1128), refs #1126
+- **Deps:** sync the lockfile with package.json (#1132)
+
+### ✨ Features
+
+- **Observability:** record the provider that answered in the run trace (#1142)
+
+---
+
 ## v4.3.0: November 19, 2026
 
 ### ✨ Features

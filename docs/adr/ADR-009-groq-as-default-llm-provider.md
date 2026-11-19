@@ -1,7 +1,7 @@
 # ADR-009: Groq as the Default Free LLM Provider
 
 **Date:** 2026-06-02
-**Status:** Accepted
+**Status:** Superseded by [ADR-042](ADR-042-provider-routing-for-member-runs.md) (amended in v4.4.0)
 
 ## Context
 
@@ -21,7 +21,7 @@ API surface, which minimises the `ILLMProvider` implementation complexity.
 
 Adopters can override the provider via `.agenthood/config.json`:
 ```json
-{ "llm": { "provider": "anthropic", "model": "claude-sonnet-4-20250514" } }
+{ "provider": { "name": "anthropic", "model": "claude-sonnet-5" } }
 ```
 
 ## Alternatives Considered

@@ -23,8 +23,8 @@ In production, API Wrappers prevent vendor lock-in. They also provide a central 
 ## How Agenthood implements it
 
 Agenthood achieves this via the `ILLMProvider` interface in `src/llm/ILLMProvider.ts`.
-It defines a strict contract that all four provider implementations (Anthropic, Groq,
-OpenAI, Ollama) adhere to:
+It defines a strict contract that all seven provider implementations (OpenCode Go,
+OpenCode Zen, Anthropic, Groq, OpenAI, OpenRouter, Ollama) adhere to:
 
 ```typescript
 export interface ILLMProvider {

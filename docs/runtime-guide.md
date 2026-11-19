@@ -36,13 +36,13 @@ The runtime supports automatic provider failover when a provider fails (rate lim
 {
   "providers": [
     {
-      "name": "opencode",
-      "model": "mimo-v2.5",
+      "name": "opencode-go",
+      "model": "qwen3.8-flash",
       "priority": 1
     },
     {
-      "name": "opencode-go",
-      "model": "mimo-v2.5",
+      "name": "opencode",
+      "model": "qwen3.8-flash",
       "priority": 2
     },
     {

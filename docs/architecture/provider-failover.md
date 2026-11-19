@@ -19,32 +19,24 @@ The human sees the work continue. The Society handles the plumbing.
 The Agenthood runtime is **LLM-agnostic**. The seven providers below are implemented
 in [`src/llm/providers/`](../../src/llm/providers/). Any member can run on any provider.
 
-| Provider | Default model | Notes |
-|----------|---------------|-------|
-| **OpenCode Go** (preferred) | mimo-v2.5 | Subscription at `api.opencode.ai/zen/go/v1` |
-| **OpenCode Zen** | mimo-v2.5 | Pay-as-you-go at `api.opencode.ai/zen/v1` |
-| **Anthropic** | Claude Sonnet 5 | Fallback in the default chain; precise, detailed reasoning |
-| **Groq** | llama-3.3-70b-versatile | Fallback in the default chain; free tier |
-| **OpenAI** | GPT-5.4 | Broad general capability; fallback for Anthropic |
-| **OpenRouter** | openai/gpt-4o-mini | OpenAI-compatible at `api.openrouter.ai/api/v1`; routes to many models |
-| **Ollama** | Local model (configurable) | Air-gapped / offline use |
+| Provider | Implementation | Model | Notes |
+|----------|----------------|-------|-------|
+| **OpenCode Go** (preferred) | `OpenCodeGoProvider.ts` | `qwen3.8-flash` | Subscription at `api.opencode.ai/zen/go/v1`; first in the shipped chain |
+| **OpenCode Zen** | `OpenCodeProvider.ts` | `qwen3.8-flash` | Pay-as-you-go at `api.opencode.ai/zen/v1` |
+| **Anthropic** | `AnthropicProvider.ts` | `claude-sonnet-5` | Fallback in the shipped chain; precise, detailed reasoning |
+| **Groq** | `GroqProvider.ts` | `llama-3.3-70b-versatile` | Fallback in the shipped chain; free tier |
+| **OpenAI** | `OpenAIProvider.ts` | `gpt-5.4` | Broad general capability; provider default |
+| **OpenRouter** | `OpenRouterProvider.ts` | `openai/gpt-4o-mini` | OpenAI-compatible at `api.openrouter.ai/api/v1`; routes to many models |
+| **Ollama** | `OllamaProvider.ts` | `llama3.2` | Air-gapped / offline use; no API key |
+
+The models above are the ones `.agenthood/config.example.json` ships. A provider
+configured without a `model` falls back to its own default in
+[`src/llm/providers/constants.ts`](../../src/llm/providers/constants.ts).
 
 All providers use a unified `ILLMProvider` interface
 ([`src/llm/ILLMProvider.ts`](../../src/llm/ILLMProvider.ts)) with normalized request and
 response types. Member skills are written once and run on any provider via `LLMRouter`
 ([`src/llm/LLMRouter.ts`](../../src/llm/LLMRouter.ts)).
-
-### Supported providers
-
-| Provider | Status | Details |
-|----------|--------|---------|
-| OpenAI | ✅ Shipped | `src/llm/providers/OpenAIProvider.ts` |
-| Anthropic | ✅ Shipped | `src/llm/providers/AnthropicProvider.ts` |
-| Groq | ✅ Shipped | `src/llm/providers/GroqProvider.ts` |
-| Ollama | ✅ Shipped | `src/llm/providers/OllamaProvider.ts` (local, no API key) |
-| OpenCode Zen | ✅ Shipped | `src/llm/providers/OpenCodeProvider.ts`: pay-as-you-go at `api.opencode.ai/zen/v1` |
-| OpenCode Go | ✅ Shipped (preferred) | `src/llm/providers/OpenCodeGoProvider.ts`: subscription at `api.opencode.ai/zen/go/v1` |
-| OpenRouter | ✅ Shipped | `src/llm/providers/OpenRouterProvider.ts`: OpenAI-compatible at `api.openrouter.ai/api/v1` |
 
 Additional providers (DeepSeek, Qwen) may be added in future releases.
 When added, they will be slotted into the failover chain behind the
@@ -60,9 +52,9 @@ The failover chain is user-configured or auto-detected from available API keys:
 Primary → Fallback 1 → Fallback 2 → ... → Error (all exhausted)
 ```
 
-**Example chain:**
+**Example chain (the one the shipped config uses):**
 ```
-OpenCode (Zen/Go) → Claude Sonnet 5 → GPT-5.4 → Groq → Ollama
+opencode-go → opencode → anthropic → groq → ollama
 ```
 
 Thread continuity is preserved across failovers via checkpoint-based `thread_id`.

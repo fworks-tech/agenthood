@@ -191,6 +191,65 @@ describe('audit command', () => {
     expect(process.exitCode).toBeUndefined()
   })
 
+  it('keeps the newest trace when a run has more than one line', async () => {
+    const root = workspace()
+    writeDecision(root, 'dec-1', '2026-07-01T10:00:00.000Z')
+    await track(root, 'prov-1', '2026-07-01T10:00:00.000Z', 'dec-1')
+    writeTrace(root, 'prov-1', '2026-07-01T10:00:05.000Z', { durationMs: 5000, cost: 0.9, tokenCount: { input: 900, output: 90, total: 990 } })
+    writeTrace(root, 'prov-1', '2026-07-01T10:00:01.000Z', { durationMs: 1000, cost: 0.1, tokenCount: { input: 10, output: 1, total: 11 } })
+
+    const parsed = JSON.parse(await output(['--json'], root))
+    expect(parsed.counts.traces).toBe(1)
+    expect(parsed.events.find((event: { id: string }) => event.id === 'prov-1').trace).toMatchObject({
+      timestamp: '2026-07-01T10:00:05.000Z',
+      durationMs: 5000,
+      tokens: 990,
+    })
+  })
+
+  it('accepts a trace line without status', async () => {
+    const root = workspace()
+    writeDecision(root, 'dec-1', '2026-07-01T10:00:00.000Z')
+    await track(root, 'prov-1', '2026-07-01T10:00:00.000Z', 'dec-1')
+    writeTrace(root, 'prov-1', '2026-07-01T10:00:01.000Z', { status: undefined, qualityScore: undefined })
+
+    expect(await output([], root)).toContain('2.0s · $0.0031 · 120 tok')
+
+    const parsed = JSON.parse(await output(['--json'], root))
+    expect(parsed.events.find((event: { id: string }) => event.id === 'prov-1').trace.status).toBeUndefined()
+    expect(parsed.ok).toBe(true)
+  })
+
+  it('keeps the later line when duplicate traces share a timestamp', async () => {
+    const root = workspace()
+    writeDecision(root, 'dec-1', '2026-07-01T10:00:00.000Z')
+    await track(root, 'prov-1', '2026-07-01T10:00:00.000Z', 'dec-1')
+    writeTrace(root, 'prov-1', '2026-07-01T10:00:01.000Z', { durationMs: 9000, cost: 0.9 })
+    writeTrace(root, 'prov-1', '2026-07-01T10:00:01.000Z', { durationMs: 1000, cost: 0.1 })
+
+    const parsed = JSON.parse(await output(['--json'], root))
+    expect(parsed.events.find((event: { id: string }) => event.id === 'prov-1').trace).toMatchObject({
+      durationMs: 1000,
+      cost: 0.1,
+    })
+  })
+
+  it('reports an unreadable trace store without failing the audit', async () => {
+    const root = workspace()
+    writeDecision(root, 'dec-1', '2026-07-01T10:00:00.000Z')
+    await track(root, 'prov-1', '2026-07-01T10:00:00.000Z', 'dec-1')
+    mkdirSync(join(root, '.agenthood', 'traces', 'traces.ndjson'), { recursive: true })
+
+    expect(await output([], root)).toContain('unreadable trace store:')
+
+    const parsed = JSON.parse(await output(['--json'], root))
+    expect(parsed.unreadableTraces).toHaveLength(1)
+    expect(parsed.ok).toBe(true)
+
+    await output(['--strict'], root)
+    expect(process.exitCode).toBeUndefined()
+  })
+
   it('reports an unreadable trail file and exits 1 under --strict', async () => {
     const root = workspace()
     writeDecision(root, 'dec-1', '2026-07-01T10:00:00.000Z')

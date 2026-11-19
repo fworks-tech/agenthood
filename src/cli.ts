@@ -110,6 +110,8 @@ Commands:
                             Use --clear to archive the trail and start clean
                             Use --strict to exit 1 on a broken chain, a gap or an unreadable file
                             Shows run duration, cost and tokens from the trace store
+  route                   Write a validated routing decision from JSON on stdin
+                            Fields: member, intent, confidence, target, reasoning, …
   log                     List recent log entries (debug/info/warn/error)
                             Use --level <level>, --member <name>, --limit <n>
                             Use --since <time> or --json for machine-readable output

@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest'
-import { MemberRegistry, MemberNotFoundError } from '../../../src/members/MemberRegistry.ts'
+import { MemberRegistry, MemberNotFoundError, declaresMcpServers } from '../../../src/members/MemberRegistry.ts'
 
 describe('MemberRegistry', () => {
   const registry = new MemberRegistry()
@@ -214,5 +214,51 @@ describe('allowed-tools enforcement (#641)', () => {
       expect(spec.tools.length).toBeGreaterThan(0)
       expect(spec.tools.every((t: string) => trusted.has(t))).toBe(true)
     }
+  })
+})
+
+describe('MCP tool grants (ADR-047)', () => {
+  const allowlist = ['mcp.fixture.echo', 'mcp.fixture.add']
+
+  it('drops MCP names without a server grant, even when declared', () => {
+    expect(MemberRegistry.intersectDeclaredTools('mcp.fixture.echo file.read', 'standard')).toEqual(['file.read'])
+  })
+
+  it('grants a declared server tool only when the server lists it and the profile carries mcp', () => {
+    const grants = MemberRegistry.grantsFor('standard', allowlist)
+    expect(MemberRegistry.intersectDeclaredTools('mcp.fixture.echo file.read', 'standard', grants))
+      .toEqual(['file.read', 'mcp.fixture.echo'])
+    expect(MemberRegistry.intersectDeclaredTools('mcp.fixture.nope', 'standard', grants)).toEqual([])
+  })
+
+  it('never grants MCP tools to a restricted profile, even with an allowlist', () => {
+    const grants = MemberRegistry.grantsFor('restricted', allowlist)
+    expect(grants).not.toContain('mcp.fixture.echo')
+    expect(MemberRegistry.intersectDeclaredTools('mcp.fixture.echo file.read', 'restricted', grants)).toEqual(['file.read'])
+  })
+
+  it('keeps the profile tools unchanged when no server is referenced', () => {
+    expect(MemberRegistry.grantsFor('standard')).toEqual(MemberRegistry.grantsFor('standard', []))
+    expect(MemberRegistry.intersectDeclaredTools('file.read pr_sync', 'standard', MemberRegistry.grantsFor('standard')))
+      .toEqual(['file.read'])
+  })
+
+  it('detects an mcpServers key in SKILL.md frontmatter, and only there', () => {
+    expect(declaresMcpServers('---\nname: x\nmcpServers:\n  atlas:\n    command: node\n---\nbody')).toBe(true)
+    expect(declaresMcpServers('---\nname: x\nallowed-tools: mcp.atlas.search\n---\nmcpServers: in body')).toBe(false)
+    expect(declaresMcpServers('---\nname: x\n---\nbody')).toBe(false)
+  })
+
+  it('keeps the raw declaration on the spec, so a run can resolve MCP names later', () => {
+    const registry = new MemberRegistry()
+    const spec = registry.register({
+      name: 'mcp-custom',
+      description: 'Host member with an MCP tool',
+      systemPrompt: 'Use the tool.',
+      permissionProfile: 'standard',
+      tools: ['mcp.fixture.echo', 'file.read'],
+    })
+    expect(spec.declaredTools).toEqual(['mcp.fixture.echo', 'file.read'])
+    expect(spec.tools).toEqual(['file.read'])
   })
 })

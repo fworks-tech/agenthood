@@ -1,6 +1,6 @@
 import { join } from 'node:path'
 import { readFile } from 'node:fs/promises'
-import type { CatalogFormatName, LLMConfig, ProviderEntry, RemoteCatalogSource, RemoteCatalogsConfig, SkillsConfig } from '../llm/types.ts'
+import type { CatalogFormatName, LLMConfig, McpServerConfig, ProviderEntry, RemoteCatalogSource, RemoteCatalogsConfig, SkillsConfig } from '../llm/types.ts'
 
 function pickBlock(raw: Record<string, unknown>, key: string): Record<string, unknown> | undefined {
   const block = raw[key]
@@ -91,6 +91,38 @@ function parseRepoInstructions(raw: Record<string, unknown>): boolean | undefine
     )
   }
   return value
+}
+
+const MCP_SERVER_NAME = /^[a-z0-9][a-z0-9-]*$/
+const MCP_SERVER_KEYS = new Set(['command', 'args'])
+
+/**
+ * A server is a process the host spawns, so every field is checked before any
+ * spawn (ADR-047): an unknown key or a malformed command is a typo that must not
+ * silently run nothing or something else.
+ */
+function parseMcpServers(raw: Record<string, unknown>): Record<string, McpServerConfig> | undefined {
+  if (raw.mcpServers === undefined) return undefined
+  const block = raw.mcpServers
+  if (!block || typeof block !== 'object' || Array.isArray(block)) {
+    throw new Error(`Invalid mcpServers in .agenthood/config.json: expected an object of servers, got ${JSON.stringify(block)}.`)
+  }
+  const servers: Record<string, McpServerConfig> = {}
+  for (const [name, def] of Object.entries(block)) {
+    const where = `Invalid mcpServers.${name} in .agenthood/config.json`
+    if (!MCP_SERVER_NAME.test(name)) throw new Error(`${where}: server names must match [a-z0-9][a-z0-9-]*.`)
+    if (!def || typeof def !== 'object' || Array.isArray(def)) throw new Error(`${where}: expected an object with "command" and "args".`)
+    for (const key of Object.keys(def)) {
+      if (!MCP_SERVER_KEYS.has(key)) throw new Error(`${where}: unknown key "${key}".`)
+    }
+    const { command, args = [] } = def as Record<string, unknown>
+    if (typeof command !== 'string' || command.trim() === '') throw new Error(`${where}: "command" must be a non-empty string.`)
+    if (!Array.isArray(args) || !args.every((arg) => typeof arg === 'string')) {
+      throw new Error(`${where}: "args" must be an array of strings.`)
+    }
+    servers[name] = { command, args: [...args] }
+  }
+  return servers
 }
 
 function parseSkills(raw: Record<string, unknown>): SkillsConfig | undefined {
@@ -196,6 +228,8 @@ export async function loadConfig(providerOverride?: string): Promise<LLMConfig> 
   if (security) cfg.security = security
   const repoInstructions = parseRepoInstructions(raw)
   if (repoInstructions !== undefined) cfg.repoInstructions = repoInstructions
+  const mcpServers = parseMcpServers(raw)
+  if (mcpServers) cfg.mcpServers = mcpServers
   if (providerOverride) cfg.provider = providerOverride
   return cfg
 }

@@ -15,6 +15,7 @@ import { isShutdownRequested } from "../core/shutdown.ts"
 import { SafetyGuard } from "../core/SafetyGuard.ts"
 import { activatedSkillName } from "../skills/activation/skillContent.ts"
 import { AskHumanSignal } from "../tools/human/AskHumanTool.ts"
+import { McpServerError } from "../mcp/errors.ts"
 import { USER_QUERY_GUARD, TOOL_OUTPUT_GUARD, wrapUserQuery, wrapToolOutput } from "../agents/memberLore.ts"
 import * as readline from 'node:readline'
 
@@ -440,8 +441,8 @@ export class ReActLoop {
       if (!result.success) return `Error: ${result.error ?? "Unknown error"}`
       return result.output
     } catch (err) {
-      // park, don't stringify: the host resumes the run when the human replies
-      if (err instanceof AskHumanSignal) throw err
+      // park, don't stringify: the host resumes the run when the human replies; a dead MCP server (ADR-047) must not reach the model
+      if (err instanceof AskHumanSignal || err instanceof McpServerError) throw err
       const msg = err instanceof Error ? err.message : String(err)
       return `Error: ${msg}`
     }

@@ -189,4 +189,43 @@ describe('loadConfig', () => {
       expect(cfg.repoInstructions).toBeUndefined()
     })
   })
+
+  describe('mcpServers (ADR-047)', () => {
+    it('leaves mcpServers undefined when the block is absent', async () => {
+      await withFixture(JSON.stringify({}), async () => {
+        const cfg = await loadConfig()
+        expect(cfg.mcpServers).toBeUndefined()
+      })
+    })
+
+    it('parses command and args, defaulting args to an empty array', async () => {
+      await withFixture(JSON.stringify({
+        mcpServers: { atlas: { command: 'node', args: ['tools/atlas-mcp.js'] }, bare: { command: 'tool' } },
+      }), async () => {
+        const cfg = await loadConfig()
+        expect(cfg.mcpServers).toEqual({
+          atlas: { command: 'node', args: ['tools/atlas-mcp.js'] },
+          bare: { command: 'tool', args: [] },
+        })
+      })
+    })
+
+    it.each([
+      ['an unknown key', { atlas: { command: 'node', env: {} } }, 'unknown key "env"'],
+      ['an empty command', { atlas: { command: '' } }, '"command" must be a non-empty string'],
+      ['a non-array args', { atlas: { command: 'node', args: 'not-an-array' } }, '"args" must be an array of strings'],
+      ['non-string args', { atlas: { command: 'node', args: [1] } }, '"args" must be an array of strings'],
+      ['a server name with an underscore', { bad_name: { command: 'node' } }, 'must match [a-z0-9][a-z0-9-]*'],
+    ])('rejects %s before any spawn', async (_label, servers, message) => {
+      await withFixture(JSON.stringify({ mcpServers: servers }), async () => {
+        await expect(loadConfig()).rejects.toThrow(message)
+      })
+    })
+
+    it('rejects a non-object mcpServers block', async () => {
+      await withFixture(JSON.stringify({ mcpServers: ['node'] }), async () => {
+        await expect(loadConfig()).rejects.toThrow('expected an object of servers')
+      })
+    })
+  })
 })

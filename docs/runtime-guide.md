@@ -303,6 +303,40 @@ Personalisation:
 
 Preferences persist to `.agenthood/preferences.json`.
 
+## MCP Servers for Members (ADR-047)
+
+The host declares external STDIO MCP servers in `.agenthood/config.json`. A member gets a server's
+tools only by naming them in its `allowed-tools`.
+
+```json
+{
+  "mcpServers": {
+    "atlas": { "command": "node", "args": ["tools/atlas-mcp.js"] }
+  }
+}
+```
+
+- Server names match `[a-z0-9][a-z0-9-]*`. `command` is a non-empty string and `args` an array of
+  strings (default `[]`). An unknown key, an empty command or a non-array `args` fails the config load
+  before any process starts.
+- A member declares `mcp.<server>.<tool>` in `allowed-tools`. The model sees the tool as
+  `mcp__<server>__<tool>`.
+- **Scope rule:** a member's MCP tools are the declared names ∩ the tools the server lists ∩ the
+  profile. The profile must carry the `mcp` capability: `standard` and `trusted` do, `restricted` does
+  not. MCP tools need `standard` or `trusted`, the same as write tools.
+- Only servers that a run's member declares are started, before the first model call. Each child is
+  closed when the run ends, on success or error.
+- A `SKILL.md` that declares `mcpServers` in its frontmatter gets a warning and nothing starts. Servers
+  come from host configuration only.
+- Fail-closed, each with its own error: a server that does not start, a declared tool the server does
+  not expose or a server that is not configured (both before the first model call), a server that dies
+  mid-run (the run fails), and a tool call that returns an error (the model sees the error, labelled
+  with the server and tool, and the run continues).
+- Every server start, grant and tool invocation is a decision tagged `mcp`, with a linked provenance
+  entry. Use `npx agenthood audit --since 1h` to read them. Arguments and results are not recorded.
+- Out of scope: HTTP or URL transport, remote server auth, hosted deployments, tool-list caching and
+  incremental refresh. Those need their own ADR.
+
 ## Observability & Evaluation
 
 Every member invocation emits a trace envelope (member, duration, tokens, cost, quality, status, correlation id, raw input/output). Traces flush from the in-memory ring buffer (`Tracer`) to `.agenthood/traces/traces.ndjson` (`JSONFileTraceStore`) on a cadence and before process exit.

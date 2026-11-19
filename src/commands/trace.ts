@@ -282,28 +282,33 @@ export async function trace(args: string[] = []): Promise<void> {
     return
   }
 
-  if (!existsSync(tracesPath)) {
-    console.log('No traces recorded yet. Run `agenthood run <member> "<task>"` first.')
-    return
-  }
-
+  const decisionsDir = join(cwd, '.agenthood', 'decisions')
   const store = new JSONFileTraceStore(tracesPath)
   // Logs live in the same file; drop them before the limit so a page of recent
   // logs never hides real traces.
-  const matching = (await store.query({ member, since })).filter((e) => e.entryType !== 'log')
+  const matching = existsSync(tracesPath)
+    ? (await store.query({ member, since })).filter((e) => e.entryType !== 'log')
+    : []
   const result = matching.slice(0, limit)
 
-  // Only the runs on screen: the first run past the limit bounds the MCP
-  // section, because a run's events precede its envelope timestamp. The
-  // existsSync guard keeps a read-only listing from creating the decision directory.
-  const mcp = result.length > 0 && existsSync(join(cwd, '.agenthood', 'decisions'))
-    ? mcpDecisions(await new DecisionLog().all(), { member, since: matching[limit]?.timestamp ?? since })
+  // MCP events are decisions, not envelopes, so a pruned or absent trace store
+  // must not hide them. Only the runs on screen: the first run past the limit
+  // bounds the section, because a run's events precede its envelope timestamp.
+  const bound = (result.length > 0 ? matching[limit]?.timestamp : undefined) ?? since
+  const mcp = existsSync(decisionsDir)
+    ? mcpDecisions(await new DecisionLog({ decisionsDir }).all(), { member, since: bound })
     : []
 
   if (json) {
     const redactor = createRedactionFilterFromConfig(loadObservabilityConfig(cwd))
     const sanitized = result.map((e) => (redactor ? redactor.redact(e) : e))
     console.log(JSON.stringify({ traces: sanitized, mcp }, null, 2))
+    return
+  }
+
+  if (!existsSync(tracesPath)) {
+    console.log('No traces recorded yet. Run `agenthood run <member> "<task>"` first.')
+    printMcp(mcp)
     return
   }
 

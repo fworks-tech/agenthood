@@ -6,11 +6,12 @@ vi.mock('node:fs', async (importOriginal) => {
     ...actual,
     existsSync: vi.fn(),
     readFileSync: vi.fn(),
+    readdirSync: vi.fn(() => []),
     mkdirSync: vi.fn(),
   }
 })
 
-import { existsSync, readFileSync } from 'node:fs'
+import { existsSync, readFileSync, readdirSync } from 'node:fs'
 import { trace, command, mcpDecisions } from '../../../src/commands/trace.ts'
 import type { DecisionEntry } from '../../../src/memory/DecisionLog.ts'
 import { createTraceEnvelope } from '../../../src/core/TraceEnvelope.ts'
@@ -38,6 +39,7 @@ describe('trace command', () => {
   beforeEach(() => {
     vi.mocked(existsSync).mockReset()
     vi.mocked(readFileSync).mockReset()
+    vi.mocked(readdirSync).mockReturnValue([])
   })
 
   afterEach(() => {
@@ -167,6 +169,30 @@ describe('trace command', () => {
     expect(output).toContain('reviewer')
     expect(output).toContain('scribe')
     expect(output).not.toContain('noise')
+  })
+
+  it('shows mcp decisions even when no trace envelope exists', async () => {
+    vi.mocked(existsSync).mockImplementation((path) => !String(path).endsWith('traces.ndjson'))
+    vi.mocked(readdirSync).mockReturnValue(['dec-1.json'])
+    vi.mocked(readFileSync).mockReturnValue(JSON.stringify({
+      id: 'dec-1',
+      timestamp: '2026-07-01T10:00:00.000Z',
+      member: 'mcp-demo',
+      task: 'invoke fixture.echo',
+      decision: 'completed',
+      rationale: '',
+      alternatives: [],
+      outcome: 'completed',
+      tags: ['mcp'],
+    }))
+    const log = vi.spyOn(console, 'log').mockImplementation(() => {})
+
+    await trace()
+
+    const output = log.mock.calls.flat().join(' ')
+    expect(output).toContain('No traces recorded yet')
+    expect(output).toContain('MCP (ADR-047)')
+    expect(output).toContain('invoke fixture.echo')
   })
 
   it('rejects invalid --since values', async () => {

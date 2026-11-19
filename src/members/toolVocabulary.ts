@@ -8,6 +8,7 @@
  */
 
 import type { ITool } from '../tools/ITool.ts'
+import { mcpRegistryName, parseDeclaredMcpTool } from '../mcp/names.ts'
 import { ReadFileSkill } from '../tools/project/ReadFileSkill.ts'
 import { WriteFileSkill } from '../tools/project/WriteFileSkill.ts'
 import { WriteCodeSkill } from '../tools/code/WriteCodeSkill.ts'
@@ -45,7 +46,10 @@ const REGISTRY_NAME_BY_DECLARED: Record<string, string> = Object.fromEntries(
 
 /** Declared skill tools → the names tool calls actually carry. Unknown names pass through. */
 export function toRegistryToolNames(declared: string[] | undefined): string[] | undefined {
-  return declared?.map((name) => REGISTRY_NAME_BY_DECLARED[name] ?? name)
+  return declared?.map((name) => {
+    const mcp = parseDeclaredMcpTool(name)
+    return mcp ? mcpRegistryName(mcp.server, mcp.tool) : (REGISTRY_NAME_BY_DECLARED[name] ?? name)
+  })
 }
 
 /** True when a declared name resolves to a tool, by skill vocabulary or implementation name. */

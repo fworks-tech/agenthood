@@ -9,29 +9,14 @@
 import { spawn, type ChildProcessWithoutNullStreams } from 'node:child_process'
 import { once } from 'node:events'
 import { createInterface } from 'node:readline'
-import { LATEST_PROTOCOL_VERSION } from '@modelcontextprotocol/server'
 import type { JSONSchema, McpServerConfig } from '../llm/types.ts'
+import { McpCallError, McpServerError } from './errors.ts'
 
+const PROTOCOL_VERSION = '2025-11-25'
 const START_TIMEOUT_MS = 10_000
 const CALL_TIMEOUT_MS = 30_000
 const INHERITED_ENV = ['PATH', 'SystemRoot', 'HOME', 'USERPROFILE', 'TEMP', 'TMP']
 const METHOD_NOT_FOUND = -32601
-
-/** The server cannot serve the run: it failed to start, or it died. Fatal to the run. */
-export class McpServerError extends Error {
-  constructor(readonly server: string, reason: string) {
-    super(`MCP server "${server}" ${reason}`)
-    this.name = 'McpServerError'
-  }
-}
-
-/** One call went wrong (JSON-RPC error or timeout). The server is still alive. */
-export class McpCallError extends Error {
-  constructor(readonly server: string, reason: string) {
-    super(`MCP server "${server}": ${reason}`)
-    this.name = 'McpCallError'
-  }
-}
 
 export interface McpToolInfo {
   name: string
@@ -97,7 +82,7 @@ export class McpStdioClient {
     hookProcessExit()
     try {
       await client.request('initialize', {
-        protocolVersion: LATEST_PROTOCOL_VERSION,
+        protocolVersion: PROTOCOL_VERSION,
         capabilities: {},
         clientInfo: { name: 'agenthood', version: '1.0.0' },
       }, START_TIMEOUT_MS)

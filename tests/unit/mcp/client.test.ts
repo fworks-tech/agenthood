@@ -1,6 +1,7 @@
 import { describe, it, expect } from 'vitest'
 import { fileURLToPath } from 'node:url'
-import { McpStdioClient, McpServerError, McpCallError } from '../../../src/mcp/client.ts'
+import { McpStdioClient } from '../../../src/mcp/client.ts'
+import { McpServerError, McpCallError } from '../../../src/mcp/errors.ts'
 
 const FIXTURE = fileURLToPath(new URL('../../fixtures/mcp-fixture-server.mjs', import.meta.url))
 

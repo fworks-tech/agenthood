@@ -246,6 +246,25 @@ describe('ReActLoop', () => {
     const err = await loop.run('system', 'ask the human', ctx).catch((e) => e)
     expect(err).toBe(signal)
   })
+
+  it('rethrows McpServerError so a dead MCP server ends the run instead of reaching the model', async () => {
+    const { McpServerError } = await import('../../../src/mcp/errors.ts')
+    const failure = new McpServerError('atlas', 'exited (code 1)')
+    const skill: ITool = {
+      name: 'mcp__atlas__search',
+      description: 'Searches atlas',
+      inputSchema: { type: 'object', properties: {} },
+      execute: vi.fn().mockRejectedValue(failure),
+    }
+
+    const llm = mockProvider({ toolCalls: [{ name: 'mcp__atlas__search', args: {} }] })
+    const reg = new ToolRegistry()
+    reg.register(skill)
+    const loop = new ReActLoop(llm, reg)
+
+    const err = await loop.run('system', 'search atlas', createTestContext()).catch((e) => e)
+    expect(err).toBe(failure)
+  })
 })
 
 describe('prompt-injection hardening', () => {

@@ -11,7 +11,8 @@ vi.mock('node:fs', async (importOriginal) => {
 })
 
 import { existsSync, readFileSync } from 'node:fs'
-import { trace, command } from '../../../src/commands/trace.ts'
+import { trace, command, mcpDecisions } from '../../../src/commands/trace.ts'
+import type { DecisionEntry } from '../../../src/memory/DecisionLog.ts'
 import { createTraceEnvelope } from '../../../src/core/TraceEnvelope.ts'
 
 const envelope = (member: string, timestamp: string, status = 'success') =>
@@ -184,5 +185,45 @@ describe('trace command', () => {
     await trace(['--help'])
 
     expect(log.mock.calls.flat().join(' ')).toContain('--member <name>')
+  })
+})
+
+describe('mcpDecisions (ADR-047)', () => {
+  const decision = (over: Partial<DecisionEntry>): DecisionEntry => ({
+    id: over.id ?? 'dec-1',
+    timestamp: over.timestamp ?? '2026-07-01T10:00:00.000Z',
+    member: over.member ?? 'mcp-demo',
+    task: over.task ?? 'invoke fixture.echo',
+    decision: over.decision ?? 'completed',
+    rationale: '',
+    alternatives: [],
+    outcome: over.outcome ?? 'completed',
+    tags: over.tags ?? ['mcp'],
+  })
+
+  it('keeps only mcp-tagged decisions, oldest first', () => {
+    const result = mcpDecisions(
+      [
+        decision({ id: 'b', timestamp: '2026-07-01T10:00:02.000Z' }),
+        decision({ id: 'a', timestamp: '2026-07-01T10:00:01.000Z' }),
+        decision({ id: 'c', tags: ['run'] }),
+      ],
+      {},
+    )
+
+    expect(result.map((d) => d.id)).toEqual(['a', 'b'])
+  })
+
+  it('applies --member and --since', () => {
+    const result = mcpDecisions(
+      [
+        decision({ id: 'old', timestamp: '2026-07-01T09:00:00.000Z' }),
+        decision({ id: 'other', member: 'scribe' }),
+        decision({ id: 'new', timestamp: '2026-07-01T11:00:00.000Z' }),
+      ],
+      { member: 'mcp-demo', since: '2026-07-01T10:00:00.000Z' },
+    )
+
+    expect(result.map((d) => d.id)).toEqual(['new'])
   })
 })

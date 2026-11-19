@@ -1,4 +1,4 @@
-import { existsSync, mkdtempSync, mkdirSync, readFileSync, readdirSync, writeFileSync } from 'node:fs'
+import { appendFileSync, existsSync, mkdtempSync, mkdirSync, readFileSync, readdirSync, writeFileSync } from 'node:fs'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 import { afterEach, describe, expect, it, vi } from 'vitest'
@@ -38,6 +38,28 @@ async function track(root: string, entityId: string, timestamp: string, decision
     timestamp,
     metadata: { decisionId },
   })
+}
+
+function writeTrace(root: string, correlationId: string, timestamp: string, overrides: Record<string, unknown> = {}): void {
+  const dir = join(root, '.agenthood', 'traces')
+  mkdirSync(dir, { recursive: true })
+  appendFileSync(
+    join(dir, 'traces.ndjson'),
+    `${JSON.stringify({
+      member: 'scribe',
+      inputHash: 'in',
+      outputHash: 'out',
+      durationMs: 2000,
+      tokenCount: { input: 100, output: 20, total: 120 },
+      cost: 0.0031,
+      qualityScore: 1,
+      status: 'success',
+      correlationId,
+      timestamp,
+      source: 'cli',
+      ...overrides,
+    })}\n`,
+  )
 }
 
 async function output(args: string[], root: string): Promise<string> {
@@ -118,7 +140,55 @@ describe('audit command', () => {
     expect(parsed.events).toHaveLength(2)
     expect(parsed.chain.valid).toBe(true)
     expect(parsed.ok).toBe(true)
-    expect(parsed.counts).toEqual({ decisions: 1, provenance: 1, routing: 0 })
+    expect(parsed.counts).toEqual({ decisions: 1, provenance: 1, routing: 0, traces: 0 })
+  })
+
+  it('annotates a provenance event with its run metrics', async () => {
+    const root = workspace()
+    writeDecision(root, 'dec-1', '2026-07-01T10:00:00.000Z')
+    await track(root, 'prov-1', '2026-07-01T10:00:00.000Z', 'dec-1')
+    writeTrace(root, 'prov-1', '2026-07-01T10:00:01.000Z')
+
+    expect(await output([], root)).toContain('2.0s · $0.0031 · 120 tok')
+
+    const parsed = JSON.parse(await output(['--json'], root))
+    expect(parsed.counts.traces).toBe(1)
+    expect(parsed.events.find((event: { id: string }) => event.id === 'prov-1').trace).toMatchObject({
+      durationMs: 2000,
+      cost: 0.0031,
+      tokens: 120,
+      status: 'success',
+    })
+    expect(parsed.ok).toBe(true)
+  })
+
+  it('ignores log entries in the trace store', async () => {
+    const root = workspace()
+    writeDecision(root, 'dec-1', '2026-07-01T10:00:00.000Z')
+    await track(root, 'prov-1', '2026-07-01T10:00:00.000Z', 'dec-1')
+    writeTrace(root, 'prov-1', '2026-07-01T10:00:01.000Z', { entryType: 'log', level: 'info' })
+
+    const parsed = JSON.parse(await output(['--json'], root))
+    expect(parsed.counts.traces).toBe(0)
+    expect(parsed.events.find((event: { id: string }) => event.id === 'prov-1').trace).toBeUndefined()
+  })
+
+  it('reports a corrupt trace line without failing --strict', async () => {
+    const root = workspace()
+    writeDecision(root, 'dec-1', '2026-07-01T10:00:00.000Z')
+    await track(root, 'prov-1', '2026-07-01T10:00:00.000Z', 'dec-1')
+    writeTrace(root, 'prov-1', '2026-07-01T10:00:01.000Z')
+    appendFileSync(join(root, '.agenthood', 'traces', 'traces.ndjson'), '{"broken":\n')
+
+    expect(await output([], root)).toContain('unreadable trace line 2: invalid JSON')
+
+    const parsed = JSON.parse(await output(['--json'], root))
+    expect(parsed.unreadableTraces).toHaveLength(1)
+    expect(parsed.ok).toBe(true)
+    expect(parsed.counts.traces).toBe(1)
+
+    await output(['--strict'], root)
+    expect(process.exitCode).toBeUndefined()
   })
 
   it('reports an unreadable trail file and exits 1 under --strict', async () => {

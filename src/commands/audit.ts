@@ -7,6 +7,7 @@ import { ProvenanceStore } from '../memory/ProvenanceStore.ts'
 import { auditRoutingRecords } from '../reasoning/routing.ts'
 import { resolveSince } from './args.ts'
 import type { CommandDescriptor } from './types.ts'
+import type { TraceEnvelope } from '../core/types.ts'
 
 interface DecisionEntry {
   id: string
@@ -35,6 +36,16 @@ interface RoutingEntry {
   target: string
 }
 
+/** The per-run numbers a trace carries, attached to the provenance event it belongs to. */
+interface TraceMetrics {
+  durationMs: number
+  cost: number
+  tokens: number
+  status: TraceEnvelope['status']
+  qualityScore: number | null
+  model?: string
+}
+
 interface AuditEvent {
   timestamp: string
   kind: 'decision' | 'provenance' | 'routing'
@@ -42,6 +53,7 @@ interface AuditEvent {
   sequence?: number
   id: string
   summary: string
+  trace?: TraceMetrics
 }
 
 interface AuditFlags {
@@ -58,6 +70,8 @@ const HELP = `
 
   Reads .agenthood/decisions, .agenthood/provenance, and .agenthood/routing,
   merges them into one timeline, and verifies the provenance hash chain.
+  Provenance events carry the run's duration, cost and tokens when the trace
+  store has them; a corrupt trace line is reported without failing the audit.
 
   --member <name>   Only events from one member
   --since <time>    Only events newer than <time> (ISO date or 1h/24h/7d)
@@ -134,6 +148,58 @@ function truncate(text: string, max: number): string {
   return single.length > max ? `${single.slice(0, max - 1)}…` : single
 }
 
+/**
+ * Reads the trace store next to the trail and indexes it by correlationId,
+ * which equals the provenance entityId for the same run. Traces only decorate
+ * the timeline: an unreadable store or line never fails the audit, because a
+ * missing metric is not a missing decision.
+ */
+function loadTraces(path: string, unreadable: string[]): Map<string, TraceMetrics> {
+  const byCorrelation = new Map<string, TraceMetrics>()
+  if (!existsSync(path)) return byCorrelation
+  let lines: string[]
+  try {
+    lines = readFileSync(path, 'utf8').split('\n')
+  } catch (error) {
+    unreadable.push(`store: ${(error as Error).message}`)
+    return byCorrelation
+  }
+  for (const [index, line] of lines.entries()) {
+    if (line.trim() === '') continue
+    let parsed: TraceEnvelope
+    try {
+      parsed = JSON.parse(line) as TraceEnvelope
+    } catch {
+      unreadable.push(`line ${index + 1}: invalid JSON`)
+      continue
+    }
+    if (parsed.entryType === 'log') continue
+    if (typeof parsed?.correlationId !== 'string' || typeof parsed?.timestamp !== 'string') {
+      unreadable.push(`line ${index + 1}: missing required fields`)
+      continue
+    }
+    byCorrelation.set(parsed.correlationId, {
+      durationMs: parsed.durationMs,
+      cost: parsed.cost,
+      tokens: parsed.tokenCount?.total ?? 0,
+      status: parsed.status,
+      qualityScore: parsed.qualityScore,
+      model: parsed.model,
+    })
+  }
+  return byCorrelation
+}
+
+/** `2.0s · $0.0031 · 20922 tok`, plus the status when the run did not succeed. */
+function formatTrace(trace: TraceMetrics): string {
+  const parts: string[] = []
+  if (typeof trace.durationMs === 'number') parts.push(`${(trace.durationMs / 1000).toFixed(1)}s`)
+  if (typeof trace.cost === 'number') parts.push(`$${trace.cost.toFixed(4)}`)
+  if (typeof trace.tokens === 'number') parts.push(`${trace.tokens} tok`)
+  if (trace.status && trace.status !== 'success') parts.push(trace.status)
+  return parts.join(' · ')
+}
+
 const TRAIL_DIRS = ['decisions', 'provenance', 'routing', 'trajectories', 'metrics'] as const
 
 /**
@@ -207,6 +273,8 @@ export async function audit(args: string[] = [], cwd: string = process.cwd()): P
     problems,
   )
   const routingFailures = auditRoutingRecords(join(root, 'routing'), MEMBER_NAMES)
+  const traceProblems: string[] = []
+  const traces = loadTraces(resolveTraceStorePath(cwd, loadObservabilityConfig(cwd)), traceProblems)
 
   const since = flags.since
   const wanted = (member: string) => !flags.member || member === flags.member
@@ -225,6 +293,7 @@ export async function audit(args: string[] = [], cwd: string = process.cwd()): P
   }
   for (const p of provenance) {
     if (!wanted(p.agentId) || !fresh(p.timestamp)) continue
+    const trace = traces.get(p.entityId)
     events.push({
       timestamp: p.timestamp,
       kind: 'provenance',
@@ -232,6 +301,7 @@ export async function audit(args: string[] = [], cwd: string = process.cwd()): P
       sequence: p.sequenceId,
       id: p.entityId,
       summary: p.activityId,
+      ...(trace ? { trace } : {}),
     })
   }
   for (const r of routing) {
@@ -263,11 +333,12 @@ export async function audit(args: string[] = [], cwd: string = process.cwd()): P
           root: cwd,
           events,
           chain,
-          counts: { decisions: decisions.length, provenance: provenance.length, routing: routing.length },
+          counts: { decisions: decisions.length, provenance: provenance.length, routing: routing.length, traces: traces.size },
           orphans: orphans.map((p) => p.entityId),
           decisionsWithoutProvenance: missing.map((d) => d.id),
           routingFailures,
           unreadable: problems,
+          unreadableTraces: traceProblems,
           ok,
         },
         null,
@@ -284,7 +355,8 @@ export async function audit(args: string[] = [], cwd: string = process.cwd()): P
   )
   for (const event of events) {
     const sequence = event.sequence !== undefined ? `#${event.sequence}` : '  '
-    console.log(`  ${event.timestamp}  ${event.kind.padEnd(10)} ${sequence.padEnd(4)} ${event.member.padEnd(12)} ${event.summary}`)
+    const metrics = event.trace ? `  ·  ${formatTrace(event.trace)}` : ''
+    console.log(`  ${event.timestamp}  ${event.kind.padEnd(10)} ${sequence.padEnd(4)} ${event.member.padEnd(12)} ${event.summary}${metrics}`)
   }
 
   console.log(`\n  Provenance chain: ${chain.valid ? 'valid' : `BROKEN at ${chain.brokenAt ?? 'unknown'}`}`)
@@ -293,6 +365,7 @@ export async function audit(args: string[] = [], cwd: string = process.cwd()): P
   for (const decision of missing) console.log(`  ⚠ decision without provenance: ${decision.id}`)
   for (const failure of routingFailures) console.log(`  ⚠ invalid routing record ${failure.file}: ${failure.errors.join('; ')}`)
   for (const problem of problems) console.log(`  ⚠ unreadable trail file ${problem}`)
+  for (const problem of traceProblems) console.log(`  ⚠ unreadable trace ${problem}`)
   if (ok) console.log('  ✓ The trail is complete and the chain is intact.')
   console.log()
 

@@ -53,6 +53,7 @@ to explain the gap in the numbering.
 | 044 | [ADR-044: Member Naming Uses the Shipped Unprefixed Layout](ADR-044-member-naming-shipped-layout.md) | 2026-11-17 | Accepted | The unprefixed skill directory and `name` are authoritative; `the-*` stays an alias. |
 | 045 | [ADR-045: Evaluation Tooling Scope](ADR-045-eval-tooling-scope.md) | 2026-11-17 | Accepted | Eval, history, A/B and description optimization are one pipeline; dashboards, multi-judge and auto-stop stay out. |
 | 046 | [ADR-046: Automated Review Authority](ADR-046-automated-review-authority.md) | 2026-11-17 | Accepted | The automated Reviewer is advisory; deterministic checks gate, and comments carry the reviewed SHA. |
+| 047 | [ADR-047: MCP Client Scope and Per-Member Tool Grants](ADR-047-mcp-client-scope.md) | 2026-11-19 | Accepted | Only the host declares MCP servers; a member's tools are declared ∩ server allowlist ∩ profile, fail-closed. |
 
 ## How the index is maintained
 

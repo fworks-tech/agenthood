@@ -23,11 +23,11 @@ in [`src/llm/providers/`](../../src/llm/providers/). Any member can run on any p
 |----------|---------------|-------|
 | **OpenCode Go** (preferred) | mimo-v2.5 | Subscription at `api.opencode.ai/zen/go/v1` |
 | **OpenCode Zen** | mimo-v2.5 | Pay-as-you-go at `api.opencode.ai/zen/v1` |
-| **Anthropic** | Claude Sonnet 5 | Primary for most members; precise, detailed reasoning |
+| **Anthropic** | Claude Sonnet 5 | Fallback in the default chain; precise, detailed reasoning |
 | **Groq** | llama-3.3-70b-versatile | Fallback in the default chain; free tier |
 | **OpenAI** | GPT-5.4 | Broad general capability; fallback for Anthropic |
 | **OpenRouter** | openai/gpt-4o-mini | OpenAI-compatible at `api.openrouter.ai/api/v1`; routes to many models |
-| **Ollama** | Local model (configurable) | Air-gapped / offline use; default for the Doorman |
+| **Ollama** | Local model (configurable) | Air-gapped / offline use |
 
 All providers use a unified `ILLMProvider` interface
 ([`src/llm/ILLMProvider.ts`](../../src/llm/ILLMProvider.ts)) with normalized request and

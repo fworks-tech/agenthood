@@ -102,7 +102,7 @@ jobs:
         run: .github/scripts/resolve-pr-comment.sh ${{ github.event.pull_request.number }} "## The Auditor - Secret Scan"
       - name: The Auditor - agent analysis
         # re-enabled in #1124; opened/reopened only: one audit per PR, not one per push
-        if: github.event_name == 'pull_request' && github.event.action != 'synchronize'
+        if: github.event_name == 'pull_request' && github.event.action != 'synchronize' && secrets.OPENCODE_API_KEY != ''
         # Sends changed-file names to an external LLM provider.
         # Data handling and opt-out: docs/governance/agent-analysis-data.md
         uses: ./.github/actions/agent-analysis
@@ -149,7 +149,7 @@ jobs:
         run: .github/scripts/filesize-check.sh
       - name: The Warden - agent analysis
         # re-enabled in #1124; opened/reopened only: one scan per PR, not one per push
-        if: github.event_name == 'pull_request' && github.event.action != 'synchronize'
+        if: github.event_name == 'pull_request' && github.event.action != 'synchronize' && secrets.OPENCODE_API_KEY != ''
         # Sends changed-file names to an external LLM provider.
         # Data handling and opt-out: docs/governance/agent-analysis-data.md
         uses: ./.github/actions/agent-analysis
@@ -218,6 +218,7 @@ jobs:
         shell: bash
         run: .github/scripts/sentinel-check.sh
       - name: The Sentinel - agent analysis
+        if: github.event_name == 'pull_request' && github.event.action != 'synchronize' && secrets.OPENCODE_API_KEY != ''
         # Sends changed-file names to an external LLM provider.
         # Data handling and opt-out: docs/governance/agent-analysis-data.md
         uses: ./.github/actions/agent-analysis

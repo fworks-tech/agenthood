@@ -333,7 +333,9 @@ tools only by naming them in its `allowed-tools`.
   mid-run (the run fails), and a tool call that returns an error (the model sees the error, labelled
   with the server and tool, and the run continues).
 - Every server start, grant and tool invocation is a decision tagged `mcp`, with a linked provenance
-  entry. Use `npx agenthood audit --since 1h` to read them. Arguments and results are not recorded.
+  entry. `npx agenthood trace` lists them under its `MCP (ADR-047)` section for the same
+  `--member`/`--since` filters, and `npx agenthood audit --since 1h` shows them in the full trail.
+  Arguments and results are not recorded.
 - Out of scope: HTTP or URL transport, remote server auth, hosted deployments, tool-list caching and
   incremental refresh. Those need their own ADR.
 

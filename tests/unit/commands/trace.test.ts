@@ -6,12 +6,14 @@ vi.mock('node:fs', async (importOriginal) => {
     ...actual,
     existsSync: vi.fn(),
     readFileSync: vi.fn(),
+    readdirSync: vi.fn(() => []),
     mkdirSync: vi.fn(),
   }
 })
 
-import { existsSync, readFileSync } from 'node:fs'
-import { trace, command } from '../../../src/commands/trace.ts'
+import { existsSync, readFileSync, readdirSync } from 'node:fs'
+import { trace, command, mcpDecisions } from '../../../src/commands/trace.ts'
+import type { DecisionEntry } from '../../../src/memory/DecisionLog.ts'
 import { createTraceEnvelope } from '../../../src/core/TraceEnvelope.ts'
 
 const envelope = (member: string, timestamp: string, status = 'success') =>
@@ -37,6 +39,7 @@ describe('trace command', () => {
   beforeEach(() => {
     vi.mocked(existsSync).mockReset()
     vi.mocked(readFileSync).mockReset()
+    vi.mocked(readdirSync).mockReturnValue([])
   })
 
   afterEach(() => {
@@ -168,6 +171,30 @@ describe('trace command', () => {
     expect(output).not.toContain('noise')
   })
 
+  it('shows mcp decisions even when no trace envelope exists', async () => {
+    vi.mocked(existsSync).mockImplementation((path) => !String(path).endsWith('traces.ndjson'))
+    vi.mocked(readdirSync).mockReturnValue(['dec-1.json'])
+    vi.mocked(readFileSync).mockReturnValue(JSON.stringify({
+      id: 'dec-1',
+      timestamp: '2026-07-01T10:00:00.000Z',
+      member: 'mcp-demo',
+      task: 'invoke fixture.echo',
+      decision: 'completed',
+      rationale: '',
+      alternatives: [],
+      outcome: 'completed',
+      tags: ['mcp'],
+    }))
+    const log = vi.spyOn(console, 'log').mockImplementation(() => {})
+
+    await trace()
+
+    const output = log.mock.calls.flat().join(' ')
+    expect(output).toContain('No traces recorded yet')
+    expect(output).toContain('MCP (ADR-047)')
+    expect(output).toContain('invoke fixture.echo')
+  })
+
   it('rejects invalid --since values', async () => {
     const exit = vi.spyOn(process, 'exit').mockImplementation(() => undefined as never)
     const error = vi.spyOn(console, 'error').mockImplementation(() => {})
@@ -184,5 +211,45 @@ describe('trace command', () => {
     await trace(['--help'])
 
     expect(log.mock.calls.flat().join(' ')).toContain('--member <name>')
+  })
+})
+
+describe('mcpDecisions (ADR-047)', () => {
+  const decision = (over: Partial<DecisionEntry>): DecisionEntry => ({
+    id: over.id ?? 'dec-1',
+    timestamp: over.timestamp ?? '2026-07-01T10:00:00.000Z',
+    member: over.member ?? 'mcp-demo',
+    task: over.task ?? 'invoke fixture.echo',
+    decision: over.decision ?? 'completed',
+    rationale: '',
+    alternatives: [],
+    outcome: over.outcome ?? 'completed',
+    tags: over.tags ?? ['mcp'],
+  })
+
+  it('keeps only mcp-tagged decisions, oldest first', () => {
+    const result = mcpDecisions(
+      [
+        decision({ id: 'b', timestamp: '2026-07-01T10:00:02.000Z' }),
+        decision({ id: 'a', timestamp: '2026-07-01T10:00:01.000Z' }),
+        decision({ id: 'c', tags: ['run'] }),
+      ],
+      {},
+    )
+
+    expect(result.map((d) => d.id)).toEqual(['a', 'b'])
+  })
+
+  it('applies --member and --since', () => {
+    const result = mcpDecisions(
+      [
+        decision({ id: 'old', timestamp: '2026-07-01T09:00:00.000Z' }),
+        decision({ id: 'other', member: 'scribe' }),
+        decision({ id: 'new', timestamp: '2026-07-01T11:00:00.000Z' }),
+      ],
+      { member: 'mcp-demo', since: '2026-07-01T10:00:00.000Z' },
+    )
+
+    expect(result.map((d) => d.id)).toEqual(['new'])
   })
 })

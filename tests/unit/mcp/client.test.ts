@@ -1,6 +1,6 @@
 import { describe, it, expect } from 'vitest'
 import { fileURLToPath } from 'node:url'
-import { McpStdioClient } from '../../../src/mcp/client.ts'
+import { McpStdioClient, inheritedEnv, INHERITED_ENV } from '../../../src/mcp/client.ts'
 import { McpServerError, McpCallError } from '../../../src/mcp/errors.ts'
 
 const FIXTURE = fileURLToPath(new URL('../../fixtures/mcp-fixture-server.mjs', import.meta.url))
@@ -65,5 +65,28 @@ describe('McpStdioClient', () => {
     const pid = (client as unknown as { child: { pid: number } }).child.pid
     await client.close()
     expect(() => process.kill(pid, 0)).toThrow()
+  })
+
+  it('reduces the child environment to the six platform keys', () => {
+    process.env.AGENTHOOD_TEST_SECRET = 'should-not-leak'
+    try {
+      const env = inheritedEnv()
+      for (const key of Object.keys(env)) expect(INHERITED_ENV).toContain(key)
+      expect(env.AGENTHOOD_TEST_SECRET).toBeUndefined()
+      expect(INHERITED_ENV).toHaveLength(6)
+    } finally {
+      delete process.env.AGENTHOOD_TEST_SECRET
+    }
+  })
+
+  it('registers the exit, SIGINT and SIGTERM hooks on first start', async () => {
+    const client = await McpStdioClient.start('fixture', fixture())
+    try {
+      expect(process.listeners('exit').length).toBeGreaterThan(0)
+      expect(process.listeners('SIGINT').length).toBeGreaterThan(0)
+      expect(process.listeners('SIGTERM').length).toBeGreaterThan(0)
+    } finally {
+      await client.close()
+    }
   })
 })

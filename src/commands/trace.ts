@@ -1,4 +1,5 @@
 import { existsSync } from 'node:fs'
+import { join } from 'node:path'
 import type { CommandDescriptor } from './types.ts'
 import { parseStoreInspectArgs } from './args.ts'
 import { JSONFileTraceStore, loadObservabilityConfig, resolveTraceStorePath } from '../core/TraceStore.ts'
@@ -6,6 +7,7 @@ import { createRedactionFilterFromConfig } from '../core/RedactionFilter.ts'
 import { formatDuration } from '../utils/formatDuration.ts'
 import type { TraceEnvelope } from '../core/types.ts'
 import { TrajectoryStore, type Trajectory } from '../core/TrajectoryStore.ts'
+import { DecisionLog, type DecisionEntry } from '../memory/DecisionLog.ts'
 import { userError } from '../core/cliError.ts'
 
 function printTable(traces: TraceEnvelope[]): void {
@@ -17,6 +19,30 @@ function printTable(traces: TraceEnvelope[]): void {
     const timestamp = new Date(t.timestamp).toISOString().slice(0, 19)
     const quality = t.qualityScore === null ? '-' : t.qualityScore.toFixed(2)
     console.log(`  ${member.padEnd(20)} ${timestamp.padEnd(24)} ${formatDuration(t.durationMs).padEnd(10)} $${t.cost.toFixed(4).padEnd(9)} ${quality.padEnd(9)} ${t.status}`)
+  }
+  console.log()
+}
+
+/**
+ * MCP servers, grants and invocations are decisions tagged `mcp`, never trace
+ * envelopes, so `trace` reads them from the decision trail (ADR-047, #1072).
+ */
+export function mcpDecisions(
+  decisions: DecisionEntry[],
+  filter: { member?: string; since?: string },
+): DecisionEntry[] {
+  return decisions
+    .filter((d) => d.tags?.includes('mcp') === true)
+    .filter((d) => !filter.member || d.member === filter.member)
+    .filter((d) => !filter.since || d.timestamp >= filter.since)
+    .sort((a, b) => a.timestamp.localeCompare(b.timestamp))
+}
+
+function printMcp(decisions: DecisionEntry[]): void {
+  if (decisions.length === 0) return
+  console.log('  MCP (ADR-047):')
+  for (const d of decisions) {
+    console.log(`  ${new Date(d.timestamp).toISOString().slice(0, 19)}  ${d.outcome.padEnd(9)} ${d.task}: ${d.decision}`)
   }
   console.log()
 }
@@ -144,6 +170,8 @@ Options:
   --json            Machine-readable JSON output
   --help            Show this help
 
+The MCP section lists the servers, grants and invocations recorded for the same filters.
+
 Subcommands:
   visualize <id>    Show ASCII timeline of a trajectory
   diff <id1> <id2>  Compare two trajectories side-by-side
@@ -254,27 +282,42 @@ export async function trace(args: string[] = []): Promise<void> {
     return
   }
 
-  if (!existsSync(tracesPath)) {
-    console.log('No traces recorded yet. Run `agenthood run <member> "<task>"` first.')
-    return
-  }
-
+  const decisionsDir = join(cwd, '.agenthood', 'decisions')
   const store = new JSONFileTraceStore(tracesPath)
   // Logs live in the same file; drop them before the limit so a page of recent
   // logs never hides real traces.
-  const result = (await store.query({ member, since })).filter((e) => e.entryType !== 'log').slice(0, limit)
+  const matching = existsSync(tracesPath)
+    ? (await store.query({ member, since })).filter((e) => e.entryType !== 'log')
+    : []
+  const result = matching.slice(0, limit)
+
+  // MCP events are decisions, not envelopes, so a pruned or absent trace store
+  // must not hide them. Only the runs on screen: the first run past the limit
+  // bounds the section, because a run's events precede its envelope timestamp.
+  const bound = (result.length > 0 ? matching[limit]?.timestamp : undefined) ?? since
+  const mcp = existsSync(decisionsDir)
+    ? mcpDecisions(await new DecisionLog({ decisionsDir }).all(), { member, since: bound })
+    : []
 
   if (json) {
     const redactor = createRedactionFilterFromConfig(loadObservabilityConfig(cwd))
     const sanitized = result.map((e) => (redactor ? redactor.redact(e) : e))
-    console.log(JSON.stringify({ traces: sanitized }, null, 2))
+    console.log(JSON.stringify({ traces: sanitized, mcp }, null, 2))
+    return
+  }
+
+  if (!existsSync(tracesPath)) {
+    console.log('No traces recorded yet. Run `agenthood run <member> "<task>"` first.')
+    printMcp(mcp)
     return
   }
 
   if (result.length === 0) {
     console.log('No traces match the given filters.')
+    printMcp(mcp)
     return
   }
 
   printTable(result)
+  printMcp(mcp)
 }

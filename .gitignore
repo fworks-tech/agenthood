@@ -27,6 +27,7 @@ vscode-extension/.vscode-test/
 .agenthood/decisions/
 .agenthood/routing/
 .agenthood/provenance/
+.agenthood/archive/
 .agenthood/snapshots/
 .agenthood/metrics/
 .agenthood/checkpoints/

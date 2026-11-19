@@ -25,3 +25,12 @@ Each skill is a complete, working `SKILL.md` that follows the conventions in [CO
 ## Creating Your Own
 
 See [CONTRIBUTING-skills.md](../CONTRIBUTING-skills.md) for the full guide.
+
+## Audit Demo Trail
+
+[audit-demo](audit-demo/README.md) ships a small decision trail, with decisions, routing records and run traces, so `agenthood audit` can be demonstrated and tested without running a Society first. Its events are sample data, not a record of this repository.
+
+```bash
+cd examples/audit-demo
+npx agenthood audit --strict
+```

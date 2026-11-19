@@ -206,8 +206,12 @@ export class MemberRegistry {
    * The names a member may be granted: the profile's tools, plus the server
    * allowlist when the profile carries the `mcp` capability (ADR-047).
    */
+  static carries(permission: PermissionProfile, capability: string): boolean {
+    return MemberRegistry.capabilitiesByProfile[permission].includes(capability)
+  }
+
   static grantsFor(permission: PermissionProfile, mcpTools: string[] = []): string[] {
-    const mcp = MemberRegistry.capabilitiesByProfile[permission].includes('mcp') ? mcpTools : []
+    const mcp = MemberRegistry.carries(permission, 'mcp') ? mcpTools : []
     return [...MemberRegistry.toolsByProfile[permission], ...mcp]
   }
 

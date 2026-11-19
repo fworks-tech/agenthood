@@ -7,6 +7,7 @@ import { parseDeclaredMcpTool, mcpRegistryName, isRegistrableMcpTool } from '../
 import { toRegistryToolNames } from '../../../src/members/toolVocabulary.ts'
 
 const FIXTURE = fileURLToPath(new URL('../../fixtures/mcp-fixture-server.mjs', import.meta.url))
+const audit = async () => {}
 
 describe('MCP tool names', () => {
   it('parses the declared form and rejects everything else', () => {
@@ -34,7 +35,7 @@ describe('McpTool', () => {
     const client = await McpStdioClient.start('fixture', { command: process.execPath, args: [FIXTURE] })
     try {
       const tools = await client.listTools()
-      const tool = new McpTool(client, tools.find((t) => t.name === 'echo')!)
+      const tool = new McpTool(client, tools.find((t) => t.name === 'echo')!, audit)
       expect(tool.name).toBe('mcp__fixture__echo')
       expect(await tool.execute({ text: 'hi' })).toEqual({ success: true, output: 'hi' })
     } finally {
@@ -45,7 +46,7 @@ describe('McpTool', () => {
   it('returns a tool error that names the server when the call is rejected', async () => {
     const client = await McpStdioClient.start('fixture', { command: process.execPath, args: [FIXTURE] })
     try {
-      const tool = new McpTool(client, { name: 'missing', description: '', inputSchema: { type: 'object' } })
+      const tool = new McpTool(client, { name: 'missing', description: '', inputSchema: { type: 'object' } }, audit)
       const result = await tool.execute({})
       expect(result.success).toBe(false)
       expect(result.error).toMatch(/^MCP server "fixture": .*unknown tool missing/)
@@ -56,7 +57,7 @@ describe('McpTool', () => {
 
   it('rethrows a dead server so the run cannot continue without it', async () => {
     const client = await McpStdioClient.start('dying', { command: process.execPath, args: [FIXTURE, 'crash-on-call'] })
-    const tool = new McpTool(client, { name: 'echo', description: '', inputSchema: { type: 'object' } })
+    const tool = new McpTool(client, { name: 'echo', description: '', inputSchema: { type: 'object' } }, audit)
     await expect(tool.execute({ text: 'x' })).rejects.toBeInstanceOf(McpServerError)
     await client.close()
   })

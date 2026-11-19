@@ -29,6 +29,8 @@ import type { ActivateSkillTool } from '../skills/activation/ActivateSkillTool.t
 import { registerActivateTool } from '../skills/activation/toolRegistration.ts'
 import { toRegistryToolNames } from '../members/toolVocabulary.ts'
 import { detectDocker } from '../skills/execution/sandbox.ts'
+import { McpSession } from '../mcp/session.ts'
+import { recordMcpDecision } from '../mcp/audit.ts'
 
 export interface MemberRunnerDeps {
   agents: AgentRegistry
@@ -117,8 +119,17 @@ export class MemberRunner {
   }
 
   private async executeMemberTask(memberName: string, task: string, config: LLMConfig, resumeFrom?: string | { checkpointId: string; reply?: string }): Promise<MemberRunResult> {
+    const mcp = new McpSession(memberName, config.mcpServers ?? {}, (record) => recordMcpDecision(this.ctx, memberName, record))
+    try {
+      return await this.runMemberWithSession(memberName, task, config, resumeFrom, mcp)
+    } finally {
+      await mcp.close()
+    }
+  }
+
+  private async runMemberWithSession(memberName: string, task: string, config: LLMConfig, resumeFrom: string | { checkpointId: string; reply?: string } | undefined, mcp: McpSession): Promise<MemberRunResult> {
     const { spec, llm, sReg, checkpointStore, checkpointData, seedMessages, activateTool } =
-      await this.prepareMemberContext(memberName, task, config, resumeFrom)
+      await this.prepareMemberContext(memberName, task, config, resumeFrom, mcp)
 
     const slash = await applySlashActivations(
       task,
@@ -156,6 +167,7 @@ export class MemberRunner {
       episodeLearner: this.deps.episodeLearner,
       strictSkillIntegrity: config.security?.strictSkillIntegrity,
       explicitSkills,
+      mcpTools: mcp.instances(),
     })
     const metricsCollector = new MetricsCollector(join(process.cwd(), '.agenthood', 'metrics'))
     const startTime = performance.now()
@@ -205,7 +217,8 @@ export class MemberRunner {
     memberName: string,
     task: string,
     config: LLMConfig,
-    resumeFrom?: string | { checkpointId: string; reply?: string },
+    resumeFrom: string | { checkpointId: string; reply?: string } | undefined,
+    mcp: McpSession,
   ): Promise<{
     spec: MemberSpec
     llm: ILLMProvider
@@ -218,7 +231,7 @@ export class MemberRunner {
     applySandboxProfile(config)
     if (!this.deps.members.has(memberName)) throw new Error(`unknown member "${memberName}"`)
 
-    const spec = this.deps.members.get(memberName)
+    const spec = await mcp.resolve(this.deps.members.get(memberName))
     const memberProvider = (config.provider ?? spec.preferredProvider) as ProviderName
     // A member may pin its own model (Atlaslink custom agents); it wins over
     // the shared config model but never overrides the provider preference.

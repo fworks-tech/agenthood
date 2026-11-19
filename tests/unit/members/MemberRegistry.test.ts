@@ -22,7 +22,7 @@ describe('MemberRegistry', () => {
       expect(spec.tagline).toBeTruthy()
       expect(spec.category).toBeTruthy()
       expect(['restricted', 'standard', 'trusted']).toContain(spec.permissionProfile)
-      expect(['anthropic', 'groq', 'openai', 'ollama']).toContain(spec.preferredProvider)
+      expect(['opencode-go', 'opencode', 'anthropic', 'groq', 'openai', 'ollama']).toContain(spec.preferredProvider)
       expect(Array.isArray(spec.tools)).toBe(true)
       expect(spec.tools.length).toBeGreaterThan(0)
     }
@@ -65,13 +65,10 @@ describe('MemberRegistry', () => {
     }
   })
 
-  it('preferred providers match architecture docs', () => {
-    expect(registry.get('scribe').preferredProvider).toBe('anthropic')
-    expect(registry.get('architect').preferredProvider).toBe('anthropic')
-    expect(registry.get('reviewer').preferredProvider).toBe('anthropic')
-    expect(registry.get('doorman').preferredProvider).toBe('ollama')
-    expect(registry.get('steward').preferredProvider).toBe('groq')
-    expect(registry.get('mediator').preferredProvider).toBe('anthropic')
+  it('every member prefers opencode-go', () => {
+    for (const spec of registry.list()) {
+      expect(spec.preferredProvider).toBe('opencode-go')
+    }
   })
 
   it('loads system prompt from SKILL.md for each member', () => {

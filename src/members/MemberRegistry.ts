@@ -157,7 +157,7 @@ export class MemberRegistry {
       category: def.category ?? 'engineering',
       tagline: def.tagline ?? description,
       permissionProfile,
-      preferredProvider: def.preferredProvider ?? 'anthropic',
+      preferredProvider: def.preferredProvider ?? 'opencode-go',
       tools: def.tools
         ? MemberRegistry.intersectDeclaredTools(def.tools.join(' '), permissionProfile)
         : this.defaultTools(permissionProfile),

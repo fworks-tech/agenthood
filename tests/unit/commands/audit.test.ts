@@ -199,6 +199,23 @@ describe('audit command', () => {
     expect(parsed.provenanceStates).toEqual({ chained: 1, unchained: 0, suspect: 0 })
   })
 
+  it('classifies a non-numeric sequenceId as suspect, matching the chain coverage that skips it', async () => {
+    const root = workspace()
+    writeDecision(root, 'dec-1', '2026-07-01T10:00:00.000Z')
+    await track(root, 'prov-1', '2026-07-01T10:00:00.000Z', 'dec-1')
+    const file = join(root, '.agenthood', 'provenance', 'prov-1.json')
+    const entry = JSON.parse(readFileSync(file, 'utf8')) as Record<string, unknown>
+    entry.sequenceId = '1'
+    writeFileSync(file, JSON.stringify(entry))
+
+    const parsed = JSON.parse(await output(['--json'], root))
+    expect(parsed.provenanceStates).toEqual({ chained: 0, unchained: 0, suspect: 1 })
+    expect(parsed.unverified).toEqual(['prov-1'])
+
+    await output(['--strict'], root)
+    expect(process.exitCode).toBe(1)
+  })
+
   it('carries the three provenance counts in JSON output', async () => {
     const root = workspace()
     writeDecision(root, 'dec-1', '2026-07-01T10:00:00.000Z')

@@ -21,10 +21,19 @@ const API_KEY_RE = /\bsk-[A-Za-z0-9_-]{8,}\b/g
 // in two files is how a guard becomes a half-guard.
 const CLOUD_TOKEN_RE =
   /\b(?:ghp_[A-Za-z0-9]{20,}|github_pat_[A-Za-z0-9_]{20,}|AKIA[0-9A-Z]{16}|(?:sk|pk)_live_[0-9a-zA-Z]{16,}|glpat-[A-Za-z0-9_-]{20,})\b/g
+// `[A-Z0-9 ]*` + optional BLOCK cover the bare PKCS#8 `BEGIN PRIVATE KEY`,
+// `ENCRYPTED PRIVATE KEY` and `PGP PRIVATE KEY BLOCK`; the old fixed
+// alternation silently let the most common private-key shape through.
 const PRIVATE_KEY_RE =
-  /-----BEGIN (?:RSA|OPENSSH|EC|DSA|PGP) PRIVATE KEY-----[\s\S]*?-----END (?:RSA|OPENSSH|EC|DSA|PGP) PRIVATE KEY-----/g
+  /-----BEGIN [A-Z0-9 ]*PRIVATE KEY(?: BLOCK)?-----[\s\S]*?-----END [A-Z0-9 ]*PRIVATE KEY(?: BLOCK)?-----/g
 const BEARER_RE = /\bBearer\s+[A-Za-z0-9._~+/=-]{8,}\b/g
-const URL_QUERY_RE = /([?&][^=&\s]+=)[^&\s]+/g
+// Only credential-shaped query keys are redacted: redacting every `?key=value`
+// turned benign params inside diffs sent to CI models into `[REDACTED]`
+// artifacts the bots then flagged as defects (#1127). Keys merely *contain*
+// these shapes, so `?design=` over-redacts; never leaking is the safer skew.
+// `auth(?!or\b)` carves out the one benign collision that matters: `?author=`.
+const URL_QUERY_RE =
+  /([?&][^=&\s]*(?:key|token|secret|passw|auth(?!or\b)|credential|session|access|refresh|sig)[^=&\s]*=)[^&\s]+/gi
 const IPV4_RE = /\b\d{1,3}(?:\.\d{1,3}){3}\b/g
 // Requires "::" compression or four or more segments so times like 10:30:45 are not matched
 const IPV6_RE =

@@ -24,7 +24,7 @@ repository does. The claim is not taken on faith. [The evidence](#the-evidence)
 section links to live runs and comments from this repository's CI that you
 can open and check.
 
-[Quick start](#quick-start) · [What's new in 4.3](#whats-new-in-43) · [The evidence](#the-evidence) · [The team](#the-team) · [Commands](#command-reference) · [Upgrade from 3.x](MIGRATION.md)
+[Quick start](#quick-start) · [What's new in 4.4](#whats-new-in-44) · [The evidence](#the-evidence) · [The team](#the-team) · [Commands](#command-reference) · [Upgrade from 3.x](MIGRATION.md)
 
 ---
 
@@ -62,7 +62,7 @@ npx agenthood run reviewer "review the changes in the last commit"
 npx agenthood run architect "plan the implementation for issue #42"
 ```
 
-The runtime defaults to OpenCode and works with a free Groq key. See
+The runtime defaults to OpenCode Go and works with a free Groq key. See
 [Groq zero-cost setup](docs/guides/groq-zero-cost-setup.md) or
 `npx agenthood doctor` when a provider is not answering.
 
@@ -84,31 +84,24 @@ matrix is in [Getting Started](docs/academy/getting-started.md#ci-pipeline).
 
 ---
 
-## What's new in 4.3
+## What's new in 4.4
 
-- **The trail is auditable end to end.** `agenthood audit` replays decisions,
-  provenance and routing records as one ordered timeline and verifies the
-  SHA-256 chain. `--strict` exits 1 on a broken chain, a gap or an unreadable
-  file; `--clear` archives the trail and starts clean
-  ([#1113](https://github.com/fworks-tech/agenthood/pull/1113), 4.2).
-- **Runs carry their numbers.** The audit joins each run to its trace, so the
-  timeline shows duration, cost and tokens per run; a corrupt or missing trace
-  decorates nothing and never fails the audit
-  ([#1117](https://github.com/fworks-tech/agenthood/pull/1117)).
-- **Routing is a first-class record.** `agenthood route` writes a validated
-  routing decision from JSON on stdin: a wrong-typed field fails closed and
-  nothing is written
-  ([#1118](https://github.com/fworks-tech/agenthood/pull/1118)).
-- **The reviewer reads a real diff and never gates.** The Reviewer receives
-  up to 100 KB of the actual `git diff`, posts findings with the scope it
-  covered, and its verdict is advisory: what stops a merge are the
-  deterministic checks ([ADR-046](docs/adr/ADR-046-automated-review-authority.md)).
-- **Skips are visible.** A review that cannot run (no pull request context,
-  no API key) says so in the PR thread or the run summary, instead of leaving
-  a green check that reviewed nothing.
+- **Every member prefers OpenCode Go.** The shipped config puts `opencode-go`
+  first and `opencode` second, and every member spec declares `opencode-go` as
+  its preferred provider; the config order still governs failover
+  ([#1134](https://github.com/fworks-tech/agenthood/pull/1134),
+  [#1140](https://github.com/fworks-tech/agenthood/pull/1140)).
+- **The trail names the provider that answered.** `agenthood audit` prints the
+  model and the provider behind each run, and `--json` exposes `provider`, so a
+  run that failed over shows which provider answered
+  ([#1142](https://github.com/fworks-tech/agenthood/pull/1142)).
+- **The failover log stops lying.** It announces the provider it falls back to,
+  not the one it has not tried yet
+  ([#1142](https://github.com/fworks-tech/agenthood/pull/1142)).
 
-Breaking changes from 4.0 are in [MIGRATION.md](MIGRATION.md). The full
-history is in the [release notes](docs/release-notes.md).
+The audit trail, routing records and advisory review from 4.2 and 4.3 are
+unchanged; their entries are in the [release notes](docs/release-notes.md), and
+breaking changes from 4.0 are in [MIGRATION.md](MIGRATION.md).
 
 ---
 
@@ -279,7 +272,7 @@ and [ADR-033](docs/adr/ADR-033-chain-workflows.md).
 | `agenthood status` | Project health and member metrics. `--watch` polls, `--drift` compares against the lockfile |
 | `agenthood stats` | Per-skill usage: activations, trigger rate, error rate |
 | `agenthood trace` | Recent invocation traces. `--activations` shows which skill loaded when |
-| `agenthood audit` | Replay the decision trail in order and verify the hash chain. `--strict` fails on a gap, `--clear` archives the trail. An entry with a checksum but no sequence is reported as unverified and fails `--strict` |
+| `agenthood audit` | Replay the decision trail in order and verify the hash chain. `--strict` fails on a gap, `--clear` archives the trail. Each run shows its duration, cost, tokens, model and the provider that answered. An entry with a checksum but no sequence is reported as unverified and fails `--strict` |
 | `agenthood route` | Write a validated routing decision from JSON on stdin |
 | `agenthood log` | Structured log entries, filterable by level, member, and time |
 | `agenthood checkpoints` | List past run checkpoints |
@@ -346,8 +339,8 @@ The skill files load into:
 - [OpenCode](https://opencode.ai): via the plugin below, or as skill files
 - Any runtime that reads skill files or `AGENTS.md`
 
-The runtime ships seven providers: OpenCode (default), OpenCodeGo, Groq
-([free tier](https://console.groq.com)), OpenRouter, Anthropic, OpenAI, and
+The runtime ships seven providers: OpenCode Go (default), OpenCode Zen, Anthropic,
+OpenAI, Groq ([free tier](https://console.groq.com)), OpenRouter, and
 Ollama for fully offline execution. Configure them in `.agenthood/config.json`,
 or override per run with `--provider`.
 
@@ -356,7 +349,7 @@ or override per run with `--provider`.
 Install once, then the plugin loads the members in every project:
 
 ```bash
-npm i -g agenthood   # add @<version> to pin, for example agenthood@4.3.0
+npm i -g agenthood   # add @<version> to pin, for example agenthood@4.4.0
 ```
 
 ```jsonc
@@ -406,7 +399,7 @@ const releaseCaptain: CustomMemberDefinition = {
   systemPrompt: 'Verify the checklist before shipping.', // body only, no frontmatter
   permissionProfile: 'restricted',     // default
   tools: ['file.read', 'file.search'], // intersected with the profile, never widens it
-  model: 'claude-sonnet-5-5',          // optional per-member model
+  model: 'claude-sonnet-5',            // optional per-member model
 }
 
 const config: LLMConfig = { providers: [{ name: 'anthropic' }] }

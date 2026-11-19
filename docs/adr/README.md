@@ -15,7 +15,7 @@ to explain the gap in the numbering.
 | 006 | ADR-006: Python runtime | n/a | Retired | Deleted and replaced by ADR-008; the separate Python package never shipped. |
 | 007 | ADR-007: DeepAgents runtime | n/a | Retired | Deleted and replaced by ADR-008; DeepAgents and LangGraph were dropped. |
 | 008 | [ADR-008: TypeScript-Native Runtime Over Python + DeepAgents](ADR-008-typescript-runtime-over-python.md) | 2026-06-02 | Accepted | The agentic runtime is TypeScript inside the Node.js package, with no Python stack. |
-| 009 | [ADR-009: Groq as the Default Free LLM Provider](ADR-009-groq-as-default-llm-provider.md) | 2026-06-02 | Accepted | Groq's free tier and OpenAI-compatible API make it the default provider. |
+| 009 | [ADR-009: Groq as the Default Free LLM Provider](ADR-009-groq-as-default-llm-provider.md) | 2026-06-02 | Superseded by ADR-042 | Groq's free tier made it the default provider; the shipped policy is now `opencode-go`. |
 | 010 | [ADR-010: LanceDB for Vector Storage](ADR-010-lancedb-for-vector-storage.md) | 2026-06-02 | Accepted | LanceDB is the embedded, file-based vector store under `.agenthood/memory/`. |
 | 011 | [ADR-011: Rate Limiter and State Store](ADR-011-rate-limiter-and-state-store.md) | 2026-06-24 | Accepted | Rate limiting is split across two layers with separate state concerns. |
 | 012 | [ADR-012: Error Handling and Resilience Strategy](ADR-012-error-handling-and-resilience.md) | 2026-06-24 | Accepted | Failures are classified and routed through provider fallback and escalation. |
@@ -48,7 +48,7 @@ to explain the gap in the numbering.
 | 039 | [ADR-039: Member Naming and Identity](ADR-039-member-naming-and-identity.md) | 2026-11-16 | Superseded by ADR-044 | Defines the role naming rules; its prefixed directory rule is superseded. |
 | 040 | [ADR-040: SKILL.md Body Structure](ADR-040-skill-body-structure.md) | 2026-11-16 | Accepted | A member body has six ordered sections that the Sentinel checks. |
 | 041 | [ADR-041: Member Tool Permission Model](ADR-041-member-tool-permission-model.md) | 2026-11-16 | Accepted | Effective tools are the intersection of `allowed-tools` and the profile grant. |
-| 042 | [ADR-042: Provider Routing for Member Runs](ADR-042-provider-routing-for-member-runs.md) | 2026-11-16 | Accepted | Static routing is the default; members may opt into other strategies. |
+| 042 | [ADR-042: Provider Routing for Member Runs](ADR-042-provider-routing-for-member-runs.md) | 2026-11-16 | Accepted | Static routing is the default; the shipped policy prefers `opencode-go` for every member. |
 | 043 | [ADR-043: Dependency Audit Exception Policy](ADR-043-dependency-audit-exception-policy.md) | 2026-11-17 | Accepted | Dated, scoped allowlist entries in the audit gate, with a dev-only waiver. |
 | 044 | [ADR-044: Member Naming Uses the Shipped Unprefixed Layout](ADR-044-member-naming-shipped-layout.md) | 2026-11-17 | Accepted | The unprefixed skill directory and `name` are authoritative; `the-*` stays an alias. |
 | 045 | [ADR-045: Evaluation Tooling Scope](ADR-045-eval-tooling-scope.md) | 2026-11-17 | Accepted | Eval, history, A/B and description optimization are one pipeline; dashboards, multi-judge and auto-stop stay out. |

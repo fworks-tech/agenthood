@@ -110,8 +110,9 @@ This is optional and additive: the prompt-driven workflow above continues to wor
 npm run build
 
 # Set the LLM provider key in your environment (do NOT commit it)
-# Set GROQ_API_KEY in your shell profile or CI secrets (free at console.groq.com)
-# or use Ollama for fully offline execution: no key required
+# Set OPENCODE_API_KEY for the default provider (opencode-go),
+# GROQ_API_KEY for the free fallback (console.groq.com), or use Ollama
+# for fully offline execution: no key required
 
 # List available members
 npx agenthood list
@@ -124,9 +125,10 @@ npx agenthood run architect "plan the implementation for issue #42"
 
 The runtime reads `.agenthood/config.json` (written by `npx agenthood init`) and respects
 the same `members` configuration. The default LLM provider follows the `providers` list
-in the config (currently opencode, with Groq among the fallbacks). See
+in the config, which ships with `opencode-go` first and `opencode` second; every member
+declares `opencode-go` as its preferred provider. See
 [ADR-008](docs/adr/ADR-008-typescript-runtime-over-python.md)
-and [ADR-009](docs/adr/ADR-009-groq-as-default-llm-provider.md) for design decisions.
+and [ADR-042](docs/adr/ADR-042-provider-routing-for-member-runs.md) for design decisions.
 
 Every `agenthood run` records one decision and one provenance entry (success or
 failure): the audit trail in `.agenthood/decisions/` and

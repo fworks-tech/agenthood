@@ -14,7 +14,7 @@ TypeScript que os executa de forma autônoma.
 O plano gratuito ([console.groq.com](https://console.groq.com)) não exige
 cartão de crédito e cobre com folga o uso individual. O Agenthood usa Groq
 como fallback na cadeia de providers (ver
-[ADR-009](../adr/ADR-009-groq-as-default-llm-provider.md)).
+[ADR-027](../adr/ADR-027-provider-failover.md)).
 
 ## Setup em 5 minutos
 

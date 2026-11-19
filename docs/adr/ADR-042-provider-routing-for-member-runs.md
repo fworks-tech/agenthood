@@ -58,6 +58,13 @@ text parts. That guard is unconditional and is not a routing decision.
 - Cost estimates come from the static pricing table (`src/core/modelPricing.ts`); an unknown model
   falls back with a warning rather than guessing a price.
 
+## Update (v4.4.0): the shipped provider policy
+
+The shipped `.agenthood/config.example.json` lists `opencode-go` first and `opencode` second,
+and every member spec declares `opencode-go` as its `preferredProvider` (#1134, #1140). Both
+inputs of the static rule therefore select the same provider; the config order still governs
+failover. [ADR-009](ADR-009-groq-as-default-llm-provider.md) is superseded by this policy.
+
 ## References
 
 - `src/llm/LLMRouter.ts` (`route`, `ComplexityScorer`, `multimodal`), `src/llm/IMultimodalProvider.ts`

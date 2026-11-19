@@ -30,7 +30,6 @@ import { registerActivateTool } from '../skills/activation/toolRegistration.ts'
 import { toRegistryToolNames } from '../members/toolVocabulary.ts'
 import { detectDocker } from '../skills/execution/sandbox.ts'
 import { McpSession } from '../mcp/session.ts'
-import { recordMcpDecision } from '../mcp/audit.ts'
 
 export interface MemberRunnerDeps {
   agents: AgentRegistry
@@ -119,12 +118,7 @@ export class MemberRunner {
   }
 
   private async executeMemberTask(memberName: string, task: string, config: LLMConfig, resumeFrom?: string | { checkpointId: string; reply?: string }): Promise<MemberRunResult> {
-    const mcp = new McpSession(memberName, config.mcpServers ?? {}, (record) => recordMcpDecision(this.ctx, memberName, record))
-    try {
-      return await this.runMemberWithSession(memberName, task, config, resumeFrom, mcp)
-    } finally {
-      await mcp.close()
-    }
+    return McpSession.within(memberName, config, this.ctx, (mcp) => this.runMemberWithSession(memberName, task, config, resumeFrom, mcp))
   }
 
   private async runMemberWithSession(memberName: string, task: string, config: LLMConfig, resumeFrom: string | { checkpointId: string; reply?: string } | undefined, mcp: McpSession): Promise<MemberRunResult> {

@@ -4,6 +4,7 @@ import { McpSession } from '../../../src/mcp/session.ts'
 import { McpServerError } from '../../../src/mcp/errors.ts'
 import type { MemberSpec } from '../../../src/members/types.ts'
 import type { McpRecord } from '../../../src/mcp/audit.ts'
+import type { ITool } from '../../../src/tools/ITool.ts'
 import { createTestContext } from '../../helpers/testContext.ts'
 
 const FIXTURE = fileURLToPath(new URL('../../fixtures/mcp-fixture-server.mjs', import.meta.url))
@@ -100,6 +101,16 @@ describe('McpSession', () => {
     await expect(tool.execute({ text: 'x' }, createTestContext())).rejects.toBeInstanceOf(McpServerError)
     expect(records.at(-1)).toEqual({ task: 'invoke fixture.echo', decision: 'server failed during the call', outcome: 'failed' })
     await session.close()
+  })
+
+  it('closes the servers when the member task throws, through within()', async () => {
+    let tool: ITool | undefined
+    await expect(McpSession.within('caller', { providers: [], mcpServers: servers }, createTestContext(), async (mcp) => {
+      await mcp.resolve(spec({}))
+      tool = mcp.instances().get('mcp.fixture.echo')
+      throw new Error('task failed')
+    })).rejects.toThrow('task failed')
+    await expect(tool!.execute({ text: 'late' }, createTestContext())).rejects.toBeInstanceOf(McpServerError)
   })
 
   it('records a successful invocation without its arguments or result as a decision', async () => {

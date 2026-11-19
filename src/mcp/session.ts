@@ -7,14 +7,15 @@
  */
 
 import type { ITool } from '../tools/ITool.ts'
-import type { McpServerConfig } from '../llm/types.ts'
+import type { LLMConfig, McpServerConfig } from '../llm/types.ts'
+import type { ExecutionContext } from '../core/ExecutionContext.ts'
 import type { MemberSpec } from '../members/types.ts'
 import { MemberRegistry } from '../members/MemberRegistry.ts'
 import { McpStdioClient, type McpToolInfo } from './client.ts'
 import { McpServerError } from './errors.ts'
 import { isRegistrableMcpTool, parseDeclaredMcpTool } from './names.ts'
 import { McpTool } from './tool.ts'
-import type { McpAudit } from './audit.ts'
+import { recordMcpDecision, type McpAudit } from './audit.ts'
 
 export class McpSession {
   private readonly clients: McpStdioClient[] = []
@@ -25,6 +26,16 @@ export class McpSession {
     private readonly servers: Record<string, McpServerConfig>,
     private readonly audit: McpAudit,
   ) {}
+
+  /** Runs one member task with its MCP servers, closing them however the task ends (ADR-047). */
+  static async within<T>(member: string, config: LLMConfig, context: ExecutionContext, run: (mcp: McpSession) => Promise<T>): Promise<T> {
+    const session = new McpSession(member, config.mcpServers ?? {}, (record) => recordMcpDecision(context, member, record))
+    try {
+      return await run(session)
+    } finally {
+      await session.close()
+    }
+  }
 
   /** The member's spec with MCP names resolved: only what the profile grants and a started server exposes (ADR-047). */
   async resolve(spec: MemberSpec): Promise<MemberSpec> {

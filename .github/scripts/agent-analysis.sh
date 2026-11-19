@@ -346,6 +346,13 @@ if [ "$rc" -ne 0 ]; then
 fi
 
 if [ "$build_rc" -eq 0 ]; then
+  # Advisory means "does not gate on findings", not "green without one": an
+  # empty report and a clean review must not look the same in the checks list.
+  if [ ! -s "$summary_file" ]; then
+    echo "::error::${AGENT_NAME} produced no report (missing or empty) -- failing, an empty analysis is not a pass"
+    exit 1
+  fi
+
   if [ -z "$(verdicts_for "$analysis_file")" ]; then
     if [ "$GATE_MODE" = "advisory" ]; then
       echo "::warning::${AGENT_NAME} produced no decision verdict; posting the analysis without one"

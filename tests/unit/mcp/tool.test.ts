@@ -55,6 +55,20 @@ describe('McpTool', () => {
     }
   })
 
+  it('returns a tool error and audits failed when the server reports isError', async () => {
+    const records: { task: string; decision: string; outcome: string }[] = []
+    const audit = async (r: { task: string; decision: string; outcome: string }) => { records.push(r) }
+    const client = await McpStdioClient.start('fixture', { command: process.execPath, args: [FIXTURE, 'error-on-call'] })
+    try {
+      const tools = await client.listTools()
+      const tool = new McpTool(client, tools.find((t) => t.name === 'echo')!, audit as never)
+      const result = await tool.execute({ text: 'hi' })
+      expect(result).toEqual({ success: false, output: '', error: 'MCP server "fixture" tool "echo" returned an error: boom' })
+      expect(records).toEqual([{ task: 'invoke fixture.echo', decision: 'tool returned an error', outcome: 'failed' }])
+    } finally {
+      await client.close()
+    }
+  })
   it('rethrows a dead server so the run cannot continue without it', async () => {
     const client = await McpStdioClient.start('dying', { command: process.execPath, args: [FIXTURE, 'crash-on-call'] })
     const tool = new McpTool(client, { name: 'echo', description: '', inputSchema: { type: 'object' } }, audit)

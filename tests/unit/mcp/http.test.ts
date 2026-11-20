@@ -32,17 +32,19 @@ function rpc(body: any) {
   return { jsonrpc: '2.0', id: body.id, error: { code: -32601, message: 'method not found' } }
 }
 
+function jsonHandler(req: any, res: any) {
+  let data = ''
+  req.on('data', (c: any) => (data += c))
+  req.on('end', () => {
+    const body = JSON.parse(data)
+    res.setHeader('Content-Type', 'application/json')
+    res.end(JSON.stringify(rpc(body)))
+  })
+}
+
 describe('McpHttpClient', () => {
   it('completes handshake, lists tools and calls them', async () => {
-    const { url, close } = await startHttpServer((req, res) => {
-      let data = ''
-      req.on('data', (c: any) => (data += c))
-      req.on('end', () => {
-        const body = JSON.parse(data)
-        res.setHeader('Content-Type', 'application/json')
-        res.end(JSON.stringify(rpc(body)))
-      })
-    })
+    const { url, close } = await startHttpServer(jsonHandler)
     try {
       const client = await McpHttpClient.start('httpfix', { transport: 'http', url })
       const tools = await client.listTools()
@@ -59,7 +61,21 @@ describe('McpHttpClient', () => {
   })
 
   it('reports a JSON-RPC error as a call error and keeps the server alive', async () => {
+    const { url, close } = await startHttpServer(jsonHandler)
+    try {
+      const client = await McpHttpClient.start('httpfix', { transport: 'http', url })
+      await expect(client.callTool('missing', {})).rejects.toThrow(McpCallError)
+      expect(await client.callTool('echo', { text: 'still up' })).toEqual({ text: 'still up', isError: false })
+      await client.close()
+    } finally {
+      close()
+    }
+  })
+
+  it('sends resolved headers to the server', async () => {
+    let seen: any = null
     const { url, close } = await startHttpServer((req, res) => {
+      seen = req.headers
       let data = ''
       req.on('data', (c: any) => (data += c))
       req.on('end', () => {
@@ -69,9 +85,10 @@ describe('McpHttpClient', () => {
       })
     })
     try {
-      const client = await McpHttpClient.start('httpfix', { transport: 'http', url })
-      await expect(client.callTool('missing', {})).rejects.toThrow(McpCallError)
-      expect(await client.callTool('echo', { text: 'still up' })).toEqual({ text: 'still up', isError: false })
+      const client = await McpHttpClient.start('httpfix', { transport: 'http', url, headers: { Authorization: 'Bearer t0k', 'X-Custom': 'plain' } })
+      await client.callTool('echo', { text: 'h' })
+      expect(seen.authorization).toBe('Bearer t0k')
+      expect(seen['x-custom']).toBe('plain')
       await client.close()
     } finally {
       close()
@@ -85,7 +102,7 @@ describe('McpHttpClient', () => {
       req.on('end', () => {
         const body = JSON.parse(data)
         res.setHeader('Content-Type', 'text/event-stream')
-        res.write(`data: ${JSON.stringify(rpc(body))}\n\n`)
+        res.write('data: ' + JSON.stringify(rpc(body)) + '\n\n')
         res.end()
       })
     })

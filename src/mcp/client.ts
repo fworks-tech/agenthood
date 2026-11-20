@@ -75,7 +75,7 @@ export class McpStdioClient {
     const child = spawn(config.command, config.args, {
       shell: false,
       stdio: ['pipe', 'pipe', 'pipe'],
-      env: inheritedEnv(),
+      env: { ...inheritedEnv(), ...(config.env ?? {}) },
     })
     const client = new McpStdioClient(name, child, options.callTimeoutMs ?? CALL_TIMEOUT_MS)
     live.add(client)

@@ -328,6 +328,11 @@ tools only by naming them in its `allowed-tools`.
   closed when the run ends, on success, error or signal. The process-level SIGINT/SIGTERM hook
   is verified to take the child down on POSIX (tests/unit/mcp/signal-hook.test.ts); on Windows
   delivery cannot be exercised from a test and relies on registration by construction.
+- A server may declare `env`: an object merged over the inherited set (`PATH` plus platform
+  essentials). Values are either literals or `${env:VAR}` references resolved at config load;
+  secret-like keys (`*_KEY`, `*_TOKEN`, `*_SECRET`, etc.) require a reference and fail the load
+  otherwise. A missing reference fails before any spawn. Values never appear in decisions or
+  provenance.
 - A `SKILL.md` that declares `mcpServers` in its frontmatter gets a warning and nothing starts. Servers
   come from host configuration only.
 - Fail-closed, each with its own error: a server that does not start, a declared tool the server does
@@ -338,7 +343,7 @@ tools only by naming them in its `allowed-tools`.
   entry. `npx agenthood trace` lists them under its `MCP (ADR-047)` section for the same
   `--member`/`--since` filters, and `npx agenthood audit --since 1h` shows them in the full trail.
   Arguments and results are not recorded.
-- Out of scope: HTTP or URL transport, remote server auth, hosted deployments, tool-list caching and
+- Out of scope (still): HTTP or URL transport, remote server auth, hosted deployments, tool-list caching and
   incremental refresh. Those need their own ADR.
 
 ## Observability & Evaluation

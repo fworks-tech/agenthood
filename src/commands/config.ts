@@ -94,7 +94,29 @@ function parseRepoInstructions(raw: Record<string, unknown>): boolean | undefine
 }
 
 const MCP_SERVER_NAME = /^[a-z0-9][a-z0-9-]*$/
-const MCP_SERVER_KEYS = new Set(['command', 'args'])
+const MCP_SERVER_KEYS = new Set(['command', 'args', 'env'])
+
+const SENSITIVE_KEY = /api[_-]?key|token|secret|password|credential|bearer|pat|jwt|auth/i
+const ENV_REF = /^\$\{env:([A-Za-z0-9_]+)\}$/
+
+function resolveEnvValue(where: string, key: string, value: unknown): string {
+  if (typeof value !== 'string') throw new Error(`${where}: env.${key} must be a string.`)
+  if (!/^[A-Za-z0-9_]+$/.test(key)) throw new Error(`${where}: env key "${key}" must match [A-Za-z0-9_]+.`)
+  const ref = ENV_REF.exec(value)
+  if (ref) {
+    const varName = ref[1]
+    if (process.env[varName] === undefined) throw new Error(`${where}: env.${key} references missing variable ${varName}.`)
+    return process.env[varName] as string
+  }
+  if (ENV_REF.test(value) === false && value.includes('${env:')) {
+    // partial/interpolated reference is not allowed in v1
+    throw new Error(`${where}: env.${key} must be either a literal or a single \${env:VAR} reference.`)
+  }
+  if (SENSITIVE_KEY.test(key)) {
+    throw new Error(`${where}: env.${key} is secret-like and must use \${env:VAR}, not a literal value.`)
+  }
+  return value
+}
 
 /**
  * A server is a process the host spawns, so every field is checked before any
@@ -115,12 +137,20 @@ function parseMcpServers(raw: Record<string, unknown>): Record<string, McpServer
     for (const key of Object.keys(def)) {
       if (!MCP_SERVER_KEYS.has(key)) throw new Error(`${where}: unknown key "${key}".`)
     }
-    const { command, args = [] } = def as Record<string, unknown>
+    const { command, args = [], env } = def as Record<string, unknown>
     if (typeof command !== 'string' || command.trim() === '') throw new Error(`${where}: "command" must be a non-empty string.`)
     if (!Array.isArray(args) || !args.every((arg) => typeof arg === 'string')) {
       throw new Error(`${where}: "args" must be an array of strings.`)
     }
-    servers[name] = { command, args: [...args] }
+    let resolvedEnv: Record<string, string> | undefined
+    if (env !== undefined) {
+      if (!env || typeof env !== 'object' || Array.isArray(env)) throw new Error(`${where}: "env" must be an object.`)
+      resolvedEnv = {}
+      for (const [key, val] of Object.entries(env)) {
+        resolvedEnv[key] = resolveEnvValue(where, key, val)
+      }
+    }
+    servers[name] = { command, args: [...args], ...(resolvedEnv ? { env: resolvedEnv } : {}) }
   }
   return servers
 }

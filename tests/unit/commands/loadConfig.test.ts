@@ -211,7 +211,7 @@ describe('loadConfig', () => {
     })
 
     it.each([
-      ['an unknown key', { atlas: { command: 'node', env: {} } }, 'unknown key "env"'],
+      ['an unknown key', { atlas: { command: 'node', foo: {} } }, 'unknown key "foo"'],
       ['an empty command', { atlas: { command: '' } }, '"command" must be a non-empty string'],
       ['a non-array args', { atlas: { command: 'node', args: 'not-an-array' } }, '"args" must be an array of strings'],
       ['non-string args', { atlas: { command: 'node', args: [1] } }, '"args" must be an array of strings'],
@@ -222,9 +222,52 @@ describe('loadConfig', () => {
       })
     })
 
-    it('rejects a non-object mcpServers block', async () => {
-      await withFixture(JSON.stringify({ mcpServers: ['node'] }), async () => {
-        await expect(loadConfig()).rejects.toThrow('expected an object of servers')
+    it('resolves ${env:VAR} in env and merges over inherited keys', async () => {
+      process.env.AGENTHOOD_TEST_ENVVAL = 'secret-value'
+      try {
+        await withFixture(JSON.stringify({
+          mcpServers: { atlas: { command: 'node', env: { API_KEY: '${env:AGENTHOOD_TEST_ENVVAL}', PLAIN: 'literal' } } },
+        }), async () => {
+          const cfg = await loadConfig()
+          expect(cfg.mcpServers?.atlas.env).toEqual({ API_KEY: 'secret-value', PLAIN: 'literal' })
+        })
+      } finally {
+        delete process.env.AGENTHOOD_TEST_ENVVAL
+      }
+    })
+
+    it('rejects a missing ${env:VAR} reference', async () => {
+      await withFixture(JSON.stringify({
+        mcpServers: { atlas: { command: 'node', env: { API_KEY: '${env:AGENTHOOD_NO_SUCH_VAR_X}' } } },
+      }), async () => {
+        await expect(loadConfig()).rejects.toThrow(/missing variable AGENTHOOD_NO_SUCH_VAR_X/)
+      })
+    })
+
+    it('rejects a literal value for a secret-like env key', async () => {
+      await withFixture(JSON.stringify({
+        mcpServers: { atlas: { command: 'node', env: { API_KEY: 'hunter2' } } },
+      }), async () => {
+        await expect(loadConfig()).rejects.toThrow(/secret-like and must use/)
+      })
+    })
+
+    it('rejects partial ${env:...} interpolation', async () => {
+      process.env.AGENTHOOD_TEST_ENVVAL = 'v'
+      try {
+        await withFixture(JSON.stringify({
+          mcpServers: { atlas: { command: 'node', env: { X: 'pre-${env:AGENTHOOD_TEST_ENVVAL}' } } },
+        }), async () => {
+          await expect(loadConfig()).rejects.toThrow(/must be either a literal/)
+        })
+      } finally {
+        delete process.env.AGENTHOOD_TEST_ENVVAL
+      }
+    })
+
+    it('rejects a non-object env block', async () => {
+      await withFixture(JSON.stringify({ mcpServers: { atlas: { command: 'node', env: 'x' } } }), async () => {
+        await expect(loadConfig()).rejects.toThrow('"env" must be an object')
       })
     })
   })

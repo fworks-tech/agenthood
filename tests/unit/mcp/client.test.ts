@@ -83,6 +83,22 @@ describe('McpStdioClient', () => {
     }
   })
 
+  it('merges a server env over the inherited set', async () => {
+    const client = await McpStdioClient.start('fixture', {
+      command: process.execPath,
+      args: [FIXTURE, 'env-report'],
+      env: { API_KEY: 'merged-secret', EXTRA_FLAG: '1' },
+    })
+    try {
+      const result = await client.callTool('echo', { text: 'x' })
+      const keys = result.text.split(',')
+      expect(keys).toContain('API_KEY')
+      expect(keys).toContain('EXTRA_FLAG')
+    } finally {
+      await client.close()
+    }
+  })
+
   it('reduces the child environment to the six platform keys', () => {
     process.env.AGENTHOOD_TEST_SECRET = 'should-not-leak'
     try {

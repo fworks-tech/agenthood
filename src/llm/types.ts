@@ -125,6 +125,8 @@ export interface RemoteCatalogsConfig {
 export interface McpServerConfig {
   command: string
   args: string[]
+  /** Resolved environment for the child process (ADR-052). Merged over the inherited set. */
+  env?: Record<string, string>
 }
 
 export interface LLMConfig {  provider?: string

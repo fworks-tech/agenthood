@@ -67,6 +67,22 @@ describe('McpStdioClient', () => {
     expect(() => process.kill(pid, 0)).toThrow()
   })
 
+  it('does not leak a parent secret into the child process', async () => {
+    process.env.AGENTHOOD_TEST_SECRET = 'should-not-leak'
+    const client = await McpStdioClient.start('fixture', fixture('env-report'))
+    try {
+      const result = await client.callTool('echo', { text: 'x' })
+      const keys = result.text.split(',')
+      expect(keys).not.toContain('AGENTHOOD_TEST_SECRET')
+      if (process.platform !== 'win32') {
+        for (const key of keys) expect(INHERITED_ENV).toContain(key)
+      }
+    } finally {
+      await client.close()
+      delete process.env.AGENTHOOD_TEST_SECRET
+    }
+  })
+
   it('reduces the child environment to the six platform keys', () => {
     process.env.AGENTHOOD_TEST_SECRET = 'should-not-leak'
     try {

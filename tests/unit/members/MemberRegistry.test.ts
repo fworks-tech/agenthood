@@ -259,10 +259,16 @@ describe('MCP tool grants (ADR-047)', () => {
     expect(MemberRegistry.intersectDeclaredTools('mcp.fixture.nope', 'standard', grants)).toEqual([])
   })
 
-  it('never grants MCP tools to a restricted profile, even with an allowlist', () => {
-    const grants = MemberRegistry.grantsFor('restricted', allowlist)
+  it('grants a readOnly server tool to a restricted member', () => {
+    const grants = MemberRegistry.grantsFor('restricted', allowlist, (s) => s === 'fixture')
+    expect(grants).toContain('mcp.fixture.echo')
+    expect(MemberRegistry.intersectDeclaredTools('mcp.fixture.echo file.read', 'restricted', grants))
+      .toEqual(['file.read', 'mcp.fixture.echo'])
+  })
+
+  it('keeps a non-readOnly server tool denied for restricted', () => {
+    const grants = MemberRegistry.grantsFor('restricted', allowlist, () => false)
     expect(grants).not.toContain('mcp.fixture.echo')
-    expect(MemberRegistry.intersectDeclaredTools('mcp.fixture.echo file.read', 'restricted', grants)).toEqual(['file.read'])
   })
 
   it('keeps the profile tools unchanged when no server is referenced', () => {

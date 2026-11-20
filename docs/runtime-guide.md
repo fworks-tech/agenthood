@@ -333,8 +333,8 @@ tools only by naming them in its `allowed-tools`.
   secret-like keys (`*_KEY`, `*_TOKEN`, `*_SECRET`, etc.) require a reference and fail the load
   otherwise. A missing reference fails before any spawn. Values never appear in decisions or
   provenance.
-- A `SKILL.md` that declares `mcpServers` in its frontmatter gets a warning and nothing starts. Servers
-  come from host configuration only.
+- A server may set `readOnly: true`: its tools are READ-level and reachable by `restricted` members
+  (ADR-051). The host asserts this; the runtime does not verify a tool is actually read-only.
 - Fail-closed, each with its own error: a server that does not start, a declared tool the server does
   not expose or a server that is not configured (both before the first model call), a server that dies
   mid-run (the run fails), and a tool call that returns an error (the model sees the error, labelled

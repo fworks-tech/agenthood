@@ -162,6 +162,7 @@ export class MemberRunner {
       strictSkillIntegrity: config.security?.strictSkillIntegrity,
       explicitSkills,
       mcpTools: mcp.instances(),
+      mcpReadOnlyServers: new Set(Object.entries(config.mcpServers ?? {}).filter(([, c]) => c.readOnly === true).map(([n]) => n)),
     })
     const metricsCollector = new MetricsCollector(join(process.cwd(), '.agenthood', 'metrics'))
     const startTime = performance.now()

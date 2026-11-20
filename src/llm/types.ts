@@ -127,6 +127,8 @@ export interface McpServerConfig {
   args: string[]
   /** Resolved environment for the child process (ADR-052). Merged over the inherited set. */
   env?: Record<string, string>
+  /** When true, the server's tools are READ-level (ADR-051). */
+  readOnly?: boolean
 }
 
 export interface LLMConfig {  provider?: string

@@ -39,7 +39,7 @@ describe('trace command', () => {
   beforeEach(() => {
     vi.mocked(existsSync).mockReset()
     vi.mocked(readFileSync).mockReset()
-    vi.mocked(readdirSync).mockReturnValue([])
+    vi.mocked(readdirSync).mockReturnValue([] as never[])
   })
 
   afterEach(() => {
@@ -173,7 +173,7 @@ describe('trace command', () => {
 
   it('shows mcp decisions even when no trace envelope exists', async () => {
     vi.mocked(existsSync).mockImplementation((path) => !String(path).endsWith('traces.ndjson'))
-    vi.mocked(readdirSync).mockReturnValue(['dec-1.json'])
+    vi.mocked(readdirSync).mockReturnValue(['dec-1.json'] as never[])
     vi.mocked(readFileSync).mockReturnValue(JSON.stringify({
       id: 'dec-1',
       timestamp: '2026-07-01T10:00:00.000Z',

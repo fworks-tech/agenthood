@@ -56,6 +56,8 @@ export interface MemberAgentOptions {
   explicitSkills?: string[]
   /** Live MCP tools for this run, keyed by declared name (mcp.<server>.<tool>) (ADR-047) */
   mcpTools?: Map<string, ITool>
+  /** Servers declared readOnly in config (ADR-051); their tools are READ-level. */
+  mcpReadOnlyServers?: Set<string>
 }
 
 export class MemberAgent extends BaseAgent {
@@ -65,6 +67,7 @@ export class MemberAgent extends BaseAgent {
   private readonly strictSkillIntegrity: boolean
   private readonly explicitSkills: string[]
   private readonly mcpTools: Map<string, ITool>
+  private readonly mcpReadOnlyServers: Set<string>
   private readonly warnedTools = new Set<string>()
 
   constructor(
@@ -79,6 +82,7 @@ export class MemberAgent extends BaseAgent {
     this.strictSkillIntegrity = options.strictSkillIntegrity === true
     this.explicitSkills = options.explicitSkills ?? []
     this.mcpTools = options.mcpTools ?? new Map()
+    this.mcpReadOnlyServers = options.mcpReadOnlyServers ?? new Set()
     this.role = spec.name
     this.tools = this.buildTools()
   }
@@ -125,7 +129,12 @@ export class MemberAgent extends BaseAgent {
    * never leak to a restricted member.
    */
   private isToolPermitted(toolName: string): boolean {
-    if (WRITE_TOOLS.has(toolName) || parseDeclaredMcpTool(toolName)) return this.spec.permissionProfile === 'standard' || this.spec.permissionProfile === 'trusted'
+    const mcpRef = parseDeclaredMcpTool(toolName)
+    if (mcpRef) {
+      if (this.mcpReadOnlyServers.has(mcpRef.server)) return true
+      return this.spec.permissionProfile === 'standard' || this.spec.permissionProfile === 'trusted'
+    }
+    if (WRITE_TOOLS.has(toolName)) return this.spec.permissionProfile === 'standard' || this.spec.permissionProfile === 'trusted'
     if (TRUSTED_TOOLS.has(toolName)) return this.spec.permissionProfile === 'trusted'
     if (READ_ONLY_TOOLS.has(toolName)) return true
     return false

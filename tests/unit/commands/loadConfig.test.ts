@@ -265,9 +265,25 @@ describe('loadConfig', () => {
       }
     })
 
-    it('rejects a non-object env block', async () => {
-      await withFixture(JSON.stringify({ mcpServers: { atlas: { command: 'node', env: 'x' } } }), async () => {
-        await expect(loadConfig()).rejects.toThrow('"env" must be an object')
+    it('rejects a non-object mcpServers block', async () => {
+      await withFixture(JSON.stringify({ mcpServers: ['node'] }), async () => {
+        await expect(loadConfig()).rejects.toThrow('expected an object of servers')
+      })
+    })
+
+    it('parses readOnly flag', async () => {
+      await withFixture(JSON.stringify({
+        mcpServers: { atlas: { command: 'node', readOnly: true }, bare: { command: 'tool' } },
+      }), async () => {
+        const cfg = await loadConfig()
+        expect(cfg.mcpServers?.atlas.readOnly).toBe(true)
+        expect(cfg.mcpServers?.bare.readOnly).toBeUndefined()
+      })
+    })
+
+    it('rejects a non-boolean readOnly', async () => {
+      await withFixture(JSON.stringify({ mcpServers: { atlas: { command: 'node', readOnly: 'yes' } } }), async () => {
+        await expect(loadConfig()).rejects.toThrow('"readOnly" must be a boolean')
       })
     })
   })

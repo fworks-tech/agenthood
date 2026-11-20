@@ -94,7 +94,7 @@ function parseRepoInstructions(raw: Record<string, unknown>): boolean | undefine
 }
 
 const MCP_SERVER_NAME = /^[a-z0-9][a-z0-9-]*$/
-const MCP_SERVER_KEYS = new Set(['command', 'args', 'env'])
+const MCP_SERVER_KEYS = new Set(['command', 'args', 'env', 'readOnly'])
 
 const SENSITIVE_KEY = /api[_-]?key|token|secret|password|credential|bearer|pat|jwt|auth/i
 const ENV_REF = /^\$\{env:([A-Za-z0-9_]+)\}$/
@@ -137,10 +137,13 @@ function parseMcpServers(raw: Record<string, unknown>): Record<string, McpServer
     for (const key of Object.keys(def)) {
       if (!MCP_SERVER_KEYS.has(key)) throw new Error(`${where}: unknown key "${key}".`)
     }
-    const { command, args = [], env } = def as Record<string, unknown>
+    const { command, args = [], env, readOnly } = def as Record<string, unknown>
     if (typeof command !== 'string' || command.trim() === '') throw new Error(`${where}: "command" must be a non-empty string.`)
     if (!Array.isArray(args) || !args.every((arg) => typeof arg === 'string')) {
       throw new Error(`${where}: "args" must be an array of strings.`)
+    }
+    if (readOnly !== undefined && typeof readOnly !== 'boolean') {
+      throw new Error(`${where}: "readOnly" must be a boolean.`)
     }
     let resolvedEnv: Record<string, string> | undefined
     if (env !== undefined) {
@@ -150,7 +153,7 @@ function parseMcpServers(raw: Record<string, unknown>): Record<string, McpServer
         resolvedEnv[key] = resolveEnvValue(where, key, val)
       }
     }
-    servers[name] = { command, args: [...args], ...(resolvedEnv ? { env: resolvedEnv } : {}) }
+    servers[name] = { command, args: [...args], ...(resolvedEnv ? { env: resolvedEnv } : {}), ...(readOnly === true ? { readOnly: true } : {}) }
   }
   return servers
 }

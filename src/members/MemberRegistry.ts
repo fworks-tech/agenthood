@@ -13,6 +13,7 @@ import { fileURLToPath } from 'node:url'
 import type { MemberSpec, PermissionProfile, MemberCategory, CustomMemberDefinition } from './types.ts'
 import { rawSpecs } from './member-specs.ts'
 import { stripFrontmatter, extractFrontmatterField } from '../agents/memberLore.ts'
+import { parseDeclaredMcpTool } from '../mcp/names.ts'
 
 const __filename = fileURLToPath(import.meta.url)
 const __dirname = dirname(__filename)
@@ -198,7 +199,7 @@ export class MemberRegistry {
 
   /** Capability tokens are not tool names: they gate whether MCP tools exist for a profile (ADR-047). */
   private static readonly capabilitiesByProfile: Record<PermissionProfile, string[]> = {
-    restricted: [],
+    restricted: ['mcp_readonly'],
     standard: ['mcp'],
     trusted: ['mcp'],
   }
@@ -215,8 +216,14 @@ export class MemberRegistry {
     return MemberRegistry.capabilitiesByProfile[permission].includes(capability)
   }
 
-  static grantsFor(permission: PermissionProfile, mcpTools: string[] = []): string[] {
-    const mcp = MemberRegistry.carries(permission, 'mcp') ? mcpTools : []
+  static grantsFor(permission: PermissionProfile, mcpTools: string[] = [], isReadOnlyServer: (server: string) => boolean = () => false): string[] {
+    const mcp = mcpTools.filter((name) => {
+      const ref = parseDeclaredMcpTool(name)
+      if (!ref) return false
+      if (MemberRegistry.carries(permission, 'mcp')) return true
+      if (isReadOnlyServer(ref.server) && MemberRegistry.carries(permission, 'mcp_readonly')) return true
+      return false
+    })
     return [...MemberRegistry.toolsByProfile[permission], ...mcp]
   }
 

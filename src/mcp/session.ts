@@ -39,12 +39,22 @@ export class McpSession {
 
   /** The member's spec with MCP names resolved: only what the profile grants and a started server exposes (ADR-047). */
   async resolve(spec: MemberSpec): Promise<MemberSpec> {
-    if (!spec.declaredTools?.some((name) => parseDeclaredMcpTool(name)) || !MemberRegistry.carries(spec.permissionProfile, 'mcp')) return spec
-    await this.start(spec.declaredTools)
+    const hasMcpDeclared = spec.declaredTools?.some((name) => parseDeclaredMcpTool(name)) ?? false
+    if (!hasMcpDeclared) return spec
+    const isReadOnlyServer = (server: string) => this.servers[server]?.readOnly === true
+    const canUseAny = spec.declaredTools!.some((name) => {
+      const ref = parseDeclaredMcpTool(name)
+      if (!ref) return false
+      if (MemberRegistry.carries(spec.permissionProfile, 'mcp')) return true
+      if (isReadOnlyServer(ref.server) && MemberRegistry.carries(spec.permissionProfile, 'mcp_readonly')) return true
+      return false
+    })
+    if (!canUseAny) return spec
+    await this.start(spec.declaredTools!)
     const tools = MemberRegistry.intersectDeclaredTools(
-      spec.declaredTools.join(' '),
+      spec.declaredTools!.join(' '),
       spec.permissionProfile,
-      MemberRegistry.grantsFor(spec.permissionProfile, this.names()),
+      MemberRegistry.grantsFor(spec.permissionProfile, this.names(), isReadOnlyServer),
     )
     const granted = tools.filter((t) => parseDeclaredMcpTool(t))
     if (granted.length > 0) {

@@ -325,7 +325,9 @@ tools only by naming them in its `allowed-tools`.
   profile. The profile must carry the `mcp` capability: `standard` and `trusted` do, `restricted` does
   not. MCP tools need `standard` or `trusted`, the same as write tools.
 - Only servers that a run's member declares are started, before the first model call. Each child is
-  closed when the run ends, on success or error.
+  closed when the run ends, on success, error or signal. The process-level SIGINT/SIGTERM hook
+  is verified to take the child down on POSIX (tests/unit/mcp/signal-hook.test.ts); on Windows
+  delivery cannot be exercised from a test and relies on registration by construction.
 - A `SKILL.md` that declares `mcpServers` in its frontmatter gets a warning and nothing starts. Servers
   come from host configuration only.
 - Fail-closed, each with its own error: a server that does not start, a declared tool the server does

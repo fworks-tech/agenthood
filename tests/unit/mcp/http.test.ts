@@ -95,6 +95,29 @@ describe('McpHttpClient', () => {
     }
   })
 
+  it('fails the call when the server exceeds the call timeout', async () => {
+    const { url, close } = await startHttpServer((req, res) => {
+      let data = ''
+      req.on('data', (c: any) => (data += c))
+      req.on('end', () => {
+        const body = JSON.parse(data)
+        if (body.method !== 'tools/call') {
+          res.setHeader('Content-Type', 'application/json')
+          res.end(JSON.stringify(rpc(body)))
+          return
+        }
+        // tools/call: never respond
+      })
+    })
+    try {
+      const client = await McpHttpClient.start('httpfix', { transport: 'http', url }, { callTimeoutMs: 100 })
+      await expect(client.callTool('echo', { text: 'x' })).rejects.toThrow(McpCallError)
+      await client.close()
+    } finally {
+      close()
+    }
+  })
+
   it('supports SSE responses', async () => {
     const { url, close } = await startHttpServer((req, res) => {
       let data = ''

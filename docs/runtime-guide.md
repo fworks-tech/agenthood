@@ -311,40 +311,52 @@ tools only by naming them in its `allowed-tools`.
 ```json
 {
   "mcpServers": {
-    "atlas": { "command": "node", "args": ["tools/atlas-mcp.js"] }
+    "atlas": { "command": "node", "args": ["tools/atlas-mcp.js"] },
+    "lookup": { "transport": "http", "url": "https://atlas.example.com/mcp", "headers": { "Authorization": "Bearer ${env:ATLAS_TOKEN}" }, "readOnly": true }
   }
 }
 ```
 
-- Server names match `[a-z0-9][a-z0-9-]*`. `command` is a non-empty string and `args` an array of
-  strings (default `[]`). An unknown key, an empty command or a non-array `args` fails the config load
-  before any process starts.
+- Server names match `[a-z0-9][a-z0-9-]*`. A STDIO server has `command` (non-empty string) and `args`
+  (array of strings, default `[]`). An HTTP server has `transport: "http"` and `url` (an `http:` or
+  `https:` URL), plus optional `headers`. Fields that belong to the other transport, an unknown key or
+  a malformed value fails the config load before any process starts or request is sent.
 - A member declares `mcp.<server>.<tool>` in `allowed-tools`. The model sees the tool as
   `mcp__<server>__<tool>`.
 - **Scope rule:** a member's MCP tools are the declared names ∩ the tools the server lists ∩ the
-  profile. The profile must carry the `mcp` capability: `standard` and `trusted` do, `restricted` does
-  not. MCP tools need `standard` or `trusted`, the same as write tools.
+  profile. The profile carries `mcp` (`standard`, `trusted`) or `mcp_readonly` (`restricted`, only for
+  servers marked `readOnly`). A server whose tools the profile cannot receive is not started.
 - Only servers that a run's member declares are started, before the first model call. Each child is
   closed when the run ends, on success, error or signal. The process-level SIGINT/SIGTERM hook
   is verified to take the child down on POSIX (tests/unit/mcp/signal-hook.test.ts); on Windows
   delivery cannot be exercised from a test and relies on registration by construction.
-- A server may declare `env`: an object merged over the inherited set (`PATH` plus platform
+- A `SKILL.md` that declares `mcpServers` in its frontmatter gets a warning and nothing starts. Servers
+  come from host configuration only.
+- A STDIO server may declare `env`: an object merged over the inherited set (`PATH` plus platform
   essentials). Values are either literals or `${env:VAR}` references resolved at config load;
   secret-like keys (`*_KEY`, `*_TOKEN`, `*_SECRET`, etc.) require a reference and fail the load
   otherwise. A missing reference fails before any spawn. Values never appear in decisions or
   provenance.
+- An HTTP server may declare `headers`, with the same `${env:VAR}` rule; a secret-like header
+  (`Authorization`, `*_TOKEN`, `X-Api-Key`, ...) must use a reference. Header values are sent to the
+  server and never recorded.
 - A server may set `readOnly: true`: its tools are READ-level and reachable by `restricted` members
   (ADR-051). The host asserts this; the runtime does not verify a tool is actually read-only.
 - Fail-closed, each with its own error: a server that does not start, a declared tool the server does
   not expose or a server that is not configured (both before the first model call), a server that dies
   mid-run (the run fails), and a tool call that returns an error (the model sees the error, labelled
-  with the server and tool, and the run continues).
+  with the server and tool, and the run continues). An HTTP initialize or call that exceeds its
+  timeout (10 s / 30 s) fails the same way.
+- The first run caches each server's tool list under `.agenthood/mcp-cache/` for 24 h (ADR-050), keyed
+  on the transport, command/args or URL, and the header names plus a hash of their values. A later run
+  skips `tools/list`; set `AGENTHOOD_MCP_CACHE_REFRESH=1` to force it. A corrupt cache file is deleted
+  and refetched.
 - Every server start, grant and tool invocation is a decision tagged `mcp`, with a linked provenance
   entry. `npx agenthood trace` lists them under its `MCP (ADR-047)` section for the same
   `--member`/`--since` filters, and `npx agenthood audit --since 1h` shows them in the full trail.
-  Arguments and results are not recorded.
-- Out of scope (still): HTTP or URL transport, remote server auth, hosted deployments, tool-list caching and
-  incremental refresh. Those need their own ADR.
+  Arguments, results and header values are not recorded.
+- Out of scope: hosted deployments (the server side is unchanged), HTTP `GET`/`DELETE` session
+  management, and caching tool results.
 
 ## Observability & Evaluation
 

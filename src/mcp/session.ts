@@ -14,6 +14,7 @@ import { MemberRegistry } from '../members/MemberRegistry.ts'
 import { McpStdioClient } from './client.ts'
 import type { McpClient, McpToolInfo } from './client.ts'
 import { McpHttpClient } from './http.ts'
+import { loadCachedTools, saveCachedTools } from './cache.ts'
 import { McpServerError } from './errors.ts'
 import { isRegistrableMcpTool, parseDeclaredMcpTool } from './names.ts'
 import { McpTool } from './tool.ts'
@@ -44,15 +45,16 @@ export class McpSession {
     const hasMcpDeclared = spec.declaredTools?.some((name) => parseDeclaredMcpTool(name)) ?? false
     if (!hasMcpDeclared) return spec
     const isReadOnlyServer = (server: string) => this.servers[server]?.readOnly === true
-    const canUseAny = spec.declaredTools!.some((name) => {
+    // Only start servers whose tools this profile can actually receive: a restricted member
+    // declaring a non-readOnly server must not spawn it just to have its tools filtered out.
+    const usable = spec.declaredTools!.filter((name) => {
       const ref = parseDeclaredMcpTool(name)
       if (!ref) return false
       if (MemberRegistry.carries(spec.permissionProfile, 'mcp')) return true
-      if (isReadOnlyServer(ref.server) && MemberRegistry.carries(spec.permissionProfile, 'mcp_readonly')) return true
-      return false
+      return isReadOnlyServer(ref.server) && MemberRegistry.carries(spec.permissionProfile, 'mcp_readonly')
     })
-    if (!canUseAny) return spec
-    await this.start(spec.declaredTools!)
+    if (usable.length === 0) return spec
+    await this.start(usable)
     const tools = MemberRegistry.intersectDeclaredTools(
       spec.declaredTools!.join(' '),
       spec.permissionProfile,
@@ -112,13 +114,22 @@ export class McpSession {
     }
     this.clients.push(client)
 
+    const transport = config.transport ?? 'stdio'
+
     let listed: McpToolInfo[]
-    try {
-      listed = await client.listTools()
-    } catch (err) {
-      const failure = new McpServerError(server, `failed to list tools: ${(err as Error).message}`)
-      await this.audit({ task: `start MCP server ${server}`, decision: `failed: ${failure.message}`, outcome: 'failed' })
-      throw failure
+    const cached = loadCachedTools(config, transport)
+    if (cached) {
+      // Cache hit skips tools/list: liveness is checked at tool-call time instead.
+      listed = cached
+    } else {
+      try {
+        listed = await client.listTools()
+      } catch (err) {
+        const failure = new McpServerError(server, `failed to list tools: ${(err as Error).message}`)
+        await this.audit({ task: `start MCP server ${server}`, decision: `failed: ${failure.message}`, outcome: 'failed' })
+        throw failure
+      }
+      saveCachedTools(config, transport, listed)
     }
 
     for (const info of listed) {

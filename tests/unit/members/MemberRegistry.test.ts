@@ -1,5 +1,33 @@
-import { describe, it, expect } from 'vitest'
+import { mkdtempSync, mkdirSync, writeFileSync, rmSync } from 'node:fs'
+import { tmpdir } from 'node:os'
+import { join as pathJoin } from 'node:path'
+import { vi, describe, it, expect } from 'vitest'
 import { MemberRegistry, MemberNotFoundError, declaresMcpServers } from '../../../src/members/MemberRegistry.ts'
+import { McpStdioClient } from '../../../src/mcp/client.ts'
+
+describe('SKILL.md mcpServers frontmatter (ADR-047)', () => {
+  it('starts no server and grants no tool when a SKILL.md declares mcpServers', () => {
+    const dir = mkdtempSync(pathJoin(tmpdir(), 'members-'))
+    try {
+      mkdirSync(pathJoin(dir, 'builder'), { recursive: true })
+      writeFileSync(
+        pathJoin(dir, 'builder', 'SKILL.md'),
+        '---\nname: builder\nmcpServers:\n  atlas:\n    command: node\nallowed-tools: mcp.atlas.search file.read\n---\nbody\n',
+      )
+      const warn = vi.spyOn(console, 'warn').mockImplementation(() => {})
+      const startSpy = vi.spyOn(McpStdioClient, 'start')
+      const registry = new MemberRegistry(dir)
+      const spec = registry.get('builder')
+      expect(spec.tools ?? []).not.toEqual(expect.arrayContaining([expect.stringMatching(/^mcp\./)]))
+      expect(warn).toHaveBeenCalledWith(expect.stringMatching(/builder.*SKILL\.md declares mcpServers/))
+      expect(startSpy).not.toHaveBeenCalled()
+      warn.mockRestore()
+      startSpy.mockRestore()
+    } finally {
+      rmSync(dir, { recursive: true, force: true })
+    }
+  })
+})
 
 describe('MemberRegistry', () => {
   const registry = new MemberRegistry()

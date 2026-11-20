@@ -37,9 +37,9 @@ with an error naming the server and the key/variable.
 provenance, trace output, or logs. Error messages redact any resolved value. The shared redactor
 guards the rest.
 
-**6. `${env:VAR}` syntax.** Single variable per value; no interpolation of multiple variables or
-literal text around a reference in v1 (`"${env:A}-${env:B}"` is an error). This keeps parsing
-unambiguous and auditable.
+**6. `${env:VAR}` syntax.** A value may be a single `${env:VAR}` reference, optionally with literal
+text around it (e.g. `Bearer ${env:TOKEN}`), resolving to one substitution. Multiple references in
+one value are rejected. This keeps parsing unambiguous and auditable while allowing auth headers.
 
 ## Alternatives Considered
 

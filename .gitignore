@@ -49,6 +49,7 @@ docs/api/
 .agenthood/media/
 .agenthood/skill-exec-audit.ndjson
 .agenthood/skill-resources.json
+.agenthood/mcp-cache/
 !.agenthood/config.json
 !.agenthood/config.example.json
 .claude/scheduled_tasks.lock

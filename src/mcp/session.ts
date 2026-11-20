@@ -14,6 +14,7 @@ import { MemberRegistry } from '../members/MemberRegistry.ts'
 import { McpStdioClient } from './client.ts'
 import type { McpClient, McpToolInfo } from './client.ts'
 import { McpHttpClient } from './http.ts'
+import { loadCachedTools, saveCachedTools } from './cache.ts'
 import { McpServerError } from './errors.ts'
 import { isRegistrableMcpTool, parseDeclaredMcpTool } from './names.ts'
 import { McpTool } from './tool.ts'
@@ -112,13 +113,21 @@ export class McpSession {
     }
     this.clients.push(client)
 
+    const transport = config.transport ?? 'stdio'
+
     let listed: McpToolInfo[]
-    try {
-      listed = await client.listTools()
-    } catch (err) {
-      const failure = new McpServerError(server, `failed to list tools: ${(err as Error).message}`)
-      await this.audit({ task: `start MCP server ${server}`, decision: `failed: ${failure.message}`, outcome: 'failed' })
-      throw failure
+    const cached = loadCachedTools(config, transport)
+    if (cached) {
+      listed = cached
+    } else {
+      try {
+        listed = await client.listTools()
+      } catch (err) {
+        const failure = new McpServerError(server, `failed to list tools: ${(err as Error).message}`)
+        await this.audit({ task: `start MCP server ${server}`, decision: `failed: ${failure.message}`, outcome: 'failed' })
+        throw failure
+      }
+      saveCachedTools(config, transport, listed)
     }
 
     for (const info of listed) {

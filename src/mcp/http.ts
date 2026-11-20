@@ -143,7 +143,7 @@ export class McpHttpClient implements McpClient {
             if (parsed.id === id) {
               last = parsed
             }
-          } catch (e) {
+          } catch {
             // ignore parse errors
           }
         }

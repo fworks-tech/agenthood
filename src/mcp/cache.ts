@@ -12,6 +12,7 @@ import type { McpServerConfig } from '../llm/types.ts'
 import type { McpToolInfo } from './client.ts'
 
 const PROTOCOL_VERSION = '2025-11-25'
+const CACHE_VERSION = 1
 const TTL_MS = 24 * 60 * 60 * 1000
 
 function cacheDir(): string {
@@ -36,9 +37,15 @@ export function cacheKey(config: McpServerConfig, transport: string): string {
 }
 
 interface CacheEntry {
+  version: number
   key: string
   fetchedAt: number
   tools: McpToolInfo[]
+}
+
+function discard(file: string): null {
+  try { rmSync(file) } catch { /* ignore */ }
+  return null
 }
 
 export function loadCachedTools(config: McpServerConfig, transport: string): McpToolInfo[] | null {
@@ -50,12 +57,11 @@ export function loadCachedTools(config: McpServerConfig, transport: string): Mcp
   try {
     entry = JSON.parse(readFileSync(file, 'utf8')) as CacheEntry
   } catch {
-    try { rmSync(file) } catch { /* ignore */ }
-    return null
+    return discard(file)
   }
-  if (!entry || entry.key !== key || !Array.isArray(entry.tools) || typeof entry.fetchedAt !== 'number') {
-    try { rmSync(file) } catch { /* ignore */ }
-    return null
+  if (!entry || entry.version !== CACHE_VERSION || entry.key !== key
+    || !Array.isArray(entry.tools) || typeof entry.fetchedAt !== 'number') {
+    return discard(file)
   }
   if (Date.now() - entry.fetchedAt > TTL_MS) return null
   return entry.tools
@@ -65,6 +71,6 @@ export function saveCachedTools(config: McpServerConfig, transport: string, tool
   const key = cacheKey(config, transport)
   const dir = cacheDir()
   try { mkdirSync(dir, { recursive: true }) } catch { /* ignore */ }
-  const entry: CacheEntry = { key, fetchedAt: Date.now(), tools }
+  const entry: CacheEntry = { version: CACHE_VERSION, key, fetchedAt: Date.now(), tools }
   try { writeFileSync(join(dir, `${key}.json`), JSON.stringify(entry)) } catch { /* ignore */ }
 }

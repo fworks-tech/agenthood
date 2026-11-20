@@ -96,28 +96,28 @@ function parseRepoInstructions(raw: Record<string, unknown>): boolean | undefine
 const MCP_SERVER_NAME = /^[a-z0-9][a-z0-9-]*$/
 const MCP_SERVER_KEYS = new Set(['command', 'args', 'env', 'readOnly', 'transport', 'url', 'headers'])
 
-const SENSITIVE_KEY = /api[_-]?key|token|secret|password|credential|bearer|pat|jwt|auth/i
+// Whole segments only, so PATH/PATTERN do not match PAT and AUTHORS does not match AUTH.
+const SENSITIVE_KEY = /(?:^|[_-])(?:API[_-]?KEY|TOKEN|SECRET|PASSWORD|PASSWD|CREDENTIALS?|BEARER|PAT|JWT|AUTH|AUTHORIZATION|COOKIE)(?:$|[_-])/i
 const ENV_REF_GLOBAL = /\$\{env:([A-Za-z0-9_]+)\}/g
 
-function resolveEnvValue(where: string, key: string, value: unknown): string {
-  if (typeof value !== 'string') throw new Error(`${where}: env.${key} must be a string.`) // note: for headers key name differs; message uses env. prefix loosely
-  if (key !== key) { /* noop */ }
+function resolveEnvValue(where: string, field: 'env' | 'headers', key: string, value: unknown): string {
+  if (typeof value !== 'string') throw new Error(`${where}: ${field}.${key} must be a string.`)
   const matches = [...value.matchAll(ENV_REF_GLOBAL)]
   if (value.includes('${env:') && matches.length === 0) {
-    throw new Error(`${where}: env.${key} has a malformed \${env:VAR} reference.`)
+    throw new Error(`${where}: ${field}.${key} has a malformed \${env:VAR} reference.`)
   }
   if (matches.length > 1) {
-    throw new Error(`${where}: env.${key} allows a single \${env:VAR} reference.`)
+    throw new Error(`${where}: ${field}.${key} allows a single \${env:VAR} reference.`)
   }
   if (matches.length === 1) {
     const varName = matches[0][1]
-    if (process.env[varName] === undefined) throw new Error(`${where}: env.${key} references missing variable ${varName}.`)
+    if (process.env[varName] === undefined) throw new Error(`${where}: ${field}.${key} references missing variable ${varName}.`)
     const resolved = process.env[varName] as string
     return value.replace(ENV_REF_GLOBAL, resolved)
   }
   // literal
   if (SENSITIVE_KEY.test(key)) {
-    throw new Error(`${where}: env.${key} is secret-like and must use \${env:VAR}, not a literal value.`)
+    throw new Error(`${where}: ${field}.${key} is secret-like and must use \${env:VAR}, not a literal value.`)
   }
   return value
 }
@@ -154,7 +154,7 @@ function parseMcpServers(raw: Record<string, unknown>): Record<string, McpServer
       resolvedEnv = {}
       for (const [key, val] of Object.entries(env)) {
         if (!/^[A-Za-z0-9_]+$/.test(key)) throw new Error(`${where}: env key "${key}" must match [A-Za-z0-9_]+.`)
-        resolvedEnv[key] = resolveEnvValue(where, key, val)
+        resolvedEnv[key] = resolveEnvValue(where, 'env', key, val)
       }
     }
 
@@ -163,7 +163,7 @@ function parseMcpServers(raw: Record<string, unknown>): Record<string, McpServer
       if (!headers || typeof headers !== 'object' || Array.isArray(headers)) throw new Error(`${where}: "headers" must be an object.`)
       resolvedHeaders = {}
       for (const [key, val] of Object.entries(headers)) {
-        resolvedHeaders[key] = resolveEnvValue(where, key, val)
+        resolvedHeaders[key] = resolveEnvValue(where, 'headers', key, val)
       }
     }
 
@@ -173,15 +173,12 @@ function parseMcpServers(raw: Record<string, unknown>): Record<string, McpServer
         throw new Error(`${where}: "args" must be an array of strings.`)
       }
       if (url !== undefined) throw new Error(`${where}: "url" is not allowed for stdio transport.`)
+      if (headers !== undefined) throw new Error(`${where}: "headers" is not allowed for stdio transport.`)
     } else {
       if (typeof url !== 'string' || !/^https?:\/\//.test(url)) throw new Error(`${where}: "url" must be an http(s) URL.`)
       if (command !== undefined) throw new Error(`${where}: "command" is not allowed for http transport.`)
-      if (args !== undefined && args !== null) {
-        // args may be omitted; if present must be array (but http ignores)
-        if (!Array.isArray(args) || !args.every((arg) => typeof arg === 'string')) {
-          throw new Error(`${where}: "args" must be an array of strings.`)
-        }
-      }
+      if (Object.prototype.hasOwnProperty.call(def, 'args')) throw new Error(`${where}: "args" is not allowed for http transport.`)
+      if (env !== undefined) throw new Error(`${where}: "env" is not allowed for http transport.`)
     }
 
     const entry: McpServerConfig = {

@@ -45,15 +45,16 @@ export class McpSession {
     const hasMcpDeclared = spec.declaredTools?.some((name) => parseDeclaredMcpTool(name)) ?? false
     if (!hasMcpDeclared) return spec
     const isReadOnlyServer = (server: string) => this.servers[server]?.readOnly === true
-    const canUseAny = spec.declaredTools!.some((name) => {
+    // Only start servers whose tools this profile can actually receive: a restricted member
+    // declaring a non-readOnly server must not spawn it just to have its tools filtered out.
+    const usable = spec.declaredTools!.filter((name) => {
       const ref = parseDeclaredMcpTool(name)
       if (!ref) return false
       if (MemberRegistry.carries(spec.permissionProfile, 'mcp')) return true
-      if (isReadOnlyServer(ref.server) && MemberRegistry.carries(spec.permissionProfile, 'mcp_readonly')) return true
-      return false
+      return isReadOnlyServer(ref.server) && MemberRegistry.carries(spec.permissionProfile, 'mcp_readonly')
     })
-    if (!canUseAny) return spec
-    await this.start(spec.declaredTools!)
+    if (usable.length === 0) return spec
+    await this.start(usable)
     const tools = MemberRegistry.intersectDeclaredTools(
       spec.declaredTools!.join(' '),
       spec.permissionProfile,

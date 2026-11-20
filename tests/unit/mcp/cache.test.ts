@@ -5,6 +5,9 @@ import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 import { McpSession } from '../../../src/mcp/session.ts'
 import { McpStdioClient } from '../../../src/mcp/client.ts'
+import { cacheKey } from '../../../src/mcp/cache.ts'
+import { writeFileSync } from 'node:fs'
+import { createTestContext } from '../../helpers/testContext.ts'
 import type { MemberSpec } from '../../../src/members/types.ts'
 
 const FIXTURE = fileURLToPath(new URL('../../fixtures/mcp-fixture-server.mjs', import.meta.url))
@@ -88,10 +91,30 @@ describe('Mcp tool-list cache (ADR-050)', () => {
     listSpy.mockRestore()
   })
 
-  it('fails closed on call when a cached tool was removed from the server', async () => {
-    // Instead test that a declared tool not in cache throws before call.
+  it('rejects a declared tool the server does not expose, before any call', async () => {
     const s = new McpSession('caller', servers, async () => {})
     await expect(s.resolve(spec({ declaredTools: ['file.read', 'mcp.fixture.nope'] }))).rejects.toThrow(/does not expose/)
+    await s.close()
+  })
+
+  it('fails the call, not silently succeeds, when a cached tool is gone from the server', async () => {
+    // A cached entry claims the server exposes "ghost"; the server does not.
+    const config = servers.fixture
+    const key = cacheKey(config, 'stdio')
+    writeFileSync(
+      join(cacheDir, `${key}.json`),
+      JSON.stringify({
+        version: 1,
+        key,
+        fetchedAt: Date.now(),
+        tools: [{ name: 'ghost', description: '', inputSchema: { type: 'object' } }],
+      }),
+    )
+    const s = new McpSession('caller', servers, async () => {})
+    const resolved = await s.resolve(spec({ declaredTools: ['file.read', 'mcp.fixture.ghost'] }))
+    expect(resolved.tools).toContain('mcp.fixture.ghost')
+    const result = await s.instances().get('mcp.fixture.ghost')!.execute({}, createTestContext())
+    expect(result.success).toBe(false)
     await s.close()
   })
 })

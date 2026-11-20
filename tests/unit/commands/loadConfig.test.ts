@@ -244,6 +244,33 @@ describe('loadConfig', () => {
       })
     })
 
+    it('allows a literal value for a non-secret key that merely contains a secret word', async () => {
+      await withFixture(JSON.stringify({
+        mcpServers: { atlas: { command: 'node', env: { PATH: '/custom/bin', PATTERN: 'x', AUTHORS: 'y' } } },
+      }), async () => {
+        const cfg = await loadConfig()
+        expect(cfg.mcpServers?.atlas.env).toEqual({ PATH: '/custom/bin', PATTERN: 'x', AUTHORS: 'y' })
+      })
+    })
+
+    it.each([
+      ['a stdio server with headers', { atlas: { command: 'node', headers: { 'X-A': 'b' } } }, '"headers" is not allowed for stdio'],
+      ['an http server with command', { atlas: { transport: 'http', url: 'http://x', command: 'node' } }, '"command" is not allowed for http'],
+      ['an http server with args', { atlas: { transport: 'http', url: 'http://x', args: [] } }, '"args" is not allowed for http'],
+      ['an http server with env', { atlas: { transport: 'http', url: 'http://x', env: { A: 'b' } } }, '"env" is not allowed for http'],
+      ['an unknown transport', { atlas: { transport: 'sse', url: 'http://x' } }, '"transport" must be "stdio" or "http"'],
+    ])('rejects %s', async (_label, servers, message) => {
+      await withFixture(JSON.stringify({ mcpServers: servers }), async () => {
+        await expect(loadConfig()).rejects.toThrow(message)
+      })
+    })
+
+    it('rejects a non-object env block', async () => {
+      await withFixture(JSON.stringify({ mcpServers: { atlas: { command: 'node', env: 'x' } } }), async () => {
+        await expect(loadConfig()).rejects.toThrow('"env" must be an object')
+      })
+    })
+
     it('rejects a literal value for a secret-like env key', async () => {
       await withFixture(JSON.stringify({
         mcpServers: { atlas: { command: 'node', env: { API_KEY: 'hunter2' } } },

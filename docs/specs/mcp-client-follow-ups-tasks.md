@@ -1,6 +1,6 @@
 # Tasks: MCP Client Follow-ups
 
-## Phase 0 — Design (issue #1157)
+## Phase 0: Design (issue #1157)
 
 - [ ] docs(spec): add MCP client follow-ups spec
 - [ ] docs(spec): add MCP client follow-ups task list
@@ -11,7 +11,7 @@
 - [ ] docs(adr): add ADR-052 per-server environment with secret-reference rule
 - [ ] docs(adr): index ADRs 048-052 in docs/adr/README.md
 
-## Phase 1 — Verification (independent PRs)
+## Phase 1: Verification (independent PRs)
 
 ### P1a (issue #1158)
 - [ ] test(mcp): add `error-on-call` fixture mode and `envkeys` tool
@@ -27,7 +27,7 @@
 - [ ] test(mcp): assert SIGTERM kills the child on POSIX (skip on Windows with reason)
 - [ ] docs(runtime): note signal-shutdown verification and Windows limitation
 
-## Phase 2 — Capabilities (ordered)
+## Phase 2: Capabilities (ordered)
 
 ### P2a env (issue #1161)
 - [ ] docs(adr): ADR-052 (already in Phase 0)

@@ -27,11 +27,11 @@ rule, but leaves three classes of gap:
 
 Two phases.
 
-**Phase 1 — verification (3 PRs).** Close the four unverified behaviors with targeted tests and one
+**Phase 1: verification (3 PRs).** Close the four unverified behaviors with targeted tests and one
 small refactor (`MemberRegistry` constructor accepts a members directory, so the no-spawn assertion
 can be exercised without touching `skills/`). No behavior change.
 
-**Phase 2 — capabilities (5 PRs, ordered).** Each capability is one ADR plus one implementation PR,
+**Phase 2: capabilities (5 PRs, ordered).** Each capability is one ADR plus one implementation PR,
 in dependency order: env (ADR-052) → HTTP (ADR-048) → auth (ADR-049) and cache (ADR-050); readOnly
 (ADR-051) is independent. HTTP reuses the env-substitution rule from ADR-052 so auth needs no new
 config block. Cache covers both transports.

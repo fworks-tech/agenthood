@@ -94,7 +94,7 @@ function parseRepoInstructions(raw: Record<string, unknown>): boolean | undefine
 }
 
 const MCP_SERVER_NAME = /^[a-z0-9][a-z0-9-]*$/
-const MCP_SERVER_KEYS = new Set(['command', 'args', 'env', 'readOnly'])
+const MCP_SERVER_KEYS = new Set(['command', 'args', 'env', 'readOnly', 'transport', 'url', 'headers'])
 
 const SENSITIVE_KEY = /api[_-]?key|token|secret|password|credential|bearer|pat|jwt|auth/i
 const ENV_REF = /^\$\{env:([A-Za-z0-9_]+)\}$/
@@ -137,14 +137,13 @@ function parseMcpServers(raw: Record<string, unknown>): Record<string, McpServer
     for (const key of Object.keys(def)) {
       if (!MCP_SERVER_KEYS.has(key)) throw new Error(`${where}: unknown key "${key}".`)
     }
-    const { command, args = [], env, readOnly } = def as Record<string, unknown>
-    if (typeof command !== 'string' || command.trim() === '') throw new Error(`${where}: "command" must be a non-empty string.`)
-    if (!Array.isArray(args) || !args.every((arg) => typeof arg === 'string')) {
-      throw new Error(`${where}: "args" must be an array of strings.`)
-    }
+    const { command, args = [], env, readOnly, transport, url, headers } = def as Record<string, unknown>
+    const t = transport === undefined ? 'stdio' : transport
+    if (t !== 'stdio' && t !== 'http') throw new Error(`${where}: "transport" must be "stdio" or "http".`)
     if (readOnly !== undefined && typeof readOnly !== 'boolean') {
       throw new Error(`${where}: "readOnly" must be a boolean.`)
     }
+
     let resolvedEnv: Record<string, string> | undefined
     if (env !== undefined) {
       if (!env || typeof env !== 'object' || Array.isArray(env)) throw new Error(`${where}: "env" must be an object.`)
@@ -153,7 +152,42 @@ function parseMcpServers(raw: Record<string, unknown>): Record<string, McpServer
         resolvedEnv[key] = resolveEnvValue(where, key, val)
       }
     }
-    servers[name] = { command, args: [...args], ...(resolvedEnv ? { env: resolvedEnv } : {}), ...(readOnly === true ? { readOnly: true } : {}) }
+
+    let resolvedHeaders: Record<string, string> | undefined
+    if (headers !== undefined) {
+      if (!headers || typeof headers !== 'object' || Array.isArray(headers)) throw new Error(`${where}: "headers" must be an object.`)
+      resolvedHeaders = {}
+      for (const [key, val] of Object.entries(headers)) {
+        resolvedHeaders[key] = resolveEnvValue(where, key, val)
+      }
+    }
+
+    if (t === 'stdio') {
+      if (typeof command !== 'string' || command.trim() === '') throw new Error(`${where}: "command" must be a non-empty string.`)
+      if (!Array.isArray(args) || !args.every((arg) => typeof arg === 'string')) {
+        throw new Error(`${where}: "args" must be an array of strings.`)
+      }
+      if (url !== undefined) throw new Error(`${where}: "url" is not allowed for stdio transport.`)
+    } else {
+      if (typeof url !== 'string' || !/^https?:\/\//.test(url)) throw new Error(`${where}: "url" must be an http(s) URL.`)
+      if (command !== undefined) throw new Error(`${where}: "command" is not allowed for http transport.`)
+      if (args !== undefined && args !== null) {
+        // args may be omitted; if present must be array (but http ignores)
+        if (!Array.isArray(args) || !args.every((arg) => typeof arg === 'string')) {
+          throw new Error(`${where}: "args" must be an array of strings.`)
+        }
+      }
+    }
+
+    const entry: McpServerConfig = {
+      ...(t === 'stdio' ? { command: command as string, args: [...(args as string[])] } : {}),
+      ...(resolvedEnv ? { env: resolvedEnv } : {}),
+      ...(readOnly === true ? { readOnly: true } : {}),
+      ...(t === 'http' ? { transport: 'http' as const } : {}),
+      ...(t === 'http' ? { url: url as string } : {}),
+      ...(resolvedHeaders ? { headers: resolvedHeaders } : {}),
+    }
+    servers[name] = entry
   }
   return servers
 }

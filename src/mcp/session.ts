@@ -11,14 +11,16 @@ import type { LLMConfig, McpServerConfig } from '../llm/types.ts'
 import type { ExecutionContext } from '../core/ExecutionContext.ts'
 import type { MemberSpec } from '../members/types.ts'
 import { MemberRegistry } from '../members/MemberRegistry.ts'
-import { McpStdioClient, type McpToolInfo } from './client.ts'
+import { McpStdioClient } from './client.ts'
+import type { McpClient, McpToolInfo } from './client.ts'
+import { McpHttpClient } from './http.ts'
 import { McpServerError } from './errors.ts'
 import { isRegistrableMcpTool, parseDeclaredMcpTool } from './names.ts'
 import { McpTool } from './tool.ts'
 import { recordMcpDecision, type McpAudit } from './audit.ts'
 
 export class McpSession {
-  private readonly clients: McpStdioClient[] = []
+  private readonly clients: McpClient[] = []
   private readonly tools = new Map<string, ITool>()
 
   constructor(
@@ -97,9 +99,13 @@ export class McpSession {
       throw new Error(`member "${this.member}" ${reason}`)
     }
 
-    let client: McpStdioClient
+    let client: McpClient
     try {
-      client = await McpStdioClient.start(server, config)
+      if ((config.transport ?? 'stdio') === 'http') {
+        client = await McpHttpClient.start(server, config)
+      } else {
+        client = await McpStdioClient.start(server, config)
+      }
     } catch (err) {
       await this.audit({ task: `start MCP server ${server}`, decision: `failed: ${(err as Error).message}`, outcome: 'failed' })
       throw err

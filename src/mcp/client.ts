@@ -18,6 +18,13 @@ const CALL_TIMEOUT_MS = 30_000
 export const INHERITED_ENV = ['PATH', 'SystemRoot', 'HOME', 'USERPROFILE', 'TEMP', 'TMP']
 const METHOD_NOT_FOUND = -32601
 
+export interface McpClient {
+  readonly name: string
+  listTools(): Promise<McpToolInfo[]>
+  callTool(name: string, args: Record<string, unknown>): Promise<{ text: string; isError: boolean }>
+  close(): Promise<void>
+}
+
 export interface McpToolInfo {
   name: string
   description: string
@@ -55,7 +62,7 @@ export function inheritedEnv(): NodeJS.ProcessEnv {
   return env
 }
 
-export class McpStdioClient {
+export class McpStdioClient implements McpClient {
   private readonly pending = new Map<number, PendingRequest>()
   private nextId = 1
   private failure: string | null = null
@@ -72,7 +79,8 @@ export class McpStdioClient {
   }
 
   static async start(name: string, config: McpServerConfig, options: { callTimeoutMs?: number } = {}): Promise<McpStdioClient> {
-    const child = spawn(config.command, config.args, {
+    if (!config.command) throw new McpServerError(name, 'failed to start: missing command')
+    const child = spawn(config.command, config.args ?? [], {
       shell: false,
       stdio: ['pipe', 'pipe', 'pipe'],
       env: { ...inheritedEnv(), ...(config.env ?? {}) },

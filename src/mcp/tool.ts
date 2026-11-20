@@ -9,7 +9,7 @@ import type { ITool, ToolResult } from '../tools/ITool.ts'
 import type { JSONSchema } from '../llm/types.ts'
 import { McpCallError, McpServerError } from './errors.ts'
 import { mcpRegistryName } from './names.ts'
-import type { McpStdioClient, McpToolInfo } from './client.ts'
+import type { McpClient, McpToolInfo } from './client.ts'
 import type { McpAudit } from './audit.ts'
 
 export class McpTool implements ITool {
@@ -18,7 +18,7 @@ export class McpTool implements ITool {
   readonly inputSchema: JSONSchema
 
   constructor(
-    private readonly client: McpStdioClient,
+    private readonly client: McpClient,
     private readonly info: McpToolInfo,
     private readonly audit: McpAudit,
   ) {

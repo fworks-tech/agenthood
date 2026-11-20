@@ -123,12 +123,18 @@ export interface RemoteCatalogsConfig {
 }
 
 export interface McpServerConfig {
-  command: string
-  args: string[]
+  command?: string
+  args?: string[]
   /** Resolved environment for the child process (ADR-052). Merged over the inherited set. */
   env?: Record<string, string>
   /** When true, the server's tools are READ-level (ADR-051). */
   readOnly?: boolean
+  /** Transport type (ADR-048). Defaults to "stdio". */
+  transport?: 'stdio' | 'http'
+  /** HTTP endpoint URL (required when transport is "http"). */
+  url?: string
+  /** HTTP headers; values may use ${env:VAR} (ADR-049). */
+  headers?: Record<string, string>
 }
 
 export interface LLMConfig {  provider?: string

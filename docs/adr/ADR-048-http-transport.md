@@ -27,10 +27,10 @@ request. `GET`/`DELETE` session management is not required for v1; the server ma
 the client treats the next request as a fresh initialize.
 
 **3. Config shape.** An HTTP entry has `transport: "http"`, `url` (a valid `http:` or `https:` URL),
-and optional `headers: Record<string,string>`. `command`/`args` are forbidden on an HTTP entry and
-`url` is forbidden on a stdio entry; an unknown key or a mismatched field fails config load before
-any request. `headers` values may contain `${env:VAR}` (ADR-049); literal values are allowed for
-non-secret keys.
+and optional `headers: Record<string,string>`. Fields that belong to the other transport are
+rejected before any request: `command`, `args` and `env` are forbidden on an HTTP entry, and
+`url` and `headers` are forbidden on a stdio entry. `headers` values may contain `${env:VAR}`
+(ADR-049); literal values are allowed for non-secret keys.
 
 **4. Timeouts and failure.** Start (initialize + tools/list) is bounded by 10 s, each call by 30 s,
 matching stdio. A connection refused, a non-2xx response, a malformed body, or a timeout fails the

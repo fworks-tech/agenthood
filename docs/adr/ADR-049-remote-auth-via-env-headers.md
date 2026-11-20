@@ -19,10 +19,11 @@ substitution for per-server env, so auth can reuse the same mechanism instead of
 `"Authorization": "Bearer ${env:ATLAS_TOKEN}"`. No `auth` config block exists. This keeps one
 substitution rule (ADR-052) and one place to look for credentials.
 
-**2. Only `${env:VAR}` in auth headers.** A header whose name matches the sensitive set
-(`authorization`, `x-api-key`, `cookie`, or any name containing `token`, `secret`, `password`,
-`credential`, `auth`, `bearer`, `pat`, `jwt`) MUST use `${env:VAR}`; a literal value fails config
-load with an error naming the header. Non-sensitive headers may be literal or referenced.
+**2. Only `${env:VAR}` in auth headers.** A header whose name has a whole segment in the sensitive
+set (`authorization`, `x-api-key`, `cookie`, or a `_`/`-` segment equal to `token`, `secret`,
+`password`, `credential`, `auth`, `bearer`, `pat`, `jwt`) MUST use `${env:VAR}`; a literal value
+fails config load with an error naming the header. Non-sensitive headers may be literal or
+referenced.
 
 **3. Substitution at load time.** `${env:VAR}` is resolved when `loadConfig` runs, against
 `process.env`. A missing variable fails config load before any connection, naming the variable and

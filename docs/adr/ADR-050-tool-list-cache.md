@@ -24,14 +24,14 @@ header *values* (so a rotated secret changes the key without storing the secret)
 version string. The key changes when any input that affects `tools/list` changes; it does not change
 when unrelated config changes.
 
-**3. TTL and refresh.** Default TTL 24 h. Within TTL, the cache is used without contacting the
-server. Past TTL, the client re-runs `tools/list` and overwrites the cache; a failure to refresh
-fails the run (fail-closed), it does not silently fall back to stale data. A `--refresh-mcp-cache`
-flag (or env `AGENTHOOD_MCP_CACHE_REFRESH=1`) forces revalidation regardless of TTL.
+**3. TTL and refresh.** Default TTL 24 h. Within TTL, the client still starts (it must, to serve
+calls) but skips `tools/list`. Past TTL, the client re-runs `tools/list` and overwrites the cache; a
+failure to refresh fails the run (fail-closed), it does not silently fall back to stale data. Setting
+`AGENTHOOD_MCP_CACHE_REFRESH=1` forces revalidation regardless of TTL.
 
-**4. Corrupt or stale cache.** A file that fails to parse, has a mismatched key, or has an unknown
-shape is deleted and treated as a miss. A cache hit whose tool list no longer matches the server
-(determined only at call time) fails closed on the call: the tool is not silently invoked.
+**4. Corrupt or stale cache.** A file that fails to parse, has a mismatched key or `version`, or has
+an unknown shape is deleted and treated as a miss. A cache hit whose tool list no longer matches the
+server (determined only at call time) fails closed on the call: the tool is not silently invoked.
 
 **5. Scope.** Cache covers both stdio and http transports (ADR-048). The cache is per host working
 directory, not per member, because `tools/list` is a property of the server, not the member.

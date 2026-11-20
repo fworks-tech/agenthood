@@ -19,11 +19,12 @@ the audit trail.
 (`^[A-Za-z0-9_]+$`). Values are either a literal string or a `${env:VAR}` reference resolved
 against `process.env` at config load time.
 
-**2. Secret-reference rule.** A key whose name matches the sensitive set
-(`api[_-]?key`, `token`, `secret`, `password`, `credential`, `bearer`, `pat`, `jwt`, `auth`,
-case-insensitive) MUST use `${env:VAR}`; a literal value fails config load with an error naming
-the key and the server, never the value. In HTTP headers (ADR-049), a header whose name is in the
-sensitive set (or contains those substrings) MUST also use `${env:VAR}`.
+**2. Secret-reference rule.** A key whose name has a whole segment (split on `_` or `-`) in the
+sensitive set (`api_key`, `token`, `secret`, `password`, `passwd`, `credential`, `bearer`, `pat`,
+`jwt`, `auth`, `authorization`, `cookie`, case-insensitive) MUST use `${env:VAR}`; a literal value
+fails config load with an error naming the key and the server, never the value. Whole-segment
+matching keeps everyday names usable: `PATH` is not `PAT`, and `AUTHORS` is not `AUTH`. In HTTP
+headers (ADR-049), the same rule applies to the header name.
 
 **3. Merge over inherited env.** The resolved `env` is merged on top of the inherited set
 (`PATH`, `SystemRoot`, `HOME`, `USERPROFILE`, `TEMP`, `TMP`), so a server entry can override

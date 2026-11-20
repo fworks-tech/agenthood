@@ -82,7 +82,10 @@ describe('Mcp tool-list cache (ADR-050)', () => {
 
   it('ignores a corrupt cache file', async () => {
     const { writeFileSync } = await import('node:fs')
-    writeFileSync(join(cacheDir, '0000000000000000.json'), '{not json')
+    const { cacheKey } = await import('../../../src/mcp/cache.ts')
+    const key = cacheKey(servers.fixture, 'stdio')
+    const file = join(cacheDir, `${key}.json`)
+    writeFileSync(file, '{not json')
     const listSpy = vi.spyOn(McpStdioClient.prototype, 'listTools')
     const s = new McpSession('caller', servers, async () => {})
     await s.resolve(spec())

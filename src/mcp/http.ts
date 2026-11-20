@@ -9,8 +9,8 @@
 import type { JSONSchema, McpServerConfig } from '../llm/types.ts'
 import { McpCallError, McpServerError } from './errors.ts'
 import type { McpClient, McpToolInfo } from './client.ts'
+import { PROTOCOL_VERSION } from './cache.ts'
 
-const PROTOCOL_VERSION = '2025-11-25'
 const START_TIMEOUT_MS = 10_000
 const CALL_TIMEOUT_MS = 30_000
 
@@ -111,10 +111,15 @@ export class McpHttpClient implements McpClient {
 
       const contentType = response.headers.get('content-type') ?? ''
       let result: unknown
-      if (contentType.includes('text/event-stream')) {
-        result = await this.readSse(response, id)
-      } else {
-        result = await response.json()
+      try {
+        if (contentType.includes('text/event-stream')) {
+          result = await this.readSse(response, id)
+        } else {
+          result = await response.json()
+        }
+      } catch (err) {
+        const reason = err instanceof Error ? err.message : String(err)
+        throw new McpCallError(this.name, `${method} failed: ${reason}`)
       }
       const msg = result as { id?: number; result?: unknown; error?: { code: number; message: string } }
       if (msg.error) throw new McpCallError(this.name, `${msg.error.message} (code ${msg.error.code})`)
@@ -147,7 +152,7 @@ export class McpHttpClient implements McpClient {
         }
         // Return on the matching response: a compliant server may keep the stream open.
         if (parsed.id === id) {
-          await reader.cancel()
+          reader.cancel().catch(() => {})
           return parsed
         }
       }

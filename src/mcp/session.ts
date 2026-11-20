@@ -119,6 +119,7 @@ export class McpSession {
     let listed: McpToolInfo[]
     const cached = loadCachedTools(config, transport)
     if (cached) {
+      // Cache hit skips tools/list: liveness is checked at tool-call time instead.
       listed = cached
     } else {
       try {

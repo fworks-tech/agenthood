@@ -97,21 +97,25 @@ const MCP_SERVER_NAME = /^[a-z0-9][a-z0-9-]*$/
 const MCP_SERVER_KEYS = new Set(['command', 'args', 'env', 'readOnly', 'transport', 'url', 'headers'])
 
 const SENSITIVE_KEY = /api[_-]?key|token|secret|password|credential|bearer|pat|jwt|auth/i
-const ENV_REF = /^\$\{env:([A-Za-z0-9_]+)\}$/
+const ENV_REF_GLOBAL = /\$\{env:([A-Za-z0-9_]+)\}/g
 
 function resolveEnvValue(where: string, key: string, value: unknown): string {
-  if (typeof value !== 'string') throw new Error(`${where}: env.${key} must be a string.`)
-  if (!/^[A-Za-z0-9_]+$/.test(key)) throw new Error(`${where}: env key "${key}" must match [A-Za-z0-9_]+.`)
-  const ref = ENV_REF.exec(value)
-  if (ref) {
-    const varName = ref[1]
+  if (typeof value !== 'string') throw new Error(`${where}: env.${key} must be a string.`) // note: for headers key name differs; message uses env. prefix loosely
+  if (key !== key) { /* noop */ }
+  const matches = [...value.matchAll(ENV_REF_GLOBAL)]
+  if (value.includes('${env:') && matches.length === 0) {
+    throw new Error(`${where}: env.${key} has a malformed \${env:VAR} reference.`)
+  }
+  if (matches.length > 1) {
+    throw new Error(`${where}: env.${key} allows a single \${env:VAR} reference.`)
+  }
+  if (matches.length === 1) {
+    const varName = matches[0][1]
     if (process.env[varName] === undefined) throw new Error(`${where}: env.${key} references missing variable ${varName}.`)
-    return process.env[varName] as string
+    const resolved = process.env[varName] as string
+    return value.replace(ENV_REF_GLOBAL, resolved)
   }
-  if (ENV_REF.test(value) === false && value.includes('${env:')) {
-    // partial/interpolated reference is not allowed in v1
-    throw new Error(`${where}: env.${key} must be either a literal or a single \${env:VAR} reference.`)
-  }
+  // literal
   if (SENSITIVE_KEY.test(key)) {
     throw new Error(`${where}: env.${key} is secret-like and must use \${env:VAR}, not a literal value.`)
   }
@@ -149,6 +153,7 @@ function parseMcpServers(raw: Record<string, unknown>): Record<string, McpServer
       if (!env || typeof env !== 'object' || Array.isArray(env)) throw new Error(`${where}: "env" must be an object.`)
       resolvedEnv = {}
       for (const [key, val] of Object.entries(env)) {
+        if (!/^[A-Za-z0-9_]+$/.test(key)) throw new Error(`${where}: env key "${key}" must match [A-Za-z0-9_]+.`)
         resolvedEnv[key] = resolveEnvValue(where, key, val)
       }
     }

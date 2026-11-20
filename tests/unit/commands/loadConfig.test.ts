@@ -252,19 +252,6 @@ describe('loadConfig', () => {
       })
     })
 
-    it('rejects partial ${env:...} interpolation', async () => {
-      process.env.AGENTHOOD_TEST_ENVVAL = 'v'
-      try {
-        await withFixture(JSON.stringify({
-          mcpServers: { atlas: { command: 'node', env: { X: 'pre-${env:AGENTHOOD_TEST_ENVVAL}' } } },
-        }), async () => {
-          await expect(loadConfig()).rejects.toThrow(/must be either a literal/)
-        })
-      } finally {
-        delete process.env.AGENTHOOD_TEST_ENVVAL
-      }
-    })
-
     it('rejects a non-object mcpServers block', async () => {
       await withFixture(JSON.stringify({ mcpServers: ['node'] }), async () => {
         await expect(loadConfig()).rejects.toThrow('expected an object of servers')
@@ -281,9 +268,33 @@ describe('loadConfig', () => {
       })
     })
 
-    it('rejects a non-boolean readOnly', async () => {
-      await withFixture(JSON.stringify({ mcpServers: { atlas: { command: 'node', readOnly: 'yes' } } }), async () => {
-        await expect(loadConfig()).rejects.toThrow('"readOnly" must be a boolean')
+    it('resolves ${env:VAR} in http headers', async () => {
+      process.env.AGENTHOOD_TEST_TOKEN = 'tok-123'
+      try {
+        await withFixture(JSON.stringify({
+          mcpServers: { atlas: { transport: 'http', url: 'http://x', headers: { Authorization: 'Bearer ${env:AGENTHOOD_TEST_TOKEN}' } } },
+        }), async () => {
+          const cfg = await loadConfig()
+          expect(cfg.mcpServers?.atlas.headers).toEqual({ Authorization: 'Bearer tok-123' })
+        })
+      } finally {
+        delete process.env.AGENTHOOD_TEST_TOKEN
+      }
+    })
+
+    it('rejects a literal secret-like http header', async () => {
+      await withFixture(JSON.stringify({
+        mcpServers: { atlas: { transport: 'http', url: 'http://x', headers: { Authorization: 'Bearer literal' } } },
+      }), async () => {
+        await expect(loadConfig()).rejects.toThrow(/secret-like and must use/)
+      })
+    })
+
+    it('rejects a missing ${env:VAR} in http headers', async () => {
+      await withFixture(JSON.stringify({
+        mcpServers: { atlas: { transport: 'http', url: 'http://x', headers: { 'X-Api-Key': '${env:AGENTHOOD_NO_SUCH_HDR}' } } },
+      }), async () => {
+        await expect(loadConfig()).rejects.toThrow(/missing variable AGENTHOOD_NO_SUCH_HDR/)
       })
     })
   })

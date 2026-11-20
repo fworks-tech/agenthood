@@ -69,9 +69,9 @@ export class MemberRegistry {
     'the-inspector': 'inspector',
   }
 
-  constructor() {
+  constructor(private readonly membersDir: string = MEMBERS_DIR) {
     for (const raw of rawSpecs) {
-      const skillPath = join(MEMBERS_DIR, raw.name, 'SKILL.md')
+      const skillPath = join(membersDir, raw.name, 'SKILL.md')
       let systemPrompt = ''
       let outputFormat: string | undefined
       let outputFormatMode: 'strict' | 'lenient' | undefined

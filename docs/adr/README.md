@@ -54,6 +54,11 @@ to explain the gap in the numbering.
 | 045 | [ADR-045: Evaluation Tooling Scope](ADR-045-eval-tooling-scope.md) | 2026-11-17 | Accepted | Eval, history, A/B and description optimization are one pipeline; dashboards, multi-judge and auto-stop stay out. |
 | 046 | [ADR-046: Automated Review Authority](ADR-046-automated-review-authority.md) | 2026-11-17 | Accepted | The automated Reviewer is advisory; deterministic checks gate, and comments carry the reviewed SHA. |
 | 047 | [ADR-047: MCP Client Scope and Per-Member Tool Grants](ADR-047-mcp-client-scope.md) | 2026-11-19 | Accepted | Only the host declares MCP servers; a member's tools are declared ∩ server allowlist ∩ profile, fail-closed. |
+| 048 | [ADR-048: HTTP Transport for Host-Declared MCP Servers](ADR-048-http-transport.md) | 2026-11-20 | Accepted | Streamable HTTP transport alongside stdio, behind a common `McpTransport`. |
+| 049 | [ADR-049: Remote Server Auth via Env-Substituted Headers](ADR-049-remote-auth-via-env-headers.md) | 2026-11-20 | Accepted | Auth is env-substituted HTTP headers; no `auth` block. |
+| 050 | [ADR-050: Tool-List Cache for Host-Declared MCP Servers](ADR-050-tool-list-cache.md) | 2026-11-20 | Accepted | Cached `tools/list` for stdio and http, keyed on config + protocol version. |
+| 051 | [ADR-051: Per-Server readOnly Grants for Restricted Members](ADR-051-readonly-server-grants.md) | 2026-11-20 | Accepted | Amends ADR-047: a `readOnly` server's tools reach `restricted` members. |
+| 052 | [ADR-052: Per-Server Environment with Secret-Reference Rule](ADR-052-per-server-env.md) | 2026-11-20 | Accepted | Amends ADR-047: `env` block with `${env:VAR}` and a secret-reference rule. |
 
 ## How the index is maintained
 

@@ -5,6 +5,25 @@
 
 ---
 
+## v4.5.0: November 21, 2026
+
+### 🐛 Bug Fixes
+
+- **Tests:** cast readdirSync mock to satisfy typecheck (#1156)
+- **Trace:** guard printMcp against malformed decision files (#1155)
+
+### ✨ Features
+
+- **Mcp:** add a stdio client with per-member scope for host-declared servers (#1144)
+- **Mcp:** cache tool lists per server (ADR-050) (#1174)
+- **Mcp:** http transport for host-declared servers (#1172)
+- **Mcp:** per-server env for stdio servers (#1170)
+- **Mcp:** per-server readOnly grants for restricted members (#1171)
+- **Mcp:** remote auth via env-substituted headers (#1173)
+- **Trace:** show mcp servers, grants and invocations (#1148)
+
+---
+
 ## v4.4.0: November 19, 2026
 
 ### 🐛 Bug Fixes

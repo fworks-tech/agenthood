@@ -1,3 +1,22 @@
+# [4.5.0](https://github.com/fworks-tech/agenthood/compare/v4.4.0...v4.5.0) (2026-11-21)
+
+
+### Bug Fixes
+
+* **tests:** cast readdirSync mock to satisfy typecheck ([#1156](https://github.com/fworks-tech/agenthood/issues/1156)) ([bef3500](https://github.com/fworks-tech/agenthood/commit/bef3500d0597b10452a62f7cc446da17e2db2964))
+* **trace:** guard printMcp against malformed decision files ([#1155](https://github.com/fworks-tech/agenthood/issues/1155)) ([fc66cc4](https://github.com/fworks-tech/agenthood/commit/fc66cc4ca5b1131f0dab4bfcc3bf89f9d9e4b25a))
+
+
+### Features
+
+* **mcp:** add a stdio client with per-member scope for host-declared servers ([#1144](https://github.com/fworks-tech/agenthood/issues/1144)) ([a5c8f41](https://github.com/fworks-tech/agenthood/commit/a5c8f41ebd637aeaf41e407863a2347029759c42))
+* **mcp:** cache tool lists per server (ADR-050) ([#1174](https://github.com/fworks-tech/agenthood/issues/1174)) ([250a753](https://github.com/fworks-tech/agenthood/commit/250a75367bc40a9f65a24871c8855d68b9cb5102))
+* **mcp:** http transport for host-declared servers ([#1172](https://github.com/fworks-tech/agenthood/issues/1172)) ([42f1245](https://github.com/fworks-tech/agenthood/commit/42f12456f754e09e2b58fbf36d34dfd4329b6207))
+* **mcp:** per-server env for stdio servers ([#1170](https://github.com/fworks-tech/agenthood/issues/1170)) ([56b698a](https://github.com/fworks-tech/agenthood/commit/56b698ac984c5917838b4ab89e2abd9f0aa2806e))
+* **mcp:** per-server readOnly grants for restricted members ([#1171](https://github.com/fworks-tech/agenthood/issues/1171)) ([ca6c313](https://github.com/fworks-tech/agenthood/commit/ca6c3130b8680f7f8a4319a31503564eea7bb7b8))
+* **mcp:** remote auth via env-substituted headers ([#1173](https://github.com/fworks-tech/agenthood/issues/1173)) ([4519f07](https://github.com/fworks-tech/agenthood/commit/4519f07a55f97c782fd21646270a1038edd45770))
+* **trace:** show mcp servers, grants and invocations ([#1148](https://github.com/fworks-tech/agenthood/issues/1148)) ([65885dc](https://github.com/fworks-tech/agenthood/commit/65885dcb1b922f48a260c56bffae39062ce5af2a))
+
 # [4.4.0](https://github.com/fworks-tech/agenthood/compare/v4.3.0...v4.4.0) (2026-11-19)
 
 

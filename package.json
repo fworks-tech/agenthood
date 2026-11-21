@@ -105,7 +105,7 @@
     "eslint": "^10.8.0",
     "jiti": "^2.7.0",
     "marked": "^18.0.12",
-    "semantic-release": "^25.0.5",
+    "semantic-release": "^26.0.1",
     "tsx": "^4.19.0",
     "typedoc": "^0.28.20",
     "typescript": "^5.8.0",

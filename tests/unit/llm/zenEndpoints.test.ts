@@ -12,6 +12,11 @@ describe("zenProtocolForModel", () => {
     expect(zenProtocolForModel("jev-1.13")).toBe("systemone");
     expect(zenProtocolForModel("jev-1.13-free")).toBe("systemone");
   });
+  it("routes catalog systemone decision models to systemone", () => {
+    for (const m of ["gemini-decision-1", "gpt-6-luna-decision"]) {
+      expect(zenProtocolForModel(m)).toBe("systemone");
+    }
+  });
   it("routes responses models from the catalog", () => {
     for (const m of ["gpt-5-nano", "gpt-6-sol", "grok-4.7", "muse-spark-1.3"]) expect(zenProtocolForModel(m)).toBe("responses");
   });

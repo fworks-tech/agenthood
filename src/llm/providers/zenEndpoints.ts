@@ -12,6 +12,7 @@ import { getCatalogModel } from './opencodeCatalog.ts'
 export type ZenProtocol = 'chat' | 'messages' | 'responses' | 'generate-content' | 'systemone'
 
 const PROTOCOL_PRIORITY: Array<[string, ZenProtocol]> = [
+  ['systemone', 'systemone'],
   ['messages', 'messages'],
   ['responses', 'responses'],
   ['chat-completions', 'chat'],
@@ -19,7 +20,7 @@ const PROTOCOL_PRIORITY: Array<[string, ZenProtocol]> = [
 ]
 
 export function zenProtocolForModel(model: string): ZenProtocol {
-  // System One (jev) models are not published in /models; the prefix is the only signal.
+  // Jev models are systemone by prefix even if the catalog is missing them.
   if (model.startsWith('jev-')) return 'systemone'
   const apis = getCatalogModel(model)?.apis ?? []
   return PROTOCOL_PRIORITY.find(([api]) => apis.includes(api))?.[1] ?? 'chat'

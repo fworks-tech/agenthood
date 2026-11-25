@@ -28,120 +28,76 @@ Together, they enable agents that follow procedures AND interact with the world.
 
 ## Configuration
 
-> **Status: Planned**: MCP integration is not yet implemented in the runtime.
-> The configuration schema below is the intended design. See issue #790 for tracking.
-
-MCP servers are configured in `.agenthood/config.json` or `opencode.json`:
+The host declares MCP servers in `.agenthood/config.json`. A member receives a server's tools only when its `allowed-tools` names `mcp.<server>.<tool>`.
 
 ```json
 {
-  "mcp": {
-    "github": {
-      "type": "remote",
-      "url": "https://api.githubcopilot.com/mcp",
-      "headers": {
-        "Authorization": "Bearer {env:GITHUB_TOKEN}"
-      }
+  "mcpServers": {
+    "atlas": {
+      "command": "node",
+      "args": ["tools/atlas-mcp.js"],
+      "env": { "ATLAS_TOKEN": "${env:ATLAS_TOKEN}" }
     },
     "linear": {
-      "type": "local",
-      "command": ["npx", "-y", "@linear/mcp-server"],
-      "environment": {
-        "LINEAR_API_KEY": "{env:LINEAR_API_KEY}"
-      }
-    },
-    "sentry": {
-      "type": "remote",
-      "url": "https://mcp.sentry.dev/mcp",
-      "oauth": {}
+      "transport": "http",
+      "url": "https://mcp.linear.app/mcp",
+      "headers": { "Authorization": "Bearer ${env:LINEAR_TOKEN}" },
+      "readOnly": true
     }
   }
 }
 ```
-
-### Configuration Fields
 
 | Field | Required | Description |
 |-------|----------|-------------|
-| `type` | Yes | `remote` (HTTP/SSE) or `local` (stdio) |
-| `url` | For remote | MCP server endpoint URL |
-| `command` | For local | Array of command + args to spawn |
-| `headers` | No | HTTP headers (supports `{env:VAR}` interpolation) |
-| `environment` | No | Environment variables for local servers |
-| `oauth` | No | OAuth configuration for remote servers |
-| `enabled` | No | Set `false` to disable (default: true) |
+| `command` | For stdio | Command to spawn |
+| `args` | No | Arguments for the command |
+| `env` | No | Environment variables for a stdio server |
+| `transport` | No | `stdio` (default) or `http` |
+| `url` | For http | HTTP or HTTPS endpoint |
+| `headers` | No | HTTP headers sent to the server |
+| `readOnly` | No | Marks tools as read-level for `restricted` members |
+
+Values in `env` and `headers` are literals or `${env:VAR}` references. Secret-like keys must use a reference. Unknown keys, fields from the wrong transport and missing variables fail config load before any process starts or request is sent.
+
+The full contract, scope rule, cache behavior and failure handling are in [MCP Servers for Members](../runtime-guide.md#mcp-servers-for-members-adr-047).
 
 ## Example: GitHub MCP Server
 
-The GitHub MCP server gives your agent access to repos, PRs, issues, and actions.
+The GitHub MCP server gives your agent access to repos, PRs, issues and actions.
 
-**Setup:**
-
-1. Get a GitHub Personal Access Token
-2. Add to config:
+1. Get a GitHub Personal Access Token.
+2. Add the server to `.agenthood/config.json`:
 
 ```json
 {
-  "mcp": {
+  "mcpServers": {
     "github": {
-      "type": "remote",
+      "transport": "http",
       "url": "https://api.githubcopilot.com/mcp",
-      "headers": {
-        "Authorization": "Bearer {env:GITHUB_TOKEN}"
-      }
+      "headers": { "Authorization": "Bearer ${env:GITHUB_TOKEN}" },
+      "readOnly": true
     }
   }
 }
 ```
 
-3. Set the token: `export GITHUB_TOKEN=ghp_xxx`
+3. Set the token: `export GITHUB_TOKEN=ghp_xxx`.
+4. Name the tools a member may use in its `allowed-tools` field.
 
-**What the agent can do:**
-- List and read PRs
-- Post comments and reviews
-- Check CI status
-- Read file contents at any ref
-- Search code and issues
-
-## Example: Linear MCP Server
-
-The Linear MCP server enables issue tracking integration.
-
-**Setup:**
-
-```json
-{
-  "mcp": {
-    "linear": {
-      "type": "local",
-      "command": ["npx", "-y", "@linear/mcp-server"],
-      "environment": {
-        "LINEAR_API_KEY": "{env:LINEAR_API_KEY}"
-      }
-    }
-  }
-}
-```
-
-**What the agent can do:**
-- List and create issues
-- Update issue status and assignees
-- Search by project, priority, or label
-- Read cycle and roadmap data
+The agent can then list and read PRs, check CI status, read files at any ref and search issues.
 
 ## Example: Custom MCP Server
 
-For internal tools, build a custom MCP server:
+An internal tool can be declared the same way:
 
 ```json
 {
-  "mcp": {
+  "mcpServers": {
     "internal-api": {
-      "type": "remote",
+      "transport": "http",
       "url": "https://internal.example.com/mcp",
-      "headers": {
-        "Authorization": "Bearer {env:INTERNAL_TOKEN}"
-      }
+      "headers": { "Authorization": "Bearer ${env:INTERNAL_TOKEN}" }
     }
   }
 }
@@ -149,39 +105,22 @@ For internal tools, build a custom MCP server:
 
 ## Skills That Use MCP
 
-A skill can reference MCP tools in its Process section:
+A member declares MCP tools in its frontmatter:
 
-```markdown
-## Process
-
-### Review PR
-1. Use the GitHub MCP tool to list open PRs
-2. Read the diff for each PR
-3. Check CI status
-4. Post review comments using the GitHub MCP tool
-5. Approve if all checks pass
+```yaml
+allowed-tools: mcp.github.list_pull_requests file.read
 ```
 
-The agent will call `activate_skill` to load the procedure, then use MCP tools to execute it.
+The skill loads the procedure, and the runtime grants only the named tools that the server actually lists and the member's profile permits.
 
 ## Disabling MCP Servers
 
-To disable a server without removing it:
-
-```json
-{
-  "mcp": {
-    "old-server": {
-      "enabled": false
-    }
-  }
-}
-```
+Remove the server from `mcpServers`. There is no `enabled` flag, so a disabled server cannot be left half configured.
 
 ## Security Considerations
 
-- MCP servers run with the permissions you grant them
-- Use `{env:VAR}` for tokens: never hardcode secrets
-- Remote servers should use HTTPS
-- Consider running untrusted servers in `--sandbox` mode
-- The `enabled: false` flag lets you temporarily disable without deleting config
+- Use `${env:VAR}` for tokens. Never hardcode secrets.
+- Prefer HTTPS for remote servers.
+- Mark a server `readOnly` when its tools do not write.
+- The HTTP client does not follow redirects, so configured headers stay on the configured host.
+- Tool arguments, results and header values are not written to decisions or provenance.

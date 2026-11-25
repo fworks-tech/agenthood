@@ -1,6 +1,6 @@
 # Spec: MCP Client Follow-ups
 
-**Status:** In progress
+**Status:** Done
 **Issue:** #1072 (follow-ups; original issue closed by PR #1144)
 **Tracking issues:** #1157 (Phase 0), #1158, #1159, #1160 (Phase 1), #1161, #1162, #1163, #1164, #1165 (Phase 2)
 
@@ -46,15 +46,15 @@ config block. Cache covers both transports.
 
 ## Acceptance Criteria
 
-- [ ] `docs/specs/mcp-client-follow-ups.md` and `-tasks.md` exist and are reviewed.
-- [ ] ADRs 048-052 exist, are Accepted, and are indexed in `docs/adr/README.md`.
-- [ ] Phase 1: child env test asserts the parent secret is absent; `isError:true` test asserts `{success:false}` plus `failed` audit; no-spawn E2E test asserts zero `McpStdioClient.start` calls; POSIX signal test passes on Linux/macOS and is skipped with reason on Windows.
-- [ ] Phase 2 env: a server `env` reaches the child; a missing `${env:VAR}` fails before spawn; a literal secret-like value fails config load; no value appears in decisions/provenance.
-- [ ] Phase 2 readOnly: a `restricted` member receives a tool from a `readOnly` server and is denied a tool from a non-readOnly server; `standard`/`trusted` unchanged.
-- [ ] Phase 2 HTTP: a Streamable HTTP server passes initialize/list/call; connection loss or timeout fails the run; all existing stdio tests pass unchanged.
-- [ ] Phase 2 auth: a bearer header is sent; missing env fails before connect; token absent from decisions/provenance.
-- [ ] Phase 2 cache: second run avoids `tools/list`; expired cache revalidates; corrupt cache ignored; a removed tool fails closed on call.
-- [ ] Every PR passes `npm test`, `lint`, `typecheck`, `build`, `lint:prose`, `lint:links`, `decision-gate.test.sh`, `filesize-check.sh`, `npx agenthood verify`.
+- [x] `docs/specs/mcp-client-follow-ups.md` and `-tasks.md` exist and are reviewed.
+- [x] ADRs 048-052 exist, are Accepted, and are indexed in `docs/adr/README.md`.
+- [x] Phase 1: child env test asserts the parent secret is absent; `isError:true` test asserts `{success:false}` plus `failed` audit; no-spawn E2E test asserts zero `McpStdioClient.start` calls; POSIX signal test passes on Linux/macOS and is skipped with reason on Windows.
+- [x] Phase 2 env: a server `env` reaches the child; a missing `${env:VAR}` fails before spawn; a literal secret-like value fails config load; no value appears in decisions/provenance.
+- [x] Phase 2 readOnly: a `restricted` member receives a tool from a `readOnly` server and is denied a tool from a non-readOnly server; `standard`/`trusted` unchanged.
+- [x] Phase 2 HTTP: a Streamable HTTP server passes initialize/list/call; connection loss or timeout fails the run; all existing stdio tests pass unchanged.
+- [x] Phase 2 auth: a bearer header is sent; missing env fails before connect; token absent from decisions/provenance.
+- [x] Phase 2 cache: second run avoids `tools/list`; expired cache revalidates; corrupt cache ignored; a removed tool fails closed on call.
+- [x] Every PR passes `npm test`, `lint`, `typecheck`, `build`, `lint:prose`, `lint:links`, `decision-gate.test.sh`, `filesize-check.sh`, `npx agenthood verify`.
 
 ## Testing Strategy
 

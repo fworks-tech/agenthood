@@ -252,12 +252,12 @@ build_comment_body() {
       # Mask long tokens and, additionally, the value after any secret-like
       # assignment (key/token/password/...=value), so short credentials do not
       # survive even when the long-token pass misses them.
-      sed -E 's/[A-Za-z0-9_-]{20,}/[REDACTED]/g; s/([A-Za-z0-9_-]*(api[_-]?key|token|secret|password|credential|bearer|pat|jwt))([[:space:]]*[=:][[:space:]]*)[^[:space:]]+/[REDACTED]/gI' "$error_file" | sed 's/^/> /' || true
+      sed -E 's/[A-Za-z0-9_-]{20,}/[REDACTED]/g; s/([A-Za-z0-9_-]*(api[_-]?key|token|secret|password|credential|bearer|pat|jwt))([[:space:]]*[=:][[:space:]]*)[^[:space:]]+/\1\3[REDACTED]/gI' "$error_file" | sed 's/^/> /' || true
       echo ""
     fi
 
     if [ -s "$summary_file" ]; then
-      sed -E 's/[A-Za-z0-9_-]{32,}/[REDACTED]/g; s/([A-Za-z0-9_-]*(api[_-]?key|token|secret|password|credential|bearer|pat|jwt))([[:space:]]*[=:][[:space:]]*)[^[:space:]]+/[REDACTED]/gI' "$summary_file" || true
+      sed -E 's/[A-Za-z0-9_-]{32,}/[REDACTED]/g; s/([A-Za-z0-9_-]*(api[_-]?key|token|secret|password|credential|bearer|pat|jwt))([[:space:]]*[=:][[:space:]]*)[^[:space:]]+/\1\3[REDACTED]/gI' "$summary_file" || true
     fi
 
     if [ ! -s "$summary_file" ] && [ ! -s "$error_file" ]; then

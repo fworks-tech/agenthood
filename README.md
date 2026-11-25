@@ -24,7 +24,7 @@ repository does. The claim is not taken on faith. [The evidence](#the-evidence)
 section links to live runs and comments from this repository's CI that you
 can open and check.
 
-[Quick start](#quick-start) · [What's new in 4.4](#whats-new-in-44) · [The evidence](#the-evidence) · [The team](#the-team) · [Commands](#command-reference) · [Upgrade from 3.x](MIGRATION.md)
+[Quick start](#quick-start) · [What's new in 4.5](#whats-new-in-45) · [The evidence](#the-evidence) · [The team](#the-team) · [Commands](#command-reference) · [Upgrade from 3.x](MIGRATION.md)
 
 ---
 
@@ -84,24 +84,26 @@ matrix is in [Getting Started](docs/academy/getting-started.md#ci-pipeline).
 
 ---
 
-## What's new in 4.4
+## What's new in 4.5
 
-- **Every member prefers OpenCode Go.** The shipped config puts `opencode-go`
-  first and `opencode` second, and every member spec declares `opencode-go` as
-  its preferred provider; the config order still governs failover
-  ([#1134](https://github.com/fworks-tech/agenthood/pull/1134),
-  [#1140](https://github.com/fworks-tech/agenthood/pull/1140)).
-- **The trail names the provider that answered.** `agenthood audit` prints the
-  model and the provider behind each run, and `--json` exposes `provider`, so a
-  run that failed over shows which provider answered
-  ([#1142](https://github.com/fworks-tech/agenthood/pull/1142)).
-- **The failover log stops lying.** It announces the provider it falls back to,
-  not the one it has not tried yet
-  ([#1142](https://github.com/fworks-tech/agenthood/pull/1142)).
+- **Members can reach external tools through MCP.** The host declares STDIO or
+  HTTP servers in `.agenthood/config.json`. A member receives a server's tools
+  only by naming them in `allowed-tools`
+  ([#1144](https://github.com/fworks-tech/agenthood/pull/1144),
+  [#1170](https://github.com/fworks-tech/agenthood/pull/1170),
+  [#1171](https://github.com/fworks-tech/agenthood/pull/1171),
+  [#1172](https://github.com/fworks-tech/agenthood/pull/1172),
+  [#1173](https://github.com/fworks-tech/agenthood/pull/1173),
+  [#1174](https://github.com/fworks-tech/agenthood/pull/1174)).
+- **The trace shows what happened.** `agenthood trace` lists server starts,
+  grants and tool calls under `MCP (ADR-047)`
+  ([#1148](https://github.com/fworks-tech/agenthood/pull/1148)).
+- **The audit trail tolerates damaged records.** `printMcp` skips a malformed
+  decision file instead of failing the command
+  ([#1155](https://github.com/fworks-tech/agenthood/pull/1155)).
 
-The audit trail, routing records and advisory review from 4.2 and 4.3 are
-unchanged; their entries are in the [release notes](docs/release-notes.md), and
-breaking changes from 4.0 are in [MIGRATION.md](MIGRATION.md).
+The 4.4 changes are in the [release notes](docs/release-notes.md). Breaking
+changes from 4.0 are in [MIGRATION.md](MIGRATION.md).
 
 ---
 
@@ -349,7 +351,7 @@ or override per run with `--provider`.
 Install once, then the plugin loads the members in every project:
 
 ```bash
-npm i -g agenthood   # add @<version> to pin, for example agenthood@4.4.0
+npm i -g agenthood   # add @<version> to pin, for example agenthood@4.5.0
 ```
 
 ```jsonc
@@ -443,7 +445,7 @@ The source is [agenthood-site](https://github.com/fworks-tech/agenthood-site).
 - [Patterns](docs/patterns/README.md): four workflow patterns mapped from deepagents onto the Society
 - [Runtime Guide](docs/runtime-guide.md): configuration, providers, and operations
 - [Architecture](docs/architecture/README.md): agent system, queues, operating modes, failover, tools, decisions, skills
-- [ADRs](docs/adr/): 44 records of the decisions behind the design
+- [ADRs](docs/adr/): 52 records of the decisions behind the design
 - [Academy](docs/academy/): a learning path from "what is a prompt" to shipping agents, across three levels
 - [Troubleshooting](docs/guides/troubleshooting.md): the failures people hit first
 

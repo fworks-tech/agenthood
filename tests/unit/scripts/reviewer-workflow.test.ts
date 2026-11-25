@@ -67,4 +67,9 @@ describe('reviewer workflow', () => {
     const skip = analysis.slice(analysis.indexOf('report_skip() {'), analysis.indexOf('validate_prerequisites() {'))
     expect(skip).toContain('stale_previous_comment')
   })
+
+  it('keeps the redacted field name instead of emitting control bytes', () => {
+    expect(analysis).toContain('\\1\\3[REDACTED]')
+    expect(analysis).not.toContain('\u0001\u0003[REDACTED]')
+  })
 })

@@ -236,6 +236,20 @@ describe('loadConfig', () => {
       }
     })
 
+    it('preserves literal dollar signs in ${env:VAR} values', async () => {
+      process.env.AGENTHOOD_TEST_ENVVAL = 'sk-$$-$&live'
+      try {
+        await withFixture(JSON.stringify({
+          mcpServers: { atlas: { command: 'node', env: { API_KEY: '${env:AGENTHOOD_TEST_ENVVAL}' } } },
+        }), async () => {
+          const cfg = await loadConfig()
+          expect(cfg.mcpServers?.atlas.env?.API_KEY).toBe('sk-$$-$&live')
+        })
+      } finally {
+        delete process.env.AGENTHOOD_TEST_ENVVAL
+      }
+    })
+
     it('rejects a missing ${env:VAR} reference', async () => {
       await withFixture(JSON.stringify({
         mcpServers: { atlas: { command: 'node', env: { API_KEY: '${env:AGENTHOOD_NO_SUCH_VAR_X}' } } },

@@ -113,7 +113,7 @@ function resolveEnvValue(where: string, field: 'env' | 'headers', key: string, v
     const varName = matches[0][1]
     if (process.env[varName] === undefined) throw new Error(`${where}: ${field}.${key} references missing variable ${varName}.`)
     const resolved = process.env[varName] as string
-    return value.replace(ENV_REF_GLOBAL, resolved)
+    return value.replace(ENV_REF_GLOBAL, () => resolved)
   }
   // literal
   if (SENSITIVE_KEY.test(key)) {

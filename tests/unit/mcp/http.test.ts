@@ -1,4 +1,4 @@
-import { describe, it, expect } from 'vitest'
+import { describe, it, expect, vi } from 'vitest'
 import { createServer } from 'node:http'
 import { McpHttpClient } from '../../../src/mcp/http.ts'
 import { McpServerError, McpCallError } from '../../../src/mcp/errors.ts'
@@ -134,6 +134,21 @@ describe('McpHttpClient', () => {
       expect(await client.callTool('echo', { text: 'sse' })).toEqual({ text: 'sse', isError: false })
       await client.close()
     } finally {
+      close()
+    }
+  })
+
+  it('does not follow redirects that could carry configured headers to another host', async () => {
+    const { url, close } = await startHttpServer(jsonHandler)
+    const fetchSpy = vi.spyOn(globalThis, 'fetch')
+    try {
+      const client = await McpHttpClient.start('httpfix', { transport: 'http', url, headers: { Authorization: 'Bearer t0k' } })
+      await client.callTool('echo', { text: 'h' })
+      await client.close()
+      expect(fetchSpy.mock.calls.length).toBeGreaterThan(0)
+      expect(fetchSpy.mock.calls.every(([, init]) => (init as RequestInit).redirect === 'error')).toBe(true)
+    } finally {
+      fetchSpy.mockRestore()
       close()
     }
   })

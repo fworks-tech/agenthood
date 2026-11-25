@@ -97,7 +97,7 @@ export class McpHttpClient implements McpClient {
     try {
       let response: Response
       try {
-        response = await fetch(this.config.url as string, { method: 'POST', headers, body, signal: controller.signal })
+        response = await fetch(this.config.url as string, { method: 'POST', headers, body, signal: controller.signal, redirect: 'error' })
       } catch (err) {
         const reason = err instanceof Error ? err.message : String(err)
         throw new McpCallError(this.name, `${method} failed: ${reason}`)
@@ -171,6 +171,7 @@ export class McpHttpClient implements McpClient {
       method: 'POST',
       headers,
       body: JSON.stringify({ jsonrpc: '2.0', method }),
+      redirect: 'error',
     }).catch(() => {})
   }
 }
